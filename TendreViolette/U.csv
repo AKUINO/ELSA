@@ -1,0 +1,8 @@
+begin	u_group	u_id	deny	acronym	name	barcode	remark
+01/01/2016 13:45:56	mngr	1		LaCh	LaCheffe Joseffe	58052756770656400000	Fondatrice de l'entreprise
+01/02/2016 13:45:56	mngr	2		LeCh	Lechef Bertrand	2000002100027	Fondateur de l'entreprise
+01/03/2016 13:45:56	mngr	3	1	Ping	Pingouin Jo	2000002100034	Fondateur de l'entreprise à la retraite
+01/02/2016 13:45:56	prod	10		Lait1	Polulu Josianne	2000002100041	
+01/02/2016 13:45:56	prod	11		Lait2	Pulala Jeff	2000002100058	
+01/02/2016 13:45:56	vent	30		Ven1	Chaussette Marie	2000002100065	
+01/02/2017 00:45:56	vent	31		Ven2	Pantoufle Eric	2000002100072	Futur vendeur

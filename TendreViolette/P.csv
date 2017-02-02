@@ -1,0 +1,5 @@
+"begin"	"p_group"	"old_id"	"p_id"	"deny"	"acronym"	"name"	"barcode"	"remark"
+"01/01/2016 00:00:00"	"PROD"	1	"FRM"		"F"	"Fromagerie"	3400000000012	
+"01/01/2016 00:00:00"	"PROD"	2	"AFF"		"A"	"Affinage"	3400000000029	
+"01/01/2016 00:00:00"	"PROD"	3	"STK"		"S"	"Stock"	3400000000036	
+"01/01/2016 00:00:00"	"VENT"	10	"MAG"	1	"M"	"Magasin"	3400000000104	"Pas dans le suivi de production"

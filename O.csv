@@ -1,0 +1,7 @@
+"begin"	"o_group"	"o_id"	"deny"	"acronym"	"name"	"barcode"	"remark"
+"01/01/2016 13:45:56"	"m"	"VIS"		"V"	"Visites"		
+"01/02/2016 13:45:56"	"p"	"PROD"		"P"	"Production"		
+"01/01/16"	"SYSTEM"	"ALL"		"*"	"Tous"		"Tout le monde"
+"01/01/16"	"SYSTEM"	"IN"		"+"	"Presents"		"Personnes présentes"
+"01/01/16"	"SYSTEM"	"OUT"		"-"	"Absents"		"Absents"
+"01/01/16"	"SYSTEM"	"ALERT"		"A"	"Alertes"		"Personnes ayant été alertées sur ce sujet"

@@ -1,0 +1,4 @@
+begin	e_group	deny	e_id	acronym	name	barcode	remark
+01/01/2016 00:00:00	ENV	1	COTE	Cote	Cote	3500000000019	
+01/01/2016 00:00:00	ENV	1	CHAISE	Stand	Stand	3500000000026	
+01/01/2016 00:00:00	STK		FRIGO	Frigo	Frigo	3500000000033	

@@ -1,0 +1,24 @@
+begin	r_group	r_id	p_group	p_id	e_group	e_id	h_group	h_id	m_group	m_id	deny	acronym	name	barcode	seq	mandatory	minmin	min 	typical	max	maxmax	a_minmin	a_min	a_ok	a_max	a_maxmax	lapse1	lapse2	lapse3	remark
+01/01/2016 00:00:00		VIS		CHAP						CO2		CO2	co2		10	1	100	300	1000	1300	1900	rouge	jaune	vert	jaune	rouge	00:02:00	00:10:00	0:50:0	
+01/01/2016 00:00:00		VIS		CHAP						DEJA		DEJA	visites anterieures		10	1	0	0	2	15	25	rouge	jaune	vert	jaune	rouge	00:02:00	00:10:00	0:50:0	
+01/01/2016 00:00:00		VIS		CHAP						LUX		LUX	lumiere		10	1	1	10	200	500	1000	rouge	jaune	vert	jaune	rouge	00:02:00	00:10:00	0:50:0	
+01/01/2016 00:00:00		VIS		CHAP						MINU		MINU	duree accueil		10	1	0	1	10	30	60	rouge	jaune	vert	jaune	rouge	00:02:00	00:10:00	0:50:0	
+01/01/2016 00:00:00		VIS		CHAP						RH		RH	humidite		10	1	20	30	60	90	100	rouge	jaune	vert	jaune	rouge	00:02:00	00:10:00	0:50:0	
+01/01/2016 00:00:00		VIS		CHAP						TANI		TANI	animateur		10	1	20	25	33	37	40	rouge	jaune	vert	jaune	rouge	00:02:00	00:10:00	0:50:0	
+01/01/2016 00:00:00		VIS		CHAP						TEMP		TEMP	chapiteau		10	1	10	15	21	35	40	rouge	jaune	vert	jaune	rouge	00:02:00	00:10:00	0:50:0	
+01/01/2016 00:00:00		VIS		CHAP						THEME		THEME	theme attendu		10	1	0	1	2	3	4	rouge	jaune	vert	jaune	rouge	00:02:00	00:10:00	0:50:0	
+01/01/2016 00:00:00		VIS		CHAP						TRPI		TRPI	boitier		10	1	1	10	25	45	55	rouge	jaune	vert	jaune	rouge	00:02:00	00:10:00	0:50:0	
+01/01/2016 00:00:00		VIS		ENV						MINU		xMINU	duree exterieure		20	1	1	10	240	480	1200	rouge	jaune	vert	jaune	rouge	00:02:00	00:10:00	0:50:0	
+01/01/2016 00:00:00		VIS		ENV						TEMP		xTEMP	temperature exterieure		20	1	10	15	21	35	40	rouge	jaune	vert	jaune	rouge	00:02:00	00:10:00	0:50:0	
+01/01/2016 00:00:00		VIS		CHAP				RETOUR		CO2		rCO2	co2 (retour)		30	1	100	300	1000	1300	1900	rouge	jaune	vert	jaune	rouge	00:02:00	00:10:00	0:50:0	
+01/01/2016 00:00:00		VIS		CHAP				RETOUR		HEURE		rHEUR	heures totales (retour)		30	1	0	1	5	8	24	rouge	jaune	vert	jaune	rouge	00:02:00	00:10:00	0:50:0	
+01/01/2016 00:00:00		VIS		CHAP				RETOUR		INTER		rINTER	niveau interet (retour)		30	1	0	1	3	4	5	rouge	jaune	vert	jaune	rouge	00:02:00	00:10:00	0:50:0	
+01/01/2016 00:00:00		VIS		CHAP				RETOUR		LUX		rLUX	lumiere  (retour)		30	1	1	10	200	500	1000	rouge	jaune	vert	jaune	rouge	00:02:00	00:10:00	0:50:0	
+01/01/2016 00:00:00		VIS		CHAP				RETOUR		MINU		rMINU	duree retour		30	1	0	1	10	30	60	rouge	jaune	vert	jaune	rouge	00:02:00	00:10:00	0:50:0	
+01/01/2016 00:00:00		VIS		CHAP				RETOUR		REVENIR		REVENIR	reviendra		30	1	0	0	1	1	1	rouge	jaune	vert	jaune	rouge	00:02:00	00:10:00	0:50:0	
+01/01/2016 00:00:00		VIS		CHAP				RETOUR		RH		rRH	humidite (retour)		30	1	20	30	60	90	100	rouge	jaune	vert	jaune	rouge	00:02:00	00:10:00	0:50:0	
+01/01/2016 00:00:00		VIS		CHAP				RETOUR		TANI		rTANI	animateur (retour)		30	1	30	31	32	33	34	rouge	jaune	vert	jaune	rouge	00:02:00	00:10:00	0:50:0	
+01/01/2016 00:00:00		VIS		CHAP				RETOUR		TEMP		rTEMP	chapiteau (retour)		30	1	10	15	21	35	40	rouge	jaune	vert	jaune	rouge	00:02:00	00:10:00	0:50:0	
+01/01/2016 00:00:00		VIS		CHAP				RETOUR		THEME		rTHEME	theme vu		30	1	0	1	2	3	4	rouge	jaune	vert	jaune	rouge	00:02:00	00:10:00	0:50:0	
+01/01/2016 00:00:00		VIS		CHAP				RETOUR		TRPI		rTRPI	boitier (retour)		30	1	1	10	25	45	55	rouge	jaune	vert	jaune	rouge	00:02:00	00:10:00	0:50:0	
+01/01/2016 00:00:00		VIS		ENV				RETOUR		MINU		MINU	duree cloture		40	1	1	10	240	480	1200	rouge	jaune	vert	jaune	rouge	00:02:00	00:10:00	0:50:0	
