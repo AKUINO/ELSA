@@ -1,0 +1,22 @@
+$def with ()
+$var location : index
+
+    <div>
+	<form class="form-inline" method="post" action="" id="loginForm" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
+	    <input type="hidden" name="erroruri" value=""/>
+	    <div class="form-group">
+		<input type="email" name="_username_" placeholder="Email" class="form-control" size="20"/>
+	    </div>
+	    <div class="form-group">
+		<input type="password" name="_password_" placeholder="Password" class="form-control" size="8"/>
+	    </div>
+	    <span class="sr-only">Log in</span>
+	    <span class="totip" data-toggle="tooltip" data-placement="bottom" title="log-IN" style="pointer-events: auto;">
+		<input type="hidden" name="method" id="method" value="login">
+		<button type="submit" name="login" class="btn btn-success" id="loginSubmit">
+		    <span class="glyphicon glyphicon-user"></span>
+		    <span class="glyphicon glyphicon-log-in"></span>
+		</button>
+	    </span>
+	</form>
+    </div>

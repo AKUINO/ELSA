@@ -1,0 +1,5 @@
+"language"	"name"	"begin"	"group"	"deny"	"acronym"	"barcode"	"id"	"remark"
+francais	nom	début	groupe	déni	acronyme	codebarre	id	remarque
+english	name	begin	group	deny	acronym	barcode	id	remark
+nederlands	naam	begin	groep	ontkenning	acroniem	streepjescode	id	opmerking
+deutsch	name	afang	gruppe	ablehnung	akronym	strichcode	id	bemerkung

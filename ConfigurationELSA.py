@@ -3,7 +3,7 @@
 import csv
 import sets
 import time
-
+#mise a jour git
 class Configuration():
 
     def __init__(self):
@@ -22,6 +22,7 @@ class Configuration():
         self.AllScanners = AllScanners(self)
         self.AllBarcodes = AllBarcodes(self)
         self.barcode = barcode
+	self.AllLanguages = AllLanguages(self)
 
     def load(self):
         self.AllUsers.load()
@@ -74,6 +75,8 @@ class AllObjects():
                     
     def newObject(self):
         return None
+    def getListObjects(self):
+	return [self.elements[i].fields for i in self.elements]
         
 class AllUsers(AllObjects):
 
@@ -230,6 +233,8 @@ class AllPhases(AllObjects):
     def newObject(self):
         return Phase()
 
+
+
 class AllStepMeasures(AllObjects):
     
     def __init__(self, config):
@@ -348,7 +353,30 @@ class AllScanners(AllObjects):
 
     def newObject(self):
         return Scanner()
+	
+class AllLanguages(AllObjects):
 
+    def __init__(self, config):
+        self.elements = {}
+        self.config = config
+        self.filename = "languages.csv"
+        self.keyColumn = "language"
+
+    def newObject(self):
+        return Language()
+	
+class Language(ConfigurationObject):
+
+    def __repr__(self):
+        string = self.id + " " + self.fields['name']
+        return string
+
+    def __str__(self):
+        string = "\nLanguage :"
+        for field in self.fields:
+            string = string + "\n" + field + " : " + self.fields[field]
+        return string + "\n"
+	
 class User(ConfigurationObject):
 
     def __init__(self):
