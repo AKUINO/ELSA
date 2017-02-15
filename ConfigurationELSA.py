@@ -4,6 +4,7 @@ import csv
 import sets
 import time
 #mise a jour git
+csvDir = "csv/"
 class Configuration():
 
     def __init__(self):
@@ -85,7 +86,7 @@ class AllUsers(AllObjects):
     def __init__(self, config):
         self.elements = {}
         self.config = config
-        self.filename = "U.csv"
+        self.filename = csvDir + "U.csv"
         self.keyColumn = "u_id"
 
     def newObject(self):
@@ -105,7 +106,7 @@ class AllRoles(AllObjects):
     def __init__(self, config):
         self.elements = {}
         self.config = config
-        self.filename = "O.csv"
+        self.filename = csvDir + "O.csv"
         self.keyColumn = "o_id"
 
     def load(self):
@@ -130,7 +131,7 @@ class AllUO():
         self.config = config
 
     def load(self):
-        with open("UO.csv") as csvfile:
+        with open(csvDir + "UO.csv") as csvfile:
             reader = csv.DictReader(csvfile, delimiter = "\t")
             for row in reader:
                 if((not 'deny' in row) or (row['deny'] != "1")):
@@ -148,7 +149,7 @@ class AllEquipments(AllObjects):
     def __init__(self, config):
         self.elements = {}
         self.config = config
-        self.filename = "E.csv"
+        self.filename = csvDir + "E.csv"
         self.keyColumn = "e_id"
 
     def newObject(self):
@@ -159,7 +160,7 @@ class AllPieces(AllObjects):
     def __init__(self, config):
         self.elements = {}
         self.config = config
-        self.filename = "P.csv"
+        self.filename = csvDir + "P.csv"
         self.keyColumn = "p_id"
 
     def newObject(self):
@@ -170,7 +171,7 @@ class AllMeasures(AllObjects):
     def __init__(self, config):
         self.elements = {}
         self.config = config
-        self.filename = "M.csv"
+        self.filename = csvDir + "M.csv"
         self.keyColumn = "m_id"
 
     def newObject(self):
@@ -181,7 +182,7 @@ class AllSensors(AllObjects):
     def __init__(self, config):
         self.elements = {}
         self.config = config
-        self.filename = "PEM.csv"
+        self.filename = csvDir + "PEM.csv"
         self.keyColumn = "p_id"
         self.keyColumn2 = "e_id"
         self.keyColumn3 = "m_id"
@@ -216,7 +217,7 @@ class AllBatches(AllObjects):
     def __init__(self, config):
         self.elements = {}
         self.config = config
-        self.filename = "B.csv"
+        self.filename = csvDir + "B.csv"
         self.keyColumn = "b_id"
 
     def newObject(self):
@@ -227,7 +228,7 @@ class AllBarcodes(AllObjects):
     def __init__(self, config):
         self.elements = {}
         self.config = config
-        self.filename = "K.csv"
+        self.filename = csvDir + "K.csv"
         self.keyColumn = "k_id"
 
     def newObject(self):
@@ -238,7 +239,7 @@ class AllPhases(AllObjects):
     def __init__(self, config):
         self.elements = {}
         self.config = config
-        self.filename = "H.csv"
+        self.filename = csvDir + "H.csv"
         self.keyColumn = "h_id"
 
     def newObject(self):
@@ -251,7 +252,7 @@ class AllStepMeasures(AllObjects):
     def __init__(self, config):
         self.elements = {}
         self.config = config
-        self.filename = "RPEHMA.csv"
+        self.filename = csvDir + "RPEHMA.csv"
         self.keyColumn = "r_id"
         self.keyColumn2 = "p_id"
         self.keyColumn3 = "e_id"
@@ -279,7 +280,7 @@ class AllSteps(AllObjects):
     def __init__(self, config):
         self.elements = {}
         self.config = config
-        self.filename = "RPEHMA.csv"
+        self.filename = csvDir + "RPEHMA.csv"
         self.keyColumn = "seq"
         self.recipe = None
 
@@ -308,7 +309,7 @@ class AllRecipes(AllObjects):
     def __init__(self, config):
         self.elements = {}
         self.config = config
-        self.filename = "R.csv"
+        self.filename = csvDir + "R.csv"
         self.keyColumn = "r_id"
 
     def load(self):
@@ -333,7 +334,7 @@ class AllScanners(AllObjects):
     def __init__(self, config):
         self.elements = {}
         self.config = config
-        self.filename = "S.csv"
+        self.filename = csvDir + "S.csv"
         self.keyColumn = "s_id"
 
     def makeKey(self, MAC):
@@ -415,7 +416,7 @@ class AllLanguages(AllObjects):
     def __init__(self, config):
         self.elements = {}
         self.config = config
-        self.filename = "languages.csv"
+        self.filename = csvDir + "languages.csv"
         self.keyColumn = "language"
 
     def newObject(self):

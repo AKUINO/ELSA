@@ -35,6 +35,7 @@ class Index:
 	    c.connectedUsers.addUser(connectedUser)
 	    return render.index(True, c, data._username_) 
 	return render.index(False, c, '')
+	
 class Places:
     def GET(self):
 	mail = isConnected()
@@ -44,9 +45,9 @@ class Places:
 
 class Place:
     def GET(self,id):
-	if ifConnected() is not None:
+	if isConnected() is not None:
 	    return render.place(c.AllPieces.elements[str(id)].fields)
-	return render.index(False, c, '')
+	raise web.seeother('/')
 
 def encrypt(password,salt):
     sha = hashlib.pbkdf2_hmac('sha256', password, salt, 126425)
