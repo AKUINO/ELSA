@@ -1,7 +1,17 @@
-$def with ()
+$def with (connected, c, mail)
 $var location : index
 
+$if connected is True:
     <div>
+    $#$c.connectedUsers.users[mail].cuser.fields['language']
+    $c.AllLanguages.elements[c.connectedUsers.users[mail].cuser.fields['language']].fields['welcome'] <em>$c.connectedUsers.users[mail].cuser.fields['name']</em>
+    </div>
+$else :
+    <div>
+	<p>This application stores the configuration and the data of the different AKUINO modules installed.</p>
+	<h1>Please log-in</h1>
+	<p>You must be logged in to use the application</p>
+
 	<form class="form-inline" method="post" action="" id="loginForm" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
 	    <input type="hidden" name="erroruri" value=""/>
 	    <div class="form-group">

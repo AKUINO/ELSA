@@ -23,6 +23,7 @@ class Configuration():
         self.AllBarcodes = AllBarcodes(self)
         self.barcode = barcode
 	self.AllLanguages = AllLanguages(self)
+	self.connectedUsers = AllConnectedUsers()
 
     def load(self):
         self.AllUsers.load()
@@ -37,6 +38,7 @@ class Configuration():
         self.AllRecipes.load()
         self.AllScanners.load()
         self.AllStepMeasures.load()
+	self.AllLanguages.load()
         for i in self.AllRecipes.elements:
             self.AllRecipes.elements[i].AllSteps.load(i)
         self.AllBarcodes.load()
@@ -46,6 +48,8 @@ class ConfigurationObject():
     def __init__(self):
         self.fields = {}
         self.id = None
+    def __getitem__(self,key):
+	return self.fields[key]
 
 class AllObjects():
 
@@ -75,8 +79,6 @@ class AllObjects():
                     
     def newObject(self):
         return None
-    def getListObjects(self):
-	return [self.elements[i].fields for i in self.elements]
         
 class AllUsers(AllObjects):
 
@@ -88,6 +90,15 @@ class AllUsers(AllObjects):
 
     def newObject(self):
         return User()
+	
+    def checkUser(self,mail, password):
+	for user in self.elements.value():
+	    if user['mail']==mail:
+		return user.checkPassword(password)
+    def getUser(self,mail):
+	for myId,user in self.elements.items():
+	    if user['mail']==mail:
+		return user
 
 class AllRoles(AllObjects):
 
@@ -353,7 +364,52 @@ class AllScanners(AllObjects):
 
     def newObject(self):
         return Scanner()
+
+class ConnectedUser():
+    
+    def __init__(self, user):
+	self.cuser = user
+	self.datetime = time.time()
 	
+    def update(self):
+	self.datetime = time.time()
+    
+class AllConnectedUsers():
+    
+    def __init__(self):
+	self.users = {}
+    
+    def __getitem__(self,key):
+	return self.users[key]
+    
+    def addUser(self,user):
+	self.update()
+	mail = user.fields['mail']
+	if mail not in self.users :
+	    self.users[mail] = ConnectedUser(user)
+	else :
+	    self.users[mail].update()
+	
+    def update(self):
+	updatetime = time.time()
+	for mail,connecteduser in self.users.items():
+	    if (updatetime - connecteduser.datetime) > 900:
+		del self.users[mail]
+		
+    def isConnected(self,mail,password):
+	self.update()
+	if mail in self.users :
+	    user = self.users[mail].cuser
+	    if user.fields['password'] == password :
+		self.users[mail].update()
+		return True
+	return False
+    
+    def getLanguage(self, mail):
+	if mail in self.users:
+	    return self.users[mail].cuser.fields['language']
+	return 'english'
+			
 class AllLanguages(AllObjects):
 
     def __init__(self, config):
@@ -390,9 +446,12 @@ class User(ConfigurationObject):
     def __str__(self):
         string = "\nUtilisateur :"
         for field in self.fields:
-            string = string + "\n" + field + " : " + self.fields[field]
+            string = string + "\n" + field + " : " + str(self.fields[field])
         return string + "\n"
+    def checkPassword(self,password):
+	return self.fields['password']==password
 
+	    
 class Role(ConfigurationObject):
 
     def __init__(self):

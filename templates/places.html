@@ -1,13 +1,13 @@
-$def with (places)
+$def with (c, mail)
 $var location: places
 
-$for place in places: 
+$for a,place in c.AllPieces.elements.items(): 
     <div class="row active" style="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
-	<div class="col-xs-2" >$place['acronym']</div>
-	<div class="col-xs-6">
-	    <strong>$place['name']</strong>
-	</div>
-	<div class="col-xs-2">
+    <div class="col-xs-2" >$place['acronym']</div>
+    <div class="col-xs-6">
+    <strong>$place['name']</strong>
+    </div>
+    <div class="col-xs-2">
 	    <strong><a href="http://0.0.0.0:8080/place/$place['p_id']"><span class="glyphicon glyphicon-edit"></span></a></strong>
 	</div>
 	<div class="col-xs-2">
@@ -31,9 +31,9 @@ $for place in places:
 			</tr>
 		    </thead>
 		    <tbody>
-		    $for k,v in place.items():
+		    $for k,v in place.fields.items():
 			<tr>
-			<td>$k</td>
+			<td>$c.AllLanguages.elements[c.connectedUsers.users[mail].cuser.fields['language']].fields[k]</td>
 			<td>$v</td>
 			</tr>
 		    </tbody>
