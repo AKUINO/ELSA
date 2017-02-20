@@ -1,4 +1,5 @@
-begin	e_group	deny	e_id	acronym	name	barcode	remark
-01/01/2016 00:00:00	ENV	1	COTE	Cote	Cote	3500000000019	
-01/01/2016 00:00:00	ENV	1	CHAISE	Stand	Stand	3500000000026	
-01/01/2016 00:00:00	STK		FRIGO	Frigo	Frigo	3500000000033	
+begin	e_group	deny	e_id	acronym	name	barcode	remark	user
+01/01/2016 00:00:00	ENV	1	1	Cote	Cote	3500000000019		CHRI
+01/01/2016 00:00:05	ENV	1	2	Stand	Stand	3500000000026		CHRI
+01/01/2016 07:00:00	STK		3	Frigo	Frigo	3500000000033		CHRI
+2017-02-16 14:07:15.921799	ENV	0	2	Stand	Stand changement nom	3500000000026	avec remarque et il n'est pas actif	CHRI

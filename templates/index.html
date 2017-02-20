@@ -3,7 +3,6 @@ $var location : index
 
 $if connected is True:
     <div>
-    $#$c.connectedUsers.users[mail].cuser.fields['language']
     $c.AllLanguages.elements[c.connectedUsers.users[mail].cuser.fields['language']].fields['welcome'] <em>$c.connectedUsers.users[mail].cuser.fields['name']</em>
     </div>
 $else :
