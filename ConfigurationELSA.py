@@ -3,6 +3,9 @@
 import csv
 import sets
 import time
+import traceback
+import unicodecsv
+import datetime
 #mise a jour git
 csvDir = "csv/"
 class Configuration():
@@ -28,59 +31,150 @@ class Configuration():
 
     def load(self):
         self.AllUsers.load()
-        self.AllRoles.load()
-        self.AllUO.load()
+        #self.AllRoles.load()
+        #self.AllUO.load()
         self.AllEquipments.load()
         self.AllPieces.load()
-        self.AllMeasures.load()
-        self.AllSensors.load()
-        self.AllBatches.load()
-        self.AllPhases.load()
-        self.AllRecipes.load()
-        self.AllScanners.load()
-        self.AllStepMeasures.load()
+        #self.AllMeasures.load()
+        #self.AllSensors.load()
+        #self.AllBatches.load()
+        #self.AllPhases.load()
+        #self.AllRecipes.load()
+        #self.AllScanners.load()
+        #self.AllStepMeasures.load()
 	self.AllLanguages.load()
         for i in self.AllRecipes.elements:
             self.AllRecipes.elements[i].AllSteps.load(i)
         self.AllBarcodes.load()
+    
+    def findAllFromObject(self,anObject):
+        className = anObject.__class__.__name__
+        if className == u"User":
+            return self.AllUsers
+        elif className == u"Equipment":
+            return self.AllEquipments
+        elif className == u"Language":
+            return self.AllLanguages
+	elif className == u"Piece":
+	    return self.AllPieces        
+        else:
+            return None
+	    
+    def getObject(self, idObject,className):
+	if className == u"User":
+            if idObject !='new':
+		return self.AllUsers.elements[idObject]
+	    else:
+		return self.AllUsers.createObject()
+        elif className == u"WebEquipment":
+            if idObject !='new':
+		return self.AllEquipments.elements[idObject]
+	    else:
+		return self.AllEquipments.createObject()
+        elif className == u"Language":
+            if idObject !='new':
+		return self.AllLanguageselements[idObject]
+	    else:
+		return self.AllLanguages.createObject()
+	elif className == u"WebPlace":
+	    if idObject !='new':
+		return self.AllPieces.elements[idObject]
+	    else:
+		return self.AllPieces.createObject()       
+        else:
+            return None
+    
+    def getFieldsname(self,className):
+        if className == u"User":
+            return self.AllUsers.fieldnames
+        elif className == u"WebEquipment":
+            return self.AllEquipments.fieldnames
+        elif className == u"Language":
+            return self.AllLanguages.fieldnames
+	elif className == u"WebPlace":
+	    return self.AllPieces.fieldnames    
+        else:
+            return None
 
 class ConfigurationObject():
 
     def __init__(self):
         self.fields = {}
         self.id = None
+	
     def __getitem__(self,key):
 	return self.fields[key]
+	
+    def __setitem__(self,key,value):
+	if value is not None:
+	    if key in self.fields.keys():
+		self.fields[key] = value
+	
+    def save(self,configuration,anUser=""):
+        self.fields["begin"] = unicode(datetime.datetime.now())
+        self.fields["user"] = anUser['u_id']
+        allObjects = configuration.findAllFromObject(self)
+	print allObjects.filename
+        print allObjects.fieldnames
+        with open(allObjects.filename,"a") as csvfile:
+            writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames=allObjects.fieldnames, encoding="utf-8")
+            writer.writerow(self.fields)
+        return self
+	
+	
+    def initialise(self, fieldsname):
+	for field in fieldsname:
+	    self.fields[field]=''
+	
 
 class AllObjects():
 
     def __init__(self):
         self.filename = None
         self.keyColumn = None
+	self.count = 0
 
     def load(self):
         with open(self.filename) as csvfile:
             reader = csv.DictReader(csvfile, delimiter = "\t")
             for row in reader:
-                if((not 'deny' in row) or (row['deny'] != "1")):
-                    key = row[self.keyColumn]
-                    currObject = self.newObject()
-                    currObject.fields = row
-                    currObject.id = key
-                    self.elements[key] = currObject
-                    barkey = ""
-                    if 'barcode' in row:
-                        barkey = row['barcode'][:13]
-                    if (barkey != "" and barkey not in self.config.barcode):
-                        self.config.barcode[barkey] = currObject
-                    else:
-                        print "Error : key already used or null " + barkey + row['name']
-                else:
-                    print self.filename+': '+row['name'] + " is denied !"
+		key = row[self.keyColumn]
+		currObject = self.newObject()
+		currObject.fields = row
+		currObject.id = key
+		self.elements[key] = currObject
+		barkey = ""		
+		if 'barcode' in row:
+		    barkey = row['barcode'][:13]
+		if (barkey != "" and barkey not in self.config.barcode):
+		    self.config.barcode[barkey] = currObject
+		else:
+		    print "Error : key already used or null " + barkey + row['name']
                     
     def newObject(self):
         return None
-        
+	
+    def initCount(self):
+	for k,v in self.elements.items():
+	    if self.count < int(v.fields[self.keyColumn]):
+		self.count = int(v.fields[self.keyColumn])
+		
+    def getNewId(self):
+	if self.count == 0 :
+	    self.initCount()
+	self.count +=1
+	return self.count
+	
+    def createObject(self):
+	currObject = self.newObject()
+	currObject.initialise(self.fieldnames)
+	self.initCount()
+	tmp = self.getNewId()
+	currObject.fields[self.keyColumn] = str(tmp)
+	self.elements[str(tmp)] = currObject
+	return currObject
+	
+	        
 class AllUsers(AllObjects):
 
     def __init__(self, config):
@@ -151,9 +245,11 @@ class AllEquipments(AllObjects):
         self.config = config
         self.filename = csvDir + "E.csv"
         self.keyColumn = "e_id"
+	self.fieldnames = ["begin", "e_group", "deny", "e_id", "acronym", "name", "barcode", "remark", "user"]
 
     def newObject(self):
         return Equipment()
+	
 
 class AllPieces(AllObjects):
 
@@ -162,9 +258,13 @@ class AllPieces(AllObjects):
         self.config = config
         self.filename = csvDir + "P.csv"
         self.keyColumn = "p_id"
+	self.fieldnames = ['begin', 'p_group', 'p_id', 'deny', 'acronym', 'name', 'barcode', 'remark', 'user']
+	self.count = 0
 
     def newObject(self):
-        return Piece()
+	return Piece()
+	
+    
 
 class AllMeasures(AllObjects):
 
@@ -416,13 +516,41 @@ class AllLanguages(AllObjects):
     def __init__(self, config):
         self.elements = {}
         self.config = config
-        self.filename = csvDir + "languages.csv"
-        self.keyColumn = "language"
+        self.filename1 = csvDir + "language.csv"
+	self.filename2 = csvDir + "messages.csv"
+        self.keyColumn = "l_id"
+	self.nameColumn = "name"
 
-    def newObject(self):
-        return Language()
+    def newObject(self,nomL):
+        return Language(nomL)
 	
+    def __getitem__(self,key):
+	return self.elements[key]
+	
+    def load(self):
+	
+	#Chargement des différentes langues
+        with open(self.filename1) as csvfile:
+            reader = csv.DictReader(csvfile, delimiter = "\t")
+            for row in reader:
+		key = row[self.keyColumn]
+		currObject = self.newObject(row[self.nameColumn])
+		currObject.id = key
+		self.elements[key] = currObject
+	
+	#Chargement de la liste des mots par langue	
+	with open(self.filename2) as csvfile:
+	    reader = csv.DictReader(csvfile, delimiter = "\t")
+            for row in reader:
+		lang = row['lang']
+		self.elements[lang].addWord(row['w_id'],row['word'])
+		
+
 class Language(ConfigurationObject):
+    
+    def __init__(self, nomL):
+	ConfigurationObject.__init__(self)
+	self.name = nomL
 
     def __repr__(self):
         string = self.id + " " + self.fields['name']
@@ -433,6 +561,9 @@ class Language(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
+	
+    def addWord(self,w_id,word):
+	self.fields[w_id] = word
 	
 class User(ConfigurationObject):
 
@@ -486,10 +617,11 @@ class Equipment(ConfigurationObject):
 class Piece(ConfigurationObject):
 
     def __init__(self):
+	ConfigurationObject.__init__(self)
         self.sensors = sets.Set()
 
     def __repr__(self):
-        string = self.id + " " + self.fields['name']
+        string = str(self.id) + " " + self.fields['name']
         return string
 
     def __str__(self):
@@ -497,7 +629,8 @@ class Piece(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
-
+	
+	
 class Measure(ConfigurationObject):
 
     def __init__(self):

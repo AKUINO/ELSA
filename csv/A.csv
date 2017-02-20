@@ -1,4 +1,4 @@
 "begin"	"a_group"	"a_id"	"deny"	"acronym"	"name"	"barcode"	"o_sms1"	"o_sms2"	"o_email1"	"o_email2"	"sound1"	"sound2"	"relay1"	"relay2"	"remark"
-"01/01/2016 00:00:00"	"BASE"	"vert"		"OK"	"Tout va bien"		"ALRT"		"ALRT"		"DONG"				
-"01/01/2016 00:00:00"	"BASE"	"jaune"		"Nok"	"Probleme"		"PROD"	"PLAN"	"PROD"	"PLAN"	"DING"	"SIRENE"			
-"01/01/2016 00:00:00"	"BASE"	"rouge"		"!!!"	"C'est grave"		"IN"	"ALL"	"ALL"	"ALL"	"SIRENE"	"SIRENE"			
+"01/01/2016 00:00:00"	"BASE"	1		"OK"	"Tout va bien"		"ALRT"		"ALRT"		"DONG"				
+"01/01/2016 00:00:00"	"BASE"	2		"Nok"	"Probleme"		"PROD"	"PLAN"	"PROD"	"PLAN"	"DING"	"SIRENE"			
+"01/01/2016 00:00:00"	"BASE"	3		"!!!"	"C'est grave"		"IN"	"ALL"	"ALL"	"ALL"	"SIRENE"	"SIRENE"			
