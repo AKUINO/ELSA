@@ -1,0 +1,16 @@
+begin	m_id	default	user
+01/01/2016 13:45:56	name	Name	1
+01/01/2016 13:45:56	begin	Begin	1
+01/01/2016 13:45:56	p_group	Group	1
+01/01/2016 13:45:56	deny	Deny	1
+01/01/2016 13:45:56	acronym	Acronym	1
+01/01/2016 13:45:56	barcode	Barcode	1
+01/01/2016 13:45:56	p_id	ID	1
+01/01/2016 13:45:56	remark	Remark	1
+01/01/2016 13:45:56	welcome	Welcome	1
+01/01/2016 13:45:56	user	User	1
+01/01/2016 13:45:56	e_id	ID	1
+01/01/2016 13:45:56	e_group	Group	1
+01/01/2016 13:45:56	file	File	1
+01/01/2016 13:45:56	modified	Modified by	1
+01/01/2016 13:45:56	created	Created by	1

@@ -1,53 +1,61 @@
-lang	w_id	word
-FR	name	Nom
-EN	name	Name
-NL	name	Naam
-DE	name	afang
-FR	begin	Début
-EN	begin	Begin
-NL	begin	Begin
-DE	begin	Afang
-FR	p_group	Groupe
-EN	p_group	Group
-NL	p_group	Groep
-DE	p_group	Gruppe
-FR	deny	Actif
-EN	deny	Deny
-NL	deny	Actief
-DE	deny	Aktiv
-FR	acronym	Acronyme
-EN	acronym	Acronym
-NL	acronym	Acroniem
-DE	acronym	Akronym
-FR	barcode	Code Barre
-EN	barcode	Barcode
-NL	barcode	Streepjescode
-DE	barcode	Strichcode
-FR	p_id	ID
-EN	p_id	ID
-NL	p_id	ID
-DE	p_id	ID
-FR	remark	Remarque
-EN	remark	Remark
-NL	remark	Opmerking
-DE	remark	Bemerkung
-FR	welcome	Bienvenue
-EN	welcome	Welcome
-NL	welcome	Welcom
-DE	welcome	Willkomen
-FR	user	Utilisateur
-EN	user	User
-NL	user	Gebruiker
-DE	user	Benutzer
-FR	e_id	ID
-EN	e_id	ID
-NL	e_id	ID
-DE	e_id	ID
-FR	e_group	Groupe
-EN	e_group	Group
-NL	e_group	Groep
-DE	e_group	Gruppe
-FR	file	Fichier
-EN	file	File
-NL	file	File
-DE	file	Datei
+begin	lang	m_id	name	user
+01/01/2016 13:45:56	FR	name	Nom	1
+01/01/2016 13:45:56	EN	name	Name	1
+01/01/2016 13:45:56	NL	name	Naam	1
+01/01/2016 13:45:56	DE	name	afang	1
+01/01/2016 13:45:56	FR	begin	Début	1
+01/01/2016 13:45:56	EN	begin	Begin	1
+01/01/2016 13:45:56	NL	begin	Begin	1
+01/01/2016 13:45:56	DE	begin	Afang	1
+01/01/2016 13:45:56	FR	p_group	Groupe	1
+01/01/2016 13:45:56	EN	p_group	Group	1
+01/01/2016 13:45:56	NL	p_group	Groep	1
+01/01/2016 13:45:56	DE	p_group	Gruppe	1
+01/01/2016 13:45:56	FR	deny	Actif	1
+01/01/2016 13:45:56	EN	deny	Deny	1
+01/01/2016 13:45:56	NL	deny	Actief	1
+01/01/2016 13:45:56	DE	deny	Aktiv	1
+01/01/2016 13:45:56	FR	acronym	Acronyme	1
+01/01/2016 13:45:56	EN	acronym	Acronym	1
+01/01/2016 13:45:56	NL	acronym	Acroniem	1
+01/01/2016 13:45:56	DE	acronym	Akronym	1
+01/01/2016 13:45:56	FR	barcode	Code Barre	1
+01/01/2016 13:45:56	EN	barcode	Barcode	1
+01/01/2016 13:45:56	NL	barcode	Streepjescode	1
+01/01/2016 13:45:56	DE	barcode	Strichcode	1
+01/01/2016 13:45:56	FR	p_id	ID	1
+01/01/2016 13:45:56	EN	p_id	ID	1
+01/01/2016 13:45:56	NL	p_id	ID	1
+01/01/2016 13:45:56	DE	p_id	ID	1
+01/01/2016 13:45:56	FR	remark	Remarque	1
+01/01/2016 13:45:56	EN	remark	Remark	1
+01/01/2016 13:45:56	NL	remark	Opmerking	1
+01/01/2016 13:45:56	DE	remark	Bemerkung	1
+01/01/2016 13:45:56	FR	welcome	Bienvenue	1
+01/01/2016 13:45:56	EN	welcome	Welcome	1
+01/01/2016 13:45:56	NL	welcome	Welcom	1
+01/01/2016 13:45:56	DE	welcome	Willkomen	1
+01/01/2016 13:45:56	FR	user	Utilisateur	1
+01/01/2016 13:45:56	EN	user	User	1
+01/01/2016 13:45:56	NL	user	Gebruiker	1
+01/01/2016 13:45:56	DE	user	Benutzer	1
+01/01/2016 13:45:56	FR	e_id	ID	1
+01/01/2016 13:45:56	EN	e_id	ID	1
+01/01/2016 13:45:56	NL	e_id	ID	1
+01/01/2016 13:45:56	DE	e_id	ID	1
+01/01/2016 13:45:56	FR	e_group	Groupe	1
+01/01/2016 13:45:56	EN	e_group	Group	1
+01/01/2016 13:45:56	NL	e_group	Groep	1
+01/01/2016 13:45:56	DE	e_group	Gruppe	1
+01/01/2016 13:45:56	FR	file	Fichier	1
+01/01/2016 13:45:56	EN	file	File	1
+01/01/2016 13:45:56	NL	file	File	1
+01/01/2016 13:45:56	DE	file	Datei	1
+01/01/2016 13:45:56	FR	modified	Modifié par	1
+01/01/2016 13:45:56	EN	modified	Modified by	1
+01/01/2016 13:45:56	NL	modified	Aangepast door	1
+01/01/2016 13:45:56	DE	modified	Angepasst von	1
+01/01/2016 13:45:56	FR	created	Créé par	1
+01/01/2016 13:45:56	EN	created	Created by	1
+01/01/2016 13:45:56	NL	created	Gemaakt door	1
+01/01/2016 13:45:56	DE	created	Erstellt von	1

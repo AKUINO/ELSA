@@ -11,41 +11,18 @@ csvDir = "csv/"
 class Configuration():
 
     def __init__(self):
-        barcode = {}
         self.AllUsers = AllUsers(self)
-        self.AllRoles = AllRoles(self)
-        self.AllUO = AllUO(self)
-        self.AllEquipments = AllEquipments(self)
-        self.AllPieces = AllPieces(self)
-        self.AllMeasures = AllMeasures(self)
-        self.AllSensors = AllSensors(self)
-        self.AllBatches = AllBatches(self)
-        self.AllPhases = AllPhases(self)
-        self.AllStepMeasures = AllStepMeasures(self)
-        self.AllRecipes = AllRecipes(self)
-        self.AllScanners = AllScanners(self)
-        self.AllBarcodes = AllBarcodes(self)
-        self.barcode = barcode
 	self.AllLanguages = AllLanguages(self)
+        self.AllPieces = AllPieces(self)
+	self.AllMessages = AllMessages(self)
 	self.connectedUsers = AllConnectedUsers()
 
     def load(self):
-        self.AllUsers.load()
-        #self.AllRoles.load()
-        #self.AllUO.load()
-        self.AllEquipments.load()
-        self.AllPieces.load()
-        #self.AllMeasures.load()
-        #self.AllSensors.load()
-        #self.AllBatches.load()
-        #self.AllPhases.load()
-        #self.AllRecipes.load()
-        #self.AllScanners.load()
-        #self.AllStepMeasures.load()
 	self.AllLanguages.load()
-        for i in self.AllRecipes.elements:
-            self.AllRecipes.elements[i].AllSteps.load(i)
-        self.AllBarcodes.load()
+        self.AllUsers.load()
+        self.AllPieces.load()	
+	self.AllMessages.load()
+	
     
     def findAllFromObject(self,anObject):
         className = anObject.__class__.__name__
@@ -95,62 +72,101 @@ class Configuration():
 	    return self.AllPieces.fieldnames    
         else:
             return None
+	    
+    def getKeyColumn(self, anObject):
+	obj = self.findAllFromObject(anObject)
+	return obj.keyColumn
+	    
+    
 
 class ConfigurationObject():
 
     def __init__(self):
         self.fields = {}
+	self.names = {}
         self.id = None
-	
-    def __getitem__(self,key):
-	return self.fields[key]
-	
-    def __setitem__(self,key,value):
-	if value is not None:
-	    if key in self.fields.keys():
-		self.fields[key] = value
+	self.created = None
+	self.creator = None
 	
     def save(self,configuration,anUser=""):
-        self.fields["begin"] = unicode(datetime.datetime.now())
-        self.fields["user"] = anUser['u_id']
+        self.fields["begin"] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
+        self.fields["user"] = anUser.fields['u_id']
         allObjects = configuration.findAllFromObject(self)
 	print allObjects.filename
         print allObjects.fieldnames
-        with open(allObjects.filename,"a") as csvfile:
+        with open(allObjects.fileobject,"a") as csvfile:
             writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames=allObjects.fieldnames, encoding="utf-8")
             writer.writerow(self.fields)
+	for key in self.names :
+	    with open(allObjects.filename,"a") as csvfile:
+		writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames=allObjects.fieldtranslate, encoding="utf-8")
+		writer.writerow(self.names[key])
         return self
-	
 	
     def initialise(self, fieldsname):
 	for field in fieldsname:
 	    self.fields[field]=''
-	
+	    
+    def getImageDirectory(self):
+	directory='static/img'
+        if self.__class__.__name__ == u"User":
+            return directory + '/u/user_'+self.fields['p_id']+'.'
+        elif self.__class__.__name__  == u"Equipment":
+            return directory + '/e/equipment_'+self.fields['p_id']+'.'
+        elif self.__class__.__name__ == u"Piece":
+            return directory + '/p/place_'+self.fields['p_id']+'.'  
+        else:
+            return None
+
+    def setName(self,key,value,user,keyColumn):
+	if value != '' and value is not None:
+	    newName={}
+	    newName["begin"] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
+	    newName['user'] = user.fields['u_id']
+	    newName['lang'] = key
+	    newName['name'] = value
+	    newName[keyColumn] = self.fields[keyColumn]
+	    self.names[key] = newName
+	    
 
 class AllObjects():
 
     def __init__(self):
+	self.fileobject = None
         self.filename = None
         self.keyColumn = None
 	self.count = 0
-
+	
     def load(self):
-        with open(self.filename) as csvfile:
+	self.loadFields()
+	if self.filename is not None :
+	    self.loadNames()
+
+    def loadFields(self):
+        with open(self.fileobject) as csvfile:
             reader = csv.DictReader(csvfile, delimiter = "\t")
             for row in reader:
 		key = row[self.keyColumn]
 		currObject = self.newObject()
 		currObject.fields = row
 		currObject.id = key
+		if key in self.elements :
+		    currObject.created = self.elements[key].created
+		    currObject.creator = self.elements[key].creator
+		else :
+		    currObject.created = currObject.fields['begin']
+		    currObject.creator = row['user']
 		self.elements[key] = currObject
-		barkey = ""		
-		if 'barcode' in row:
-		    barkey = row['barcode'][:13]
-		if (barkey != "" and barkey not in self.config.barcode):
-		    self.config.barcode[barkey] = currObject
-		else:
-		    print "Error : key already used or null " + barkey + row['name']
-                    
+		
+    def loadNames(self):
+	with open(self.filename) as csvfile:
+	    reader = csv.DictReader(csvfile, delimiter = "\t")
+            for row in reader:
+		keyObj = row[self.keyColumn]
+		keyLang = row['lang']
+		currObject = self.elements[keyObj]
+		currObject.names[keyLang] = row
+
     def newObject(self):
         return None
 	
@@ -174,13 +190,19 @@ class AllObjects():
 	self.elements[str(tmp)] = currObject
 	return currObject
 	
+    def uniqueAcronym(self, acronym):
+	for k in self.elements.keys():
+	    if self.elements[k].fields['acronym'] == acronym:
+		return false
+	return true
 	        
 class AllUsers(AllObjects):
 
     def __init__(self, config):
         self.elements = {}
         self.config = config
-        self.filename = csvDir + "U.csv"
+        self.fileobject = csvDir + "U.csv"
+	self.filename = None
         self.keyColumn = "u_id"
 
     def newObject(self):
@@ -188,11 +210,11 @@ class AllUsers(AllObjects):
 	
     def checkUser(self,mail, password):
 	for user in self.elements.value():
-	    if user['mail']==mail:
+	    if user.fields['mail'] == mail:
 		return user.checkPassword(password)
     def getUser(self,mail):
 	for myId,user in self.elements.items():
-	    if user['mail']==mail:
+	    if user.fields['mail']==mail:
 		return user
 
 class AllRoles(AllObjects):
@@ -256,9 +278,11 @@ class AllPieces(AllObjects):
     def __init__(self, config):
         self.elements = {}
         self.config = config
-        self.filename = csvDir + "P.csv"
+        self.fileobject = csvDir + "P.csv"
+	self.filename = csvDir + "Pnames.csv"
         self.keyColumn = "p_id"
-	self.fieldnames = ['begin', 'p_group', 'p_id', 'deny', 'acronym', 'name', 'barcode', 'remark', 'user']
+	self.fieldnames = ['begin', 'p_id', 'deny', 'acronym', 'remark', 'user']
+	self.fieldtranslate = ['begin', 'lang', 'p_id', 'name', 'user']
 	self.count = 0
 
     def newObject(self):
@@ -516,41 +540,40 @@ class AllLanguages(AllObjects):
     def __init__(self, config):
         self.elements = {}
         self.config = config
-        self.filename1 = csvDir + "language.csv"
-	self.filename2 = csvDir + "messages.csv"
+        self.fileobject = csvDir + "language.csv"
+	self.filename = None
         self.keyColumn = "l_id"
 	self.nameColumn = "name"
 
-    def newObject(self,nomL):
-        return Language(nomL)
+    def newObject(self):
+        return Language()
 	
     def __getitem__(self,key):
 	return self.elements[key]
 	
-    def load(self):
+class AllMessages(AllObjects):
+
+    def __init__(self, config):
+        self.elements = {}
+	self.names = {}
+        self.config = config
+	self.fileobject = csvDir + "mess.csv"
+        self.filename = csvDir + "messages.csv"
+        self.keyColumn = "m_id"
+	self.nameColumn = "name"
+
+    def newObject(self):
+        return Message()
 	
-	#Chargement des différentes langues
-        with open(self.filename1) as csvfile:
-            reader = csv.DictReader(csvfile, delimiter = "\t")
-            for row in reader:
-		key = row[self.keyColumn]
-		currObject = self.newObject(row[self.nameColumn])
-		currObject.id = key
-		self.elements[key] = currObject
-	
-	#Chargement de la liste des mots par langue	
-	with open(self.filename2) as csvfile:
-	    reader = csv.DictReader(csvfile, delimiter = "\t")
-            for row in reader:
-		lang = row['lang']
-		self.elements[lang].addWord(row['w_id'],row['word'])
-		
+    def __getitem__(self,key):
+	return self.elements[key]
+
+  
 
 class Language(ConfigurationObject):
     
-    def __init__(self, nomL):
+    def __init__(self):
 	ConfigurationObject.__init__(self)
-	self.name = nomL
 
     def __repr__(self):
         string = self.id + " " + self.fields['name']
@@ -561,10 +584,23 @@ class Language(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
+
+class Message(ConfigurationObject):
+    
+    def __init__(self):
+	ConfigurationObject.__init__(self)
+
+    def __repr__(self):
+        string = self.id + " " + self.fields['default']
+        return string
+
+    def __str__(self):
+        string = "\nMessage :"
+        for field in self.fields:
+            string = string + "\n" + field + " : " + self.fields[field]
+        return string + "\n"	
 	
-    def addWord(self,w_id,word):
-	self.fields[w_id] = word
-	
+
 class User(ConfigurationObject):
 
     def __init__(self):
@@ -621,7 +657,7 @@ class Piece(ConfigurationObject):
         self.sensors = sets.Set()
 
     def __repr__(self):
-        string = str(self.id) + " " + self.fields['name']
+        string = str(self.id) + " " + self.fields['acronym']
         return string
 
     def __str__(self):

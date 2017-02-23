@@ -1,5 +1,5 @@
-l_id	name
-FR	Français
-EN	English
-NL	Nederlands
-DE	Deutch
+begin	l_id	name	user
+01/01/2016 13:45:56	FR	Français	1
+01/01/2016 13:45:56	EN	English	1
+01/01/2016 13:45:56	NL	Nederlands	1
+01/01/2016 13:45:56	DE	Deutch	1

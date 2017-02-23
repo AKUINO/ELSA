@@ -19,7 +19,7 @@ urls = (
 c=elsa.Configuration()
 c.load()
 
-#print c.AllLanguages.elements['FR'].fields['welcome']
+
 
 class WebObject():
     def __init__(self):
@@ -47,20 +47,31 @@ class WebObjectUpdate():
 	
     def POST(self, id):
 	mail = isConnected()
+	user  = c.connectedUsers.users[mail].cuser
 	if mail is not None:
 	    currObject = c.getObject(id,self.name)
+	    imgDirectory = 'static/img'
 	    if currObject is None:
 		raise web.seeother('/')
-	    data = web.input(nifile={})
+	    data = web.input(placeImg={})
 	    method = data.get("method","malformed")
 	    for key in c.getFieldsname(self.name):
 		if key in data:
-		    currObject[key] = data[key]
-	    try:
-		currObject['deny'] = data.deny
-	    except:
-		currObject['deny'] = 0
-	    currObject.save(c,c.connectedUsers.users[mail].cuser)
+		    currObject.fields[key] = data[key]
+	    for key in c.AllLanguages.elements:
+		if key in data:
+		    currObject.setName(key, data[key],user, c.getKeyColumn(currObject))
+	    if 'deny'in data:
+		currObject.fields['deny'] = 1
+	    else:
+		currObject.fields['deny'] = 0
+	    if data['placeImg'] != '': 
+		filepath = data.placeImg.filename.replace('\\','/') 
+		ext = ((filepath.split('/')[-1]).split('.')[-1])
+		fout = open(currObject.getImageDirectory()+ext,'w')
+		fout.write(data.placeImg.file.read())
+		fout.close()
+	    currObject.save(c,user)
 	    return render.places(c,mail)
 	raise web.seeother('/')
 	
@@ -118,9 +129,6 @@ def isConnected():
 	    return infoCookie[0]
     return None
 
-def printInfo( info):
-    print info.items()
-    print '\n'
 
 if __name__ == "__main__":
     app = web.application(urls, globals())
