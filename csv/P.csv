@@ -1,9 +1,4 @@
 begin	p_id	deny	acronym	remark	user
-09:54:46 - 23/02/17	1	0	CHAPI	Flip	1
-10:00:01  -  23/02/17	1	1	CHAPI	"Flip
-Flap
-Floup"	1
-10:00:21  -  23/02/17	1	0	CHAPI	"Flip
-Flap
-Floup
-"	1
+09:54:46  -  23/02/17	1	0	CHAPI	Flip	1
+10:11:33  -  24/02/17	2	0	BUR		1
+10:20:21  -  24/02/17	3	0	test	test	1

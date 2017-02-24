@@ -1,0 +1,129 @@
+$def with (c, mail,type)
+
+$if type == 'places':
+    $var location: places/
+    $code :
+	elements = c.AllPieces.elements
+	imgDir = '/static/img/p/place_'
+	keyID = c.AllPieces.keyColumn
+$elif type == 'users':
+    $var location: users/
+    $code :
+	elements = c.AllUsers.elements
+	imgDir = '/static/img/u/user_'
+	keyID = c.AllUsers.keyColumn	
+$elif type == 'equipments':
+    $var location: equipments/
+    $code :
+	elements = c.AllEquipments.elements
+	imgDir = '/static/img/e/equipment_'
+	keyID = c.AllEquipments.keyColumn
+$code:
+    lang = c.connectedUsers.users[mail].cuser.fields['language']
+    
+$for a,elem in elements.items():
+    <div class="row active" style="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+	<div class="col-xs-2" >$elem.fields['acronym']</div>
+	<div class="col-xs-6">
+	<strong>$elem.getName(lang)</strong>
+	</div>
+	<div class="col-xs-2">
+	    <strong><a href="/$type/$elem.fields[keyID]"><span class="glyphicon glyphicon-edit"></span></a></strong>
+	</div>
+	<div class="col-xs-2">
+	    <button type="button" class="btn btn-info btn-md" data-toggle="modal" data-target="#$elem.fields[keyID]Modal">Voir infos</button>
+	</div>
+    </div>
+    <div class="modal fade" id="$elem.fields[keyID]Modal" role="dialog">
+	<div class="modal-dialog">
+	    <!-- Modal content-->
+	    <div class="modal-content">
+		<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal">&times;</button>
+		<h4 class="modal-title">$elem.getName(lang)</h4>
+	    </div>
+	    <div class="modal-body">
+		<div class="container-fluid">
+		    <div class="row">
+			<div class="col-xs-5">
+			    <img src="$(imgDir)$(elem.fields[keyID]).jpg" alt="Image not found" style="width:128px;height:128px;">
+			</div>
+			<div class="col-xs-6">
+			    <span class="glyphicon glyphicon-flag"><strong>   $elem.fields['acronym']</span></strong>
+			</div>
+			<div class="col-xs-1">
+			    $if elem.fields['deny'] == 1 :
+				<span class="glyphicon glyphicon-ok-circle"></span>
+			    $else :
+				<span class="glyphicon glyphicon-remove-circle"></span>		    
+			</div>
+		    </div>
+		    $if type!= 'users':
+			<div class="row">
+			    <div class="col-xs-3">
+				$c.AllMessages.elements['name'].getName(lang) :
+			    </div>
+			</div>
+			$for lg in c.AllLanguages.elements.keys():
+			    <div class="row">
+				<div class="col-xs-3">
+				</div>
+				<div class="col-xs-2">
+				    $lg
+				</div>
+				<div class="col-xs-7">
+				    $elem.getName(lg)
+				</div>
+			    </div>
+		    $else:
+			<div class="row">
+			    <div class="col-xs-3">
+				$c.AllMessages.elements['name'].getName(lang) :
+			    </div>
+			    <div class="col-xs-7">
+				$elem.getName(lang)
+			    </div>
+			</div>
+		    <div class="row">
+			<div class="col-xs-4">
+			    $c.AllMessages.elements['remark'].getName(lang) :
+			</div>
+			<div class="col-xs-8">
+			    $elem.fields['remark']
+			</div>
+		    </div>
+		    <div class="row">
+			<div class="col-xs-4">
+			    $c.AllMessages.elements['created'].getName(lang) :
+			</div>
+			<div class="col-xs-8">
+			    <strong>$c.AllUsers.elements[elem.creator].getName(lang) </strong> - <em>$elem.created</em>
+			</div>
+		    </div>
+		    <div class="row">
+			<div class="col-xs-4">
+			    $c.AllMessages.elements['modified'].getName(lang) :
+			</div>
+			<div class="col-xs-8">
+			    <strong>$c.AllUsers.elements[elem.fields['user']].getName(lang) </strong> - <em>$elem.fields['begin']</em>
+			</div>
+		    </div>
+		</div>
+	    </div>
+	    <div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	    </div>
+	  </div>
+	</div>
+    </div>
+<div class="col-xs-5">
+    <p></p>
+</div>
+<div class="col-xs-6">
+    $if type == 'places':
+	<strong><a href="/places/new">Add a new place</a></strong>
+    $elif type == 'users':
+	<strong><a href="/users/new">Add a new user</a></strong>
+    $elif type == 'equipments':
+	<strong><a href="/equipments/new">Add a new equipment</a></strong>
+</div>

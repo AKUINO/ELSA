@@ -59,3 +59,15 @@ begin	lang	m_id	name	user
 01/01/2016 13:45:56	EN	created	Created by	1
 01/01/2016 13:45:56	NL	created	Gemaakt door	1
 01/01/2016 13:45:56	DE	created	Erstellt von	1
+01/01/2016 13:45:56	FR	mail	Email	1
+01/01/2016 13:45:56	EN	mail	E-mail	1
+01/01/2016 13:45:56	NL	mail	EMail	1
+01/01/2016 13:45:56	DE	mail	E-Mail	1
+01/01/2016 13:45:56	FR	password	"Mot de passe"	1
+01/01/2016 13:45:56	EN	password	"Password"	1
+01/01/2016 13:45:56	NL	password	wachtwoord	1
+01/01/2016 13:45:56	DE	password	Passwort	1
+01/01/2016 13:45:56	FR	lang	Langue	1
+01/01/2016 13:45:56	EN	lang	Language	1
+01/01/2016 13:45:56	NL	lang	Taal	1
+01/01/2016 13:45:56	DE	lang	Sprache	1

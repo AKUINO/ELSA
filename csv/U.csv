@@ -1,6 +1,9 @@
-begin	u_group	u_id	deny	acronym	name	barcode	remark	registration	mail	password	language	user
-01/01/2016 13:45:56	mngr	1		Chri	Christophe	2000002100010		01/01/2016 10:45:56	dupriez@destin.be	1d09760b9d8ea7d198b9b708e0bae6dc00972f36ce5283010813db36e96a443b	FR	1
-01/02/2016 13:45:56	mngr	2		Isra	Israfil	2000002100027			01/01/2016 11:45:56	israfil@test.be	c960d2325c939d2e0a86b07cc320e48b0716f46f68e3f29846756f3d45ef1e13	FR	1
-01/03/2016 13:45:56	mngr	3		Patr	Patricia	2000002100034		01/01/2016 11:37:56	patricia@test.be	ef6068c375bc6af271edf0a218b38c9b9947a6af6dd8711ca036c0e1431b7198	EN	1
-01/02/2016 13:45:56	prod	4		Invi	Invite	2000002100041		01/01/2016 11:48:56	invite@test.be	e54186b86e5bf150c5fc72f97431fbdccab4a5aa3bddff6e8b0b28abf8ccffae	NL	1
-01/02/2016 13:45:56	mngr	5		Gjel	Gjelbrim	2000002100058		01/01/2016 11:58:56	gjelbrim@test.be	ceecf3e1d78f7d3c13f680663145134251d54fa9afbfffb2323384aad89af507	DE	1
+begin	u_id	deny	acronym	remark	registration	mail	password	language	user
+01/01/2016 13:45:56	1	0	Chri	/	01/01/2016 10:45:56	dupriez@destin.be	1d09760b9d8ea7d198b9b708e0bae6dc00972f36ce5283010813db36e96a443b	FR	1
+01/02/2016 13:45:56	2	0	Isra	/	01/01/2016 11:45:56	israfil@test.be	c960d2325c939d2e0a86b07cc320e48b0716f46f68e3f29846756f3d45ef1e13	FR	1
+01/03/2016 13:45:56	3	0	Patr	/	01/01/2016 11:37:56	patricia@test.be	ef6068c375bc6af271edf0a218b38c9b9947a6af6dd8711ca036c0e1431b7198	EN	1
+01/02/2016 13:45:56	4	0	Invi	/	01/01/2016 11:48:56	invite@test.be	e54186b86e5bf150c5fc72f97431fbdccab4a5aa3bddff6e8b0b28abf8ccffae	NL	1
+01/02/2016 13:45:56	5	0	Gjel	/	01/01/2016 11:58:56	gjelbrim@test.be	ceecf3e1d78f7d3c13f680663145134251d54fa9afbfffb2323384aad89af507	DE	1
+11:37:49  -  24/02/17	6	1	FRANCO	Actif	11:37:49  -  24/02/17	franco.maxime@gmail.com	227fa336c263719708ad3fbddd7793527fe65b217f5e8b90fa01ee662fb59b37	FR	1
+12:06:37  -  24/02/17	6	0	FRANCO	"Actif
+"	11:37:49  -  24/02/17	franco.maxime@gmail.com	227fa336c263719708ad3fbddd7793527fe65b217f5e8b90fa01ee662fb59b37	FR	1

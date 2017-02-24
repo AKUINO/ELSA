@@ -2,10 +2,10 @@ $def with (c, id, mail)
 
 
 $if id == 'new':
-    $var location: places new
+    $var location: places/ new
     
 $else:
-    $var location: places $c.AllPieces.elements[id].fields['p_id']
+    $var location: places/ $c.AllPieces.elements[id].fields['p_id']
 
 $code:
     lang = c.connectedUsers.users[mail].cuser.fields['language']

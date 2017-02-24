@@ -15,12 +15,14 @@ class Configuration():
 	self.AllLanguages = AllLanguages(self)
         self.AllPieces = AllPieces(self)
 	self.AllMessages = AllMessages(self)
+	self.AllEquipments = AllEquipments(self)
 	self.connectedUsers = AllConnectedUsers()
 
     def load(self):
 	self.AllLanguages.load()
         self.AllUsers.load()
-        self.AllPieces.load()	
+        self.AllPieces.load()
+	self.AllEquipments.load()	
 	self.AllMessages.load()
 	
     
@@ -38,31 +40,19 @@ class Configuration():
             return None
 	    
     def getObject(self, idObject,className):
-	if className == u"User":
-            if idObject !='new':
-		return self.AllUsers.elements[idObject]
-	    else:
-		return self.AllUsers.createObject()
+	if className == u"WebUser":
+            return self.AllUsers.getItem(idObject)
         elif className == u"WebEquipment":
-            if idObject !='new':
-		return self.AllEquipments.elements[idObject]
-	    else:
-		return self.AllEquipments.createObject()
+            return self.AllEquipments.getItem(idObject)
         elif className == u"Language":
-            if idObject !='new':
-		return self.AllLanguageselements[idObject]
-	    else:
-		return self.AllLanguages.createObject()
+            return self.AllLanguages.getItem(idObject)
 	elif className == u"WebPlace":
-	    if idObject !='new':
-		return self.AllPieces.elements[idObject]
-	    else:
-		return self.AllPieces.createObject()       
+	    return self.AllPieces.getItem(idObject)	           
         else:
             return None
     
     def getFieldsname(self,className):
-        if className == u"User":
+        if className == u"WebUser":
             return self.AllUsers.fieldnames
         elif className == u"WebEquipment":
             return self.AllEquipments.fieldnames
@@ -92,12 +82,17 @@ class ConfigurationObject():
         self.fields["begin"] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
         self.fields["user"] = anUser.fields['u_id']
         allObjects = configuration.findAllFromObject(self)
-	print allObjects.filename
+	print allObjects.fileobject
         print allObjects.fieldnames
         with open(allObjects.fileobject,"a") as csvfile:
             writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames=allObjects.fieldnames, encoding="utf-8")
             writer.writerow(self.fields)
+	
+	print self.fields
+	print self.names    
 	for key in self.names :
+	    print key
+	    print allObjects.fieldtranslate
 	    with open(allObjects.filename,"a") as csvfile:
 		writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames=allObjects.fieldtranslate, encoding="utf-8")
 		writer.writerow(self.names[key])
@@ -110,9 +105,9 @@ class ConfigurationObject():
     def getImageDirectory(self):
 	directory='static/img'
         if self.__class__.__name__ == u"User":
-            return directory + '/u/user_'+self.fields['p_id']+'.'
+            return directory + '/u/user_'+self.fields['u_id']+'.'
         elif self.__class__.__name__  == u"Equipment":
-            return directory + '/e/equipment_'+self.fields['p_id']+'.'
+            return directory + '/e/equipment_'+self.fields['e_id']+'.'
         elif self.__class__.__name__ == u"Piece":
             return directory + '/p/place_'+self.fields['p_id']+'.'  
         else:
@@ -128,6 +123,22 @@ class ConfigurationObject():
 	    newName[keyColumn] = self.fields[keyColumn]
 	    self.names[key] = newName
 	    
+    def getName(self,lang):
+	if lang in self.names :
+	    return self.names[lang]['name']
+	elif 'EN' in self.names : 
+	    return self.names['EN']['name']
+	elif 'FR' in self.names:
+	    return self.names['FR']['name']
+	elif 'DE' in self.names:
+	    return self.names['DE']['name']
+	elif len(self.names) > 0:
+	    return self.names.values()[0]['name']
+	elif 'default' in self.fields:
+	    return self.fields['default']
+	else:
+	    print "Error Le nom n'existe pas pour cet objet"
+	    return "Error"
 
 class AllObjects():
 
@@ -187,7 +198,9 @@ class AllObjects():
 	self.initCount()
 	tmp = self.getNewId()
 	currObject.fields[self.keyColumn] = str(tmp)
+	currObject.id = tmp
 	self.elements[str(tmp)] = currObject
+	currObject.fields["begin"] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
 	return currObject
 	
     def uniqueAcronym(self, acronym):
@@ -195,15 +208,29 @@ class AllObjects():
 	    if self.elements[k].fields['acronym'] == acronym:
 		return false
 	return true
+	
+    def getItem(self,iditem):
+	if iditem == 'new':
+	    print 'objet cree'
+	    return self.createObject()
+	elif iditem in self.elements.keys():
+	    print 'objet trouve'
+	    return self.elements[iditem]
+	print 'errroooooor'
+	return None
+	    
 	        
 class AllUsers(AllObjects):
 
     def __init__(self, config):
+	AllObjects.__init__(self)
         self.elements = {}
         self.config = config
         self.fileobject = csvDir + "U.csv"
-	self.filename = None
+	self.filename = csvDir + "Unames.csv"
         self.keyColumn = "u_id"
+	self.fieldnames = ['begin', 'u_id', 'deny', 'acronym', 'remark', 'registration', 'mail', 'password', 'language', 'user']
+	self.fieldtranslate = ['begin', 'lang', 'u_id', 'name', 'user']
 
     def newObject(self):
         return User()
@@ -263,11 +290,14 @@ class AllUO():
 class AllEquipments(AllObjects):
 
     def __init__(self, config):
+	AllObjects.__init__(self)
         self.elements = {}
         self.config = config
-        self.filename = csvDir + "E.csv"
+        self.fileobject = csvDir + "E.csv"
+	self.filename = csvDir + "Enames.csv"
         self.keyColumn = "e_id"
-	self.fieldnames = ["begin", "e_group", "deny", "e_id", "acronym", "name", "barcode", "remark", "user"]
+	self.fieldnames = ["begin", "deny", "e_id", "acronym", "remark", "user"]
+	self.fieldtranslate = ['begin', 'lang', 'e_id', 'name', 'user']
 
     def newObject(self):
         return Equipment()
@@ -276,6 +306,7 @@ class AllEquipments(AllObjects):
 class AllPieces(AllObjects):
 
     def __init__(self, config):
+	AllObjects.__init__(self)
         self.elements = {}
         self.config = config
         self.fileobject = csvDir + "P.csv"
@@ -604,11 +635,12 @@ class Message(ConfigurationObject):
 class User(ConfigurationObject):
 
     def __init__(self):
+	ConfigurationObject.__init__(self)
         self.roles = sets.Set()
         self.context = Context()
 
     def __repr__(self):
-        string = self.id + " " + self.fields['name']
+        string = self.id + " " + self.fields['acronym']
         return string
 
     def __str__(self):
@@ -638,6 +670,7 @@ class Role(ConfigurationObject):
 class Equipment(ConfigurationObject):
 
     def __init__(self):
+	ConfigurationObject.__init__(self)
         self.sensors = sets.Set()
 
     def __repr__(self):

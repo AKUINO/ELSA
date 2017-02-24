@@ -1,38 +1,66 @@
 $def with (c, id, mail)
-$var location: places $c.AllEquipments.elements[id].fields['e_id']
+
+
+$if id == 'new':
+    $var location: equipments/ new
+    
+$else:
+    $var location: equipments/ $c.AllEquipments.elements[id].fields['e_id']
+
+$code:
+    lang = c.connectedUsers.users[mail].cuser.fields['language']
 <div class="container">
-    <form  method="post" action="" id="modifyPlace" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
+    <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
+	
 	<div class="form-group row">
-	    <label for="inputName" class="col-sm-2 col-form-label">$c.AllLanguages.elements[c.connectedUsers.users[mail].cuser.fields['language']].fields['name']</label>
+	    <label for="inputName" class="col-sm-2 col-form-label">$c.AllMessages.elements['name'].names[lang]['name']</label>
+	</div>
+	
+	$for k,v in c.AllLanguages.elements.items():
+	    <div class="form-group row">
+		<div class="col-sm-2">
+		    <strong>$v.fields['name']</strong>
+		</div>
+		<div class="col-sm-8">
+		    <input name="$k" type="text" class="form-control" id="inputName" placeholder="Name"
+		$if id !='new':
+		    value="$c.AllEquipments.elements[id].names[k]['name']"
+		required="true" >
+		</div>
+	    </div>
+	
+	<div class="form-group row">
+	    <label for="inputAcronym" class="col-sm-2 col-form-label">$c.AllMessages.elements['acronym'].names[lang]['name']</label>
 	    <div class="col-sm-8">
-		<input name="name"type="text" class="form-control" id="inputName" placeholder="Name" value="$c.AllEquipments.elements[id].fields['name']">
+		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="Acronym" 
+		$if id != 'new':
+		    value="$c.AllEquipments.elements[id].fields['acronym']"
+		required="true">
 	    </div>
 	</div>
+	
 	<div class="form-group row">
-	    <label for="inputAcronym" class="col-sm-2 col-form-label">$c.AllLanguages.elements[c.connectedUsers.users[mail].cuser.fields['language']].fields['acronym']</label>
+	    <label for="inputRemark" class="col-sm-2 col-form-label">$c.AllMessages.elements['remark'].names[lang]['name']</label>
 	    <div class="col-sm-8">
-		<input name="acronym"type="text" class="form-control" id="inputAcronym" placeholder="Acronym" value="$c.AllEquipments.elements[id].fields['acronym']">
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >
+$if id != 'new':
+    $c.AllEquipments.elements[id].fields['remark']
+</textarea>
 	    </div>
 	</div>
+	
 	<div class="form-group row">
-	    <label for="inputBarcode" class="col-sm-2 col-form-label">$c.AllLanguages.elements[c.connectedUsers.users[mail].cuser.fields['language']].fields['barcode']</label>
-	    <div class="col-sm-8">
-		<input name="barcode" type="text" class="form-control" id="inputBarcode" placeholder="Name" value="$c.AllEquipments.elements[id].fields['barcode']">
-	    </div>
+	    <label for="inputDeny" class="col-sm-5 col-form-label">$c.AllMessages.elements['deny'].names[lang]['name']</label>
+	    <label><input id='inputDeny'name="deny" type="checkbox" value="1"></label>
 	</div>
+	
 	<div class="form-group row">
-	    <label for="inputRemark" class="col-sm-2 col-form-label">$c.AllLanguages.elements[c.connectedUsers.users[mail].cuser.fields['language']].fields['remark']</label>
-	    <div class="col-sm-8">
-		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >$c.AllEquipments.elements[id].fields['remark']</textarea>
-	    </div>
+	    <label for="inputFile" class="col-sm-5 col-form-label">$c.AllMessages.elements['file'].names[lang]['name']</label>
+	    <label class="control-label"></label>
+	    <input id="inputFile" name="placeImg" multiple type="file" class="file file-loading" data-allowed-file-extensions='["jpg", "jpeg"]'>
 	</div>
-	<div class="form-group row">
-	    <label for="inputDeny" class="col-sm-5 col-form-label">$c.AllLanguages.elements[c.connectedUsers.users[mail].cuser.fields['language']].fields['deny']</label>
-	    <select name="deny" class="selectpicker">
-	       <option>Actif</option>
-	       <option>Pas Actif</option>
-	    </select>
-	</div>
+	
 	<button style="float:right;" type="submit" class="btn btn-primary">Submit</button>
     </form>
 </div>
+

@@ -44,7 +44,7 @@ $def with(content)
             <li class="dropdown" data-show-icon="true">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Data<b class="caret"></b></a>
               <ul class="dropdown-menu">
-                <li><a href="/places" tabindex="-1"><span class="glyphicon glyphicon-map-marker"></span> Places</a></li>
+                <li><a href="/places/" tabindex="-1"><span class="glyphicon glyphicon-map-marker"></span> Places</a></li>
                 <li><a href="/equipments" tabindex="-1"><span class="glyphicon glyphicon-tag"></span> Equipments</a></li>
               </ul>
             </li>
@@ -57,7 +57,8 @@ $def with(content)
             <li class="dropdown" data-show-icon="true">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">People<b class="caret"></b></a>
               <ul class="dropdown-menu">
-                <li><a href="UserMan" tabindex="-1"><span class="glyphicon glyphicon-user"></span> Users</a></li>
+                <li><a href="/users/" tabindex="-1"><span class="glyphicon glyphicon-user"></span> Users</a></li>
+                <li><a href="/groups/" tabindex="-1"><span class="glyphicons glyphicons-group"></span> Group</a></li>
               </ul>
             </li>
           </ul>
@@ -70,7 +71,7 @@ $def with(content)
 	    $if content.location != 'index' :
 		<a href="/"><span class="glyphicon glyphicon-home"></span></a> 
 		$for elem in content.location.split():
-		    / <a href="/$elem" >$elem</a>
+		    / <a href="/$elem" >$elem.split('/')[0]</a>
 	</div>
 	
 	<div style="margin-top:25px;">

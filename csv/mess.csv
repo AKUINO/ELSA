@@ -14,3 +14,6 @@ begin	m_id	default	user
 01/01/2016 13:45:56	file	File	1
 01/01/2016 13:45:56	modified	Modified by	1
 01/01/2016 13:45:56	created	Created by	1
+01/01/2016 13:45:56	mail	Email	1
+01/01/2016 13:45:56	password	Password	1
+01/01/2016 13:45:56	lang	Language	1
