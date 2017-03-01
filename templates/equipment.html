@@ -13,7 +13,7 @@ $code:
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
 	
 	<div class="form-group row">
-	    <label for="inputName" class="col-sm-2 col-form-label">$c.AllMessages.elements['name'].names[lang]['name']</label>
+	    <label for="inputName" class="col-sm-2 col-form-label">$c.AllMessages.elements['name'].getName(lang)</label>
 	</div>
 	
 	$for k,v in c.AllLanguages.elements.items():
@@ -24,15 +24,15 @@ $code:
 		<div class="col-sm-8">
 		    <input name="$k" type="text" class="form-control" id="inputName" placeholder="Name"
 		$if id !='new':
-		    value="$c.AllEquipments.elements[id].names[k]['name']"
+		    value="$c.AllEquipments.elements[id].getName(lang)"
 		required="true" >
 		</div>
 	    </div>
 	
 	<div class="form-group row">
-	    <label for="inputAcronym" class="col-sm-2 col-form-label">$c.AllMessages.elements['acronym'].names[lang]['name']</label>
+	    <label for="inputAcronym" class="col-sm-2 col-form-label">$c.AllMessages.elements['acronym'].getName(lang)</label>
 	    <div class="col-sm-8">
-		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="Acronym" 
+		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.AllMessages.elements['acronym'].getName(lang)" 
 		$if id != 'new':
 		    value="$c.AllEquipments.elements[id].fields['acronym']"
 		required="true">
@@ -40,7 +40,17 @@ $code:
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputRemark" class="col-sm-2 col-form-label">$c.AllMessages.elements['remark'].names[lang]['name']</label>
+	    <label for="inputBarcode" class="col-sm-2 col-form-label">$c.AllMessages.elements['code'].getName(lang)</label>
+	    <div class="col-sm-8">
+		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.AllMessages.elements['code'].getName(lang)" 
+		$if id != 'new':
+		    value="$c.AllEquipments.elements[id].code"
+		required="true">
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputRemark" class="col-sm-2 col-form-label">$c.AllMessages.elements['remark'].getName(lang)</label>
 	    <div class="col-sm-8">
 		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >
 $if id != 'new':
@@ -51,11 +61,14 @@ $if id != 'new':
 	
 	<div class="form-group row">
 	    <label for="inputDeny" class="col-sm-5 col-form-label">$c.AllMessages.elements['deny'].names[lang]['name']</label>
-	    <label><input id='inputDeny'name="deny" type="checkbox" value="1"></label>
+	    <label class="switch">
+		<input id='inputDeny'name="deny" type="checkbox" value="1" type="checkbox" >
+		<div class="slider round"></div>
+	    </label>
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputFile" class="col-sm-5 col-form-label">$c.AllMessages.elements['file'].names[lang]['name']</label>
+	    <label for="inputFile" class="col-sm-5 col-form-label">$c.AllMessages.elements['file'].getName(lang)</label>
 	    <label class="control-label"></label>
 	    <input id="inputFile" name="placeImg" multiple type="file" class="file file-loading" data-allowed-file-extensions='["jpg", "jpeg"]'>
 	</div>

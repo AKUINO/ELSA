@@ -21,7 +21,7 @@ $def with(content)
         </style>
         <link rel="stylesheet" href="/static/css/bootstrap-theme.min.css">
         <link rel="stylesheet" href="/static/css/main.css">
-
+	<link rel="stylesheet" href="/static/css/glyphicons-halflings.css">
         <script src="/static/js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
     </head>
     <body>
@@ -58,7 +58,7 @@ $def with(content)
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">People<b class="caret"></b></a>
               <ul class="dropdown-menu">
                 <li><a href="/users/" tabindex="-1"><span class="glyphicon glyphicon-user"></span> Users</a></li>
-                <li><a href="/groups/" tabindex="-1"><span class="glyphicons glyphicons-group"></span> Group</a></li>
+                <li><a href="/groups/" tabindex="-1"><span class="halflings halflings-group"></span> Group</a></li>
               </ul>
             </li>
           </ul>
@@ -69,9 +69,14 @@ $def with(content)
 	
 	<div style="margin-top:10px;font-size:20px;">
 	    $if content.location != 'index' :
-		<a href="/"><span class="glyphicon glyphicon-home"></span></a> 
+		<a href="/"><span class="glyphicon glyphicon-home"></span></a>
+		$code : 
+		    url = '/'
 		$for elem in content.location.split():
-		    / <a href="/$elem" >$elem.split('/')[0]</a>
+		    $code:
+			url = url+elem
+		    / <a href="$url" >$elem.split('/')[0]</a>
+		    
 	</div>
 	
 	<div style="margin-top:25px;">

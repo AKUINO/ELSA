@@ -1,7 +1,7 @@
 begin	m_id	default	user
 01/01/2016 13:45:56	name	Name	1
 01/01/2016 13:45:56	begin	Begin	1
-01/01/2016 13:45:56	p_group	Group	1
+01/01/2016 13:45:56	group	Group	1
 01/01/2016 13:45:56	deny	Deny	1
 01/01/2016 13:45:56	acronym	Acronym	1
 01/01/2016 13:45:56	barcode	Barcode	1
@@ -10,10 +10,18 @@ begin	m_id	default	user
 01/01/2016 13:45:56	welcome	Welcome	1
 01/01/2016 13:45:56	user	User	1
 01/01/2016 13:45:56	e_id	ID	1
-01/01/2016 13:45:56	e_group	Group	1
 01/01/2016 13:45:56	file	File	1
 01/01/2016 13:45:56	modified	Modified by	1
 01/01/2016 13:45:56	created	Created by	1
 01/01/2016 13:45:56	mail	Email	1
 01/01/2016 13:45:56	password	Password	1
 01/01/2016 13:45:56	lang	Language	1
+01/01/2016 13:45:56	code	Code	1
+01/01/2016 13:45:56	addgroup	"Add to group :"	1
+01/01/2016 13:45:56	modifygroup	"Modify groups permission :"	1
+01/01/2016 13:45:56	place	"Place"	1
+01/01/2016 13:45:56	equipment	"Equipment"	1
+01/01/2016 13:45:56	createe	"Add a new equipment"	1
+01/01/2016 13:45:56	createp	"Add a new place"	1
+01/01/2016 13:45:56	createu	"Add a new user"	1
+01/01/2016 13:45:56	createg	"Add a new group"	1

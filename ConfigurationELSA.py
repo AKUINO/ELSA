@@ -11,11 +11,16 @@ csvDir = "csv/"
 class Configuration():
 
     def __init__(self):
+	self.csvCodes = csvDir + 'codes.csv'
+	self.csvRelations = csvDir + 'relations.csv'
+	self.fieldcode = ['begin', 'type', 'idobject', 'code', 'user']
+	self.fieldrelations = ['begin', 'g_id', 'idobject', 'type', 'deny', 'user']
         self.AllUsers = AllUsers(self)
 	self.AllLanguages = AllLanguages(self)
         self.AllPieces = AllPieces(self)
 	self.AllMessages = AllMessages(self)
 	self.AllEquipments = AllEquipments(self)
+	self.AllGroups = AllGroups(self)
 	self.connectedUsers = AllConnectedUsers()
 
     def load(self):
@@ -24,7 +29,20 @@ class Configuration():
         self.AllPieces.load()
 	self.AllEquipments.load()	
 	self.AllMessages.load()
+	self.AllGroups.load()
+	#doit toujours être appelé à la fin
+	self.loadCodes()
+	self.loadRelation()
 	
+    def loadCodes(self):
+	with open(self.csvCodes) as csvfile:
+	    reader = csv.DictReader(csvfile, delimiter = "\t")
+            for row in reader:
+		keyObj = row['idobject']
+		keyType = row['type']
+		objects = self.findAllFromType(keyType)
+		currObject = objects.elements[keyObj]
+		currObject.code = row['code']
     
     def findAllFromObject(self,anObject):
         className = anObject.__class__.__name__
@@ -35,19 +53,23 @@ class Configuration():
         elif className == u"Language":
             return self.AllLanguages
 	elif className == u"Piece":
-	    return self.AllPieces        
+	    return self.AllPieces 
+	elif className == u"Group":
+	    return self.AllGroups 
         else:
             return None
 	    
     def getObject(self, idObject,className):
-	if className == u"WebUser":
+	if className == u"WebUser" or className == u"u":
             return self.AllUsers.getItem(idObject)
-        elif className == u"WebEquipment":
+        elif className == u"WebEquipment" or className == u"e":
             return self.AllEquipments.getItem(idObject)
         elif className == u"Language":
             return self.AllLanguages.getItem(idObject)
-	elif className == u"WebPlace":
-	    return self.AllPieces.getItem(idObject)	           
+	elif className == u"WebPlace" or className == u"p":
+	    return self.AllPieces.getItem(idObject)
+	elif className == u"WebGroup" or className == u"g":
+	    return self.AllGroups.getItem(idObject)
         else:
             return None
     
@@ -59,24 +81,85 @@ class Configuration():
         elif className == u"Language":
             return self.AllLanguages.fieldnames
 	elif className == u"WebPlace":
-	    return self.AllPieces.fieldnames    
+	    return self.AllPieces.fieldnames  
+	elif className == u"WebGroup":
+	    return self.AllGroups.fieldnames  
         else:
             return None
 	    
     def getKeyColumn(self, anObject):
 	obj = self.findAllFromObject(anObject)
 	return obj.keyColumn
+	
+    def findAllFromType(self, aType):
+        if aType == u"u":
+            return self.AllUsers
+        elif aType == u"e":
+            return self.AllEquipments
+        elif aType == u"l":
+            return self.AllLanguages
+	elif aType == u"p":
+	    return self.AllPieces 
+	elif aType == u"g":
+	    return self.AllGroups 
+        else:
+            return None
 	    
+    def loadRelation(self):
+	with open(self.csvRelations) as csvfile:
+	    reader = csv.DictReader(csvfile, delimiter = "\t")
+	    for row in reader:
+		keyObj = row['idobject']
+		keyGroup = row['g_id']
+		keyType = row['type']
+		objects = self.findAllFromType(keyType)
+		currObject = objects.elements[keyObj]
+		if row['deny'] =='0':		    
+		    currObject.groups[keyGroup] = self.AllGroups.elements[keyGroup]
+		elif row['deny'] == '1' :
+		    currObject.removekey(keyGroup)
+		    
     
+    def createHierarchy(self,user):
+	head = {}
+	for k,group in self.AllGroups.elements.items():
+	    boolHead = True
+	    for v,g in self.AllGroups.elements.items():
+		if g.containsGroup(group):
+		    boolHead = False
+	    if boolHead:
+		head[group.id] = group
+	w = Group()
+	w.fields['g_id'] = 'tmp'
+	w.setName('EN','*',user,'g_id')
+	w.groups = head
+	return w
+    
+    def hierarchyString(self, lang, g, myString = None):
+	if myString is None:
+	    myString = []
+	if len(g.groups) > 0 :
+	    myString.append(g.getName(lang))
+	    myString.append('IN')
+	    for k,group in g.groups.items():
+		self.hierarchyString(lang,group,myString)
+	    myString.append('OUT')
+	else :
+	    return myString.append(g.getName(lang))
+	return myString
+	
+	
 
 class ConfigurationObject():
 
     def __init__(self):
         self.fields = {}
 	self.names = {}
+	self.groups = {}
         self.id = None
 	self.created = None
 	self.creator = None
+	self.code = None
 	
     def save(self,configuration,anUser=""):
         self.fields["begin"] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
@@ -87,7 +170,12 @@ class ConfigurationObject():
         with open(allObjects.fileobject,"a") as csvfile:
             writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames=allObjects.fieldnames, encoding="utf-8")
             writer.writerow(self.fields)
+	self.saveName(configuration, anUser)
+	self.saveCode(configuration, anUser)	
+        return self
 	
+    def saveName(self, configuration, anUser):
+	allObjects = configuration.findAllFromObject(self)
 	print self.fields
 	print self.names    
 	for key in self.names :
@@ -96,7 +184,34 @@ class ConfigurationObject():
 	    with open(allObjects.filename,"a") as csvfile:
 		writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames=allObjects.fieldtranslate, encoding="utf-8")
 		writer.writerow(self.names[key])
-        return self
+	
+    def saveCode(self, configuration,anUser):
+	allObjects = configuration.findAllFromObject(self)
+	print self.code	
+	with open(configuration.csvCodes,"a") as csvfile:
+	    tmpCode={}
+	    tmpCode['begin'] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
+	    tmpCode['type'] = self.getType()
+	    tmpCode['idobject'] = self.fields[allObjects.keyColumn]
+	    tmpCode['code'] = self.code
+	    tmpCode["user"] = anUser.fields['u_id']
+            writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames = configuration.fieldcode, encoding="utf-8")
+            writer.writerow(tmpCode)
+	
+    def saveGroups(self, configuration,anUser):
+	print self.groups	
+	allObjects = configuration.findAllFromObject(self)
+	with open(configuration.csvRelations,"a") as csvfile:
+	    for k,v in self.groups.items():
+		tmpCode={}
+		tmpCode['begin'] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
+		tmpCode['g_id'] = k
+		tmpCode['idobject'] = self.fields[allObjects.keyColumn]
+		tmpCode['type'] = self.getType()
+		tmpCode["user"] = anUser.fields['u_id']
+		tmpCode['deny'] = '0'
+		writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames = configuration.fieldrelations, encoding="utf-8")
+		writer.writerow(tmpCode)
 	
     def initialise(self, fieldsname):
 	for field in fieldsname:
@@ -110,6 +225,8 @@ class ConfigurationObject():
             return directory + '/e/equipment_'+self.fields['e_id']+'.'
         elif self.__class__.__name__ == u"Piece":
             return directory + '/p/place_'+self.fields['p_id']+'.'  
+	elif self.__class__.__name__ == u"Group":
+            return directory + '/g/group_'+self.fields['g_id']+'.' 
         else:
             return None
 
@@ -139,6 +256,31 @@ class ConfigurationObject():
 	else:
 	    print "Error Le nom n'existe pas pour cet objet"
 	    return "Error"
+	    
+		
+    def deleteGroup(self,groupid, configuration,anUser):
+	print self.groups	
+	allObjects = configuration.findAllFromObject(self)
+	with open(configuration.csvRelations,"a") as csvfile:
+	    tmpCode={}
+	    tmpCode['begin'] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
+	    tmpCode['g_id'] = groupid
+	    tmpCode['idobject'] = self.fields[allObjects.keyColumn]
+	    tmpCode['type'] = self.getType()
+	    tmpCode["user"] = anUser.fields['u_id']
+	    tmpCode['deny'] = '1'
+	    writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames = configuration.fieldrelations, encoding="utf-8")
+	    writer.writerow(tmpCode)
+	    
+    def removekey(self, key):
+	del self.groups[key]
+	
+    def containsGroup(self, oGroup):
+	if len(self.groups) >0:
+	    for k,v in self.groups.items():
+		if v.containsGroup(oGroup):
+		    return True
+	return False
 
 class AllObjects():
 
@@ -177,6 +319,7 @@ class AllObjects():
 		keyLang = row['lang']
 		currObject = self.elements[keyObj]
 		currObject.names[keyLang] = row
+		
 
     def newObject(self):
         return None
@@ -211,12 +354,9 @@ class AllObjects():
 	
     def getItem(self,iditem):
 	if iditem == 'new':
-	    print 'objet cree'
 	    return self.createObject()
 	elif iditem in self.elements.keys():
-	    print 'objet trouve'
 	    return self.elements[iditem]
-	print 'errroooooor'
 	return None
 	    
 	        
@@ -243,6 +383,7 @@ class AllUsers(AllObjects):
 	for myId,user in self.elements.items():
 	    if user.fields['mail']==mail:
 		return user
+		
 
 class AllRoles(AllObjects):
 
@@ -319,7 +460,23 @@ class AllPieces(AllObjects):
     def newObject(self):
 	return Piece()
 	
+	
     
+class AllGroups(AllObjects):
+
+    def __init__(self, config):
+	AllObjects.__init__(self)
+        self.elements = {}
+        self.config = config
+        self.fileobject = csvDir + "G.csv"
+	self.filename = csvDir + "Gnames.csv"
+        self.keyColumn = "g_id"
+	self.fieldnames = ["begin", "deny", "g_id", "acronym", "remark", "user"]
+	self.fieldtranslate = ['begin', 'lang', 'g_id', 'name', 'user']
+
+    def newObject(self):
+        return Group()
+	
 
 class AllMeasures(AllObjects):
 
@@ -648,8 +805,12 @@ class User(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + str(self.fields[field])
         return string + "\n"
+	
     def checkPassword(self,password):
 	return self.fields['password']==password
+	
+    def getType(self):
+	return 'u'
 
 	    
 class Role(ConfigurationObject):
@@ -674,7 +835,7 @@ class Equipment(ConfigurationObject):
         self.sensors = sets.Set()
 
     def __repr__(self):
-        string = self.id + " " + self.fields['name']
+        string = self.id + " " + self.fields['acronym']
         return string
 
     def __str__(self):
@@ -682,12 +843,46 @@ class Equipment(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
+	
+    def getType(self):
+	return 'e'
+	
+class Group(ConfigurationObject):
+
+    def __init__(self):
+	ConfigurationObject.__init__(self)
+	self.classes = {}
+	self.groups = {}
+
+    def __repr__(self):
+        string = str(self.id) + " " + self.fields['acronym']
+        return string
+
+    def __str__(self):
+        string = "\nGroup :"
+        for field in self.fields:
+            string = string + "\n" + field + " : " + self.fields[field]
+        return string + "\n"
+	
+    def getType(self):
+	return 'g'
+	
+    def containsGroup(self, oGroup):
+	if len(self.groups) >0:
+	    for k,v in self.groups.items():
+		if k == oGroup.fields['g_id'] :
+		    return True
+		elif v.containsGroup(oGroup):
+		    return True
+	return False
+		
 
 class Piece(ConfigurationObject):
 
     def __init__(self):
 	ConfigurationObject.__init__(self)
         self.sensors = sets.Set()
+	
 
     def __repr__(self):
         string = str(self.id) + " " + self.fields['acronym']
@@ -698,6 +893,9 @@ class Piece(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
+	
+    def getType(self):
+	return 'p'
 	
 	
 class Measure(ConfigurationObject):
@@ -714,6 +912,7 @@ class Measure(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
+	    
 
 class Sensor(ConfigurationObject):
     

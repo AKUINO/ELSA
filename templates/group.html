@@ -2,10 +2,10 @@ $def with (c, id, mail)
 
 
 $if id == 'new':
-    $var location: places/ new
+    $var location: groups/ new
     
 $else:
-    $var location: places/ $c.AllPieces.elements[id].fields['p_id']
+    $var location: groups/ $c.AllGroups.elements[id].fields['g_id']
 
 $code:
     lang = c.connectedUsers.users[mail].cuser.fields['language']
@@ -24,7 +24,7 @@ $code:
 		<div class="col-sm-8">
 		    <input name="$k" type="text" class="form-control" id="inputName" placeholder="Name"
 		$if id !='new':
-		    value="$c.AllPieces.elements[id].getName(lang)"
+		    value="$c.AllGroups.elements[id].getName(lang)"
 		required="true" >
 		</div>
 	    </div>
@@ -34,7 +34,7 @@ $code:
 	    <div class="col-sm-8">
 		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="Acronym" 
 		$if id != 'new':
-		    value="$c.AllPieces.elements[id].fields['acronym']"
+		    value="$c.AllGroups.elements[id].fields['acronym']"
 		required="true">
 	    </div>
 	</div>
@@ -44,7 +44,7 @@ $code:
 	    <div class="col-sm-8">
 		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.AllMessages.elements['code'].getName(lang)" 
 		$if id != 'new':
-		    value="$c.AllPieces.elements[id].code"
+		    value="$c.AllGroups.elements[id].code"
 		required="true">
 	    </div>
 	</div>
@@ -54,7 +54,7 @@ $code:
 	    <div class="col-sm-8">
 		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >
 $if id != 'new':
-    $c.AllPieces.elements[id].fields['remark']
+    $c.AllGroups.elements[id].fields['remark']
 </textarea>
 	    </div>
 	</div>

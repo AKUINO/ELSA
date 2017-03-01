@@ -6,29 +6,42 @@ $if type == 'places':
 	elements = c.AllPieces.elements
 	imgDir = '/static/img/p/place_'
 	keyID = c.AllPieces.keyColumn
+	permissionKey = 'p_'
 $elif type == 'users':
     $var location: users/
     $code :
 	elements = c.AllUsers.elements
 	imgDir = '/static/img/u/user_'
 	keyID = c.AllUsers.keyColumn	
+	permissionKey = 'u_'
 $elif type == 'equipments':
     $var location: equipments/
     $code :
 	elements = c.AllEquipments.elements
 	imgDir = '/static/img/e/equipment_'
 	keyID = c.AllEquipments.keyColumn
+	permissionKey = 'e_'
+$elif type == 'groups':
+    $var location: groups/
+    $code :
+	elements = c.AllGroups.elements
+	imgDir = '/static/img/g/group_'
+	keyID = c.AllGroups.keyColumn
+	permissionKey = 'g_'
 $code:
     lang = c.connectedUsers.users[mail].cuser.fields['language']
     
 $for a,elem in elements.items():
-    <div class="row active" style="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+    <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<div class="col-xs-2" >$elem.fields['acronym']</div>
-	<div class="col-xs-6">
+	<div class="col-xs-4">
 	<strong>$elem.getName(lang)</strong>
 	</div>
 	<div class="col-xs-2">
 	    <strong><a href="/$type/$elem.fields[keyID]"><span class="glyphicon glyphicon-edit"></span></a></strong>
+	</div>
+	<div class="col-xs-2">
+	    <strong><a href="/permissions/$(permissionKey)$elem.fields[keyID]"><span class="halflings halflings-education"></span></a></strong>
 	</div>
 	<div class="col-xs-2">
 	    <button type="button" class="btn btn-info btn-md" data-toggle="modal" data-target="#$elem.fields[keyID]Modal">Voir infos</button>
@@ -52,7 +65,7 @@ $for a,elem in elements.items():
 			    <span class="glyphicon glyphicon-flag"><strong>   $elem.fields['acronym']</span></strong>
 			</div>
 			<div class="col-xs-1">
-			    $if elem.fields['deny'] == 1 :
+			    $if elem.fields['deny'] == '1' or elem.fields['deny'] == 1 :
 				<span class="glyphicon glyphicon-ok-circle"></span>
 			    $else :
 				<span class="glyphicon glyphicon-remove-circle"></span>		    
@@ -82,6 +95,65 @@ $for a,elem in elements.items():
 			    </div>
 			    <div class="col-xs-7">
 				$elem.getName(lang)
+			    </div>
+			</div>
+		    <div class="row">
+			<div class="col-xs-3">
+			    $c.AllMessages.elements['group'].getName(lang) :
+			</div>
+		    </div>
+		    
+		    $code:
+			groupList = c.hierarchyString(lang,c.createHierarchy(c.connectedUsers.users[mail].cuser))
+			indent = 1
+			cindent = 11
+			elemgroup = []
+			for k,v in elem.groups.items():
+			    elemgroup.append(v.getName(lang))
+		    $if len(groupList) > 0:
+			$for group in groupList:
+			    $if group == 'IN' :
+				$code:
+				    indent+=1
+				    cindent-=1
+			    $elif group == 'OUT':
+				$code:
+				    indent-=1
+				    cindent+=1
+			    $else :
+				<div class="row">
+				    <div class="col-xs-$indent">
+				    </div>
+				    <div class="col-xs-$cindent">
+					$if type != 'groups':
+					    $if group in elemgroup:
+						<strong>$group</strong>
+					    $else:
+						$group
+					$else:
+					    $if group == elem.getName(lang):
+						<strong>$group</strong>
+					    $else:
+						$group
+				    </div>
+				</div>
+			
+		    $if elem.code is not None :
+			<div class="row">
+			    <div class="col-xs-4">
+				$c.AllMessages.elements['code'].getName(lang) :
+			    </div>
+			    <div class="col-xs-8">
+				$elem.code
+			    </div>
+			</div>
+		    $else:
+			<div class="row">
+			    <div class="col-xs-4">
+				$c.AllMessages.elements['code'].getName(lang) :
+			    </div>
+			    <div class="col-xs-8">
+				-
 			    </div>
 			</div>
 		    <div class="row">
@@ -121,9 +193,11 @@ $for a,elem in elements.items():
 </div>
 <div class="col-xs-6">
     $if type == 'places':
-	<strong><a href="/places/new">Add a new place</a></strong>
+	<strong><a href="/places/new">$c.AllMessages.elements['createp'].getName(lang)</a></strong>
     $elif type == 'users':
-	<strong><a href="/users/new">Add a new user</a></strong>
+	<strong><a href="/users/new">$c.AllMessages.elements['createu'].getName(lang)</a></strong>
     $elif type == 'equipments':
-	<strong><a href="/equipments/new">Add a new equipment</a></strong>
+	<strong><a href="/equipments/new">$c.AllMessages.elements['createe'].getName(lang)</a></strong>
+    $elif type == 'groups':
+	<strong><a href="/groups/new">$c.AllMessages.elements['createg'].getName(lang)</a></strong>
 </div>

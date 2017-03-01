@@ -50,6 +50,16 @@ $code:
 	</div>
 	
 	<div class="form-group row">
+	    <label for="inputBarcode" class="col-sm-2 col-form-label">$c.AllMessages.elements['code'].getName(lang)</label>
+	    <div class="col-sm-8">
+		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.AllMessages.elements['code'].getName(lang)" 
+		$if id != 'new':
+		    value="$c.AllUsers.elements[id].code"
+		required="true">
+	    </div>
+	</div>
+	
+	<div class="form-group row">
 	    <label for="inputRemark" class="col-sm-2 col-form-label">$c.AllMessages.elements['remark'].getName(lang)</label>
 	    <div class="col-sm-8">
 		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >
@@ -60,8 +70,11 @@ $if id != 'new':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputDeny" class="col-sm-5 col-form-label">$c.AllMessages.elements['deny'].getName(lang)</label>
-	    <label><input id='inputDeny'name="deny" type="checkbox" value="1"></label>
+	    <label for="inputDeny" class="col-sm-5 col-form-label">$c.AllMessages.elements['deny'].names[lang]['name']</label>
+	    <label class="switch">
+		<input id='inputDeny'name="deny" type="checkbox" value="1" type="checkbox" >
+		<div class="slider round"></div>
+	    </label>
 	</div>
 	
 	<div class="form-group row">

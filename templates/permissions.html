@@ -1,0 +1,70 @@
+$def with (c,mail,id,type)
+
+$if type == 'p':
+    $var location: places/ $id
+    $code :
+	element = c.AllPieces.elements[id]
+	imgDir = '/static/img/p/place_'
+	keyID = c.AllPieces.keyColumn
+	classname = 'place'
+$elif type == 'u':
+    $var location: users/ $id
+    $code :
+	element = c.AllUsers.elements[id]
+	imgDir = '/static/img/u/user_'
+	keyID = c.AllUsers.keyColumn	
+	classname = 'user'
+$elif type == 'e':
+    $var location: equipments/ $id
+    $code :
+	element = c.AllEquipments.elements[id]
+	imgDir = '/static/img/e/equipment_'
+	keyID = c.AllEquipments.keyColumn
+	classname = 'equipment'
+$elif type == 'g':
+    $var location: groups/ $id
+    $code :
+	element = c.AllGroups.elements[id]
+	imgDir = '/static/img/g/group_'
+	keyID = c.AllGroups.keyColumn
+	classname = 'group'
+
+$code:
+    lang = c.connectedUsers.users[mail].cuser.fields['language']
+
+<div class="container">
+    <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
+	<div class="form-group row">
+	    <label class="col-sm-4 col-form-label">$element.getName(lang)</label>
+	    <label class="col-sm-4 col-form-label">$element.fields['acronym']</label>
+	    <label class="col-sm-4 col-form-label">$c.AllMessages.elements[classname].getName(lang)</label>
+	</div>
+	<div class="form-group row">
+	    <label class="col-sm-3 col-form-label">$c.AllMessages.elements['modifygroup'].getName(lang)</label>
+	</div>
+
+	$for k,group in element.groups.items():
+	    <div class="form-group row">
+		<label  class="col-sm-2 col-form-label"></label>
+		<label for="inputGroups" class="col-sm-2 col-form-label">$group.getName(lang)</label>
+		<label class="switch">
+		    <input id='inputDeny'name="$k" type="checkbox" value="1" type="checkbox" checked>
+		    <div class="slider round"></div>
+		</label>
+	    </div>
+	<div class="form-group row">
+	    <label class="col-sm-3 col-form-label">$c.AllMessages.elements['addgroup'].getName(lang)</label>
+	</div>
+	$for k,group in c.AllGroups.elements.items():
+	    $if k not in element.groups.keys():
+		<div class="form-group row">
+		    <label  class="col-sm-2 col-form-label"></label>
+		    <label for="inputGroups" class="col-sm-2 col-form-label">$group.getName(lang)</label>
+		    <label class="switch">
+			<input id='inputDeny'name="$k" type="checkbox" value="1" type="checkbox" >
+			<div class="slider round"></div>
+		    </label>
+		</div>
+	<button style="float:right;" type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
