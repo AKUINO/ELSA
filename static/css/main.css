@@ -34,6 +34,14 @@
     background-color:#00152b;
     color:#f07e26;
 }
+.modal-body {
+}
+.glyphicon-ok-circle{
+    color:green;
+}
+.glyphicon-remove-circle{
+    color:red;
+}
 /* The Close Button */
 .close {
     color: #aaa;
@@ -41,10 +49,18 @@
     font-size: 28px;
     font-weight: bold;
 }
-
+.glyphicon{
+    font-size: 22px;
+}
+.halflings{
+    font-size: 22px;
+}
+#modalinfo{
+    background-color:white;
+}
 .close:hover,
 .close:focus {
-    color: black;
+    color: #f07e26;
     text-decoration: none;
     cursor: pointer;
 }
@@ -108,6 +124,16 @@ input:checked + .slider:before {
 
 body{
 	font-family: 'Open Sans', sans-serif;
+}
+
+form{
+    color:#f07e26;
+    background-color:#E5E5E7;
+    padding : 15px;
+}
+
+#listing {
+    font-size:18px;
 }
 
 .button-holder {
@@ -390,3 +416,5 @@ ul.nav.nav-tabs {
         max-width: 170px;
     }
 }
+
+

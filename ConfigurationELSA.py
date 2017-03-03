@@ -120,35 +120,40 @@ class Configuration():
 		    currObject.removekey(keyGroup)
 		    
     
-    def createHierarchy(self,user):
-	head = {}
+    def createHierarchy(self):
+	children = {}
 	for k,group in self.AllGroups.elements.items():
-	    boolHead = True
-	    for v,g in self.AllGroups.elements.items():
-		if g.containsGroup(group):
-		    boolHead = False
-	    if boolHead:
-		head[group.id] = group
-	w = Group()
-	w.fields['g_id'] = 'tmp'
-	w.setName('EN','*',user,'g_id')
-	w.groups = head
-	return w
+	    if len(group.groups) > 0:
+		for i,g in group.groups.items():
+		    if i in children:
+			del children[i]
+		children[k] = group
+	return children
     
-    def hierarchyString(self, lang, g, myString = None):
+    def hierarchyString(self, lang, g = None, myString = None):
 	if myString is None:
 	    myString = []
-	if len(g.groups) > 0 :
-	    myString.append(g.getName(lang))
-	    myString.append('IN')
-	    for k,group in g.groups.items():
+	for k,group in self.AllGroups.elements.items():
+	    cond1 = ( g == None and len(group.groups) == 0 )
+	    cond2 = ( g is not None and g.fields['g_id'] in group.groups )
+	    if cond1 or cond2:
+		myString.append(group.getName(lang))
+		myString.append('IN')
 		self.hierarchyString(lang,group,myString)
-	    myString.append('OUT')
-	else :
-	    return myString.append(g.getName(lang))
+		myString.append('OUT')
 	return myString
+		
 	
-	
+    def clearInOut(self,myList):
+	i = 0
+	tmp = []
+	while i < len(myList):
+	    if myList[i] == 'IN' and myList[i+1] == 'OUT':
+		i+=2
+	    else :
+		tmp.append(myList[i])
+		i+=1
+	return tmp
 
 class ConfigurationObject():
 
@@ -437,7 +442,7 @@ class AllEquipments(AllObjects):
         self.fileobject = csvDir + "E.csv"
 	self.filename = csvDir + "Enames.csv"
         self.keyColumn = "e_id"
-	self.fieldnames = ["begin", "deny", "e_id", "acronym", "remark", "user"]
+	self.fieldnames = ["begin", "deny", "e_id", "acronym", "remark",'colorgraph', "user"]
 	self.fieldtranslate = ['begin', 'lang', 'e_id', 'name', 'user']
 
     def newObject(self):
@@ -453,7 +458,7 @@ class AllPieces(AllObjects):
         self.fileobject = csvDir + "P.csv"
 	self.filename = csvDir + "Pnames.csv"
         self.keyColumn = "p_id"
-	self.fieldnames = ['begin', 'p_id', 'deny', 'acronym', 'remark', 'user']
+	self.fieldnames = ['begin', 'p_id', 'deny', 'acronym', 'remark','colorgraph', 'user']
 	self.fieldtranslate = ['begin', 'lang', 'p_id', 'name', 'user']
 	self.count = 0
 
@@ -875,6 +880,12 @@ class Group(ConfigurationObject):
 		elif v.containsGroup(oGroup):
 		    return True
 	return False
+	
+    def addGroup(self, oGroup):
+	currContainsGroup = currObject.containsGroup(group)
+	groupContainsCurr = group.containsGroup(currObject)
+	if ( not currContainsGroup ) and ( not groupContainsCurr ):
+	    self.groups[k] = group
 		
 
 class Piece(ConfigurationObject):

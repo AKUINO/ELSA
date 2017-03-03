@@ -30,21 +30,28 @@ $elif type == 'groups':
 	permissionKey = 'g_'
 $code:
     lang = c.connectedUsers.users[mail].cuser.fields['language']
+    groupList = c.hierarchyString(lang)
     
 $for a,elem in elements.items():
     <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
-	<div class="col-xs-2" >$elem.fields['acronym']</div>
-	<div class="col-xs-4">
-	<strong>$elem.getName(lang)</strong>
+	<div class="col-xs-12" >
+	    <div class="col-xs-4" >$elem.fields['acronym']</div>
+	    <div class="col-xs-8">
+		<strong>$elem.getName(lang)</strong>
+	    </div>
 	</div>
-	<div class="col-xs-2">
-	    <strong><a href="/$type/$elem.fields[keyID]"><span class="glyphicon glyphicon-edit"></span></a></strong>
-	</div>
-	<div class="col-xs-2">
-	    <strong><a href="/permissions/$(permissionKey)$elem.fields[keyID]"><span class="halflings halflings-education"></span></a></strong>
-	</div>
-	<div class="col-xs-2">
-	    <button type="button" class="btn btn-info btn-md" data-toggle="modal" data-target="#$elem.fields[keyID]Modal">Voir infos</button>
+	<div class="col-xs-12" id="listing">
+	    <div class="col-xs-6" >
+	    </div>
+	    <div class="col-xs-2">
+		<strong><a href="/$type/$elem.fields[keyID]"><span class="glyphicon glyphicon-edit"></span></a></strong>
+	    </div>
+	    <div class="col-xs-2">
+		<strong><a href="/permissions/$(permissionKey)$elem.fields[keyID]"><span class="halflings halflings-education"></span></a></strong>
+	    </div>
+	    <div class="col-xs-2">
+		<button type="button" class="btn btn-info btn-md" data-toggle="modal" data-target="#$elem.fields[keyID]Modal"><span class="halflings halflings-info-sign"></button>
+	    </div>
 	</div>
     </div>
     <div class="modal fade" id="$elem.fields[keyID]Modal" role="dialog">
@@ -58,17 +65,17 @@ $for a,elem in elements.items():
 	    <div class="modal-body">
 		<div class="container-fluid">
 		    <div class="row">
-			<div class="col-xs-5">
+			<div class="col-xs-3">
 			    <img src="$(imgDir)$(elem.fields[keyID]).jpg" alt="Image not found" style="width:128px;height:128px;">
 			</div>
-			<div class="col-xs-6">
+			<div id="modalinfo" class="col-xs-7">
 			    <span class="glyphicon glyphicon-flag"><strong>   $elem.fields['acronym']</span></strong>
 			</div>
-			<div class="col-xs-1">
+			<div id="modalinfo" class="col-xs-2">
 			    $if elem.fields['deny'] == '1' or elem.fields['deny'] == 1 :
-				<span class="glyphicon glyphicon-ok-circle"></span>
+				<span class="glyphicon glyphicon-ok-circle"> </span>
 			    $else :
-				<span class="glyphicon glyphicon-remove-circle"></span>		    
+				<span class="glyphicon glyphicon-remove-circle"> </span>		    
 			</div>
 		    </div>
 		    $if type!= 'users':
@@ -84,7 +91,7 @@ $for a,elem in elements.items():
 				<div class="col-xs-2">
 				    $lg
 				</div>
-				<div class="col-xs-7">
+				<div class="col-xs-7" id="modalinfo" >
 				    $elem.getName(lg)
 				</div>
 			    </div>
@@ -93,7 +100,7 @@ $for a,elem in elements.items():
 			    <div class="col-xs-3">
 				$c.AllMessages.elements['name'].getName(lang) :
 			    </div>
-			    <div class="col-xs-7">
+			    <div class="col-xs-7" id="modalinfo" >
 				$elem.getName(lang)
 			    </div>
 			</div>
@@ -104,7 +111,6 @@ $for a,elem in elements.items():
 		    </div>
 		    
 		    $code:
-			groupList = c.hierarchyString(lang,c.createHierarchy(c.connectedUsers.users[mail].cuser))
 			indent = 1
 			cindent = 11
 			elemgroup = []
@@ -121,10 +127,10 @@ $for a,elem in elements.items():
 				    indent-=1
 				    cindent+=1
 			    $else :
-				<div class="row">
+				<div class="row" >
 				    <div class="col-xs-$indent">
 				    </div>
-				    <div class="col-xs-$cindent">
+				    <div id="modalinfo" class="col-xs-$cindent">
 					$if type != 'groups':
 					    $if group in elemgroup:
 						<strong>$group</strong>
@@ -143,7 +149,7 @@ $for a,elem in elements.items():
 			    <div class="col-xs-4">
 				$c.AllMessages.elements['code'].getName(lang) :
 			    </div>
-			    <div class="col-xs-8">
+			    <div class="col-xs-8" id="modalinfo" >
 				$elem.code
 			    </div>
 			</div>
@@ -152,7 +158,7 @@ $for a,elem in elements.items():
 			    <div class="col-xs-4">
 				$c.AllMessages.elements['code'].getName(lang) :
 			    </div>
-			    <div class="col-xs-8">
+			    <div class="col-xs-8"id="modalinfo" >
 				-
 			    </div>
 			</div>
@@ -160,15 +166,29 @@ $for a,elem in elements.items():
 			<div class="col-xs-4">
 			    $c.AllMessages.elements['remark'].getName(lang) :
 			</div>
-			<div class="col-xs-8">
+			<div class="col-xs-8" id="modalinfo" >
 			    $elem.fields['remark']
 			</div>
 		    </div>
+		    
+		    $if 'colorgraph' in elem.fields :
+			<div class="row">
+			    <div class="col-xs-4">
+				$c.AllMessages.elements['color'].getName(lang) 
+			    </div>
+			    <div class="col-xs-2">
+			    </div>
+			    <div class="col-xs-4" style="background-color:$elem.fields['colorgraph'];" >$elem.fields['colorgraph']
+			    </div>
+			    <div class="col-xs-2">
+			    </div>
+			</div>
+		    
 		    <div class="row">
 			<div class="col-xs-4">
 			    $c.AllMessages.elements['created'].getName(lang) :
 			</div>
-			<div class="col-xs-8">
+			<div class="col-xs-8" id="modalinfo" >
 			    <strong>$c.AllUsers.elements[elem.creator].getName(lang) </strong> - <em>$elem.created</em>
 			</div>
 		    </div>
@@ -176,7 +196,7 @@ $for a,elem in elements.items():
 			<div class="col-xs-4">
 			    $c.AllMessages.elements['modified'].getName(lang) :
 			</div>
-			<div class="col-xs-8">
+			<div class="col-xs-8" id="modalinfo" >
 			    <strong>$c.AllUsers.elements[elem.fields['user']].getName(lang) </strong> - <em>$elem.fields['begin']</em>
 			</div>
 		    </div>
@@ -188,16 +208,17 @@ $for a,elem in elements.items():
 	  </div>
 	</div>
     </div>
-<div class="col-xs-5">
-    <p></p>
-</div>
-<div class="col-xs-6">
-    $if type == 'places':
-	<strong><a href="/places/new">$c.AllMessages.elements['createp'].getName(lang)</a></strong>
-    $elif type == 'users':
-	<strong><a href="/users/new">$c.AllMessages.elements['createu'].getName(lang)</a></strong>
-    $elif type == 'equipments':
-	<strong><a href="/equipments/new">$c.AllMessages.elements['createe'].getName(lang)</a></strong>
-    $elif type == 'groups':
-	<strong><a href="/groups/new">$c.AllMessages.elements['createg'].getName(lang)</a></strong>
-</div>
+<div class="row active" style="background-color:rgb(0, 21, 43);">
+    <div class="col-xs-5">
+    </div>
+    <div class="col-xs-6">
+	$if type == 'places':
+	    <strong><a href="/places/new"><span class="halflings halflings-plus"> <strong>$c.AllMessages.elements['place'].getName(lang)</strong></a></strong>
+	$elif type == 'users':
+	    <strong><a href="/users/new"><span class="halflings halflings-plus"> <strong>$c.AllMessages.elements['user'].getName(lang)</strong></a></strong>
+	$elif type == 'equipments':
+	    <strong><a href="/equipments/new"><span class="halflings halflings-plus"> <strong>$c.AllMessages.elements['equipment'].getName(lang)</strong></a></strong>
+	$elif type == 'groups':
+	    <strong><a href="/groups/new"><span class="halflings halflings-plus"> <strong>$c.AllMessages.elements['group'].getName(lang)</strong></a></strong>
+    </div>
+</div>    

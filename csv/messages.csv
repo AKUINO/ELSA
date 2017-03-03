@@ -103,3 +103,7 @@ begin	lang	m_id	name	user
 01/01/2016 13:45:56	EN	createp	"Create a new place"	1
 01/01/2016 13:45:56	NL	createp	"Maak een nieuwe plaats"	1
 01/01/2016 13:45:56	DE	createp	"Schaffe eine neue ort"	1
+01/01/2016 13:45:56	FR	color	"Couleur :"	1
+01/01/2016 13:45:56	EN	color	"Color :"	1
+01/01/2016 13:45:56	NL	color	"Kleur :"	1
+01/01/2016 13:45:56	DE	color	"Farbe :"	1

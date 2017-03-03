@@ -35,9 +35,12 @@ $code:
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	<div class="form-group row">
-	    <label class="col-sm-4 col-form-label">$element.getName(lang)</label>
-	    <label class="col-sm-4 col-form-label">$element.fields['acronym']</label>
-	    <label class="col-sm-4 col-form-label">$c.AllMessages.elements[classname].getName(lang)</label>
+	    <label class="col-sm-2 col-form-label">$c.AllMessages.elements['name'].getName(lang)</label>
+	    <label id="modalinfo" class="col-sm-2 col-form-label">$element.getName(lang)</label>
+	    <label class="col-sm-2 col-form-label">$c.AllMessages.elements['acronym'].getName(lang)</label>
+	    <label id="modalinfo" class="col-sm-2 col-form-label">$element.fields['acronym']</label>
+	    <label class="col-sm-2 col-form-label">Type :</label>
+	    <label id="modalinfo" class="col-sm-2 col-form-label">$c.AllMessages.elements[classname].getName(lang)</label>
 	</div>
 	<div class="form-group row">
 	    <label class="col-sm-3 col-form-label">$c.AllMessages.elements['modifygroup'].getName(lang)</label>
@@ -46,10 +49,14 @@ $code:
 	$for k,group in element.groups.items():
 	    <div class="form-group row">
 		<label  class="col-sm-2 col-form-label"></label>
-		<label for="inputGroups" class="col-sm-2 col-form-label">$group.getName(lang)</label>
-		<label class="switch">
-		    <input id='inputDeny'name="$k" type="checkbox" value="1" type="checkbox" checked>
-		    <div class="slider round"></div>
+		<label id="modalinfo" for="inputGroups" class="col-sm-2 col-form-label">$group.getName(lang)</label>
+		<label class="col-sm-8 col-form-label">
+		    <span class="glyphicon glyphicon-remove-circle"> </span>
+		    <label  class="switch">
+			<input id='inputDeny'name="$k" type="checkbox" value="1" type="checkbox" checked>
+			<div class="slider round"></div>
+		    </label>
+		    <span class="glyphicon glyphicon-ok-circle"> </span>
 		</label>
 	    </div>
 	<div class="form-group row">
@@ -59,12 +66,24 @@ $code:
 	    $if k not in element.groups.keys():
 		<div class="form-group row">
 		    <label  class="col-sm-2 col-form-label"></label>
-		    <label for="inputGroups" class="col-sm-2 col-form-label">$group.getName(lang)</label>
-		    <label class="switch">
-			<input id='inputDeny'name="$k" type="checkbox" value="1" type="checkbox" >
-			<div class="slider round"></div>
+		    <label id="modalinfo" for="inputGroups" class="col-sm-2 col-form-label">$group.getName(lang)</label>
+		    <label class="col-sm-8 col-form-label">
+			<span class="glyphicon glyphicon-remove-circle"> </span>
+			<label class="switch">
+			    <input id='inputDeny'name="$k" type="checkbox" value="1" type="checkbox" >
+			    <div class="slider round"></div>
+			</label>
+			<span class="glyphicon glyphicon-ok-circle"> </span>
 		    </label>
 		</div>
-	<button style="float:right;" type="submit" class="btn btn-primary">Submit</button>
+	<div class="form-group row">
+	    <div class="col-sm-5">
+	    </div>
+	    <div class="col-sm-2">
+		<button type="submit" class="btn btn-primary btn-block">Save</button>
+	    </div> 
+	    <div class="col-sm-5">
+	    </div>
+	</div>
     </form>
 </div>

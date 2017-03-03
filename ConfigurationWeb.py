@@ -24,6 +24,7 @@ urls = (
 c=elsa.Configuration()
 c.load()
 
+print c.AllEquipments.elements['2'].fields['remark'][:-1]
 
 class WebObject():
     def __init__(self):
@@ -33,6 +34,17 @@ class WebObject():
 	if mail is not None:
 	    return self.getRender(mail)
 	return render.index(False,c,'')
+	
+    def POST(self):
+	data = web.input(nifile={})
+	method = data.get("method","malformed")
+	connectedUser = connexion(data._username_,data._password_)
+	if connectedUser is not None:
+	    infoCookie = data._username_ + ',' + connectedUser.fields['password']
+	    web.setcookie('webpy', infoCookie, expires=900)
+	    c.connectedUsers.addUser(connectedUser)
+	    return render.index(True, c, data._username_) 
+	return render.index(False, c, '')
 	
 class WebObjectUpdate():
     def GET(self,id):
@@ -47,12 +59,14 @@ class WebObjectUpdate():
 	if mail is not None:
 	    currObject = c.getObject(id,self.name)
 	    imgDirectory = 'static/img'
-	    
+	    infoCookie = mail + ',' + user.fields['password']
+	    web.setcookie('webpy', infoCookie, expires=900)
 	    if currObject is None:
 		raise web.seeother('/')
 		
 	    data = web.input(placeImg={})
 	    method = data.get("method","malformed")
+	    printinfo(data)
 	    for key in c.getFieldsname(self.name):
 		if key in data:
 		    currObject.fields[key] = data[key]
@@ -65,6 +79,9 @@ class WebObjectUpdate():
 		currObject.fields['deny'] = 1
 	    else:
 		currObject.fields['deny'] = 0
+	    
+	    if 'remark' in currObject.fields:
+		currObject.fields['remark'] = currObject.fields['remark'][:-1]
 		
 	    if currObject.creator is None:
 		currObject.creator = user.fields['u_id']
@@ -93,17 +110,6 @@ class WebIndex(WebObject):
 	
     def getRender(self, mail):
 	return render.index(True,c,mail)
-	
-    def POST(self):
-	data = web.input(nifile={})
-	method = data.get("method","malformed")
-	connectedUser = connexion(data._username_,data._password_)
-	if connectedUser is not None:
-	    infoCookie = data._username_ + ',' + connectedUser.fields['password']
-	    web.setcookie('webpy', infoCookie, expires=900)
-	    c.connectedUsers.addUser(connectedUser)
-	    return render.index(True, c, data._username_) 
-	return render.index(False, c, '')
 	
 class WebPlaces(WebObject):
     def __init__(self):

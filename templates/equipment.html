@@ -10,18 +10,18 @@ $else:
 $code:
     lang = c.connectedUsers.users[mail].cuser.fields['language']
 <div class="container">
-    <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
+    <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	
 	<div class="form-group row">
-	    <label for="inputName" class="col-sm-2 col-form-label">$c.AllMessages.elements['name'].getName(lang)</label>
+	    <label for="inputName" class="col-sm-3 col-form-label">$c.AllMessages.elements['name'].getName(lang)</label>
 	</div>
 	
 	$for k,v in c.AllLanguages.elements.items():
 	    <div class="form-group row">
-		<div class="col-sm-2">
+		<div class="col-sm-3">
 		    <strong>$v.fields['name']</strong>
 		</div>
-		<div class="col-sm-8">
+		<div class="col-sm-9">
 		    <input name="$k" type="text" class="form-control" id="inputName" placeholder="Name"
 		$if id !='new':
 		    value="$c.AllEquipments.elements[id].getName(lang)"
@@ -30,8 +30,8 @@ $code:
 	    </div>
 	
 	<div class="form-group row">
-	    <label for="inputAcronym" class="col-sm-2 col-form-label">$c.AllMessages.elements['acronym'].getName(lang)</label>
-	    <div class="col-sm-8">
+	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(lang)</label>
+	    <div class="col-sm-9">
 		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.AllMessages.elements['acronym'].getName(lang)" 
 		$if id != 'new':
 		    value="$c.AllEquipments.elements[id].fields['acronym']"
@@ -40,8 +40,8 @@ $code:
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputBarcode" class="col-sm-2 col-form-label">$c.AllMessages.elements['code'].getName(lang)</label>
-	    <div class="col-sm-8">
+	    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.AllMessages.elements['code'].getName(lang)</label>
+	    <div class="col-sm-9">
 		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.AllMessages.elements['code'].getName(lang)" 
 		$if id != 'new':
 		    value="$c.AllEquipments.elements[id].code"
@@ -50,8 +50,8 @@ $code:
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputRemark" class="col-sm-2 col-form-label">$c.AllMessages.elements['remark'].getName(lang)</label>
-	    <div class="col-sm-8">
+	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(lang)</label>
+	    <div class="col-sm-9">
 		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >
 $if id != 'new':
     $c.AllEquipments.elements[id].fields['remark']
@@ -60,7 +60,7 @@ $if id != 'new':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputDeny" class="col-sm-5 col-form-label">$c.AllMessages.elements['deny'].names[lang]['name']</label>
+	    <label for="inputDeny" class="col-sm-6 col-form-label">$c.AllMessages.elements['deny'].names[lang]['name']</label>
 	    <label class="switch">
 		<input id='inputDeny'name="deny" type="checkbox" value="1" type="checkbox" >
 		<div class="slider round"></div>
@@ -68,12 +68,29 @@ $if id != 'new':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputFile" class="col-sm-5 col-form-label">$c.AllMessages.elements['file'].getName(lang)</label>
+	    <div class="col-sm-3">
+		<label for="includedContent" class="col-sm-6 col-form-label">$c.AllMessages.elements['color'].names[lang]['name']</label>
+	    </div>
+	    <div id="includedContent" class="form-group col-sm-9">
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputFile" class="col-sm-6 col-form-label">$c.AllMessages.elements['file'].getName(lang)</label>
 	    <label class="control-label"></label>
 	    <input id="inputFile" name="placeImg" multiple type="file" class="file file-loading" data-allowed-file-extensions='["jpg", "jpeg"]'>
 	</div>
 	
-	<button style="float:right;" type="submit" class="btn btn-primary">Submit</button>
+	<div class="form-group row">
+	    <div class="col-sm-5">
+	    </div>
+	    <div class="col-sm-2">
+		<button type="submit" class="btn btn-primary btn-block">Save</button>
+	    </div> 
+	    <div class="col-sm-5">
+	    </div>
+	</div>
+	
     </form>
 </div>
 

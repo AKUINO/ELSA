@@ -25,3 +25,4 @@ begin	m_id	default	user
 01/01/2016 13:45:56	createp	"Add a new place"	1
 01/01/2016 13:45:56	createu	"Add a new user"	1
 01/01/2016 13:45:56	createg	"Add a new group"	1
+01/01/2016 13:45:56	color	"Color :"	1
