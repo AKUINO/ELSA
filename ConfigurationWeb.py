@@ -24,7 +24,7 @@ urls = (
 c=elsa.Configuration()
 c.load()
 
-print c.AllEquipments.elements['2'].fields['remark'][:-1]
+print c.AllSensors.elements['1']
 
 class WebObject():
     def __init__(self):

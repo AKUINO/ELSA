@@ -21,6 +21,8 @@ class Configuration():
 	self.AllMessages = AllMessages(self)
 	self.AllEquipments = AllEquipments(self)
 	self.AllGroups = AllGroups(self)
+	self.AllMeasures = AllMeasures(self)
+	self.AllSensors = AllSensors(self)
 	self.connectedUsers = AllConnectedUsers()
 
     def load(self):
@@ -30,6 +32,8 @@ class Configuration():
 	self.AllEquipments.load()	
 	self.AllMessages.load()
 	self.AllGroups.load()
+	self.AllMeasures.load()
+	self.AllSensors.load()
 	#doit toujours être appelé à la fin
 	self.loadCodes()
 	self.loadRelation()
@@ -101,7 +105,9 @@ class Configuration():
 	elif aType == u"p":
 	    return self.AllPieces 
 	elif aType == u"g":
-	    return self.AllGroups 
+	    return self.AllGroups
+	elif aType == u"m":
+	    return self.AllMeasures
         else:
             return None
 	    
@@ -486,10 +492,15 @@ class AllGroups(AllObjects):
 class AllMeasures(AllObjects):
 
     def __init__(self, config):
+	AllObjects.__init__(self)
         self.elements = {}
         self.config = config
-        self.filename = csvDir + "M.csv"
+        self.fileobject = csvDir + "M.csv"
+	self.filename = csvDir + "Mnames.csv"
         self.keyColumn = "m_id"
+	self.fieldnames = ['begin', 'p_id', 'deny', 'acronym', 'unit', 'source', 'formula', 'remark', 'user']
+	self.fieldtranslate = ['begin', 'lang', 'm_id', 'name', 'user']
+	self.count = 0
 
     def newObject(self):
         return Measure()
@@ -497,34 +508,15 @@ class AllMeasures(AllObjects):
 class AllSensors(AllObjects):
 
     def __init__(self, config):
+        AllObjects.__init__(self)
         self.elements = {}
         self.config = config
-        self.filename = csvDir + "PEM.csv"
-        self.keyColumn = "p_id"
-        self.keyColumn2 = "e_id"
-        self.keyColumn3 = "m_id"
-
-    def load(self):
-        with open(self.filename) as csvfile:
-            reader = csv.DictReader(csvfile, delimiter = "\t")
-            for row in reader:
-                if((not 'deny' in row) or (row['deny'] != "1")):
-                    key = row[self.keyColumn] + "-" + row[self.keyColumn2] + "-" + row[self.keyColumn3]
-                    currObject = self.newObject()
-                    currObject.fields = row
-                    currObject.id = key
-                    self.elements[key] = currObject
-                    for equip in self.config.AllEquipments.elements:
-                        if(self.config.AllEquipments.elements[equip].fields['e_id'] == row[self.keyColumn2]):
-                            self.config.AllEquipments.elements[equip].sensors.add(currObject)
-                    for measure in self.config.AllMeasures.elements:
-                        if(self.config.AllMeasures.elements[measure].fields['m_id'] == row[self.keyColumn3]):
-                            self.config.AllMeasures.elements[measure].sensors.add(currObject)
-                    for piece in self.config.AllPieces.elements:
-                        if(self.config.AllPieces.elements[piece].fields['p_id'] == row[self.keyColumn]):
-                            self.config.AllPieces.elements[piece].sensors.add(currObject)
-                else:
-                    print self.filename+': '+row['name'] + " is denied !"
+        self.fileobject = csvDir + "CPEHM.csv"
+	self.filename = csvDir + "CPEHMnames.csv"
+        self.keyColumn = "cpehm_id"
+	self.fieldnames = ['begin', 'cpehm_id', 'c_id', 'p_id', 'e_id', 'h_id', 'm_id', 'acronym', 'deny', 'remark', 'user']
+	self.fieldtranslate = ['begin', 'lang', 'cpehm_id', 'name', 'user']
+	self.count = 0
 
     def newObject(self):
         return Sensor()
@@ -780,8 +772,7 @@ class Language(ConfigurationObject):
 
 class Message(ConfigurationObject):
     
-    def __init__(self):
-	ConfigurationObject.__init__(self)
+    
 
     def __repr__(self):
         string = self.id + " " + self.fields['default']
@@ -837,7 +828,6 @@ class Equipment(ConfigurationObject):
 
     def __init__(self):
 	ConfigurationObject.__init__(self)
-        self.sensors = sets.Set()
 
     def __repr__(self):
         string = self.id + " " + self.fields['acronym']
@@ -912,6 +902,7 @@ class Piece(ConfigurationObject):
 class Measure(ConfigurationObject):
 
     def __init__(self):
+	ConfigurationObject.__init__(self)
         self.sensors = sets.Set()
 
     def __repr__(self):
@@ -926,6 +917,8 @@ class Measure(ConfigurationObject):
 	    
 
 class Sensor(ConfigurationObject):
+    def __init__(self):
+	ConfigurationObject.__init__(self)
     
     def __repr__(self):
         string = self.id + " " + self.fields['channel'] + " " + self.fields['name']

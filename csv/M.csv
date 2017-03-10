@@ -1,15 +1,2 @@
-"begin"	"m_group"	"deny"	"m_id"	"acronym"	"name"	"barcode"	"unit"	"source"	"formula"	"remark"
-"01/01/2016 00:00:00"	"CNSV"		"TEMP"	"temp"	"Temperature"	4100000000010	"°C"	"sensor"		
-"01/01/2016 00:00:00"	"DURE"		"MINU"	"Dm"	"Minutes"	4100000000027	"min"	"time"	"step.duration/60000"	
-"01/01/2016 00:00:00"	"DURE"		"HEUR"	"Dh"	"Heures"	4100000000034	"H"	"time"	"step.duration/(60*60000)"	
-"01/01/2016 00:00:00"	"DURE"		"JOUR"	"Dj"	"Jours"	4100000000041	"J"	"time"	"step.duration/(24*60*60000)"	
-"01/01/2016 00:00:00"	"QTITE"		"DEJA"	"deja"	"Vis.passees"	4100000000058	"x"	"scan"		
-"01/01/2016 00:00:00"	"OK"		"REVENIR"	"revenir"	"Quantite"	4100000000072	"?"	"scan"		
-"01/01/2016 00:00:01"	"CNSV"		"TRPI"	"tRPi"	"Temp.Rpi"	4100000000089	"°C"	"sensor"		
-"01/01/2016 00:00:01"	"CNSV"		"LUX"	"Lum"	"Luminosite"	4100000000096	"lux"	"sensor"		
-"01/01/2016 00:00:01"	"CNSV"		"RH"	"RH"	"Humidite"	4100000000102	"%"	"sensor"		
-"01/01/2016 00:00:01"	"CNSV"		"CO2"	"CO2"	"CO2"	4100000000119	"ppm"	"sensor"		
-"01/01/2016 00:00:01"	"CNSV"		"TANI"	"tAni"	"Temp Animateur"	4100000000126	"°C"	"sensor"		
-"01/01/2016 00:00:01"	"QTITE"		"THEME"	"Them"	"Theme"	4100000000133	"!"	"scan"		
-"01/01/2016 00:00:02"	"QTITE"		"INTER"	"Inter"	"Interet"	4100000000140	"*"	"scan"		
-"01/01/2016 00:00:02"	"QTITE"		"HEURE"	"H"	"Heures"	4100000000065	"h"	"scan"		
+begin	deny	m_id	acronym	unit	source	formula	remark	user
+09:54:46  -  23/02/17	0	1	TEMP	°C	sensor		rmq	1	
