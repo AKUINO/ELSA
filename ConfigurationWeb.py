@@ -26,12 +26,7 @@ urls = (
     '/sensors/', 'WebSensors',
     '/sensors/(.+)','WebSensor',
 )
-#Configuration Singleton ELSA
-c=elsa.Configuration()
-c.load()
 
-cond = c.AllSensors.elements['1']
-print cond
 
 class WebObject():
     def __init__(self):
@@ -312,5 +307,15 @@ def printinfo(user):
     print user
 
 if __name__ == "__main__":
-    app = web.application(urls, globals())
-    app.run()
+    try:
+	#Configuration Singleton ELSA
+	c=elsa.Configuration()
+	c.load()
+	app = web.application(urls, globals())
+	app.run()
+	
+    except KeyboardInterrupt:
+	print 'Interrupted'
+	c.isThreading = False
+	c.UpdateThread.join()
+	

@@ -6,11 +6,21 @@ import time
 import traceback
 import unicodecsv
 import datetime
+import random
+import sys
+import threading
+import time
+import os
+import rrdtool
+
+
+
 #mise a jour git
 csvDir = "csv/"
 class Configuration():
 
     def __init__(self):
+	self.InfoSystem = InfoSystem()
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
 	self.fieldcode = ['begin', 'type', 'idobject', 'code', 'user']
@@ -25,6 +35,8 @@ class Configuration():
 	self.AllMeasures = AllMeasures(self)
 	self.AllSensors = AllSensors(self)
 	self.connectedUsers = AllConnectedUsers()
+	self.isThreading = True
+	self.UpdateThread = UpdateThread(self)
 
     def load(self):
 	self.AllLanguages.load()
@@ -39,6 +51,7 @@ class Configuration():
 	#doit toujours être appelé à la fin
 	self.loadCodes()
 	self.loadRelation()
+	self.UpdateThread.start()
 	
     def loadCodes(self):
 	with open(self.csvCodes) as csvfile:
@@ -184,6 +197,60 @@ class Configuration():
 		tmp.append(myList[i])
 		i+=1
 	return tmp
+	
+
+class InfoSystem():
+    
+    def __init__(self):
+	self.begin = -1
+	self.uptime = 0
+	self.memTot = 0
+	self.memFree = 0
+	self.memAvailable = 0
+	self.load1 = 0
+	self.load5 = 0
+	self.load15 = 0
+	self.temperature = 0	
+	
+    def updateInfoSystem(self,data):
+	
+	if self.begin == -1:
+	    self.begin = data
+	self.uptime = data - self.begin
+	rrdtool.update('rrd/systemeuptime.rrd' , '%d:%d' % (data , self.uptime))
+	
+	info = os.popen('cat /sys/class/thermal/thermal_zone0/temp','r')
+	info = info.read()
+	self.temperature = float(tmp.split('\n')[0])/1000.0
+	rrdtool.update('rrd/temperaturecpu.rrd' , '%d:%f' % (data , self.temperature))
+	
+	info = os.popen('cat /proc/meminfo','r')
+	info = info.read()
+	info = info.split('\n')
+	self.memTot = info[0]
+	self.memFree = info[1]
+	self.memAvailable = info[2]
+	self.memTot = self.memTot.split(':')[1]
+	self.memFree = self.memFree.split(':')[1]
+	self.memAvailable = self.memAvailable.split(':')[1]
+	self.memTot = self.memTot.split(' ')[-2]
+	self.memFree = self.memFree.split(' ')[-2]
+	self.memAvailable = self.memAvailable.split(' ')[-2]
+	self.memTot = float(self.memTot)
+	self.memFree = float(self.memFree)
+	self.memAvailable = float(self.memAvailable)
+	self.memTot /= 1000.0
+	self.memFree /= 1000.0
+	self.memAvailable /= 1000.0
+	rrdtool.update('rrd/memoryinfo.rrd' , '%d:%f:%f:%f' % (data , self.memTot, self.memFree, self.memAvailable))
+	
+	info = os.popen('cat /proc/loadavg')
+	info = info.read()
+	info = info.split(' ')
+	self.load1 = float(info[0])
+	self.load5 = float(info[1])
+	self.load15 = float(info[2])
+	rrdtool.update('rrd/cpuload.rrd' , '%d:%f:%f:%f' % (data , self.load1, self.load5, self.load15))
 
 class ConfigurationObject():
 
@@ -318,6 +385,18 @@ class ConfigurationObject():
 		if v.containsGroup(oGroup):
 		    return True
 	return False
+
+class UpdateThread(threading.Thread):
+
+    def __init__(self,config):
+        threading.Thread.__init__(self)
+        self.config = config
+
+    def run(self):
+	while self.config.isThreading:
+	    self.config.InfoSystem.updateInfoSystem()
+	    time.sleep(60)
+        
 
 class AllObjects():
 
@@ -1015,8 +1094,7 @@ class Sensor(ConfigurationObject):
 	elif typeComponent == 'c' :
 	    self.fields['c_id'] = tmp[-1]
 	elif typeComponent == 'e' :
-	    self.fields['e_id'] = tmp[-1]
-	    
+	    self.fields['e_id'] = tmp[-1]	    
 	    
     def addMeasure(self, data):
 	tmp = data.split('_')
@@ -1025,6 +1103,14 @@ class Sensor(ConfigurationObject):
 	    
     def addPhase(self, data):
 	self.fields['h_id'] = data
+	
+    def update(self,data):
+	sys.stdout.write('Flip je viens du thread')
+	sys.stdout.flush()
+	sys.stdout.write(str(data))
+	sys.stdout.flush()
+	
+	    
 	    
 	    
 class Batch(ConfigurationObject):
