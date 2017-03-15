@@ -1,0 +1,96 @@
+$def with (c, id, mail)
+
+
+$if id == 'new':
+    $var location: containers/ new
+    
+$else:
+    $var location: containers/ $c.AllContainers.elements[id].fields['c_id']
+
+$code:
+    lang = c.connectedUsers.users[mail].cuser.fields['language']
+<div class="container">
+    <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
+	
+	<div class="form-group row">
+	    <label for="inputName" class="col-sm-3 col-form-label">$c.AllMessages.elements['name'].getName(lang)</label>
+	</div>
+	
+	$for k,v in c.AllLanguages.elements.items():
+	    <div class="form-group row">
+		<div class="col-sm-3">
+		    <strong>$v.fields['name']</strong>
+		</div>
+		<div class="col-sm-9">
+		    <input name="$k" type="text" class="form-control" id="inputName" placeholder="Name"
+		$if id !='new':
+		    value="$c.AllContainers.elements[id].getName(lang)"
+		required="true" >
+		</div>
+	    </div>
+	
+	<div class="form-group row">
+	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(lang)</label>
+	    <div class="col-sm-9">
+		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.AllMessages.elements['acronym'].getName(lang)" 
+		$if id != 'new':
+		    value="$c.AllContainers.elements[id].fields['acronym']"
+		required="true">
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.AllMessages.elements['code'].getName(lang)</label>
+	    <div class="col-sm-9">
+		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.AllMessages.elements['code'].getName(lang)" 
+		$if id != 'new':
+		    value="$c.AllContainers.elements[id].code"
+		required="true">
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(lang)</label>
+	    <div class="col-sm-9">
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >
+$if id != 'new':
+    $c.AllContainers.elements[id].fields['remark']
+</textarea>
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputDeny" class="col-sm-6 col-form-label">$c.AllMessages.elements['deny'].names[lang]['name']</label>
+	    <label class="switch">
+		<input id='inputDeny'name="deny" type="checkbox" value="1" type="checkbox" >
+		<div class="slider round"></div>
+	    </label>
+	</div>
+	
+	<div class="form-group row">
+	    <div class="col-sm-3">
+		<label for="includedContent" class="col-sm-6 col-form-label">$c.AllMessages.elements['color'].names[lang]['name']</label>
+	    </div>
+	    <div id="includedContent" class="form-group col-sm-9">
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputFile" class="col-sm-6 col-form-label">$c.AllMessages.elements['file'].getName(lang)</label>
+	    <label class="control-label"></label>
+	    <input id="inputFile" name="placeImg" multiple type="file" class="file file-loading" data-allowed-file-extensions='["jpg", "jpeg"]'>
+	</div>
+	
+	<div class="form-group row">
+	    <div class="col-sm-5">
+	    </div>
+	    <div class="col-sm-2">
+		<button type="submit" class="btn btn-primary btn-block">Save</button>
+	    </div> 
+	    <div class="col-sm-5">
+	    </div>
+	</div>
+	
+    </form>
+</div>
+

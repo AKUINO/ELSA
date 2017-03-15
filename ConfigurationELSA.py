@@ -18,6 +18,7 @@ class Configuration():
         self.AllUsers = AllUsers(self)
 	self.AllLanguages = AllLanguages(self)
         self.AllPieces = AllPieces(self)
+        self.AllContainers = AllContainers(self)
 	self.AllMessages = AllMessages(self)
 	self.AllEquipments = AllEquipments(self)
 	self.AllGroups = AllGroups(self)
@@ -29,7 +30,8 @@ class Configuration():
 	self.AllLanguages.load()
         self.AllUsers.load()
         self.AllPieces.load()
-	self.AllEquipments.load()	
+	self.AllEquipments.load()
+	self.AllContainers.load()	
 	self.AllMessages.load()
 	self.AllGroups.load()
 	self.AllMeasures.load()
@@ -60,6 +62,12 @@ class Configuration():
 	    return self.AllPieces 
 	elif className == u"Group":
 	    return self.AllGroups 
+	elif className == u"Container":
+	    return self.AllContainers 
+	elif className == u"Measure":
+	    return self.AllMeasures 
+	elif className == u"Sensor":
+	    return self.AllSensors 
         else:
             return None
 	    
@@ -74,6 +82,12 @@ class Configuration():
 	    return self.AllPieces.getItem(idObject)
 	elif className == u"WebGroup" or className == u"g":
 	    return self.AllGroups.getItem(idObject)
+	elif className == u"WebContainer" or className == u"c":
+	    return self.AllContainers.getItem(idObject)
+	elif className == u"WebMeasure" or className == u"m":
+	    return self.AllMeasures.getItem(idObject)
+	elif className == u"WebSensor" or className == u"cpehm":
+	    return self.AllSensors.getItem(idObject)
         else:
             return None
     
@@ -88,6 +102,12 @@ class Configuration():
 	    return self.AllPieces.fieldnames  
 	elif className == u"WebGroup":
 	    return self.AllGroups.fieldnames  
+	elif className == u"WebContainer":
+	    return self.AllContainers.fieldnames  
+	elif className == u"WebMeasure":
+	    return self.AllMeasures.fieldnames  
+	elif className == u"WebSensor":
+	    return self.AllSensors.fieldnames  
         else:
             return None
 	    
@@ -106,8 +126,12 @@ class Configuration():
 	    return self.AllPieces 
 	elif aType == u"g":
 	    return self.AllGroups
+	elif aType == u"c":
+	    return self.AllContainers
 	elif aType == u"m":
 	    return self.AllMeasures
+	elif aType == u"cpehm":
+	    return self.AllSensors
         else:
             return None
 	    
@@ -238,6 +262,8 @@ class ConfigurationObject():
             return directory + '/p/place_'+self.fields['p_id']+'.'  
 	elif self.__class__.__name__ == u"Group":
             return directory + '/g/group_'+self.fields['g_id']+'.' 
+	elif self.__class__.__name__ == u"Container":
+            return directory + '/c/group_'+self.fields['c_id']+'.' 
         else:
             return None
 
@@ -448,12 +474,26 @@ class AllEquipments(AllObjects):
         self.fileobject = csvDir + "E.csv"
 	self.filename = csvDir + "Enames.csv"
         self.keyColumn = "e_id"
-	self.fieldnames = ["begin", "deny", "e_id", "acronym", "remark",'colorgraph', "user"]
+	self.fieldnames = ["begin", "e_id", "deny", "acronym", "remark",'colorgraph', "user"]
 	self.fieldtranslate = ['begin', 'lang', 'e_id', 'name', 'user']
 
     def newObject(self):
         return Equipment()
-	
+
+class AllContainers(AllObjects):
+
+    def __init__(self, config):
+	AllObjects.__init__(self)
+        self.elements = {}
+        self.config = config
+        self.fileobject = csvDir + "C.csv"
+	self.filename = csvDir + "Cnames.csv"
+        self.keyColumn = "c_id"
+	self.fieldnames = ["begin", "c_id", "deny", "acronym", "remark",'colorgraph', "user"]
+	self.fieldtranslate = ['begin', 'lang', 'c_id', 'name', 'user']
+
+    def newObject(self):
+        return Container()	
 
 class AllPieces(AllObjects):
 
@@ -482,7 +522,7 @@ class AllGroups(AllObjects):
         self.fileobject = csvDir + "G.csv"
 	self.filename = csvDir + "Gnames.csv"
         self.keyColumn = "g_id"
-	self.fieldnames = ["begin", "deny", "g_id", "acronym", "remark", "user"]
+	self.fieldnames = ["begin", "g_id", "deny", "acronym", "remark", "user"]
 	self.fieldtranslate = ['begin', 'lang', 'g_id', 'name', 'user']
 
     def newObject(self):
@@ -498,7 +538,7 @@ class AllMeasures(AllObjects):
         self.fileobject = csvDir + "M.csv"
 	self.filename = csvDir + "Mnames.csv"
         self.keyColumn = "m_id"
-	self.fieldnames = ['begin', 'p_id', 'deny', 'acronym', 'unit', 'source', 'formula', 'remark', 'user']
+	self.fieldnames = ['begin', 'm_id', 'deny', 'acronym', 'unit', 'source', 'formula', 'remark', 'user']
 	self.fieldtranslate = ['begin', 'lang', 'm_id', 'name', 'user']
 	self.count = 0
 
@@ -514,7 +554,7 @@ class AllSensors(AllObjects):
         self.fileobject = csvDir + "CPEHM.csv"
 	self.filename = csvDir + "CPEHMnames.csv"
         self.keyColumn = "cpehm_id"
-	self.fieldnames = ['begin', 'cpehm_id', 'c_id', 'p_id', 'e_id', 'h_id', 'm_id', 'acronym', 'deny', 'remark', 'user']
+	self.fieldnames = ['begin', 'cpehm_id', 'c_id', 'p_id', 'e_id', 'h_id', 'm_id', 'deny', 'acronym', 'remark', 'channel', 'sensor', 'subsensor', 'valuetype', 'formula', 'user']
 	self.fieldtranslate = ['begin', 'lang', 'cpehm_id', 'name', 'user']
 	self.count = 0
 
@@ -841,6 +881,24 @@ class Equipment(ConfigurationObject):
 	
     def getType(self):
 	return 'e'
+
+class Container(ConfigurationObject):
+
+    def __init__(self):
+	ConfigurationObject.__init__(self)
+
+    def __repr__(self):
+        string = self.id + " " + self.fields['acronym']
+        return string
+
+    def __str__(self):
+        string = "\nContainer :"
+        for field in self.fields:
+            string = string + "\n" + field + " : " + self.fields[field]
+        return string + "\n"
+	
+    def getType(self):
+	return 'c'
 	
 class Group(ConfigurationObject):
 
@@ -915,13 +973,15 @@ class Measure(ConfigurationObject):
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
 	    
+    def getType(self):
+	return 'm'
 
 class Sensor(ConfigurationObject):
     def __init__(self):
 	ConfigurationObject.__init__(self)
     
     def __repr__(self):
-        string = self.id + " " + self.fields['channel'] + " " + self.fields['name']
+        string = self.id + " " + self.fields['channel'] + " " + self.fields['acronym']
         return string
 
     def __str__(self):
@@ -929,7 +989,44 @@ class Sensor(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
+	
+    def getType(self):
+	return 'cpehm'
+	
+    def getRRDName(self):
+	name = ''
+	if not self.fields['p_id'] == '':
+	    name += 'P' + str(self.fields['p_id'])
+	elif not self.fields['c_id'] == '':
+	    name += 'C' + str(self.fields['c_id'])  
+	elif not self.fields['e_id'] == '':
+	    name += 'E' + str(self.fields['e_id'])
+	if not self.fields['h_id'] == '':
+	    name += 'H' + str(self.fields['h_id'])
+	name += 'M' + str(self.fields['m_id'])
+	name += '.rrd'
+	return name
 
+    def addComponent(self, data):
+	tmp = data.split('_')
+	typeComponent = tmp[-2][-1]
+	if typeComponent == 'p' :
+	    self.fields['p_id'] = tmp[-1]
+	elif typeComponent == 'c' :
+	    self.fields['c_id'] = tmp[-1]
+	elif typeComponent == 'e' :
+	    self.fields['e_id'] = tmp[-1]
+	    
+	    
+    def addMeasure(self, data):
+	tmp = data.split('_')
+	self.fields['m_id']= tmp[-1]
+	    
+	    
+    def addPhase(self, data):
+	self.fields['h_id'] = data
+	    
+	    
 class Batch(ConfigurationObject):
 
     def __init__(self, config):

@@ -90,6 +90,13 @@ bluetooth = bluetoothScanner();
 bluetooth.config = c
 bluetooth.screen = screen
 
+#Pour les lots dans la liste de lots
+#	Si ils sont dans la même piece que le senseur et dans le même equipement du senseur
+#		Pour les mesures dans l'étape actuelle, si l'id de la mesure correspond à la mesure du senseur
+#			Pour les mesure dans le lot actuel
+#			Si l'id de la mesure correspond a la mesure du senseur alors on le met a jour
+	
+
 def StepValuesUpdate(currSensor, value):
     if(currSensor != None):
         for batch in c.AllBatches.elements:
@@ -109,6 +116,8 @@ def StepValuesUpdate(currSensor, value):
                                         sv.min = data
                                     print (c.AllBatches.elements[batch].fields['b_id'] + " modified...")
                         
+
+#Lance les alertes
 
 def alertOwner(currSensor):
         global typeNames

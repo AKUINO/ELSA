@@ -12,19 +12,26 @@ urls = (
     '/index','WebIndex',
     '/places/(.+)', 'WebPlace',
     '/places/', 'WebPlaces',
-    '/equipments', 'WebEquipments',
+    '/equipments/', 'WebEquipments',
     '/equipments/(.+)','WebEquipment',
     '/users/', 'WebUsers',
     '/users/(.+)', 'WebUser',
     '/groups/', 'WebGroups',
     '/groups/(.+)', 'WebGroup',
     '/permissions/(.+)', 'WebPermission',
+    '/containers/', 'WebContainers',
+    '/containers/(.+)','WebContainer',
+    '/measures/', 'WebMeasures',
+    '/measures/(.+)','WebMeasure',
+    '/sensors/', 'WebSensors',
+    '/sensors/(.+)','WebSensor',
 )
 #Configuration Singleton ELSA
 c=elsa.Configuration()
 c.load()
 
-print c.AllSensors.elements['1']
+cond = c.AllSensors.elements['1']
+print cond
 
 class WebObject():
     def __init__(self):
@@ -94,14 +101,25 @@ class WebObjectUpdate():
 	    if 'code' in data:
 		currObject.code = data['code']
 		
-	    if data['placeImg'] != '': 
-		filepath = data.placeImg.filename.replace('\\','/') 
-		ext = ((filepath.split('/')[-1]).split('.')[-1])
-		fout = open(currObject.getImageDirectory()+'jpg','w')
-		fout.write(data.placeImg.file.read())
-		fout.close()
+	    if 'component' in data:
+		currObject.addComponent(data['component'])
+		
+	    if 'phase' in data:
+		currObject.addPhase(data['phase'])
+		
+	    if'measure' in data:
+		currObject.addMeasure(data['measure'])
+	    
+	    if data['placeImg'] != {}: 
+		if data.placeImg.filename != '': 
+		    printinfo(data['placeImg'])
+		    filepath = data.placeImg.filename.replace('\\','/') 
+		    ext = ((filepath.split('/')[-1]).split('.')[-1])
+		    fout = open(currObject.getImageDirectory()+'jpg','w')
+		    fout.write(data.placeImg.file.read())
+		    fout.close()
 	    currObject.save(c,user)
-	    return render.listing(c,mail,'places')
+	    return self.getListing(mail)
 	raise web.seeother('/')
 	
 class WebIndex(WebObject):
@@ -131,6 +149,9 @@ class WebPlace(WebObjectUpdate):
 	
     def getRender(self, id, mail):
 	return render.place(c,id,mail)
+	
+    def getListing(self,mail):
+	return render.listing(c,mail,'places')
 
 	
 class WebEquipment(WebObjectUpdate):
@@ -139,6 +160,9 @@ class WebEquipment(WebObjectUpdate):
 	
     def getRender(self, id, mail):
 	return render.equipment(c,id,mail)
+	
+    def getListing(self,mail):
+	return render.listing(c,mail,'equipments')
 
 class WebUsers(WebObject):
     def __init__(self):
@@ -153,6 +177,9 @@ class WebUser(WebObjectUpdate):
 	
     def getRender(self, id, mail):
 	return render.user(c,id,mail)
+	
+    def getListing(self,mail):
+	return render.listing(c,mail,'users')
 
 class WebGroups(WebObject):
     def __init__(self):
@@ -167,6 +194,9 @@ class WebGroup(WebObjectUpdate):
 	
     def getRender(self, id, mail):
 	return render.group(c,id,mail)
+	
+    def getListing(self,mail):
+	return render.listing(c,mail,'groups')
 	
 class WebPermission(WebObjectUpdate):
     def __init__(self):
@@ -203,6 +233,60 @@ class WebPermission(WebObjectUpdate):
 	    return render.listing(c,mail,'groups')
 	return render.index(False,c,'')
 
+class WebContainers(WebObject):
+    def __init__(self):
+	self.name=u"WebContainers"
+    
+    def getRender(self, mail):
+	return render.listing(c,mail,'containers')
+	
+
+class WebContainer(WebObjectUpdate):
+    def __init__(self):
+	self.name=u"WebContainer"
+	
+    def getRender(self, id, mail):
+	return render.container(c,id,mail)
+    
+    def getListing(self,mail):
+	return render.listing(c,mail,'containers')
+	
+class WebMeasures(WebObject):
+    def __init__(self):
+	self.name=u"WebMeasures"
+    
+    def getRender(self, mail):
+	return render.listing(c,mail,'measures')
+	
+
+class WebMeasure(WebObjectUpdate):
+    def __init__(self):
+	self.name=u"WebMeasure"
+	
+    def getRender(self, id, mail):
+	return render.measure(c,id,mail)
+    
+    def getListing(self,mail):
+	return render.listing(c,mail,'measures')
+	
+class WebSensors(WebObject):
+    def __init__(self):
+	self.name=u"Sensors"
+    
+    def getRender(self, mail):
+	return render.listing(c,mail,'sensors')
+	
+
+class WebSensor(WebObjectUpdate):
+    def __init__(self):
+	self.name=u"WebSensor"
+	
+    def getRender(self, id, mail):
+	return render.sensor(c,id,mail)
+    
+    def getListing(self,mail):
+	return render.listing(c,mail,'sensors')
+	
 def encrypt(password,salt):
     sha = hashlib.pbkdf2_hmac('sha256', password, salt, 126425)
     return binascii.hexlify(sha)
@@ -224,6 +308,7 @@ def isConnected():
     return None
 
 def printinfo(user):
+    print "INFOOOOO : "
     print user
 
 if __name__ == "__main__":

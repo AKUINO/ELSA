@@ -21,8 +21,21 @@ begin	m_id	default	user
 01/01/2016 13:45:56	modifygroup	"Modify groups permission :"	1
 01/01/2016 13:45:56	place	"Place"	1
 01/01/2016 13:45:56	equipment	"Equipment"	1
+01/01/2016 13:45:56	container	"Container"	1
+01/01/2016 13:45:56	measure	"Measure"	1
+01/01/2016 13:45:56	sensor	"Sensor"	1
 01/01/2016 13:45:56	createe	"Add a new equipment"	1
 01/01/2016 13:45:56	createp	"Add a new place"	1
 01/01/2016 13:45:56	createu	"Add a new user"	1
 01/01/2016 13:45:56	createg	"Add a new group"	1
-01/01/2016 13:45:56	color	"Color :"	1
+01/01/2016 13:45:56	createc	"Add a new container"	1
+01/01/2016 13:45:56	createm	"Add a new measure"	1
+01/01/2016 13:45:56	creates	"Add a new sensor"	1
+01/01/2016 13:45:56	color	"Color "	1
+01/01/2016 13:45:56	source	"Source "	1
+01/01/2016 13:45:56	formula	"Formula "	1
+01/01/2016 13:45:56	unit	"Unit "	1
+01/01/2016 13:45:56	component	"Component "	1
+01/01/2016 13:45:56	subsensor	"Subsensor "	1
+01/01/2016 13:45:56	valuetype	"Value type "	1
+01/01/2016 13:45:56	channel	"Channel "	1

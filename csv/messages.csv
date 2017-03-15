@@ -83,6 +83,18 @@ begin	lang	m_id	name	user
 01/01/2016 13:45:56	EN	equipment	"Equipment"	1
 01/01/2016 13:45:56	NL	equipment	"uitrusting"	1
 01/01/2016 13:45:56	DE	equipment	"Ausrüstung"	1
+01/01/2016 13:45:56	FR	container	"Recipient"	1
+01/01/2016 13:45:56	EN	container	"Container"	1
+01/01/2016 13:45:56	NL	container	"Houder"	1
+01/01/2016 13:45:56	DE	container	"Behälter"	1
+01/01/2016 13:45:56	FR	measure	"Mesure"	1
+01/01/2016 13:45:56	EN	measure	"Measure"	1
+01/01/2016 13:45:56	NL	measure	"Maatregel"	1
+01/01/2016 13:45:56	DE	measure	"Messen"	1
+01/01/2016 13:45:56	FR	sensor	"Senseur"	1
+01/01/2016 13:45:56	EN	sensor	"Sensor"	1
+01/01/2016 13:45:56	NL	sensor	"Sensor"	1
+01/01/2016 13:45:56	DE	sensor	"Sensor"	1
 01/01/2016 13:45:56	FR	modifygroup	"Modifier les permissions :"	1
 01/01/2016 13:45:56	EN	modifygroup	"Modify groups permission :"	1
 01/01/2016 13:45:56	NL	modifygroup	"Wijzigen groepen toestemming :"	1
@@ -103,7 +115,23 @@ begin	lang	m_id	name	user
 01/01/2016 13:45:56	EN	createp	"Create a new place"	1
 01/01/2016 13:45:56	NL	createp	"Maak een nieuwe plaats"	1
 01/01/2016 13:45:56	DE	createp	"Schaffe eine neue ort"	1
+01/01/2016 13:45:56	FR	createc	"Creer un nouveau recipient"	1
+01/01/2016 13:45:56	EN	createc	"Create a new container"	1
+01/01/2016 13:45:56	NL	createc	"Maak een nieuwe houder"	1
+01/01/2016 13:45:56	DE	createc	"Schaffe eine neue Behälter"	1
+01/01/2016 13:45:56	FR	createm	"Creer une nouvelle mesure"	1
+01/01/2016 13:45:56	EN	createm	"Create a new measure"	1
+01/01/2016 13:45:56	NL	createm	"Maak een nieuwe maatregel"	1
+01/01/2016 13:45:56	DE	createm	"Schaffe eine neue messen"	1
+01/01/2016 13:45:56	FR	creates	"Ajouter un nouveau sensor"	1
+01/01/2016 13:45:56	EN	creates	"Add a new sensor"	1
+01/01/2016 13:45:56	NL	creates	"Voeg een nieuwe sensor"	1
+01/01/2016 13:45:56	DE	creates	"Fügen Sie einen neuen Sensor"	1
 01/01/2016 13:45:56	FR	color	"Couleur :"	1
 01/01/2016 13:45:56	EN	color	"Color :"	1
 01/01/2016 13:45:56	NL	color	"Kleur :"	1
 01/01/2016 13:45:56	DE	color	"Farbe :"	1
+01/01/2016 13:45:56	FR	component	"Composant :"	1
+01/01/2016 13:45:56	EN	component	"Component :"	1
+01/01/2016 13:45:56	NL	component	"Bestanddeel :"	1
+01/01/2016 13:45:56	DE	component	"Komponente :"	1

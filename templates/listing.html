@@ -28,6 +28,27 @@ $elif type == 'groups':
 	imgDir = '/static/img/g/group_'
 	keyID = c.AllGroups.keyColumn
 	permissionKey = 'g_'
+$elif type == 'containers':
+    $var location: containers/
+    $code :
+	elements = c.AllContainers.elements
+	imgDir = '/static/img/c/container_'
+	keyID = c.AllContainers.keyColumn
+	permissionKey = 'c_'
+$elif type == 'measures':
+    $var location: measures/
+    $code :
+	elements = c.AllMeasures.elements
+	imgDir = '/static/img/m/measure_'
+	keyID = c.AllMeasures.keyColumn
+	permissionKey = 'm_'
+$elif type == 'sensors':
+    $var location: sensors/
+    $code :
+	elements = c.AllSensors.elements
+	imgDir = '/static/img/pehm/sensor_'
+	keyID = c.AllSensors.keyColumn
+	permissionKey = 'pehm_'
 $code:
     lang = c.connectedUsers.users[mail].cuser.fields['language']
     groupList = c.hierarchyString(lang)
@@ -65,10 +86,11 @@ $for a,elem in elements.items():
 	    <div class="modal-body">
 		<div class="container-fluid">
 		    <div class="row">
-			<div class="col-xs-3">
-			    <img src="$(imgDir)$(elem.fields[keyID]).jpg" alt="Image not found" style="width:128px;height:128px;">
-			</div>
-			<div id="modalinfo" class="col-xs-7">
+			$if type != 'measures' and type != 'sensors':
+			    <div class="col-xs-3">
+				<img src="$(imgDir)$(elem.fields[keyID]).jpg" alt="Image not found" style="width:128px;height:128px;">
+			    </div>
+			<div id="modalinfo" class="col-xs-6">
 			    <span class="glyphicon glyphicon-flag"><strong>   $elem.fields['acronym']</span></strong>
 			</div>
 			<div id="modalinfo" class="col-xs-2">
@@ -79,7 +101,7 @@ $for a,elem in elements.items():
 			</div>
 		    </div>
 		    $if type!= 'users':
-			<div class="row">
+			<div class="row" id="listingMarge" style="margin-top:10px;">
 			    <div class="col-xs-3">
 				$c.AllMessages.elements['name'].getName(lang) :
 			    </div>
@@ -96,7 +118,7 @@ $for a,elem in elements.items():
 				</div>
 			    </div>
 		    $else:
-			<div class="row">
+			<div class="row" id="listingMarge">
 			    <div class="col-xs-3">
 				$c.AllMessages.elements['name'].getName(lang) :
 			    </div>
@@ -104,48 +126,78 @@ $for a,elem in elements.items():
 				$elem.getName(lang)
 			    </div>
 			</div>
-		    <div class="row">
-			<div class="col-xs-3">
-			    $c.AllMessages.elements['group'].getName(lang) :
-			</div>
-		    </div>
-		    
-		    $code:
-			indent = 1
-			cindent = 11
-			elemgroup = []
-			for k,v in elem.groups.items():
-			    elemgroup.append(v.getName(lang))
-		    $if len(groupList) > 0:
-			$for group in groupList:
-			    $if group == 'IN' :
-				$code:
-				    indent+=1
-				    cindent-=1
-			    $elif group == 'OUT':
-				$code:
-				    indent-=1
-				    cindent+=1
-			    $else :
-				<div class="row" >
-				    <div class="col-xs-$indent">
-				    </div>
-				    <div id="modalinfo" class="col-xs-$cindent">
-					$if type != 'groups':
-					    $if group in elemgroup:
-						<strong>$group</strong>
-					    $else:
-						$group
-					$else:
-					    $if group == elem.getName(lang):
-						<strong>$group</strong>
-					    $else:
-						$group
-				    </div>
-				</div>
-			
-		    $if elem.code is not None :
+		    $if type != 'measures' and type != 'sensors' :
 			<div class="row">
+			    <div class="col-xs-3">
+				$c.AllMessages.elements['group'].getName(lang) :
+			    </div>
+			</div>
+			$code:
+			    indent = 1
+			    cindent = 11
+			    elemgroup = []
+			    for k,v in elem.groups.items():
+				elemgroup.append(v.getName(lang))
+			$if len(groupList) > 0:
+			    $for group in groupList:
+				$if group == 'IN' :
+				    $code:
+					indent+=1
+					cindent-=1
+				$elif group == 'OUT':
+				    $code:
+					indent-=1
+					cindent+=1
+				$else :
+				    <div class="row" >
+					<div class="col-xs-$indent">
+					</div>
+					<div id="modalinfo" class="col-xs-$cindent">
+					    $if type != 'groups':
+						$if group in elemgroup:
+						    <strong>$group</strong>
+						$else:
+						    $group
+					    $else:
+						$if group == elem.getName(lang):
+						    <strong>$group</strong>
+						$else:
+						    $group
+					</div>
+				    </div>
+		    $elif type == 'measures':
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-4">
+				$c.AllMessages.elements['source'].getName(lang) :
+			    </div>
+			    <div class="col-xs-8" id="modalinfo" >
+				$elem.fields['source']
+			    </div>
+			</div>
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-4">
+				$c.AllMessages.elements['formula'].getName(lang) :
+			    </div>
+			    <div class="col-xs-8" id="modalinfo" >
+				$if elem.fields['formula'] != '':
+				    $elem.fields['formula']
+				$else : 
+				    -
+			    </div>
+			</div>
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-4">
+				$c.AllMessages.elements['unit'].getName(lang) :
+			    </div>
+			    <div class="col-xs-8" id="modalinfo" >
+				$elem.fields['unit']
+			    </div>
+			</div>
+			
+		    
+		    
+		    $if elem.code is not None :
+			<div class="row" style="margin-top:10px;">
 			    <div class="col-xs-4">
 				$c.AllMessages.elements['code'].getName(lang) :
 			    </div>
@@ -154,7 +206,7 @@ $for a,elem in elements.items():
 			    </div>
 			</div>
 		    $else:
-			<div class="row">
+			<div class="row" style="margin-top:10px;">
 			    <div class="col-xs-4">
 				$c.AllMessages.elements['code'].getName(lang) :
 			    </div>
@@ -162,7 +214,7 @@ $for a,elem in elements.items():
 				-
 			    </div>
 			</div>
-		    <div class="row">
+		    <div class="row" style="margin-top:3px;">
 			<div class="col-xs-4">
 			    $c.AllMessages.elements['remark'].getName(lang) :
 			</div>
@@ -172,7 +224,7 @@ $for a,elem in elements.items():
 		    </div>
 		    
 		    $if 'colorgraph' in elem.fields :
-			<div class="row">
+			<div class="row" style="margin-top:3px;" >
 			    <div class="col-xs-4">
 				$c.AllMessages.elements['color'].getName(lang) 
 			    </div>
@@ -184,7 +236,7 @@ $for a,elem in elements.items():
 			    </div>
 			</div>
 		    
-		    <div class="row">
+		    <div class="row" style="margin-top:3px;">
 			<div class="col-xs-4">
 			    $c.AllMessages.elements['created'].getName(lang) :
 			</div>
@@ -192,7 +244,7 @@ $for a,elem in elements.items():
 			    <strong>$c.AllUsers.elements[elem.creator].getName(lang) </strong> - <em>$elem.created</em>
 			</div>
 		    </div>
-		    <div class="row">
+		    <div class="row" style="margin-top:3px;">
 			<div class="col-xs-4">
 			    $c.AllMessages.elements['modified'].getName(lang) :
 			</div>
@@ -218,7 +270,13 @@ $for a,elem in elements.items():
 	    <strong><a href="/users/new"><span class="halflings halflings-plus"> <strong>$c.AllMessages.elements['user'].getName(lang)</strong></a></strong>
 	$elif type == 'equipments':
 	    <strong><a href="/equipments/new"><span class="halflings halflings-plus"> <strong>$c.AllMessages.elements['equipment'].getName(lang)</strong></a></strong>
+	$elif type == 'containers':
+	    <strong><a href="/containers/new"><span class="halflings halflings-plus"> <strong>$c.AllMessages.elements['container'].getName(lang)</strong></a></strong>
 	$elif type == 'groups':
 	    <strong><a href="/groups/new"><span class="halflings halflings-plus"> <strong>$c.AllMessages.elements['group'].getName(lang)</strong></a></strong>
+	$elif type == 'measures':
+	    <strong><a href="/measures/new"><span class="halflings halflings-plus"> <strong>$c.AllMessages.elements['measure'].getName(lang)</strong></a></strong>
+	$elif type == 'sensors':
+	    <strong><a href="/sensors/new"><span class="halflings halflings-plus"> <strong>$c.AllMessages.elements['sensor'].getName(lang)</strong></a></strong>
     </div>
 </div>    

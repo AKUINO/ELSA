@@ -1,0 +1,106 @@
+$def with (c, id, mail)
+
+
+$if id == 'new':
+    $var location: measures/ new
+    
+$else:
+    $var location: measures/ $c.AllMeasures.elements[id].fields['m_id']
+
+$code:
+    lang = c.connectedUsers.users[mail].cuser.fields['language']
+<div class="container">
+    <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
+	
+	<div class="form-group row">
+	    <label for="inputName" class="col-sm-3 col-form-label">$c.AllMessages.elements['name'].getName(lang)</label>
+	</div>
+	
+	$for k,v in c.AllLanguages.elements.items():
+	    <div class="form-group row">
+		<div class="col-sm-1">
+		</div>
+		<div class="col-sm-3">
+		    <strong>$v.fields['name']</strong>
+		</div>
+		<div class="col-sm-8">
+		    <input name="$k" type="text" class="form-control" id="inputName" placeholder="Name"
+		$if id !='new':
+		    value="$c.AllMeasures.elements[id].getName(lang)"
+		required="true" >
+		</div>
+	    </div>
+	
+	<div class="form-group row">
+	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(lang)</label>
+	    <div class="col-sm-9">
+		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.AllMessages.elements['acronym'].getName(lang)" 
+		$if id != 'new':
+		    value="$c.AllMeasures.elements[id].fields['acronym']"
+		required="true">
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputFormula" class="col-sm-3 col-form-label">$c.AllMessages.elements['formula'].getName(lang)</label>
+	    <div class="col-sm-9">
+		<input name="formula" type="text" class="form-control" id="inputFormula" placeholder="$c.AllMessages.elements['formula'].getName(lang)" 
+		$if id != 'new':
+		    value="$c.AllMeasures.elements[id].fields['formula']"
+		>
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputSource" class="col-sm-3 col-form-label">$c.AllMessages.elements['source'].getName(lang)</label>
+	    <div class="col-sm-9">
+		<input name="source" type="text" class="form-control" id="inputSource" placeholder="$c.AllMessages.elements['source'].getName(lang)" 
+		$if id != 'new':
+		    value="$c.AllMeasures.elements[id].fields['source']"
+		required="true">
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputUnit" class="col-sm-3 col-form-label">$c.AllMessages.elements['unit'].getName(lang)</label>
+	    <div class="col-sm-9">
+		<input name="unit" type="text" class="form-control" id="inputUnit" placeholder="$c.AllMessages.elements['unit'].getName(lang)" 
+		$if id != 'new':
+		    value="$c.AllMeasures.elements[id].fields['unit']"
+		required="true">
+	    </div>
+	</div>
+	
+	
+	<div class="form-group row">
+	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(lang)</label>
+	    <div class="col-sm-9">
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >
+$if id != 'new':
+    $c.AllMeasures.elements[id].fields['remark']
+</textarea>
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputDeny" class="col-sm-6 col-form-label">$c.AllMessages.elements['deny'].names[lang]['name']</label>
+	    <label class="switch">
+		<input id='inputDeny'name="deny" type="checkbox" value="1" type="checkbox" >
+		<div class="slider round"></div>
+	    </label>
+	</div>
+	
+	
+	<div class="form-group row">
+	    <div class="col-sm-5">
+	    </div>
+	    <div class="col-sm-2">
+		<button type="submit" class="btn btn-primary btn-block">Save</button>
+	    </div> 
+	    <div class="col-sm-5">
+	    </div>
+	</div>
+	
+    </form>
+</div>
+

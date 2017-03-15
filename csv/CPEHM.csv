@@ -1,2 +1,2 @@
-begin	cpehm_id	c_id	p_id	e_id	h_id	m_id	acronym	deny	remark	user
-01/01/2016 13:45:56	1			1		1	SenseurTemp	1	rmq	1
+begin	cpehm_id	c_id	p_id	e_id	h_id	m_id	deny	acronym	remark	channel	sensor	subsensor	valuetype	formula	user
+01/01/2016 13:45:56	1			1		1	1	SenseurTemp	rmq						1
