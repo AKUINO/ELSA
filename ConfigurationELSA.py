@@ -218,7 +218,7 @@ class InfoSystem():
 	if self.begin == -1:
 	    self.begin = data
 	self.uptime = data - self.begin
-	rrdtool.update('rrd/systemeuptime.rrd' , '%d:%d' % (data , self.uptime))
+	rrdtool.update('rrd/systemuptime.rrd' , '%d:%d' % (data , self.uptime))
 	
 	info = os.popen('cat /sys/class/thermal/thermal_zone0/temp','r')
 	info = info.read()
