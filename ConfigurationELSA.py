@@ -273,7 +273,8 @@ class ConfigurationObject():
             writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames=allObjects.fieldnames, encoding="utf-8")
             writer.writerow(self.fields)
 	self.saveName(configuration, anUser)
-	self.saveCode(configuration, anUser)	
+	if not self.code == '':
+	    self.saveCode(configuration, anUser)	
         return self
 	
     def saveName(self, configuration, anUser):
@@ -393,8 +394,26 @@ class UpdateThread(threading.Thread):
         self.config = config
 
     def run(self):
+	ow.init("/dev/i2c-1")
+        owDevices = ow.Sensor("/")
+	time.sleep(15)
 	while self.config.isThreading:
-	    self.config.InfoSystem.updateInfoSystem()
+	    now = int(time.time())
+	    self.config.InfoSystem.updateInfoSystem(now)
+	    """for k,sensor in config.AllSensors.items():
+		if sensor.fields['channel'] == wire:
+		    try:
+			aDevice = ow.Sensor('/'+sensor.fields['sensor'])
+                        if aDevice:
+			    owData = aDevice.__getattr__(sensor.fields['subsensor'])
+                            if owData:
+				if sensor.fields['formula']:
+				    value = float(owData)
+				    owData = str(eval(sensor.fields['formula']))
+				print (u"Sensor 1Wire-" + sensor.fields['sensor']+u": " + sensor.fields['acronym'] + " = " + owData)
+				sensor.updateRRD(now,value)
+		    except:
+			traceback.print_exc()"""
 	    time.sleep(60)
         
 
@@ -1104,13 +1123,15 @@ class Sensor(ConfigurationObject):
     def addPhase(self, data):
 	self.fields['h_id'] = data
 	
-    def update(self,data):
-	sys.stdout.write('Flip je viens du thread')
-	sys.stdout.flush()
-	sys.stdout.write(str(data))
-	sys.stdout.flush()
+    def updateRRD(self,now, value):
+	rrdtool.update(self.getRRDName() , '%d:%d' % (now ,value))
 	
-	    
+    def createRRD(self):
+	name = self.getName('EN').replace(" ","")
+	now = str( int(time.time())-60)
+	data_sources = str('DS:'+name+'1:GAUGE:120:U:U')
+	rrdtool.create( str('rrd/'+self.getRRDName()), "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+	
 	    
 	    
 class Batch(ConfigurationObject):

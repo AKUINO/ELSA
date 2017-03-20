@@ -1,0 +1,47 @@
+$def with (c,mail)
+$var location: monitoring/
+$code:
+    lang = c.connectedUsers.users[mail].cuser.fields['language']
+
+<div class="row">
+    <label for="graphSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['graphic'].getName(lang)</label>
+    <div class="col-sm-9">
+	<select id="input_fname" onchange="fname_update()">
+	    <option value="systemuptime.rrd">systemuptime.rrd</option>
+	    <option value="temperaturecpu.rrd">temperaturecpu.rrd</option>
+	    <option value="memoryinfo.rrd">memoryinfo.rrd</option>
+	    <option value="cpuload.rrd">cpuload.rrd</option>
+	    <option value="/static/example1.rrd">test</option>
+	</select>
+	<button onclick="fname_update()">Update</button>
+    </div>
+</div>    
+
+<table id="infotable" border=1>
+    <tr><td colspan="21"><b>Javascript needed for this page to work</b></td></tr>
+    <tr><td><b>RRD file</b></td><td id="fname" colspan="5">None</td></tr>
+</table>
+
+<div id="mygraph"></div>
+
+<script type="text/javascript">
+
+      // Remove the Javascript warning
+      document.getElementById("infotable").deleteRow(0);
+
+      var graph_opts={legend: { noColumns:4}};
+      var ds_graph_opts={'Oscilator':{ color: "#ff8000", 
+                                       lines: { show: true, fill: true, fillColor:"#ffff80"} },
+                         'Idle':{ label: 'IdleJobs', color: "#00c0c0", 
+                                  lines: { show: true, fill: true} },
+                         'Running':{color: "#000000",yaxis:2}};
+
+      flot_obj=new rrdFlotAsync("mygraph",null,null,graph_opts,ds_graph_opts);
+      // this function is invoked when the RRD file name changes
+      function fname_update() {
+        var fname=document.getElementById("input_fname").value;
+        flot_obj.reload(fname);
+        document.getElementById("fname").firstChild.data=fname;
+      }
+
+</script>

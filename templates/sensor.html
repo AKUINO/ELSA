@@ -37,13 +37,13 @@ $code:
 		<select name = "component" class="form-control" id="langSelect">
 		    <optgroup label="$c.AllMessages.elements['place'].getName(lang)">
 		    $for k in c.AllPieces.elements.keys():
-			<option>$c.AllPieces.elements[k].fields['acronym'] - $c.AllPieces.elements[k].getName(lang) - p_$k</option>
+			<option value="p_$k">$c.AllPieces.elements[k].fields['acronym'] - $c.AllPieces.elements[k].getName(lang) </option>
 		    <optgroup label="$c.AllMessages.elements['equipment'].getName(lang)">
 		    $for k in c.AllPieces.elements.keys():
-			<option>$c.AllEquipments.elements[k].fields['acronym'] - $c.AllEquipments.elements[k].getName(lang) - e_$k</option>
+			<option value="e_$k">$c.AllEquipments.elements[k].fields['acronym'] - $c.AllEquipments.elements[k].getName(lang)</option>
 		    <optgroup label="$c.AllMessages.elements['container'].getName(lang)">
 		    $for k in c.AllPieces.elements.keys():
-			<option>$c.AllContainers.elements[k].fields['acronym'] - $c.AllContainers.elements[k].getName(lang) - c_$k</option>
+			<option value="c_$k">$c.AllContainers.elements[k].fields['acronym'] - $c.AllContainers.elements[k].getName(lang)</option>
 		</select>
 	    </div>
 	</div>
@@ -63,7 +63,7 @@ $code:
 	    <div class="col-sm-9">
 		<select name = "measure" class="form-control" id="measureSelect">
 		    $for k in c.AllMeasures.elements.keys():
-			<option>$c.AllMeasures.elements[k].fields['acronym'] - $c.AllMeasures.elements[k].getName(lang) - $c.AllMeasures.elements[k].fields['unit'] - c_$k</option>
+			<option value="m_$k">$c.AllMeasures.elements[k].fields['acronym'] - $c.AllMeasures.elements[k].getName(lang) - $c.AllMeasures.elements[k].fields['unit']</option>
 		</select>
 	    </div>
 	</div>
@@ -135,7 +135,7 @@ $code:
 		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.AllMessages.elements['code'].getName(lang)" 
 		$if id != 'new':
 		    value="$c.AllUsers.elements[id].code"
-		required="true">
+		>
 	    </div>
 	</div>
 	

@@ -22,11 +22,16 @@ urls = (
     '/containers/', 'WebContainers',
     '/containers/(.+)','WebContainer',
     '/measures/', 'WebMeasures',
-    '/measures/(.+)','WebMeasure',
+    '/measures/(.+)', 'WebMeasure',
     '/sensors/', 'WebSensors',
-    '/sensors/(.+)','WebSensor',
+    '/sensors/(.+)', 'WebSensor',
+    '/monitoring/', 'WebMonitoring',
+    '/monitoring/(.*)', 'getRRD',
 )
 
+#Configuration Singleton ELSA
+c=elsa.Configuration()
+c.load()
 
 class WebObject():
     def __init__(self):
@@ -114,6 +119,8 @@ class WebObjectUpdate():
 		    fout.write(data.placeImg.file.read())
 		    fout.close()
 	    currObject.save(c,user)
+	    if currObject.__class__.__name__ == u"Sensor" :
+		currObject.createRRD()
 	    return self.getListing(mail)
 	raise web.seeother('/')
 	
@@ -282,6 +289,21 @@ class WebSensor(WebObjectUpdate):
     def getListing(self,mail):
 	return render.listing(c,mail,'sensors')
 	
+class getRRD(): 
+    def GET(self, filename):
+        try: 
+            f = open('rrd/' + filename)
+            return f.read()  
+        except IOError: 
+            web.notfound()
+	    
+class WebMonitoring(WebObject):
+    def __init__(self):
+	self.name=u"WebMonitoring"
+    
+    def getRender(self, mail):
+	return render.monitoring(c,mail)
+	
 def encrypt(password,salt):
     sha = hashlib.pbkdf2_hmac('sha256', password, salt, 126425)
     return binascii.hexlify(sha)
@@ -308,9 +330,6 @@ def printinfo(user):
 
 if __name__ == "__main__":
     try:
-	#Configuration Singleton ELSA
-	c=elsa.Configuration()
-	c.load()
 	app = web.application(urls, globals())
 	app.run()
 	
