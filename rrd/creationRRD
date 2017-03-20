@@ -1,0 +1,5 @@
+rrdtool create cpuload.rrd -s 60 -b 1489599030 \
+DS:Load1min:GAUGE:120:U:U \
+RRA:LAST:0.5:1:43200 \
+RRA:LAST:0.5:5:103680 \
+RRA:LAST:0.5:30:86400 
