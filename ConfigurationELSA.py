@@ -216,13 +216,13 @@ class InfoSystem():
     def updateInfoSystem(self,data):
 	
 	if self.begin == -1:
-	    self.begin = data
+	    self.begin = data -15
 	self.uptime = data - self.begin
 	rrdtool.update('rrd/systemuptime.rrd' , '%d:%d' % (data , self.uptime))
 	
 	info = os.popen('cat /sys/class/thermal/thermal_zone0/temp','r')
 	info = info.read()
-	self.temperature = float(tmp.split('\n')[0])/1000.0
+	self.temperature = float(info.split('\n')[0])/1000.0
 	rrdtool.update('rrd/temperaturecpu.rrd' , '%d:%f' % (data , self.temperature))
 	
 	info = os.popen('cat /proc/meminfo','r')
