@@ -401,20 +401,21 @@ class UpdateThread(threading.Thread):
 	while self.config.isThreading:
 	    now = int(time.time())
 	    self.config.InfoSystem.updateInfoSystem(now)
-	    for k,sensor in self.config.AllSensors.items():
-		if sensor.fields['channel'] == wire:
-		    try:
-			aDevice = ow.Sensor('/'+sensor.fields['sensor'])
-                        if aDevice:
-			    owData = aDevice.__getattr__(sensor.fields['subsensor'])
-                            if owData:
-				if sensor.fields['formula']:
-				    value = float(owData)
-				    owData = str(eval(sensor.fields['formula']))
-				print (u"Sensor 1Wire-" + sensor.getName('EN')+u": " + sensor.fields['acronym'] + " = " + owData)
-				sensor.updateRRD(now,value)
-		    except:
-			traceback.print_exc()
+	    if not len(self.config.AllSensors.elements) == 0 :
+		for k,sensor in self.config.AllSensors.items():
+		    if sensor.fields['channel'] == wire:
+			try:
+			    aDevice = ow.Sensor('/'+sensor.fields['sensor'])
+			    if aDevice:
+				owData = aDevice.__getattr__(sensor.fields['subsensor'])
+				if owData:
+				    if sensor.fields['formula']:
+					value = float(owData)
+					owData = str(eval(sensor.fields['formula']))
+				    print (u"Sensor 1Wire-" + sensor.getName('EN')+u": " + sensor.fields['acronym'] + " = " + owData)
+				    sensor.updateRRD(now,value)
+			except:
+			    traceback.print_exc()
 	    time.sleep(60)
         
 

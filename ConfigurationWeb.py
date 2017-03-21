@@ -33,6 +33,8 @@ urls = (
 c=elsa.Configuration()
 c.load()
 
+print len(c.AllSensors.elements)
+
 class WebObject():
     def __init__(self):
 	self.name = u"WebIndex"
