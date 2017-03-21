@@ -18,6 +18,7 @@ import ow
 
 #mise a jour git
 csvDir = "csv/"
+rrdDir = 'rrd/'
 class Configuration():
 
     def __init__(self):
@@ -397,7 +398,7 @@ class UpdateThread(threading.Thread):
     def run(self):
 	ow.init("/dev/i2c-1")
         owDevices = ow.Sensor("/")
-	time.sleep(15)
+	time.sleep(60)
 	while self.config.isThreading:
 	    now = int(time.time())
 	    self.config.InfoSystem.updateInfoSystem(now)
@@ -405,7 +406,8 @@ class UpdateThread(threading.Thread):
 		for k,sensor in self.config.AllSensors.elements.items():
 		    if sensor.fields['channel'] == 'wire':
 			try:
-			    aDevice = ow.Sensor('/'+sensor.fields['sensor'][0:2]+'.'+sensor.fields['sensor'][2:])
+                            sensorAdress = '/'+str(sensor.fields['sensor'])
+			    aDevice = ow.Sensor(sensorAdress)
 			    if aDevice:
 				owData = aDevice.__getattr__(sensor.fields['subsensor'])
 				if owData:
@@ -1126,7 +1128,7 @@ class Sensor(ConfigurationObject):
 	self.fields['h_id'] = data
 	
     def updateRRD(self,now, value):
-	rrdtool.update(self.getRRDName() , '%d:%d' % (now ,value))
+	rrdtool.update(rrdDir +self.getRRDName() , '%d:%f' % (now ,value))
 	
     def createRRD(self):
 	name = self.getName('EN').replace(" ","")
