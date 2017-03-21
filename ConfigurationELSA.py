@@ -402,7 +402,7 @@ class UpdateThread(threading.Thread):
 	    now = int(time.time())
 	    self.config.InfoSystem.updateInfoSystem(now)
 	    if not len(self.config.AllSensors.elements) == 0 :
-		for k,sensor in self.config.AllSensors.items():
+		for k,sensor in self.config.AllSensors.elements.items():
 		    if sensor.fields['channel'] == wire:
 			try:
 			    aDevice = ow.Sensor('/'+sensor.fields['sensor'])
