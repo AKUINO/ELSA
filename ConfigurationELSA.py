@@ -413,7 +413,7 @@ class UpdateThread(threading.Thread):
 					value = float(owData)
 					owData = str(eval(sensor.fields['formula']))
 				    print (u"Sensor 1Wire-" + sensor.getName('EN')+u": " + sensor.fields['acronym'] + " = " + owData)
-				    sensor.updateRRD(now,owData)
+				    sensor.updateRRD(now,float(owData))
 			except:
 			    traceback.print_exc()
 	    time.sleep(60)
