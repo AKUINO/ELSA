@@ -204,7 +204,6 @@ class Configuration():
 class InfoSystem():
     
     def __init__(self):
-	self.begin = -1
 	self.uptime = 0
 	self.memTot = 0
 	self.memFree = 0
@@ -216,9 +215,10 @@ class InfoSystem():
 	
     def updateInfoSystem(self,data):
 	
-	if self.begin == -1:
-	    self.begin = data -15
-	self.uptime = data - self.begin
+	info = os.popen('cat /proc/uptime','r')
+	info = info.read()
+	info = info.split(' ')
+	self.uptime = int(float(info[0]))
 	rrdtool.update('rrd/systemuptime.rrd' , '%d:%d' % (data , self.uptime))
 	
 	info = os.popen('cat /sys/class/thermal/thermal_zone0/temp','r')

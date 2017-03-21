@@ -28,7 +28,6 @@ urls = (
     '/monitoring/', 'WebMonitoring',
     '/monitoring/(.*)', 'getRRD',
     '/graphic/(.*)', 'WebSensorGraph',
-    '/graphic/(.*)/(.*)', 'getRRD',
 )
 
 #Configuration Singleton ELSA
@@ -318,6 +317,13 @@ class WebSensorGraph():
 	    return render.graphic(c,mail,id)
 	return render.index(False,c,'')
 
+class getRRD2(): 
+    def GET(self, ids,filename):
+        try: 
+            f = open('rrd/' + filename)
+            return f.read()  
+        except IOError: 
+            web.notfound()
 	
 def encrypt(password,salt):
     sha = hashlib.pbkdf2_hmac('sha256', password, salt, 126425)

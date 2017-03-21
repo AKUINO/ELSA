@@ -39,10 +39,10 @@ $code:
 		    $for k in c.AllPieces.elements.keys():
 			<option value="p_$k">$c.AllPieces.elements[k].fields['acronym'] - $c.AllPieces.elements[k].getName(lang) </option>
 		    <optgroup label="$c.AllMessages.elements['equipment'].getName(lang)">
-		    $for k in c.AllPieces.elements.keys():
+		    $for k in c.AllEquipments.elements.keys():
 			<option value="e_$k">$c.AllEquipments.elements[k].fields['acronym'] - $c.AllEquipments.elements[k].getName(lang)</option>
 		    <optgroup label="$c.AllMessages.elements['container'].getName(lang)">
-		    $for k in c.AllPieces.elements.keys():
+		    $for k in c.AllContainers.elements.keys():
 			<option value="c_$k">$c.AllContainers.elements[k].fields['acronym'] - $c.AllContainers.elements[k].getName(lang)</option>
 		</select>
 	    </div>
