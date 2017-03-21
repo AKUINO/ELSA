@@ -315,7 +315,7 @@ class WebSensorGraph():
     def GET(self,id):
 	mail = isConnected()
 	if mail is not None:
-	    return self.graphic(c,mail,id)
+	    return render.graphic(c,mail,id)
 	return render.index(False,c,'')
 
 	
