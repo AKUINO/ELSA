@@ -662,6 +662,24 @@ class AllSensors(AllObjects):
 
     def newObject(self):
         return Sensor()
+	
+    def getColor(self, ids):
+	color = "#006600"
+	if ids in self.elements:
+	    sensor = self.elements[ids]
+	    if not sensor.fields['p_id'] == '':
+		pid = sensor.fields['p_id']
+		if not self.config.AllPieces.elements[pid].fields['colorgraph'] == '':
+		    color = self.config.AllPieces.elements[pid].fields['colorgraph']
+	    elif not sensor.fields['c_id'] == '':
+		cid = sensor.fields['c_id']
+		if not self.config.AllContainers.elements[cid].fields['colorgraph'] == '':
+		    color = self.config.AllContainers.elements[cid].fields['colorgraph'] 
+	    elif not sensor.fields['e_id'] == '':
+		eid = sensor.fields['e_id']
+		if not self.config.AllEquipments.elements[eid].fields['colorgraph'] == '':
+		    color = self.config.AllEquipments.elements[eid].fields['colorgraph'] 
+	return color
 
 class AllBatches(AllObjects):
 
@@ -1135,6 +1153,7 @@ class Sensor(ConfigurationObject):
 	now = str( int(time.time())-60)
 	data_sources = str('DS:'+name+'1:GAUGE:120:U:U')
 	rrdtool.create( str('rrd/'+self.getRRDName()), "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+	
 	
 	    
 	    

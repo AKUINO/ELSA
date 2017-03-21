@@ -27,6 +27,8 @@ urls = (
     '/sensors/(.+)', 'WebSensor',
     '/monitoring/', 'WebMonitoring',
     '/monitoring/(.*)', 'getRRD',
+    '/graphic/(.*)', 'WebSensorGraph',
+    '/graphic/(.*)/(.*)', 'getRRD',
 )
 
 #Configuration Singleton ELSA
@@ -305,6 +307,17 @@ class WebMonitoring(WebObject):
     
     def getRender(self, mail):
 	return render.monitoring(c,mail)
+	
+class WebSensorGraph():
+    def __init__(self):
+	self.name=u"WebSensorGraph"
+    
+    def GET(self,id):
+	mail = isConnected()
+	if mail is not None:
+	    return self.graphic(c,mail,id)
+	return render.index(False,c,'')
+
 	
 def encrypt(password,salt):
     sha = hashlib.pbkdf2_hmac('sha256', password, salt, 126425)

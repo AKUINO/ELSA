@@ -1,0 +1,25 @@
+$def with (c,mail,id)
+$var location: graphic/$id
+$code:
+    lang = c.connectedUsers.users[mail].cuser.fields['language']
+
+<h1 id="title">Graphic sensor : $c.AllSensor.elements[id].getName(lang)</h1>
+
+
+
+    <table width="100%">
+	<tr>
+	    <td>
+		<div id="mygraph1"></div>
+	    </td>
+	</tr>
+    </table>
+
+    <script type="text/javascript">
+	var graph_opts={legend: { noColumns:4}};
+	var ds_graph_opts={'Oscilator':{ color: "#ff8000", lines: { show: true, fill: true, fillColor:"#ffff80"} },
+                         'Idle':{ label: 'IdleJobs', color: "#00c0c0", 
+                                  lines: { show: true, fill: true} },
+                         'Running':{color: "#000000",yaxis:2}};
+	flot_obj=new rrdFlotAsync("mygraph",$c.AllSensor.elements[id].getRRDName(),null,graph_opts,ds_graph_opts);
+    </script>
