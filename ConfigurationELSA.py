@@ -405,7 +405,7 @@ class UpdateThread(threading.Thread):
 		for k,sensor in self.config.AllSensors.elements.items():
 		    if sensor.fields['channel'] == 'wire':
 			try:
-			    aDevice = ow.Sensor('/'+sensor.fields['sensor'][0:2]+'.'+sensor.fields[2:])
+			    aDevice = ow.Sensor('/'+sensor.fields['sensor'][0:2]+'.'+sensor.fields['sensor'][2:])
 			    if aDevice:
 				owData = aDevice.__getattr__(sensor.fields['subsensor'])
 				if owData:
