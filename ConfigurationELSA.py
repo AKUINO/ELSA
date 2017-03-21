@@ -214,45 +214,47 @@ class InfoSystem():
 	self.temperature = 0	
 	
     def updateInfoSystem(self,data):
-	
-	info = os.popen('cat /proc/uptime','r')
-	info = info.read()
-	info = info.split(' ')
-	self.uptime = int(float(info[0]))
-	rrdtool.update('rrd/systemuptime.rrd' , '%d:%d' % (data , self.uptime))
-	
-	info = os.popen('cat /sys/class/thermal/thermal_zone0/temp','r')
-	info = info.read()
-	self.temperature = float(info.split('\n')[0])/1000.0
-	rrdtool.update('rrd/temperaturecpu.rrd' , '%d:%f' % (data , self.temperature))
-	
-	info = os.popen('cat /proc/meminfo','r')
-	info = info.read()
-	info = info.split('\n')
-	self.memTot = info[0]
-	self.memFree = info[1]
-	self.memAvailable = info[2]
-	self.memTot = self.memTot.split(':')[1]
-	self.memFree = self.memFree.split(':')[1]
-	self.memAvailable = self.memAvailable.split(':')[1]
-	self.memTot = self.memTot.split(' ')[-2]
-	self.memFree = self.memFree.split(' ')[-2]
-	self.memAvailable = self.memAvailable.split(' ')[-2]
-	self.memTot = float(self.memTot)
-	self.memFree = float(self.memFree)
-	self.memAvailable = float(self.memAvailable)
-	self.memTot /= 1000.0
-	self.memFree /= 1000.0
-	self.memAvailable /= 1000.0
-	rrdtool.update('rrd/memoryinfo.rrd' , '%d:%f:%f:%f' % (data , self.memTot, self.memFree, self.memAvailable))
-	
-	info = os.popen('cat /proc/loadavg')
-	info = info.read()
-	info = info.split(' ')
-	self.load1 = float(info[0])
-	self.load5 = float(info[1])
-	self.load15 = float(info[2])
-	rrdtool.update('rrd/cpuload.rrd' , '%d:%f:%f:%f' % (data , self.load1, self.load5, self.load15))
+	try:
+	    info = os.popen('cat /proc/uptime','r')
+	    info = info.read()
+	    info = info.split(' ')
+	    self.uptime = int(float(info[0]))
+	    rrdtool.update('rrd/systemuptime.rrd' , '%d:%d' % (data , self.uptime))
+	    
+	    info = os.popen('cat /sys/class/thermal/thermal_zone0/temp','r')
+	    info = info.read()
+	    self.temperature = float(info.split('\n')[0])/1000.0
+	    rrdtool.update('rrd/temperaturecpu.rrd' , '%d:%f' % (data , self.temperature))
+	    
+	    info = os.popen('cat /proc/meminfo','r')
+	    info = info.read()
+	    info = info.split('\n')
+	    self.memTot = info[0]
+	    self.memFree = info[1]
+	    self.memAvailable = info[2]
+	    self.memTot = self.memTot.split(':')[1]
+	    self.memFree = self.memFree.split(':')[1]
+	    self.memAvailable = self.memAvailable.split(':')[1]
+	    self.memTot = self.memTot.split(' ')[-2]
+	    self.memFree = self.memFree.split(' ')[-2]
+	    self.memAvailable = self.memAvailable.split(' ')[-2]
+	    self.memTot = float(self.memTot)
+	    self.memFree = float(self.memFree)
+	    self.memAvailable = float(self.memAvailable)
+	    self.memTot /= 1000.0
+	    self.memFree /= 1000.0
+	    self.memAvailable /= 1000.0
+	    rrdtool.update('rrd/memoryinfo.rrd' , '%d:%f:%f:%f' % (data , self.memTot, self.memFree, self.memAvailable))
+	    
+	    info = os.popen('cat /proc/loadavg')
+	    info = info.read()
+	    info = info.split(' ')
+	    self.load1 = float(info[0])
+	    self.load5 = float(info[1])
+	    self.load15 = float(info[2])
+	    rrdtool.update('rrd/cpuload.rrd' , '%d:%f:%f:%f' % (data , self.load1, self.load5, self.load15))
+	except:
+	    traceback.print_exc()
 
 class ConfigurationObject():
 
