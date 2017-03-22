@@ -5,7 +5,7 @@ import binascii
 import time
 
 
-render=web.template.render('templates/',base='layout')
+render=web.template.render('templates/', base='layout')
 
 urls = (
     '/', 'WebIndex',
@@ -26,8 +26,10 @@ urls = (
     '/sensors/', 'WebSensors',
     '/sensors/(.+)', 'WebSensor',
     '/monitoring/', 'WebMonitoring',
-    '/monitoring/(.*)', 'getRRD',
-    '/graphic/(.*)', 'WebSensorGraph',
+    '/monitoring/(.+)', 'getRRD',
+    '/graphic/(.+)', 'WebSensorGraph',
+    '/alarms/', 'WebAlarms',
+    '/alarms/(.+)', 'WebAlarm',
 )
 
 #Configuration Singleton ELSA
@@ -324,6 +326,23 @@ class getRRD2():
             return f.read()  
         except IOError: 
             web.notfound()
+	    
+class WebAlarms(WebObject):
+    def __init__(self):
+	self.name=u"WebAlarms"
+	
+    def getRender(self, mail):
+	return render.listing(c,mail,'alarms')
+
+class WebAlarm(WebObjectUpdate):
+    def __init__(self):
+	self.name=u"WebAlarm"
+	
+    def getRender(self, id, mail):
+	return render.alarm(c,id,mail)
+	
+    def getListing(self,mail):
+	return render.listing(c,mail,'alarms')
 	
 def encrypt(password,salt):
     sha = hashlib.pbkdf2_hmac('sha256', password, salt, 126425)

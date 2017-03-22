@@ -36,6 +36,7 @@ class Configuration():
 	self.AllGroups = AllGroups(self)
 	self.AllMeasures = AllMeasures(self)
 	self.AllSensors = AllSensors(self)
+	self.AllAlarms = AllAlarms(self)
 	self.connectedUsers = AllConnectedUsers()
 	self.isThreading = True
 	self.UpdateThread = UpdateThread(self)
@@ -50,6 +51,7 @@ class Configuration():
 	self.AllGroups.load()
 	self.AllMeasures.load()
 	self.AllSensors.load()
+	self.AllAlarms.load()
 	#doit toujours être appelé à la fin
 	self.loadCodes()
 	self.loadRelation()
@@ -83,6 +85,8 @@ class Configuration():
 	    return self.AllMeasures 
 	elif className == u"Sensor":
 	    return self.AllSensors 
+	elif className == u"Alarm":
+	    return self.AllAlarms 
         else:
             return None
 	    
@@ -103,6 +107,8 @@ class Configuration():
 	    return self.AllMeasures.getItem(idObject)
 	elif className == u"WebSensor" or className == u"cpehm":
 	    return self.AllSensors.getItem(idObject)
+	elif className == u"WebAlarm" or className == u"a":
+	    return self.AllAlarms.getItem(idObject)
         else:
             return None
     
@@ -122,7 +128,9 @@ class Configuration():
 	elif className == u"WebMeasure":
 	    return self.AllMeasures.fieldnames  
 	elif className == u"WebSensor":
-	    return self.AllSensors.fieldnames  
+	    return self.AllSensors.fieldnames 
+	elif className == u"WebAlarm":
+	    return self.AllAlarm.fieldnames
         else:
             return None
 	    
@@ -147,6 +155,8 @@ class Configuration():
 	    return self.AllMeasures
 	elif aType == u"cpehm":
 	    return self.AllSensors
+	elif aType == u"a":
+	    return self.AllAlarms
         else:
             return None
 	    
@@ -615,7 +625,20 @@ class AllPieces(AllObjects):
     def newObject(self):
 	return Piece()
 	
-	
+class AllAlarms(AllObjects):
+
+    def __init__(self, config):
+	AllObjects.__init__(self)
+        self.elements = {}
+        self.config = config
+        self.fileobject = csvDir + "A.csv"
+	self.filename = csvDir + "Anames.csv"
+        self.keyColumn = "a_id"
+	self.fieldnames = ['begin', 'a_id', 'deny', 'acronym', 'o_sms1', 'o_sms2', 'o_email1', 'o_email2', 'sound1', 'sound2', 'relay1', 'relay2', 'remark', 'user']
+	self.fieldtranslate = ['begin', 'lang', 'a_id', 'name', 'user']
+
+    def newObject(self):
+	return Alarm()	
     
 class AllGroups(AllObjects):
 
@@ -1062,7 +1085,6 @@ class Piece(ConfigurationObject):
 
     def __init__(self):
 	ConfigurationObject.__init__(self)
-        self.sensors = sets.Set()
 	
 
     def __repr__(self):
@@ -1077,7 +1099,25 @@ class Piece(ConfigurationObject):
 	
     def getType(self):
 	return 'p'
+
+class Alarm(ConfigurationObject):
+
+    def __init__(self):
+	ConfigurationObject.__init__(self)
 	
+
+    def __repr__(self):
+        string = str(self.id) + " " + self.fields['acronym']
+        return string
+
+    def __str__(self):
+        string = "\nAlarm :"
+        for field in self.fields:
+            string = string + "\n" + field + " : " + self.fields[field]
+        return string + "\n"
+	
+    def getType(self):
+	return 'a'	
 	
 class Measure(ConfigurationObject):
 

@@ -49,6 +49,13 @@ $elif type == 'sensors':
 	imgDir = '/static/img/pehm/sensor_'
 	keyID = c.AllSensors.keyColumn
 	permissionKey = 'pehm_'
+$elif type == 'alarms':
+    $var location: alarms/
+    $code :
+	elements = c.AllAlarms.elements
+	imgDir = '/static/img/pehm/alarm_'
+	keyID = c.AllAlarms.keyColumn
+	permissionKey = 'a_'
 $code:
     lang = c.connectedUsers.users[mail].cuser.fields['language']
     groupList = c.hierarchyString(lang)
@@ -93,7 +100,7 @@ $for a,elem in elements.items():
 	    <div class="modal-body">
 		<div class="container-fluid">
 		    <div class="row">
-			$if type != 'measures' and type != 'sensors':
+			$if type != 'measures' and type != 'sensors' and type != 'alarms':
 			    <div class="col-xs-3">
 				<img src="$(imgDir)$(elem.fields[keyID]).jpg" alt="Image not found" style="width:128px;height:128px;">
 			    </div>
@@ -201,7 +208,56 @@ $for a,elem in elements.items():
 			    </div>
 			</div>
 			
-		    
+		    $elif type == 'alarms':
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-4">
+				$c.AllMessages.elements['phone'].getName(lang) 1:
+			    </div>
+			    <div class="col-xs-8" id="modalinfo" >
+				$elem.fields['o_sms1']
+			    </div>
+			</div>
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-4">
+				$c.AllMessages.elements['phone'].getName(lang) 2:
+			    </div>
+			    <div class="col-xs-8" id="modalinfo" >
+				$elem.fields['o_sms2']
+			    </div>
+			</div>
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-4">
+				$c.AllMessages.elements['relay'].getName(lang) 1:
+			    </div>
+			    <div class="col-xs-8" id="modalinfo" >
+				$elem.fields['o_relay1']
+			    </div>
+			</div>
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-4">
+				$c.AllMessages.elements['relay'].getName(lang) 2:
+			    </div>
+			    <div class="col-xs-8" id="modalinfo" >
+				$elem.fields['o_relay2']
+			    </div>
+			</div>
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-4">
+				$c.AllMessages.elements['mail'].getName(lang) 1:
+			    </div>
+			    <div class="col-xs-8" id="modalinfo" >
+				$elem.fields['o_email1']
+			    </div>
+			</div>
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-4">
+				$c.AllMessages.elements['mail'].getName(lang) 2:
+			    </div>
+			    <div class="col-xs-8" id="modalinfo" >
+				$elem.fields['o_email2']
+			    </div>
+			</div>
+			
 		    
 		    $if elem.code is not None :
 			<div class="row" style="margin-top:10px;">
@@ -285,5 +341,7 @@ $for a,elem in elements.items():
 	    <strong><a href="/measures/new"><span class="halflings halflings-plus"> <strong>$c.AllMessages.elements['measure'].getName(lang)</strong></a></strong>
 	$elif type == 'sensors':
 	    <strong><a href="/sensors/new"><span class="halflings halflings-plus"> <strong>$c.AllMessages.elements['sensor'].getName(lang)</strong></a></strong>
+	$elif type == 'alarms':
+	    <strong><a href="/alarms/new"><span class="halflings halflings-plus"> <strong>$c.AllMessages.elements['alarm'].getName(lang)</strong></a></strong>
     </div>
 </div>    
