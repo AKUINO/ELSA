@@ -45,3 +45,8 @@ begin	m_id	default	user
 01/01/2016 13:45:56	phone	"Phone "	1
 01/01/2016 13:45:56	relay	"Relay "	1
 01/01/2016 13:45:56	sound	"Sound "	1
+01/01/2016 13:45:56	minmin	"Min --- "	1
+01/01/2016 13:45:56	min	"Min "	1
+01/01/2016 13:45:56	typical	"Typical "	1
+01/01/2016 13:45:56	max	"Max "	1
+01/01/2016 13:45:56	maxmax	"Max +++ "	1

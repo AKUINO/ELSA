@@ -36,7 +36,11 @@ urls = (
 c=elsa.Configuration()
 c.load()
 
-print len(c.AllSensors.elements)
+#
+#Ligne 58 - connexion 9000 a la place de 900
+#
+
+print c.AllSensors.elements['1'].fields
 
 class WebObject():
     def __init__(self):
@@ -53,7 +57,7 @@ class WebObject():
 	connectedUser = connexion(data._username_,data._password_)
 	if connectedUser is not None:
 	    infoCookie = data._username_ + ',' + connectedUser.fields['password']
-	    web.setcookie('webpy', infoCookie, expires=900)
+	    web.setcookie('webpy', infoCookie, expires=9000)
 	    c.connectedUsers.addUser(connectedUser)
 	    return render.index(True, c, data._username_) 
 	return render.index(False, c, '')

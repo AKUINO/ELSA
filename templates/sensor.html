@@ -77,6 +77,28 @@ $code:
 		</select>
 	    </div>
 	</div>
+	$code:
+	    listAlarm = ['minmin', 'min', 'typical', 'max', 'maxmax']
+	$for alarm in listAlarm:
+	    <div class="form-group row">
+		<label for="$(alarm)Select" class="col-sm-3 col-form-label">$c.AllMessages.elements[alarm].getName(lang)</label>
+		<div class="col-sm-9">
+		    <input name="$(alarm)" type="text" class="form-control" id="$(alarm)Select" placeholder="$c.AllMessages.elements['alarm'].getName(lang)" 
+		    $if id != 'new':
+			value="$c.AllSensors.elements[id].fields[alarm]"
+		    required="true">
+		</div>
+	    </div>
+	    <div class="form-group row">
+		<label for="a$(alarm)Select" class="col-sm-3 col-form-label">$c.AllMessages.elements[alarm].getName(lang) - $c.AllMessages.elements['alarm'].getName(lang)</label>
+		<div class="col-sm-9">
+		    <select name = "a_$alarm" class="form-control" id="a$(alarm)Select">
+			$for k in c.AllAlarms.elements.keys():
+			    <option value="a_$k">$c.AllMAlarms.elements[k].fields['acronym'] - $c.AllAlarms.elements[k].getName(lang) </option>
+		    </select>
+		</div>
+	    </div>
+	
 	
 	<div class="form-group row">
 	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(lang)</label>
