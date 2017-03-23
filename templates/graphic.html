@@ -1,9 +1,8 @@
-$def with (c,mail,id)
+$def with (mail,id)
 $var location: graphic/$id
-$code:
-    lang = c.connectedUsers.users[mail].cuser.fields['language']
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 
-<h1 id="title">Graphic sensor : $c.AllSensors.elements[id].getName(lang)</h1>
+<h1 id="title">Graphic sensor : $c.AllSensors.elements[id].getName(self.lang)</h1>
 
 
 

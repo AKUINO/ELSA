@@ -7,7 +7,7 @@ $def with(content)
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title>ELSA - V 0.0.1</title>
+        <title>ELSA - Beta</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="icon" type="image/png" href="/static/favicon.ico">
@@ -27,7 +27,7 @@ $def with(content)
 	<script src="/static/js/jquery.js"></script> 
 	<script> 
 	    $$(function(){
-	      $$("#includedContent").load("/static/html/colorpicker.html"); 
+		$$("#includedContent").load("/static/html/colorpicker.html"); 
 	    });
 	</script> 
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
@@ -42,49 +42,59 @@ $def with(content)
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="/" style="margin-top:-10px;"><img src="/static/img/akuino.png" border="0" alt="This application stores the configuration and the data of the different AKUINO modules installed"/></a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown" data-show-icon="true">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Data<b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                <li><a href="/places/" tabindex="-1"><span class="glyphicon glyphicon-map-marker"></span> Places</a></li>
-                <li><a href="/equipments/" tabindex="-2"><span class="glyphicon glyphicon-tag"></span> Equipments</a></li>
-                <li><a href="/containers/" tabindex="-3"><span class="glyphicon glyphicon-pots"></span> Containers</a></li>
-                <li><a href="/measures/" tabindex="-4"><span class="glyphicon glyphicon-pots"></span> Measures</a></li>
-                <li><a href="/sensors/" tabindex="-5"><span class="glyphicon glyphicon-pots"></span> Sensors</a></li>
-                <li><a href="/alarms/" tabindex="-6"><span class="glyphicon glyphicon-pots"></span> Alarms</a></li>
-              </ul>
-            </li>
-            <li class="dropdown" data-show-icon="true">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Hardware<b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                <li><a href="NetworkMan" tabindex="-1"><span class="glyphicon glyphicons git_compare"></span> Networks</a></li>
-              </ul>
-            </li>
-            <li class="dropdown" data-show-icon="true">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">People<b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                <li><a href="/users/" tabindex="-1"><span class="glyphicon glyphicon-user"></span> Users</a></li>
-                <li><a href="/groups/" tabindex="-2"><span class="halflings halflings-group"></span> Groups</a></li>
-                <li><a href="/monitoring/" tabindex="-3"><span class="halflings halflings-stats"></span> Monitoring</a></li>
-              </ul>
-            </li>
-          </ul>
-        </div><!--/.navbar-collapse -->
-      </div>
+	<div class="container">
+	    <div class="navbar-header">
+		<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+		    <span class="sr-only">Toggle navigation</span>
+		    <span class="icon-bar"></span>
+		    <span class="icon-bar"></span>
+		    <span class="icon-bar"></span>
+		</button>
+		<a class="navbar-brand" href="/" style="margin-top:-10px;"><img src="/static/img/akuino.png" border="0" alt="This application stores the configuration and the data of the different AKUINO modules installed"/></a>
+	    </div>
+		    
+	    <div id="navbar" class="navbar-collapse collapse">
+		<ul class="nav navbar-nav">
+		    <li class="dropdown" data-show-icon="true">
+			<a href="#" class="dropdown-toggle" data-toggle="dropdown">Objects<b class="caret"></b></a>
+			<ul class="dropdown-menu">
+			    <li><a href="/places/" tabindex="-1"><span class="$c.AllHalflings.elements['place'].getHalfling()"></span> $c.AllMessages.elements['place'].getName(content.lang)</a></li>
+			    <li><a href="/equipments/" tabindex="-2"><span class="$c.AllHalflings.elements['equipment'].getHalfling()"></span> $c.AllMessages.elements['equipment'].getName(content.lang)</a></li>
+			    <li><a href="/containers/" tabindex="-3"><span class="$c.AllHalflings.elements['container'].getHalfling()"></span> $c.AllMessages.elements['container'].getName(content.lang)</a></li>
+			    <li><a href="/sensors/" tabindex="-4"><span class="$c.AllHalflings.elements['sensor'].getHalfling()"></span> $c.AllMessages.elements['sensor'].getName(content.lang)</a></li>
+			    
+			</ul>
+		    </li>
+		    <li class="dropdown" data-show-icon="true">
+			<a href="#" class="dropdown-toggle" data-toggle="dropdown">Data<b class="caret"></b></a>
+			<ul class="dropdown-menu">
+			    <li><a href="/measures/" tabindex="-1"><span class="halflings halflings-reflect-y"></span> $c.AllMessages.elements['measure'].getName(content.lang)</a></li>
+			    <li><a href="/alarms/" tabindex="-2"><span class="$c.AllHalflings.elements['alarm'].getHalfling()"></span> $c.AllMessages.elements['alarm'].getName(content.lang)</a></li>
+			    <li><a href="/monitoring/" tabindex="-3"><span class="halflings halflings-stats"></span> Monitoring</a></li>
+			</ul>
+		    </li>
+		    <li class="dropdown" data-show-icon="true">
+			<a href="#" class="dropdown-toggle" data-toggle="dropdown">Production<b class="caret"></b></a>
+			<ul class="dropdown-menu">
+			    <li><a href="#" tabindex="-1"><span class="$c.AllHalflings.elements['recipe'].getHalfling()"></span> Recipe</a></li>
+			    <li><a href="#" tabindex="-2"><span class="$c.AllHalflings.elements['recipeStep'].getHalfling()"></span> Recipe Step</a></li>
+			    <li><a href="#" tabindex="-3"><span class="$c.AllHalflings.elements['batch'].getHalfling()"></span> Batch</a></li>
+			    <li><a href="#" tabindex="-4"><span class="$c.AllHalflings.elements['transfer'].getHalfling()"></span> Transfer</a></li>
+			    <li><a href="#" tabindex="-5"><span class="$c.AllHalflings.elements['ToDo'].getHalfling()"></span> ToDo</a></li>
+			</ul>
+		    </li>
+		    <li class="dropdown" data-show-icon="true">
+			<a href="#" class="dropdown-toggle" data-toggle="dropdown">People<b class="caret"></b></a>
+			<ul class="dropdown-menu">
+			    <li><a href="/users/" tabindex="-1"><span class="$c.AllHalflings.elements['user'].getHalfling()"></span> $c.AllMessages.elements['user'].getName(content.lang)</a></li>
+			    <li><a href="/groups/" tabindex="-2"><span class="$c.AllHalflings.elements['group'].getHalfling()"></span>  $c.AllMessages.elements['group'].getName(content.lang)s</a></li>
+			</ul>
+		    </li>
+		</ul>
+	    </div><!--/.navbar-collapse -->
+	</div>
     </nav>
     <div class="container">
-	
 	<div style="margin-top:10px;font-size:20px;">
 	    $if content.location != 'index' :
 		<a href="/"><span class="glyphicon glyphicon-home"></span></a>

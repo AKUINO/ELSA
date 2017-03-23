@@ -54,9 +54,15 @@
 }
 .halflings{
     font-size: 22px;
+    height:22px;
+    width:22px;
 }
 #modalinfo{
     background-color:white;
+}
+#addItem{
+    color:#f07e26;
+    font-size:22px;
 }
 .close:hover,
 .close:focus {

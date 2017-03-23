@@ -1,5 +1,4 @@
-$def with (c, mail,type)
-
+$def with (mail,type)
 $if type == 'places':
     $var location: places/
     $code :
@@ -56,16 +55,16 @@ $elif type == 'alarms':
 	imgDir = '/static/img/pehm/alarm_'
 	keyID = c.AllAlarms.keyColumn
 	permissionKey = 'a_'
+
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $code:
-    lang = c.connectedUsers.users[mail].cuser.fields['language']
-    groupList = c.hierarchyString(lang)
-    
+    groupList = c.hierarchyString(self.lang)   
 $for a,elem in elements.items():
     <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<div class="col-xs-12" >
 	    <div class="col-xs-4" >$elem.fields['acronym']</div>
 	    <div class="col-xs-8">
-		<strong>$elem.getName(lang)</strong>
+		<strong>$elem.getName(self.lang)</strong>
 	    </div>
 	</div>
 	<div class="col-xs-12" id="listing">
@@ -73,16 +72,16 @@ $for a,elem in elements.items():
 	    </div>
 	    $if type == 'sensors':
 		<div class="col-xs-2" >
-		    <strong><a href="/graphic/$elem.fields[keyID]"><span class="halflings halflings-stats"></span></a></strong>
+		    <strong><a href="/graphic/$elem.fields[keyID]" class="btn btn-warning" role="button">><span class="halflings halflings-stats"></span></a></strong>
 		</div>
 	    $else:
 		<div class="col-xs-2" >
 		</div>
 	    <div class="col-xs-2">
-		<strong><a href="/$type/$elem.fields[keyID]"><span class="glyphicon glyphicon-edit"></span></a></strong>
+		<strong><a href="/$type/$elem.fields[keyID]" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
 	    </div>
 	    <div class="col-xs-2">
-		<strong><a href="/permissions/$(permissionKey)$elem.fields[keyID]"><span class="halflings halflings-education"></span></a></strong>
+		<strong><a href="/permissions/$(permissionKey)$elem.fields[keyID]" class="btn btn-warning" role="button"><span class="halflings halflings-education"></span></a></strong>
 	    </div>
 	    <div class="col-xs-2">
 		<button type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#$elem.fields[keyID]Modal"><span class="halflings halflings-info-sign"></button>
@@ -95,7 +94,7 @@ $for a,elem in elements.items():
 	    <div class="modal-content">
 		<div class="modal-header">
 		<button type="button" class="close" data-dismiss="modal">&times;</button>
-		<h4 class="modal-title">$elem.getName(lang)</h4>
+		<h4 class="modal-title">$elem.getName(self.lang)</h4>
 	    </div>
 	    <div class="modal-body">
 		<div class="container-fluid">
@@ -117,7 +116,7 @@ $for a,elem in elements.items():
 		    $if type!= 'users':
 			<div class="row" id="listingMarge" style="margin-top:10px;">
 			    <div class="col-xs-3">
-				$c.AllMessages.elements['name'].getName(lang) :
+				$c.AllMessages.elements['name'].getName(self.lang) :
 			    </div>
 			</div>
 			$for lg in c.AllLanguages.elements.keys():
@@ -134,16 +133,16 @@ $for a,elem in elements.items():
 		    $else:
 			<div class="row" id="listingMarge">
 			    <div class="col-xs-3">
-				$c.AllMessages.elements['name'].getName(lang) :
+				$c.AllMessages.elements['name'].getName(self.lang) :
 			    </div>
 			    <div class="col-xs-7" id="modalinfo" >
-				$elem.getName(lang)
+				$elem.getName(self.lang)
 			    </div>
 			</div>
 		    $if type != 'measures' and type != 'sensors' :
 			<div class="row">
 			    <div class="col-xs-3">
-				$c.AllMessages.elements['group'].getName(lang) :
+				$c.AllMessages.elements['group'].getName(self.lang) :
 			    </div>
 			</div>
 			$code:
@@ -151,7 +150,7 @@ $for a,elem in elements.items():
 			    cindent = 11
 			    elemgroup = []
 			    for k,v in elem.groups.items():
-				elemgroup.append(v.getName(lang))
+				elemgroup.append(v.getName(self.lang))
 			$if len(groupList) > 0:
 			    $for group in groupList:
 				$if group == 'IN' :
@@ -173,7 +172,7 @@ $for a,elem in elements.items():
 						$else:
 						    $group
 					    $else:
-						$if group == elem.getName(lang):
+						$if group == elem.getName(self.lang):
 						    <strong>$group</strong>
 						$else:
 						    $group
@@ -182,7 +181,7 @@ $for a,elem in elements.items():
 		    $elif type == 'measures':
 			<div class="row" style="margin-top:10px;">
 			    <div class="col-xs-4">
-				$c.AllMessages.elements['source'].getName(lang) :
+				$c.AllMessages.elements['source'].getName(self.lang) :
 			    </div>
 			    <div class="col-xs-8" id="modalinfo" >
 				$elem.fields['source']
@@ -190,7 +189,7 @@ $for a,elem in elements.items():
 			</div>
 			<div class="row" style="margin-top:10px;">
 			    <div class="col-xs-4">
-				$c.AllMessages.elements['formula'].getName(lang) :
+				$c.AllMessages.elements['formula'].getName(self.lang) :
 			    </div>
 			    <div class="col-xs-8" id="modalinfo" >
 				$if elem.fields['formula'] != '':
@@ -201,7 +200,7 @@ $for a,elem in elements.items():
 			</div>
 			<div class="row" style="margin-top:10px;">
 			    <div class="col-xs-4">
-				$c.AllMessages.elements['unit'].getName(lang) :
+				$c.AllMessages.elements['unit'].getName(self.lang) :
 			    </div>
 			    <div class="col-xs-8" id="modalinfo" >
 				$elem.fields['unit']
@@ -211,7 +210,7 @@ $for a,elem in elements.items():
 		    $elif type == 'alarms':
 			<div class="row" style="margin-top:10px;">
 			    <div class="col-xs-4">
-				$c.AllMessages.elements['phone'].getName(lang) 1:
+				$c.AllMessages.elements['phone'].getName(self.lang) 1:
 			    </div>
 			    <div class="col-xs-8" id="modalinfo" >
 				$elem.fields['o_sms1']
@@ -219,7 +218,7 @@ $for a,elem in elements.items():
 			</div>
 			<div class="row" style="margin-top:10px;">
 			    <div class="col-xs-4">
-				$c.AllMessages.elements['phone'].getName(lang) 2:
+				$c.AllMessages.elements['phone'].getName(self.lang) 2:
 			    </div>
 			    <div class="col-xs-8" id="modalinfo" >
 				$elem.fields['o_sms2']
@@ -227,7 +226,7 @@ $for a,elem in elements.items():
 			</div>
 			<div class="row" style="margin-top:10px;">
 			    <div class="col-xs-4">
-				$c.AllMessages.elements['relay'].getName(lang) 1:
+				$c.AllMessages.elements['relay'].getName(self.lang) 1:
 			    </div>
 			    <div class="col-xs-8" id="modalinfo" >
 				$elem.fields['o_relay1']
@@ -235,7 +234,7 @@ $for a,elem in elements.items():
 			</div>
 			<div class="row" style="margin-top:10px;">
 			    <div class="col-xs-4">
-				$c.AllMessages.elements['relay'].getName(lang) 2:
+				$c.AllMessages.elements['relay'].getName(self.lang) 2:
 			    </div>
 			    <div class="col-xs-8" id="modalinfo" >
 				$elem.fields['o_relay2']
@@ -243,7 +242,7 @@ $for a,elem in elements.items():
 			</div>
 			<div class="row" style="margin-top:10px;">
 			    <div class="col-xs-4">
-				$c.AllMessages.elements['mail'].getName(lang) 1:
+				$c.AllMessages.elements['mail'].getName(self.lang) 1:
 			    </div>
 			    <div class="col-xs-8" id="modalinfo" >
 				$elem.fields['o_email1']
@@ -251,7 +250,7 @@ $for a,elem in elements.items():
 			</div>
 			<div class="row" style="margin-top:10px;">
 			    <div class="col-xs-4">
-				$c.AllMessages.elements['mail'].getName(lang) 2:
+				$c.AllMessages.elements['mail'].getName(self.lang) 2:
 			    </div>
 			    <div class="col-xs-8" id="modalinfo" >
 				$elem.fields['o_email2']
@@ -262,7 +261,7 @@ $for a,elem in elements.items():
 		    $if elem.code is not None :
 			<div class="row" style="margin-top:10px;">
 			    <div class="col-xs-4">
-				$c.AllMessages.elements['code'].getName(lang) :
+				$c.AllMessages.elements['code'].getName(self.lang) :
 			    </div>
 			    <div class="col-xs-8" id="modalinfo" >
 				$elem.code
@@ -271,7 +270,7 @@ $for a,elem in elements.items():
 		    $else:
 			<div class="row" style="margin-top:10px;">
 			    <div class="col-xs-4">
-				$c.AllMessages.elements['code'].getName(lang) :
+				$c.AllMessages.elements['code'].getName(self.lang) :
 			    </div>
 			    <div class="col-xs-8"id="modalinfo" >
 				-
@@ -279,7 +278,7 @@ $for a,elem in elements.items():
 			</div>
 		    <div class="row" style="margin-top:3px;">
 			<div class="col-xs-4">
-			    $c.AllMessages.elements['remark'].getName(lang) :
+			    $c.AllMessages.elements['remark'].getName(self.lang) :
 			</div>
 			<div class="col-xs-8" id="modalinfo" >
 			    $elem.fields['remark']
@@ -289,7 +288,7 @@ $for a,elem in elements.items():
 		    $if 'colorgraph' in elem.fields :
 			<div class="row" style="margin-top:3px;" >
 			    <div class="col-xs-4">
-				$c.AllMessages.elements['color'].getName(lang) 
+				$c.AllMessages.elements['color'].getName(self.lang) 
 			    </div>
 			    <div class="col-xs-2">
 			    </div>
@@ -301,18 +300,18 @@ $for a,elem in elements.items():
 		    
 		    <div class="row" style="margin-top:3px;">
 			<div class="col-xs-4">
-			    $c.AllMessages.elements['created'].getName(lang) :
+			    $c.AllMessages.elements['created'].getName(self.lang) :
 			</div>
 			<div class="col-xs-8" id="modalinfo" >
-			    <strong>$c.AllUsers.elements[elem.creator].getName(lang) </strong> - <em>$elem.created</em>
+			    <strong>$c.AllUsers.elements[elem.creator].getName(self.lang) </strong> - <em>$elem.created</em>
 			</div>
 		    </div>
 		    <div class="row" style="margin-top:3px;">
 			<div class="col-xs-4">
-			    $c.AllMessages.elements['modified'].getName(lang) :
+			    $c.AllMessages.elements['modified'].getName(self.lang) :
 			</div>
 			<div class="col-xs-8" id="modalinfo" >
-			    <strong>$c.AllUsers.elements[elem.fields['user']].getName(lang) </strong> - <em>$elem.fields['begin']</em>
+			    <strong>$c.AllUsers.elements[elem.fields['user']].getName(self.lang) </strong> - <em>$elem.fields['begin']</em>
 			</div>
 		    </div>
 		</div>
@@ -326,22 +325,7 @@ $for a,elem in elements.items():
 <div class="row active" style="background-color:rgb(0, 21, 43);">
     <div class="col-xs-5">
     </div>
-    <div class="col-xs-6">
-	$if type == 'places':
-	    <strong><a href="/places/new"><span class="halflings halflings-plus"> <strong>$c.AllMessages.elements['place'].getName(lang)</strong></a></strong>
-	$elif type == 'users':
-	    <strong><a href="/users/new"><span class="halflings halflings-plus"> <strong>$c.AllMessages.elements['user'].getName(lang)</strong></a></strong>
-	$elif type == 'equipments':
-	    <strong><a href="/equipments/new"><span class="halflings halflings-plus"> <strong>$c.AllMessages.elements['equipment'].getName(lang)</strong></a></strong>
-	$elif type == 'containers':
-	    <strong><a href="/containers/new"><span class="halflings halflings-plus"> <strong>$c.AllMessages.elements['container'].getName(lang)</strong></a></strong>
-	$elif type == 'groups':
-	    <strong><a href="/groups/new"><span class="halflings halflings-plus"> <strong>$c.AllMessages.elements['group'].getName(lang)</strong></a></strong>
-	$elif type == 'measures':
-	    <strong><a href="/measures/new"><span class="halflings halflings-plus"> <strong>$c.AllMessages.elements['measure'].getName(lang)</strong></a></strong>
-	$elif type == 'sensors':
-	    <strong><a href="/sensors/new"><span class="halflings halflings-plus"> <strong>$c.AllMessages.elements['sensor'].getName(lang)</strong></a></strong>
-	$elif type == 'alarms':
-	    <strong><a href="/alarms/new"><span class="halflings halflings-plus"> <strong>$c.AllMessages.elements['alarm'].getName(lang)</strong></a></strong>
+    <div class="col-xs-6" id="addItem">
+	<a href="/$(type)/new"><span class="halflings halflings-plus"></a> <strong>$c.AllMessages.elements[type[0:-1]].getName(self.lang)</strong>
     </div>
 </div>    

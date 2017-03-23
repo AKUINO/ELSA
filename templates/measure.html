@@ -1,4 +1,4 @@
-$def with (c, id, mail)
+$def with (id, mail)
 
 
 $if id == 'new':
@@ -7,13 +7,12 @@ $if id == 'new':
 $else:
     $var location: measures/ $c.AllMeasures.elements[id].fields['m_id']
 
-$code:
-    lang = c.connectedUsers.users[mail].cuser.fields['language']
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	
 	<div class="form-group row">
-	    <label for="inputName" class="col-sm-3 col-form-label">$c.AllMessages.elements['name'].getName(lang)</label>
+	    <label for="inputName" class="col-sm-3 col-form-label">$c.AllMessages.elements['name'].getName(self.lang)</label>
 	</div>
 	
 	$for k,v in c.AllLanguages.elements.items():
@@ -26,15 +25,15 @@ $code:
 		<div class="col-sm-8">
 		    <input name="$k" type="text" class="form-control" id="inputName" placeholder="Name"
 		$if id !='new':
-		    value="$c.AllMeasures.elements[id].getName(lang)"
+		    value="$c.AllMeasures.elements[id].getName(self.lang)"
 		required="true" >
 		</div>
 	    </div>
 	
 	<div class="form-group row">
-	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(lang)</label>
+	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.AllMessages.elements['acronym'].getName(lang)" 
+		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.AllMessages.elements['acronym'].getName(self.lang)" 
 		$if id != 'new':
 		    value="$c.AllMeasures.elements[id].fields['acronym']"
 		required="true">
@@ -42,9 +41,9 @@ $code:
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputFormula" class="col-sm-3 col-form-label">$c.AllMessages.elements['formula'].getName(lang)</label>
+	    <label for="inputFormula" class="col-sm-3 col-form-label">$c.AllMessages.elements['formula'].getName(self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="formula" type="text" class="form-control" id="inputFormula" placeholder="$c.AllMessages.elements['formula'].getName(lang)" 
+		<input name="formula" type="text" class="form-control" id="inputFormula" placeholder="$c.AllMessages.elements['formula'].getName(self.lang)" 
 		$if id != 'new':
 		    value="$c.AllMeasures.elements[id].fields['formula']"
 		>
@@ -52,9 +51,9 @@ $code:
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputSource" class="col-sm-3 col-form-label">$c.AllMessages.elements['source'].getName(lang)</label>
+	    <label for="inputSource" class="col-sm-3 col-form-label">$c.AllMessages.elements['source'].getName(self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="source" type="text" class="form-control" id="inputSource" placeholder="$c.AllMessages.elements['source'].getName(lang)" 
+		<input name="source" type="text" class="form-control" id="inputSource" placeholder="$c.AllMessages.elements['source'].getName(self.lang)" 
 		$if id != 'new':
 		    value="$c.AllMeasures.elements[id].fields['source']"
 		required="true">
@@ -62,9 +61,9 @@ $code:
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputUnit" class="col-sm-3 col-form-label">$c.AllMessages.elements['unit'].getName(lang)</label>
+	    <label for="inputUnit" class="col-sm-3 col-form-label">$c.AllMessages.elements['unit'].getName(self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="unit" type="text" class="form-control" id="inputUnit" placeholder="$c.AllMessages.elements['unit'].getName(lang)" 
+		<input name="unit" type="text" class="form-control" id="inputUnit" placeholder="$c.AllMessages.elements['unit'].getName(self.lang)" 
 		$if id != 'new':
 		    value="$c.AllMeasures.elements[id].fields['unit']"
 		required="true">
@@ -73,7 +72,7 @@ $code:
 	
 	
 	<div class="form-group row">
-	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(lang)</label>
+	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
 	    <div class="col-sm-9">
 		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >
 $if id != 'new':
@@ -83,7 +82,7 @@ $if id != 'new':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputDeny" class="col-sm-6 col-form-label">$c.AllMessages.elements['deny'].names[lang]['name']</label>
+	    <label for="inputDeny" class="col-sm-6 col-form-label">$c.AllMessages.elements['deny'].getName(self.lang)</label>
 	    <label class="switch">
 		<input id='inputDeny'name="deny" type="checkbox" value="1" type="checkbox" >
 		<div class="slider round"></div>

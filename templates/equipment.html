@@ -1,4 +1,4 @@
-$def with (c, id, mail)
+$def with (id, mail)
 
 
 $if id == 'new':
@@ -7,13 +7,12 @@ $if id == 'new':
 $else:
     $var location: equipments/ $c.AllEquipments.elements[id].fields['e_id']
 
-$code:
-    lang = c.connectedUsers.users[mail].cuser.fields['language']
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	
 	<div class="form-group row">
-	    <label for="inputName" class="col-sm-3 col-form-label">$c.AllMessages.elements['name'].getName(lang)</label>
+	    <label for="inputName" class="col-sm-3 col-form-label">$c.AllMessages.elements['name'].getName(self.lang)</label>
 	</div>
 	
 	$for k,v in c.AllLanguages.elements.items():
@@ -24,15 +23,15 @@ $code:
 		<div class="col-sm-9">
 		    <input name="$k" type="text" class="form-control" id="inputName" placeholder="Name"
 		$if id !='new':
-		    value="$c.AllEquipments.elements[id].getName(lang)"
+		    value="$c.AllEquipments.elements[id].getName(self.lang)"
 		required="true" >
 		</div>
 	    </div>
 	
 	<div class="form-group row">
-	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(lang)</label>
+	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.AllMessages.elements['acronym'].getName(lang)" 
+		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.AllMessages.elements['acronym'].getName(self.lang)" 
 		$if id != 'new':
 		    value="$c.AllEquipments.elements[id].fields['acronym']"
 		required="true">
@@ -40,9 +39,9 @@ $code:
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.AllMessages.elements['code'].getName(lang)</label>
+	    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.AllMessages.elements['code'].getName(self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.AllMessages.elements['code'].getName(lang)" 
+		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.AllMessages.elements['code'].getName(self.lang)" 
 		$if id != 'new':
 		    value="$c.AllEquipments.elements[id].code"
 		required="true">
@@ -50,7 +49,7 @@ $code:
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(lang)</label>
+	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
 	    <div class="col-sm-9">
 		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >
 $if id != 'new':
@@ -60,7 +59,7 @@ $if id != 'new':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputDeny" class="col-sm-6 col-form-label">$c.AllMessages.elements['deny'].names[lang]['name']</label>
+	    <label for="inputDeny" class="col-sm-6 col-form-label">$c.AllMessages.elements['deny'].getName(self.lang)</label>
 	    <label class="switch">
 		<input id='inputDeny'name="deny" type="checkbox" value="1" type="checkbox" >
 		<div class="slider round"></div>
@@ -69,14 +68,14 @@ $if id != 'new':
 	
 	<div class="form-group row">
 	    <div class="col-sm-3">
-		<label for="includedContent" class="col-sm-6 col-form-label">$c.AllMessages.elements['color'].names[lang]['name']</label>
+		<label for="includedContent" class="col-sm-6 col-form-label">$c.AllMessages.elements['color'].getName(self.lang)</label>
 	    </div>
 	    <div id="includedContent" class="form-group col-sm-9">
 	    </div>
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputFile" class="col-sm-6 col-form-label">$c.AllMessages.elements['file'].getName(lang)</label>
+	    <label for="inputFile" class="col-sm-6 col-form-label">$c.AllMessages.elements['file'].getName(self.lang)</label>
 	    <label class="control-label"></label>
 	    <input id="inputFile" name="placeImg" multiple type="file" class="file file-loading" data-allowed-file-extensions='["jpg", "jpeg"]'>
 	</div>

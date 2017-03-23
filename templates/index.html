@@ -1,9 +1,11 @@
-$def with (connected, c, mail)
+$def with (connected, mail)
 $var location : index
+$var lang : EN
 
 $if connected is True:
+    $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
     <div>
-	$c.AllMessages.elements['welcome'].names[c.connectedUsers.users[mail].cuser.fields['language']]['name'] <em>$c.connectedUsers.users[mail].cuser.getName('EN')</em>
+	$c.AllMessages.elements['welcome'].names[self.lang]['name'] <em>$c.connectedUsers.users[mail].cuser.getName('EN')</em>
     </div>
 $else :
     <div>

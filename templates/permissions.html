@@ -1,4 +1,4 @@
-$def with (c,mail,id,type)
+$def with (mail,id,type)
 
 $if type == 'p':
     $var location: places/ $id
@@ -29,27 +29,26 @@ $elif type == 'g':
 	keyID = c.AllGroups.keyColumn
 	classname = 'group'
 
-$code:
-    lang = c.connectedUsers.users[mail].cuser.fields['language']
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	<div class="form-group row">
-	    <label class="col-sm-2 col-form-label">$c.AllMessages.elements['name'].getName(lang)</label>
-	    <label id="modalinfo" class="col-sm-2 col-form-label">$element.getName(lang)</label>
-	    <label class="col-sm-2 col-form-label">$c.AllMessages.elements['acronym'].getName(lang)</label>
+	    <label class="col-sm-2 col-form-label">$c.AllMessages.elements['name'].getName(self.lang)</label>
+	    <label id="modalinfo" class="col-sm-2 col-form-label">$element.getName(self.lang)</label>
+	    <label class="col-sm-2 col-form-label">$c.AllMessages.elements['acronym'].getName(self.lang)</label>
 	    <label id="modalinfo" class="col-sm-2 col-form-label">$element.fields['acronym']</label>
 	    <label class="col-sm-2 col-form-label">Type :</label>
-	    <label id="modalinfo" class="col-sm-2 col-form-label">$c.AllMessages.elements[classname].getName(lang)</label>
+	    <label id="modalinfo" class="col-sm-2 col-form-label">$c.AllMessages.elements[classname].getName(self.lang)</label>
 	</div>
 	<div class="form-group row">
-	    <label class="col-sm-3 col-form-label">$c.AllMessages.elements['modifygroup'].getName(lang)</label>
+	    <label class="col-sm-3 col-form-label">$c.AllMessages.elements['modifygroup'].getName(self.lang)</label>
 	</div>
 
 	$for k,group in element.groups.items():
 	    <div class="form-group row">
 		<label  class="col-sm-2 col-form-label"></label>
-		<label id="modalinfo" for="inputGroups" class="col-sm-2 col-form-label">$group.getName(lang)</label>
+		<label id="modalinfo" for="inputGroups" class="col-sm-2 col-form-label">$group.getName(self.lang)</label>
 		<label class="col-sm-8 col-form-label">
 		    <span class="glyphicon glyphicon-remove-circle"> </span>
 		    <label  class="switch">
@@ -60,13 +59,13 @@ $code:
 		</label>
 	    </div>
 	<div class="form-group row">
-	    <label class="col-sm-3 col-form-label">$c.AllMessages.elements['addgroup'].getName(lang)</label>
+	    <label class="col-sm-3 col-form-label">$c.AllMessages.elements['addgroup'].getName(self.lang)</label>
 	</div>
 	$for k,group in c.AllGroups.elements.items():
 	    $if k not in element.groups.keys():
 		<div class="form-group row">
 		    <label  class="col-sm-2 col-form-label"></label>
-		    <label id="modalinfo" for="inputGroups" class="col-sm-2 col-form-label">$group.getName(lang)</label>
+		    <label id="modalinfo" for="inputGroups" class="col-sm-2 col-form-label">$group.getName(self.lang)</label>
 		    <label class="col-sm-8 col-form-label">
 			<span class="glyphicon glyphicon-remove-circle"> </span>
 			<label class="switch">

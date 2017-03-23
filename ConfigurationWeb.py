@@ -35,12 +35,12 @@ urls = (
 #Configuration Singleton ELSA
 c=elsa.Configuration()
 c.load()
-
+web.template.Template.globals['c'] = c
 #
 #Ligne 58 - connexion 9000 a la place de 900
 #
 
-print c.AllSensors.elements['1'].fields
+
 
 class WebObject():
     def __init__(self):
@@ -49,7 +49,7 @@ class WebObject():
 	mail = isConnected()
 	if mail is not None:
 	    return self.getRender(mail)
-	return render.index(False,c,'')
+	return render.index(False,'')
 	
     def POST(self):
 	data = web.input(nifile={})
@@ -59,8 +59,8 @@ class WebObject():
 	    infoCookie = data._username_ + ',' + connectedUser.fields['password']
 	    web.setcookie('webpy', infoCookie, expires=9000)
 	    c.connectedUsers.addUser(connectedUser)
-	    return render.index(True, c, data._username_) 
-	return render.index(False, c, '')
+	    return render.index(True, data._username_) 
+	return render.index(False, '')
 	
 class WebObjectUpdate():
     def GET(self,id):
@@ -138,31 +138,31 @@ class WebIndex(WebObject):
 	self.name = u"WebIndex"
 	
     def getRender(self, mail):
-	return render.index(True,c,mail)
+	return render.index(True,mail)
 	
 class WebPlaces(WebObject):
     def __init__(self):
 	self.name=u"WebPlaces"
     
     def getRender(self, mail):
-	return render.listing(c,mail,'places')
+	return render.listing(mail,'places')
 	
 class WebEquipments(WebObject):
     def __init__(self):
 	self.name=u"WebEquipments"
 	
     def getRender(self, mail):
-	return render.listing(c,mail,'equipments')
+	return render.listing(mail,'equipments')
 
 class WebPlace(WebObjectUpdate):
     def __init__(self):
 	self.name=u"WebPlace"
 	
     def getRender(self, id, mail):
-	return render.place(c,id,mail)
+	return render.place(id,mail)
 	
     def getListing(self,mail):
-	return render.listing(c,mail,'places')
+	return render.listing(mail,'places')
 
 	
 class WebEquipment(WebObjectUpdate):
@@ -170,44 +170,44 @@ class WebEquipment(WebObjectUpdate):
 	self.name=u"WebEquipment"
 	
     def getRender(self, id, mail):
-	return render.equipment(c,id,mail)
+	return render.equipment(id,mail)
 	
     def getListing(self,mail):
-	return render.listing(c,mail,'equipments')
+	return render.listing(mail,'equipments')
 
 class WebUsers(WebObject):
     def __init__(self):
 	self.name=u"WebUsers"
     
     def getRender(self, mail):
-	return render.listing(c,mail,'users')
+	return render.listing(mail,'users')
 	
 class WebUser(WebObjectUpdate):
     def __init__(self):
 	self.name=u"WebUser"
 	
     def getRender(self, id, mail):
-	return render.user(c,id,mail)
+	return render.user(id,mail)
 	
     def getListing(self,mail):
-	return render.listing(c,mail,'users')
+	return render.listing(mail,'users')
 
 class WebGroups(WebObject):
     def __init__(self):
 	self.name=u"WebGroups"
     
     def getRender(self, mail):
-	return render.listing(c,mail,'groups')
+	return render.listing(mail,'groups')
 	
 class WebGroup(WebObjectUpdate):
     def __init__(self):
 	self.name=u"WebGroup"
 	
     def getRender(self, id, mail):
-	return render.group(c,id,mail)
+	return render.group(id,mail)
 	
     def getListing(self,mail):
-	return render.listing(c,mail,'groups')
+	return render.listing(mail,'groups')
 	
 class WebPermission(WebObjectUpdate):
     def __init__(self):
@@ -216,7 +216,7 @@ class WebPermission(WebObjectUpdate):
     def getRender(seld,id,mail):
 	typeobject = id.split('_')[0]
 	idobject = id.split('_')[1]
-	return render.permissions(c,mail,idobject,typeobject)
+	return render.permissions(mail,idobject,typeobject)
 	
     def POST(self, id):
 	mail = isConnected()
@@ -241,15 +241,15 @@ class WebPermission(WebObjectUpdate):
 			listgroups[k] = group
 	    currObject.groups = listgroups
 	    currObject.saveGroups(c,user)
-	    return render.listing(c,mail,'groups')
-	return render.index(False,c,'')
+	    return render.listing(mail,'groups')
+	return render.index(False,'')
 
 class WebContainers(WebObject):
     def __init__(self):
 	self.name=u"WebContainers"
     
     def getRender(self, mail):
-	return render.listing(c,mail,'containers')
+	return render.listing(mail,'containers')
 	
 
 class WebContainer(WebObjectUpdate):
@@ -257,17 +257,17 @@ class WebContainer(WebObjectUpdate):
 	self.name=u"WebContainer"
 	
     def getRender(self, id, mail):
-	return render.container(c,id,mail)
+	return render.container(id,mail)
     
     def getListing(self,mail):
-	return render.listing(c,mail,'containers')
+	return render.listing(mail,'containers')
 	
 class WebMeasures(WebObject):
     def __init__(self):
 	self.name=u"WebMeasures"
     
     def getRender(self, mail):
-	return render.listing(c,mail,'measures')
+	return render.listing(mail,'measures')
 	
 
 class WebMeasure(WebObjectUpdate):
@@ -275,17 +275,17 @@ class WebMeasure(WebObjectUpdate):
 	self.name=u"WebMeasure"
 	
     def getRender(self, id, mail):
-	return render.measure(c,id,mail)
+	return render.measure(id,mail)
     
     def getListing(self,mail):
-	return render.listing(c,mail,'measures')
+	return render.listing(mail,'measures')
 	
 class WebSensors(WebObject):
     def __init__(self):
 	self.name=u"Sensors"
     
     def getRender(self, mail):
-	return render.listing(c,mail,'sensors')
+	return render.listing(mail,'sensors')
 	
 
 class WebSensor(WebObjectUpdate):
@@ -293,10 +293,10 @@ class WebSensor(WebObjectUpdate):
 	self.name=u"WebSensor"
 	
     def getRender(self, id, mail):
-	return render.sensor(c,id,mail)
+	return render.sensor(id,mail)
     
     def getListing(self,mail):
-	return render.listing(c,mail,'sensors')
+	return render.listing(mail,'sensors')
 	
 class getRRD(): 
     def GET(self, filename):
@@ -311,7 +311,7 @@ class WebMonitoring(WebObject):
 	self.name=u"WebMonitoring"
     
     def getRender(self, mail):
-	return render.monitoring(c,mail)
+	return render.monitoring(mail)
 	
 class WebSensorGraph():
     def __init__(self):
@@ -320,33 +320,26 @@ class WebSensorGraph():
     def GET(self,id):
 	mail = isConnected()
 	if mail is not None:
-	    return render.graphic(c,mail,id)
-	return render.index(False,c,'')
+	    return render.graphic(mail,id)
+	return render.index(False,'')
 
-class getRRD2(): 
-    def GET(self, ids,filename):
-        try: 
-            f = open('rrd/' + filename)
-            return f.read()  
-        except IOError: 
-            web.notfound()
 	    
 class WebAlarms(WebObject):
     def __init__(self):
 	self.name=u"WebAlarms"
 	
     def getRender(self, mail):
-	return render.listing(c,mail,'alarms')
+	return render.listing(mail,'alarms')
 
 class WebAlarm(WebObjectUpdate):
     def __init__(self):
 	self.name=u"WebAlarm"
 	
     def getRender(self, id, mail):
-	return render.alarm(c,id,mail)
+	return render.alarm(id,mail)
 	
     def getListing(self,mail):
-	return render.listing(c,mail,'alarms')
+	return render.listing(mail,'alarms')
 	
 def encrypt(password,salt):
     sha = hashlib.pbkdf2_hmac('sha256', password, salt, 126425)

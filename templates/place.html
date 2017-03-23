@@ -1,4 +1,4 @@
-$def with (c, id, mail)
+$def with (id, mail)
 
 
 $if id == 'new':
@@ -7,8 +7,7 @@ $if id == 'new':
 $else:
     $var location: places/ $c.AllPieces.elements[id].fields['p_id']
 
-$code:
-    lang = c.connectedUsers.users[mail].cuser.fields['language']
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
 	

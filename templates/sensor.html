@@ -1,5 +1,4 @@
-$def with (c, id, mail)
-
+$def with (id, mail)
 
 $if id == 'new':
     $var location: sensors/ new
@@ -7,13 +6,12 @@ $if id == 'new':
 $else:
     $var location: sensors/ $c.AllSensors.elements[id].fields['cpehm_id']
 
-$code:
-    lang = c.connectedUsers.users[mail].cuser.fields['language']
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	
 	<div class="form-group row">
-	    <label for="inputName" class="col-sm-3 col-form-label">$c.AllMessages.elements['name'].getName(lang)</label>
+	    <label for="inputName" class="col-sm-3 col-form-label">$c.AllMessages.elements['name'].getName(self.lang)</label>
 	</div>
 	
 	$for k,v in c.AllLanguages.elements.items():
@@ -26,24 +24,24 @@ $code:
 		<div class="col-sm-8">
 		    <input name="$k" type="text" class="form-control" id="inputName" placeholder="Name"
 		$if id !='new':
-		    value="$c.AllSensors.elements[id].getName(lang)"
+		    value="$c.AllSensors.elements[id].getName(self.lang)"
 		required="true" >
 		</div>
 	    </div>
 	
 	<div class="form-group row">
-	    <label for="langSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['component'].getName(lang)</label>
+	    <label for="langSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['component'].getName(self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "component" class="form-control" id="langSelect">
-		    <optgroup label="$c.AllMessages.elements['place'].getName(lang)">
+		    <optgroup label="$c.AllMessages.elements['place'].getName(self.lang)">
 		    $for k in c.AllPieces.elements.keys():
-			<option value="p_$k">$c.AllPieces.elements[k].fields['acronym'] - $c.AllPieces.elements[k].getName(lang) </option>
-		    <optgroup label="$c.AllMessages.elements['equipment'].getName(lang)">
+			<option value="p_$k">$c.AllPieces.elements[k].fields['acronym'] - $c.AllPieces.elements[k].getName(self.lang) </option>
+		    <optgroup label="$c.AllMessages.elements['equipment'].getName(self.lang)">
 		    $for k in c.AllEquipments.elements.keys():
-			<option value="e_$k">$c.AllEquipments.elements[k].fields['acronym'] - $c.AllEquipments.elements[k].getName(lang)</option>
-		    <optgroup label="$c.AllMessages.elements['container'].getName(lang)">
+			<option value="e_$k">$c.AllEquipments.elements[k].fields['acronym'] - $c.AllEquipments.elements[k].getName(self.lang)</option>
+		    <optgroup label="$c.AllMessages.elements['container'].getName(self.lang)">
 		    $for k in c.AllContainers.elements.keys():
-			<option value="c_$k">$c.AllContainers.elements[k].fields['acronym'] - $c.AllContainers.elements[k].getName(lang)</option>
+			<option value="c_$k">$c.AllContainers.elements[k].fields['acronym'] - $c.AllContainers.elements[k].getName(self.lang)</option>
 		</select>
 	    </div>
 	</div>
@@ -59,17 +57,17 @@ $code:
 	</div>
 	
 	<div class="form-group row">
-	    <label for="measureSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['measure'].getName(lang)</label>
+	    <label for="measureSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['measure'].getName(self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "measure" class="form-control" id="measureSelect">
 		    $for k in c.AllMeasures.elements.keys():
-			<option value="m_$k">$c.AllMeasures.elements[k].fields['acronym'] - $c.AllMeasures.elements[k].getName(lang) - $c.AllMeasures.elements[k].fields['unit']</option>
+			<option value="m_$k">$c.AllMeasures.elements[k].fields['acronym'] - $c.AllMeasures.elements[k].getName(self.lang) - $c.AllMeasures.elements[k].fields['unit']</option>
 		</select>
 	    </div>
 	</div>
 	
 	<div class="form-group row">
-	    <label for="channelSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['channel'].getName(lang)</label>
+	    <label for="channelSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['channel'].getName(self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "channel" class="form-control" id="channelSelect">
 		    <option value="wire">wire</option>
@@ -81,29 +79,29 @@ $code:
 	    listAlarm = ['minmin', 'min', 'typical', 'max', 'maxmax']
 	$for alarm in listAlarm:
 	    <div class="form-group row">
-		<label for="$(alarm)Select" class="col-sm-3 col-form-label">$c.AllMessages.elements[alarm].getName(lang)</label>
+		<label for="$(alarm)Select" class="col-sm-3 col-form-label">$c.AllMessages.elements[alarm].getName(self.lang)</label>
 		<div class="col-sm-9">
-		    <input name="$(alarm)" type="text" class="form-control" id="$(alarm)Select" placeholder="$c.AllMessages.elements['alarm'].getName(lang)" 
+		    <input name="$(alarm)" type="text" class="form-control" id="$(alarm)Select" placeholder="$c.AllMessages.elements['alarm'].getName(self.lang)" 
 		    $if id != 'new':
 			value="$c.AllSensors.elements[id].fields[alarm]"
 		    required="true">
 		</div>
 	    </div>
 	    <div class="form-group row">
-		<label for="a$(alarm)Select" class="col-sm-3 col-form-label">$c.AllMessages.elements[alarm].getName(lang) - $c.AllMessages.elements['alarm'].getName(lang)</label>
+		<label for="a$(alarm)Select" class="col-sm-3 col-form-label">$c.AllMessages.elements[alarm].getName(self.lang) - $c.AllMessages.elements['alarm'].getName(self.lang)</label>
 		<div class="col-sm-9">
 		    <select name = "a_$alarm" class="form-control" id="a$(alarm)Select">
 			$for k in c.AllAlarms.elements.keys():
-			    <option value="a_$k">$c.AllMAlarms.elements[k].fields['acronym'] - $c.AllAlarms.elements[k].getName(lang) </option>
+			    <option value="a_$k">$c.AllMAlarms.elements[k].fields['acronym'] - $c.AllAlarms.elements[k].getName(self.lang) </option>
 		    </select>
 		</div>
 	    </div>
 	
 	
 	<div class="form-group row">
-	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(lang)</label>
+	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.AllMessages.elements['acronym'].getName(lang)" 
+		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.AllMessages.elements['acronym'].getName(self.lang)" 
 		$if id != 'new':
 		    value="$c.AllSensors.elements[id].fields['acronym']"
 		required="true">
@@ -111,9 +109,9 @@ $code:
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputFormula" class="col-sm-3 col-form-label">$c.AllMessages.elements['formula'].getName(lang)</label>
+	    <label for="inputFormula" class="col-sm-3 col-form-label">$c.AllMessages.elements['formula'].getName(self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="formula" type="text" class="form-control" id="inputFormula" placeholder="$c.AllMessages.elements['formula'].getName(lang)" 
+		<input name="formula" type="text" class="form-control" id="inputFormula" placeholder="$c.AllMessages.elements['formula'].getName(self.lang)" 
 		$if id != 'new':
 		    value="$c.AllSensors.elements[id].fields['formula']"
 		>
@@ -121,9 +119,9 @@ $code:
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputSensor" class="col-sm-3 col-form-label">$c.AllMessages.elements['sensor'].getName(lang)</label>
+	    <label for="inputSensor" class="col-sm-3 col-form-label">$c.AllMessages.elements['sensor'].getName(self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="sensor" type="text" class="form-control" id="inputSensor" placeholder="$c.AllMessages.elements['sensor'].getName(lang)" 
+		<input name="sensor" type="text" class="form-control" id="inputSensor" placeholder="$c.AllMessages.elements['sensor'].getName(self.lang)" 
 		$if id != 'new':
 		    value="$c.AllSensors.elements[id].fields['sensor']"
 		required="true">
@@ -131,9 +129,9 @@ $code:
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputSubsensor" class="col-sm-3 col-form-label">$c.AllMessages.elements['subsensor'].getName(lang)</label>
+	    <label for="inputSubsensor" class="col-sm-3 col-form-label">$c.AllMessages.elements['subsensor'].getName(self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="subsensor" type="text" class="form-control" id="inputUnit" placeholder="$c.AllMessages.elements['subsensor'].getName(lang)" 
+		<input name="subsensor" type="text" class="form-control" id="inputUnit" placeholder="$c.AllMessages.elements['subsensor'].getName(self.lang)" 
 		$if id != 'new':
 		    value="$c.AllSensors.elements[id].fields['subsensor']"
 		required="true">
@@ -141,9 +139,9 @@ $code:
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputValuetype" class="col-sm-3 col-form-label">$c.AllMessages.elements['valuetype'].getName(lang)</label>
+	    <label for="inputValuetype" class="col-sm-3 col-form-label">$c.AllMessages.elements['valuetype'].getName(self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="valuetype" type="text" class="form-control" id="inputValuetype" placeholder="$c.AllMessages.elements['valuetype'].getName(lang)" 
+		<input name="valuetype" type="text" class="form-control" id="inputValuetype" placeholder="$c.AllMessages.elements['valuetype'].getName(self.lang)" 
 		$if id != 'new':
 		    value="$c.AllSensors.elements[id].fields['valuetype']"
 		required="true">
@@ -151,9 +149,9 @@ $code:
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.AllMessages.elements['code'].getName(lang)</label>
+	    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.AllMessages.elements['code'].getName(self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.AllMessages.elements['code'].getName(lang)" 
+		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.AllMessages.elements['code'].getName(self.lang)" 
 		$if id != 'new':
 		    value="$c.AllUsers.elements[id].code"
 		>
@@ -161,7 +159,7 @@ $code:
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(lang)</label>
+	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
 	    <div class="col-sm-9">
 		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >
 $if id != 'new':
@@ -171,7 +169,7 @@ $if id != 'new':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputDeny" class="col-sm-6 col-form-label">$c.AllMessages.elements['deny'].names[lang]['name']</label>
+	    <label for="inputDeny" class="col-sm-6 col-form-label">$c.AllMessages.elements['deny'].names[self.lang]['name']</label>
 	    <label class="switch">
 		<input id='inputDeny'name="deny" type="checkbox" value="1" type="checkbox" >
 		<div class="slider round"></div>

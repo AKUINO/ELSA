@@ -1,10 +1,9 @@
-$def with (c,mail)
+$def with (mail)
 $var location: monitoring/
-$code:
-    lang = c.connectedUsers.users[mail].cuser.fields['language']
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 
 <div class="row">
-    <label for="graphSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['graphic'].getName(lang)</label>
+    <label for="graphSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['graphic'].getName(self.lang)</label>
     <div class="col-sm-9">
 	<select id="input_fname" onchange="fname_update()">
 	    <option value="systemuptime.rrd">systemuptime.rrd</option>

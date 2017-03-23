@@ -37,6 +37,7 @@ class Configuration():
 	self.AllMeasures = AllMeasures(self)
 	self.AllSensors = AllSensors(self)
 	self.AllAlarms = AllAlarms(self)
+	self.AllHalflings = AllHalflings(self)
 	self.connectedUsers = AllConnectedUsers()
 	self.isThreading = True
 	self.UpdateThread = UpdateThread(self)
@@ -52,6 +53,7 @@ class Configuration():
 	self.AllMeasures.load()
 	self.AllSensors.load()
 	self.AllAlarms.load()
+	self.AllHalflings.load()
 	#doit toujours être appelé à la fin
 	self.loadCodes()
 	self.loadRelation()
@@ -625,6 +627,28 @@ class AllPieces(AllObjects):
     def newObject(self):
 	return Piece()
 	
+class AllHalflings(AllObjects):
+
+    def __init__(self, config):
+	AllObjects.__init__(self)
+        self.elements = {}
+        self.config = config
+        self.fileobject = csvDir + "halflings.csv"
+	self.filename = None
+        self.keyColumn = "classname"
+	self.fieldnames = ['begin', 'p_id', 'deny', 'acronym', 'remark','colorgraph', 'user']
+	self.fieldtranslate = None
+	self.count = 0
+
+    def newObject(self):
+	return Halfling()
+	
+    def getString(self):
+	tmp=''
+	for k,v in self.elements.items():
+	    tmp = tmp + k + '/' + v.fields['glyphname'] + ' '
+	return tmp[0:-1]
+	
 class AllAlarms(AllObjects):
 
     def __init__(self, config):
@@ -1099,6 +1123,28 @@ class Piece(ConfigurationObject):
 	
     def getType(self):
 	return 'p'
+
+class Halfling(ConfigurationObject):
+
+    def __init__(self):
+	ConfigurationObject.__init__(self)
+	
+
+    def __repr__(self):
+        string = str(self.id) + " " + self.fields['classname']
+        return string
+
+    def __str__(self):
+        string = "\nHalfling :"
+        for field in self.fields:
+            string = string + "\n" + field + " : " + self.fields[field]
+        return string + "\n"
+	
+    def getType(self):
+	return 'halfling'
+	
+    def getHalfling(self):
+	return 'halflings halflings-'+self.fields['glyphname']
 
 class Alarm(ConfigurationObject):
 
