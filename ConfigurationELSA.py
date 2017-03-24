@@ -1306,7 +1306,7 @@ class Sensor(ConfigurationObject):
 	    self.degreeAlarm = 1
 	    self.countAlarm = 0
 	    if int(float(self.fields['lapse1'])) < 60 :
-		time = nextUpdate - int(float(self.fields['lapse1']))
+		time = int(float(self.fields['lapse1']))
 		return UpdateAlarm(self, time)
 	    else:
 		self.countAlarm = self.countAlarm+60
