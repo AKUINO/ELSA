@@ -40,6 +40,8 @@ web.template.Template.globals['c'] = c
 #Ligne 58 - connexion 9000 a la place de 900
 #
 
+c.AllSensors.elements['1'].update( 123456, 14)
+
 
 
 class WebObject():
@@ -128,7 +130,7 @@ class WebObjectUpdate():
 		    fout.write(data.placeImg.file.read())
 		    fout.close()
 	    currObject.save(c,user)
-	    if currObject.__class__.__name__ == u"Sensor" :
+	    if currObject.__class__.__name__ == u"Sensor" and id == 'new':
 		currObject.createRRD()
 	    return self.getListing(mail)
 	raise web.seeother('/')

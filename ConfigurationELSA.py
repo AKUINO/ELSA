@@ -132,7 +132,7 @@ class Configuration():
 	elif className == u"WebSensor":
 	    return self.AllSensors.fieldnames 
 	elif className == u"WebAlarm":
-	    return self.AllAlarm.fieldnames
+	    return self.AllAlarms.fieldnames
         else:
             return None
 	    
@@ -415,6 +415,7 @@ class UpdateThread(threading.Thread):
 	time.sleep(60)
 	while self.config.isThreading:
 	    now = int(time.time())
+	    now = now - now%60
 	    self.config.InfoSystem.updateInfoSystem(now)
 	    if not len(self.config.AllSensors.elements) == 0 :
 		for k,sensor in self.config.AllSensors.elements.items():
@@ -434,6 +435,32 @@ class UpdateThread(threading.Thread):
 			    traceback.print_exc()
 	    time.sleep(60)
         
+class UpdateAlarm(threading.Thread):
+
+    def __init__(self, sensor, time):
+        threading.Thread.__init__(self)
+        self.sensor = sensor
+	self.time = time
+
+    def run(self):
+	ow.init("/dev/i2c-1")
+        owDevices = ow.Sensor("/")
+	time.sleep(int(self.time))
+	if sensor.fields['channel'] == 'wire':
+	    try:
+		sensorAdress = '/'+str(sensor.fields['sensor'])
+		aDevice = ow.Sensor(sensorAdress)
+		if aDevice:
+		    owData = aDevice.__getattr__(sensor.fields['subsensor'])
+		    if owData:
+			if sensor.fields['formula']:
+			    value = float(owData)
+			    owData = str(eval(sensor.fields['formula']))
+			print (u"SENSOR ALARM 1Wire-" + sensor.getName('EN')+u": " + sensor.fields['acronym'] + " = " + owData)
+			self.sensor.comeFromUpdateAlarm(owData)
+	    except:
+		traceback.print_exc()
+	
 
 class AllObjects():
 
@@ -705,7 +732,7 @@ class AllSensors(AllObjects):
         self.fileobject = csvDir + "CPEHM.csv"
 	self.filename = csvDir + "CPEHMnames.csv"
         self.keyColumn = "cpehm_id"
-	self.fieldnames = ['begin', 'cpehm_id', 'c_id', 'p_id', 'e_id', 'h_id', 'm_id', 'deny', 'acronym', 'remark', 'channel', 'sensor', 'subsensor', 'valuetype', 'formula', 'user']
+	self.fieldnames = ['begin', 'cpehm_id', 'c_id', 'p_id', 'e_id', 'h_id', 'm_id', 'deny', 'acronym', 'remark', 'channel', 'sensor', 'subsensor', 'valuetype', 'formula', 'minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax', 'lapse1', 'lapse2', 'lapse3', 'user']
 	self.fieldtranslate = ['begin', 'lang', 'cpehm_id', 'name', 'user']
 	self.count = 0
 
@@ -1189,6 +1216,9 @@ class Measure(ConfigurationObject):
 class Sensor(ConfigurationObject):
     def __init__(self):
 	ConfigurationObject.__init__(self)
+	self.actualAlarm = None
+	self.countActual = 0
+	self.degreeAlarm = 0
     
     def __repr__(self):
         string = self.id + " " + self.fields['channel'] + " " + self.fields['acronym']
@@ -1235,6 +1265,20 @@ class Sensor(ConfigurationObject):
     def addPhase(self, data):
 	self.fields['h_id'] = data
 	
+    def update(self, now, value):
+	#updateRRD(now, value)
+	typeAlarm = self.getTypeAlarm(value)
+	if typeAlarm == 'typical' :
+	    self.countActual = 0
+	    self.actualAlarm = 'typical'
+	    self.degreeAlarm = 0
+	else:
+	    if ( typeAlarm == 'min' and self.actualAlarm == 'minmin' ) or ( typeAlarm == 'max' and self.actualAlarm == 'maxmax') :
+		self.launchAlarm()
+	    else:
+		self.actualAlarm = typeAlarm
+		self.launchAlarm()	
+	
     def updateRRD(self,now, value):
 	rrdtool.update(rrdDir +self.getRRDName() , '%d:%f' % (now ,value))
 	
@@ -1247,10 +1291,42 @@ class Sensor(ConfigurationObject):
     def getTypeAlarm(self,value):
 	tmp = float(value)
 	if value <= float(self.fields['minmin']):
-	    return self.fields['a_minmin']
+	    return 'minmin'
 	elif value <= float(self.fields['min']):
-	    return self.fields['a_min']
-	
+	    return 'min'
+	elif value <= float(self.fields['maxmax']) and value >= float(self.fields['max']):
+	    return 'max'
+	elif value > float(self.fields['maxmax']):
+	    return 'maxmax'
+	else:
+	    return 'typical'
+	    
+    def launchAlarm(self):
+	if self.degreeAlarm == 0 :
+	    self.degreeAlarm = 1
+	    self.countAlarm = 0
+	    if int(float(self.fields['lapse1'])) < 60 :
+		time = nextUpdate - int(float(self.fields['lapse1']))
+		return UpdateAlarm(self, time)
+	    else:
+		self.countAlarm = self.countAlarm+60
+		nextUpdate = self.countAlarm + 60
+		if self.degreeAlarm == 1 :
+		    if nextUpdate > int(float(self.fields['lapse1'])):
+			time = nextUpdate - int(float(self.fields['lapse1']))
+			return UpdateAlarm(self, time)
+		elif self.degreeAlarm == 2 :
+		    if nextUpdate > int(float(self.fields['lapse2'])):
+			time = nextUpdate - int(float(self.fields['lapse2']))
+			return UpdateAlarm(self, time)
+		if self.countAlarm > int(float(self.fields['lapse1'])) and self.degreeAlarm == 1:
+		    self.countAlarm = self.countAlarm - int(float(self.fields['lapse1']))
+		    degreeAlarm = 2
+    
+    def comeFromUpdateAlarm(self, value):
+	tmp = self.getTypeAlarm(value)
+	if not tmp == 'typical':
+	    print 'ALARME : SENSEUR ' + self.getName('FR')
 	
 	    
 	    
