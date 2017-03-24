@@ -28,6 +28,27 @@ $elif type == 'g':
 	imgDir = '/static/img/g/group_'
 	keyID = c.AllGroups.keyColumn
 	classname = 'group'
+$elif type == 'cpehm':
+    $var location: sensors/ $id
+    $code :
+	element = c.AllSensors.elements[id]
+	imgDir = '/static/img/cpehm/cpehm_'
+	keyID = c.AllSensors.keyColumn
+	classname = 'sensor'
+$elif type == 'c':
+    $var location: containers/ $id
+    $code :
+	element = c.AllContainers.elements[id]
+	imgDir = '/static/img/c/c_'
+	keyID = c.AllContainers.keyColumn
+	classname = 'container'
+$elif type == 'a':
+    $var location: alarms/ $id
+    $code :
+	element = c.AllAlarms.elements[id]
+	imgDir = '/static/img/a/a_'
+	keyID = c.AllAlarms.keyColumn
+	classname = 'alarm'
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 
@@ -62,7 +83,18 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <label class="col-sm-3 col-form-label">$c.AllMessages.elements['addgroup'].getName(self.lang)</label>
 	</div>
 	$for k,group in c.AllGroups.elements.items():
-	    $if k not in element.groups.keys():
+	    $code:
+		cond1 = k not in element.groups.keys()
+		cond2 = (type == 'g' and not k == element.fields[keyID] )
+		cond3 = not element.containsGroup(group)
+		if type == 'g' :
+		    cond4 = not group.containsGroup(element)
+		    cond2 = not (k == element.fields[keyID] )
+		else :
+		    cond4 = True
+		    cond2 = True
+		
+	    $if cond1 and cond2 and cond3 and cond4 :
 		<div class="form-group row">
 		    <label  class="col-sm-2 col-form-label"></label>
 		    <label id="modalinfo" for="inputGroups" class="col-sm-2 col-form-label">$group.getName(self.lang)</label>

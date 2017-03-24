@@ -233,6 +233,8 @@ class WebPermission(WebObjectUpdate):
 	    for k,group in currObject.groups.items():
 		if k not in data:
 		    currObject.deleteGroup(k,c,user)
+		else:
+		    listgroups[k] = group
 	    for k,group in c.AllGroups.elements.items():
 		if k in data:
 		    currContainsGroup = currObject.containsGroup(group)

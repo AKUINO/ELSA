@@ -47,7 +47,7 @@ $elif type == 'sensors':
 	elements = c.AllSensors.elements
 	imgDir = '/static/img/pehm/sensor_'
 	keyID = c.AllSensors.keyColumn
-	permissionKey = 'pehm_'
+	permissionKey = 'cpehm_'
 $elif type == 'alarms':
     $var location: alarms/
     $code :
@@ -81,7 +81,7 @@ $for a,elem in elements.items():
 		<strong><a href="/$type/$elem.fields[keyID]" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
 	    </div>
 	    <div class="col-xs-2">
-		<strong><a href="/permissions/$(permissionKey)$elem.fields[keyID]" class="btn btn-warning" role="button"><span class="halflings halflings-education"></span></a></strong>
+		<strong><a href="/permissions/$(permissionKey)$elem.fields[keyID]" class="btn btn-warning" role="button"><span class="halflings halflings-group"></span></a></strong>
 	    </div>
 	    <div class="col-xs-2">
 		<button type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#$elem.fields[keyID]Modal"><span class="halflings halflings-info-sign"></button>
@@ -326,6 +326,6 @@ $for a,elem in elements.items():
     <div class="col-xs-5">
     </div>
     <div class="col-xs-6" id="addItem">
-	<a href="/$(type)/new"><span class="halflings halflings-plus"></a> <strong>$c.AllMessages.elements[type[0:-1]].getName(self.lang)</strong>
+	<a href="/$(type)/new"><span class="halflings halflings-plus">$c.AllMessages.elements[type[0:-1]].getName(self.lang)</a>
     </div>
 </div>    

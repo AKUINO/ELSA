@@ -1092,8 +1092,9 @@ class Group(ConfigurationObject):
     def containsGroup(self, oGroup):
 	if len(self.groups) >0:
 	    for k,v in self.groups.items():
-		if k == oGroup.fields['g_id'] :
-		    return True
+		if 'g_id' in oGroup.fields.keys():
+		    if k == oGroup.fields['g_id'] :
+			return True
 		elif v.containsGroup(oGroup):
 		    return True
 	return False
@@ -1103,6 +1104,7 @@ class Group(ConfigurationObject):
 	groupContainsCurr = group.containsGroup(currObject)
 	if ( not currContainsGroup ) and ( not groupContainsCurr ):
 	    self.groups[k] = group
+	    
 		
 
 class Piece(ConfigurationObject):
@@ -1241,6 +1243,13 @@ class Sensor(ConfigurationObject):
 	now = str( int(time.time())-60)
 	data_sources = str('DS:'+name+'1:GAUGE:120:U:U')
 	rrdtool.create( str('rrd/'+self.getRRDName()), "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+	
+    def getTypeAlarm(self,value):
+	tmp = float(value)
+	if value <= float(self.fields['minmin']):
+	    return self.fields['a_minmin']
+	elif value <= float(self.fields['min']):
+	    return self.fields['a_min']
 	
 	
 	    
