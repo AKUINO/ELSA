@@ -56,6 +56,7 @@ class Configuration():
 	self.AllGroups.load()
 	self.AllMeasures.load()
 	self.AllSensors.load()
+	self.AllSensors.correctValueAlarm()
 	self.AllAlarms.load()
 	self.AllHalflings.load()
 	#doit toujours être appelé à la fin
@@ -507,7 +508,6 @@ class UpdateAlarm(threading.Thread):
 			if self.sensor.fields['formula']:
 			    value = float(owData)
 			    owData = str(eval(self.sensor.fields['formula']))
-			print (u"SENSOR ALARM 1Wire-" + self.sensor.getName('EN')+u": " + self.sensor.fields['acronym'] + " = " + owData)
 			self.sensor.comeFromUpdateAlarm(owData)
 	    except:
 		traceback.print_exc()
@@ -807,6 +807,10 @@ class AllSensors(AllObjects):
 		if not self.config.AllEquipments.elements[eid].fields['colorgraph'] == '':
 		    color = self.config.AllEquipments.elements[eid].fields['colorgraph'] 
 	return color
+
+    def correctValueAlarm(self):
+        for k,sensor in self.elements.items():
+            sensor.setCorrectAlarmValue()
 
 class AllBatches(AllObjects):
 
@@ -1267,7 +1271,7 @@ class Measure(ConfigurationObject):
 class Sensor(ConfigurationObject):
     def __init__(self):
 	ConfigurationObject.__init__(self)
-	self.actualAlarm = None
+	self.actualAlarm = 'typical'
 	self.countActual = 0
 	self.degreeAlarm = 0
     
@@ -1278,8 +1282,21 @@ class Sensor(ConfigurationObject):
     def __str__(self):
         string = "\nSensor :"
         for field in self.fields:
-            string = string + "\n" + field + " : " + self.fields[field]
+            string = string + "\n" + field + " : " + str(self.fields[field])
+        string  = string + ' Actual Alarm : ' + self.actualAlarm
+        string  = string + ' Count Actual : ' + str(self.countActual)
+        string  = string + ' Degree Alarm : ' + str(self.degreeAlarm)
         return string + "\n"
+
+    def setCorrectAlarmValue(self):
+        if self.fields['minmin'] == '' :
+            self.fields['minmin'] = -99999
+        if self.fields['min'] == '' :
+            self.fields['min'] = -99999
+        if self.fields['max'] == '' :
+            self.fields['max'] = 99999
+        if self.fields['maxmax'] == '' :
+            self.fields['maxmax'] = 99999
 	
     def getType(self):
 	return 'cpehm'
@@ -1317,8 +1334,12 @@ class Sensor(ConfigurationObject):
 	self.fields['h_id'] = data
 	
     def update(self, now, value):
-	updateRRD(now, value)
+	self.updateRRD(now, value)
 	typeAlarm = self.getTypeAlarm(value)
+	if self.fields['cpehm_id'] == '1' :
+	    print'\n\n'
+            print self.__str__()
+	    print'\n\n'
 	if typeAlarm == 'typical' :
 	    self.countActual = 0
 	    self.actualAlarm = 'typical'
@@ -1341,7 +1362,6 @@ class Sensor(ConfigurationObject):
 	
     def getTypeAlarm(self,value):
 	tmp = float(value)
-	print tmp
 	if value <= float(self.fields['minmin']):
 	    return 'minmin'
 	elif value <= float(self.fields['min']):
@@ -1356,30 +1376,31 @@ class Sensor(ConfigurationObject):
     def launchAlarm(self):
 	if self.degreeAlarm == 0 :
 	    self.degreeAlarm = 1
-	    self.countAlarm = 0
+	    self.countAlarm = 1
 	    if int(float(self.fields['lapse1'])) < 60 :
 		time = int(float(self.fields['lapse1']))
                 test = UpdateAlarm(self, time)
-		return test.run()
+		test.start()
 	    else:
-		self.countAlarm = self.countAlarm+60
-		nextUpdate = self.countAlarm + 60
+		if self.countAlarm == 0 :
+                    self.countAlarm = 1
+		else :
+		    self.countAlarm = self.countAlarm + 60
 		if self.degreeAlarm == 1 :
-		    if nextUpdate > int(float(self.fields['lapse1'])):
+		    if 60 > int(float(self.fields['lapse1'])):
 			time = nextUpdate - int(float(self.fields['lapse1']))
-			return UpdateAlarm(self, time)
+			test = UpdateAlarm(self, time)
+		        test.start()
 		elif self.degreeAlarm == 2 :
-		    if nextUpdate > int(float(self.fields['lapse2'])):
+		    if 60 > int(float(self.fields['lapse2'])):
 			time = nextUpdate - int(float(self.fields['lapse2']))
-			return UpdateAlarm(self, time)
-		if self.countAlarm > int(float(self.fields['lapse1'])) and self.degreeAlarm == 1:
-		    self.countAlarm = self.countAlarm - int(float(self.fields['lapse1']))
-		    degreeAlarm = 2
+			test = UpdateAlarm(self, time)
+		        test.start()
     
     def comeFromUpdateAlarm(self, value):
 	tmp = self.getTypeAlarm(value)
 	if not tmp == 'typical':
-	    sys.stdout.write('ALARME : SENSEUR ' + self.getName('FR'))
+	    sys.stdout.write('ALARME : SENSEUR ' + self.getName('FR') + '     LVL : '+ str(self.degreeAlarm))
             sys.stdout.flush()
 	    if self.degreeAlarm == 2 :
 		self.actualAlarm = None
@@ -1389,6 +1410,7 @@ class Sensor(ConfigurationObject):
 		self.degreeAlarm = 2
 		self.countAlarm = 0
 		self.actualAlarm = tmp
+		self.launchAlarm()
 	else :
 	    self.countActual = 0
 	    self.actualAlarm = 'typical'
