@@ -1381,40 +1381,38 @@ class Sensor(ConfigurationObject):
 		time = int(float(self.fields['lapse1']))
                 test = UpdateAlarm(self, time)
 		test.start()
-	    else:
-		if self.countAlarm == 0 :
-                    self.countAlarm = 1
-		else :
-		    self.countAlarm = self.countAlarm + 60
-		if self.degreeAlarm == 1 :
-		    if 60 > int(float(self.fields['lapse1'])):
-			time = nextUpdate - int(float(self.fields['lapse1']))
-			test = UpdateAlarm(self, time)
-		        test.start()
-		elif self.degreeAlarm == 2 :
-		    if 60 > int(float(self.fields['lapse2'])):
-			time = nextUpdate - int(float(self.fields['lapse2']))
-			test = UpdateAlarm(self, time)
-		        test.start()
+	else:
+	    if self.countAlarm == 0 :
+		self.countAlarm = 1
+	    else :
+		self.countAlarm = self.countAlarm + 60
+	    if self.degreeAlarm == 1 :
+		self.degreeAlarm = 2
+		if 60 > int(float(self.fields['lapse2'])):
+		    time = int(float(self.fields['lapse1']))
+		    test = UpdateAlarm(self, time)
+		    test.start()
+	    elif self.degreeAlarm == 2 :
+		if 60 > int(float(self.fields['lapse3'])):
+		    time = int(float(self.fields['lapse2']))
+		    test = UpdateAlarm(self, time)
+		    test.start()
+	    elif self.degreeAlarm == 3 :
+		self.setTypicalAlarm()
     
     def comeFromUpdateAlarm(self, value):
 	tmp = self.getTypeAlarm(value)
 	if not tmp == 'typical':
 	    sys.stdout.write('ALARME : SENSEUR ' + self.getName('FR') + '     LVL : '+ str(self.degreeAlarm))
             sys.stdout.flush()
-	    if self.degreeAlarm == 2 :
-		self.actualAlarm = None
-		self.countActual = 0
-		self.degreeAlarm = 0
-	    elif self.degreeAlarm == 1:
-		self.degreeAlarm = 2
-		self.countAlarm = 0
-		self.actualAlarm = tmp
-		self.launchAlarm()
+	    self.launchAlarm()
 	else :
-	    self.countActual = 0
-	    self.actualAlarm = 'typical'
-	    self.degreeAlarm = 0
+	    self.setTypicalAlarm()
+	    
+    def setTypicalAlarm(self):
+	self.countActual = 0
+	self.actualAlarm = 'typical'
+	self.degreeAlarm = 0
 	    
 	    
 class Batch(ConfigurationObject):
