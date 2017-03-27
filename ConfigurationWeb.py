@@ -83,7 +83,6 @@ class WebObjectUpdate():
 		
 	    data = web.input(placeImg={})
 	    method = data.get("method","malformed")
-	    printinfo(data)
 	    for key in c.getFieldsname(self.name):
 		if key in data:
 		    currObject.fields[key] = data[key]

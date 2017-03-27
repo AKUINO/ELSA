@@ -5,8 +5,8 @@ import binascii
 
 def get_timestamp():
     now = time.time()
-    now = math.floor(time)
-    now = int(math)
+    now = math.floor(float(now))
+    now = int(now)
     return now
 
 def encrypt(password,salt):

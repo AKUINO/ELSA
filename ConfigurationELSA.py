@@ -419,7 +419,7 @@ class UpdateThread(threading.Thread):
         owDevices = ow.Sensor("/")
 	time.sleep(60)
 	while self.config.isThreading:
-	    now = MyUtils.getTimeStamp()
+	    now = useful.get_timestamp()
 	    self.config.InfoSystem.updateInfoSystem(now)
 	    if not len(self.config.AllSensors.elements) == 0 :
 		for k,sensor in self.config.AllSensors.elements.items():
@@ -455,7 +455,7 @@ class RadioThread(threading.Thread):
 	    while self.config.isThreading:
 		try:
 		    data = elaSerial.read()
-		    now = MyUtils.getTimeStamp()
+		    now = useful.get_timestamp()
 		    if data == '[' :
 			line = []
 		    elif line != None:
@@ -471,8 +471,8 @@ class RadioThread(threading.Thread):
 				temperature = VAL*60.0/960
 				print "ELA="+HEX+", RSS="+str(RSS)+", val="+str(VAL)
 				currSensor = None
-				for sensor in c.AllSensors.elements:
-				    currSensor = c.AllSensors.elements[sensor]
+				for sensor in self.config.AllSensors.elements:
+				    currSensor = self.config.AllSensors.elements[sensor]
 				    if (currSensor.fields['sensor'].translate(None, '. ') == HEX.translate(None, '. ')):
 					print (u"Sensor ELA-" + currSensor.fields['sensor']+ u": " + currSensor.fields['acronym'] +u" = "+str(temperature))
 					currSensor.updateRRD(now,temperature)
