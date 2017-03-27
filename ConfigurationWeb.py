@@ -1,8 +1,7 @@
 import web
 import ConfigurationELSA as elsa
-import hashlib
-import binascii
 import time
+import myuseful as useful
 
 
 render=web.template.render('templates/', base='layout')
@@ -345,14 +344,11 @@ class WebAlarm(WebObjectUpdate):
     def getListing(self,mail):
 	return render.listing(mail,'alarms')
 	
-def encrypt(password,salt):
-    sha = hashlib.pbkdf2_hmac('sha256', password, salt, 126425)
-    return binascii.hexlify(sha)
 
 def connexion(username,password):
     user = c.AllUsers.getUser(username)
     if user is not None:
-	cryptedPassword = encrypt(password,user.fields['registration'])
+	cryptedPassword = useful.encrypt(password,user.fields['registration'])
 	if user.checkPassword(cryptedPassword) is True:
 	    return user
     return None
@@ -365,9 +361,6 @@ def isConnected():
 	    return infoCookie[0]
     return None
 
-def printinfo(user):
-    print "INFOOOOO : "
-    print user
 
 if __name__ == "__main__":
     try:

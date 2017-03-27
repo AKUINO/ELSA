@@ -14,6 +14,7 @@ import os
 import rrdtool
 import ow
 import serial
+import myuseful as useful
 
 
 
@@ -229,18 +230,18 @@ class InfoSystem():
 	self.load15 = 0
 	self.temperature = 0	
 	
-    def updateInfoSystem(self,data):
+    def updateInfoSystem(self,now):
 	try:
 	    info = os.popen('cat /proc/uptime','r')
 	    info = info.read()
 	    info = info.split(' ')
 	    self.uptime = int(float(info[0]))
-	    rrdtool.update('rrd/systemuptime.rrd' , '%d:%d' % (data , self.uptime))
+	    rrdtool.update('rrd/systemuptime.rrd' , '%d:%d' % (now , self.uptime))
 	    
 	    info = os.popen('cat /sys/class/thermal/thermal_zone0/temp','r')
 	    info = info.read()
 	    self.temperature = float(info.split('\n')[0])/1000.0
-	    rrdtool.update('rrd/temperaturecpu.rrd' , '%d:%f' % (data , self.temperature))
+	    rrdtool.update('rrd/temperaturecpu.rrd' , '%d:%f' % (now , self.temperature))
 	    
 	    info = os.popen('cat /proc/meminfo','r')
 	    info = info.read()
@@ -260,7 +261,7 @@ class InfoSystem():
 	    self.memTot /= 1000.0
 	    self.memFree /= 1000.0
 	    self.memAvailable /= 1000.0
-	    rrdtool.update('rrd/memoryinfo.rrd' , '%d:%f:%f:%f' % (data , self.memTot, self.memFree, self.memAvailable))
+	    rrdtool.update('rrd/memoryinfo.rrd' , '%d:%f:%f:%f' % (now , self.memTot, self.memFree, self.memAvailable))
 	    
 	    info = os.popen('cat /proc/loadavg')
 	    info = info.read()
@@ -268,7 +269,7 @@ class InfoSystem():
 	    self.load1 = float(info[0])
 	    self.load5 = float(info[1])
 	    self.load15 = float(info[2])
-	    rrdtool.update('rrd/cpuload.rrd' , '%d:%f:%f:%f' % (data , self.load1, self.load5, self.load15))
+	    rrdtool.update('rrd/cpuload.rrd' , '%d:%f:%f:%f' % (now , self.load1, self.load5, self.load15))
 	except:
 	    traceback.print_exc()
 
@@ -418,8 +419,7 @@ class UpdateThread(threading.Thread):
         owDevices = ow.Sensor("/")
 	time.sleep(60)
 	while self.config.isThreading:
-	    now = int(time.time())
-	    now = now - now%60
+	    now = MyUtils.getTimeStamp()
 	    self.config.InfoSystem.updateInfoSystem(now)
 	    if not len(self.config.AllSensors.elements) == 0 :
 		for k,sensor in self.config.AllSensors.elements.items():
@@ -455,8 +455,7 @@ class RadioThread(threading.Thread):
 	    while self.config.isThreading:
 		try:
 		    data = elaSerial.read()
-		    now = int(time.time())
-		    now = now - now%60
+		    now = MyUtils.getTimeStamp()
 		    if data == '[' :
 			line = []
 		    elif line != None:
