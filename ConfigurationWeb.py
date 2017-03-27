@@ -39,7 +39,6 @@ web.template.Template.globals['c'] = c
 #Ligne 58 - connexion 9000 a la place de 900
 #
 
-c.AllSensors.elements['1'].update( 123456, 14)
 
 
 

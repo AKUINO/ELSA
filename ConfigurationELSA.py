@@ -434,7 +434,7 @@ class UpdateThread(threading.Thread):
 					value = float(owData)
 					owData = str(eval(sensor.fields['formula']))
 				    print (u"Sensor 1Wire-" + sensor.getName('EN')+u": " + sensor.fields['acronym'] + " = " + owData)
-				    sensor.updateRRD(now,float(owData))
+				    sensor.update(now,float(owData))
 			except:
 			    traceback.print_exc()
 	    time.sleep(60)
@@ -1317,7 +1317,7 @@ class Sensor(ConfigurationObject):
 	self.fields['h_id'] = data
 	
     def update(self, now, value):
-	#updateRRD(now, value)
+	updateRRD(now, value)
 	typeAlarm = self.getTypeAlarm(value)
 	if typeAlarm == 'typical' :
 	    self.countActual = 0
@@ -1381,7 +1381,18 @@ class Sensor(ConfigurationObject):
 	if not tmp == 'typical':
 	    sys.stdout.write('ALARME : SENSEUR ' + self.getName('FR'))
             sys.stdout.flush()
-	
+	    if self.degreeAlarm == 2 :
+		self.actualAlarm = None
+		self.countActual = 0
+		self.degreeAlarm = 0
+	    elif self.degreeAlarm == 1:
+		self.degreeAlarm = 2
+		self.countAlarm = 0
+		self.actualAlarm = tmp
+	else :
+	    self.countActual = 0
+	    self.actualAlarm = 'typical'
+	    self.degreeAlarm = 0
 	    
 	    
 class Batch(ConfigurationObject):
