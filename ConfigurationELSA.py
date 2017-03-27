@@ -13,12 +13,14 @@ import time
 import os
 import rrdtool
 import ow
+import serial
 
 
 
 #mise a jour git
 csvDir = "csv/"
 rrdDir = 'rrd/'
+ttyDir = '/dev/ttyS0'
 class Configuration():
 
     def __init__(self):
@@ -41,6 +43,7 @@ class Configuration():
 	self.connectedUsers = AllConnectedUsers()
 	self.isThreading = True
 	self.UpdateThread = UpdateThread(self)
+	self.RadioThread = RadioThread(self)
 
     def load(self):
 	self.AllLanguages.load()
@@ -58,6 +61,7 @@ class Configuration():
 	self.loadCodes()
 	self.loadRelation()
 	self.UpdateThread.start()
+	self.RadioThread.start()
 	
     def loadCodes(self):
 	with open(self.csvCodes) as csvfile:
@@ -434,6 +438,54 @@ class UpdateThread(threading.Thread):
 			except:
 			    traceback.print_exc()
 	    time.sleep(60)
+	    
+class RadioThread(threading.Thread):
+
+    def __init__(self,config):
+        threading.Thread.__init__(self)
+        self.config = config
+
+    def run(self):
+        try:
+	    elaSerial = serial.Serial(ttyDir,9600,timeout=0.01)
+	    time.sleep(0.05)
+	    #reset to manufacturer settings
+	    elaSerial.write('[9C5E01]')
+	    line = None
+	    while self.config.isThreading:
+		try:
+		    data = elaSerial.read()
+		    now = int(time.time())
+		    now = now - now%60
+		    if data == '[' :
+			line = []
+		    elif line != None:
+			if data == ']' :
+			    if len(line) == 10:
+				RSS = int(line[0]+line[1],16)
+				HEX = line[2]+line[3]+line[4]
+				ADDRESS = int(HEX,16)
+				VAL = int(line[5]+line[6]+line[7],16)
+				READER = int(line[8]+line[9],16)
+				if VAL >= 2048:
+				    VAL = VAL - 4096
+				temperature = VAL*60.0/960
+				print "ELA="+HEX+", RSS="+str(RSS)+", val="+str(VAL)
+				currSensor = None
+				for sensor in c.AllSensors.elements:
+				    currSensor = c.AllSensors.elements[sensor]
+				    if (currSensor.fields['sensor'].translate(None, '. ') == HEX.translate(None, '. ')):
+					print (u"Sensor ELA-" + currSensor.fields['sensor']+ u": " + currSensor.fields['acronym'] +u" = "+str(temperature))
+					currSensor.updateRRD(now,temperature)
+			    line = None
+			else:
+			    line.append(data)
+		except:
+		    traceback.print_exc()   
+	    elaSerial.close()
+        except:
+	    traceback.print_exc()
+	    self.config.isThreading = False
         
 class UpdateAlarm(threading.Thread):
 
