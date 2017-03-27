@@ -498,17 +498,17 @@ class UpdateAlarm(threading.Thread):
 	ow.init("/dev/i2c-1")
         owDevices = ow.Sensor("/")
 	time.sleep(int(self.time))
-	if sensor.fields['channel'] == 'wire':
+	if self.sensor.fields['channel'] == 'wire':
 	    try:
-		sensorAdress = '/'+str(sensor.fields['sensor'])
+		sensorAdress = '/'+str(self.sensor.fields['sensor'])
 		aDevice = ow.Sensor(sensorAdress)
 		if aDevice:
-		    owData = aDevice.__getattr__(sensor.fields['subsensor'])
+		    owData = aDevice.__getattr__(self.sensor.fields['subsensor'])
 		    if owData:
-			if sensor.fields['formula']:
+			if self.sensor.fields['formula']:
 			    value = float(owData)
-			    owData = str(eval(sensor.fields['formula']))
-			print (u"SENSOR ALARM 1Wire-" + sensor.getName('EN')+u": " + sensor.fields['acronym'] + " = " + owData)
+			    owData = str(eval(self.sensor.fields['formula']))
+			print (u"SENSOR ALARM 1Wire-" + self.sensor.getName('EN')+u": " + self.sensor.fields['acronym'] + " = " + owData)
 			self.sensor.comeFromUpdateAlarm(owData)
 	    except:
 		traceback.print_exc()
@@ -1342,6 +1342,7 @@ class Sensor(ConfigurationObject):
 	
     def getTypeAlarm(self,value):
 	tmp = float(value)
+	print tmp
 	if value <= float(self.fields['minmin']):
 	    return 'minmin'
 	elif value <= float(self.fields['min']):
@@ -1359,7 +1360,8 @@ class Sensor(ConfigurationObject):
 	    self.countAlarm = 0
 	    if int(float(self.fields['lapse1'])) < 60 :
 		time = int(float(self.fields['lapse1']))
-		return UpdateAlarm(self, time)
+                test = UpdateAlarm(self, time)
+		return test.run()
 	    else:
 		self.countAlarm = self.countAlarm+60
 		nextUpdate = self.countAlarm + 60
@@ -1378,7 +1380,8 @@ class Sensor(ConfigurationObject):
     def comeFromUpdateAlarm(self, value):
 	tmp = self.getTypeAlarm(value)
 	if not tmp == 'typical':
-	    print 'ALARME : SENSEUR ' + self.getName('FR')
+	    sys.stdout.write('ALARME : SENSEUR ' + self.getName('FR'))
+            sys.stdout.flush()
 	
 	    
 	    
