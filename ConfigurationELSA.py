@@ -474,31 +474,7 @@ class RadioThread(threading.Thread):
         except:
 	    traceback.print_exc()
 	    self.config.isThreading = False
-"""        
-class UpdateAlarm(threading.Thread):
 
-    def __init__(self, sensor, time):
-        threading.Thread.__init__(self)
-        self.sensor = sensor
-	self.time = time
-
-    def run(self):
-	ow.init("/dev/i2c-1")
-        owDevices = ow.Sensor("/")
-	time.sleep(int(self.time))
-	if self.sensor.fields['channel'] == 'wire':
-	    try:
-		sensorAdress = '/'+str(self.sensor.fields['sensor'])
-		aDevice = ow.Sensor(sensorAdress)
-		if aDevice:
-		    owData = aDevice.__getattr__(self.sensor.fields['subsensor'])
-		    if owData:
-			if self.sensor.fields['formula']:
-			    value = float(owData)
-			    owData = str(eval(self.sensor.fields['formula']))
-			self.sensor.comeFromUpdateAlarm(owData)
-	    except:
-		traceback.print_exc()"""
 	
 
 class AllObjects():
@@ -1330,7 +1306,7 @@ class Sensor(ConfigurationObject):
 	self.fields['h_id'] = data
 	
     def update(self, now, value ,config):
-	if value not None :
+	if value is not None :
 	    self.lastvalue = value
 	    self.updateRRD(now, value)
 	    typeAlarm = self.getTypeAlarm(value)
@@ -1408,6 +1384,7 @@ class Sensor(ConfigurationObject):
 			return owData
 	    except:
 		traceback.print_exc()
+	return None
     
     def get_alarm(self):
 	if self.actualAlarm == 'typical':
