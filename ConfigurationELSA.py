@@ -1354,16 +1354,20 @@ class Sensor(ConfigurationObject):
 	    self.countAlarm = 0
 	    if self.fields['lapse1'] == 0 :
 		#config.AllAlarms.elements[self.get_alarm()].launchAlarm()
+                print 'Lancement alarme TO DO'
 	else:
 	    self.countAlarm = self.countAlarm + 1
 	    if self.degreeAlarm == 1 and self.countAlarm == self.fields['lapse1'] :
 		#config.AllAlarms.elements[self.get_alarm()].launchAlarm()
+                print 'Lancement alarme TO DO'
 		self.degreeAlarm = 2
 	    elif self.degreeAlarm == 2 and self.countAlarm == self.fields['lapse2'] :
 		#config.AllAlarms.elements[self.get_alarm()].launchAlarm()
+                print 'Lancement alarme TO DO'
 		self.degreeAlarm = 3
 	    elif self.degreeAlarm == 3 and self.countAlarm == self.fields['lapse3'] :
 		#config.AllAlarms.elements[self.get_alarm()].launchAlarm()
+                print 'Lancement alarme TO DO'
 		self.setTypicalAlarm()
 		
     def setTypicalAlarm(self):
