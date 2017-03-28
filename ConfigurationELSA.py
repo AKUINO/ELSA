@@ -424,7 +424,7 @@ class UpdateThread(threading.Thread):
 	    now = useful.get_timestamp()
 	    self.config.InfoSystem.updateInfoSystem(now)
 	    if not len(self.config.AllSensors.elements) == 0 :
-		self.AllSensors.update(now)
+		self.config.AllSensors.update(now)
 	    time.sleep(60)
 	    
 class RadioThread(threading.Thread):
@@ -435,7 +435,7 @@ class RadioThread(threading.Thread):
 
     def run(self):
         try:
-	    elaSerial = serial.Serial(ttyDir, self.config.HardConfig.ela_reset, timeout=0.01)
+	    elaSerial = serial.Serial(ttyDir, self.config.HardConfig.ela_bauds, timeout=0.01)
 	    time.sleep(0.05)
 	    #reset to manufacturer settings
 	    elaSerial.write(self.config.HardConfig.ela_reset)
@@ -779,8 +779,8 @@ class AllSensors(AllObjects):
     def update(self, now) :
 	for k,sensor in self.elements.items():
 	    if sensor.fields['channel'] == 'wire' :
-		value = self.sensor.get_value_sensor()
-		self.sensor.update(now, value,self.config)
+		value = sensor.get_value_sensor()
+		sensor.update(now, value,self.config)
 
 class AllBatches(AllObjects):
 
@@ -1239,12 +1239,11 @@ class Measure(ConfigurationObject):
 	return 'm'
 
 class Sensor(ConfigurationObject):
-    def __init__(self, conf):
+    def __init__(self):
 	ConfigurationObject.__init__(self)
 	self.actualAlarm = 'typical'
 	self.countActual = 0
 	self.degreeAlarm = 0
-	self.config = conf
 	self.lastvalue = None
     
     def __repr__(self):
@@ -1310,6 +1309,7 @@ class Sensor(ConfigurationObject):
 	    self.lastvalue = value
 	    self.updateRRD(now, value)
 	    typeAlarm = self.getTypeAlarm(value)
+            print (u'Sensor update Channel : '+ self.fields['channel'] + '    ' + self.fields['sensor'] + ' ==> ' + self.fields['acronym'] +' - ' + self.getName('FR') + ' = ' + str(value))
 	    if typeAlarm == 'typical' :
 		self.setTypicalAlarm()
 	    else:
@@ -1321,6 +1321,7 @@ class Sensor(ConfigurationObject):
 	    print 'Impossible d acceder au senseur TO DO'
 	
     def updateRRD(self,now, value):
+        value = float(value)
 	rrdtool.update(rrdDir +self.getRRDName() , '%d:%f' % (now ,value))
 	
     def createRRD(self):
@@ -1352,17 +1353,17 @@ class Sensor(ConfigurationObject):
 	    self.degreeAlarm = 1
 	    self.countAlarm = 0
 	    if self.fields['lapse1'] == 0 :
-		config.AllAlarms.elements[self.get_alarm()].launchAlarm()
+		#config.AllAlarms.elements[self.get_alarm()].launchAlarm()
 	else:
 	    self.countAlarm = self.countAlarm + 1
 	    if self.degreeAlarm == 1 and self.countAlarm == self.fields['lapse1'] :
-		config.AllAlarms.elements[self.get_alarm()].launchAlarm()
+		#config.AllAlarms.elements[self.get_alarm()].launchAlarm()
 		self.degreeAlarm = 2
 	    elif self.degreeAlarm == 2 and self.countAlarm == self.fields['lapse2'] :
-		config.AllAlarms.elements[self.get_alarm()].launchAlarm()
+		#config.AllAlarms.elements[self.get_alarm()].launchAlarm()
 		self.degreeAlarm = 3
 	    elif self.degreeAlarm == 3 and self.countAlarm == self.fields['lapse3'] :
-		config.AllAlarms.elements[self.get_alarm()].launchAlarm()
+		#config.AllAlarms.elements[self.get_alarm()].launchAlarm()
 		self.setTypicalAlarm()
 		
     def setTypicalAlarm(self):
@@ -1376,11 +1377,11 @@ class Sensor(ConfigurationObject):
 		sensorAdress = '/'+str(self.fields['sensor'])
 		aDevice = ow.Sensor(sensorAdress)
 		if aDevice:
-		    owData = aDevice.__getattr__(sensor.fields['subsensor'])
+		    owData = aDevice.__getattr__(self.fields['subsensor'])
 		    if owData:
 			if self.fields['formula']:
 			    value = float(owData)
-			    owData = str(eval(sensor.fields['formula']))
+			    owData = str(eval(self.fields['formula']))
 			return owData
 	    except:
 		traceback.print_exc()
