@@ -93,7 +93,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 		    <select name = "a_$alarm" class="form-control" id="a$(alarm)Select">
 			<option value=''></option>
 			$for k in c.AllAlarms.elements.keys():
-			    <option value="a_$k">$c.AllAlarms.elements[k].fields['acronym'] - $c.AllAlarms.elements[k].getName(self.lang) </option>
+			    <option value="$k">$c.AllAlarms.elements[k].fields['acronym'] - $c.AllAlarms.elements[k].getName(self.lang) </option>
 		    </select>
 		</div>
 	    </div>
