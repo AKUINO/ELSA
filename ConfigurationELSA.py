@@ -1217,7 +1217,25 @@ class Alarm(ConfigurationObject):
         return string + "\n"
 	
     def getType(self):
-	return 'a'	
+	return 'a'
+	
+    def get_alarm_message(self, sensor,config):
+	mess = 'Alarm from Akuino 6002'
+	if not sensor.fields['p_id'] == '':
+	    mess = mess + '\nPlace\n\tName : ' + config.AllPieces.elements[sensor.fields['p_id']].getName('EN') + '\n\tAcronym : ' + config.AllPieces.elements[sensor.fields['p_id']].fields['acronym'] + '\n'
+	elif not sensor.fields['e_id'] == '':
+	    mess = mess + '\nEquipment\n\tName : ' + config.AllPieces.elements[sensor.fields['e_id']].getName('EN') + '\n\tAcronym : ' + config.AllPieces.elements[sensor.fields['e_id']].fields['acronym'] + '\n'
+	elif not sensor.fields['c_id'] == '':
+	    mess = mess + '\nContainer\n\tName : ' + config.AllPieces.elements[sensor.fields['c_id']].getName('EN') + '\n\tAcronym : ' + config.AllPieces.elements[sensor.fields['c_id']].fields['acronym'] + '\n'
+	mess = mess + 'Sensor :\n\tName : ' + sensor.getName('EN') + '\n\tAcronym : ' + sensor.fields['acronym'] + '\n\tValue : ' + sensor.lastvalue + '\n\tType Alarm : ' + sensor.actualAlarm
+	
+    def launch_alarm(self, sensor, config):
+	mess = self.get_alarm_message(sensor,config)
+	if not self.fields['o_email1'] == '' :
+	    useful.send_email(self.fields['o_email1', 'Akuino Alarm', mess)
+	if not self.fields['o_email2'] == '' :
+	    useful.send_email(self.fields['o_email2', 'Akuino Alarm', mess)
+	    
 	
 class Measure(ConfigurationObject):
 
@@ -1353,21 +1371,17 @@ class Sensor(ConfigurationObject):
 	    self.degreeAlarm = 1
 	    self.countAlarm = 0
 	    if self.fields['lapse1'] == 0 :
-		#config.AllAlarms.elements[self.get_alarm()].launchAlarm()
-                print 'Lancement alarme TO DO'
+		config.AllAlarms.elements[self.get_alarm()].launch_alarm(self, config)
 	else:
 	    self.countAlarm = self.countAlarm + 1
 	    if self.degreeAlarm == 1 and self.countAlarm == self.fields['lapse1'] :
-		#config.AllAlarms.elements[self.get_alarm()].launchAlarm()
-                print 'Lancement alarme TO DO'
+		config.AllAlarms.elements[self.get_alarm()].launch_alarm(self, config)
 		self.degreeAlarm = 2
 	    elif self.degreeAlarm == 2 and self.countAlarm == self.fields['lapse2'] :
-		#config.AllAlarms.elements[self.get_alarm()].launchAlarm()
-                print 'Lancement alarme TO DO'
+		config.AllAlarms.elements[self.get_alarm()].launch_alarm(self, config)
 		self.degreeAlarm = 3
 	    elif self.degreeAlarm == 3 and self.countAlarm == self.fields['lapse3'] :
-		#config.AllAlarms.elements[self.get_alarm()].launchAlarm()
-                print 'Lancement alarme TO DO'
+		config.AllAlarms.elements[self.get_alarm()].launch_alarm(self, config)
 		self.setTypicalAlarm()
 		
     def setTypicalAlarm(self):
