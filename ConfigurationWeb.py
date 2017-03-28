@@ -41,7 +41,6 @@ web.template.Template.globals['c'] = c
 
 
 
-
 class WebObject():
     def __init__(self):
 	self.name = u"WebIndex"

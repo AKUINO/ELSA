@@ -1410,6 +1410,7 @@ class Sensor(ConfigurationObject):
 	if not tmp == 'typical':
 	    sys.stdout.write('ALARME : SENSEUR ' + self.getName('FR') + '     LVL : '+ str(self.degreeAlarm))
             sys.stdout.flush()
+            self.degreeAlarm = self.degreeAlarm + 1
 	    self.launchAlarm()
 	else :
 	    self.setTypicalAlarm()
