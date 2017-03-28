@@ -448,10 +448,10 @@ class RadioThread(threading.Thread):
 
     def run(self):
         try:
-	    elaSerial = serial.Serial(ttyDir,9600,timeout=0.01)
+	    elaSerial = serial.Serial(ttyDir,hardConfig.ela_bauds,timeout=0.01)
 	    time.sleep(0.05)
 	    #reset to manufacturer settings
-	    elaSerial.write('[9C5E01]')
+	    elaSerial.write(hardConfig.ela_reset)
 	    line = None
 	    while self.config.isThreading:
 		try:
@@ -469,6 +469,7 @@ class RadioThread(threading.Thread):
 				READER = int(line[8]+line[9],16)
 				if VAL >= 2048:
 				    VAL = VAL - 4096
+				#TODO: passer par la formule du senseur...
 				temperature = VAL*60.0/960
 				print "ELA="+HEX+", RSS="+str(RSS)+", val="+str(VAL)
 				currSensor = None
