@@ -39,7 +39,8 @@ web.template.Template.globals['c'] = c
 #Ligne 58 - connexion 9000 a la place de 900
 #
 
-print c.AllGroups.elements['1']
+print c.AllGroups.elements['1'].groups
+print c.AllGroups.elements['1'].classes
 
 class WebObject():
     def __init__(self):

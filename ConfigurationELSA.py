@@ -564,7 +564,7 @@ class AllUsers(AllObjects):
         self.fileobject = csvDir + "U.csv"
 	self.filename = csvDir + "Unames.csv"
         self.keyColumn = "u_id"
-	self.fieldnames = ['begin', 'u_id', 'deny', 'acronym', 'remark', 'registration', 'mail', 'password', 'language', 'user']
+	self.fieldnames = ['begin', 'u_id', 'deny', 'acronym', 'remark', 'registration', 'phone','mail', 'password', 'language', 'user']
 	self.fieldtranslate = ['begin', 'lang', 'u_id', 'name', 'user']
 
     def newObject(self):
