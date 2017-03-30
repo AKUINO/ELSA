@@ -220,6 +220,24 @@ class Configuration():
 		tmp.append(myList[i])
 		i+=1
 	return tmp
+
+    def get_parents_list(self, item):
+	listparents = []
+	for k,g in item.groups.items():
+	    tmp = self.AllGroups.get_parents(g)
+	    for idGroup in tmp :
+		if not idGroup in listparents : 
+		    listparents.append(idGroup)
+	return listparents
+	
+    def get_children_list(self, item):
+	listchildren = []
+	for k,g in item.groups.items():
+	    tmp = self.AllGroups.get_children(g)
+	    for idGroup in tmp :
+		if not idGroup in listchildren : 
+		    listchildren.append(idGroup)
+	return listchildren
 	
 
 class InfoSystem():
@@ -554,25 +572,7 @@ class AllObjects():
 	    return self.elements[iditem]
 	return None
     
-    def get_parents_list(item):
-	listparents = []
-	for k,g in item.groups:
-	    tmp = self.config.Allgroups.get_parents(g)
-	    for idGroup in tmp :
-		if not idGroup in listparents : 
-		    listparents.append(idGroup)
-	return listparents
-	
-    def get_children_list(item):
-	listchildren = []
-	for k,g in item.groups:
-	    tmp = self.config.Allgroups.get_children(g)
-	    for idGroup in tmp :
-		if not idGroup in listparents : 
-		    listchildren.append(idGroup)
-	return listchildren
-	    
-	    
+    
 	        
 class AllUsers(AllObjects):
 
