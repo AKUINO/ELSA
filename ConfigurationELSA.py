@@ -222,6 +222,8 @@ class Configuration():
 	return tmp
 
     def get_parents_list(self, item):
+	if item.getType() == 'g':
+	    return self.AllGroups.get_parents(item)
 	listparents = []
 	for k,g in item.groups.items():
 	    tmp = self.AllGroups.get_parents(g)
@@ -231,6 +233,8 @@ class Configuration():
 	return listparents
 	
     def get_children_list(self, item):
+	if item.getType() == 'g':
+	    return self.AllGroups.get_children(item)
 	listchildren = []
 	for k,g in item.groups.items():
 	    tmp = self.AllGroups.get_children(g)

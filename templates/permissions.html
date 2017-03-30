@@ -65,48 +65,43 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	<div class="form-group row">
 	    <label class="col-sm-3 col-form-label">$c.AllMessages.elements['removegroup'].getName(self.lang)</label>
 	</div>
-
-	$for k,group in element.groups.items():
-	    <div class="form-group row">
-		<label  class="col-sm-2 col-form-label"></label>
-		<label id="modalinfo" for="inputGroups" class="col-sm-2 col-form-label">$group.getName(self.lang)</label>
-		<label class="col-sm-8 col-form-label">
-		    <span class="glyphicon glyphicon-remove-circle"> </span>
-		    <label  class="switch">
-			<input id='inputDeny'name="$k" type="checkbox" value="1" type="checkbox" checked>
-			<div class="slider round"></div>
-		    </label>
-		    <span class="glyphicon glyphicon-ok-circle"> </span>
-		</label>
-	    </div>
-	<div class="form-group row">
-	    <label class="col-sm-3 col-form-label">$c.AllMessages.elements['addgroup'].getName(self.lang)</label>
-	</div>
-	$for k,group in c.AllGroups.elements.items():
-	    $code:
-		cond1 = k not in element.groups.keys()
-		cond2 = (type == 'g' and not k == element.fields[keyID] )
-		cond3 = not element.containsGroup(group)
-		if type == 'g' :
-		    cond4 = not group.containsGroup(element)
-		    cond2 = not (k == element.fields[keyID] )
-		else :
-		    cond4 = True
-		    cond2 = True
-		
-	    $if cond1 and cond2 and cond3 and cond4 :
-		<div class="form-group row">
-		    <label  class="col-sm-2 col-form-label"></label>
-		    <label id="modalinfo" for="inputGroups" class="col-sm-2 col-form-label">$group.getName(self.lang)</label>
-		    <label class="col-sm-8 col-form-label">
-			<span class="glyphicon glyphicon-remove-circle"> </span>
-			<label class="switch">
-			    <input id='inputDeny'name="$k" type="checkbox" value="1" type="checkbox" >
-			    <div class="slider round"></div>
-			</label>
-			<span class="glyphicon glyphicon-ok-circle"> </span>
-		    </label>
-		</div>
+	$code:
+	    groupList = c.hierarchyString() 
+	    indent = 1
+	    cindent = 10
+	    
+	    parents = c.get_parents_list(element)
+	    children = c.get_children_list(element)
+	$if len(groupList) > 0:
+	    $for group in groupList:
+		$if group == 'IN' :
+		    $code:
+			indent+=1
+			cindent-=1
+		$elif group == 'OUT':
+		    $code:
+			indent-=1
+			cindent+=1
+		$else :   
+		    <div class="form-group row">
+		    <label class="col-xs-$indent col-form-label"></label>
+		    <label id="modalinfo" for="inputGroups" class="col-xs-$cindent col-form-label">$c.AllGroups.elements[group].getName(self.lang)</label>
+			$if not (group in parents or group in children): 
+			    <label class="col-sm-1 col-form-label">
+				<span class="glyphicon glyphicon-remove-circle"> </span>
+				<label class="switch">
+				    <input id='inputDeny' name="$k" type="checkbox" 
+				    $if group in element.groups:
+					value="1"
+				    type="checkbox" >
+				    <div class="slider round"></div>
+				</label>
+				<span class="glyphicon glyphicon-ok-circle"> </span>
+			    </label>
+			$else :
+			    <label class="col-sm-1 col-form-label">-</label>
+		    </div>
+	
 	<div class="form-group row">
 	    <div class="col-sm-5">
 	    </div>
