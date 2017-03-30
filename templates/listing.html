@@ -58,7 +58,7 @@ $elif type == 'alarms':
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $code:
-    groupList = c.hierarchyString(self.lang)   
+    groupList = c.hierarchyString()   
 $for a,elem in elements.items():
     <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<div class="col-xs-12" >
@@ -168,14 +168,14 @@ $for a,elem in elements.items():
 					<div id="modalinfo" class="col-xs-$cindent">
 					    $if type != 'groups':
 						$if group in elemgroup:
-						    <strong>$group</strong>
+						    <strong><a href="/permissions/g_$group">$c.AllGroups.elements[group].getName(self.lang)</a></strong>
 						$else:
 						    $group
 					    $else:
 						$if group == elem.getName(self.lang):
-						    <strong>$group</strong>
+						    <strong><a href="/permissions/g_$group">$c.AllGroups.elements[group].getName(self.lang)</a></strong>
 						$else:
-						    $group
+						    <a href="/permissions/g_$group">$c.AllGroups.elements[group].getName(self.lang)</a>
 					</div>
 				    </div>
 		    $elif type == 'measures':

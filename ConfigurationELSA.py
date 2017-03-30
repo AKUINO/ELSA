@@ -196,16 +196,16 @@ class Configuration():
 		children[k] = group
 	return children
     
-    def hierarchyString(self, lang, g = None, myString = None):
+    def hierarchyString(self, g = None, myString = None):
 	if myString is None:
 	    myString = []
 	for k,group in self.AllGroups.elements.items():
 	    cond1 = ( g == None and len(group.groups) == 0 )
 	    cond2 = ( g is not None and g.fields['g_id'] in group.groups )
 	    if cond1 or cond2:
-		myString.append(group.getName(lang))
+		myString.append(k)
 		myString.append('IN')
-		self.hierarchyString(lang,group,myString)
+		self.hierarchyString(group,myString)
 		myString.append('OUT')
 	return myString
 		
