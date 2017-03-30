@@ -721,19 +721,19 @@ class AllGroups(AllObjects):
     def newObject(self):
         return Group()
 	
-    def get_children_list(self,group, listchildren = None):
+    def get_children(self,group, listchildren = None):
 	if listchildren == None :
 	    listchildren = []
 	for k, g in self.elements.items():
 	    if group.fields['g_id'] in g.groups:
 		listchildren.append(k)
-		self.get_children_list(g,listchildren)
+		self.get_children(g,listchildren)
 	return listchildren
 	
     def get_parents(self, group, listparents = None):
 	if listparents == None :
 	    listparents = []
-	for k, v in group.groups:
+	for k, v in group.groups.items():
 	    listparents.append(k)
 	    self.get_parents(v,listparents)
 	return listparents
