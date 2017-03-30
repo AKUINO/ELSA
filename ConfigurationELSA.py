@@ -1228,13 +1228,15 @@ class Alarm(ConfigurationObject):
 	elif not sensor.fields['c_id'] == '':
 	    mess = mess + '\nContainer\n\tName : ' + config.AllPieces.elements[sensor.fields['c_id']].getName('EN') + '\n\tAcronym : ' + config.AllPieces.elements[sensor.fields['c_id']].fields['acronym'] + '\n'
 	mess = mess + 'Sensor :\n\tName : ' + sensor.getName('EN') + '\n\tAcronym : ' + sensor.fields['acronym'] + '\n\tValue : ' + sensor.lastvalue + '\n\tType Alarm : ' + sensor.actualAlarm
+        return mess
 	
     def launch_alarm(self, sensor, config):
 	mess = self.get_alarm_message(sensor,config)
+        print 'ENVOIS EMAIL'
 	if not self.fields['o_email1'] == '' :
-	    useful.send_email(self.fields['o_email1', 'Akuino Alarm', mess)
+	    useful.send_email(self.fields['o_email1'], 'Akuino Alarm', mess)
 	if not self.fields['o_email2'] == '' :
-	    useful.send_email(self.fields['o_email2', 'Akuino Alarm', mess)
+	    useful.send_email(self.fields['o_email2'], 'Akuino Alarm', mess)
 	    
 	
 class Measure(ConfigurationObject):
@@ -1354,7 +1356,7 @@ class Sensor(ConfigurationObject):
 	    
 	
     def getTypeAlarm(self,value):
-	tmp = float(value)
+	value = float(value)
 	if value <= float(self.fields['minmin']):
 	    return 'minmin'
 	elif value <= float(self.fields['min']):
@@ -1367,20 +1369,22 @@ class Sensor(ConfigurationObject):
 	    return 'typical'
 	    
     def launchAlarm(self, config):
+        print 'lancement alarme Sensor : ' + self.getName('EN')
 	if self.degreeAlarm == 0 :
 	    self.degreeAlarm = 1
 	    self.countAlarm = 0
-	    if self.fields['lapse1'] == 0 :
+	    if int(float(self.fields['lapse1'])) == 0 :
 		config.AllAlarms.elements[self.get_alarm()].launch_alarm(self, config)
+		self.degreeAlarm = 2
 	else:
 	    self.countAlarm = self.countAlarm + 1
 	    if self.degreeAlarm == 1 and self.countAlarm == self.fields['lapse1'] :
 		config.AllAlarms.elements[self.get_alarm()].launch_alarm(self, config)
 		self.degreeAlarm = 2
-	    elif self.degreeAlarm == 2 and self.countAlarm == self.fields['lapse2'] :
+	    elif self.degreeAlarm == 2 and self.countAlarm >= self.fields['lapse2'] :
 		config.AllAlarms.elements[self.get_alarm()].launch_alarm(self, config)
 		self.degreeAlarm = 3
-	    elif self.degreeAlarm == 3 and self.countAlarm == self.fields['lapse3'] :
+	    elif self.degreeAlarm == 3 and self.countAlarm >= self.fields['lapse3'] :
 		config.AllAlarms.elements[self.get_alarm()].launch_alarm(self, config)
 		self.setTypicalAlarm()
 		

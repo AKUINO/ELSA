@@ -39,7 +39,7 @@ web.template.Template.globals['c'] = c
 #Ligne 58 - connexion 9000 a la place de 900
 #
 
-
+print c.AllSensors.elements['1'].fields
 
 class WebObject():
     def __init__(self):

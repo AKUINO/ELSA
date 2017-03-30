@@ -6,6 +6,8 @@ import smtplib
 
 GMAIL_USER = 'akuino6002@gmail.com'
 GMAIL_PASS = 'My_Password6002'
+SMTP_SERVER = 'smtp.gmail.com'
+SMTP_PORT = 587
 
 def get_timestamp():
     now = time.time()
