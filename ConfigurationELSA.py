@@ -553,6 +553,25 @@ class AllObjects():
 	elif iditem in self.elements.keys():
 	    return self.elements[iditem]
 	return None
+    
+    def get_parents_list(item):
+	listparents = []
+	for k,g in item.groups:
+	    tmp = self.config.Allgroups.get_parents(g)
+	    for idGroup in tmp :
+		if not idGroup in listparents : 
+		    listparents.append(idGroup)
+	return listparents
+	
+    def get_children_list(item):
+	listchildren = []
+	for k,g in item.groups:
+	    tmp = self.config.Allgroups.get_children(g)
+	    for idGroup in tmp :
+		if not idGroup in listparents : 
+		    listchildren.append(idGroup)
+	return listchildren
+	    
 	    
 	        
 class AllUsers(AllObjects):
