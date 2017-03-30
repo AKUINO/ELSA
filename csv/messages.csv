@@ -99,10 +99,10 @@ begin	lang	m_id	name	user
 01/01/2016 13:45:56	EN	alarm	"Alarm"	1
 01/01/2016 13:45:56	NL	alarm	"Alarm"	1
 01/01/2016 13:45:56	DE	alarm	"Alarm"	1
-01/01/2016 13:45:56	FR	modifygroup	"Modifier les permissions :"	1
-01/01/2016 13:45:56	EN	modifygroup	"Modify groups permission :"	1
-01/01/2016 13:45:56	NL	modifygroup	"Wijzigen groepen toestemming :"	1
-01/01/2016 13:45:56	DE	modifygroup	"Gruppenberechtigung ändern"	1
+01/01/2016 13:45:56	FR	removegroup	"Retirer du groupe :"	1
+01/01/2016 13:45:56	EN	removegroup	"Remove from group :"	1
+01/01/2016 13:45:56	NL	removegroup	"Uit de groep :"	1
+01/01/2016 13:45:56	DE	removegroup	"Entfernen aus der Gruppe"	1
 01/01/2016 13:45:56	FR	createg	"Creer un nouveau groupe"	1
 01/01/2016 13:45:56	EN	createg	"Create a new group"	1
 01/01/2016 13:45:56	NL	createg	"Maak een nieuwe groep"	1
@@ -151,3 +151,7 @@ begin	lang	m_id	name	user
 01/01/2016 13:45:56	EN	sound	"Sound "	1
 01/01/2016 13:45:56	NL	sound	"Zijn "	1
 01/01/2016 13:45:56	DE	sound	"Seine "	1
+01/01/2016 13:45:56	FR	phone	"Téléphone "	1
+01/01/2016 13:45:56	EN	phone	"Phone "	1
+01/01/2016 13:45:56	NL	phone	"Telefoon "	1
+01/01/2016 13:45:56	DE	phone	"Telefon "	1

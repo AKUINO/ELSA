@@ -18,7 +18,7 @@ begin	m_id	default	user
 01/01/2016 13:45:56	lang	Language	1
 01/01/2016 13:45:56	code	Code	1
 01/01/2016 13:45:56	addgroup	"Add to group :"	1
-01/01/2016 13:45:56	modifygroup	"Modify groups permission :"	1
+01/01/2016 13:45:56	removegroup	"Remove from group :"	1
 01/01/2016 13:45:56	place	"Place"	1
 01/01/2016 13:45:56	equipment	"Equipment"	1
 01/01/2016 13:45:56	container	"Container"	1
@@ -50,3 +50,4 @@ begin	m_id	default	user
 01/01/2016 13:45:56	typical	"Typical "	1
 01/01/2016 13:45:56	max	"Max "	1
 01/01/2016 13:45:56	maxmax	"Max +++ "	1
+01/01/2016 13:45:56	phone	"Phone  "	1

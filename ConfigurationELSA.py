@@ -1230,6 +1230,9 @@ class Alarm(ConfigurationObject):
 	mess = mess + 'Sensor :\n\tName : ' + sensor.getName('EN') + '\n\tAcronym : ' + sensor.fields['acronym'] + '\n\tValue : ' + sensor.lastvalue + '\n\tType Alarm : ' + sensor.actualAlarm
         return mess
 	
+    #def get_alarm_title(self, sensor, config):
+	
+	
     def launch_alarm(self, sensor, config):
 	mess = self.get_alarm_message(sensor,config)
         print 'ENVOIS EMAIL'
@@ -1352,7 +1355,7 @@ class Sensor(ConfigurationObject):
 	    rrdtool.create( str('rrd/'+self.getRRDName()), "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
 	elif self.fields['channel'] == 'radio' :
 	    data_sources = str('DS:'+name+'1:GAUGE:360:U:U')
-	    rrdtool.create( str('rrd/'+self.getRRDName()), "--step", "120", '--start', now, data_sources, 'RRA:LAST:0.5:1:14400', 'RRA:AVERAGE:0.5:5:34560', 'RRA:AVERAGE:0.5:30:28800')
+	    rrdtool.create( str('rrd/'+self.getRRDName()), "--step", "180", '--start', now, data_sources, 'RRA:LAST:0.5:1:14400', 'RRA:AVERAGE:0.5:5:34560', 'RRA:AVERAGE:0.5:30:28800')
 	    
 	
     def getTypeAlarm(self,value):
