@@ -243,6 +243,16 @@ class Configuration():
 		    listchildren.append(idGroup)
 	return listchildren
 	
+    def get_user_group(self, idg):
+	listusers = []
+	childrenlist = self.AllGroups.get_children(self.AllGroups.elements[idg])
+	childrenlist.append(idg)
+	for k,user in self.AllUsers.elements.items():
+	    userG = user.groups.keys()
+	    if len(list(childrenlist & userG) > 0:
+		listusers.append(k)
+	return listusers
+	
 
 class InfoSystem():
     
@@ -1275,11 +1285,15 @@ class Alarm(ConfigurationObject):
 	
     def launch_alarm(self, sensor, config):
 	mess = self.get_alarm_message(sensor,config)
-        print 'ENVOIS EMAIL'
-	if not self.fields['o_email1'] == '' :
-	    useful.send_email(self.fields['o_email1'], 'Akuino Alarm', mess)
-	if not self.fields['o_email2'] == '' :
-	    useful.send_email(self.fields['o_email2'], 'Akuino Alarm', mess)
+        level = sensor.degreeAlarm
+	if level == 1 :
+	    userlist = config.get_user_group(self.fields['o_email1']
+	    for user in userlist:
+		useful.send_email(user.fields['mail'], 'Akuino Alarm', mess)
+	elif level == 2:
+	    userlist = config.get_user_group(self.fields['o_email2']
+	    for user in userlist:
+		useful.send_email(user.fields['mail'], 'Akuino Alarm', mess)
 	    
 	
 class Measure(ConfigurationObject):
