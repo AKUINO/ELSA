@@ -39,8 +39,7 @@ web.template.Template.globals['c'] = c
 #Ligne 58 - connexion 9000 a la place de 900
 #
 
-print c.get_user_group('7')
-
+print useful.send_email('franco.maxime@gmail.com','test envoi','message dans le mail')
 class WebObject():
     def __init__(self):
 	self.name = u"WebIndex"

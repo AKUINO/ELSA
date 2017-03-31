@@ -1278,10 +1278,11 @@ class Alarm(ConfigurationObject):
 	elif not sensor.fields['c_id'] == '':
 	    mess = mess + '\nContainer\n\tName : ' + config.AllPieces.elements[sensor.fields['c_id']].getName('EN') + '\n\tAcronym : ' + config.AllPieces.elements[sensor.fields['c_id']].fields['acronym'] + '\n'
 	mess = mess + 'Sensor :\n\tName : ' + sensor.getName('EN') + '\n\tAcronym : ' + sensor.fields['acronym'] + '\n\tValue : ' + sensor.lastvalue + '\n\tType Alarm : ' + sensor.actualAlarm
-	mess = mess + '\nTime : ' + useful.timestamp_to_date(sensor.time) + '\nDegree : '+ sensor.degreeAlarm
+	mess = mess + '\nTime : ' + useful.timestamp_to_date(sensor.time) + '\nDegree : '+ str(sensor.degreeAlarm)
         return mess
 	
     def get_alarm_title(self, sensor, config, lang):
+        title = config.AllMessages.elements['alarmtitle'].getName(lang)
 	code = ''
 	equal = ''
 	if sensor.actualAlarm == 'minmin':
@@ -1297,7 +1298,7 @@ class Alarm(ConfigurationObject):
 	    code = '+++'
 	    equal = '>'
 	    
-	return str.format(config.AllMessages.elements['alarmtitle'], code, sensor.degreeAlarm, sensor.fields['acronym'], sensor.lastvalue, equal, sensor.fields[sensor.actualAlarm], config.AllMeasures.elements[sensor.fields['m_id']].fields['unit'], sensor.getName(lang))
+	return str.format(title, code, str(sensor.degreeAlarm), sensor.fields['acronym'], str(sensor.lastvalue), equal, sensor.fields[sensor.actualAlarm], config.AllMeasures.elements[sensor.fields['m_id']].fields['unit'], sensor.getName(lang))
 	
 	
     def launch_alarm(self, sensor, config):
@@ -1307,12 +1308,12 @@ class Alarm(ConfigurationObject):
             print 'Send mails'
 	    userlist = config.get_user_group(self.fields['o_email1'])
 	    for user in userlist:
-		useful.send_email(config.AllUsers.elements[user].fields['mail'], self.get_alarm_title( sensor, config, config.AllUsers.elements[user].fields['lang']), mess)
+		useful.send_email(config.AllUsers.elements[user].fields['mail'], self.get_alarm_title( sensor, config, config.AllUsers.elements[user].fields['language']), mess)
 	elif level == 2:
             print 'Send mails'
 	    userlist = config.get_user_group(self.fields['o_email2'])
 	    for user in userlist:
-		useful.send_email(config.AllUsers.elements[user].fields['mail'], self.get_alarm_title( sensor, config, config.AllUsers.elements[user].fields['lang']), mess)
+		useful.send_email(config.AllUsers.elements[user].fields['mail'], self.get_alarm_title( sensor, config, config.AllUsers.elements[user].fields['language']), mess)
 	    
 	
 class Measure(ConfigurationObject):
@@ -1365,6 +1366,12 @@ class Sensor(ConfigurationObject):
             self.fields['max'] = 99999
         if self.fields['maxmax'] == '' :
             self.fields['maxmax'] = 99999
+	if self.fields['lapse1'] =='':
+	    self.fields['lapse1'] = 99999
+	if self.fields['lapse2'] =='':
+	    self.fields['lapse2'] = 99999
+	if self.fields['lapse3'] =='':
+	    self.fields['lapse3'] = 99999
 	
     def getType(self):
 	return 'cpehm'
@@ -1456,13 +1463,15 @@ class Sensor(ConfigurationObject):
 		self.degreeAlarm = 2
 	else:
 	    self.countAlarm = self.countAlarm + 1
-	    if self.degreeAlarm == 1 and self.countAlarm == self.fields['lapse1'] :
+	    if self.degreeAlarm == 1 and self.countAlarm >= int(self.fields['lapse1']) :
 		config.AllAlarms.elements[self.get_alarm()].launch_alarm(self, config)
 		self.degreeAlarm = 2
-	    elif self.degreeAlarm == 2 and self.countAlarm >= self.fields['lapse2'] :
+                self.countAlarm = 0
+	    elif self.degreeAlarm == 2 and self.countAlarm >= int(self.fields['lapse2']) :
 		config.AllAlarms.elements[self.get_alarm()].launch_alarm(self, config)
 		self.degreeAlarm = 3
-	    elif self.degreeAlarm == 3 and self.countAlarm >= self.fields['lapse3'] :
+                self.countAlarm = 0
+	    elif self.degreeAlarm == 3 and self.countAlarm >= int(self.fields['lapse3']) :
 		config.AllAlarms.elements[self.get_alarm()].launch_alarm(self, config)
 		self.setTypicalAlarm()
 		
