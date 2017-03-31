@@ -1278,9 +1278,26 @@ class Alarm(ConfigurationObject):
 	elif not sensor.fields['c_id'] == '':
 	    mess = mess + '\nContainer\n\tName : ' + config.AllPieces.elements[sensor.fields['c_id']].getName('EN') + '\n\tAcronym : ' + config.AllPieces.elements[sensor.fields['c_id']].fields['acronym'] + '\n'
 	mess = mess + 'Sensor :\n\tName : ' + sensor.getName('EN') + '\n\tAcronym : ' + sensor.fields['acronym'] + '\n\tValue : ' + sensor.lastvalue + '\n\tType Alarm : ' + sensor.actualAlarm
+	mess = mess + '\nTime : ' + useful.timestamp_to_date(sensor.time) + '\nDegree : '+ sensor.degreeAlarm
         return mess
 	
-    #def get_alarm_title(self, sensor, config):
+    def get_alarm_title(self, sensor, config, lang):
+	code = ''
+	equal = ''
+	if sensor.actualAlarm == 'minmin':
+	    code = '---'
+	    equal = '<'
+	elif sensor.actualAlarm == 'min':
+	    code = '-'
+	    equal = '<'
+	elif sensor.actualAlarm == 'max':
+	    code = '+'
+	    equal = '>'
+	elif sensor.actualAlarm == 'maxmax':
+	    code = '+++'
+	    equal = '>'
+	    
+	return str.format(config.AllMessages.elements['alarmtitle'], code, sensor.degreeAlarm, sensor.fields['acronym'], sensor.lastvalue, equal, sensor.fields[sensor.actualAlarm], config.AllMeasures.elements[sensor.fields['m_id']].fields['unit'], sensor.getName(lang))
 	
 	
     def launch_alarm(self, sensor, config):
@@ -1290,12 +1307,12 @@ class Alarm(ConfigurationObject):
             print 'Send mails'
 	    userlist = config.get_user_group(self.fields['o_email1'])
 	    for user in userlist:
-		useful.send_email(config.AllUsers.elements[user].fields['mail'], 'Akuino Alarm', mess)
+		useful.send_email(config.AllUsers.elements[user].fields['mail'], self.get_alarm_title( sensor, config, config.AllUsers.elements[user].fields['lang']), mess)
 	elif level == 2:
             print 'Send mails'
 	    userlist = config.get_user_group(self.fields['o_email2'])
 	    for user in userlist:
-		useful.send_email(config.AllUsers.elements[user].fields['mail'], 'Akuino Alarm', mess)
+		useful.send_email(config.AllUsers.elements[user].fields['mail'], self.get_alarm_title( sensor, config, config.AllUsers.elements[user].fields['lang']), mess)
 	    
 	
 class Measure(ConfigurationObject):
@@ -1324,6 +1341,7 @@ class Sensor(ConfigurationObject):
 	self.countActual = 0
 	self.degreeAlarm = 0
 	self.lastvalue = None
+	self.time = 0
     
     def __repr__(self):
         string = self.id + " " + self.fields['channel'] + " " + self.fields['acronym']
@@ -1394,7 +1412,7 @@ class Sensor(ConfigurationObject):
 	    else:
 		if not (( typeAlarm == 'min' and self.actualAlarm == 'minmin' ) or ( typeAlarm == 'max' and self.actualAlarm == 'maxmax')) :
 		    self.actualAlarm = typeAlarm
-		self.launchAlarm(config)
+		self.launchAlarm(config, now)
 	else :
 	    #TODO : si on ne sait pas se connecter au senseur, rajouter Alarme " Erreur Senseur not working"
 	    print 'Impossible d acceder au senseur TO DO'
@@ -1427,11 +1445,12 @@ class Sensor(ConfigurationObject):
 	else:
 	    return 'typical'
 	    
-    def launchAlarm(self, config):
+    def launchAlarm(self, config, now):
         print 'lancement alarme Sensor : ' + self.getName('EN')
 	if self.degreeAlarm == 0 :
 	    self.degreeAlarm = 1
 	    self.countAlarm = 0
+	    self.time = now
 	    if int(float(self.fields['lapse1'])) == 0 :
 		config.AllAlarms.elements[self.get_alarm()].launch_alarm(self, config)
 		self.degreeAlarm = 2
@@ -1451,6 +1470,7 @@ class Sensor(ConfigurationObject):
 	self.countActual = 0
 	self.actualAlarm = 'typical'
 	self.degreeAlarm = 0
+	self.time = 0
 	
     def get_value_sensor(self):
 	if self.fields['channel'] == 'wire':

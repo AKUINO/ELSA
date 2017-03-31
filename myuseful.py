@@ -3,6 +3,7 @@ import math
 import hashlib
 import binascii
 import smtplib
+import datetime
 
 GMAIL_USER = 'akuino6002@gmail.com'
 GMAIL_PASS = 'My_Password6002'
@@ -30,3 +31,6 @@ def send_email(recipient, subject, text):
     msg = header + '\n' + text + ' \n\n'
     smtpserver.sendmail(GMAIL_USER, recipient, msg)
     smtpserver.close()
+
+def timestamp_to_date(now):
+    return datetime.datetime.fromtimestamp(int(now)).strftime("%H:%M:%S  -  %d/%m/%y")

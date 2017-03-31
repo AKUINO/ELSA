@@ -51,3 +51,4 @@ begin	m_id	default	user
 01/01/2016 13:45:56	max	"Max "	1
 01/01/2016 13:45:56	maxmax	"Max +++ "	1
 01/01/2016 13:45:56	phone	"Phone  "	1
+01/01/2016 13:45:56	alarmtitle	"{0} Lvl : {1}   Acronym : {2}   Value : {3} {4} {5} {6}   Name : {7}"	1
