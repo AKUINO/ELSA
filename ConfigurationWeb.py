@@ -38,9 +38,9 @@ web.template.Template.globals['c'] = c
 #
 #Ligne 58 - connexion 9000 a la place de 900
 #
-p = c.AllPieces.elements['1']
-testParents = p.groups
-print testParents
+
+print c.get_user_group('7')
+
 class WebObject():
     def __init__(self):
 	self.name = u"WebIndex"

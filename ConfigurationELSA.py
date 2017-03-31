@@ -249,7 +249,7 @@ class Configuration():
 	childrenlist.append(idg)
 	for k,user in self.AllUsers.elements.items():
 	    userG = user.groups.keys()
-	    if len(list(childrenlist & userG) > 0:
+	    if len(list(set(childrenlist) & set(userG))) > 0:
 		listusers.append(k)
 	return listusers
 	
@@ -1287,13 +1287,15 @@ class Alarm(ConfigurationObject):
 	mess = self.get_alarm_message(sensor,config)
         level = sensor.degreeAlarm
 	if level == 1 :
-	    userlist = config.get_user_group(self.fields['o_email1']
+            print 'Send mails'
+	    userlist = config.get_user_group(self.fields['o_email1'])
 	    for user in userlist:
-		useful.send_email(user.fields['mail'], 'Akuino Alarm', mess)
+		useful.send_email(config.AllUsers.elements[user].fields['mail'], 'Akuino Alarm', mess)
 	elif level == 2:
-	    userlist = config.get_user_group(self.fields['o_email2']
+            print 'Send mails'
+	    userlist = config.get_user_group(self.fields['o_email2'])
 	    for user in userlist:
-		useful.send_email(user.fields['mail'], 'Akuino Alarm', mess)
+		useful.send_email(config.AllUsers.elements[user].fields['mail'], 'Akuino Alarm', mess)
 	    
 	
 class Measure(ConfigurationObject):
