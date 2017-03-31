@@ -1305,18 +1305,23 @@ class Alarm(ConfigurationObject):
 	
 	
     def launch_alarm(self, sensor, config):
-	mess = self.get_alarm_message(sensor,config)
         level = sensor.degreeAlarm
 	if level == 1 :
             print 'Send mails'
 	    userlist = config.get_user_group(self.fields['o_email1'])
 	    for user in userlist:
-		useful.send_email(config.AllUsers.elements[user].fields['mail'], self.get_alarm_title( sensor, config, config.AllUsers.elements[user].fields['language']), mess)
+                lang = config.AllUsers.elements[user].fields['language']
+                mess = self.get_alarm_message(sensor,config, lang)
+                title = self.get_alarm_title( sensor, config, lang)
+		useful.send_email(config.AllUsers.elements[user].fields['mail'], title, mess)
 	elif level == 2:
             print 'Send mails'
 	    userlist = config.get_user_group(self.fields['o_email2'])
 	    for user in userlist:
-		useful.send_email(config.AllUsers.elements[user].fields['mail'], self.get_alarm_title( sensor, config, config.AllUsers.elements[user].fields['language']), mess)
+                lang = config.AllUsers.elements[user].fields['language']
+                mess = self.get_alarm_message(sensor,config, lang)
+                title = self.get_alarm_title( sensor, config, lang)
+		useful.send_email(config.AllUsers.elements[user].fields['mail'], title, mess)
 	    
 	
 class Measure(ConfigurationObject):
