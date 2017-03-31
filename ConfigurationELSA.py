@@ -573,11 +573,11 @@ class AllObjects():
 	currObject.fields["begin"] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
 	return currObject
 	
-    def uniqueAcronym(self, acronym):
+    def unique_acronym(self, acronym):
 	for k in self.elements.keys():
 	    if self.elements[k].fields['acronym'] == acronym:
-		return false
-	return true
+		return False
+	return True
 	
     def getItem(self,iditem):
 	if iditem == 'new':
@@ -1269,17 +1269,20 @@ class Alarm(ConfigurationObject):
     def getType(self):
 	return 'a'
 	
-    def get_alarm_message(self, sensor,config):
-	mess = 'Alarm from Akuino 6002'
+    def get_alarm_message(self, sensor,config, lang):
+	mess = config.AllMessages.elements['alarmmessage'].getName(lang)
+	cpe = ''
+	elem = ''
 	if not sensor.fields['p_id'] == '':
-	    mess = mess + '\nPlace\n\tName : ' + config.AllPieces.elements[sensor.fields['p_id']].getName('EN') + '\n\tAcronym : ' + config.AllPieces.elements[sensor.fields['p_id']].fields['acronym'] + '\n'
+	    cpe = config.AllMessages.elements['place'].getName(lang)
+	    elem = config.AllPieces.elements[sensor.fields['p_id']]
 	elif not sensor.fields['e_id'] == '':
-	    mess = mess + '\nEquipment\n\tName : ' + config.AllPieces.elements[sensor.fields['e_id']].getName('EN') + '\n\tAcronym : ' + config.AllPieces.elements[sensor.fields['e_id']].fields['acronym'] + '\n'
+	    cpe = config.AllMessages.elements['equipment'].getName(lang)
+	    elem = config.AllPieces.elements[sensor.fields['e_id']]
 	elif not sensor.fields['c_id'] == '':
-	    mess = mess + '\nContainer\n\tName : ' + config.AllPieces.elements[sensor.fields['c_id']].getName('EN') + '\n\tAcronym : ' + config.AllPieces.elements[sensor.fields['c_id']].fields['acronym'] + '\n'
-	mess = mess + 'Sensor :\n\tName : ' + sensor.getName('EN') + '\n\tAcronym : ' + sensor.fields['acronym'] + '\n\tValue : ' + sensor.lastvalue + '\n\tType Alarm : ' + sensor.actualAlarm
-	mess = mess + '\nTime : ' + useful.timestamp_to_date(sensor.time) + '\nDegree : '+ str(sensor.degreeAlarm)
-        return mess
+	    cpe = config.AllMessages.elements['container'].getName(lang)
+	    elem = config.AllPieces.elements[sensor.fields['c_id']]	
+        return str.format(mess,'Akuino 6002', cpe, elem.getName(lang), elem.fields['acronym'], sensor.getName(lang), sensor.fields['acronym'], str(sensor.lastvalue), sensor.actualAlarm, useful.timestamp_to_date(sensor.time), str(sensor.degreeAlarm))
 	
     def get_alarm_title(self, sensor, config, lang):
         title = config.AllMessages.elements['alarmtitle'].getName(lang)
