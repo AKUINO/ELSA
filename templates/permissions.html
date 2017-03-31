@@ -97,7 +97,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 				    </label>
 				    <span class="glyphicon glyphicon-ok-circle"> </span>
 				</label>
-			    $elif group in children:
+			    $elif group in children or group == element.fields['g_id']:
 				<label class="col-sm-2 col-form-label">-</label>
 			    $else :
 				<label class="col-sm-2 col-form-label">

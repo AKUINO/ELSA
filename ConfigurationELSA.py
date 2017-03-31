@@ -723,7 +723,7 @@ class AllAlarms(AllObjects):
         self.fileobject = csvDir + "A.csv"
 	self.filename = csvDir + "Anames.csv"
         self.keyColumn = "a_id"
-	self.fieldnames = ['begin', 'a_id', 'deny', 'acronym', 'o_sms1', 'o_sms2', 'o_email1', 'o_email2', 'sound1', 'sound2', 'relay1', 'relay2', 'remark', 'user']
+	self.fieldnames = ['begin', 'a_id', 'deny', 'acronym', 'o_sms1', 'o_sms2', 'o_email1', 'o_email2', 'o_sound1', 'o_sound2', 'relay1', 'relay2', 'remark', 'user']
 	self.fieldtranslate = ['begin', 'lang', 'a_id', 'name', 'user']
 
     def newObject(self):
