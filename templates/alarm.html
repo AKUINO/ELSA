@@ -42,69 +42,73 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputSms1" class="col-sm-3 col-form-label">$c.AllMessages.elements['phone'].getName(self.lang)</label>
+	    <label for="inputSms1" class="col-sm-3 col-form-label">$c.AllMessages.elements['phone'].getName(self.lang) 1</label>
 	    <div class="col-sm-9">
-		<input name="o_sms1" type="text" class="form-control" id="inputSms1" placeholder="$c.AllMessages.elements['phone'].getName(self.lang)" 
-		$if id != 'new':
-		    value="$c.AllAlarms.elements[id].fields['o_sms1']"
-		>
-	    </div>
-	</div>
-	
-	<div class="form-group row">
-	    <label for="inputSms2" class="col-sm-3 col-form-label">$c.AllMessages.elements['phone'].getName(self.lang)</label>
-	    <div class="col-sm-9">
-		<input name="o_sms2" type="text" class="form-control" id="inputSms2" placeholder="$c.AllMessages.elements['phone'].getName(self.lang)" 
-		$if id != 'new':
-		    value="$c.AllAlarms.elements[id].fields['o_sms2']"
-		>
+		<select name = "o_sms1" class="form-control" id="inputSms1">
+		    $for k in c.AllAlarms.elements.keys():
+			<option value="k">$c.AllAlarms.elements[k].fields['acronym'] - $c.AllMeasures.elements[k].getName(self.lang) </option>
+		</select>
 	    </div>
 	</div>
 	
 	<div class="form-group row">
 	    <label for="inputMail1" class="col-sm-3 col-form-label">$c.AllMessages.elements['mail'].getName(self.lang) 1</label>
 	    <div class="col-sm-9">
-		<input name="o_sms2" type="text" class="form-control" id="inputMail1" placeholder="$c.AllMessages.elements['mail'].getName(self.lang)" 
-		$if id != 'new':
-		    value="$c.AllAlarms.elements[id].fields['o_email1']"
-		>
-	    </div>
-	</div>
-	
-	<div class="form-group row">
-	    <label for="inputMail2" class="col-sm-3 col-form-label">$c.AllMessages.elements['mail'].getName(self.lang) 2</label>
-	    <div class="col-sm-9">
-		<input name="o_sms2" type="text" class="form-control" id="inputMail2" placeholder="$c.AllMessages.elements['mail'].getName(self.lang)" 
-		$if id != 'new':
-		    value="$c.AllAlarms.elements[id].fields['o_email2']"
-		>
+		<select name = "o_email1" class="form-control" id="inputMail1">
+		    $for k in c.AllAlarms.elements.keys():
+			<option value="k">$c.AllAlarms.elements[k].fields['acronym'] - $c.AllMeasures.elements[k].getName(self.lang) </option>
+		</select>
 	    </div>
 	</div>
 	
 	<div class="form-group row">
 	    <label for="inputSound1" class="col-sm-3 col-form-label">$c.AllMessages.elements['sound'].getName(self.lang) 1</label>
 	    <div class="col-sm-9">
-		<input name="o_sms2" type="text" class="form-control" id="inputSound1" placeholder="$c.AllMessages.elements['sound'].getName(self.lang)" 
-		$if id != 'new':
-		    value="$c.AllAlarms.elements[id].fields['sound1']"
-		>
+		<select name = "o_sound1" class="form-control" id="inputSound1">
+		    $for k in c.AllAlarms.elements.keys():
+			<option value="k">$c.AllAlarms.elements[k].fields['acronym'] - $c.AllMeasures.elements[k].getName(self.lang) </option>
+		</select>
+	    </div>
+	</div>
+	
+	
+	<div class="form-group row">
+	    <label for="inputSms2" class="col-sm-3 col-form-label">$c.AllMessages.elements['phone'].getName(self.lang) 2</label>
+	    <div class="col-sm-9">
+		<select name = "o_sms2" class="form-control" id="inputSms2">
+		    $for k in c.AllAlarms.elements.keys():
+			<option value="k">$c.AllAlarms.elements[k].fields['acronym'] - $c.AllMeasures.elements[k].getName(self.lang) </option>
+		</select>
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputMail2" class="col-sm-3 col-form-label">$c.AllMessages.elements['mail'].getName(self.lang) 2</label>
+	    <div class="col-sm-9">
+		<select name = "o_email2" class="form-control" id="inputMail2">
+		    $for k in c.AllAlarms.elements.keys():
+			<option value="k">$c.AllAlarms.elements[k].fields['acronym'] - $c.AllMeasures.elements[k].getName(self.lang) </option>
+		</select>
 	    </div>
 	</div>
 	
 	<div class="form-group row">
 	    <label for="inputSound2" class="col-sm-3 col-form-label">$c.AllMessages.elements['sound'].getName(self.lang) 2</label>
 	    <div class="col-sm-9">
-		<input name="o_sms2" type="text" class="form-control" id="inputSound2" placeholder="$c.AllMessages.elements['sound'].getName(self.lang)" 
-		$if id != 'new':
-		    value="$c.AllAlarms.elements[id].fields['sound2']"
-		>
+		<select name = "o_sound2" class="form-control" id="inputSound2">
+		    $for k in c.AllAlarms.elements.keys():
+			<option value="k">$c.AllAlarms.elements[k].fields['acronym'] - $c.AllMeasures.elements[k].getName(self.lang) </option>
+		</select>
 	    </div>
 	</div>
+	
+	
+	
 	
 	<div class="form-group row">
 	    <label for="inputRelay1" class="col-sm-3 col-form-label">$c.AllMessages.elements['relay'].getName(self.lang) 1</label>
 	    <div class="col-sm-9">
-		<input name="o_sms2" type="text" class="form-control" id="inputRelay1" placeholder="$c.AllMessages.elements['relay'].getName(self.lang)" 
+		<input name="relay1" type="text" class="form-control" id="inputRelay1" placeholder="$c.AllMessages.elements['relay'].getName(self.lang)" 
 		$if id != 'new':
 		    value="$c.AllAlarms.elements[id].fields['relay1']"
 		>
@@ -114,7 +118,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	<div class="form-group row">
 	    <label for="inputRelay2" class="col-sm-3 col-form-label">$c.AllMessages.elements['relay'].getName(self.lang) 2</label>
 	    <div class="col-sm-9">
-		<input name="o_sms2" type="text" class="form-control" id="inputRelay2" placeholder="$c.AllMessages.elements['relay'].getName(self.lang)" 
+		<input name="relay2" type="text" class="form-control" id="inputRelay2" placeholder="$c.AllMessages.elements['relay'].getName(self.lang)" 
 		$if id != 'new':
 		    value="$c.AllAlarms.elements[id].fields['relay2']"
 		>
