@@ -172,7 +172,7 @@ $for a,elem in elements.items():
 						$else:
 						    <a href="/permissions/g_$group">$c.AllGroups.elements[group].getName(self.lang)</a>
 					    $else:
-						$if group == elem.getName(self.lang):
+						$if group == elem.fields['g_id']:
 						    <strong><a href="/permissions/g_$group">$c.AllGroups.elements[group].getName(self.lang)</a></strong>
 						$else:
 						    <a href="/permissions/g_$group">$c.AllGroups.elements[group].getName(self.lang)</a>

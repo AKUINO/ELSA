@@ -32,9 +32,9 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputMail" class="col-sm-3 col-form-label">$c.AllMessages.elements['phone'].getName(self.lang)</label>
+	    <label for="inputPhone" class="col-sm-3 col-form-label">$c.AllMessages.elements['phone'].getName(self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="phone" type="tel" class="form-control" id="inputMail" aria-describedby="emailHelp" placeholder="Enter email"
+		<input name="phone" type="tel" class="form-control" id="inputPhone" placeholder=""
 		$if id !='new':
 		    value="$c.AllUsers.elements[id].fields['mail']"
 		required="true" >

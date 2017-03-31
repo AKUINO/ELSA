@@ -86,7 +86,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 		    <div class="form-group row">
 		    <label class="col-xs-$indent col-form-label"></label>
 		    <label id="modalinfo" for="inputGroups" class="col-xs-$cindent col-form-label">$c.AllGroups.elements[group].getName(self.lang)</label>
-			$if not group in parents and not group in children: 
+			$if not group in parents and not group in children and not group == element.fields['g_id']: 
 			    <label class="col-sm-2 col-form-label">
 				<span class="glyphicon glyphicon-remove-circle"> </span>
                                 $if group in element.groups:
