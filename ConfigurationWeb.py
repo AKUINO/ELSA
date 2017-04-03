@@ -102,7 +102,7 @@ class WebObjectUpdate():
 		
 	    if 'password' in currObject.fields:
 		currObject.fields['registration'] = currObject.created
-		currObject.fields['password'] = encrypt(currObject.fields['password'],currObject.created)
+		currObject.fields['password'] = useful.encrypt(currObject.fields['password'],currObject.created)
 		
 	    if 'code' in data:
 		currObject.code = data['code']
