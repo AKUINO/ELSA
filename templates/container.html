@@ -43,7 +43,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <div class="col-sm-9">
 		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.AllMessages.elements['code'].getName(self.lang)" 
 		$if id != 'new':
-		    value="$c.AllContainers.elements[id].code"
+		    value="$c.AllBarcodes.get_barcode(c.AllContainers.elements[id].getType(), id)"
 		required="true">
 	    </div>
 	</div>

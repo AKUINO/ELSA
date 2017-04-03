@@ -258,24 +258,15 @@ $for a,elem in elements.items():
 			</div>
 			
 		    
-		    $if elem.code is not None :
-			<div class="row" style="margin-top:10px;">
-			    <div class="col-xs-4">
-				$c.AllMessages.elements['code'].getName(self.lang) :
-			    </div>
-			    <div class="col-xs-8" id="modalinfo" >
-				$elem.code
-			    </div>
+		    <div class="row" style="margin-top:10px;">
+			<div class="col-xs-4">
+			    $c.AllMessages.elements['code'].getName(self.lang) :
 			</div>
-		    $else:
-			<div class="row" style="margin-top:10px;">
-			    <div class="col-xs-4">
-				$c.AllMessages.elements['code'].getName(self.lang) :
-			    </div>
-			    <div class="col-xs-8"id="modalinfo" >
-				-
-			    </div>
+			<div class="col-xs-8" id="modalinfo" >
+			    $c.AllBarcodes.get_barcode(elem.getType(), elem.id)
 			</div>
+		    </div>
+
 		    <div class="row" style="margin-top:3px;">
 			<div class="col-xs-4">
 			    $c.AllMessages.elements['remark'].getName(self.lang) :

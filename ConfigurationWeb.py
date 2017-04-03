@@ -39,7 +39,10 @@ web.template.Template.globals['c'] = c
 #Ligne 58 - connexion 9000 a la place de 900
 #
 
-print useful.send_email('franco.maxime@gmail.com','test envoi','message dans le mail')
+useful.send_email('franco.maxime@gmail.com','test envoi','message dans le mail')
+user = c.AllUsers.elements['1']
+print c.AllBarcodes.elements['22'].element
+
 class WebObject():
     def __init__(self):
 	self.name = u"WebIndex"
@@ -105,7 +108,7 @@ class WebObjectUpdate():
 		currObject.fields['password'] = encrypt(currObject.fields['password'],currObject.created)
 		
 	    if 'code' in data:
-		currObject.code = data['code']
+		c.AllBarcodes.add_barcode(currObject, data['code'], user)
 		
 	    if 'component' in data:
 		currObject.addComponent(data['component'])
