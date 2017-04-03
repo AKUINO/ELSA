@@ -12,7 +12,7 @@ import threading
 import time
 import os
 import rrdtool
-import ow
+#import ow
 import serial
 import myuseful as useful
 import HardConfig as hardconfig
@@ -61,6 +61,8 @@ class Configuration():
 	self.AllGroups.load()
 	self.AllMeasures.load()
 	self.AllSensors.load()
+	self.AllSensors.check_rrd()
+	self.InfoSystem.check_rrd()
 	self.AllSensors.correctValueAlarm()
 	self.AllAlarms.load()
 	self.AllHalflings.load()
@@ -301,6 +303,22 @@ class InfoSystem():
 	    rrdtool.update('rrd/cpuload.rrd' , '%d:%f:%f:%f' % (now , self.load1, self.load5, self.load15))
 	except:
 	    traceback.print_exc()
+	    
+    def check_rrd(self):
+	now = str( int(time.time())-60)
+	if not os.path.exists('rrd/systemuptime.rrd'):
+	    data_sources = str('DS:Uptime:GAUGE:120:U:U')
+	    rrdtool.create( 'rrd/systemuptime.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+	    
+	if not os.path.exists('rrd/temperaturecpu.rrd'):
+	    data_sources = str('DS:Temperature:GAUGE:120:U:U')
+	    rrdtool.create( 'rrd/temperature.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+	if not os.path.exists('rrd/memoryinfo.rrd'):
+	    data_sources=[ 'DS:MemTot:GAUGE:120:U:U', 'DS:MemFree:GAUGE:120:U:U', 'DS:MemAvailable:GAUGE:120:U:U' ]
+	    rrdtool.create( 'rrd/temperature.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+	if not os.path.exists('rrd/cpuload.rrd'):
+	    data_sources=[ 'DS:Load1:GAUGE:120:U:U', 'DS:Load5:GAUGE:120:U:U', 'DS:Load15:GAUGE:120:U:U' ]
+	    rrdtool.create( 'rrd/temperature.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
 
 class ConfigurationObject():
 
@@ -821,9 +839,15 @@ class AllSensors(AllObjects):
 	    
     def update(self, now) :
 	for k,sensor in self.elements.items():
-	    if sensor.fields['channel'] == 'wire' :
+	    if sensor.fields['channel'] == 'wire' and not self.fields['deny'] == '0' :
 		value = sensor.get_value_sensor()
 		sensor.update(now, value,self.config)
+		
+    def check_rrd(self):
+	for k, v in self.elements.items():
+	    filename = rrdDir + v.getRRDName()
+	    if not os.path.exists(filename):
+		v.createRRD()
 
 class AllBatches(AllObjects):
 
