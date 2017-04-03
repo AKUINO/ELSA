@@ -40,8 +40,6 @@ web.template.Template.globals['c'] = c
 #
 
 useful.send_email('franco.maxime@gmail.com','test envoi','message dans le mail')
-user = c.AllUsers.elements['1']
-print c.AllBarcodes.elements['22'].element
 
 class WebObject():
     def __init__(self):
