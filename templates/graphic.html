@@ -21,6 +21,6 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
                                   lines: { show: true, fill: true} },
                          'Running':{color: "#000000",yaxis:2}};
         $code:
-            url = "/static/rrd/"+c.AllSensors.elements[id].getRRDName()
+            url = 'id/'+c.AllSensors.elements[id].getRRDName()
 	flot_obj=new rrdFlotAsync("mygraph","$url",null,graph_opts,ds_graph_opts);
     </script>

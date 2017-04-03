@@ -16,6 +16,7 @@ import ow
 import serial
 import myuseful as useful
 import HardConfig as hardconfig
+import barcode
 
 
 
@@ -847,6 +848,7 @@ class AllBarcodes(AllObjects):
 	self.fieldnames = ['begin', 'type', 'idobject', 'code', 'deny', 'user']
 	self.fieldtranslate = None
 	self.count = 0
+	self.EAN = barcode.get_barcode_class('ean13')
 	
     def load(self):
 	with open(self.fileobject) as csvfile:

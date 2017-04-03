@@ -24,6 +24,7 @@ urls = (
     '/measures/(.+)', 'WebMeasure',
     '/sensors/', 'WebSensors',
     '/sensors/(.+)', 'WebSensor',
+    '/graphic/(.+)/(.+)', 'getRRD2',
     '/monitoring/', 'WebMonitoring',
     '/monitoring/(.+)', 'getRRD',
     '/graphic/(.+)', 'WebSensorGraph',
@@ -300,6 +301,14 @@ class WebSensor(WebObjectUpdate):
 	
 class getRRD(): 
     def GET(self, filename):
+        try: 
+            f = open('rrd/' + filename)
+            return f.read()  
+        except IOError: 
+            web.notfound()
+	    
+class getRRD2(): 
+    def GET(self, idobj,filename):
         try: 
             f = open('rrd/' + filename)
             return f.read()  
