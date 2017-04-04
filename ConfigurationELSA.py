@@ -839,7 +839,7 @@ class AllSensors(AllObjects):
 	    
     def update(self, now) :
 	for k,sensor in self.elements.items():
-	    if sensor.fields['channel'] == 'wire' and not self.fields['deny'] == '0' :
+	    if sensor.fields['channel'] == 'wire' and not sensor.fields['deny'] == '0' :
 		value = sensor.get_value_sensor()
 		sensor.update(now, value,self.config)
 		
