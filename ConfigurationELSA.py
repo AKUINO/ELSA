@@ -12,7 +12,7 @@ import threading
 import time
 import os
 import rrdtool
-#import ow
+import ow
 import serial
 import myuseful as useful
 import HardConfig as hardconfig
@@ -24,8 +24,8 @@ import barcode
 csvDir = "csv/"
 rrdDir = 'rrd/'
 ttyDir = '/dev/ttyS0'
-class Configuration():
 
+class Configuration():
     def __init__(self):
 	ow.init("/dev/i2c-1")
 	self.HardConfig = hardconfig.HardConfig()

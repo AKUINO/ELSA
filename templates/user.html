@@ -12,6 +12,16 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
 	
 	<div class="form-group row">
+	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(self.lang)</label>
+	    <div class="col-sm-9">
+		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="Acronym" 
+		$if id != 'new':
+		    value="$c.AllUsers.elements[id].fields['acronym']"
+		required="true">
+	    </div>
+	</div>
+	
+	<div class="form-group row">
 	    <label for="inputName" class="col-sm-3 col-form-label">$c.AllMessages.elements['name'].getName(self.lang)</label>
 	    <div class="col-sm-9">
 		<input name="EN" type="text" class="form-control" id="inputName" placeholder="Name"
@@ -45,16 +55,6 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <label for="inputMail" class="col-sm-3 col-form-label">$c.AllMessages.elements['password'].getName(self.lang)</label>
 	    <div class="col-sm-9">
 		<input name="password" type="password" class="form-control" id="inputMail" aria-describedby="emailHelp" placeholder="Enter password" required="true" >
-	    </div>
-	</div>
-	
-	<div class="form-group row">
-	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(self.lang)</label>
-	    <div class="col-sm-9">
-		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="Acronym" 
-		$if id != 'new':
-		    value="$c.AllUsers.elements[id].fields['acronym']"
-		required="true">
 	    </div>
 	</div>
 	
