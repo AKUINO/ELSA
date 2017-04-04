@@ -145,7 +145,7 @@ $for a,elem in elements.items():
 				$elem.getName(self.lang)
 			    </div>
 			</div>
-		    $if type != 'measures' and type != 'sensors':
+		    $if type != 'measures' and type != 'sensors' and type != 'alarms':
 			<div class="row">
 			    <div class="col-xs-3">
 				$c.AllMessages.elements['group'].getName(self.lang) :
@@ -213,37 +213,13 @@ $for a,elem in elements.items():
 			    </div>
 			</div>
 			
-		    $if type == 'alarms':
+		    $elif type == 'alarms':
 			<div class="row" style="margin-top:10px;">
 			    <div class="col-xs-4">
 				$c.AllMessages.elements['phone'].getName(self.lang) 1:
 			    </div>
 			    <div class="col-xs-8" id="modalinfo" >
-				$elem.fields['o_sms1']
-			    </div>
-			</div>
-			<div class="row" style="margin-top:10px;">
-			    <div class="col-xs-4">
-				$c.AllMessages.elements['phone'].getName(self.lang) 2:
-			    </div>
-			    <div class="col-xs-8" id="modalinfo" >
-				$elem.fields['o_sms2']
-			    </div>
-			</div>
-			<div class="row" style="margin-top:10px;">
-			    <div class="col-xs-4">
-				$c.AllMessages.elements['relay'].getName(self.lang) 1:
-			    </div>
-			    <div class="col-xs-8" id="modalinfo" >
-				$elem.fields['o_relay1']
-			    </div>
-			</div>
-			<div class="row" style="margin-top:10px;">
-			    <div class="col-xs-4">
-				$c.AllMessages.elements['relay'].getName(self.lang) 2:
-			    </div>
-			    <div class="col-xs-8" id="modalinfo" >
-				$elem.fields['o_relay2']
+				$c.AllGroups.elements[elem.fields['o_sms1']].getName(self.lang)
 			    </div>
 			</div>
 			<div class="row" style="margin-top:10px;">
@@ -251,7 +227,31 @@ $for a,elem in elements.items():
 				$c.AllMessages.elements['mail'].getName(self.lang) 1:
 			    </div>
 			    <div class="col-xs-8" id="modalinfo" >
-				$elem.fields['o_email1']
+				$c.AllGroups.elements[elem.fields['o_email1']].getName(self.lang)
+			    </div>
+			</div>
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-4">
+				$c.AllMessages.elements['sound'].getName(self.lang) 1:
+			    </div>
+			    <div class="col-xs-8" id="modalinfo" >
+				$c.AllGroups.elements[elem.fields['o_sound1']].getName(self.lang)
+			    </div>
+			</div>
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-4">
+				$c.AllMessages.elements['relay'].getName(self.lang) 1:
+			    </div>
+			    <div class="col-xs-8" id="modalinfo" >
+				$elem.fields['relay1']
+			    </div>
+			</div>
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-4">
+				$c.AllMessages.elements['phone'].getName(self.lang) 2:
+			    </div>
+			    <div class="col-xs-8" id="modalinfo" >
+				$c.AllGroups.elements[elem.fields['o_sms2']].getName(self.lang)
 			    </div>
 			</div>
 			<div class="row" style="margin-top:10px;">
@@ -262,7 +262,22 @@ $for a,elem in elements.items():
 				$elem.fields['o_email2']
 			    </div>
 			</div>
-			
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-4">
+				$c.AllMessages.elements['sound'].getName(self.lang) 1:
+			    </div>
+			    <div class="col-xs-8" id="modalinfo" >
+				$c.AllGroups.elements[elem.fields['o_sound2']].getName(self.lang)
+			    </div>
+			</div>
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-4">
+				$c.AllMessages.elements['relay'].getName(self.lang) 2:
+			    </div>
+			    <div class="col-xs-8" id="modalinfo" >
+				$elem.fields['relay2']
+			    </div>
+			</div>
 		    
 		    <div class="row" style="margin-top:10px;">
 			<div class="col-xs-4">
