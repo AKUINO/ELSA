@@ -17,6 +17,8 @@ import serial
 import myuseful as useful
 import HardConfig as hardconfig
 import barcode
+import re
+
 
 
 
@@ -1533,7 +1535,7 @@ class Sensor(ConfigurationObject):
 	rrdtool.update(rrdDir +self.getRRDName() , '%d:%f' % (now ,value))
 	
     def createRRD(self):
-	name = self.getName('EN').replace(" ","")
+	name = re.sub('[^\w]+', '', self.fields['acronym'])
 	now = str( int(time.time())-60)
 	if self.fields['channel'] == 'wire' :
 	    data_sources = str('DS:'+name+'1:GAUGE:120:U:U')

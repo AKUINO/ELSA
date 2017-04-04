@@ -63,10 +63,22 @@ $if id != 'new':
 	
 	<div class="form-group row">
 	    <label for="inputDeny" class="col-sm-6 col-form-label">$c.AllMessages.elements['deny'].getName(self.lang)</label>
-	    <label class="switch">
-		<input id='inputDeny'name="deny" type="checkbox" value="1" type="checkbox" >
-		<div class="slider round"></div>
-	    </label>
+	    <span class="glyphicon glyphicon-remove-circle"> </span>
+	    $code:
+		cond = not (id == 'new')
+		if cond :
+		    cond = (c.AllContainers.elements[id].fields['deny'] == 1 or c.AllContainers.elements[id].fields['deny'] == '1')
+	    $if cond :
+		<label class="switch">
+		    <input id='inputDeny' name="deny" type="checkbox" value="1" checked>
+		    <div class="slider round"></div>
+		</label>
+	    $else :
+		<label class="switch">
+		    <input id='inputDeny' name="deny" type="checkbox" value="1" >
+		    <div class="slider round"></div>
+		</label>
+	    <span class="glyphicon glyphicon-ok-circle"> </span>
 	</div>
 	
 	<div class="form-group row">
@@ -84,12 +96,17 @@ $if id != 'new':
 	</div>
 	
 	<div class="form-group row">
-	    <div class="col-sm-5">
+	    <div class="col-sm-3">
+	    </div>
+	    <div class="col-sm-2">
+		<a href="/containers/" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+	    </div>
+	    <div class="col-sm-2">
 	    </div>
 	    <div class="col-sm-2">
 		<button type="submit" class="btn btn-primary btn-block">Save</button>
 	    </div> 
-	    <div class="col-sm-5">
+	    <div class="col-sm-3">
 	    </div>
 	</div>
 	

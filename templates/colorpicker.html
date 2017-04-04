@@ -140,7 +140,8 @@ $def with ()
 	divSelectedColor.style.top = "0px";
 	divSelectedColor.style.left = "0px";
 	divSelectedColor.style.display = "none";
-	var colorhex = '';
+	var colorhex = 0;
+	mouseOutMap();
 
 	function mouseOverColor(hex) {
 		document.getElementById("divpreview").style.backgroundColor = hex;

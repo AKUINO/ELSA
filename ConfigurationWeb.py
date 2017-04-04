@@ -242,8 +242,29 @@ class WebPermission(WebObjectUpdate):
 			listgroups[k] = group
 	    currObject.groups = listgroups
 	    currObject.saveGroups(c,user)
-	    return render.listing(mail,'groups')
+	    return get_listing(id, mail)
 	return render.index(False,'')
+	
+    def get_listing(self, id, mail):
+	typeobject = id.split('_')[0]
+	tmp = ''
+	if typeobject == 'p':
+	    tmp = 'places'
+	elif typeobject == 'e':
+	    tmp = 'equipments'
+	elif typeobject == 'c':
+	    tmp = 'containers'
+	elif typeobject == 'cpehm':
+	    tmp = 'sensors'
+	elif typeobject == 'a':
+	    tmp = 'alarms'
+	elif typeobject == 'u':
+	    tmp = 'users'
+	elif typeobject == 'g':
+	    tmp = 'groups'
+	elif typeobject == 'm':
+	    tmp = 'measures'
+	return render.listing(mail,tmp)
 
 class WebContainers(WebObject):
     def __init__(self):
