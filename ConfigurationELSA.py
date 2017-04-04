@@ -12,7 +12,7 @@ import threading
 import time
 import os
 import rrdtool
-import ow
+#import ow
 import serial
 import myuseful as useful
 import HardConfig as hardconfig
@@ -26,11 +26,12 @@ import re
 csvDir = "csv/"
 rrdDir = 'rrd/'
 ttyDir = '/dev/ttyS0'
+barcodesDir = 'barcodes/'
 
 class Configuration():
     def __init__(self):
-	ow.init("/dev/i2c-1")
-	self.HardConfig = hardconfig.HardConfig()
+	#ow.init("/dev/i2c-1")
+	#self.HardConfig = hardconfig.HardConfig()
 	self.InfoSystem = InfoSystem()
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
@@ -71,8 +72,8 @@ class Configuration():
 	#doit toujours être appelé à la fin
 	self.AllBarcodes.load()
 	self.loadRelation()
-	self.UpdateThread.start()
-	self.RadioThread.start()
+	#self.UpdateThread.start()
+	#self.RadioThread.start()
 	
     
     def findAllFromObject(self,anObject):
@@ -903,7 +904,7 @@ class AllBarcodes(AllObjects):
 	
     def unique_barcode(self,barcode, myID, myType):
 	for k,v in self.elements.items():
-	    if barcode == k and not myID == v.getID() and not myType == v.getType():
+	    if barcode == k and not myID == v.getID() and not myType == v.fields['type']:
 		return False
 	return True
     
@@ -947,6 +948,21 @@ class AllBarcodes(AllObjects):
 	fields["user"] = user.fields['u_id']
 	return fields
 	
+    def validate_barcode(self, barcode):
+	if len(barcode) < 12 or len(barcode) >13 :
+	    return False
+	try:
+	    EAN = barcode.get_barcode('ean13')
+	    ean = EAN(barcode)
+	    return True
+	except :
+	    return False
+	    
+    def to_pictures(self):
+	for k, v in self.elements.items():
+	    v.barcode_picture()
+    
+	    
 
 class AllPhases(AllObjects):
 
@@ -1742,6 +1758,22 @@ class Barcode(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
+	
+    def barcode_picture(self):
+	EAN = barcode.get_barcode_class('ean13')
+	ean = EAN(self.fields['code'])
+	ean.save(barcodesDir+self.fields['code'])
+	
+    def get_picture_name(self) :
+	return self.fields['code']+'.png'
+	
+    def get_picture(self):
+	location = barcodesDir + self.fields['code']
+	if not os.path.exists(location) :
+	    self.barcode_picture()
+	return location
+	
+	
 
 class Phase(ConfigurationObject):
 

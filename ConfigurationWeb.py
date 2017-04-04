@@ -40,7 +40,9 @@ web.template.Template.globals['c'] = c
 #Ligne 58 - connexion 9000 a la place de 900
 #
 
-useful.send_email('franco.maxime@gmail.com','test envoi','message dans le mail')
+useful.send_email('franco.maxime@gmail.com','Demarrage Elsa','Demarrage du systeme')
+
+c.AllBarcodes.to_pictures()
 
 class WebObject():
     def __init__(self):
