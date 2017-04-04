@@ -84,7 +84,7 @@ $if id != 'new':
 	    $code:
 		cond = not (id == 'new')
 		if cond :
-		    cond = (c.AllContainers.elements[id].fields['deny'] == 1 or c.AllContainers.elements[id].fields['deny'] == '1')
+		    cond = (c.AllUsers.elements[id].fields['deny'] == 1 or c.AllUsers.elements[id].fields['deny'] == '1')
 	    $if cond :
 		<label class="switch">
 		    <input id='inputDeny' name="deny" type="checkbox" value="1" checked>
