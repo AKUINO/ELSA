@@ -145,7 +145,7 @@ $for a,elem in elements.items():
 				$elem.getName(self.lang)
 			    </div>
 			</div>
-		    $if type != 'measures' and type != 'sensors' :
+		    $if type != 'measures' and type != 'sensors':
 			<div class="row">
 			    <div class="col-xs-3">
 				$c.AllMessages.elements['group'].getName(self.lang) :
@@ -213,7 +213,7 @@ $for a,elem in elements.items():
 			    </div>
 			</div>
 			
-		    $elif type == 'alarms':
+		    $if type == 'alarms':
 			<div class="row" style="margin-top:10px;">
 			    <div class="col-xs-4">
 				$c.AllMessages.elements['phone'].getName(self.lang) 1:
