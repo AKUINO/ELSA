@@ -518,16 +518,15 @@ class RadioThread(threading.Thread):
 				ADDRESS = int(HEX,16)
 				VAL = int(line[5]+line[6]+line[7],16)
 				READER = int(line[8]+line[9],16)
-				if VAL >= 2048:
-				    VAL = VAL - 4096
-				#TODO: passer par la formule du senseur...
-				temperature = VAL*60.0/960
 				print "ELA="+HEX+", RSS="+str(RSS)+", val="+str(VAL)
 				currSensor = None
+				temperature = VAL
 				for sensor in self.config.AllSensors.elements:
 				    currSensor = self.config.AllSensors.elements[sensor]
 				    if (currSensor.fields['sensor'].translate(None, '. ') == HEX.translate(None, '. ')):
 					print (u"Sensor ELA-" + currSensor.fields['sensor']+ u": " + currSensor.fields['acronym'] +u" = "+str(temperature))
+					if not  currSensor.fields['formula'] == '' :
+					    temperature = str(eval(self.fields['formula']))
 					currSensor.update(now, temperature, self.config)
 			    line = None
 			else:
@@ -873,6 +872,7 @@ class AllSensors(AllObjects):
 class AllBatches(AllObjects):
 
     def __init__(self, config):
+	AllObjects.__init__(self)
         self.elements = {}
         self.config = config
         self.filename = csvDir + "B.csv"
