@@ -523,11 +523,16 @@ class RadioThread(threading.Thread):
 				value = VAL
 				for sensor in self.config.AllSensors.elements:
 				    currSensor = self.config.AllSensors.elements[sensor]
-				    if (currSensor.fields['sensor'].translate(None, '. ') == HEX.translate(None, '. ')):
-					if not  currSensor.fields['formula'] == '' :
-					    value = str(eval(currSensor.fields['formula']))
-					print (u"Sensor ELA-" + currSensor.fields['sensor']+ u": " + currSensor.fields['acronym'] +u" = "+str(value))
-					currSensor.update(now, value, self.config)
+				    try :
+					if (currSensor.fields['sensor'].translate(None, '. ') == HEX.translate(None, '. ')):
+					    if not  currSensor.fields['formula'] == '' :
+						value = str(eval(currSensor.fields['formula']))
+					    print (u"Sensor ELA-" + currSensor.fields['sensor']+ u": " + currSensor.fields['acronym'] +u" = "+str(value))
+					    currSensor.update(now, value, self.config)
+				    except : 
+					    print "Error dans la formule"
+					    
+					
 			    line = None
 			else:
 			    line.append(data)
