@@ -524,9 +524,9 @@ class RadioThread(threading.Thread):
 				for sensor in self.config.AllSensors.elements:
 				    currSensor = self.config.AllSensors.elements[sensor]
 				    if (currSensor.fields['sensor'].translate(None, '. ') == HEX.translate(None, '. ')):
-					print (u"Sensor ELA-" + currSensor.fields['sensor']+ u": " + currSensor.fields['acronym'] +u" = "+str(temperature))
 					if not  currSensor.fields['formula'] == '' :
 					    value = str(eval(currSensor.fields['formula']))
+					print (u"Sensor ELA-" + currSensor.fields['sensor']+ u": " + currSensor.fields['acronym'] +u" = "+str(value))
 					currSensor.update(now, value, self.config)
 			    line = None
 			else:
