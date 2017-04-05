@@ -37,12 +37,12 @@ c=elsa.Configuration()
 c.load()
 web.template.Template.globals['c'] = c
 #
-#Ligne 58 - connexion 9000 a la place de 900
+#Ligne 62 - connexion 9000 a la place de 900
 #
 
 useful.send_email('franco.maxime@gmail.com','Demarrage Elsa','Demarrage du systeme')
 
-c.AllBarcodes.to_pictures()
+print c.AllGroups.elements['8'].groups
 
 class WebObject():
     def __init__(self):
@@ -230,20 +230,14 @@ class WebPermission(WebObjectUpdate):
 		raise web.seeother('/')
 	    data = web.input(placeImg={})
 	    method = data.get("method","malformed")
-	    listgroups = {}
+	    print data
 	    for k,group in currObject.groups.items():
+		print  str(k) + '\n'
 		if k not in data:
 		    currObject.deleteGroup(k,c,user)
-		else:
-		    listgroups[k] = group
 	    for k,group in c.AllGroups.elements.items():
-		if k in data:
-		    currContainsGroup = currObject.containsGroup(group)
-		    groupContainsCurr = group.containsGroup(currObject)
-		    if ( not currContainsGroup ) and ( not groupContainsCurr ):
-			listgroups[k] = group
-	    currObject.groups = listgroups
-	    currObject.saveGroups(c,user)
+		if k in data :
+		    currObject.add_group(k, c, user)
 	    return self.get_listing(id, mail)
 	return render.index(False,'')
 	

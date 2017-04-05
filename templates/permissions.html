@@ -95,7 +95,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 		    <label id="modalinfo" for="inputGroups" class="col-xs-$cindent col-form-label">$c.AllGroups.elements[group].getName(self.lang)</label>
 			
                         $if type == 'g':
-			    $if group in parents:
+			    $if group in parents and group in element.groups:
 				<label class="col-sm-2 col-form-label">
 				<span class="glyphicon glyphicon-remove-circle"> </span>
 				    <label class="switch">
@@ -104,7 +104,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 				    </label>
 				    <span class="glyphicon glyphicon-ok-circle"> </span>
 				</label>
-			    $elif group in children or group == element.fields['g_id']:
+			    $elif group in children or group == element.fields['g_id'] or group in parents:
 				<label class="col-sm-2 col-form-label">-</label>
 			    $else :
 				<label class="col-sm-2 col-form-label">

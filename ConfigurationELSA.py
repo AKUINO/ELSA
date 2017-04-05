@@ -12,7 +12,7 @@ import threading
 import time
 import os
 import rrdtool
-import ow
+#import ow
 import serial
 import myuseful as useful
 import HardConfig as hardconfig
@@ -30,8 +30,8 @@ barcodesDir = 'barcodes/'
 
 class Configuration():
     def __init__(self):
-	ow.init("/dev/i2c-1")
-	self.HardConfig = hardconfig.HardConfig()
+	#ow.init("/dev/i2c-1")
+	#self.HardConfig = hardconfig.HardConfig()
 	self.InfoSystem = InfoSystem()
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
@@ -72,8 +72,8 @@ class Configuration():
 	#doit toujours être appelé à la fin
 	self.AllBarcodes.load()
 	self.loadRelation()
-	self.UpdateThread.start()
-	self.RadioThread.start()
+	#self.UpdateThread.start()
+	#self.RadioThread.start()
 	
     
     def findAllFromObject(self,anObject):
@@ -435,18 +435,23 @@ class ConfigurationObject():
 	    
 		
     def deleteGroup(self,groupid, configuration,anUser):
-	print self.groups	
-	allObjects = configuration.findAllFromObject(self)
-	with open(configuration.csvRelations,"a") as csvfile:
-	    tmpCode={}
-	    tmpCode['begin'] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
-	    tmpCode['g_id'] = groupid
-	    tmpCode['idobject'] = self.fields[allObjects.keyColumn]
-	    tmpCode['type'] = self.getType()
-	    tmpCode["user"] = anUser.fields['u_id']
-	    tmpCode['deny'] = '1'
-	    writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames = configuration.fieldrelations, encoding="utf-8")
-	    writer.writerow(tmpCode)
+	print self.groups
+	print groupid	
+	self.write_group(groupid, configuration, anUser, 1)
+	del self.groups[groupid]
+	print self.groups
+	
+    def add_group(self, groupid, configuration, anUser):
+	tmp = configuration.get_parents_list(configuration.AllGroups.elements[groupid])
+	for k in tmp :
+	    if k in self.groups.keys():
+		return None
+	tmp = configuration.get_children_list(configuration.AllGroups.elements[groupid])
+	for k in tmp :
+	    if k in self.groups.keys():
+		return None
+	self.groups[groupid] = configuration.AllGroups.elements[groupid]
+	self.write_group(groupid, configuration, anUser, 0)
 	    
     def removekey(self, key):
 	del self.groups[key]
@@ -457,6 +462,19 @@ class ConfigurationObject():
 		if v.containsGroup(oGroup):
 		    return True
 	return False
+	
+    def write_group(self, groupid, configuration, user, deny):
+	allObjects = configuration.findAllFromObject(self)
+	with open(configuration.csvRelations,"a") as csvfile:
+	    tmpCode={}
+	    tmpCode['begin'] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
+	    tmpCode['g_id'] = groupid
+	    tmpCode['idobject'] = self.fields[allObjects.keyColumn]
+	    tmpCode['type'] = self.getType()
+	    tmpCode["user"] = user.fields['u_id']
+	    tmpCode['deny'] = deny
+	    writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames = configuration.fieldrelations, encoding="utf-8")
+	    writer.writerow(tmpCode)
 
 class UpdateThread(threading.Thread):
 
