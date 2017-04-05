@@ -520,14 +520,14 @@ class RadioThread(threading.Thread):
 				READER = int(line[8]+line[9],16)
 				print "ELA="+HEX+", RSS="+str(RSS)+", val="+str(VAL)
 				currSensor = None
-				temperature = VAL
+				value = VAL
 				for sensor in self.config.AllSensors.elements:
 				    currSensor = self.config.AllSensors.elements[sensor]
 				    if (currSensor.fields['sensor'].translate(None, '. ') == HEX.translate(None, '. ')):
 					print (u"Sensor ELA-" + currSensor.fields['sensor']+ u": " + currSensor.fields['acronym'] +u" = "+str(temperature))
 					if not  currSensor.fields['formula'] == '' :
-					    temperature = str(eval(currSensor.fields['formula']))
-					currSensor.update(now, temperature, self.config)
+					    value = str(eval(currSensor.fields['formula']))
+					currSensor.update(now, value, self.config)
 			    line = None
 			else:
 			    line.append(data)
