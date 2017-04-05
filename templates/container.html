@@ -1,4 +1,4 @@
-$def with (id, mail)
+$def with (id, mail, errormess)
 
 
 $if id == 'new':
@@ -10,7 +10,9 @@ $else:
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
-	
+	<div class="form-group row" id="error">
+	    $errormess
+	</div>
 	<div class="form-group row">
 	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(self.lang)</label>
 	    <div class="col-sm-9">
@@ -46,7 +48,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <div class="col-sm-9">
 		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.AllMessages.elements['code'].getName(self.lang)" 
 		$if id != 'new':
-		    value="$c.AllBarcodes.get_barcode(c.AllContainers.elements[id].getType(), id)"
+		    value="$c.AllBarcodes.get_barcode(c.AllContainers.elements[id].get_type(), id)"
 		required="true">
 	    </div>
 	</div>

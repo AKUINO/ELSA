@@ -42,7 +42,7 @@ web.template.Template.globals['c'] = c
 
 useful.send_email('franco.maxime@gmail.com','Demarrage Elsa','Demarrage du systeme')
 
-print c.AllGroups.elements['8'].groups
+print c.AllBarcodes.add_barcode(c.AllPieces.elements['2'],'112233344442',c.AllUsers.elements['6'])
 
 class WebObject():
     def __init__(self):
@@ -68,7 +68,7 @@ class WebObjectUpdate():
     def GET(self,id):
 	mail = isConnected()
 	if mail is not None:
-	    return self.getRender(id,mail)
+	    return self.getRender(id,mail, '')
 	raise web.seeother('/')
 	
     def POST(self, id):
@@ -81,57 +81,67 @@ class WebObjectUpdate():
 	    web.setcookie('webpy', infoCookie, expires=900)
 	    if currObject is None:
 		raise web.seeother('/')
-		
+	    
 	    data = web.input(placeImg={})
 	    method = data.get("method","malformed")
-	    for key in c.getFieldsname(self.name):
-		if key in data:
-		    currObject.fields[key] = data[key]
+	    cond = currObject.validate_form(data, c, user.fields['language'])
+	    print '\n'
+	    print cond
+	    print data
+	    print '\n'
+	    if cond is True:
+		for key in c.getFieldsname(self.name):
+		    if key in data:
+			currObject.fields[key] = data[key]
+			
+		for key in c.AllLanguages.elements:
+		    if key in data:
+			currObject.setName(key, data[key],user, c.getKeyColumn(currObject))
+			
+		if 'deny'in data:
+		    currObject.fields['deny'] = 1
+		else:
+		    currObject.fields['deny'] = 0
+		
+		if 'remark' in currObject.fields:
+		    currObject.fields['remark'] = currObject.fields['remark'][:-1]
 		    
-	    for key in c.AllLanguages.elements:
-		if key in data:
-		    currObject.setName(key, data[key],user, c.getKeyColumn(currObject))
+		if currObject.creator is None:
+		    currObject.creator = user.fields['u_id']
+		    currObject.created = currObject.fields['begin']
 		    
-	    if 'deny'in data:
-		currObject.fields['deny'] = 1
-	    else:
-		currObject.fields['deny'] = 0
-	    
-	    if 'remark' in currObject.fields:
-		currObject.fields['remark'] = currObject.fields['remark'][:-1]
+		if 'password' in currObject.fields:
+		    currObject.fields['registration'] = currObject.created
+		    currObject.fields['password'] = useful.encrypt(currObject.fields['password'],currObject.created)
+		    
+		if 'code' in data:
+		    c.AllBarcodes.add_barcode(currObject, data['code'], user)
+		    
+		if 'component' in data:
+		    currObject.addComponent(data['component'])
+		    
+		if 'phase' in data:
+		    currObject.addPhase(data['phase'])
+		    
+		if'measure' in data:
+		    currObject.addMeasure(data['measure'])
 		
-	    if currObject.creator is None:
-		currObject.creator = user.fields['u_id']
-		currObject.created = currObject.fields['begin']
-		
-	    if 'password' in currObject.fields:
-		currObject.fields['registration'] = currObject.created
-		currObject.fields['password'] = useful.encrypt(currObject.fields['password'],currObject.created)
-		
-	    if 'code' in data:
-		c.AllBarcodes.add_barcode(currObject, data['code'], user)
-		
-	    if 'component' in data:
-		currObject.addComponent(data['component'])
-		
-	    if 'phase' in data:
-		currObject.addPhase(data['phase'])
-		
-	    if'measure' in data:
-		currObject.addMeasure(data['measure'])
-	    
-	    if data['placeImg'] != {}: 
-		if data.placeImg.filename != '': 
-		    printinfo(data['placeImg'])
-		    filepath = data.placeImg.filename.replace('\\','/') 
-		    ext = ((filepath.split('/')[-1]).split('.')[-1])
-		    fout = open(currObject.getImageDirectory()+'jpg','w')
-		    fout.write(data.placeImg.file.read())
-		    fout.close()
-	    currObject.save(c,user)
-	    if currObject.__class__.__name__ == u"Sensor" and id == 'new':
-		currObject.createRRD()
-	    return self.getListing(mail)
+		if data['placeImg'] != {}: 
+		    if data.placeImg.filename != '': 
+			printinfo(data['placeImg'])
+			filepath = data.placeImg.filename.replace('\\','/') 
+			ext = ((filepath.split('/')[-1]).split('.')[-1])
+			fout = open(currObject.getImageDirectory()+'jpg','w')
+			fout.write(data.placeImg.file.read())
+			fout.close()
+		currObject.save(c,user)
+		if currObject.__class__.__name__ == u"Sensor" and id == 'new':
+		    currObject.createRRD()
+		return self.getListing(mail)
+	    else :
+		if id == 'new' :
+		    currObject.delete(c)
+		return self.getRender(id, mail, cond)
 	raise web.seeother('/')
 	
 class WebIndex(WebObject):
@@ -159,8 +169,8 @@ class WebPlace(WebObjectUpdate):
     def __init__(self):
 	self.name=u"WebPlace"
 	
-    def getRender(self, id, mail):
-	return render.place(id,mail)
+    def getRender(self, id, mail, errormess):
+	return render.place(id,mail, errormess)
 	
     def getListing(self,mail):
 	return render.listing(mail,'places')
@@ -187,8 +197,8 @@ class WebUser(WebObjectUpdate):
     def __init__(self):
 	self.name=u"WebUser"
 	
-    def getRender(self, id, mail):
-	return render.user(id,mail)
+    def getRender(self, id, mail, mess):
+	return render.user(id,mail, mess)
 	
     def getListing(self,mail):
 	return render.listing(mail,'users')
@@ -204,8 +214,8 @@ class WebGroup(WebObjectUpdate):
     def __init__(self):
 	self.name=u"WebGroup"
 	
-    def getRender(self, id, mail):
-	return render.group(id,mail)
+    def getRender(self, id, mail, mess):
+	return render.group(id,mail, mess)
 	
     def getListing(self,mail):
 	return render.listing(mail,'groups')
@@ -274,8 +284,8 @@ class WebContainer(WebObjectUpdate):
     def __init__(self):
 	self.name=u"WebContainer"
 	
-    def getRender(self, id, mail):
-	return render.container(id,mail)
+    def getRender(self, id, mail, mess):
+	return render.container(id,mail, mess)
     
     def getListing(self,mail):
 	return render.listing(mail,'containers')
@@ -292,8 +302,8 @@ class WebMeasure(WebObjectUpdate):
     def __init__(self):
 	self.name=u"WebMeasure"
 	
-    def getRender(self, id, mail):
-	return render.measure(id,mail)
+    def getRender(self, id, mail, mess):
+	return render.measure(id,mail, mess)
     
     def getListing(self,mail):
 	return render.listing(mail,'measures')
@@ -310,8 +320,8 @@ class WebSensor(WebObjectUpdate):
     def __init__(self):
 	self.name=u"WebSensor"
 	
-    def getRender(self, id, mail):
-	return render.sensor(id,mail)
+    def getRender(self, id, mail, mess):
+	return render.sensor(id,mail, mess)
     
     def getListing(self,mail):
 	return render.listing(mail,'sensors')
@@ -361,8 +371,8 @@ class WebAlarm(WebObjectUpdate):
     def __init__(self):
 	self.name=u"WebAlarm"
 	
-    def getRender(self, id, mail):
-	return render.alarm(id,mail)
+    def getRender(self, id, mail, mess):
+	return render.alarm(id,mail, mess)
 	
     def getListing(self,mail):
 	return render.listing(mail,'alarms')

@@ -142,6 +142,11 @@ form{
     font-size:18px;
 }
 
+#error{
+    color : red;
+    font-size:20px;
+}
+
 .button-holder {
 	width: 40px;
 	display: inline-block;

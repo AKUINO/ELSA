@@ -12,7 +12,7 @@ import threading
 import time
 import os
 import rrdtool
-import ow
+#import ow
 import serial
 import myuseful as useful
 import HardConfig as hardconfig
@@ -30,8 +30,8 @@ barcodesDir = 'barcodes/'
 
 class Configuration():
     def __init__(self):
-	ow.init("/dev/i2c-1")
-	self.HardConfig = hardconfig.HardConfig()
+	#ow.init("/dev/i2c-1")
+	#self.HardConfig = hardconfig.HardConfig()
 	self.InfoSystem = InfoSystem()
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
@@ -72,8 +72,8 @@ class Configuration():
 	#doit toujours être appelé à la fin
 	self.AllBarcodes.load()
 	self.loadRelation()
-	self.UpdateThread.start()
-	self.RadioThread.start()
+	#self.UpdateThread.start()
+	#self.RadioThread.start()
 	
     
     def findAllFromObject(self,anObject):
@@ -220,7 +220,7 @@ class Configuration():
 	return tmp
 
     def get_parents_list(self, item):
-	if item.getType() == 'g':
+	if item.get_type() == 'g':
 	    return self.AllGroups.get_parents(item)
 	listparents = []
 	for k,g in item.groups.items():
@@ -231,7 +231,7 @@ class Configuration():
 	return listparents
 	
     def get_children_list(self, item):
-	if item.getType() == 'g':
+	if item.get_type() == 'g':
 	    return self.AllGroups.get_children(item)
 	listchildren = []
 	for k,g in item.groups.items():
@@ -362,7 +362,7 @@ class ConfigurationObject():
 	with open(configuration.csvCodes,"a") as csvfile:
 	    tmpCode={}
 	    tmpCode['begin'] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
-	    tmpCode['type'] = self.getType()
+	    tmpCode['type'] = self.get_type()
 	    tmpCode['idobject'] = self.fields[allObjects.keyColumn]
 	    tmpCode['code'] = self.code
 	    tmpCode["user"] = anUser.fields['u_id']
@@ -378,7 +378,7 @@ class ConfigurationObject():
 		tmpCode['begin'] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
 		tmpCode['g_id'] = k
 		tmpCode['idobject'] = self.fields[allObjects.keyColumn]
-		tmpCode['type'] = self.getType()
+		tmpCode['type'] = self.get_type()
 		tmpCode["user"] = anUser.fields['u_id']
 		tmpCode['deny'] = '0'
 		writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames = configuration.fieldrelations, encoding="utf-8")
@@ -470,11 +470,45 @@ class ConfigurationObject():
 	    tmpCode['begin'] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
 	    tmpCode['g_id'] = groupid
 	    tmpCode['idobject'] = self.fields[allObjects.keyColumn]
-	    tmpCode['type'] = self.getType()
+	    tmpCode['type'] = self.get_type()
 	    tmpCode["user"] = user.fields['u_id']
 	    tmpCode['deny'] = deny
 	    writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames = configuration.fieldrelations, encoding="utf-8")
 	    writer.writerow(tmpCode)
+	    
+    def validate_form(self, data, configuration, lang) :
+	tmp = ''
+	if 'acronym' not in data :
+	    tmp = configuration.AllMessages.elements['acronymrequired'].getName(lang) + '\n'
+	try :
+	    cond = data['acronym'] == re.sub('[^\w]+', '', data['acronym'])
+	    if not cond :
+		tmp += configuration.AllMessages.elements['acronymrules'].getName(lang) + '\n'
+	except : 
+	    tmp += configuration.AllMessages.elements['acronymrules'].getName(lang) + '\n'
+	
+	allObjects = configuration.findAllFromObject(self)    
+	cond = allObjects.unique_acronym( data['acronym'], self.id)
+	if not cond :
+	    tmp += configuration.AllMessages.elements['acronymunique'].getName(lang) + '\n'
+	code = int(data['code'])
+	configuration.AllBarcodes.validate_barcode(code, self.id, self.get_type())
+	try :
+	    if 'code' in data :
+		code = int(data['code'])
+		configuration.AllBarcodes.validate_barcode(code, self.id, self.get_type())
+	except:
+	    tmp += configuration.AllMessages.elements['barcoderules'].getName(lang) + '\n'
+	if tmp == '':
+	    return True
+	return tmp
+	
+    def delete(self, configuration):
+	allObjects = configuration.findAllFromObject(self)
+	allObjects.delete(self.id)
+	
+	
+	
 
 class UpdateThread(threading.Thread):
 
@@ -530,9 +564,7 @@ class RadioThread(threading.Thread):
 					    print (u"Sensor ELA-" + currSensor.fields['sensor']+ u": " + currSensor.fields['acronym'] +u" = "+str(value))
 					    currSensor.update(now, value, self.config)
 				    except : 
-					    print "Error dans la formule"
-					    
-					
+					    print "Error dans la formule"					
 			    line = None
 			else:
 			    line.append(data)
@@ -621,6 +653,11 @@ class AllObjects():
 	elif iditem in self.elements.keys():
 	    return self.elements[iditem]
 	return None
+	
+    def delete(self, anID):
+	print self.elements
+	del self.elements[str(anID)]
+	print self.elements
     
     
 	        
@@ -918,65 +955,70 @@ class AllBarcodes(AllObjects):
 	
     def get_barcode(self, myType, myID):
 	for k  in self.elements.keys():
-	    if self.elements[k].element.getType() == myType and self.elements[k].element.getID() == myID:
+	    if self.elements[k].element.get_type() == myType and self.elements[k].element.getID() == myID:
 		return k
 	return ''
 	
-    def unique_barcode(self,barcode, myID, myType):
+    def unique_barcode(self,code, myID, myType):
 	for k,v in self.elements.items():
-	    if barcode == k and not myID == v.getID() and not myType == v.fields['type']:
+	    if code == k and not myID == v.getID() and not myType == v.fields['type']:
 		return False
 	return True
     
-    def add_barcode(self, item, barcode, user):
-	if self.unique_barcode(barcode, item.getID(), item.getType()) :
-	    oldBarcode = self.get_barcode( item.getType(), item.getID())
-	    if not oldBarcode == barcode and not oldBarcode == '' :
+    def add_barcode(self, item, code, user):
+	if self.unique_barcode(code, item.getID(), item.get_type()) :
+	    oldBarcode = self.get_barcode( item.get_type(), item.getID())
+	    if not oldBarcode == code and not oldBarcode == '' :
 		self.delete_barcode(oldBarcode, user)
-		self.elements[barcode] = self.create_barcode(item, barcode, user)
+	    self.elements[code] = self.create_barcode(item, code, user)
 	
     def delete_barcode(self, oldBarcode, user):
 	self.write_csv( oldBarcode, 0, user)
 	del self.elements[oldBarcode]
 	
-    def write_csv(self, barcode, deny, user):
+    def write_csv(self, code, deny, user):
 	with open(self.fileobject,"a") as csvfile:
-	    tmpCode=self.create_fields(barcode, deny, user)
+	    tmpCode=self.create_fields(code, deny, user)
             writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames = self.fieldnames, encoding="utf-8")
             writer.writerow(tmpCode)
 	    
-    def create_barcode(self, item, barcode, user):
+    def create_barcode(self, item, code, user):
 	tmp = self.newObject(item)
-	fields = self.create_fields( barcode, 1, user, item)
+	fields = self.create_fields( code, 1, user, item)
 	tmp.fields = fields
-	self.elements[barcode] = tmp
+	self.elements[code] = tmp
 	tmp.element = item
-	self.write_csv(barcode, 1, user)
+	self.write_csv(code, 1, user)
 	return tmp
 	
-    def create_fields(self, barcode,deny, user, item = None):
+    def create_fields(self, code,deny, user, item = None):
 	fields = {}
 	fields['begin'] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
 	if item is None :
-	    fields['type'] = self.elements[barcode].element.getType()
-	    fields['idobject'] = self.elements[barcode].element.id
+	    fields['type'] = self.elements[code].element.get_type()
+	    fields['idobject'] = self.elements[code].element.id
 	else :
-	    fields['type'] = item.getType()
+	    fields['type'] = item.get_type()
 	    fields['idobject'] = item.id
-	fields['code'] = barcode
+	fields['code'] = code
 	fields['deny'] = deny
 	fields["user"] = user.fields['u_id']
 	return fields
 	
-    def validate_barcode(self, barcode):
-	if len(barcode) < 12 or len(barcode) >13 :
+    def validate_barcode(self, code, anID, aType):
+	if len(str(code)) < 12 or len(str(code)) >13 :
+	    print ' mauvaise taille'
 	    return False
 	try:
-	    EAN = barcode.get_barcode('ean13')
-	    ean = EAN(barcode)
-	    return True
+	    EAN = barcode.get_barcode_class('ean13')
+	    ean = EAN(str(code))
 	except :
+	    print 'pas ean'
 	    return False
+	if self.unique_barcode(code, anID, aType) is not True :
+	    print 'pas unique'
+	    return False
+	return True
 	    
     def to_pictures(self):
 	for k, v in self.elements.items():
@@ -1246,7 +1288,7 @@ class User(ConfigurationObject):
     def checkPassword(self,password):
 	return self.fields['password']==password
 	
-    def getType(self):
+    def get_type(self):
 	return 'u'
 
 	    
@@ -1280,7 +1322,7 @@ class Equipment(ConfigurationObject):
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
 	
-    def getType(self):
+    def get_type(self):
 	return 'e'
 	
     def getID(self):
@@ -1301,7 +1343,7 @@ class Container(ConfigurationObject):
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
 	
-    def getType(self):
+    def get_type(self):
 	return 'c'
 	
 	
@@ -1322,7 +1364,7 @@ class Group(ConfigurationObject):
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
 	
-    def getType(self):
+    def get_type(self):
 	return 'g'
 	
     def containsGroup(self, oGroup):
@@ -1359,7 +1401,7 @@ class Piece(ConfigurationObject):
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
 	
-    def getType(self):
+    def get_type(self):
 	return 'p'
 
 class Halfling(ConfigurationObject):
@@ -1378,7 +1420,7 @@ class Halfling(ConfigurationObject):
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
 	
-    def getType(self):
+    def get_type(self):
 	return 'halfling'
 	
     def getHalfling(self):
@@ -1400,7 +1442,7 @@ class Alarm(ConfigurationObject):
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
 	
-    def getType(self):
+    def get_type(self):
 	return 'a'
 	
     def get_alarm_message(self, sensor,config, lang):
@@ -1474,7 +1516,7 @@ class Measure(ConfigurationObject):
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
 	    
-    def getType(self):
+    def get_type(self):
 	return 'm'
 
 class Sensor(ConfigurationObject):
@@ -1515,20 +1557,11 @@ class Sensor(ConfigurationObject):
 	if self.fields['lapse3'] =='':
 	    self.fields['lapse3'] = 99999
 	
-    def getType(self):
+    def get_type(self):
 	return 'cpehm'
 	
     def getRRDName(self):
-	name = ''
-	if not self.fields['p_id'] == '':
-	    name += 'P' + str(self.fields['p_id'])
-	elif not self.fields['c_id'] == '':
-	    name += 'C' + str(self.fields['c_id'])  
-	elif not self.fields['e_id'] == '':
-	    name += 'E' + str(self.fields['e_id'])
-	if not self.fields['h_id'] == '':
-	    name += 'H' + str(self.fields['h_id'])
-	name += 'M' + str(self.fields['m_id'])
+	name = 'cpehm_' + str(self.id)
 	name += '.rrd'
 	return name
 
