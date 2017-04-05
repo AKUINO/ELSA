@@ -244,7 +244,7 @@ class WebPermission(WebObjectUpdate):
 			listgroups[k] = group
 	    currObject.groups = listgroups
 	    currObject.saveGroups(c,user)
-	    return get_listing(id, mail)
+	    return self.get_listing(id, mail)
 	return render.index(False,'')
 	
     def get_listing(self, id, mail):

@@ -894,9 +894,6 @@ class AllBarcodes(AllObjects):
         return Barcode(item)
 	
     def get_barcode(self, myType, myID):
-	print 'FLIP'
-	print self.elements
-	print 'Floup\n'
 	for k  in self.elements.keys():
 	    if self.elements[k].element.getType() == myType and self.elements[k].element.getID() == myID:
 		return k
