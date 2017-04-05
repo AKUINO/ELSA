@@ -526,7 +526,7 @@ class RadioThread(threading.Thread):
 				    if (currSensor.fields['sensor'].translate(None, '. ') == HEX.translate(None, '. ')):
 					print (u"Sensor ELA-" + currSensor.fields['sensor']+ u": " + currSensor.fields['acronym'] +u" = "+str(temperature))
 					if not  currSensor.fields['formula'] == '' :
-					    temperature = str(eval(self.fields['formula']))
+					    temperature = str(eval(currSensor.fields['formula']))
 					currSensor.update(now, temperature, self.config)
 			    line = None
 			else:
