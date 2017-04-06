@@ -1,6 +1,10 @@
 begin	m_id	default	user
 01/01/2016 13:45:56	name	Name	1
 01/01/2016 13:45:56	cancel	Cancel	1
+01/01/2016 13:45:56	acronymrequired	Acronym is required !	1
+01/01/2016 13:45:56	acronymunique	Acronym must be unique !	1
+01/01/2016 13:45:56	acronymrules	Acronym can only contain letters, digits and _!	1
+01/01/2016 13:45:56	barcoderules	Barcode must be an EAN 13!\nBarcode must be unique!	1
 01/01/2016 13:45:56	begin	Begin	1
 01/01/2016 13:45:56	group	Group	1
 01/01/2016 13:45:56	deny	Deny	1
