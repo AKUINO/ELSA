@@ -42,7 +42,7 @@ web.template.Template.globals['c'] = c
 
 useful.send_email('franco.maxime@gmail.com','Demarrage Elsa','Demarrage du systeme')
 
-print c.AllGroups.elements['8'].groups
+
 
 class WebObject():
     def __init__(self):
