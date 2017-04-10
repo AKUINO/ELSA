@@ -98,8 +98,16 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <label for="channelSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['channel'].getName(self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "channel" class="form-control" id="channelSelect">
-		    <option value="wire">wire</option>
-		    <option value="radio">radio</option>
+		    <option value="wire"
+			$if id != 'new':
+			    $if "wire" == c.AllSensors.elements[id].fields['channel'] :
+				selected
+			>wire</option>
+		    <option value="radio"
+			$if id != 'new':
+			    $if "radio" == c.AllSensors.elements[id].fields['channel'] :
+				selected
+		    >radio</option>
 		</select>
 	    </div>
 	</div>
@@ -152,17 +160,30 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 		<input name="subsensor" type="text" class="form-control" id="inputUnit" placeholder="$c.AllMessages.elements['subsensor'].getName(self.lang)" 
 		$if id != 'new':
 		    value="$c.AllSensors.elements[id].fields['subsensor']"
-		required="true">
+		>
 	    </div>
 	</div>
 	
 	<div class="form-group row">
 	    <label for="inputValuetype" class="col-sm-3 col-form-label">$c.AllMessages.elements['valuetype'].getName(self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="valuetype" type="text" class="form-control" id="inputValuetype" placeholder="$c.AllMessages.elements['valuetype'].getName(self.lang)" 
-		$if id != 'new':
-		    value="$c.AllSensors.elements[id].fields['valuetype']"
-		required="true">
+		<select name = "valuetype" class="form-control" id="channelSelect">
+		    <option value="float"
+			$if id != 'new':
+			    $if "float" == c.AllSensors.elements[id].fields['valuetype'] :
+				selected
+			>float</option>
+		    <option value="int"
+			$if id != 'new':
+			    $if "int" == c.AllSensors.elements[id].fields['valuetype'] :
+				selected
+		    >int</option>
+		    <option value="hexa"
+			$if id != 'new':
+			    $if "hexa" == c.AllSensors.elements[id].fields['valuetype'] :
+				selected
+		    >hexa</option>
+		</select>
 	    </div>
 	</div>
 	

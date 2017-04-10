@@ -575,7 +575,6 @@ class RadioThread(threading.Thread):
         try:
 	    elaSerial = serial.Serial(ttyDir, self.config.HardConfig.ela_bauds, timeout=0.01)
 	    time.sleep(0.05)
-	    #reset to manufacturer settings
 	    elaSerial.write(self.config.HardConfig.ela_reset)
 	    line = None
 	    while self.config.isThreading is True:
@@ -686,8 +685,10 @@ class AllObjects():
 	return currObject
 	
     def unique_acronym(self, acronym, myID):
+	print myID
+	print acronym
 	for k, element in self.elements.items():
-	    if element.fields['acronym'] == acronym and myID != element.fields[self.keyColumn] :
+	    if element.fields['acronym'] == acronym and str(myID) != str(element.fields[self.keyColumn]) :
 		return False
 	return True
 	
