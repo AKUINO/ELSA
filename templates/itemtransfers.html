@@ -1,0 +1,66 @@
+$def with (type, id, mail)
+$code:
+    allobjects = c.findAllFromType(type)
+    elem = allobjects.elements[id]
+    keyID = c.findAllFromObject(elem).keyColumn
+    
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$var location: transfers/
+
+<div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+    <div class="col-xs-12" >
+	<div class="col-xs-1" >
+	$if 'deny' in elem.fields :
+	    $if elem.fields['deny'] == '0' or  elem.fields['deny'] == 0 :
+		<span class="glyphicon glyphicon-remove-circle"> </span>
+	    $else:
+		<span class="glyphicon glyphicon-ok-circle"> </span>
+	</div>
+	<div class="col-xs-4" >
+	    $elem.fields['acronym']
+	</div>
+	<div class="col-xs-7">
+	    <strong>$elem.getName(self.lang)</strong>
+	</div>
+    </div>
+    <div class="col-xs-12" id="listing">
+	<div class="col-xs-4" >
+	</div>
+	$if type == 'cpehm':
+	    <div class="col-xs-2" >
+		<strong><a href="/graphic/$elem.fields[keyID]" class="btn btn-warning" role="button"><span class="halflings halflings-stats"></span></a></strong>
+	    </div>
+	$elif type == 'b':
+	    <div class="col-xs-2" >
+		<strong><a href="#" class="btn btn-warning" role="button"><span class="halflings halflings-transfer"></span></a></strong>
+	    </div>
+	$else:
+	    <div class="col-xs-2" >
+	    </div>
+	<div class="col-xs-2">
+	    <strong><a href="/$(elem.get_name_listing())/$(elem.fields[keyID])" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
+	</div>
+	<div class="col-xs-2">
+	    <strong><a href="/permissions/$(type)_$elem.fields[keyID]" class="btn btn-warning" role="button"><span class="halflings halflings-group"></span></a></strong>
+	</div>
+	<div class="col-xs-2">
+	    <button type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#$elem.fields[keyID]Modal"><span class="halflings halflings-info-sign"></span></button>
+	</div>
+    </div>
+</div>
+
+$for transfer in elem.position:
+    <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+	<div class="col-xs-4" >
+	    $transfer.fields['begin']
+	</div>
+	$code :
+	    cont = c.findAllFromType(transfer.fields['cont_type']).elements[transfer.fields['cont_id']]
+	    
+	<div class="col-xs-4" >
+	    <a href="/$(cont.get_name_listing())/" >$cont.fields['acronym'] - $cont.getName(self.lang)</a>
+	</div>
+	<div class="col-xs-4" >
+	    $transfer.fields['remark']
+	</div>
+    </div>

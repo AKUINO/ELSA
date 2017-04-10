@@ -79,8 +79,8 @@ $def with(content)
 			<ul class="dropdown-menu">
 			    <li><a href="#" tabindex="-1"><span class="$c.AllHalflings.elements['recipe'].getHalfling()"></span> Recipe</a></li>
 			    <li><a href="#" tabindex="-2"><span class="$c.AllHalflings.elements['recipeStep'].getHalfling()"></span> Recipe Step</a></li>
-			    <li><a href="#" tabindex="-3"><span class="$c.AllHalflings.elements['batch'].getHalfling()"></span> Batch</a></li>
-			    <li><a href="#" tabindex="-4"><span class="$c.AllHalflings.elements['transfer'].getHalfling()"></span> Transfer</a></li>
+			    <li><a href="/batches/" tabindex="-3"><span class="$c.AllHalflings.elements['batch'].getHalfling()"></span> $c.AllMessages.elements['batch'].getName(content.lang)</a></li>
+			    <li><a href="/transfers/" tabindex="-4"><span class="$c.AllHalflings.elements['transfer'].getHalfling()"></span> $c.AllMessages.elements['transfer'].getName(content.lang)</a></li>
 			    <li><a href="#" tabindex="-5"><span class="$c.AllHalflings.elements['ToDo'].getHalfling()"></span> ToDo</a></li>
 			</ul>
 		    </li>

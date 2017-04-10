@@ -30,6 +30,12 @@ urls = (
     '/graphic/(.+)', 'WebSensorGraph',
     '/alarms/', 'WebAlarms',
     '/alarms/(.+)', 'WebAlarm',
+    '/batches/', 'WebBatches',
+    '/batches/(.+)', 'WebBatch',
+    '/transfers/(.+)/(.+)', 'WebCreateTransfer',
+    '/transfers/', 'WebTransfers',
+    '/transfers/(.+)', 'WebTransfer',    
+    '/listing/(.+)', 'WebListing',    
 )
 
 #Configuration Singleton ELSA
@@ -40,13 +46,15 @@ web.template.Template.globals['c'] = c
 #Ligne 62 - connexion 9000 a la place de 900
 #
 
-useful.send_email('franco.maxime@gmail.com','Demarrage Elsa','Demarrage du systeme')
+#useful.send_email('franco.maxime@gmail.com','Demarrage Elsa','Demarrage du systeme')
 
-print c.AllBarcodes.add_barcode(c.AllPieces.elements['2'],'112233344442',c.AllUsers.elements['6'])
+for i in range(len(c.AllBatches.elements['1'].position)):
+    print c.AllBatches.elements['1'].position[i].created
 
 class WebObject():
     def __init__(self):
 	self.name = u"WebIndex"
+	
     def GET(self):
 	mail = isConnected()
 	if mail is not None:
@@ -84,11 +92,11 @@ class WebObjectUpdate():
 	    
 	    data = web.input(placeImg={})
 	    method = data.get("method","malformed")
-	    cond = currObject.validate_form(data, c, user.fields['language'])
-	    print '\n'
-	    print cond
-	    print data
-	    print '\n'
+	    cond = False
+	    if currObject.get_type() == 't' :
+		 cond = True
+	    else :
+		cond = currObject.validate_form(data, c, user.fields['language'])
 	    if cond is True:
 		for key in c.getFieldsname(self.name):
 		    if key in data:
@@ -99,9 +107,9 @@ class WebObjectUpdate():
 			currObject.setName(key, data[key],user, c.getKeyColumn(currObject))
 			
 		if 'deny'in data:
-		    currObject.fields['deny'] = 1
+		    currObject.set_deny('1')
 		else:
-		    currObject.fields['deny'] = 0
+		    currObject.set_deny('0')
 		
 		if 'remark' in currObject.fields:
 		    currObject.fields['remark'] = currObject.fields['remark'][:-1]
@@ -125,6 +133,10 @@ class WebObjectUpdate():
 		    
 		if'measure' in data:
 		    currObject.addMeasure(data['measure'])
+		    
+		if 'position' in data :
+		    currObject.set_position(data['position'])
+		    currObject.set_object(data['object'])
 		
 		if data['placeImg'] != {}: 
 		    if data.placeImg.filename != '': 
@@ -180,8 +192,8 @@ class WebEquipment(WebObjectUpdate):
     def __init__(self):
 	self.name=u"WebEquipment"
 	
-    def getRender(self, id, mail):
-	return render.equipment(id,mail)
+    def getRender(self, id, mail, errormess):
+	return render.equipment(id,mail, errormess)
 	
     def getListing(self,mail):
 	return render.listing(mail,'equipments')
@@ -224,7 +236,7 @@ class WebPermission(WebObjectUpdate):
     def __init__(self):
 	self.name=u"WebPermission"
 	
-    def getRender(seld,id,mail):
+    def getRender(self,id,mail, error):
 	typeobject = id.split('_')[0]
 	idobject = id.split('_')[1]
 	return render.permissions(mail,idobject,typeobject)
@@ -326,6 +338,41 @@ class WebSensor(WebObjectUpdate):
     def getListing(self,mail):
 	return render.listing(mail,'sensors')
 	
+class WebTransfers(WebObject):
+    def __init__(self):
+	self.name=u"Transfers"
+    
+    def getRender(self, mail):
+	return render.listingtransfers(mail)	
+
+class WebTransfer(WebObjectUpdate):
+    def __init__(self):
+	self.name=u"WebTransfer"
+	
+    def getRender(self, id, mail, mess):
+	myID = id.split('_')[1]
+	myType = id.split('_')[0]
+	return render.itemtransfers(myType,myID,mail)
+    
+    def getListing(self,mail):
+	return render.listingtransfers(mail)
+	
+class WebCreateTransfer():
+    def __init__(self):
+	self.name=u"WebTransfer"
+    
+    def GET(self, id1,id2):
+	mail = isConnected()
+	if mail is not None:
+	    return self.getRender(id2,mail, '')
+	return render.index(False,'')	
+    
+    def getRender(self, id, mail, mess):
+	return render.transfer(id,mail, mess)
+    
+    def getListing(self,mail):
+	return render.listingtransfers(mail)
+	
 class getRRD(): 
     def GET(self, filename):
         try: 
@@ -377,6 +424,39 @@ class WebAlarm(WebObjectUpdate):
     def getListing(self,mail):
 	return render.listing(mail,'alarms')
 	
+	
+class WebBatches(WebObject):
+    def __init__(self):
+	self.name=u"WebBatches"
+	
+    def getRender(self, mail):
+	return render.listing(mail,'batches')
+
+class WebBatch(WebObjectUpdate):
+    def __init__(self):
+	self.name=u"WebBatch"
+	
+    def getRender(self, id, mail, mess):
+	return render.batch(id,mail, mess)
+	
+    def getListing(self,mail):
+	return render.listing(mail,'batches')
+	
+class WebListing():
+    def __init__(self):
+	self.name=u"WebListing"
+	
+    def GET(self, id):
+	mail = isConnected()
+	if mail is not None:
+	    return self.getRender(id,mail, '')
+	return render.index(False,'')
+	
+    def getRender(self,id,mail, error):
+	typeobject = id.split('_')[0]
+	idobject = id.split('_')[1]
+	return render.listingcomponent(mail,idobject,typeobject)
+	
 
 def connexion(username,password):
     user = c.AllUsers.getUser(username)
@@ -394,10 +474,13 @@ def isConnected():
 	    return infoCookie[0]
     return None
 
+def notfound():
+    return web.notfound(render.notfound())
 
 if __name__ == "__main__":
     try:
 	app = web.application(urls, globals())
+	app.notfound = notfound
 	app.run()
 	
     except KeyboardInterrupt:

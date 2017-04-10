@@ -6,6 +6,8 @@ $if type == 'places':
 	imgDir = '/static/img/p/place_'
 	keyID = c.AllPieces.keyColumn
 	permissionKey = 'p_'
+	lname = 'place'
+	
 $elif type == 'users':
     $var location: users/
     $code :
@@ -13,6 +15,8 @@ $elif type == 'users':
 	imgDir = '/static/img/u/user_'
 	keyID = c.AllUsers.keyColumn	
 	permissionKey = 'u_'
+	lname = 'user'
+	
 $elif type == 'equipments':
     $var location: equipments/
     $code :
@@ -20,6 +24,8 @@ $elif type == 'equipments':
 	imgDir = '/static/img/e/equipment_'
 	keyID = c.AllEquipments.keyColumn
 	permissionKey = 'e_'
+	lname = 'equipment'
+	
 $elif type == 'groups':
     $var location: groups/
     $code :
@@ -27,6 +33,7 @@ $elif type == 'groups':
 	imgDir = '/static/img/g/group_'
 	keyID = c.AllGroups.keyColumn
 	permissionKey = 'g_'
+	lname = 'group'
 $elif type == 'containers':
     $var location: containers/
     $code :
@@ -34,6 +41,8 @@ $elif type == 'containers':
 	imgDir = '/static/img/c/container_'
 	keyID = c.AllContainers.keyColumn
 	permissionKey = 'c_'
+	lname = 'container'
+	
 $elif type == 'measures':
     $var location: measures/
     $code :
@@ -41,6 +50,8 @@ $elif type == 'measures':
 	imgDir = '/static/img/m/measure_'
 	keyID = c.AllMeasures.keyColumn
 	permissionKey = 'm_'
+	lname = 'measure'
+	
 $elif type == 'sensors':
     $var location: sensors/
     $code :
@@ -48,13 +59,34 @@ $elif type == 'sensors':
 	imgDir = '/static/img/pehm/sensor_'
 	keyID = c.AllSensors.keyColumn
 	permissionKey = 'cpehm_'
+	lname = 'sensor'
+	
 $elif type == 'alarms':
     $var location: alarms/
     $code :
 	elements = c.AllAlarms.elements
-	imgDir = '/static/img/pehm/alarm_'
+	imgDir = '/static/img/a/alarm_'
 	keyID = c.AllAlarms.keyColumn
 	permissionKey = 'a_'
+	lname = 'alarm'
+	
+$elif type == 'batches':
+    $var location: batches/
+    $code :
+	elements = c.AllBatches.elements
+	imgDir = '/static/img/b/batch_'
+	keyID = c.AllBatches.keyColumn
+	permissionKey = 'b_'
+	lname = 'batch'
+	
+$elif type == 'transfers':
+    $var location: transfers/
+    $code :
+	elements = c.AllTransfers.elements
+	imgDir = '/static/img/t/transfer_'
+	keyID = c.AllTransfers.keyColumn
+	permissionKey = 't_'
+	lname = 'transfer'
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $code:
@@ -63,10 +95,11 @@ $for a,elem in elements.items():
     <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<div class="col-xs-12" >
 	    <div class="col-xs-1" >
-	    $if elem.fields['deny'] == '0' or  elem.fields['deny'] == 0 :
-		<span class="glyphicon glyphicon-remove-circle"> </span>
-	    $else:
-		<span class="glyphicon glyphicon-ok-circle"> </span>
+	    $if 'deny' in elem.fields :
+		$if elem.fields['deny'] == '0' or  elem.fields['deny'] == 0 :
+		    <span class="glyphicon glyphicon-remove-circle"> </span>
+		$else:
+		    <span class="glyphicon glyphicon-ok-circle"> </span>
 	    </div>
 	    <div class="col-xs-4" >$elem.fields['acronym']</div>
 	    <div class="col-xs-7">
@@ -80,6 +113,10 @@ $for a,elem in elements.items():
 		<div class="col-xs-2" >
 		    <strong><a href="/graphic/$elem.fields[keyID]" class="btn btn-warning" role="button"><span class="halflings halflings-stats"></span></a></strong>
 		</div>
+	    $elif type == 'batches':
+		<div class="col-xs-2" >
+		    <strong><a href="/transfers/b_$(a)" class="btn btn-warning" role="button"><span class="halflings halflings-transfer"></span></a></strong>
+		</div>
 	    $else:
 		<div class="col-xs-2" >
 		</div>
@@ -90,7 +127,7 @@ $for a,elem in elements.items():
 		<strong><a href="/permissions/$(permissionKey)$elem.fields[keyID]" class="btn btn-warning" role="button"><span class="halflings halflings-group"></span></a></strong>
 	    </div>
 	    <div class="col-xs-2">
-		<button type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#$elem.fields[keyID]Modal"><span class="halflings halflings-info-sign"></button>
+		<button type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#$elem.fields[keyID]Modal"><span class="halflings halflings-info-sign"></span></button>
 	    </div>
 	</div>
     </div>
@@ -338,6 +375,6 @@ $for a,elem in elements.items():
     <div class="col-xs-5">
     </div>
     <div class="col-xs-6" id="addItem">
-	<a href="/$(type)/new"><span class="halflings halflings-plus">$c.AllMessages.elements[type[0:-1]].getName(self.lang)</a>
+	<a href="/$(type)/new"><span class="halflings halflings-plus"></span>$c.AllMessages.elements[lname].getName(self.lang)</a>
     </div>
 </div>    

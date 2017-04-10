@@ -1,0 +1,110 @@
+$def with (id, mail, errormess)
+
+
+$if id == 'new':
+    $var location: batches/ new
+    
+$else:
+    $var location: batches/ $c.AllBatches.elements[id].fields['b_id']
+
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+<div class="container">
+    <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
+	<div class="form-group row" id="error">
+	    $errormess
+	</div>
+	<div class="form-group row">
+	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(self.lang)</label>
+	    <div class="col-sm-9">
+		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.AllMessages.elements['acronym'].getName(self.lang)" 
+		$if id != 'new':
+		    value="$c.AllBatches.elements[id].fields['acronym']"
+		required="true">
+	    </div>
+	</div>
+	
+	
+	<div class="form-group row">
+	    <label for="inputName" class="col-sm-3 col-form-label">$c.AllMessages.elements['name'].getName(self.lang)</label>
+	</div>
+	
+	$for k,v in c.AllLanguages.elements.items():
+	    <div class="form-group row">
+		<div class="col-sm-1">
+		</div>
+		<div class="col-sm-3">
+		    <strong>$v.fields['name']</strong>
+		</div>
+		<div class="col-sm-8">
+		    <input name="$k" type="text" class="form-control" id="inputName" placeholder="Name"
+		$if id !='new':
+		    value="$c.AllBatches.elements[id].getName(self.lang)"
+		required="true" >
+		</div>
+	    </div>
+	
+	<div class="form-group row">
+	    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.AllMessages.elements['code'].getName(self.lang)</label>
+	    <div class="col-sm-9">
+		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.AllMessages.elements['code'].getName(self.lang)" 
+		$if id != 'new':
+		    value="$c.AllBarcodes.get_barcode(c.AllBatches.elements[id].get_type(), id)"
+		required="true">
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
+	    <div class="col-sm-9">
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >
+$if id != 'new':
+    $c.AllBatches.elements[id].fields['remark']
+</textarea>
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputDeny" class="col-sm-6 col-form-label">$c.AllMessages.elements['deny'].getName(self.lang)</label>
+	    <span class="glyphicon glyphicon-remove-circle"> </span>
+	    $code:
+		cond = not (id == 'new')
+		if cond :
+		    cond = (c.AllBatches.elements[id].fields['deny'] == 1 or c.AllBatches.elements[id].fields['deny'] == '1')
+	    $if cond :
+		<label class="switch">
+		    <input id='inputDeny' name="deny" type="checkbox" value="1" checked>
+		    <div class="slider round"></div>
+		</label>
+	    $else :
+		<label class="switch">
+		    <input id='inputDeny' name="deny" type="checkbox" value="1" >
+		    <div class="slider round"></div>
+		</label>
+	    <span class="glyphicon glyphicon-ok-circle"> </span>
+	</div>
+	
+	
+	<div class="form-group row">
+	    <label for="inputFile" class="col-sm-6 col-form-label">$c.AllMessages.elements['file'].getName(self.lang)</label>
+	    <label class="control-label"></label>
+	    <input id="inputFile" name="placeImg" multiple type="file" class="file file-loading" data-allowed-file-extensions='["jpg", "jpeg"]'>
+	</div>
+	
+	<div class="form-group row">
+	    <div class="col-sm-3">
+	    </div>
+	    <div class="col-sm-2">
+		<a href="/containers/" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+	    </div>
+	    <div class="col-sm-2">
+	    </div>
+	    <div class="col-sm-2">
+		<button type="submit" class="btn btn-primary btn-block">Save</button>
+	    </div> 
+	    <div class="col-sm-3">
+	    </div>
+	</div>
+	
+    </form>
+</div>
+

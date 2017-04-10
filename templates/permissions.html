@@ -56,6 +56,13 @@ $elif type == 'm':
 	imgDir = '/static/img/m/m_'
 	keyID = c.AllMeasures.keyColumn
 	classname = 'measure'
+$elif type == 'b':
+    $var location: batches/ $id
+    $code :
+	element = c.AllBatches.elements[id]
+	imgDir = '/static/img/b/b_'
+	keyID = c.AllBatches.keyColumn
+	classname = 'batch'
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 

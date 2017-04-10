@@ -1,6 +1,7 @@
 begin	m_id	default	user
 01/01/2016 13:45:56	name	Name	1
 01/01/2016 13:45:56	cancel	Cancel	1
+01/01/2016 13:45:56	selecttransfer	"Select the object to transfer"	1
 01/01/2016 13:45:56	acronymrequired	Acronym is required !	1
 01/01/2016 13:45:56	acronymunique	Acronym must be unique !	1
 01/01/2016 13:45:56	acronymrules	Acronym can only contain letters, digits and _!	1
@@ -27,6 +28,8 @@ begin	m_id	default	user
 01/01/2016 13:45:56	place	"Place"	1
 01/01/2016 13:45:56	equipment	"Equipment"	1
 01/01/2016 13:45:56	container	"Container"	1
+01/01/2016 13:45:56	batch	"Batch"	1
+01/01/2016 13:45:56	transfer	"Transfer"	1
 01/01/2016 13:45:56	measure	"Measure"	1
 01/01/2016 13:45:56	sensor	"Sensor"	1
 01/01/2016 13:45:56	alarm	"Alarm"	1

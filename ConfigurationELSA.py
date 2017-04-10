@@ -45,11 +45,13 @@ class Configuration():
 	self.AllEquipments = AllEquipments(self)
 	self.AllGroups = AllGroups(self)
 	self.AllMeasures = AllMeasures(self)
+	self.AllBatches = AllBatches(self)
 	self.AllSensors = AllSensors(self)
 	self.AllAlarms = AllAlarms(self)
 	self.AllHalflings = AllHalflings(self)
 	self.AllBarcodes = AllBarcodes(self)
 	self.connectedUsers = AllConnectedUsers()
+	self.AllTransfers = AllTransfers(self)
 	self.isThreading = True
 	self.UpdateThread = UpdateThread(self)
 	self.RadioThread = RadioThread(self)
@@ -69,9 +71,11 @@ class Configuration():
 	self.AllSensors.correctValueAlarm()
 	self.AllAlarms.load()
 	self.AllHalflings.load()
+	self.AllBatches.load()
 	#doit toujours être appelé à la fin
 	self.AllBarcodes.load()
 	self.loadRelation()
+	self.AllTransfers.load()
 	#self.UpdateThread.start()
 	#self.RadioThread.start()
 	
@@ -96,6 +100,10 @@ class Configuration():
 	    return self.AllSensors 
 	elif className == u"Alarm":
 	    return self.AllAlarms 
+	elif className == u"Batch":
+	    return self.AllBatches 
+	elif className == u"Transfer":
+	    return self.AllTransfers 
         else:
             return None
 	    
@@ -118,6 +126,10 @@ class Configuration():
 	    return self.AllSensors.getItem(idObject)
 	elif className == u"WebAlarm" or className == u"a":
 	    return self.AllAlarms.getItem(idObject)
+	elif className == u"WebBatch" or className == u"b":
+	    return self.AllBatches.getItem(idObject)
+	elif className == u"WebTransfer" or className == u"t":
+	    return self.AllTransfers.getItem(idObject)
         else:
             return None
     
@@ -140,6 +152,10 @@ class Configuration():
 	    return self.AllSensors.fieldnames 
 	elif className == u"WebAlarm":
 	    return self.AllAlarms.fieldnames
+	elif className == u"WebBatch":
+	    return self.AllAlarms.fieldnames
+	elif className == u"WebTransfer":
+	    return self.AllTransfers.fieldnames
         else:
             return None
 	    
@@ -166,6 +182,10 @@ class Configuration():
 	    return self.AllSensors
 	elif aType == u"a":
 	    return self.AllAlarms
+	elif aType == u"b":
+	    return self.AllBatches
+	elif aType == u"t":
+	    return self.AllTransfers
         else:
             return None
 	    
@@ -332,6 +352,7 @@ class ConfigurationObject():
         self.id = None
 	self.created = None
 	self.creator = None
+	self.position = []
 	
     def save(self,configuration,anUser=""):
         self.fields["begin"] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
@@ -491,10 +512,9 @@ class ConfigurationObject():
 	cond = allObjects.unique_acronym( data['acronym'], self.id)
 	if not cond :
 	    tmp += configuration.AllMessages.elements['acronymunique'].getName(lang) + '\n'
-	code = int(data['code'])
-	configuration.AllBarcodes.validate_barcode(code, self.id, self.get_type())
+
 	try :
-	    if 'code' in data :
+	    if 'code' in data and len(data['code']) >0 :
 		code = int(data['code'])
 		configuration.AllBarcodes.validate_barcode(code, self.id, self.get_type())
 	except:
@@ -507,7 +527,27 @@ class ConfigurationObject():
 	allObjects = configuration.findAllFromObject(self)
 	allObjects.delete(self.id)
 	
+    def set_deny(self, deny):
+	if 'deny' in self.fields :
+	    self.fields['deny'] = deny
+	    
+    def add_position(self, transfer):
+	self.position.append(transfer)
 	
+    def get_actual_position(self):
+	if len(self.position) > 0:
+	    return self.position[-1]
+	return None
+	
+    def is_actual_position(self, type, id):
+	tmp = self.get_actual_position()
+	if tmp is not None :
+	    if type == tmp.fields['cont_type'] and id == tmp.fields['cont_id']:
+		return True
+	return False
+	
+    def get_name_listing(self):
+	return 'index'
 	
 
 class UpdateThread(threading.Thread):
@@ -518,7 +558,7 @@ class UpdateThread(threading.Thread):
 
     def run(self):
 	time.sleep(60)
-	while self.config.isThreading:
+	while self.config.isThreading is True:
 	    now = useful.get_timestamp()
 	    self.config.InfoSystem.updateInfoSystem(now)
 	    if not len(self.config.AllSensors.elements) == 0 :
@@ -538,7 +578,7 @@ class RadioThread(threading.Thread):
 	    #reset to manufacturer settings
 	    elaSerial.write(self.config.HardConfig.ela_reset)
 	    line = None
-	    while self.config.isThreading:
+	    while self.config.isThreading is True:
 		try:
 		    data = elaSerial.read()
 		    now = useful.get_timestamp()
@@ -605,6 +645,10 @@ class AllObjects():
 		    currObject.created = currObject.fields['begin']
 		    currObject.creator = row['user']
 		self.elements[key] = currObject
+		if currObject.get_type() == 't':
+		    objects = self.config.findAllFromType(currObject.fields['object_type'])
+		    objects.elements[currObject.fields['object_id']].add_position(currObject)
+		    
 		
     def loadNames(self):
 	with open(self.filename) as csvfile:
@@ -643,7 +687,7 @@ class AllObjects():
 	
     def unique_acronym(self, acronym, myID):
 	for k, element in self.elements.items():
-	    if element.fields['acronym'] == acronym and myID != element.fields[element.keyColumn] :
+	    if element.fields['acronym'] == acronym and myID != element.fields[self.keyColumn] :
 		return False
 	return True
 	
@@ -917,11 +961,30 @@ class AllBatches(AllObjects):
 	AllObjects.__init__(self)
         self.elements = {}
         self.config = config
-        self.filename = csvDir + "B.csv"
+        self.fileobject = csvDir + "B.csv"
+	self.filename = csvDir + "Bnames.csv"
         self.keyColumn = "b_id"
+	self.fieldnames = ["begin", "b_id", "deny", "acronym", "remark", "user"]
+	self.fieldtranslate = ['begin', 'lang', 'b_id', 'name', 'user']
 
     def newObject(self):
         return Batch(self.config)
+	
+class AllTransfers(AllObjects):
+
+    def __init__(self, config):
+	AllObjects.__init__(self)
+        self.elements = {}
+        self.config = config
+        self.fileobject = csvDir + "T.csv"
+	self.filename = None
+        self.keyColumn = "t_id"
+	self.fieldnames = ["begin","t_id", "cont_id", "cont_type", "object_id", "object_type", "remark", "user"]
+	self.fieldtranslate = None
+
+    def newObject(self):
+        return Transfer(self.config)
+	
 
 class AllBarcodes(AllObjects):
 
@@ -955,7 +1018,7 @@ class AllBarcodes(AllObjects):
 	
     def get_barcode(self, myType, myID):
 	for k  in self.elements.keys():
-	    if self.elements[k].element.get_type() == myType and self.elements[k].element.getID() == myID:
+	    if self.elements[k].element.get_type() == myType and str(self.elements[k].element.getID()) == myID:
 		return k
 	return ''
 	
@@ -1007,16 +1070,14 @@ class AllBarcodes(AllObjects):
 	
     def validate_barcode(self, code, anID, aType):
 	if len(str(code)) < 12 or len(str(code)) >13 :
-	    print ' mauvaise taille'
 	    return False
 	try:
 	    EAN = barcode.get_barcode_class('ean13')
 	    ean = EAN(str(code))
 	except :
-	    print 'pas ean'
+	    traceback.print_exc() 
 	    return False
 	if self.unique_barcode(code, anID, aType) is not True :
-	    print 'pas unique'
 	    return False
 	return True
 	    
@@ -1244,7 +1305,7 @@ class Language(ConfigurationObject):
 	ConfigurationObject.__init__(self)
 
     def __repr__(self):
-        string = self.id + " " + self.fields['name']
+        string = str(self.id) + " " + self.fields['name']
         return string
 
     def __str__(self):
@@ -1252,13 +1313,14 @@ class Language(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
+	
+    def get_type(self):
+	return 'language'
 
 class Message(ConfigurationObject):
     
-    
-
     def __repr__(self):
-        string = self.id + " " + self.fields['default']
+        string = str(self.id) + " " + self.fields['default']
         return string
 
     def __str__(self):
@@ -1266,6 +1328,9 @@ class Message(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"	
+	
+    def get_type(self):
+	return 'message'
 	
 
 class User(ConfigurationObject):
@@ -1276,7 +1341,7 @@ class User(ConfigurationObject):
         self.context = Context()
 
     def __repr__(self):
-        string = self.id + " " + self.fields['acronym']
+        string = str(self.id) + " " + self.fields['acronym']
         return string
 
     def __str__(self):
@@ -1291,6 +1356,8 @@ class User(ConfigurationObject):
     def get_type(self):
 	return 'u'
 
+    def get_name_listing(self):
+	return 'users'
 	    
 class Role(ConfigurationObject):
 
@@ -1313,7 +1380,7 @@ class Equipment(ConfigurationObject):
 	ConfigurationObject.__init__(self)
 
     def __repr__(self):
-        string = self.id + " " + self.fields['acronym']
+        string = str(self.id) + " " + self.fields['acronym']
         return string
 
     def __str__(self):
@@ -1327,6 +1394,9 @@ class Equipment(ConfigurationObject):
 	
     def getID(self):
 	return self.fields['e_id']
+	
+    def get_name_listing(self):
+	return 'equipments'
 
 class Container(ConfigurationObject):
 
@@ -1334,7 +1404,7 @@ class Container(ConfigurationObject):
 	ConfigurationObject.__init__(self)
 
     def __repr__(self):
-        string = self.id + " " + self.fields['acronym']
+        string = str(self.id) + " " + self.fields['acronym']
         return string
 
     def __str__(self):
@@ -1345,6 +1415,9 @@ class Container(ConfigurationObject):
 	
     def get_type(self):
 	return 'c'
+	
+    def get_name_listing(self):
+	return 'containers'
 	
 	
 class Group(ConfigurationObject):
@@ -1383,6 +1456,8 @@ class Group(ConfigurationObject):
 	if ( not currContainsGroup ) and ( not groupContainsCurr ):
 	    self.groups[k] = group
 	    
+    def get_name_listing(self):
+	return 'groups'
 		
 
 class Piece(ConfigurationObject):
@@ -1403,6 +1478,9 @@ class Piece(ConfigurationObject):
 	
     def get_type(self):
 	return 'p'
+	
+    def get_name_listing(self):
+	return 'places'
 
 class Halfling(ConfigurationObject):
 
@@ -1498,6 +1576,9 @@ class Alarm(ConfigurationObject):
                 mess = self.get_alarm_message(sensor,config, lang)
                 title = self.get_alarm_title( sensor, config, lang)
 		useful.send_email(config.AllUsers.elements[user].fields['mail'], title, mess)
+		
+    def get_name_listing(self):
+	return 'alarms'
 	    
 	
 class Measure(ConfigurationObject):
@@ -1518,6 +1599,9 @@ class Measure(ConfigurationObject):
 	    
     def get_type(self):
 	return 'm'
+	
+    def get_name_listing(self):
+	return 'measures'
 
 class Sensor(ConfigurationObject):
     def __init__(self):
@@ -1684,110 +1768,19 @@ class Sensor(ConfigurationObject):
 	elif self.actualAlarm == 'maxmax':
 	    return self.fields['a_maxmax']
 	    
+    def get_name_listing(self):
+	return 'sensors'
+	    
 	    
 class Batch(ConfigurationObject):
 
     def __init__(self, config):
-        self.piece = ""
-        self.equipment = ""
-        self.phase = ""
-        self.number = 0
-        self.user = ""
-        self.oldSeq = 0
-        self.currStep = Step()
-        self.currStep.fields = {}
-        self.currStep.fields['seq'] = 0
-        self.stepValues = {}
-        self.config = config
-
-    def endStep(self):
-        print "Ligne finale"
-        date = time.time()
-        if (self.currStep.fields['seq'] != 0):
-            for stepmeasure in self.currStep.stepmeasures:
-                if(self.currStep.stepmeasures[stepmeasure] != None):
-                    self.stepValues[self.currStep.stepmeasures[stepmeasure].fields['m_id']].end = date
-        self.writeStepValues()
-        self.stepValues = {}
-
-    def beginStep(self):
-        print "StepValues Initialization for seq."+str(self.currStep.fields['seq'])
-        date = time.time()
-        for stepmeasure in self.currStep.stepmeasures:
-            print stepmeasure
-            currStepVal = StepValue();
-            currStepVal.measure = self.currStep.stepmeasures[stepmeasure]
-            currStepVal.begin = date;
-            self.stepValues[currStepVal.measure.fields['m_id']] = currStepVal
-        print "\n"
-
-    def writeStepValues(self):
-        for stepvalue in self.stepValues:
-            if (self.config.AllMeasures.elements[self.stepValues[stepvalue].measure.fields['m_id']].fields['source'] == "sensor" and self.stepValues[stepvalue].number != 0):
-                print stepvalue + " start --- " + str(time.asctime(time.localtime(float(self.stepValues[stepvalue].begin))))
-                print stepvalue + " finish --- " + str(time.asctime(time.localtime(float(self.stepValues[stepvalue].end))))
-                print stepvalue + " min --- " + str(self.stepValues[stepvalue].min)
-                print stepvalue + " max --- " + str(self.stepValues[stepvalue].max)
-                self.stepValues[stepvalue].moy = float(self.stepValues[stepvalue].total/self.stepValues[stepvalue].number)
-                print stepvalue + " moy --- " + str(self.stepValues[stepvalue].moy)
-            elif(self.config.AllMeasures.elements[self.stepValues[stepvalue].measure.fields['m_id']].fields['source'] == "time"):
-                print stepvalue + " start --- " + str(time.asctime(time.localtime(float(self.stepValues[stepvalue].begin))))
-                print stepvalue + " finish --- " + str(time.asctime(time.localtime(float(self.stepValues[stepvalue].end))))
-                self.stepValues[stepvalue].min = ""
-                self.stepValues[stepvalue].max = ""
-                self.stepValues[stepvalue].moy = round(self.stepValues[stepvalue].end - self.stepValues[stepvalue].begin, 0)
-                print stepvalue + " duration --- " + str(self.stepValues[stepvalue].moy)
-            elif(self.config.AllMeasures.elements[self.stepValues[stepvalue].measure.fields['m_id']].fields['source'] == "scan"):
-                print stepvalue + " start --- " + str(time.asctime(time.localtime(float(self.stepValues[stepvalue].begin))))
-                print stepvalue + " finish --- " + str(time.asctime(time.localtime(float(self.stepValues[stepvalue].end))))
-                self.stepValues[stepvalue].min = ""
-                self.stepValues[stepvalue].max = ""
-                if self.stepValues[stepvalue].number:
-                    self.stepValues[stepvalue].moy = float(self.stepValues[stepvalue].total/self.stepValues[stepvalue].number)
-                else:
-                    self.stepValues[stepvalue].moy = ""
-                print stepvalue + " input --- " + str(self.stepValues[stepvalue].moy)
-            else:
-                print stepvalue + " start --- " + str(time.asctime(time.localtime(float(self.stepValues[stepvalue].begin))))
-                print stepvalue + " finish --- " + str(time.asctime(time.localtime(float(self.stepValues[stepvalue].end))))
-                self.stepValues[stepvalue].min = ""
-                self.stepValues[stepvalue].max = ""
-                self.stepValues[stepvalue].moy = ""
-               
-            if self.stepValues[stepvalue].moy:
-                if self.piece != "":
-                    piece = self.piece.id
-                    pieceg = self.piece.fields['p_group']
-                else:
-                    piece = ""
-                    pieceg = ""
-                if self.equipment != "":
-                    equipment = self.equipment.id
-                    equipmentg = self.equipment.fields['e_group']
-                else:
-                    equipment = ""
-                    equipmentg = ""
-                if self.phase != "":
-                    phase = self.phase.id
-                    phaseg = self.phase.fields['h_group']
-                else:
-                    phase = ""
-                    phaseg = ""
-                    
-                try:
-                    with open("BCURPEHMAON.csv", "ab") as csvfile:
-                        date = time.time()
-                        fieldnames = ['start','end','b_group','b_id','c_group','c_id','u_group','u_id','r_group','r_id','p_group','p_id','e_group','e_id','h_group','h_id','m_group','m_id','a_group','a_id','o_group','o_id','n_group','n_id','order','value','unit','category','min','max','a_start','a_level','a_media']																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																													
-                        writer = csv.DictWriter(csvfile, fieldnames, delimiter="\t")
-                        row = {'e_group':equipmentg,'p_group':pieceg,'m_group':self.config.AllStepMeasures.elements[self.stepValues[stepvalue].measure.id].fields['m_group'],'h_group':phaseg,'u_id':self.user.fields['u_id'],'u_group':self.user.fields['u_group'],'end':time.asctime(time.localtime(float(date))),'start':str(time.asctime(time.localtime(float(self.stepValues[stepvalue].begin)))),'r_id':self.fields['r_id'],'value':self.stepValues[stepvalue].moy,'min':self.stepValues[stepvalue].min,'max':self.stepValues[stepvalue].max,'b_group':self.fields['b_group'],'b_id':self.fields['b_id'],'order':self.fields['order'],'e_id':equipment,'p_id':piece,'m_id':self.config.AllStepMeasures.elements[self.stepValues[stepvalue].measure.id].fields['m_id'],'h_id':phase}
-                        writer.writerow(row)
-                        print "BigLine added !"
-                except IOError:
-                    print "File already open"
+	ConfigurationObject.__init__(self)
+	self.config = config
             
 
     def __repr__(self):
-        string = self.id + " " + self.fields['name']
+        string = str(self.id) + " " + self.fields['acronym']
         return string
 
     def __str__(self):
@@ -1795,6 +1788,56 @@ class Batch(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
+	
+    def get_type(self):
+	return 'b'
+	
+    def get_name_listing(self):
+	return 'batches'
+
+class Transfer(ConfigurationObject):
+
+    def __init__(self, config):
+	ConfigurationObject.__init__(self)
+        self.config = config
+            
+
+    def __repr__(self):
+        string = str(self.id)
+        return string
+
+    def __str__(self):
+        string = "\nBatchTransfer :"
+        for field in self.fields:
+            string = string + "\n" + field + " : " + self.fields[field]
+        return string + "\n"
+    
+    def get_type(self):
+	return 't'
+	
+    def get_type_container(self):
+	return self.fields['cont_type']
+	
+    def get_id_container(self):
+	return self.fields['cont_id']
+	
+    def get_type_object(self):
+	return self.fields['object_type']
+	
+    def get_id_object(self):
+	return self.fields['object_id']
+	
+    def set_position(self, pos):
+	self.fields['cont_type'] = pos.split('_')[0]
+	self.fields['cont_id'] = pos.split('_')[1]
+	
+    def set_object(self, obj):
+	self.fields['object_type'] = obj.split('_')[0]
+	self.fields['object_id'] = obj.split('_')[1]
+	objects = self.config.findAllFromType(self.fields['object_type'])
+	objects.elements[self.fields['object_id']].add_position(self)
+	
+
 
 class Barcode(ConfigurationObject):
     def __init__(self, item):
