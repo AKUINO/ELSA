@@ -12,7 +12,7 @@ import threading
 import time
 import os
 import rrdtool
-#import ow
+import ow
 import serial
 import myuseful as useful
 import HardConfig as hardconfig
@@ -30,8 +30,8 @@ barcodesDir = 'barcodes/'
 
 class Configuration():
     def __init__(self):
-	#ow.init("/dev/i2c-1")
-	#self.HardConfig = hardconfig.HardConfig()
+	ow.init("/dev/i2c-1")
+	self.HardConfig = hardconfig.HardConfig()
 	self.InfoSystem = InfoSystem()
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
@@ -76,8 +76,8 @@ class Configuration():
 	self.AllBarcodes.load()
 	self.loadRelation()
 	self.AllTransfers.load()
-	#self.UpdateThread.start()
-	#self.RadioThread.start()
+	self.UpdateThread.start()
+	self.RadioThread.start()
 	
     
     def findAllFromObject(self,anObject):
@@ -558,7 +558,7 @@ class UpdateThread(threading.Thread):
 
     def run(self):
 	time.sleep(60)
-	while self.config.isThreading is True:
+	while True:
 	    now = useful.get_timestamp()
 	    self.config.InfoSystem.updateInfoSystem(now)
 	    if not len(self.config.AllSensors.elements) == 0 :
@@ -577,7 +577,7 @@ class RadioThread(threading.Thread):
 	    time.sleep(0.05)
 	    elaSerial.write(self.config.HardConfig.ela_reset)
 	    line = None
-	    while self.config.isThreading is True:
+	    while True:
 		try:
 		    data = elaSerial.read()
 		    now = useful.get_timestamp()
@@ -783,7 +783,7 @@ class AllEquipments(AllObjects):
         self.fileobject = csvDir + "E.csv"
 	self.filename = csvDir + "Enames.csv"
         self.keyColumn = "e_id"
-	self.fieldnames = ["begin", "e_id", "deny", "acronym", "remark",'colorgraph', "user"]
+	self.fieldnames = ["begin", "e_id", "deny", "acronym", "place", "remark",'colorgraph', "user"]
 	self.fieldtranslate = ['begin', 'lang', 'e_id', 'name', 'user']
 
     def newObject(self):
@@ -798,7 +798,7 @@ class AllContainers(AllObjects):
         self.fileobject = csvDir + "C.csv"
 	self.filename = csvDir + "Cnames.csv"
         self.keyColumn = "c_id"
-	self.fieldnames = ["begin", "c_id", "deny", "acronym", "remark",'colorgraph', "user"]
+	self.fieldnames = ["begin", "c_id", "deny", "acronym","place", "remark",'colorgraph', "user"]
 	self.fieldtranslate = ['begin', 'lang', 'c_id', 'name', 'user']
 
     def newObject(self):

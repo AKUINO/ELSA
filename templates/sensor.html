@@ -36,7 +36,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 		<div class="col-sm-8">
 		    <input name="$k" type="text" class="form-control" id="inputName" placeholder="Name"
 		$if id !='new':
-		    value="$c.AllSensors.elements[id].getName(self.lang)"
+		    value="$c.AllSensors.elements[id].names[k]['name']"
 		required="true" >
 		</div>
 	    </div>

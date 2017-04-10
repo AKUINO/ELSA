@@ -117,6 +117,10 @@ $for a,elem in elements.items():
 		<div class="col-xs-2" >
 		    <strong><a href="/transfers/b_$(a)" class="btn btn-warning" role="button"><span class="halflings halflings-transfer"></span></a></strong>
 		</div>
+	    $elif type == 'places':
+		<div class="col-xs-2" >
+		    <strong><a href="/listing/p_$(a)" class="btn btn-warning" role="button"><span class="halflings halflings-list-alt"></span></a></strong>
+		</div>
 	    $else:
 		<div class="col-xs-2" >
 		</div>
