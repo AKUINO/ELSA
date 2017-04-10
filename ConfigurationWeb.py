@@ -48,8 +48,7 @@ web.template.Template.globals['c'] = c
 
 #useful.send_email('franco.maxime@gmail.com','Demarrage Elsa','Demarrage du systeme')
 
-for i in range(len(c.AllBatches.elements['1'].position)):
-    print c.AllBatches.elements['1'].position[i].created
+
 
 class WebObject():
     def __init__(self):
