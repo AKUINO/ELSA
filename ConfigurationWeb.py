@@ -12,7 +12,7 @@ global c, render
 #Ligne 62 - connexion 9000 a la place de 900
 #
 
-#useful.send_email('franco.maxime@gmail.com','Demarrage Elsa','Demarrage du systeme')
+
 
 class WebObject():
     def __init__(self):
@@ -466,7 +466,6 @@ c = None
 def main():
 
     global c, render
-    
     try:
         web.config.debug = False
         render=web.template.render('templates/', base='layout')
@@ -506,6 +505,7 @@ def main():
 	#Configuration Singleton ELSA
 	c=elsa.Configuration()
 	c.load()
+	c.InfoSystem.updateInfoSystem(time.time())
 	web.template.Template.globals['c'] = c
 	app = web.application(urls, globals())
 	app.notfound = notfound

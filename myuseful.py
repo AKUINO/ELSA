@@ -4,6 +4,9 @@ import hashlib
 import binascii
 import smtplib
 import datetime
+import socket
+import fcntl
+import struct
 
 GMAIL_USER = 'akuino6002@gmail.com'
 GMAIL_PASS = 'My_Password6002'
@@ -38,3 +41,11 @@ def timestamp_to_date(now):
 def get_time(now):
     now = int(time.time())
     return datetime.datetime.fromtimestamp(now).strftime("%H:%M:%S  -  %d/%m/%y")
+
+def get_ip_address(ifname):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    return socket.inet_ntoa(fcntl.ioctl(
+        s.fileno(),
+        0x8915,  # SIOCGIFADDR
+        struct.pack('256s', ifname[:15])
+    )[20:24])

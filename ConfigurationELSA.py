@@ -27,6 +27,7 @@ csvDir = "../ELSAcsv/csv/"
 rrdDir = 'rrd/'
 ttyDir = '/dev/ttyS0'
 barcodesDir = 'barcodes/'
+groupWebUsers = '_WEB'
 
 class Configuration():
     def __init__(self):
@@ -43,7 +44,7 @@ class Configuration():
         file(self.pidfile, 'w').write(pid)
 
 	ow.init("/dev/i2c-1")
-	self.InfoSystem = InfoSystem()
+	self.InfoSystem = InfoSystem(self)
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
 	self.fieldcode = ['begin', 'type', 'idobject', 'code', 'user']
@@ -69,7 +70,6 @@ class Configuration():
 	self.RadioThread.daemon = True
 
     def load(self):
-        traceback.print_exc()
 	self.AllLanguages.load()
         self.AllUsers.load()
         self.AllPieces.load()
@@ -291,7 +291,7 @@ class Configuration():
 
 class InfoSystem():
     
-    def __init__(self):
+    def __init__(self, config):
 	self.uptime = 0
 	self.memTot = 0
 	self.memFree = 0
@@ -299,7 +299,9 @@ class InfoSystem():
 	self.load1 = 0
 	self.load5 = 0
 	self.load15 = 0
-	self.temperature = 0	
+	self.temperature = 0
+	self.ip = ''
+	self.config = config
 	
     def updateInfoSystem(self,now):
 	try:
@@ -341,24 +343,34 @@ class InfoSystem():
 	    self.load5 = float(info[1])
 	    self.load15 = float(info[2])
 	    rrdtool.update('rrd/cpuload.rrd' , '%d:%f:%f:%f' % (now , self.load1, self.load5, self.load15))
+	    iptmp = useful.get_ip_address('eth0')
+	    if not iptmp == self.ip:
+		userlist = self.config.get_user_group(self.config.AllGroups.get_group(groupWebUsers))
+		for user in userlist:
+		    useful.send_email(self.config.AllUsers.elements[user].fields['mail'],'Nouvelle IP du systeme ELSA','Adresse ip : '+iptmp)
+		ip = iptmp
 	except:
 	    traceback.print_exc()
 	    
     def check_rrd(self):
+	print ' fliiiip'
 	now = str( int(time.time())-60)
-	if not os.path.exists('rrd/systemuptime.rrd'):
+	if os.path.exists('rrd/systemuptime.rrd') is not True:
+	    print 'isgood'
 	    data_sources = str('DS:Uptime:GAUGE:120:U:U')
 	    rrdtool.create( 'rrd/systemuptime.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
 	    
 	if not os.path.exists('rrd/temperaturecpu.rrd'):
 	    data_sources = str('DS:Temperature:GAUGE:120:U:U')
-	    rrdtool.create( 'rrd/temperature.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+	    rrdtool.create( 'rrd/temperaturecpu.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+	    
 	if not os.path.exists('rrd/memoryinfo.rrd'):
 	    data_sources=[ 'DS:MemTot:GAUGE:120:U:U', 'DS:MemFree:GAUGE:120:U:U', 'DS:MemAvailable:GAUGE:120:U:U' ]
-	    rrdtool.create( 'rrd/temperature.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+	    rrdtool.create( 'rrd/memoryinfo.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+	    
 	if not os.path.exists('rrd/cpuload.rrd'):
 	    data_sources=[ 'DS:Load1:GAUGE:120:U:U', 'DS:Load5:GAUGE:120:U:U', 'DS:Load15:GAUGE:120:U:U' ]
-	    rrdtool.create( 'rrd/temperature.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+	    rrdtool.create( 'rrd/cpuload.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
 
 class ConfigurationObject():
 
@@ -927,6 +939,11 @@ class AllGroups(AllObjects):
 	    listparents.append(k)
 	    self.get_parents(v,listparents)
 	return listparents
+	
+    def get_group(self, acro):
+	for k,g in self.elements.items():
+	    if g.fields['acronym'] == groupWebUsers:
+		return k
 	
 
 class AllMeasures(AllObjects):
