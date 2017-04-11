@@ -2,46 +2,10 @@ import web
 import ConfigurationELSA as elsa
 import time
 import myuseful as useful
+import sys
 
 
-render=web.template.render('templates/', base='layout')
 
-urls = (
-    '/', 'WebIndex',
-    '/index','WebIndex',
-    '/places/(.+)', 'WebPlace',
-    '/places/', 'WebPlaces',
-    '/equipments/', 'WebEquipments',
-    '/equipments/(.+)','WebEquipment',
-    '/users/', 'WebUsers',
-    '/users/(.+)', 'WebUser',
-    '/groups/', 'WebGroups',
-    '/groups/(.+)', 'WebGroup',
-    '/permissions/(.+)', 'WebPermission',
-    '/containers/', 'WebContainers',
-    '/containers/(.+)','WebContainer',
-    '/measures/', 'WebMeasures',
-    '/measures/(.+)', 'WebMeasure',
-    '/sensors/', 'WebSensors',
-    '/sensors/(.+)', 'WebSensor',
-    '/graphic/(.+)/(.+)', 'getRRD2',
-    '/monitoring/', 'WebMonitoring',
-    '/monitoring/(.+)', 'getRRD',
-    '/graphic/(.+)', 'WebSensorGraph',
-    '/alarms/', 'WebAlarms',
-    '/alarms/(.+)', 'WebAlarm',
-    '/batches/', 'WebBatches',
-    '/batches/(.+)', 'WebBatch',
-    '/transfers/(.+)/(.+)', 'WebCreateTransfer',
-    '/transfers/', 'WebTransfers',
-    '/transfers/(.+)', 'WebTransfer',    
-    '/listing/(.+)', 'WebListing',    
-)
-
-#Configuration Singleton ELSA
-c=elsa.Configuration()
-c.load()
-web.template.Template.globals['c'] = c
 #
 #Ligne 62 - connexion 9000 a la place de 900
 #
@@ -91,11 +55,7 @@ class WebObjectUpdate():
 	    
 	    data = web.input(placeImg={})
 	    method = data.get("method","malformed")
-	    cond = False
-	    if currObject.get_type() == 't' :
-		 cond = True
-	    else :
-		cond = currObject.validate_form(data, c, user.fields['language'])
+	    cond = currObject.validate_form(data, c, user.fields['language'])
 	    if cond is True:
 		for key in c.getFieldsname(self.name):
 		    if key in data:
@@ -364,7 +324,32 @@ class WebCreateTransfer():
 	mail = isConnected()
 	if mail is not None:
 	    return self.getRender(id2,mail, '')
-	return render.index(False,'')	
+	return render.index(False,'')
+	
+    def POST(self, id1, id2):
+	print 'Bon Post\n'
+	mail = isConnected()
+	user  = c.connectedUsers.users[mail].cuser
+	if mail is not None:
+	    currObject = c.getObject('new',self.name)
+	    imgDirectory = 'static/img'
+	    infoCookie = mail + ',' + user.fields['password']
+	    web.setcookie('webpy', infoCookie, expires=900)
+	    data = web.input(placeImg={})
+	    method = data.get("method","malformed")
+	    cond = currObject.validate_form(data, c, user.fields['language'])
+	    if cond is True :
+		if currObject is None:
+		    raise web.seeother('/')
+		currObject.set_position(data['position'])
+		currObject.set_object(data['object'])
+		currObject.save(c,user)
+		return self.getListing(mail)
+	    else:
+		if id == 'new' :
+		    currObject.delete(c)
+		return self.getRender(id2, mail, cond)
+	raise web.seeother('/')
     
     def getRender(self, id, mail, mess):
 	return render.transfer(id,mail, mess)
@@ -475,15 +460,59 @@ def isConnected():
 
 def notfound():
     return web.notfound(render.notfound())
-
-if __name__ == "__main__":
+    
+def main():
     try:
+	render=web.template.render('templates/', base='layout')
+
+	urls = (
+	    '/', 'WebIndex',
+	    '/index','WebIndex',
+	    '/places/(.+)', 'WebPlace',
+	    '/places/', 'WebPlaces',
+	    '/equipments/', 'WebEquipments',
+	    '/equipments/(.+)','WebEquipment',
+	    '/users/', 'WebUsers',
+	    '/users/(.+)', 'WebUser',
+	    '/groups/', 'WebGroups',
+	    '/groups/(.+)', 'WebGroup',
+	    '/permissions/(.+)', 'WebPermission',
+	    '/containers/', 'WebContainers',
+	    '/containers/(.+)','WebContainer',
+	    '/measures/', 'WebMeasures',
+	    '/measures/(.+)', 'WebMeasure',
+	    '/sensors/', 'WebSensors',
+	    '/sensors/(.+)', 'WebSensor',
+	    '/graphic/(.+)/(.+)', 'getRRD2',
+	    '/monitoring/', 'WebMonitoring',
+	    '/monitoring/(.+)', 'getRRD',
+	    '/graphic/(.+)', 'WebSensorGraph',
+	    '/alarms/', 'WebAlarms',
+	    '/alarms/(.+)', 'WebAlarm',
+	    '/batches/', 'WebBatches',
+	    '/batches/(.+)', 'WebBatch',
+	    '/transfers/(.+)/(.+)', 'WebCreateTransfer',
+	    '/transfers/', 'WebTransfers',
+	    '/transfers/(.+)', 'WebTransfer',    
+	    '/listing/(.+)', 'WebListing',    
+	)
+
+	#Configuration Singleton ELSA
+	c=elsa.Configuration()
+	c.load()
+	web.template.Template.globals['c'] = c
 	app = web.application(urls, globals())
 	app.notfound = notfound
-	app.run()
-	
-    except KeyboardInterrupt:
-	print 'Interrupted'
+	app.run()	
+    except :
+	traceback.print_exc(file=sys.stdout)
+    finally:
+	print 'fin des threads'
 	c.isThreading = False
-	c.UpdateThread.join()
-	
+	#c.UpdateThread.join()
+	#c.RadioThread.join()
+	print 'Exit system'
+    sys.exit(0)
+
+if __name__ == "__main__":
+    main()

@@ -46,12 +46,16 @@ $var location: $(elem.get_name_listing())/
     </div>
 </div>
 
+$code:
+    toCheck =[[type,id]]
 
-<div>
-    $c.AllMessages.elements['equipment'].getName(self.lang) :
+<div class="row active">
+    <label class="col-sm-12">$c.AllMessages.elements['equipment'].getName(self.lang) :</label>    
 </div>
 $for k,equipment in c.AllEquipments.elements.items():
     $if equipment.fields['place'] == id:
+	$code
+	    toCheck.append(['e',k])
 	<div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	    <div class="col-xs-1" >
 	    </div>
@@ -66,21 +70,22 @@ $for k,equipment in c.AllEquipments.elements.items():
 	    </div>
 	</div>
 
-<div>
-    $c.AllMessages.elements['batch'].getName(self.lang) :
+<div class="row active">
+    <label class="col-sm-12">$c.AllMessages.elements['batch'].getName(self.lang) :</label>    
 </div>
 $for k,batch in c.AllBatches.elements.items():
-    $if batch.is_actual_position(type, id) is True:
-	<div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
-	    <div class="col-xs-1" >
+    $for t, i in toCheck:
+	$if batch.is_actual_position(t, i) is True:
+	    <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+		<div class="col-xs-1" >
+		</div>
+		<div class="col-xs-3" >
+		    <a href="/$(c.findAllFromType(t).elements[i].get_name_listing())/" >$c.findAllFromType(t).elements[i].getName(self.lang)</a>
+		</div>
+		<div class="col-xs-4" >
+		    <a href="/transfers/b_$(k)" >$batch.fields['acronym'] - $batch.getName(self.lang)</a>
+		</div>
+		<div class="col-xs-4" >
+		    $batch.fields['remark']
+		</div>
 	    </div>
-	    <div class="col-xs-3" >
-	    </div>
-		
-	    <div class="col-xs-4" >
-		<a href="/$(batch.get_name_listing())/" >$batch.fields['acronym'] - $batch.getName(self.lang)</a>
-	    </div>
-	    <div class="col-xs-4" >
-		$batch.fields['remark']
-	    </div>
-	</div>
