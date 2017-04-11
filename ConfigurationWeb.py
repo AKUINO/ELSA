@@ -2,12 +2,14 @@ import web
 import ConfigurationELSA as elsa
 import time
 import myuseful as useful
+import traceback
 import sys
+
+global c, render
+
 #
 #Ligne 62 - connexion 9000 a la place de 900
 #
-
-#useful.send_email('franco.maxime@gmail.com','Demarrage Elsa','Demarrage du systeme')
 
 
 
@@ -459,7 +461,10 @@ def notfound():
     return web.notfound(render.notfound())
     
 def main():
+
+    global c, render
     try:
+        web.config.debug = False
 	render=web.template.render('templates/', base='layout')
 	urls = (
 	    '/', 'WebIndex',
@@ -496,6 +501,7 @@ def main():
 	#Configuration Singleton ELSA
 	c=elsa.Configuration()
 	c.load()
+	c.InfoSystem.updateInfoSystem(time.time())
 	web.template.Template.globals['c'] = c
 	app = web.application(urls, globals())
 	app.notfound = notfound
@@ -508,7 +514,6 @@ def main():
 	#c.UpdateThread.join()
 	#c.RadioThread.join()
 	print 'Exit system'
-    sys.exit(0)
 
 if __name__ == "__main__":
     main()

@@ -23,16 +23,17 @@ import re
 
 
 #mise a jour git
-csvDir = "csv/"
+csvDir = "../ELSAcsv/csv/"
 rrdDir = 'rrd/'
 ttyDir = '/dev/ttyS0'
 barcodesDir = 'barcodes/'
+groupWebUsers = '_WEB'
 
 class Configuration():
     def __init__(self):
 	#ow.init("/dev/i2c-1")
 	#self.HardConfig = hardconfig.HardConfig()
-	self.InfoSystem = InfoSystem()
+	self.InfoSystem = InfoSystem(self)
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
 	self.fieldcode = ['begin', 'type', 'idobject', 'code', 'user']
@@ -55,6 +56,7 @@ class Configuration():
 	self.isThreading = True
 	self.UpdateThread = UpdateThread(self)
 	self.RadioThread = RadioThread(self)
+	self.RadioThread.daemon = True
 
     def load(self):
 	self.AllLanguages.load()
@@ -278,7 +280,7 @@ class Configuration():
 
 class InfoSystem():
     
-    def __init__(self):
+    def __init__(self, config):
 	self.uptime = 0
 	self.memTot = 0
 	self.memFree = 0
@@ -286,7 +288,9 @@ class InfoSystem():
 	self.load1 = 0
 	self.load5 = 0
 	self.load15 = 0
-	self.temperature = 0	
+	self.temperature = 0
+	self.ip = ''
+	self.config = config
 	
     def updateInfoSystem(self,now):
 	try:
@@ -328,24 +332,34 @@ class InfoSystem():
 	    self.load5 = float(info[1])
 	    self.load15 = float(info[2])
 	    rrdtool.update('rrd/cpuload.rrd' , '%d:%f:%f:%f' % (now , self.load1, self.load5, self.load15))
+	    iptmp = useful.get_ip_address('eth0')
+	    if not iptmp == self.ip:
+		userlist = self.config.get_user_group(self.config.AllGroups.get_group(groupWebUsers))
+		for user in userlist:
+		    useful.send_email(self.config.AllUsers.elements[user].fields['mail'],'Nouvelle IP du systeme ELSA','Adresse ip : '+iptmp)
+		ip = iptmp
 	except:
 	    traceback.print_exc()
 	    
     def check_rrd(self):
+	print ' fliiiip'
 	now = str( int(time.time())-60)
-	if not os.path.exists('rrd/systemuptime.rrd'):
+	if os.path.exists('rrd/systemuptime.rrd') is not True:
+	    print 'isgood'
 	    data_sources = str('DS:Uptime:GAUGE:120:U:U')
 	    rrdtool.create( 'rrd/systemuptime.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
 	    
 	if not os.path.exists('rrd/temperaturecpu.rrd'):
 	    data_sources = str('DS:Temperature:GAUGE:120:U:U')
-	    rrdtool.create( 'rrd/temperature.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+	    rrdtool.create( 'rrd/temperaturecpu.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+	    
 	if not os.path.exists('rrd/memoryinfo.rrd'):
 	    data_sources=[ 'DS:MemTot:GAUGE:120:U:U', 'DS:MemFree:GAUGE:120:U:U', 'DS:MemAvailable:GAUGE:120:U:U' ]
-	    rrdtool.create( 'rrd/temperature.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+	    rrdtool.create( 'rrd/memoryinfo.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+	    
 	if not os.path.exists('rrd/cpuload.rrd'):
 	    data_sources=[ 'DS:Load1:GAUGE:120:U:U', 'DS:Load5:GAUGE:120:U:U', 'DS:Load15:GAUGE:120:U:U' ]
-	    rrdtool.create( 'rrd/temperature.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+	    rrdtool.create( 'rrd/cpuload.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
 
 class ConfigurationObject():
 
@@ -587,19 +601,20 @@ class RadioThread(threading.Thread):
 
     def run(self):
         try:
-	    elaSerial = serial.Serial(ttyDir, self.config.HardConfig.ela_bauds, timeout=0.01)
-	    time.sleep(0.05)
+            print(ttyDir)
+	    elaSerial = serial.Serial(ttyDir, self.config.HardConfig.ela_bauds, timeout=0.1)
+	    time.sleep(0.1)
 	    elaSerial.write(self.config.HardConfig.ela_reset)
 	    line = None
 	    while self.config.isThreading is True:
 		try:
 		    data = elaSerial.read()
-		    now = useful.get_timestamp()
 		    if data == '[' :
 			line = []
 		    elif line != None:
 			if data == ']' :
 			    if len(line) == 10:
+                                now = useful.get_timestamp()
 				RSS = int(line[0]+line[1],16)
 				HEX = line[2]+line[3]+line[4]
 				ADDRESS = int(HEX,16)
@@ -616,16 +631,19 @@ class RadioThread(threading.Thread):
 						value = str(eval(currSensor.fields['formula']))
 					    print (u"Sensor ELA-" + currSensor.fields['sensor']+ u": " + currSensor.fields['acronym'] +u" = "+str(value))
 					    currSensor.update(now, value, self.config)
-				    except : 
-					    print "Error dans la formule"					
+				    except :
+                                	    traceback.print_exc()
+					    print "Erreur dans la formule"					
 			    line = None
 			else:
 			    line.append(data)
 		except:
-		    traceback.print_exc()   
-	    elaSerial.close()
+		    traceback.print_exc()
         except:
 	    traceback.print_exc()
+
+	if elaSerial:
+      	    elaSerial.close()	
 
 class AllObjects():
 
@@ -911,6 +929,11 @@ class AllGroups(AllObjects):
 	    self.get_parents(v,listparents)
 	return listparents
 	
+    def get_group(self, acro):
+	for k,g in self.elements.items():
+	    if g.fields['acronym'] == groupWebUsers:
+		return k
+	
 
 class AllMeasures(AllObjects):
 
@@ -1041,8 +1064,9 @@ class AllBarcodes(AllObjects):
 	
     def get_barcode(self, myType, myID):
 	for k  in self.elements.keys():
-	    if self.elements[k].element.get_type() == myType and str(self.elements[k].element.getID()) == myID:
-		return k
+            if self.elements[k].element:
+                if self.elements[k].element.get_type() == myType and str(self.elements[k].element.getID()) == myID:
+                    return k
 	return ''
 	
     def unique_barcode(self,code, myID, myType):
@@ -1768,7 +1792,10 @@ class Sensor(ConfigurationObject):
 	if self.fields['channel'] == 'wire':
 	    try:
 		sensorAdress = '/'+str(self.fields['sensor'])
-		aDevice = ow.Sensor(sensorAdress)
+		try:
+                    aDevice = ow.Sensor(sensorAdress)
+                except ow.exUnknownSensor:
+                    aDevice = None
 		if aDevice:
 		    owData = aDevice.__getattr__(self.fields['subsensor'])
 		    if owData:
