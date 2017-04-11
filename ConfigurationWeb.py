@@ -3,6 +3,7 @@ import ConfigurationELSA as elsa
 import time
 import myuseful as useful
 import traceback
+import os
 import sys
 
 global c, render
@@ -459,44 +460,47 @@ def isConnected():
 
 def notfound():
     return web.notfound(render.notfound())
+
+c = None
     
 def main():
 
     global c, render
     try:
         web.config.debug = False
-	render=web.template.render('templates/', base='layout')
-	urls = (
-	    '/', 'WebIndex',
-	    '/index','WebIndex',
-	    '/places/(.+)', 'WebPlace',
-	    '/places/', 'WebPlaces',
-	    '/equipments/', 'WebEquipments',
-	    '/equipments/(.+)','WebEquipment',
-	    '/users/', 'WebUsers',
-	    '/users/(.+)', 'WebUser',
-	    '/groups/', 'WebGroups',
-	    '/groups/(.+)', 'WebGroup',
-	    '/permissions/(.+)', 'WebPermission',
-	    '/containers/', 'WebContainers',
-	    '/containers/(.+)','WebContainer',
-	    '/measures/', 'WebMeasures',
-	    '/measures/(.+)', 'WebMeasure',
-	    '/sensors/', 'WebSensors',
-	    '/sensors/(.+)', 'WebSensor',
-	    '/graphic/(.+)/(.+)', 'getRRD2',
-	    '/monitoring/', 'WebMonitoring',
-	    '/monitoring/(.+)', 'getRRD',
-	    '/graphic/(.+)', 'WebSensorGraph',
-	    '/alarms/', 'WebAlarms',
-	    '/alarms/(.+)', 'WebAlarm',
-	    '/batches/', 'WebBatches',
-	    '/batches/(.+)', 'WebBatch',
-	    '/transfers/(.+)/(.+)', 'WebCreateTransfer',
-	    '/transfers/', 'WebTransfers',
-	    '/transfers/(.+)', 'WebTransfer',    
-	    '/listing/(.+)', 'WebListing',    
-	)
+        render=web.template.render('templates/', base='layout')
+
+        urls = (
+            '/', 'WebIndex',
+            '/index','WebIndex',
+            '/places/(.+)', 'WebPlace',
+            '/places/', 'WebPlaces',
+            '/equipments/', 'WebEquipments',
+            '/equipments/(.+)','WebEquipment',
+            '/users/', 'WebUsers',
+            '/users/(.+)', 'WebUser',
+            '/groups/', 'WebGroups',
+            '/groups/(.+)', 'WebGroup',
+            '/permissions/(.+)', 'WebPermission',
+            '/containers/', 'WebContainers',
+            '/containers/(.+)','WebContainer',
+            '/measures/', 'WebMeasures',
+            '/measures/(.+)', 'WebMeasure',
+            '/sensors/', 'WebSensors',
+            '/sensors/(.+)', 'WebSensor',
+            '/graphic/(.+)/(.+)', 'getRRD2',
+            '/monitoring/', 'WebMonitoring',
+            '/monitoring/(.+)', 'getRRD',
+            '/graphic/(.+)', 'WebSensorGraph',
+            '/alarms/', 'WebAlarms',
+            '/alarms/(.+)', 'WebAlarm',
+            '/batches/', 'WebBatches',
+            '/batches/(.+)', 'WebBatch',
+            '/transfers/(.+)/(.+)', 'WebCreateTransfer',
+            '/transfers/', 'WebTransfers',
+            '/transfers/(.+)', 'WebTransfer',    
+            '/listing/(.+)', 'WebListing',    
+        )
 
 	#Configuration Singleton ELSA
 	c=elsa.Configuration()
@@ -510,9 +514,11 @@ def main():
 	traceback.print_exc(file=sys.stdout)
     finally:
 	print 'fin des threads'
-	c.isThreading = False
-	c.UpdateThread.join()
-	c.RadioThread.join()
+	if c:
+            c.isThreading = False
+            c.UpdateThread.join()
+            c.RadioThread.join()
+            os.unlink(c.pidfile)
 	print 'Exit system'
 
 if __name__ == "__main__":

@@ -12,7 +12,7 @@ import threading
 import time
 import os
 import rrdtool
-#import ow
+import ow
 import serial
 import myuseful as useful
 import HardConfig as hardconfig
@@ -31,8 +31,20 @@ groupWebUsers = '_WEB'
 
 class Configuration():
     def __init__(self):
-	#ow.init("/dev/i2c-1")
-	#self.HardConfig = hardconfig.HardConfig()
+
+	self.HardConfig = hardconfig.HardConfig()
+	
+        # Run only OUNCE: Check if /run/akuino/ELSA.pid exists...
+        pid = str(os.getpid())
+        self.pidfile = self.HardConfig.RUNdirectory+"/ELSA.pid"
+
+        if os.path.isfile(self.pidfile):
+            print "%s already exists, exiting" % self.pidfile
+            os.unlink(self.pidfile)
+            sys.exit()
+        file(self.pidfile, 'w').write(pid)
+	
+	ow.init("/dev/i2c-1")
 	self.InfoSystem = InfoSystem(self)
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
@@ -78,8 +90,8 @@ class Configuration():
 	self.AllBarcodes.load()
 	self.loadRelation()
 	self.AllTransfers.load()
-	#self.UpdateThread.start()
-	#self.RadioThread.start()
+	self.UpdateThread.start()
+	self.RadioThread.start()
 	
     
     def findAllFromObject(self,anObject):
@@ -337,15 +349,13 @@ class InfoSystem():
 		userlist = self.config.get_user_group(self.config.AllGroups.get_group(groupWebUsers))
 		for user in userlist:
 		    useful.send_email(self.config.AllUsers.elements[user].fields['mail'],'Nouvelle IP du systeme ELSA','Pour acceder à ELSA : http://'+iptmp+':8080')
-		ip = iptmp
+		self.ip = iptmp
 	except:
 	    traceback.print_exc()
 	    
     def check_rrd(self):
-	print ' fliiiip'
 	now = str( int(time.time())-60)
 	if os.path.exists('rrd/systemuptime.rrd') is not True:
-	    print 'isgood'
 	    data_sources = str('DS:Uptime:GAUGE:120:U:U')
 	    rrdtool.create( 'rrd/systemuptime.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
 	    
@@ -601,7 +611,6 @@ class RadioThread(threading.Thread):
 
     def run(self):
         try:
-            print(ttyDir)
 	    elaSerial = serial.Serial(ttyDir, self.config.HardConfig.ela_bauds, timeout=0.1)
 	    time.sleep(0.1)
 	    elaSerial.write(self.config.HardConfig.ela_reset)
@@ -714,8 +723,6 @@ class AllObjects():
 	return currObject
 	
     def unique_acronym(self, acronym, myID):
-	print myID
-	print acronym
 	for k, element in self.elements.items():
 	    if element.fields['acronym'] == acronym and str(myID) != str(element.fields[self.keyColumn]) :
 		return False
@@ -729,9 +736,7 @@ class AllObjects():
 	return None
 	
     def delete(self, anID):
-	print self.elements
 	del self.elements[str(anID)]
-	print self.elements
 	
     def check_csv(self):
 	filename = self.filename
@@ -1887,17 +1892,14 @@ class Transfer(ConfigurationObject):
 	objects.elements[self.fields['object_id']].add_position(self)
 	
     def validate_form(self, data, configuration, lang) :
-	print 'Bon Validate Form\n'
 	tmp = ''
 	if 'position' in data :
-	    print 'bon if\n'
 	    objtype = data['object'].split('_')[0]
 	    objid = data['object'].split('_')[1]
 	    postype = data['position'].split('_')[0]
 	    posid = data['position'].split('_')[1]
 	    objet = configuration.get_object(objtype,objid)
 	    if objet.is_actual_position(postype, posid) is True :
-		print 'waow, pq ca marche pas'
 		tmp += configuration.AllMessages.elements['transferrules'].getName(lang) + '\n'
 	else :
 	    tmp += configuration.AllMessages.elements['transferrules'].getName(lang) + '\n'
