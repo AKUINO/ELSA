@@ -3,9 +3,6 @@ import ConfigurationELSA as elsa
 import time
 import myuseful as useful
 import sys
-
-
-
 #
 #Ligne 62 - connexion 9000 a la place de 900
 #
@@ -464,7 +461,6 @@ def notfound():
 def main():
     try:
 	render=web.template.render('templates/', base='layout')
-
 	urls = (
 	    '/', 'WebIndex',
 	    '/index','WebIndex',
