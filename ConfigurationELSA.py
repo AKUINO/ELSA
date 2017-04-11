@@ -12,7 +12,7 @@ import threading
 import time
 import os
 import rrdtool
-#import ow
+import ow
 import serial
 import myuseful as useful
 import HardConfig as hardconfig
@@ -31,8 +31,8 @@ groupWebUsers = '_WEB'
 
 class Configuration():
     def __init__(self):
-	#ow.init("/dev/i2c-1")
-	#self.HardConfig = hardconfig.HardConfig()
+	ow.init("/dev/i2c-1")
+	self.HardConfig = hardconfig.HardConfig()
 	self.InfoSystem = InfoSystem(self)
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
@@ -78,8 +78,8 @@ class Configuration():
 	self.AllBarcodes.load()
 	self.loadRelation()
 	self.AllTransfers.load()
-	#self.UpdateThread.start()
-	#self.RadioThread.start()
+	self.UpdateThread.start()
+	self.RadioThread.start()
 	
     
     def findAllFromObject(self,anObject):

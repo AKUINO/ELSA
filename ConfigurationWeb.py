@@ -511,8 +511,8 @@ def main():
     finally:
 	print 'fin des threads'
 	c.isThreading = False
-	#c.UpdateThread.join()
-	#c.RadioThread.join()
+	c.UpdateThread.join()
+	c.RadioThread.join()
 	print 'Exit system'
 
 if __name__ == "__main__":
