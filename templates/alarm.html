@@ -38,7 +38,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 		<div class="col-sm-8">
 		    <input name="$k" type="text" class="form-control" id="inputName" placeholder="Name"
 		$if id !='new':
-		    value="$c.AllAlarms.elements[id].names[k]['name']"
+		    value="$c.AllAlarms.elements[id].get_real_name(k)"
 		required="true" >
 		</div>
 	    </div>

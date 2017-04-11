@@ -10,7 +10,7 @@ RRA:LAST:0.5:1:43200 \
 RRA:AVERAGE:0.5:5:103680 \
 RRA:AVERAGE:0.5:30:86400
 
-rrdtool create meminfo.rrd -s 60 -b 1489599030 \
+rrdtool create memoryinfo.rrd -s 60 -b 1489599030 \
 DS:MemTot:GAUGE:120:U:U \
 DS:MemFree:GAUGE:120:U:U \
 DS:MemAvailable:GAUGE:120:U:U \

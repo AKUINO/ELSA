@@ -12,7 +12,7 @@ import threading
 import time
 import os
 import rrdtool
-import ow
+#import ow
 import serial
 import myuseful as useful
 import HardConfig as hardconfig
@@ -30,8 +30,8 @@ barcodesDir = 'barcodes/'
 
 class Configuration():
     def __init__(self):
-	ow.init("/dev/i2c-1")
-	self.HardConfig = hardconfig.HardConfig()
+	#ow.init("/dev/i2c-1")
+	#self.HardConfig = hardconfig.HardConfig()
 	self.InfoSystem = InfoSystem()
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
@@ -76,8 +76,8 @@ class Configuration():
 	self.AllBarcodes.load()
 	self.loadRelation()
 	self.AllTransfers.load()
-	self.UpdateThread.start()
-	self.RadioThread.start()
+	#self.UpdateThread.start()
+	#self.RadioThread.start()
 	
     
     def findAllFromObject(self,anObject):
@@ -451,6 +451,11 @@ class ConfigurationObject():
 	    print "Error Le nom n'existe pas pour cet objet"
 	    return "Error"
 	    
+    def get_real_name(self, lang):
+	if lang in self.names:
+	    return self.names[lang]['name']
+	return ''
+	    
     def getID(self):
 	return self.id
 	    
@@ -703,8 +708,19 @@ class AllObjects():
 	print self.elements
 	del self.elements[str(anID)]
 	print self.elements
+	
+    def check_csv(self):
+	filename = self.filename
+	if not os.path.exists(filename):
+	    self.create_csv(filename)
     
-    
+    def create_csv(self, fname):
+	with open(fname,'w') as csvfile:
+	    csvfile.write(self.fieldnames[0])
+	    tmp = 1
+	    while tmp < len(self.fieldnames):
+		csvfile.write('\t'+self.fieldnames[tmp])
+		tmp = tmp + 1
 	        
 class AllUsers(AllObjects):
 
@@ -1093,8 +1109,9 @@ class AllPhases(AllObjects):
     def __init__(self, config):
         self.elements = {}
         self.config = config
-        self.filename = csvDir + "H.csv"
+        self.filename = csvDir + "testH.csv"
         self.keyColumn = "h_id"
+	self.fieldnames = ['begin', 'p_id', 'deny', 'acronym', 'remark','colorgraph', 'user']
 
     def newObject(self):
         return Phase()
