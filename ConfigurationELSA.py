@@ -30,8 +30,19 @@ barcodesDir = 'barcodes/'
 
 class Configuration():
     def __init__(self):
-	ow.init("/dev/i2c-1")
 	self.HardConfig = hardconfig.HardConfig()
+
+        # Run only OUNCE: Check if /run/akuino/ELSA.pid exists...
+        pid = str(os.getpid())
+        self.pidfile = self.HardConfig.RUNdirectory+"/ELSA.pid"
+
+        if os.path.isfile(self.pidfile):
+            print "%s already exists, exiting" % self.pidfile
+            os.unlink(self.pidfile)
+            sys.exit()
+        file(self.pidfile, 'w').write(pid)
+
+	ow.init("/dev/i2c-1")
 	self.InfoSystem = InfoSystem()
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
