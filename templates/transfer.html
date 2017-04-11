@@ -2,10 +2,16 @@ $def with (id, mail, errormess)
 
 
 $if id == 'new':
+    $code:
+	myID = 'new'
+	myType = 'None'
     $var location: transfers/ new
     
 $else:
-    $var location: transfers/ $c.AllTransfers.elements[id].fields['t_id']
+    $code:
+	myID = id.split('_')[1]
+	myType = id.split('_')[0]
+    $var location: transfers/ $c.AllTransfers.elements[myID].fields['t_id']
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 
@@ -22,8 +28,8 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 		<select name = "object" class="form-control" id="inputObject">
 		    $for k in c.AllBatches.elements.keys():
 			<option value="b_$k"
-                        $if id != 'new':
-			    $if c.AllTransfers.elements[id].get_type_object() == 'b' and c.AllTransfers.elements[id].get_id_object() == k :
+                        $if myID != 'new':
+			    $if 'b' == myType and myID == k :
 				selected
 			>$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang) </option>
 		</select>
@@ -34,12 +40,8 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <label for="inputPosition" class="col-sm-3 col-form-label">$c.AllMessages.elements['component'].getName(self.lang) </label>
 	    <div class="col-sm-9">
 		<select name = "position" class="form-control" id="inputPosition">
-		    $for k in c.AllEquipments.elements.keys():
-			<option value="e_$k"
-                        $if id != 'new':
-                            $if c.AllTransfers.elements[id].get_type_container() == 'e' and c.AllTransfers.elements[id].get_id_container() == k :
-				selected
-			>$c.AllEquipments.elements[k].fields['acronym'] - $c.AllEquipments.elements[k].getName(self.lang) </option>
+		    $for k,equip in c.AllEquipments.elements.items(): 
+			<option value="e_$k">$c.AllEquipments.elements[k].fields['acronym'] - $c.AllEquipments.elements[k].getName(self.lang) </option>
 		</select>
 	    </div>
 	</div>
@@ -48,10 +50,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	<div class="form-group row">
 	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
 	    <div class="col-sm-9">
-		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.AllMessages.elements['remark'].getName(self.lang)" >
-$if id != 'new':
-    $c.AllTransfers.elements[id].fields['remark']
-</textarea>
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.AllMessages.elements['remark'].getName(self.lang)" ></textarea>
 	    </div>
 	</div>
 	

@@ -273,6 +273,10 @@ class Configuration():
 		listusers.append(k)
 	return listusers
 	
+    def get_object(self, type, id):
+	objects = self.findAllFromType(type)
+	return objects.elements[id]
+	
 
 class InfoSystem():
     
@@ -453,6 +457,11 @@ class ConfigurationObject():
 	    print "Error Le nom n'existe pas pour cet objet"
 	    return "Error"
 	    
+    def get_real_name(self, lang):
+	if lang in self.names:
+	    return self.names[lang]['name']
+	return ''
+	    
     def getID(self):
 	return self.id
 	    
@@ -543,7 +552,12 @@ class ConfigurationObject():
 	
     def is_actual_position(self, type, id):
 	tmp = self.get_actual_position()
+	print tmp
 	if tmp is not None :
+	    print type
+	    print tmp.fields['cont_type']
+	    print id
+	    print tmp.fields['cont_id']
 	    if type == tmp.fields['cont_type'] and id == tmp.fields['cont_id']:
 		return True
 	return False
@@ -560,7 +574,7 @@ class UpdateThread(threading.Thread):
 
     def run(self):
 	time.sleep(60)
-	while self.config.isThreading:
+	while self.config.isThreading is True:
 	    now = useful.get_timestamp()
 	    self.config.InfoSystem.updateInfoSystem(now)
 	    if not len(self.config.AllSensors.elements) == 0 :
@@ -580,7 +594,7 @@ class RadioThread(threading.Thread):
 	    time.sleep(0.1)
 	    elaSerial.write(self.config.HardConfig.ela_reset)
 	    line = None
-	    while self.config.isThreading:
+	    while self.config.isThreading is True:
 		try:
 		    data = elaSerial.read()
 		    if data == '[' :
@@ -615,7 +629,7 @@ class RadioThread(threading.Thread):
 		    traceback.print_exc()
         except:
 	    traceback.print_exc()
-	    self.config.isThreading = False
+
 	if elaSerial:
       	    elaSerial.close()	
 
@@ -706,8 +720,19 @@ class AllObjects():
 	print self.elements
 	del self.elements[str(anID)]
 	print self.elements
+	
+    def check_csv(self):
+	filename = self.filename
+	if not os.path.exists(filename):
+	    self.create_csv(filename)
     
-    
+    def create_csv(self, fname):
+	with open(fname,'w') as csvfile:
+	    csvfile.write(self.fieldnames[0])
+	    tmp = 1
+	    while tmp < len(self.fieldnames):
+		csvfile.write('\t'+self.fieldnames[tmp])
+		tmp = tmp + 1
 	        
 class AllUsers(AllObjects):
 
@@ -1097,8 +1122,9 @@ class AllPhases(AllObjects):
     def __init__(self, config):
         self.elements = {}
         self.config = config
-        self.filename = csvDir + "H.csv"
+        self.filename = csvDir + "testH.csv"
         self.keyColumn = "h_id"
+	self.fieldnames = ['begin', 'p_id', 'deny', 'acronym', 'remark','colorgraph', 'user']
 
     def newObject(self):
         return Phase()
@@ -1804,12 +1830,10 @@ class Batch(ConfigurationObject):
 	return 'batches'
 
 class Transfer(ConfigurationObject):
-
     def __init__(self, config):
 	ConfigurationObject.__init__(self)
         self.config = config
             
-
     def __repr__(self):
         string = str(self.id)
         return string
@@ -1845,7 +1869,24 @@ class Transfer(ConfigurationObject):
 	objects = self.config.findAllFromType(self.fields['object_type'])
 	objects.elements[self.fields['object_id']].add_position(self)
 	
-
+    def validate_form(self, data, configuration, lang) :
+	print 'Bon Validate Form\n'
+	tmp = ''
+	if 'position' in data :
+	    print 'bon if\n'
+	    objtype = data['object'].split('_')[0]
+	    objid = data['object'].split('_')[1]
+	    postype = data['position'].split('_')[0]
+	    posid = data['position'].split('_')[1]
+	    objet = configuration.get_object(objtype,objid)
+	    if objet.is_actual_position(postype, posid) is True :
+		print 'waow, pq ca marche pas'
+		tmp += configuration.AllMessages.elements['transferrules'].getName(lang) + '\n'
+	else :
+	    tmp += configuration.AllMessages.elements['transferrules'].getName(lang) + '\n'
+	if tmp == '':
+	    return True
+	return tmp
 
 class Barcode(ConfigurationObject):
     def __init__(self, item):

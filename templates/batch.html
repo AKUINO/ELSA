@@ -38,7 +38,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 		<div class="col-sm-8">
 		    <input name="$k" type="text" class="form-control" id="inputName" placeholder="Name"
 		$if id !='new':
-		    value="$c.AllBatches.elements[id].names[k]['name']"
+		    value="$c.AllBatches.elements[id].get_real_name(k)"
 		required="true" >
 		</div>
 	    </div>
@@ -94,7 +94,7 @@ $if id != 'new':
 	    <div class="col-sm-3">
 	    </div>
 	    <div class="col-sm-2">
-		<a href="/containers/" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		<a href="/batches/" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>
