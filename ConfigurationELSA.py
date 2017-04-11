@@ -23,7 +23,7 @@ import re
 
 
 #mise a jour git
-csvDir = "csv/"
+csvDir = "../ELSAcsv/csv/"
 rrdDir = 'rrd/'
 ttyDir = '/dev/ttyS0'
 barcodesDir = 'barcodes/'
@@ -55,8 +55,10 @@ class Configuration():
 	self.isThreading = True
 	self.UpdateThread = UpdateThread(self)
 	self.RadioThread = RadioThread(self)
+	self.RadioThread.daemon = True
 
     def load(self):
+        traceback.print_exc()
 	self.AllLanguages.load()
         self.AllUsers.load()
         self.AllPieces.load()
@@ -558,7 +560,7 @@ class UpdateThread(threading.Thread):
 
     def run(self):
 	time.sleep(60)
-	while True:
+	while self.config.isThreading:
 	    now = useful.get_timestamp()
 	    self.config.InfoSystem.updateInfoSystem(now)
 	    if not len(self.config.AllSensors.elements) == 0 :
@@ -573,19 +575,20 @@ class RadioThread(threading.Thread):
 
     def run(self):
         try:
-	    elaSerial = serial.Serial(ttyDir, self.config.HardConfig.ela_bauds, timeout=0.01)
-	    time.sleep(0.05)
+            print(ttyDir)
+	    elaSerial = serial.Serial(ttyDir, self.config.HardConfig.ela_bauds, timeout=0.1)
+	    time.sleep(0.1)
 	    elaSerial.write(self.config.HardConfig.ela_reset)
 	    line = None
-	    while True:
+	    while self.config.isThreading:
 		try:
 		    data = elaSerial.read()
-		    now = useful.get_timestamp()
 		    if data == '[' :
 			line = []
 		    elif line != None:
 			if data == ']' :
 			    if len(line) == 10:
+                                now = useful.get_timestamp()
 				RSS = int(line[0]+line[1],16)
 				HEX = line[2]+line[3]+line[4]
 				ADDRESS = int(HEX,16)
@@ -602,19 +605,19 @@ class RadioThread(threading.Thread):
 						value = str(eval(currSensor.fields['formula']))
 					    print (u"Sensor ELA-" + currSensor.fields['sensor']+ u": " + currSensor.fields['acronym'] +u" = "+str(value))
 					    currSensor.update(now, value, self.config)
-				    except : 
-					    print "Error dans la formule"					
+				    except :
+                                	    traceback.print_exc()
+					    print "Erreur dans la formule"					
 			    line = None
 			else:
 			    line.append(data)
 		except:
-		    traceback.print_exc()   
-	    elaSerial.close()
+		    traceback.print_exc()
         except:
 	    traceback.print_exc()
 	    self.config.isThreading = False
-
-	
+	if elaSerial:
+      	    elaSerial.close()	
 
 class AllObjects():
 
@@ -1019,8 +1022,9 @@ class AllBarcodes(AllObjects):
 	
     def get_barcode(self, myType, myID):
 	for k  in self.elements.keys():
-	    if self.elements[k].element.get_type() == myType and str(self.elements[k].element.getID()) == myID:
-		return k
+            if self.elements[k].element:
+                if self.elements[k].element.get_type() == myType and str(self.elements[k].element.getID()) == myID:
+                    return k
 	return ''
 	
     def unique_barcode(self,code, myID, myType):
@@ -1745,7 +1749,10 @@ class Sensor(ConfigurationObject):
 	if self.fields['channel'] == 'wire':
 	    try:
 		sensorAdress = '/'+str(self.fields['sensor'])
-		aDevice = ow.Sensor(sensorAdress)
+		try:
+                    aDevice = ow.Sensor(sensorAdress)
+                except ow.exUnknownSensor:
+                    aDevice = None
 		if aDevice:
 		    owData = aDevice.__getattr__(self.fields['subsensor'])
 		    if owData:

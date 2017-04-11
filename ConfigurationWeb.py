@@ -2,9 +2,12 @@ import web
 import ConfigurationELSA as elsa
 import time
 import myuseful as useful
+import traceback
 
+global c
 
 render=web.template.render('templates/', base='layout')
+web.config.debug = False
 
 urls = (
     '/', 'WebIndex',
@@ -38,9 +41,11 @@ urls = (
     '/listing/(.+)', 'WebListing',    
 )
 
-#Configuration Singleton ELSA
-c=elsa.Configuration()
-c.load()
+if __name__ == "__main__":
+    #Configuration Singleton ELSA
+    c=elsa.Configuration()
+    c.load()
+
 web.template.Template.globals['c'] = c
 #
 #Ligne 62 - connexion 9000 a la place de 900
@@ -481,9 +486,10 @@ if __name__ == "__main__":
 	app = web.application(urls, globals())
 	app.notfound = notfound
 	app.run()
-	
     except KeyboardInterrupt:
 	print 'Interrupted'
-	c.isThreading = False
-	c.UpdateThread.join()
-	
+    except:
+        traceback.print_exc()
+    
+    c.isThreading = False
+    c.UpdateThread.join()
