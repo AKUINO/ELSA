@@ -44,6 +44,7 @@ class Configuration():
         file(self.pidfile, 'w').write(pid)
 
 	ow.init("/dev/i2c-1")
+
 	self.InfoSystem = InfoSystem(self)
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
