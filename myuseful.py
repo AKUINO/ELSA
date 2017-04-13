@@ -3,14 +3,17 @@ import math
 import hashlib
 import binascii
 import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.header import Header
 import datetime
 import socket
 import fcntl
 import struct
 
-GMAIL_USER = 'akuino6002@gmail.com'
-GMAIL_PASS = 'My_Password6002'
-SMTP_SERVER = 'smtp.gmail.com'
+GMAIL_USER = u'akuino6002@gmail.com'
+GMAIL_PASS = u'My_Password6002'
+SMTP_SERVER = u'smtp.gmail.com'
 SMTP_PORT = 587
 
 def get_timestamp():
@@ -29,18 +32,30 @@ def send_email(recipient, subject, text):
     smtpserver.starttls()
     smtpserver.ehlo
     smtpserver.login(GMAIL_USER, GMAIL_PASS)
-    header = 'To:' + recipient + '\n' + 'From: ' + GMAIL_USER
-    header = header + '\n' + 'Subject:' + subject + '\n'
-    msg = header + '\n' + text + ' \n\n'
-    smtpserver.sendmail(GMAIL_USER, recipient, msg)
+    header = u'To:' + recipient + u'\n' + u'From: ' + GMAIL_USER
+    header = header + '\n' + u'Subject:' + subject + u'\n'
+
+    msg = MIMEMultipart('alternative')
+    msg.set_charset('utf8')
+    msg['From'] = GMAIL_USER
+    msg['To'] = recipient
+    msg['Subject'] = Header(
+        subject.encode('utf-8'),
+        'UTF-8'
+    ).encode()
+
+    _attach = MIMEText(text.encode('utf-8'), 'plain', 'UTF-8')        
+    msg.attach(_attach)
+
+    smtpserver.sendmail(GMAIL_USER, recipient, msg.as_string())
     smtpserver.close()
 
 def timestamp_to_date(now):
-    return datetime.datetime.fromtimestamp(int(now)).strftime("%H:%M:%S  -  %d/%m/%y")
+    return datetime.datetime.fromtimestamp(int(now)).strftime(u"%H:%M:%S  -  %d/%m/%y")
     
 def get_time(now):
     now = int(time.time())
-    return datetime.datetime.fromtimestamp(now).strftime("%H:%M:%S  -  %d/%m/%y")
+    return datetime.datetime.fromtimestamp(now).strftime(u"%H:%M:%S  -  %d/%m/%y")
 
 def get_ip_address(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

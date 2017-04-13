@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import csv
 import sets
 import time
 import traceback
@@ -37,6 +36,7 @@ _lock_socket = None
 class Configuration():
 
     def __init__(self):
+
         self.HardConfig = hardconfig.HardConfig()
 	
 ##        # Run only OUNCE: Check if /run/akuino/ELSA.pid exists...
@@ -56,7 +56,7 @@ class Configuration():
 
         try:
             _lock_socket.bind('\0AKUINO-ELSA')
-            print 'Socket AKUINO-ELSA locked'
+            print 'Socket AKUINO-ELSA now locked'
         except socket.error:
             print 'AKUINO-ELSA lock exists'
             sys.exit()
@@ -95,7 +95,7 @@ class Configuration():
             self.screen.clear()
         else:
             self.screen = I2CScreen(False, disp = None)
-
+        
 	self.AllLanguages.load()
         self.AllUsers.load()
         self.AllPieces.load()
@@ -230,7 +230,7 @@ class Configuration():
 	    
     def loadRelation(self):
 	with open(self.csvRelations) as csvfile:
-	    reader = csv.DictReader(csvfile, delimiter = "\t")
+	    reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
 	    for row in reader:
 		keyObj = row['idobject']
 		keyGroup = row['g_id']
@@ -452,7 +452,7 @@ class InfoSystem():
 	    if not iptmp == self.ip:
 		userlist = self.config.get_user_group(self.config.AllGroups.get_group(groupWebUsers))
 		for user in userlist:
-		    useful.send_email(self.config.AllUsers.elements[user].fields['mail'],'Nouvelle IP du systeme ELSA','Pour acceder à ELSA : http://'+iptmp+':8080')
+		    useful.send_email(self.config.AllUsers.elements[user].fields['mail'],u'Nouvelle IP pour ELSA: '+iptmp,u'Pour acceder ELSA:\nhttp://'+iptmp+u':8080')
 		self.ip = iptmp
 	    
 	except:
@@ -772,14 +772,13 @@ class AllObjects():
 	self.count = 0
 	
     def load(self):
-	self.check_csv()
 	self.loadFields()
 	if self.filename is not None :
 	    self.loadNames()
 
     def loadFields(self):
         with open(self.fileobject) as csvfile:
-            reader = csv.DictReader(csvfile, delimiter = "\t")
+            reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
             for row in reader:
 		key = row[self.keyColumn]
 		currObject = self.newObject()
@@ -799,7 +798,7 @@ class AllObjects():
 		
     def loadNames(self):
 	with open(self.filename) as csvfile:
-	    reader = csv.DictReader(csvfile, delimiter = "\t")
+	    reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
             for row in reader:
 		keyObj = row[self.keyColumn]
 		keyLang = row['lang']
@@ -849,7 +848,7 @@ class AllObjects():
 	del self.elements[unicode(anID)]
 	
     def check_csv(self):
-	filename = self.fileobject
+	filename = self.filename
 	if not os.path.exists(filename):
 	    self.create_csv(filename)
     
@@ -896,7 +895,7 @@ class AllRoles(AllObjects):
 
     def load(self):
         with open(self.filename) as csvfile:
-            reader = csv.DictReader(csvfile, delimiter = "\t")
+            reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
             for row in reader:
                 if((not 'deny' in row) or (row['deny'] != "1")):
                     key = row[self.keyColumn]
@@ -917,7 +916,7 @@ class AllUO():
 
     def load(self):
         with open(csvDir + "UO.csv") as csvfile:
-            reader = csv.DictReader(csvfile, delimiter = "\t")
+            reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
             for row in reader:
                 if((not 'deny' in row) or (row['deny'] != "1")):
                     for user in self.config.AllUsers.elements: 
@@ -1163,7 +1162,7 @@ class AllBarcodes(AllObjects):
 	
     def load(self):
 	with open(self.fileobject) as csvfile:
-            reader = csv.DictReader(csvfile, delimiter = "\t")
+            reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
             for row in reader:
 		key = row[self.keyColumn]
 		if row['deny'] == '0' :
@@ -1277,7 +1276,7 @@ class AllStepMeasures(AllObjects):
 
     def load(self):
         with open(self.filename) as csvfile:
-            reader = csv.DictReader(csvfile, delimiter = "\t")
+            reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
             for row in reader:
                 if((not 'deny' in row) or (row['deny'] != "1")):
                     key = row[self.keyColumn] + "-" + row[self.keyColumn2] + "-" + row[self.keyColumn3] + "-" + row[self.keyColumn4] + "-" + row[self.keyColumn5]
@@ -1303,7 +1302,7 @@ class AllSteps(AllObjects):
     def load(self, recipe):
         self.recipe = recipe
         with open(self.filename) as csvfile:
-            reader = csv.DictReader(csvfile, delimiter = "\t")
+            reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
             for row in reader:
                 if ((not 'deny' in row) or (row['deny'] != "1")) and (row['r_id'] == self.config.AllRecipes.elements[self.recipe].id):
                     key = row[self.keyColumn]
@@ -1330,7 +1329,7 @@ class AllRecipes(AllObjects):
 
     def load(self):
         with open(self.filename) as csvfile:
-            reader = csv.DictReader(csvfile, delimiter = "\t")
+            reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
             for row in reader:
                 if((not 'deny' in row) or (row['deny'] != "1")):
                     key = row[self.keyColumn]
@@ -1358,7 +1357,7 @@ class AllScanners(AllObjects):
 
     def load(self):
         with open(self.filename) as csvfile:
-            reader = csv.DictReader(csvfile, delimiter = "\t")
+            reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
             i = 0;
             for row in reader:
                 if((not 'deny' in row) or (row['deny'] != "1")):
@@ -1719,7 +1718,7 @@ class Alarm(ConfigurationObject):
 	elif not sensor.fields['c_id'] == '':
 	    cpe = config.AllMessages.elements['container'].getName(lang)
 	    elem = config.AllPieces.elements[sensor.fields['c_id']]	
-        return unicode.format(mess,'Akuino 6002', cpe, elem.getName(lang), elem.fields['acronym'], sensor.getName(lang), sensor.fields['acronym'], unicode(sensor.lastvalue), sensor.actualAlarm, useful.timestamp_to_date(sensor.time), unicode(sensor.degreeAlarm))
+        return unicode.format(mess,u'Akuino 6001', cpe, elem.getName(lang), elem.fields['acronym'], sensor.getName(lang), sensor.fields['acronym'], unicode(sensor.lastvalue), sensor.actualAlarm, useful.timestamp_to_date(sensor.time), unicode(sensor.degreeAlarm))
 	
     def get_alarm_title(self, sensor, config, lang):
         title = config.AllMessages.elements['alarmtitle'].getName(lang)
