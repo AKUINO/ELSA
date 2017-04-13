@@ -778,6 +778,7 @@ class AllObjects():
 	    self.loadNames()
 
     def loadFields(self):
+	check_csv()
         with open(self.fileobject) as csvfile:
             reader = csv.DictReader(csvfile, delimiter = "\t")
             for row in reader:
@@ -798,7 +799,6 @@ class AllObjects():
 		    
 		
     def loadNames(self):
-	check_csv()
 	with open(self.filename) as csvfile:
 	    reader = csv.DictReader(csvfile, delimiter = "\t")
             for row in reader:
