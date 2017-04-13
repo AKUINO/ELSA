@@ -39,7 +39,6 @@ class Configuration():
 
         if os.path.isfile(self.pidfile):
             print "%s already exists, exiting" % self.pidfile
-            os.unlink(self.pidfile)
             sys.exit()
         file(self.pidfile, 'w').write(pid)
 	
