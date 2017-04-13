@@ -18,9 +18,12 @@ import myuseful as useful
 import HardConfig as hardconfig
 import barcode
 import re
+import socket
 
+from I2CScreen import *
 
-
+import pigpio
+PIG = pigpio.pi()
 
 #mise a jour git
 csvDir = "../ELSAcsv/csv/"
@@ -29,19 +32,36 @@ ttyDir = '/dev/ttyS0'
 barcodesDir = 'barcodes/'
 groupWebUsers = '_WEB'
 
-class Configuration():
-    def __init__(self):
-	self.HardConfig = hardconfig.HardConfig()
-	
-        # Run only OUNCE: Check if /run/akuino/ELSA.pid exists...
-        pid = str(os.getpid())
-        self.pidfile = self.HardConfig.RUNdirectory+"/ELSA.pid"
+_lock_socket = None
 
-        if os.path.isfile(self.pidfile):
-            print "%s already exists, exiting" % self.pidfile
-            sys.exit()
-        file(self.pidfile, 'w').write(pid)
+class Configuration():
+
+    def __init__(self):
+
+        self.HardConfig = hardconfig.HardConfig()
 	
+##        # Run only OUNCE: Check if /run/akuino/ELSA.pid exists...
+##        pid = str(os.getpid())
+##        self.pidfile = self.HardConfig.RUNdirectory+"/ELSA.pid"
+##
+##        if os.path.isfile(self.pidfile):
+##            print "%s already exists, exiting" % self.pidfile
+##            sys.exit()
+##        file(self.pidfile, 'w').write(pid)
+	
+        # Without holding a reference to our socket somewhere it gets garbage
+        # collected when the function exits
+        global _lock_socket
+        
+        _lock_socket = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+
+        try:
+            _lock_socket.bind('\0AKUINO-ELSA')
+            print 'Socket AKUINO-ELSA locked'
+        except socket.error:
+            print 'AKUINO-ELSA lock exists'
+            sys.exit()
+
 	ow.init("/dev/i2c-1")
 	self.InfoSystem = InfoSystem(self)
 	self.csvCodes = csvDir + 'codes.csv'
@@ -67,8 +87,16 @@ class Configuration():
 	self.UpdateThread = UpdateThread(self)
 	self.RadioThread = RadioThread(self)
 	self.RadioThread.daemon = True
+	self.screen = None
 
     def load(self):
+        if not self.HardConfig.oled is None:
+            # 128x64 display with hardware I2C:
+            self.screen = I2CScreen(True, disp = SSD1306.SSD1305_132_64(rst=self.HardConfig.oled_reset,gpio=PIG))
+            self.screen.clear()
+        else:
+            self.screen = I2CScreen(False, disp = None)
+        
 	self.AllLanguages.load()
         self.AllUsers.load()
         self.AllPieces.load()
@@ -289,7 +317,85 @@ class Configuration():
 	
 
 class InfoSystem():
-    
+
+##    global lastBatt
+##
+##    def readBattery(self):
+##        if self.conf.HardConfig.battery:
+##            try:
+##                if self.bus_pi is None:
+##                    if self.conf.HardConfig.battery == 'I2C':
+##                        #bus_pi = I2C.get_i2c_device(hardConf.battery_address, busnum=hardConf.i2c_bus)
+##                        self.bus_pi = SMBus(self.conf.HardConfig.i2c_bus)
+##                        print self.bus_pi
+##                    elif self.conf.HardConfig.battery == 'SPI':
+##                        self.bus_pi = ADCDACPi()  # create an instance of the ADCDAC Pi with a DAC gain set to 1
+##
+##                        # set the reference voltage.  this should be set to the exact voltage
+##                        # measured on the raspberry pi 3.3V rail.
+##                        self.bus_pi.set_adc_refvoltage(3.3)
+##
+##                if self.conf.HardConfig.battery == 'I2C':
+##
+##                    #bus_pi.write_byte(ADCaddr,0x98)# va charger la valeur du registre
+##                                                # dans le mcp
+##                    """print 'ADC I2C:',hex(addr)"""
+##                    #xa = bus_pi.read_word_data(ADCaddr,0)# recupère la valeur en décimal
+##                    xa = self.bus_pi.read_i2c_block_data(hardConf.battery_address,ADCconf,3)
+##                    if len(xa) < 2:
+##                        continue
+##                    x1 = xa[0] # les 2 premier Bytes et les 2 derniers doivent                    
+##                    x2 = xa[1] # être inversé pour récupérer la bonne valeur
+##                    #x1b = int(x1,16)*256                
+##                    #x2b = int(x2,16)
+##                    tens = (x1*256) + x2
+##                    if tens == 32767:
+##                        continue   #TODO: Implanter la bonne synchronisation avec l'arrivee du résultat...
+##                    elif tens >=32768:
+##                        tens = tens - 65536
+##                    tens = (tens*0.0625)/1000 # 0.0625 codé sur 16 bits
+##                                              # et /1000 pour avoir la valeur en volt
+##                elif self.conf.HardConfig.battery == 'SPI':
+##                    tens = self.bus_pi.read_adc_voltage(1, 0)
+##                tens= tens*self.conf.HardConfig.battery_divider # 9.4727 est le coefficient du pont diviseur de
+##                                      # tension qui est placé au borne de l'ADC
+##                tens = round(tens, 2) # Arrondi la valeur au centième près
+##
+##                if tens < 4:
+##                    print ("Sous tension: "+unicode(tens))
+##                    pass
+##                else:
+##                    lastBatt = tens
+##                    if tens <= self.conf.HardConfig.battery_breakout_volt:
+##                        stats_label.set(unicode(tens)+u"V : ATTENTION")
+##                        print (tens+"V lower than "+unicode(self.conf.HardConfig.battery_breakout_volt)+"...")
+##                        time.sleep(5)
+##                        if self.conf.HardConfig.battery == 'I2C':
+##                            self.bus_pi.write_byte(self.conf.HardConfig.battery_address,ADCconf)
+##                            xa = self.bus_pi.read_i2c_block_data(self.conf.HardConfig.battery_address,0)
+##                            if len(xa) < 3:
+##                                continue
+##                            x = hex(xa) 
+##                            x1 = x[4:6]                    
+##                            x2 = x[2:4]
+##                            tens = (x1*256) + x2
+##                            if tens >=32768:
+##                                tens = tens - 65536
+##                            tens = (tens*0.0625)/1000
+##                        elif self.conf.HardConfig.battery == 'SPI':
+##                            tens = self.bus_pi.read_adc_voltage(1, 0)
+##                        tens= tens*self.conf.HardConfig.battery_divider
+##                        tens = round(tens, 2)
+##                        if tens < self.conf.HardConfig.battery_breakout_volt:
+##                            stats_label.set(unicode(tens)+u"V : HALTE DU SYSTEME")
+##                            print(tens+"V : Shutdown...")
+##                            SHUT_NOW(None)
+##                    else:  
+##                        print 'Sensor battery: '+unicode(tens)+' V'
+##
+##        except:
+##                traceback.print_exc()
+
     def __init__(self, config):
 	self.uptime = 0
 	self.memTot = 0
@@ -301,6 +407,7 @@ class InfoSystem():
 	self.temperature = 0
 	self.ip = ''
 	self.config = config
+	self.battery = 0.0
 	
     def updateInfoSystem(self,now):
 	try:
@@ -348,17 +455,18 @@ class InfoSystem():
 		for user in userlist:
 		    useful.send_email(self.config.AllUsers.elements[user].fields['mail'],'Nouvelle IP du systeme ELSA','Pour acceder à ELSA : http://'+iptmp+':8080')
 		self.ip = iptmp
+	    
 	except:
 	    traceback.print_exc()
 	    
     def check_rrd(self):
-	now = str( int(time.time())-60)
+	now = unicode( int(time.time())-60)
 	if os.path.exists('rrd/systemuptime.rrd') is not True:
-	    data_sources = str('DS:Uptime:GAUGE:120:U:U')
+	    data_sources = unicode('DS:Uptime:GAUGE:120:U:U')
 	    rrdtool.create( 'rrd/systemuptime.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
 	    
 	if not os.path.exists('rrd/temperaturecpu.rrd'):
-	    data_sources = str('DS:Temperature:GAUGE:120:U:U')
+	    data_sources = unicode('DS:Temperature:GAUGE:120:U:U')
 	    rrdtool.create( 'rrd/temperaturecpu.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
 	    
 	if not os.path.exists('rrd/memoryinfo.rrd'):
@@ -584,6 +692,9 @@ class ConfigurationObject():
 	
     def get_name_listing(self):
 	return 'index'
+
+    def get_acronym(self):
+        return self.fields['acronym']
 	
 
 class UpdateThread(threading.Thread):
@@ -608,6 +719,7 @@ class RadioThread(threading.Thread):
         self.config = config
 
     def run(self):
+        noDots = { ord(' '): None, ord('.'): None }
         try:
 	    elaSerial = serial.Serial(ttyDir, self.config.HardConfig.ela_bauds, timeout=0.1)
 	    time.sleep(0.1)
@@ -627,16 +739,16 @@ class RadioThread(threading.Thread):
 				ADDRESS = int(HEX,16)
 				VAL = int(line[5]+line[6]+line[7],16)
 				READER = int(line[8]+line[9],16)
-				print "ELA="+HEX+", RSS="+str(RSS)+", val="+str(VAL)
+				print "ELA="+HEX+", RSS="+unicode(RSS)+", val="+unicode(VAL)
 				currSensor = None
 				value = VAL
 				for sensor in self.config.AllSensors.elements:
 				    currSensor = self.config.AllSensors.elements[sensor]
 				    try :
-					if (currSensor.fields['sensor'].translate(None, '. ') == HEX.translate(None, '. ')):
+					if (unicode(currSensor.fields['sensor']).translate(noDots) == unicode(HEX).translate(noDots)):
 					    if not  currSensor.fields['formula'] == '' :
-						value = str(eval(currSensor.fields['formula']))
-					    print (u"Sensor ELA-" + currSensor.fields['sensor']+ u": " + currSensor.fields['acronym'] +u" = "+str(value))
+						value = unicode(eval(currSensor.fields['formula']))
+					    print (u"Sensor ELA-" + currSensor.fields['sensor']+ u": " + currSensor.fields['acronym'] +u" = "+unicode(value))
 					    currSensor.update(now, value, self.config)
 				    except :
                                 	    traceback.print_exc()
@@ -715,15 +827,15 @@ class AllObjects():
 	currObject.initialise(self.fieldnames)
 	self.initCount()
 	tmp = self.getNewId()
-	currObject.fields[self.keyColumn] = str(tmp)
+	currObject.fields[self.keyColumn] = unicode(tmp)
 	currObject.id = tmp
-	self.elements[str(tmp)] = currObject
+	self.elements[unicode(tmp)] = currObject
 	currObject.fields["begin"] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
 	return currObject
 	
     def unique_acronym(self, acronym, myID):
 	for k, element in self.elements.items():
-	    if element.fields['acronym'] == acronym and str(myID) != str(element.fields[self.keyColumn]) :
+	    if element.fields['acronym'] == acronym and unicode(myID) != unicode(element.fields[self.keyColumn]) :
 		return False
 	return True
 	
@@ -735,7 +847,7 @@ class AllObjects():
 	return None
 	
     def delete(self, anID):
-	del self.elements[str(anID)]
+	del self.elements[unicode(anID)]
 	
     def check_csv(self):
 	filename = self.filename
@@ -1069,7 +1181,7 @@ class AllBarcodes(AllObjects):
     def get_barcode(self, myType, myID):
 	for k  in self.elements.keys():
             if self.elements[k].element:
-                if self.elements[k].element.get_type() == myType and str(self.elements[k].element.getID()) == myID:
+                if self.elements[k].element.get_type() == myType and unicode(self.elements[k].element.getID()) == myID:
                     return k
 	return ''
 	
@@ -1120,11 +1232,11 @@ class AllBarcodes(AllObjects):
 	return fields
 	
     def validate_barcode(self, code, anID, aType):
-	if len(str(code)) < 12 or len(str(code)) >13 :
+	if len(unicode(code)) < 12 or len(unicode(code)) >13 :
 	    return False
 	try:
 	    EAN = barcode.get_barcode_class('ean13')
-	    ean = EAN(str(code))
+	    ean = EAN(unicode(code))
 	except :
 	    traceback.print_exc() 
 	    return False
@@ -1357,7 +1469,7 @@ class Language(ConfigurationObject):
 	ConfigurationObject.__init__(self)
 
     def __repr__(self):
-        string = str(self.id) + " " + self.fields['name']
+        string = unicode(self.id) + " " + self.fields['name']
         return string
 
     def __str__(self):
@@ -1372,7 +1484,7 @@ class Language(ConfigurationObject):
 class Message(ConfigurationObject):
     
     def __repr__(self):
-        string = str(self.id) + " " + self.fields['default']
+        string = unicode(self.id) + " " + self.fields['default']
         return string
 
     def __str__(self):
@@ -1393,13 +1505,13 @@ class User(ConfigurationObject):
         self.context = Context()
 
     def __repr__(self):
-        string = str(self.id) + " " + self.fields['acronym']
+        string = unicode(self.id) + " " + self.fields['acronym']
         return string
 
     def __str__(self):
         string = "\nUtilisateur :"
         for field in self.fields:
-            string = string + "\n" + field + " : " + str(self.fields[field])
+            string = string + "\n" + field + " : " + unicode(self.fields[field])
         return string + "\n"
 	
     def checkPassword(self,password):
@@ -1432,7 +1544,7 @@ class Equipment(ConfigurationObject):
 	ConfigurationObject.__init__(self)
 
     def __repr__(self):
-        string = str(self.id) + " " + self.fields['acronym']
+        string = unicode(self.id) + " " + self.fields['acronym']
         return string
 
     def __str__(self):
@@ -1463,7 +1575,7 @@ class Container(ConfigurationObject):
 	ConfigurationObject.__init__(self)
 
     def __repr__(self):
-        string = str(self.id) + " " + self.fields['acronym']
+        string = unicode(self.id) + " " + self.fields['acronym']
         return string
 
     def __str__(self):
@@ -1487,7 +1599,7 @@ class Group(ConfigurationObject):
 	self.groups = {}
 
     def __repr__(self):
-        string = str(self.id) + " " + self.fields['acronym']
+        string = unicode(self.id) + " " + self.fields['acronym']
         return string
 
     def __str__(self):
@@ -1526,7 +1638,7 @@ class Piece(ConfigurationObject):
 	
 
     def __repr__(self):
-        string = str(self.id) + " " + self.fields['acronym']
+        string = unicode(self.id) + " " + self.fields['acronym']
         return string
 
     def __str__(self):
@@ -1561,7 +1673,7 @@ class Halfling(ConfigurationObject):
 	
 
     def __repr__(self):
-        string = str(self.id) + " " + self.fields['classname']
+        string = unicode(self.id) + " " + self.fields['classname']
         return string
 
     def __str__(self):
@@ -1583,7 +1695,7 @@ class Alarm(ConfigurationObject):
 	
 
     def __repr__(self):
-        string = str(self.id) + " " + self.fields['acronym']
+        string = unicode(self.id) + " " + self.fields['acronym']
         return string
 
     def __str__(self):
@@ -1608,7 +1720,7 @@ class Alarm(ConfigurationObject):
 	elif not sensor.fields['c_id'] == '':
 	    cpe = config.AllMessages.elements['container'].getName(lang)
 	    elem = config.AllPieces.elements[sensor.fields['c_id']]	
-        return str.format(mess,'Akuino 6002', cpe, elem.getName(lang), elem.fields['acronym'], sensor.getName(lang), sensor.fields['acronym'], str(sensor.lastvalue), sensor.actualAlarm, useful.timestamp_to_date(sensor.time), str(sensor.degreeAlarm))
+        return unicode.format(mess,'Akuino 6002', cpe, elem.getName(lang), elem.fields['acronym'], sensor.getName(lang), sensor.fields['acronym'], unicode(sensor.lastvalue), sensor.actualAlarm, useful.timestamp_to_date(sensor.time), unicode(sensor.degreeAlarm))
 	
     def get_alarm_title(self, sensor, config, lang):
         title = config.AllMessages.elements['alarmtitle'].getName(lang)
@@ -1627,7 +1739,7 @@ class Alarm(ConfigurationObject):
 	    code = '+++'
 	    equal = '>'
 	    
-	return str.format(title, code, str(sensor.degreeAlarm), sensor.fields['acronym'], str(sensor.lastvalue), equal, sensor.fields[sensor.actualAlarm], config.AllMeasures.elements[sensor.fields['m_id']].fields['unit'], sensor.getName(lang))
+	return unicode.format(title, code, unicode(sensor.degreeAlarm), sensor.fields['acronym'], unicode(sensor.lastvalue), equal, sensor.fields[sensor.actualAlarm], config.AllMeasures.elements[sensor.fields['m_id']].fields['unit'], sensor.getName(lang))
 	
 	
     def launch_alarm(self, sensor, config):
@@ -1691,10 +1803,10 @@ class Sensor(ConfigurationObject):
     def __str__(self):
         string = "\nSensor :"
         for field in self.fields:
-            string = string + "\n" + field + " : " + str(self.fields[field])
+            string = string + "\n" + field + " : " + unicode(self.fields[field])
         string  = string + ' Actual Alarm : ' + self.actualAlarm
-        string  = string + ' Count Actual : ' + str(self.countActual)
-        string  = string + ' Degree Alarm : ' + str(self.degreeAlarm)
+        string  = string + ' Count Actual : ' + unicode(self.countActual)
+        string  = string + ' Degree Alarm : ' + unicode(self.degreeAlarm)
         return string + "\n"
 
     def setCorrectAlarmValue(self):
@@ -1717,7 +1829,7 @@ class Sensor(ConfigurationObject):
 	return 'cpehm'
 	
     def getRRDName(self):
-	name = 'cpehm_' + str(self.id)
+	name = 'cpehm_' + unicode(self.id)
 	name += '.rrd'
 	return name
 
@@ -1744,50 +1856,66 @@ class Sensor(ConfigurationObject):
 	    
     def addPhase(self, data):
 	self.fields['h_id'] = data
-	
+
     def update(self, now, value ,config):
 	if value is not None :
 	    self.lastvalue = value
 	    self.updateRRD(now, value)
-	    typeAlarm = self.getTypeAlarm(value)
-            print (u'Sensor update Channel : '+ self.fields['channel'] + '    ' + self.fields['sensor'] + ' ==> ' + self.fields['acronym'] +' - ' + self.getName('FR') + ' = ' + str(value))
+
+            minutes = int(now / 60)
+            hours = (int(minutes / 60) % 24)+100
+            minutes = (minutes % 60)+100
+            strnow = unicode(hours)[1:3]+":"+unicode(minutes)[1:3]
+            pos = config.screen.show(0,strnow)
+            pos = config.screen.showBW(pos+2,self.get_acronym())
+            pos = config.screen.show(pos+2,unicode(round(float(value),1)))
+            if self.fields['m_id']:
+                id_measure = unicode(self.fields['m_id'])
+                if id_measure in config.AllMeasures.elements:
+                    measure = config.AllMeasures.elements[id_measure]
+                    pos = config.screen.show(pos,measure.fields['unit'])
+                
+	    typeAlarm,symbAlarm = self.getTypeAlarm(value)
+            print (u'Sensor update Channel : '+ self.fields['channel'] + u'    ' + self.fields['sensor'] + u' ==> ' + self.fields['acronym'] + u' = ' + unicode(value))
 	    if typeAlarm == 'typical' :
 		self.setTypicalAlarm()
 	    else:
 		if not (( typeAlarm == 'min' and self.actualAlarm == 'minmin' ) or ( typeAlarm == 'max' and self.actualAlarm == 'maxmax')) :
 		    self.actualAlarm = typeAlarm
+                config.screen.show(pos+2,symbAlarm)
 		self.launchAlarm(config, now)
+            config.screen.end_line()
 	else :
 	    #TODO : si on ne sait pas se connecter au senseur, rajouter Alarme " Erreur Senseur not working"
 	    print 'Impossible d acceder au senseur TO DO'
 	
     def updateRRD(self,now, value):
         value = float(value)
-	rrdtool.update(rrdDir +self.getRRDName() , '%d:%f' % (now ,value))
+	rrdtool.update(str(rrdDir +self.getRRDName()) , '%d:%f' % (now ,value))
 	
     def createRRD(self):
 	name = re.sub('[^\w]+', '', self.fields['acronym'])
-	now = str( int(time.time())-60)
+	now = unicode( int(time.time())-60)
 	if self.fields['channel'] == 'wire' :
-	    data_sources = str('DS:'+name+'1:GAUGE:120:U:U')
-	    rrdtool.create( str('rrd/'+self.getRRDName()), "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+	    data_sources = unicode('DS:'+name+'1:GAUGE:120:U:U')
+	    rrdtool.create( unicode('rrd/'+self.getRRDName()), "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
 	elif self.fields['channel'] == 'radio' :
-	    data_sources = str('DS:'+name+'1:GAUGE:360:U:U')
-	    rrdtool.create( str('rrd/'+self.getRRDName()), "--step", "180", '--start', now, data_sources, 'RRA:LAST:0.5:1:14400', 'RRA:AVERAGE:0.5:5:34560', 'RRA:AVERAGE:0.5:30:28800')
+	    data_sources = unicode('DS:'+name+'1:GAUGE:360:U:U')
+	    rrdtool.create( unicode('rrd/'+self.getRRDName()), "--step", "180", '--start', now, data_sources, 'RRA:LAST:0.5:1:14400', 'RRA:AVERAGE:0.5:5:34560', 'RRA:AVERAGE:0.5:30:28800')
 	    
 	
     def getTypeAlarm(self,value):
 	value = float(value)
-	if value <= float(self.fields['minmin']):
-	    return 'minmin'
-	elif value <= float(self.fields['min']):
-	    return 'min'
-	elif value <= float(self.fields['maxmax']) and value >= float(self.fields['max']):
-	    return 'max'
-	elif value > float(self.fields['maxmax']):
-	    return 'maxmax'
+	if self.fields['minmin'] and value <= float(self.fields['minmin']):
+	    return 'minmin','--'
+	elif self.fields['min'] and value <= float(self.fields['min']):
+	    return 'min','-'
+	elif self.fields['maxmax'] and value > float(self.fields['maxmax']):
+	    return 'maxmax','++'
+	elif self.fields['max'] and value > float(self.fields['max']):
+	    return 'max','+'
 	else:
-	    return 'typical'
+	    return 'typical','='
 	    
     def launchAlarm(self, config, now):
         print 'lancement alarme Sensor : ' + self.getName('EN')
@@ -1821,9 +1949,9 @@ class Sensor(ConfigurationObject):
     def get_value_sensor(self):
 	if self.fields['channel'] == 'wire':
 	    try:
-		sensorAdress = '/'+str(self.fields['sensor'])
+		sensorAdress = '/'+unicode(self.fields['sensor'])
 		try:
-                    aDevice = ow.Sensor(sensorAdress)
+                    aDevice = ow.Sensor(str(sensorAdress))
                 except ow.exUnknownSensor:
                     aDevice = None
 		if aDevice:
@@ -1831,7 +1959,7 @@ class Sensor(ConfigurationObject):
 		    if owData:
 			if self.fields['formula']:
 			    value = float(owData)
-			    owData = str(eval(self.fields['formula']))
+			    owData = unicode(eval(self.fields['formula']))
 			return owData
 	    except:
 		traceback.print_exc()
@@ -1870,7 +1998,7 @@ class Batch(ConfigurationObject):
             
 
     def __repr__(self):
-        string = str(self.id) + " " + self.fields['acronym']
+        string = unicode(self.id) + " " + self.fields['acronym']
         return string
 
     def __str__(self):
@@ -1891,7 +2019,7 @@ class Transfer(ConfigurationObject):
         self.config = config
             
     def __repr__(self):
-        string = str(self.id)
+        string = unicode(self.id)
         return string
 
     def __str__(self):
@@ -2038,11 +2166,11 @@ class Scanner(ConfigurationObject):
     reader = None
 
     def __repr__(self):
-        string = str(self.rank)+"#"+str(self.id) + "=" + self.fields['name']
+        string = unicode(self.rank)+"#"+unicode(self.id) + "=" + self.fields['name']
         return string
 
     def __str__(self):
-        string = "\nScanner "+str(self.rank)+"#"+str(self.id)
+        string = "\nScanner "+unicode(self.rank)+"#"+unicode(self.id)
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
@@ -2085,23 +2213,23 @@ class Context():
     def __str__(self):
         string = "\nContext :\n"
         if self.piece != "":
-            piece = str(self.piece)
+            piece = unicode(self.piece)
         else:
             piece = ""
         if self.equipment != "":
-            equipment = str(self.equipment)
+            equipment = unicode(self.equipment)
         else:
             equipment = ""
         if self.phase != "":
-            phase = str(self.phase)
+            phase = unicode(self.phase)
         else:
             phase = ""
         if self.measure != "":
-            measure = str(self.measure)
+            measure = unicode(self.measure)
         else:
             measure = ""
         if self.batch != "":
-            batch = str(self.batch)
+            batch = unicode(self.batch)
         else:
             batch = ""
         string = string + piece + equipment + phase + measure + batch
