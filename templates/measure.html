@@ -3,9 +3,11 @@ $def with (id, mail, errormess)
 
 $if id == 'new':
     $var location: measures/ new
+    $var rmq : 
     
 $else:
     $var location: measures/ $c.AllMeasures.elements[id].fields['m_id']
+    $var rmq :  $c.AllMeasures.elements[id].fields['remark']
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 <div class="container">
@@ -38,7 +40,9 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 		    <input name="$k" type="text" class="form-control" id="inputName" placeholder="Name"
 		$if id !='new':
 		    value="$c.AllMeasures.elements[id].get_real_name(k)"
-		required="true" >
+		$if self.lang == k: 
+		    required="true"
+		>
 		</div>
 	    </div>
 	
@@ -76,10 +80,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	<div class="form-group row">
 	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
 	    <div class="col-sm-9">
-		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >
-$if id != 'new':
-    $c.AllMeasures.elements[id].fields['remark']
-</textarea>
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >$self.rmq</textarea>
 	    </div>
 	</div>
 	

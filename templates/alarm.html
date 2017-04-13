@@ -3,11 +3,14 @@ $def with (id, mail, errormess)
 
 $if id == 'new':
     $var location: alarms/ new
+    $var rmq : 
     
 $else:
     $var location: alarms/ $c.AllAlarms.elements[id].fields['a_id']
+    $var rmq :  $c.AllAlarms.elements[id].fields['remark']
 
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	<div class="form-group row" id="error">
@@ -39,7 +42,9 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 		    <input name="$k" type="text" class="form-control" id="inputName" placeholder="Name"
 		$if id !='new':
 		    value="$c.AllAlarms.elements[id].get_real_name(k)"
-		required="true" >
+		$if self.lang == k: 
+		    required="true"
+		> 
 		</div>
 	    </div>
 	
@@ -164,10 +169,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	<div class="form-group row">
 	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
 	    <div class="col-sm-9">
-		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >
-$if id != 'new':
-    $c.AllAlarms.elements[id].fields['remark']
-</textarea>
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >$self.rmq</textarea>
 	    </div>
 	</div>
 	

@@ -32,7 +32,7 @@ class WebObject():
 	connectedUser = connexion(data._username_,data._password_)
 	if connectedUser is not None:
 	    infoCookie = data._username_ + ',' + connectedUser.fields['password']
-	    web.setcookie('webpy', infoCookie, expires=9000)
+	    update_cookie(infoCookie)
 	    c.connectedUsers.addUser(connectedUser)
 	    return render.index(True, data._username_) 
 	return render.index(False, '')
@@ -51,7 +51,7 @@ class WebObjectUpdate():
 	    currObject = c.getObject(id,self.name)
 	    imgDirectory = 'static/img'
 	    infoCookie = mail + ',' + user.fields['password']
-	    web.setcookie('webpy', infoCookie, expires=900)
+	    update_cookie(infoCookie)
 	    if currObject is None:
 		raise web.seeother('/')
 	    
@@ -116,6 +116,28 @@ class WebObjectUpdate():
 		    currObject.delete(c)
 		return self.getRender(id, mail, cond)
 	raise web.seeother('/')
+
+class WebObjectDoubleID():
+    def __init__(self):
+	self.name = u"WebIndex"
+	
+    def GET(self, id1, id2):
+	mail = isConnected()
+	if mail is not None:
+	    return self.getRender(id1, id2, mail)
+	return render.index(False,'')
+	
+    def POST(self,id1,id2):
+	data = web.input(nifile={})
+	method = data.get("method","malformed")
+	connectedUser = connexion(data._username_,data._password_)
+	if connectedUser is not None:
+	    infoCookie = data._username_ + ',' + connectedUser.fields['password']
+	    update_cookie(infoCookie)
+	    c.connectedUsers.addUser(connectedUser)
+	    return self.getRender(id2,mail) 
+	return render.index(False, '')
+
 	
 class WebIndex(WebObject):
     def __init(self):
@@ -318,46 +340,45 @@ class WebTransfer(WebObjectUpdate):
     def getListing(self,mail):
 	return render.listingtransfers(mail)
 	
-class WebCreateTransfer():
+class WebCreateTransfer(WebObjectDoubleID):
     def __init__(self):
 	self.name=u"WebTransfer"
-    
-    def GET(self, id1,id2):
-	mail = isConnected()
-	if mail is not None:
-	    return self.getRender(id2,mail, '')
-	return render.index(False,'')
 	
     def POST(self, id1, id2):
-	print 'Bon Post\n'
 	mail = isConnected()
 	user  = c.connectedUsers.users[mail].cuser
 	if mail is not None:
-	    currObject = c.getObject('new',self.name)
+	    getID = 'new'
+	    if id1 == 'update':
+		getID = id2.split('_')[-1]
+	    currObject = c.getObject(getID,self.name)
 	    imgDirectory = 'static/img'
 	    infoCookie = mail + ',' + user.fields['password']
-	    web.setcookie('webpy', infoCookie, expires=900)
+	    update_cookie(infoCookie)
 	    data = web.input(placeImg={})
 	    method = data.get("method","malformed")
 	    cond = currObject.validate_form(data, c, user.fields['language'])
 	    if cond is True :
 		if currObject is None:
 		    raise web.seeother('/')
+		currObject.fields['time'] = data['time']
 		currObject.set_position(data['position'])
 		currObject.set_object(data['object'])
 		currObject.save(c,user)
 		return self.getListing(mail)
 	    else:
-		if id == 'new' :
+		if id2 == 'new' :
 		    currObject.delete(c)
-		return self.getRender(id2, mail, cond)
+		return self.getRender(id1,id2, mail, cond)
 	raise web.seeother('/')
     
-    def getRender(self, id, mail, mess):
-	return render.transfer(id,mail, mess)
+    def getRender(self,id1, id2, mail, mess = None):
+	if len(id1.split('_')) >1 or id1 == 'new' or id1 =='update':
+	    return render.transfer(id1,id2,mail, mess)
+	return self.getListing(mail)
     
     def getListing(self,mail):
-	return render.listingtransfers(mail)
+	return render.listing(mail,'batches')
 	
 class getRRD(): 
     def GET(self, filename):
@@ -367,8 +388,8 @@ class getRRD():
         except IOError: 
             web.notfound()
 	    
-class getRRD2(): 
-    def GET(self, idobj,filename):
+class getRRD2(WebObjectDoubleID): 
+    def getRender(self,id1,filename, mail):
         try: 
             f = open('rrd/' + filename)
             return f.read()  
@@ -428,6 +449,36 @@ class WebBatch(WebObjectUpdate):
     def getListing(self,mail):
 	return render.listing(mail,'batches')
 	
+class WebPlaceGraph(WebObjectDoubleID):
+    def __init__(self):
+	self.name=u"WebPlaceGraph"
+	
+    def getRender(self,id1, id2, mail):
+	return render.listinggraphics('p',id2,mail)
+	
+    def getListing(self,mail):
+	return render.listing(mail,'places')
+	
+class WebEquipmentsGraph(WebObjectDoubleID):
+    def __init__(self):
+	self.name=u"WebEquipmentsGraph"
+	
+    def getRender(self,id1, id2, mail):
+	return render.listinggraphics('e',id2,mail)
+	
+    def getListing(self,mail):
+	return render.listing(mail,'equipments')
+	
+class WebEquipmentsGraph(WebObjectDoubleID):
+    def __init__(self):
+	self.name=u"WebEquipmentsGraph"
+	
+    def getRender(self,id1, id2, mail):
+	return render.listinggraphics('e',id2,mail)
+	
+    def getListing(self,mail):
+	return render.listing(mail,'equipments')
+	
 class WebListing():
     def __init__(self):
 	self.name=u"WebListing"
@@ -462,6 +513,9 @@ def isConnected():
 
 def notfound():
     return web.notfound(render.notfound())
+    
+def update_cookie(infoCookie):
+    web.setcookie('webpy', infoCookie, expires=9000)
 
 c = None
     
@@ -471,14 +525,15 @@ def main():
     try:
         web.config.debug = False
         render=web.template.render('templates/', base='layout')
-
         urls = (
             '/', 'WebIndex',
             '/index','WebIndex',
+	    '/places/(.+)/(.+)', 'WebPlaceGraph',
             '/places/(.+)', 'WebPlace',
             '/places/', 'WebPlaces',
+	    '/equipments/(.+)/(.+)', 'WebEquipmentsGraph',
+	    '/equipments/(.+)','WebEquipment',
             '/equipments/', 'WebEquipments',
-            '/equipments/(.+)','WebEquipment',
             '/users/', 'WebUsers',
             '/users/(.+)', 'WebUser',
             '/groups/', 'WebGroups',
@@ -507,7 +562,6 @@ def main():
 	#Configuration Singleton ELSA
 	c=elsa.Configuration()
 	c.load()
-	c.InfoSystem.updateInfoSystem(time.time())
 	web.template.Template.globals['c'] = c
 	app = web.application(urls, globals())
 	app.notfound = notfound

@@ -1,0 +1,37 @@
+$def with (id1,id2,mail)
+$var location: graphic/ $id2
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+<script>
+    var graph_opts={legend: { noColumns:4}};
+    var ds_graph_opts={'Oscilator':{ color: "#ff8000", lines: { show: true, fill: true, fillColor:"#FF0000"} },
+			 'Idle':{ label: 'IdleJobs', color: "#00c0c0", 
+				  lines: { show: true, fill: true} },
+			 'Running':{color: "#000000",yaxis:2}};
+</script>
+
+$if id1 == 'p':
+    $code:
+	sensors = c.AllPieces.elements[id2].get_sensors_in_component(c)
+$elif id1 == 'e':
+    $code:
+	sensors = c.AllEquipments.elements[id2].get_sensors_in_component(c)
+$else :
+    $code:
+	sensors = []
+
+$for k in sensors:
+    <h1 id="title">Graphic sensor : $c.AllSensors.elements[k].getName(self.lang)</h1>
+    <table width="100%">
+	<tr>
+	    <td>
+		<div id="mygraph$(k)"></div>
+	    </td>
+	</tr>
+    </table>
+
+    <script type="text/javascript">
+	
+	$code:
+	    url = '/graphic/id/'+c.AllSensors.elements[k].getRRDName()
+	flot_obj=new rrdFlotAsync("mygraph$(k)","$url",null,graph_opts,ds_graph_opts);
+    </script>

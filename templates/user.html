@@ -3,9 +3,11 @@ $def with (id, mail, errormess)
 
 $if id == 'new':
     $var location: users/ new
+    $var rmq : 
     
 $else:
     $var location: users/ $c.AllUsers.elements[id].fields['u_id']
+    $var rmq :  $c.AllUsers.elements[id].fields['remark']
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 <div class="container">
@@ -73,10 +75,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	<div class="form-group row">
 	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
 	    <div class="col-sm-9">
-		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >
-$if id != 'new':
-    $c.AllUsers.elements[id].fields['remark']
-</textarea>
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >$self.rmq</textarea>
 	    </div>
 	</div>
 	
