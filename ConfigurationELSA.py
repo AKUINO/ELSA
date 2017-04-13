@@ -686,6 +686,7 @@ class AllObjects():
 		    
 		
     def loadNames(self):
+	check_csv()
 	with open(self.filename) as csvfile:
 	    reader = csv.DictReader(csvfile, delimiter = "\t")
             for row in reader:
