@@ -361,6 +361,7 @@ class WebCreateTransfer(WebObjectDoubleID):
 	    if cond is True :
 		if currObject is None:
 		    raise web.seeother('/')
+		currObject.fields['time'] = data['time']
 		currObject.set_position(data['position'])
 		currObject.set_object(data['object'])
 		currObject.save(c,user)
