@@ -3,11 +3,14 @@ $def with (id, mail, errormess)
 
 $if id == 'new':
     $var location: places/ new
+    $var rmq :  
     
 $else:
     $var location: places/ $c.AllPieces.elements[id].fields['p_id']
+    $var rmq :  $c.AllPieces.elements[id].fields['remark']
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+
 
 
 <div class="container">
@@ -40,7 +43,9 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 		    <input name="$k" type="text" class="form-control" id="inputName" placeholder="Name"
 		$if id !='new':
 		    value="$c.AllPieces.elements[id].get_real_name(k)"
-		required="true" >
+		$if self.lang == k: 
+		    required="true"
+		>
 		</div>
 	    </div>
 	
@@ -57,10 +62,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	<div class="form-group row">
 	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
 	    <div class="col-sm-9">
-		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.AllMessages.elements['remark'].getName(self.lang)" >
-$if id != 'new':
-    $c.AllPieces.elements[id].fields['remark']
-</textarea>
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.AllMessages.elements['remark'].getName(self.lang)" >$self.rmq</textarea>
 	    </div>
 	</div>
 	

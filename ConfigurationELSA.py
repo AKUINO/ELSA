@@ -31,7 +31,6 @@ groupWebUsers = '_WEB'
 
 class Configuration():
     def __init__(self):
-
 	self.HardConfig = hardconfig.HardConfig()
 	
         # Run only OUNCE: Check if /run/akuino/ELSA.pid exists...
@@ -580,7 +579,7 @@ class ConfigurationObject():
 	    print tmp.fields['cont_type']
 	    print id
 	    print tmp.fields['cont_id']
-	    if type == tmp.fields['cont_type'] and id == tmp.fields['cont_id']:
+	    if type == tmp.fields['cont_type'] and str(id) == tmp.fields['cont_id']:
 		return True
 	return False
 	
@@ -1030,7 +1029,7 @@ class AllTransfers(AllObjects):
         self.fileobject = csvDir + "T.csv"
 	self.filename = None
         self.keyColumn = "t_id"
-	self.fieldnames = ["begin","t_id", "cont_id", "cont_type", "object_id", "object_type", "remark", "user"]
+	self.fieldnames = ["begin","t_id",'time', "cont_id", "cont_type", "object_id", "object_type", "remark", "user"]
 	self.fieldtranslate = None
 
     def newObject(self):
@@ -1450,6 +1449,13 @@ class Equipment(ConfigurationObject):
 	
     def get_name_listing(self):
 	return 'equipments'
+	
+    def get_sensors_in_component(self, config):
+	listSensor = []
+	for k, sensor in config.AllSensors.elements.items():
+	    if sensor.is_in_component('e',self.id):
+		listSensor.append(k)
+	return listSensor
 
 class Container(ConfigurationObject):
 
@@ -1534,6 +1540,19 @@ class Piece(ConfigurationObject):
 	
     def get_name_listing(self):
 	return 'places'
+	
+    def get_sensors_in_component(self, config):
+	listSensor = []
+	checklist = []
+	checklist.append(['p',self.id])
+	for k,v in config.AllEquipments.elements.items():
+	    if v.fields['place'] == self.id:
+		checklist.append(['e',k])
+	for k, sensor in config.AllSensors.elements.items():
+	    for comp,id in checklist:
+		if sensor.is_in_component(comp,id):
+		    listSensor.append(k)
+	return listSensor
 
 class Halfling(ConfigurationObject):
 
@@ -1707,10 +1726,16 @@ class Sensor(ConfigurationObject):
 	typeComponent = tmp[-2][-1]
 	if typeComponent == 'p' :
 	    self.fields['p_id'] = tmp[-1]
+	    self.fields['e_id'] = ''
+	    self.fields['c_id'] = ''
 	elif typeComponent == 'c' :
 	    self.fields['c_id'] = tmp[-1]
+	    self.fields['e_id'] = ''
+	    self.fields['p_id'] = ''
 	elif typeComponent == 'e' :
-	    self.fields['e_id'] = tmp[-1]	    
+	    self.fields['e_id'] = tmp[-1]
+	    self.fields['p_id'] = ''
+	    self.fields['c_id'] = ''	    
 	    
     def addMeasure(self, data):
 	tmp = data.split('_')
@@ -1826,6 +1851,15 @@ class Sensor(ConfigurationObject):
 	    
     def get_name_listing(self):
 	return 'sensors'
+	
+    def is_in_component(self,type,id):
+	if type == 'e':
+	    return id == self.fields['e_id']
+	elif type == 'p':
+	    return id == self.fields['p_id']
+	elif type == 'c':
+	    return id == self.fields['c_id']
+	return False
 	    
 	    
 class Batch(ConfigurationObject):
