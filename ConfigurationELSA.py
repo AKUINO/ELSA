@@ -773,12 +773,12 @@ class AllObjects():
 	self.count = 0
 	
     def load(self):
+	self.check_csv()
 	self.loadFields()
 	if self.filename is not None :
 	    self.loadNames()
 
     def loadFields(self):
-	check_csv()
         with open(self.fileobject) as csvfile:
             reader = csv.DictReader(csvfile, delimiter = "\t")
             for row in reader:
