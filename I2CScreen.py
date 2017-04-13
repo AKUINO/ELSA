@@ -53,12 +53,12 @@ class I2CScreen:
         self.fontG8 = ImageFont.truetype('glyphicons-halflings-regular.ttf', 8)
         self.fontG10 = ImageFont.truetype('glyphicons-halflings-regular.ttf', 10)
 
-    def show(self,message):
-        if message:
-            lgText = self.draw.textsize(message,font=self.font)[0]
-            self.draw.rectangle((130-lgText,0,132,10),fill=255)
-            self.draw.text((132-lgText,0), message, font=self.font,fill=0)
+    def clear(self):
+        if self.i2cPresent:
+            self.draw.rectangle((self.begScreen,0,self.begScreen+self.width-1,self.height),fill=0)
+        self.linePos = 0
 
+    def end_line(self):
         if self.i2cPresent:
             # Display image.
             self.disp.image(self.image)
@@ -66,3 +66,26 @@ class I2CScreen:
                     self.disp.display()
             except:
                     traceback.print_exc()
+            time.sleep(0.1)
+        self.linePos += self.lineHeight
+        if (self.linePos + self.lineHeight) > self.height:
+            self.linePos = 0
+        self.draw.rectangle((self.begScreen,self.linePos,self.begScreen+self.width-1,self.linePos+self.lineHeight-1),fill=0)
+
+    def show(self,pos,message):
+        if message and self.i2cPresent:
+            lgText = self.draw.textsize(message,font=self.font)[0]
+            self.draw.text((pos,self.linePos), message, font=self.font,fill=255)
+            return pos+lgText+2
+        else:
+            return pos
+
+    def showBW(self,pos,message):
+        if message and self.i2cPresent:
+            lgText = self.draw.textsize(message,font=self.font)[0]
+            self.draw.rectangle((pos-2,self.linePos,pos+lgText+2,self.linePos+self.lineHeight-2),fill=255)
+            self.draw.text((pos,self.linePos), message, font=self.font,fill=0)
+            return pos+lgText+2
+        else:
+            return pos
+

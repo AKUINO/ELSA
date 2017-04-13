@@ -215,7 +215,7 @@ class WebPermission(WebObjectUpdate):
 	    method = data.get("method","malformed")
 	    print data
 	    for k,group in currObject.groups.items():
-		print  str(k) + '\n'
+		print  unicode(k) + '\n'
 		if k not in data:
 		    currObject.deleteGroup(k,c,user)
 	    for k,group in c.AllGroups.elements.items():
@@ -520,7 +520,8 @@ def main():
             c.isThreading = False
             c.UpdateThread.join()
             c.RadioThread.join()
-            os.unlink(c.pidfile)
+# Replaced by an abstract socket:
+#            os.unlink(c.pidfile)
 	print 'Exit system'
 
 if __name__ == "__main__":
