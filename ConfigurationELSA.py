@@ -37,7 +37,6 @@ _lock_socket = None
 class Configuration():
 
     def __init__(self):
-
         self.HardConfig = hardconfig.HardConfig()
 	
 ##        # Run only OUNCE: Check if /run/akuino/ELSA.pid exists...
@@ -96,7 +95,7 @@ class Configuration():
             self.screen.clear()
         else:
             self.screen = I2CScreen(False, disp = None)
-        
+
 	self.AllLanguages.load()
         self.AllUsers.load()
         self.AllPieces.load()
@@ -850,7 +849,7 @@ class AllObjects():
 	del self.elements[unicode(anID)]
 	
     def check_csv(self):
-	filename = self.filename
+	filename = self.fileobject
 	if not os.path.exists(filename):
 	    self.create_csv(filename)
     
