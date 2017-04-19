@@ -12,18 +12,18 @@ import threading
 import time
 import os
 import rrdtool
-import ow
+#import ow
 import serial
 import myuseful as useful
 import HardConfig as hardconfig
 import barcode
 import re
 import socket
-from I2CScreen import *
+"""from I2CScreen import *
 
 import pigpio
 PIG = pigpio.pi()
-
+"""
 #mise a jour git
 csvDir = "../ELSAcsv/csv/"
 rrdDir = 'rrd/'
@@ -36,7 +36,7 @@ _lock_socket = None
 class Configuration():
 
     def __init__(self):
-
+	"""
         self.HardConfig = hardconfig.HardConfig()
 	
 ##        # Run only OUNCE: Check if /run/akuino/ELSA.pid exists...
@@ -61,7 +61,7 @@ class Configuration():
             print 'AKUINO-ELSA lock exists'
             sys.exit()
 
-	
+	"""
 	self.InfoSystem = InfoSystem(self)
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
@@ -90,13 +90,14 @@ class Configuration():
 	self.screen = None
 
     def load(self):
+	"""
         if not self.HardConfig.oled is None:
             # 128x64 display with hardware I2C:
             self.screen = I2CScreen(True, disp = SSD1306.SSD1305_132_64(rst=self.HardConfig.oled_reset,gpio=PIG))
             self.screen.clear()
         else:
             self.screen = I2CScreen(False, disp = None)
-
+	"""
 	self.AllLanguages.load()
         self.AllUsers.load()
         self.AllPieces.load()
@@ -117,8 +118,8 @@ class Configuration():
 	self.loadRelation()
 	self.AllTransfers.load()
 	self.AllManualData.load()
-	self.UpdateThread.start()
-	self.RadioThread.start()
+	#self.UpdateThread.start()
+	#self.RadioThread.start()
 	
     
     def findAllFromObject(self,anObject):
@@ -798,6 +799,7 @@ class AllObjects():
 	self.count = 0
 	
     def load(self):
+	self.check_csv()
 	self.loadFields()
 	if self.filename is not None :
 	    self.loadNames()
@@ -877,7 +879,7 @@ class AllObjects():
 	del self.elements[unicode(anID)]
 	
     def check_csv(self):
-	filename = self.filename
+	filename = self.fileobject
 	if not os.path.exists(filename):
 	    self.create_csv(filename)
     
@@ -888,6 +890,13 @@ class AllObjects():
 	    while tmp < len(self.fieldnames):
 		csvfile.write('\t'+self.fieldnames[tmp])
 		tmp = tmp + 1
+	if self.filename is not None :
+	    with open(self.filename,'w') as csvfile:
+		csvfile.write(self.fieldtranslate[0])
+		tmp = 1
+		while tmp < len(self.fieldtranslate):
+		    csvfile.write('\t'+self.fieldtranslate[tmp])
+		    tmp = tmp + 1
 	        
 class AllUsers(AllObjects):
 
