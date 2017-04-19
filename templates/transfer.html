@@ -32,6 +32,8 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 		<input name="time" type="text" class="form-control" id="inputTime" placeholder="$c.AllMessages.elements['time'].getName(self.lang)" 
 		$if myID == 'update':
 		    value="$transfer.fields['time']"
+		$else :
+		    value ="$c.get_time()"
 		>
 	    </div>
 	</div>

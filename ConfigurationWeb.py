@@ -45,77 +45,77 @@ class WebObjectUpdate():
         raise web.seeother('/')
         
     def POST(self, id):
-        mail = isConnected()
-        user  = c.connectedUsers.users[mail].cuser
-        if mail is not None:
-            currObject = c.getObject(id,self.name)
-            imgDirectory = 'static/img'
-            infoCookie = mail + ',' + user.fields['password']
-            update_cookie(infoCookie)
-            if currObject is None:
-                raise web.seeother('/')
-            
-            data = web.input(placeImg={})
-            method = data.get("method","malformed")
-            cond = currObject.validate_form(data, c, user.fields['language'])
-            if cond is True:
-                for key in c.getFieldsname(self.name):
-                    if key in data:
-                        currObject.fields[key] = data[key]
-                        
-                for key in c.AllLanguages.elements:
-                    if key in data:
-                        currObject.setName(key, data[key],user, c.getKeyColumn(currObject))
-                        
-                if 'deny'in data:
-                    currObject.set_deny('1')
-                else:
-                    currObject.set_deny('0')
-                
-                if 'remark' in currObject.fields:
-                    currObject.fields['remark'] = currObject.fields['remark'][:-1]
-                    
-                if currObject.creator is None:
-                    currObject.creator = user.fields['u_id']
-                    currObject.created = currObject.fields['begin']
-                    
-                if 'password' in currObject.fields:
-                    currObject.fields['registration'] = currObject.created
-                    currObject.fields['password'] = useful.encrypt(currObject.fields['password'],currObject.created)
-                    
-                if 'code' in data:
-                    c.AllBarcodes.add_barcode(currObject, data['code'], user)
-                    
-                if 'component' in data:
-                    currObject.addComponent(data['component'])
-                    
-                if 'phase' in data:
-                    currObject.addPhase(data['phase'])
-                    
-                if'measure' in data:
-                    currObject.addMeasure(data['measure'])
-                    
-                if 'position' in data :
-                    currObject.set_position(data['position'])
-                    currObject.set_object(data['object'])
-                
-                if data['placeImg'] != {}: 
-                    if data.placeImg.filename != '': 
-                        printinfo(data['placeImg'])
-                        filepath = data.placeImg.filename.replace('\\','/') 
-                        ext = ((filepath.split('/')[-1]).split('.')[-1])
-                        fout = open(currObject.getImageDirectory()+'jpg','w')
-                        fout.write(data.placeImg.file.read())
-                        fout.close()
-                currObject.save(c,user)
-                if currObject.__class__.__name__ == u"Sensor" and id == 'new':
-                    currObject.createRRD()
-                return self.getListing(mail)
-            else :
-                if id == 'new' :
-                    currObject.delete(c)
-                return self.getRender(id, mail, cond)
-        raise web.seeother('/')
+	mail = isConnected()
+	user  = c.connectedUsers.users[mail].cuser
+	if mail is not None:
+	    currObject = c.getObject(id,self.name)
+	    imgDirectory = 'static/img'
+	    infoCookie = mail + ',' + user.fields['password']
+	    update_cookie(infoCookie)
+	    if currObject is None:
+		raise web.seeother('/')
+	    
+	    data = web.input(placeImg={})
+	    method = data.get("method","malformed")
+	    cond = currObject.validate_form(data, c, user.fields['language'])
+	    if cond is True:
+		for key in c.getFieldsname(self.name):
+		    if key in data:
+			currObject.fields[key] = data[key]
+			
+		for key in c.AllLanguages.elements:
+		    if key in data:
+			currObject.setName(key, data[key],user, c.getKeyColumn(currObject))
+			
+		if 'deny'in data:
+		    currObject.set_deny('1')
+		else:
+		    currObject.set_deny('0')
+		
+		if 'remark' in currObject.fields:
+		    currObject.fields['remark'] = currObject.fields['remark'][:-1]
+		    
+		if currObject.creator is None:
+		    currObject.creator = user.fields['u_id']
+		    currObject.created = currObject.fields['begin']
+		    
+		if 'password' in currObject.fields:
+		    currObject.fields['registration'] = currObject.created
+		    currObject.fields['password'] = useful.encrypt(currObject.fields['password'],currObject.created)
+		    
+		if 'code' in data:
+		    c.AllBarcodes.add_barcode(currObject, data['code'], user)
+		    
+		if 'component' in data:
+		    currObject.add_component(data['component'])
+		    
+		if 'phase' in data:
+		    currObject.add_phase(data['phase'])
+		    
+		if'measure' in data:
+		    currObject.add_measure(data['measure'])
+		    
+		if 'position' in data :
+		    currObject.set_position(data['position'])
+		    currObject.set_object(data['object'])
+		
+		if data['placeImg'] != {}: 
+		    if data.placeImg.filename != '': 
+			printinfo(data['placeImg'])
+			filepath = data.placeImg.filename.replace('\\','/') 
+			ext = ((filepath.split('/')[-1]).split('.')[-1])
+			fout = open(currObject.getImageDirectory()+'jpg','w')
+			fout.write(data.placeImg.file.read())
+			fout.close()
+		currObject.save(c,user)
+		if currObject.__class__.__name__ == u"Sensor" and id == 'new':
+		    currObject.createRRD()
+		return self.getListing(mail)
+	    else :
+		if id == 'new' :
+		    currObject.delete(c)
+		return self.getRender(id, mail, cond)
+	raise web.seeother('/')
 
 class WebObjectDoubleID():
     def __init__(self):
@@ -447,8 +447,64 @@ class WebBatch(WebObjectUpdate):
         return render.batch(id,mail, mess)
         
     def getListing(self,mail):
-        return render.listing(mail,'batches')
-        
+	return render.listing(mail,'batches')
+	
+class WebManualDataList(WebObjectUpdate):
+    def __init__(self):
+	self.name=u"WebManualData"
+	
+    def getRender(self, id, mail, mess):
+	myID = id.split('_')[1]
+	myType = id.split('_')[0]
+	return render.itemdata(myType,myID,mail)
+    
+    def getListing(self,mail):
+	raise web.seeother('/')
+
+class WebManualData(WebObjectDoubleID):
+    def __init__(self):
+	self.name=u"WebManualData"
+	
+    def POST(self, id1, id2):
+	mail = isConnected()
+	user  = c.connectedUsers.users[mail].cuser
+	if mail is not None:
+	    getID = id2
+	    currObject = c.getObject(getID,self.name)
+	    imgDirectory = 'static/img'
+	    infoCookie = mail + ',' + user.fields['password']
+	    update_cookie(infoCookie)
+	    data = web.input(placeImg={})
+	    method = data.get("method","malformed")
+	    cond = currObject.validate_form(data, c, user.fields['language'])
+	    if cond is True :
+		if currObject is None:
+		    raise web.seeother('/')
+		currObject.fields['time'] = data['time']
+		currObject.add_component(data['component'])
+		currObject.add_measure(data['measure'])
+		currObject.fields['value'] = data['value']
+		currObject.fields['remark'] = data['remark']
+		currObject.save(c,user)
+		allobjects = c.findAllFromType(currObject.fields['object_type']).elements[currObject.fields['object_id']].add_data(currObject)
+		return self.getListing(mail, id1)
+	    else:
+		if id2 == 'new' :
+		    currObject.delete(c)
+		return self.getRender(id1,id2, mail, cond)
+	raise web.seeother('/')
+    
+    def getRender(self,id1, id2, mail, mess = None):
+	if len(id1.split('_')) >1 or id1 =='update':
+	    return render.manualdata(id1,id2,mail, mess)
+	return self.getListing(mail, id1)
+    
+    def getListing(self,mail, id):
+	myType = id.split('_')[0]
+	myID = id.split('_')[1]
+	return render.itemdata(myType,myID,mail)
+	
+>>>>>>> 241cbd152d1ddf11264f6891a96d148af08e6e2f
 class WebPlaceGraph(WebObjectDoubleID):
     def __init__(self):
         self.name=u"WebPlaceGraph"
@@ -543,6 +599,8 @@ def main():
             '/containers/(.+)','WebContainer',
             '/measures/', 'WebMeasures',
             '/measures/(.+)', 'WebMeasure',
+	    '/manualdata/(.+)/(.+)', 'WebManualData',
+            '/manualdata/(.+)', 'WebManualDataList',
             '/sensors/', 'WebSensors',
             '/sensors/(.+)', 'WebSensor',
             '/graphic/(.+)/(.+)', 'getRRD2',
@@ -559,13 +617,13 @@ def main():
             '/listing/(.+)', 'WebListing',    
         )
 
-        #Configuration Singleton ELSA
-        c=elsa.Configuration()
-        c.load()
-        web.template.Template.globals['c'] = c
-        app = web.application(urls, globals())
-        app.notfound = notfound
-        app.run()       
+	#Configuration Singleton ELSA
+	c=elsa.Configuration()
+	c.load()
+	web.template.Template.globals['c'] = c
+	app = web.application(urls, globals())
+	app.notfound = notfound
+	app.run()	
     except :
         traceback.print_exc(file=sys.stdout)
     finally:

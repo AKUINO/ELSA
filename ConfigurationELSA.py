@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import sets
 import time
+import datetime
 import traceback
 import unicodecsv
 import datetime
@@ -18,7 +19,6 @@ import HardConfig as hardconfig
 import barcode
 import re
 import socket
-
 from I2CScreen import *
 
 import pigpio
@@ -61,7 +61,7 @@ class Configuration():
             print 'AKUINO-ELSA lock exists'
             sys.exit()
 
-	ow.init("/dev/i2c-1")
+	
 	self.InfoSystem = InfoSystem(self)
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
@@ -80,6 +80,7 @@ class Configuration():
 	self.AllAlarms = AllAlarms(self)
 	self.AllHalflings = AllHalflings(self)
 	self.AllBarcodes = AllBarcodes(self)
+	self.AllManualData = AllManualData(self)
 	self.connectedUsers = AllConnectedUsers()
 	self.AllTransfers = AllTransfers(self)
 	self.isThreading = True
@@ -95,7 +96,7 @@ class Configuration():
             self.screen.clear()
         else:
             self.screen = I2CScreen(False, disp = None)
-        
+
 	self.AllLanguages.load()
         self.AllUsers.load()
         self.AllPieces.load()
@@ -115,6 +116,7 @@ class Configuration():
 	self.AllBarcodes.load()
 	self.loadRelation()
 	self.AllTransfers.load()
+	self.AllManualData.load()
 	self.UpdateThread.start()
 	self.RadioThread.start()
 	
@@ -143,6 +145,8 @@ class Configuration():
 	    return self.AllBatches 
 	elif className == u"Transfer":
 	    return self.AllTransfers 
+	elif className == u"ManualData":
+	    return self.AllManualData 
         else:
             return None
 	    
@@ -169,6 +173,8 @@ class Configuration():
 	    return self.AllBatches.getItem(idObject)
 	elif className == u"WebTransfer" or className == u"t":
 	    return self.AllTransfers.getItem(idObject)
+	elif className == u"WebManualData" or className == u"d":
+	    return self.AllManualData.getItem(idObject)
         else:
             return None
     
@@ -195,6 +201,8 @@ class Configuration():
 	    return self.AllAlarms.fieldnames
 	elif className == u"WebTransfer":
 	    return self.AllTransfers.fieldnames
+	elif className == u"WebManualData":
+	    return self.AllManualData.fieldnames
         else:
             return None
 	    
@@ -225,6 +233,8 @@ class Configuration():
 	    return self.AllBatches
 	elif aType == u"t":
 	    return self.AllTransfers
+	elif aType == u"d":
+	    return self.AllManualData
         else:
             return None
 	    
@@ -313,6 +323,15 @@ class Configuration():
     def get_object(self, type, id):
 	objects = self.findAllFromType(type)
 	return objects.elements[id]
+	
+    def get_time(self):
+	return useful.get_time()
+	
+    def is_component(self, type):
+	if type == 'c' or type == 'p' or type == 'e' or type == 'b':
+	    return True
+	return False
+	
 	
 
 class InfoSystem():
@@ -486,6 +505,7 @@ class ConfigurationObject():
 	self.created = None
 	self.creator = None
 	self.position = []
+	self.data = []
 	
     def save(self,configuration,anUser=""):
         self.fields["begin"] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
@@ -611,7 +631,11 @@ class ConfigurationObject():
 		return None
 	self.groups[groupid] = configuration.AllGroups.elements[groupid]
 	self.write_group(groupid, configuration, anUser, 0)
-	    
+		
+    def add_data(self,manualdata):
+	if not manualdata.getID() in self.data:
+	    self.data.append(manualdata.getID())
+    
     def removekey(self, key):
 	del self.groups[key]
 	
@@ -705,10 +729,12 @@ class UpdateThread(threading.Thread):
     def run(self):
 	time.sleep(60)
 	while self.config.isThreading is True:
+	    ow.init("/dev/i2c-1")
 	    now = useful.get_timestamp()
 	    self.config.InfoSystem.updateInfoSystem(now)
 	    if not len(self.config.AllSensors.elements) == 0 :
 		self.config.AllSensors.update(now)
+	    ow.finish()
 	    time.sleep(60)
 	    
 class RadioThread(threading.Thread):
@@ -794,6 +820,9 @@ class AllObjects():
 		if currObject.get_type() == 't':
 		    objects = self.config.findAllFromType(currObject.fields['object_type'])
 		    objects.elements[currObject.fields['object_id']].add_position(currObject)
+		elif currObject.get_type() == 'd':
+		    objects = self.config.findAllFromType(currObject.fields['object_type'])
+		    objects.elements[currObject.fields['object_id']].add_data(currObject)
 		    
 		
     def loadNames(self):
@@ -983,7 +1012,7 @@ class AllHalflings(AllObjects):
         self.fileobject = csvDir + "halflings.csv"
 	self.filename = None
         self.keyColumn = "classname"
-	self.fieldnames = ['begin', 'p_id', 'deny', 'acronym', 'remark','colorgraph', 'user']
+	self.fieldnames = ['begin', 'classname', 'glyphname', 'user']
 	self.fieldtranslate = None
 	self.count = 0
 
@@ -1010,6 +1039,21 @@ class AllAlarms(AllObjects):
 
     def newObject(self):
 	return Alarm()	
+	
+class AllManualData(AllObjects):
+
+    def __init__(self, config):
+	AllObjects.__init__(self)
+        self.elements = {}
+        self.config = config
+        self.fileobject = csvDir + "D.csv"
+	self.filename = None
+        self.keyColumn = "d_id"
+	self.fieldnames = ['begin', 'd_id', 'object_id', 'object_type', 'time', 'remark', 'm_id', 'value', 'user']
+	self.fieldtranslate = None
+
+    def newObject(self):
+	return ManualData()
     
 class AllGroups(AllObjects):
 
@@ -1588,6 +1632,68 @@ class Container(ConfigurationObject):
     def get_name_listing(self):
 	return 'containers'
 	
+class ManualData(ConfigurationObject):
+
+    def __init__(self):
+	ConfigurationObject.__init__(self)
+
+    def __repr__(self):
+        string = unicode(self.id)
+        return string
+
+    def __str__(self):
+        string = "\nManual Data :"
+        for field in self.fields:
+            string = string + "\n" + field + " : " + self.fields[field]
+        return string + "\n"
+	
+    def get_type(self):
+	return 'd'
+	
+    def get_name_listing(self):
+	return 'manualdata'
+	
+    def add_component(self, component):
+	type = component.split('_')[0]
+	id = component.split('_')[1]
+	self.fields['object_id'] = id
+	self.fields['object_type'] = type
+	
+    def add_measure(self, measure):
+	if not measure =='None':
+	    self.fields['m_id'] = str(measure)
+	else:
+	    self.fields['m_id'] = ''
+	
+	
+    def validate_form(self, data, configuration, lang) :
+	print data
+	tmp = ''
+	try:
+	    value = datetime.datetime.strptime(data['time'],"%H:%M:%S  -  %d/%m/%y")
+	except:
+	    traceback.print_exc()
+	    tmp += configuration.AllMessages.elements['timerules'].getName(lang) + '\n'
+	
+	if 'value' in data and data['measure'] == u'None':
+	    if not data['value'] == '' :
+		tmp += configuration.AllMessages.elements['datarules'].getName(lang) + '\n'
+	elif 'value' in data:
+	    try : 
+		value = float(data['value'])
+	    except:
+		tmp += configuration.AllMessages.elements['floatrules'].getName(lang) + '\n'
+	try:
+	    type = data['component'].split('_')[0]
+	    id = data['component'].split('_')[1]
+	    if not configuration.is_component(type):
+		tmp += configuration.AllMessages.elements['componentrules'].getName(lang) + '\n'
+	except:
+	    tmp += configuration.AllMessages.elements['componentrules'].getName(lang) + '\n'
+		    
+	if tmp == '':
+	    return True
+	return tmp
 	
 class Group(ConfigurationObject):
 
@@ -1831,7 +1937,7 @@ class Sensor(ConfigurationObject):
 	name += '.rrd'
 	return name
 
-    def addComponent(self, data):
+    def add_component(self, data):
 	tmp = data.split('_')
 	typeComponent = tmp[-2][-1]
 	if typeComponent == 'p' :
@@ -1847,12 +1953,12 @@ class Sensor(ConfigurationObject):
 	    self.fields['p_id'] = ''
 	    self.fields['c_id'] = ''	    
 	    
-    def addMeasure(self, data):
+    def add_measure(self, data):
 	tmp = data.split('_')
 	self.fields['m_id']= tmp[-1]
 	    
 	    
-    def addPhase(self, data):
+    def add_phase(self, data):
 	self.fields['h_id'] = data
 
     def update(self, now, value ,config):
