@@ -18,368 +18,368 @@ global c, render
 
 class WebObject():
     def __init__(self):
-	self.name = u"WebIndex"
-	
+        self.name = u"WebIndex"
+        
     def GET(self):
-	mail = isConnected()
-	if mail is not None:
-	    return self.getRender(mail)
-	return render.index(False,'')
-	
+        mail = isConnected()
+        if mail is not None:
+            return self.getRender(mail)
+        return render.index(False,'')
+        
     def POST(self):
-	data = web.input(nifile={})
-	method = data.get("method","malformed")
-	connectedUser = connexion(data._username_,data._password_)
-	if connectedUser is not None:
-	    infoCookie = data._username_ + ',' + connectedUser.fields['password']
-	    update_cookie(infoCookie)
-	    c.connectedUsers.addUser(connectedUser)
-	    return render.index(True, data._username_) 
-	return render.index(False, '')
-	
+        data = web.input(nifile={})
+        method = data.get("method","malformed")
+        connectedUser = connexion(data._username_,data._password_)
+        if connectedUser is not None:
+            infoCookie = data._username_ + ',' + connectedUser.fields['password']
+            update_cookie(infoCookie)
+            c.connectedUsers.addUser(connectedUser)
+            return render.index(True, data._username_) 
+        return render.index(False, '')
+        
 class WebObjectUpdate():
     def GET(self,id):
-	mail = isConnected()
-	if mail is not None:
-	    return self.getRender(id,mail, '')
-	raise web.seeother('/')
-	
+        mail = isConnected()
+        if mail is not None:
+            return self.getRender(id,mail, '')
+        raise web.seeother('/')
+        
     def POST(self, id):
-	mail = isConnected()
-	user  = c.connectedUsers.users[mail].cuser
-	if mail is not None:
-	    currObject = c.getObject(id,self.name)
-	    imgDirectory = 'static/img'
-	    infoCookie = mail + ',' + user.fields['password']
-	    update_cookie(infoCookie)
-	    if currObject is None:
-		raise web.seeother('/')
-	    
-	    data = web.input(placeImg={})
-	    method = data.get("method","malformed")
-	    cond = currObject.validate_form(data, c, user.fields['language'])
-	    if cond is True:
-		for key in c.getFieldsname(self.name):
-		    if key in data:
-			currObject.fields[key] = data[key]
-			
-		for key in c.AllLanguages.elements:
-		    if key in data:
-			currObject.setName(key, data[key],user, c.getKeyColumn(currObject))
-			
-		if 'deny'in data:
-		    currObject.set_deny('1')
-		else:
-		    currObject.set_deny('0')
-		
-		if 'remark' in currObject.fields:
-		    currObject.fields['remark'] = currObject.fields['remark'][:-1]
-		    
-		if currObject.creator is None:
-		    currObject.creator = user.fields['u_id']
-		    currObject.created = currObject.fields['begin']
-		    
-		if 'password' in currObject.fields:
-		    currObject.fields['registration'] = currObject.created
-		    currObject.fields['password'] = useful.encrypt(currObject.fields['password'],currObject.created)
-		    
-		if 'code' in data:
-		    c.AllBarcodes.add_barcode(currObject, data['code'], user)
-		    
-		if 'component' in data:
-		    currObject.addComponent(data['component'])
-		    
-		if 'phase' in data:
-		    currObject.addPhase(data['phase'])
-		    
-		if'measure' in data:
-		    currObject.addMeasure(data['measure'])
-		    
-		if 'position' in data :
-		    currObject.set_position(data['position'])
-		    currObject.set_object(data['object'])
-		
-		if data['placeImg'] != {}: 
-		    if data.placeImg.filename != '': 
-			printinfo(data['placeImg'])
-			filepath = data.placeImg.filename.replace('\\','/') 
-			ext = ((filepath.split('/')[-1]).split('.')[-1])
-			fout = open(currObject.getImageDirectory()+'jpg','w')
-			fout.write(data.placeImg.file.read())
-			fout.close()
-		currObject.save(c,user)
-		if currObject.__class__.__name__ == u"Sensor" and id == 'new':
-		    currObject.createRRD()
-		return self.getListing(mail)
-	    else :
-		if id == 'new' :
-		    currObject.delete(c)
-		return self.getRender(id, mail, cond)
-	raise web.seeother('/')
+        mail = isConnected()
+        user  = c.connectedUsers.users[mail].cuser
+        if mail is not None:
+            currObject = c.getObject(id,self.name)
+            imgDirectory = 'static/img'
+            infoCookie = mail + ',' + user.fields['password']
+            update_cookie(infoCookie)
+            if currObject is None:
+                raise web.seeother('/')
+            
+            data = web.input(placeImg={})
+            method = data.get("method","malformed")
+            cond = currObject.validate_form(data, c, user.fields['language'])
+            if cond is True:
+                for key in c.getFieldsname(self.name):
+                    if key in data:
+                        currObject.fields[key] = data[key]
+                        
+                for key in c.AllLanguages.elements:
+                    if key in data:
+                        currObject.setName(key, data[key],user, c.getKeyColumn(currObject))
+                        
+                if 'deny'in data:
+                    currObject.set_deny('1')
+                else:
+                    currObject.set_deny('0')
+                
+                if 'remark' in currObject.fields:
+                    currObject.fields['remark'] = currObject.fields['remark'][:-1]
+                    
+                if currObject.creator is None:
+                    currObject.creator = user.fields['u_id']
+                    currObject.created = currObject.fields['begin']
+                    
+                if 'password' in currObject.fields:
+                    currObject.fields['registration'] = currObject.created
+                    currObject.fields['password'] = useful.encrypt(currObject.fields['password'],currObject.created)
+                    
+                if 'code' in data:
+                    c.AllBarcodes.add_barcode(currObject, data['code'], user)
+                    
+                if 'component' in data:
+                    currObject.addComponent(data['component'])
+                    
+                if 'phase' in data:
+                    currObject.addPhase(data['phase'])
+                    
+                if'measure' in data:
+                    currObject.addMeasure(data['measure'])
+                    
+                if 'position' in data :
+                    currObject.set_position(data['position'])
+                    currObject.set_object(data['object'])
+                
+                if data['placeImg'] != {}: 
+                    if data.placeImg.filename != '': 
+                        printinfo(data['placeImg'])
+                        filepath = data.placeImg.filename.replace('\\','/') 
+                        ext = ((filepath.split('/')[-1]).split('.')[-1])
+                        fout = open(currObject.getImageDirectory()+'jpg','w')
+                        fout.write(data.placeImg.file.read())
+                        fout.close()
+                currObject.save(c,user)
+                if currObject.__class__.__name__ == u"Sensor" and id == 'new':
+                    currObject.createRRD()
+                return self.getListing(mail)
+            else :
+                if id == 'new' :
+                    currObject.delete(c)
+                return self.getRender(id, mail, cond)
+        raise web.seeother('/')
 
 class WebObjectDoubleID():
     def __init__(self):
-	self.name = u"WebIndex"
-	
+        self.name = u"WebIndex"
+        
     def GET(self, id1, id2):
-	mail = isConnected()
-	if mail is not None:
-	    return self.getRender(id1, id2, mail)
-	return render.index(False,'')
-	
+        mail = isConnected()
+        if mail is not None:
+            return self.getRender(id1, id2, mail)
+        return render.index(False,'')
+        
     def POST(self,id1,id2):
-	data = web.input(nifile={})
-	method = data.get("method","malformed")
-	connectedUser = connexion(data._username_,data._password_)
-	if connectedUser is not None:
-	    infoCookie = data._username_ + ',' + connectedUser.fields['password']
-	    update_cookie(infoCookie)
-	    c.connectedUsers.addUser(connectedUser)
-	    return self.getRender(id2,mail) 
-	return render.index(False, '')
+        data = web.input(nifile={})
+        method = data.get("method","malformed")
+        connectedUser = connexion(data._username_,data._password_)
+        if connectedUser is not None:
+            infoCookie = data._username_ + ',' + connectedUser.fields['password']
+            update_cookie(infoCookie)
+            c.connectedUsers.addUser(connectedUser)
+            return self.getRender(id2,mail) 
+        return render.index(False, '')
 
-	
+        
 class WebIndex(WebObject):
     def __init(self):
-	self.name = u"WebIndex"
-	
+        self.name = u"WebIndex"
+        
     def getRender(self, mail):
-	return render.index(True,mail)
-	
+        return render.index(True,mail)
+        
 class WebPlaces(WebObject):
     def __init__(self):
-	self.name=u"WebPlaces"
+        self.name=u"WebPlaces"
     
     def getRender(self, mail):
-	return render.listing(mail,'places')
-	
+        return render.listing(mail,'places')
+        
 class WebEquipments(WebObject):
     def __init__(self):
-	self.name=u"WebEquipments"
-	
+        self.name=u"WebEquipments"
+        
     def getRender(self, mail):
-	return render.listing(mail,'equipments')
+        return render.listing(mail,'equipments')
 
 class WebPlace(WebObjectUpdate):
     def __init__(self):
-	self.name=u"WebPlace"
-	
+        self.name=u"WebPlace"
+        
     def getRender(self, id, mail, errormess):
-	return render.place(id,mail, errormess)
-	
+        return render.place(id,mail, errormess)
+        
     def getListing(self,mail):
-	return render.listing(mail,'places')
+        return render.listing(mail,'places')
 
-	
+        
 class WebEquipment(WebObjectUpdate):
     def __init__(self):
-	self.name=u"WebEquipment"
-	
+        self.name=u"WebEquipment"
+        
     def getRender(self, id, mail, errormess):
-	return render.equipment(id,mail, errormess)
-	
+        return render.equipment(id,mail, errormess)
+        
     def getListing(self,mail):
-	return render.listing(mail,'equipments')
+        return render.listing(mail,'equipments')
 
 class WebUsers(WebObject):
     def __init__(self):
-	self.name=u"WebUsers"
+        self.name=u"WebUsers"
     
     def getRender(self, mail):
-	return render.listing(mail,'users')
-	
+        return render.listing(mail,'users')
+        
 class WebUser(WebObjectUpdate):
     def __init__(self):
-	self.name=u"WebUser"
-	
+        self.name=u"WebUser"
+        
     def getRender(self, id, mail, mess):
-	return render.user(id,mail, mess)
-	
+        return render.user(id,mail, mess)
+        
     def getListing(self,mail):
-	return render.listing(mail,'users')
+        return render.listing(mail,'users')
 
 class WebGroups(WebObject):
     def __init__(self):
-	self.name=u"WebGroups"
+        self.name=u"WebGroups"
     
     def getRender(self, mail):
-	return render.listing(mail,'groups')
-	
+        return render.listing(mail,'groups')
+        
 class WebGroup(WebObjectUpdate):
     def __init__(self):
-	self.name=u"WebGroup"
-	
+        self.name=u"WebGroup"
+        
     def getRender(self, id, mail, mess):
-	return render.group(id,mail, mess)
-	
+        return render.group(id,mail, mess)
+        
     def getListing(self,mail):
-	return render.listing(mail,'groups')
-	
+        return render.listing(mail,'groups')
+        
 class WebPermission(WebObjectUpdate):
     def __init__(self):
-	self.name=u"WebPermission"
-	
+        self.name=u"WebPermission"
+        
     def getRender(self,id,mail, error):
-	typeobject = id.split('_')[0]
-	idobject = id.split('_')[1]
-	return render.permissions(mail,idobject,typeobject)
-	
+        typeobject = id.split('_')[0]
+        idobject = id.split('_')[1]
+        return render.permissions(mail,idobject,typeobject)
+        
     def POST(self, id):
-	mail = isConnected()
-	user  = c.connectedUsers.users[mail].cuser
-	if mail is not None:
-	    typeobject = id.split('_')[0]
-	    idobject = id.split('_')[1]
-	    currObject = c.getObject(idobject, typeobject)
-	    if currObject is None:
-		raise web.seeother('/')
-	    data = web.input(placeImg={})
-	    method = data.get("method","malformed")
-	    print data
-	    for k,group in currObject.groups.items():
-		print  unicode(k) + '\n'
-		if k not in data:
-		    currObject.deleteGroup(k,c,user)
-	    for k,group in c.AllGroups.elements.items():
-		if k in data :
-		    currObject.add_group(k, c, user)
-	    return self.get_listing(id, mail)
-	return render.index(False,'')
-	
+        mail = isConnected()
+        user  = c.connectedUsers.users[mail].cuser
+        if mail is not None:
+            typeobject = id.split('_')[0]
+            idobject = id.split('_')[1]
+            currObject = c.getObject(idobject, typeobject)
+            if currObject is None:
+                raise web.seeother('/')
+            data = web.input(placeImg={})
+            method = data.get("method","malformed")
+            print data
+            for k,group in currObject.groups.items():
+                print  unicode(k) + '\n'
+                if k not in data:
+                    currObject.deleteGroup(k,c,user)
+            for k,group in c.AllGroups.elements.items():
+                if k in data :
+                    currObject.add_group(k, c, user)
+            return self.get_listing(id, mail)
+        return render.index(False,'')
+        
     def get_listing(self, id, mail):
-	typeobject = id.split('_')[0]
-	tmp = ''
-	if typeobject == 'p':
-	    tmp = 'places'
-	elif typeobject == 'e':
-	    tmp = 'equipments'
-	elif typeobject == 'c':
-	    tmp = 'containers'
-	elif typeobject == 'cpehm':
-	    tmp = 'sensors'
-	elif typeobject == 'a':
-	    tmp = 'alarms'
-	elif typeobject == 'u':
-	    tmp = 'users'
-	elif typeobject == 'g':
-	    tmp = 'groups'
-	elif typeobject == 'm':
-	    tmp = 'measures'
-	return render.listing(mail,tmp)
+        typeobject = id.split('_')[0]
+        tmp = ''
+        if typeobject == 'p':
+            tmp = 'places'
+        elif typeobject == 'e':
+            tmp = 'equipments'
+        elif typeobject == 'c':
+            tmp = 'containers'
+        elif typeobject == 'cpehm':
+            tmp = 'sensors'
+        elif typeobject == 'a':
+            tmp = 'alarms'
+        elif typeobject == 'u':
+            tmp = 'users'
+        elif typeobject == 'g':
+            tmp = 'groups'
+        elif typeobject == 'm':
+            tmp = 'measures'
+        return render.listing(mail,tmp)
 
 class WebContainers(WebObject):
     def __init__(self):
-	self.name=u"WebContainers"
+        self.name=u"WebContainers"
     
     def getRender(self, mail):
-	return render.listing(mail,'containers')
-	
+        return render.listing(mail,'containers')
+        
 
 class WebContainer(WebObjectUpdate):
     def __init__(self):
-	self.name=u"WebContainer"
-	
+        self.name=u"WebContainer"
+        
     def getRender(self, id, mail, mess):
-	return render.container(id,mail, mess)
+        return render.container(id,mail, mess)
     
     def getListing(self,mail):
-	return render.listing(mail,'containers')
-	
+        return render.listing(mail,'containers')
+        
 class WebMeasures(WebObject):
     def __init__(self):
-	self.name=u"WebMeasures"
+        self.name=u"WebMeasures"
     
     def getRender(self, mail):
-	return render.listing(mail,'measures')
-	
+        return render.listing(mail,'measures')
+        
 
 class WebMeasure(WebObjectUpdate):
     def __init__(self):
-	self.name=u"WebMeasure"
-	
+        self.name=u"WebMeasure"
+        
     def getRender(self, id, mail, mess):
-	return render.measure(id,mail, mess)
+        return render.measure(id,mail, mess)
     
     def getListing(self,mail):
-	return render.listing(mail,'measures')
-	
+        return render.listing(mail,'measures')
+        
 class WebSensors(WebObject):
     def __init__(self):
-	self.name=u"Sensors"
+        self.name=u"Sensors"
     
     def getRender(self, mail):
-	return render.listing(mail,'sensors')
-	
+        return render.listing(mail,'sensors')
+        
 
 class WebSensor(WebObjectUpdate):
     def __init__(self):
-	self.name=u"WebSensor"
-	
+        self.name=u"WebSensor"
+        
     def getRender(self, id, mail, mess):
-	return render.sensor(id,mail, mess)
+        return render.sensor(id,mail, mess)
     
     def getListing(self,mail):
-	return render.listing(mail,'sensors')
-	
+        return render.listing(mail,'sensors')
+        
 class WebTransfers(WebObject):
     def __init__(self):
-	self.name=u"Transfers"
+        self.name=u"Transfers"
     
     def getRender(self, mail):
-	return render.listingtransfers(mail)	
+        return render.listingtransfers(mail)    
 
 class WebTransfer(WebObjectUpdate):
     def __init__(self):
-	self.name=u"WebTransfer"
-	
+        self.name=u"WebTransfer"
+        
     def getRender(self, id, mail, mess):
-	myID = id.split('_')[1]
-	myType = id.split('_')[0]
-	return render.itemtransfers(myType,myID,mail)
+        myID = id.split('_')[1]
+        myType = id.split('_')[0]
+        return render.itemtransfers(myType,myID,mail)
     
     def getListing(self,mail):
-	return render.listingtransfers(mail)
-	
+        return render.listingtransfers(mail)
+        
 class WebCreateTransfer(WebObjectDoubleID):
     def __init__(self):
-	self.name=u"WebTransfer"
-	
+        self.name=u"WebTransfer"
+        
     def POST(self, id1, id2):
-	mail = isConnected()
-	user  = c.connectedUsers.users[mail].cuser
-	if mail is not None:
-	    getID = 'new'
-	    if id1 == 'update':
-		getID = id2.split('_')[-1]
-	    currObject = c.getObject(getID,self.name)
-	    imgDirectory = 'static/img'
-	    infoCookie = mail + ',' + user.fields['password']
-	    update_cookie(infoCookie)
-	    data = web.input(placeImg={})
-	    method = data.get("method","malformed")
-	    cond = currObject.validate_form(data, c, user.fields['language'])
-	    if cond is True :
-		if currObject is None:
-		    raise web.seeother('/')
-		currObject.fields['time'] = data['time']
-		currObject.set_position(data['position'])
-		currObject.set_object(data['object'])
-		currObject.save(c,user)
-		return self.getListing(mail)
-	    else:
-		if id2 == 'new' :
-		    currObject.delete(c)
-		return self.getRender(id1,id2, mail, cond)
-	raise web.seeother('/')
+        mail = isConnected()
+        user  = c.connectedUsers.users[mail].cuser
+        if mail is not None:
+            getID = 'new'
+            if id1 == 'update':
+                getID = id2.split('_')[-1]
+            currObject = c.getObject(getID,self.name)
+            imgDirectory = 'static/img'
+            infoCookie = mail + ',' + user.fields['password']
+            update_cookie(infoCookie)
+            data = web.input(placeImg={})
+            method = data.get("method","malformed")
+            cond = currObject.validate_form(data, c, user.fields['language'])
+            if cond is True :
+                if currObject is None:
+                    raise web.seeother('/')
+                currObject.fields['time'] = data['time']
+                currObject.set_position(data['position'])
+                currObject.set_object(data['object'])
+                currObject.save(c,user)
+                return self.getListing(mail)
+            else:
+                if id2 == 'new' :
+                    currObject.delete(c)
+                return self.getRender(id1,id2, mail, cond)
+        raise web.seeother('/')
     
     def getRender(self,id1, id2, mail, mess = None):
-	if len(id1.split('_')) >1 or id1 == 'new' or id1 =='update':
-	    return render.transfer(id1,id2,mail, mess)
-	return self.getListing(mail)
+        if len(id1.split('_')) >1 or id1 == 'new' or id1 =='update':
+            return render.transfer(id1,id2,mail, mess)
+        return self.getListing(mail)
     
     def getListing(self,mail):
-	return render.listing(mail,'batches')
-	
+        return render.listing(mail,'batches')
+        
 class getRRD(): 
     def GET(self, filename):
         try: 
@@ -387,7 +387,7 @@ class getRRD():
             return f.read()  
         except IOError: 
             web.notfound()
-	    
+            
 class getRRD2(WebObjectDoubleID): 
     def getRender(self,id1,filename, mail):
         try: 
@@ -395,120 +395,120 @@ class getRRD2(WebObjectDoubleID):
             return f.read()  
         except IOError: 
             web.notfound()
-	    
+            
 class WebMonitoring(WebObject):
     def __init__(self):
-	self.name=u"WebMonitoring"
+        self.name=u"WebMonitoring"
     
     def getRender(self, mail):
-	return render.monitoring(mail)
-	
+        return render.monitoring(mail)
+        
 class WebSensorGraph():
     def __init__(self):
-	self.name=u"WebSensorGraph"
+        self.name=u"WebSensorGraph"
     
     def GET(self,id):
-	mail = isConnected()
-	if mail is not None:
-	    return render.graphic(mail,id)
-	return render.index(False,'')
+        mail = isConnected()
+        if mail is not None:
+            return render.graphic(mail,id)
+        return render.index(False,'')
 
-	    
+            
 class WebAlarms(WebObject):
     def __init__(self):
-	self.name=u"WebAlarms"
-	
+        self.name=u"WebAlarms"
+        
     def getRender(self, mail):
-	return render.listing(mail,'alarms')
+        return render.listing(mail,'alarms')
 
 class WebAlarm(WebObjectUpdate):
     def __init__(self):
-	self.name=u"WebAlarm"
-	
+        self.name=u"WebAlarm"
+        
     def getRender(self, id, mail, mess):
-	return render.alarm(id,mail, mess)
-	
+        return render.alarm(id,mail, mess)
+        
     def getListing(self,mail):
-	return render.listing(mail,'alarms')
-	
-	
+        return render.listing(mail,'alarms')
+        
+        
 class WebBatches(WebObject):
     def __init__(self):
-	self.name=u"WebBatches"
-	
+        self.name=u"WebBatches"
+        
     def getRender(self, mail):
-	return render.listing(mail,'batches')
+        return render.listing(mail,'batches')
 
 class WebBatch(WebObjectUpdate):
     def __init__(self):
-	self.name=u"WebBatch"
-	
+        self.name=u"WebBatch"
+        
     def getRender(self, id, mail, mess):
-	return render.batch(id,mail, mess)
-	
+        return render.batch(id,mail, mess)
+        
     def getListing(self,mail):
-	return render.listing(mail,'batches')
-	
+        return render.listing(mail,'batches')
+        
 class WebPlaceGraph(WebObjectDoubleID):
     def __init__(self):
-	self.name=u"WebPlaceGraph"
-	
+        self.name=u"WebPlaceGraph"
+        
     def getRender(self,id1, id2, mail):
-	return render.listinggraphics('p',id2,mail)
-	
+        return render.listinggraphics('p',id2,mail)
+        
     def getListing(self,mail):
-	return render.listing(mail,'places')
-	
+        return render.listing(mail,'places')
+        
 class WebEquipmentsGraph(WebObjectDoubleID):
     def __init__(self):
-	self.name=u"WebEquipmentsGraph"
-	
+        self.name=u"WebEquipmentsGraph"
+        
     def getRender(self,id1, id2, mail):
-	return render.listinggraphics('e',id2,mail)
-	
+        return render.listinggraphics('e',id2,mail)
+        
     def getListing(self,mail):
-	return render.listing(mail,'equipments')
-	
+        return render.listing(mail,'equipments')
+        
 class WebEquipmentsGraph(WebObjectDoubleID):
     def __init__(self):
-	self.name=u"WebEquipmentsGraph"
-	
+        self.name=u"WebEquipmentsGraph"
+        
     def getRender(self,id1, id2, mail):
-	return render.listinggraphics('e',id2,mail)
-	
+        return render.listinggraphics('e',id2,mail)
+        
     def getListing(self,mail):
-	return render.listing(mail,'equipments')
-	
+        return render.listing(mail,'equipments')
+        
 class WebListing():
     def __init__(self):
-	self.name=u"WebListing"
-	
+        self.name=u"WebListing"
+        
     def GET(self, id):
-	mail = isConnected()
-	if mail is not None:
-	    return self.getRender(id,mail, '')
-	return render.index(False,'')
-	
+        mail = isConnected()
+        if mail is not None:
+            return self.getRender(id,mail, '')
+        return render.index(False,'')
+        
     def getRender(self,id,mail, error):
-	typeobject = id.split('_')[0]
-	idobject = id.split('_')[1]
-	return render.listingcomponent(mail,idobject,typeobject)
-	
+        typeobject = id.split('_')[0]
+        idobject = id.split('_')[1]
+        return render.listingcomponent(mail,idobject,typeobject)
+        
 
 def connexion(username,password):
     user = c.AllUsers.getUser(username)
     if user is not None:
-	cryptedPassword = useful.encrypt(password,user.fields['registration'])
-	if user.checkPassword(cryptedPassword) is True:
-	    return user
+        cryptedPassword = useful.encrypt(password,user.fields['registration'])
+        if user.checkPassword(cryptedPassword) is True:
+            return user
     return None
     
 def isConnected():
     infoCookie = web.cookies().get('webpy')
     if infoCookie is not None : 
-	infoCookie = infoCookie.split(',')
-	if c.connectedUsers.isConnected(infoCookie[0],infoCookie[1]) is True:
-	    return infoCookie[0]
+        infoCookie = infoCookie.split(',')
+        if c.connectedUsers.isConnected(infoCookie[0],infoCookie[1]) is True:
+            return infoCookie[0]
     return None
 
 def notfound():
@@ -528,11 +528,11 @@ def main():
         urls = (
             '/', 'WebIndex',
             '/index','WebIndex',
-	    '/places/(.+)/(.+)', 'WebPlaceGraph',
+            '/places/(.+)/(.+)', 'WebPlaceGraph',
             '/places/(.+)', 'WebPlace',
             '/places/', 'WebPlaces',
-	    '/equipments/(.+)/(.+)', 'WebEquipmentsGraph',
-	    '/equipments/(.+)','WebEquipment',
+            '/equipments/(.+)/(.+)', 'WebEquipmentsGraph',
+            '/equipments/(.+)','WebEquipment',
             '/equipments/', 'WebEquipments',
             '/users/', 'WebUsers',
             '/users/(.+)', 'WebUser',
@@ -559,24 +559,24 @@ def main():
             '/listing/(.+)', 'WebListing',    
         )
 
-	#Configuration Singleton ELSA
-	c=elsa.Configuration()
-	c.load()
-	web.template.Template.globals['c'] = c
-	app = web.application(urls, globals())
-	app.notfound = notfound
-	app.run()	
+        #Configuration Singleton ELSA
+        c=elsa.Configuration()
+        c.load()
+        web.template.Template.globals['c'] = c
+        app = web.application(urls, globals())
+        app.notfound = notfound
+        app.run()       
     except :
-	traceback.print_exc(file=sys.stdout)
+        traceback.print_exc(file=sys.stdout)
     finally:
-	print 'fin des threads'
-	if c:
+        print 'fin des threads'
+        if c:
             c.isThreading = False
             c.UpdateThread.join()
             c.RadioThread.join()
 # Replaced by an abstract socket:
 #            os.unlink(c.pidfile)
-	print 'Exit system'
+        print 'Exit system'
 
 if __name__ == "__main__":
     main()
