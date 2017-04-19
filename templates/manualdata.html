@@ -1,0 +1,120 @@
+$def with (id1,id2, mail, errormess)
+
+
+$if id2 == 'new':
+    $var location: manualdata/ new
+    $var rmq :  
+    
+$else:
+    $var location: manualdata/ $c.AllManualData.elements[id2].fields['d_id']
+    $var rmq :  $c.AllManualData.elements[id2].fields['remark']
+    $code :
+	data = c.AllManualData.elements[id2]
+
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+
+
+
+<div class="container">
+    <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
+	<div class="col-sm-12" >
+	    <p id="error">$errormess</p>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputTime" class="col-sm-3 col-form-label">$c.AllMessages.elements['time'].getName(self.lang)</label>
+	    <div class="col-sm-9">
+		<input name="time" type="text" class="form-control" id="inputTime" placeholder="$c.AllMessages.elements['time'].getName(self.lang)" 
+		$if id2 != 'new':
+		    value="$data.fields['time']"
+		$else :
+		    value ="$c.get_time()"
+		required ="true">
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="itemSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['component'].getName(self.lang)</label>
+	    <div class="col-sm-9">
+		<select name = "component" class="form-control" id="langSelect">
+		    <optgroup label="$c.AllMessages.elements['place'].getName(self.lang)">
+		    $for k in c.AllPieces.elements.keys():
+			<option value="p_$k"
+			    $if k == id1.split('_')[1] and 'p' == id1.split('_')[0]:
+				selected
+			>$c.AllPieces.elements[k].fields['acronym'] - $c.AllPieces.elements[k].getName(self.lang) </option>
+		    </optgroup>
+		    <optgroup label="$c.AllMessages.elements['equipment'].getName(self.lang)">
+		    $for k in c.AllEquipments.elements.keys():
+			<option value="e_$k"
+			    $if k == id1.split('_')[1] and 'e' == id1.split('_')[0]:
+				selected			
+			>$c.AllEquipments.elements[k].fields['acronym'] - $c.AllEquipments.elements[k].getName(self.lang)</option>
+		    </optgroup>
+		    <optgroup label="$c.AllMessages.elements['container'].getName(self.lang)">
+		    $for k in c.AllContainers.elements.keys():
+			<option value="c_$k"
+			    $if k == id1.split('_')[1] and 'c' == id1.split('_')[0]:
+				selected
+			>$c.AllContainers.elements[k].fields['acronym'] - $c.AllContainers.elements[k].getName(self.lang)</option>
+		    </optgroup>
+		    <optgroup label="$c.AllMessages.elements['batch'].getName(self.lang)">
+		    $for k in c.AllBatches.elements.keys():
+			<option value="b_$k"
+			    $if k == id1.split('_')[1] and 'b' == id1.split('_')[0]:
+				selected
+			>$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang)</option>
+		    </optgroup>
+		</select>
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="measureSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['measure'].getName(self.lang)</label>
+	    <div class="col-sm-9">
+		<select name = "measure" class="form-control" id="measureSelect">
+		    <option value="None"></option>
+		    $for k in c.AllMeasures.elements.keys():
+			<option value="$k"
+			    $if id2 != 'new':
+				$if k == c.AllManualData.elements[id2].fields['m_id'] :
+				    selected
+			>$c.AllMeasures.elements[k].fields['acronym'] - $c.AllMeasures.elements[k].getName(self.lang) - $c.AllMeasures.elements[k].fields['unit']</option>
+		</select>
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputValue" class="col-sm-3 col-form-label">$c.AllMessages.elements['value'].getName(self.lang)</label>
+	    <div class="col-sm-9">
+		<input name="value" type="text" class="form-control" id="inputValue" placeholder="$c.AllMessages.elements['value'].getName(self.lang)" 
+		$if id2 != 'new':
+		    value="$data.fields['value']"
+		>
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
+	    <div class="col-sm-9">
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.AllMessages.elements['remark'].getName(self.lang)" >$self.rmq</textarea>
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <div class="col-sm-3">
+	    </div>
+	    <div class="col-sm-2">
+		<a href="/manualdata/" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+	    </div>
+	    <div class="col-sm-2">
+	    </div>
+	    <div class="col-sm-2">
+		<button type="submit" class="btn btn-primary btn-block">Save</button>
+	    </div> 
+	    <div class="col-sm-3">
+	    </div>
+	</div>
+    </form>
+</div>
+

@@ -5,7 +5,7 @@ $code:
     keyID = c.findAllFromObject(elem).keyColumn
     
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
-$var location: transfers/
+$var location: tmanualdata/
 
 <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
     <div class="col-xs-12" >
@@ -46,22 +46,20 @@ $var location: transfers/
     <label class="col-sm-12"></label>
 </div>
 
-$for transfer in elem.position:
+$for d in elem.data:
     <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<div class="col-xs-4" >
-	    $transfer.fields['time']
-	</div>
-	$code :
-	    cont = c.findAllFromType(transfer.fields['cont_type']).elements[transfer.fields['cont_id']]
-	    
+	    $c.AllManualData.elements[d].fields['time']
+	</div>	    
 	<div class="col-xs-4" >
-	    <a href="/$(cont.get_name_listing())/" >$cont.fields['acronym'] - $cont.getName(self.lang)</a>
+	    $if c.AllManualData.elements[d].fields['m_id'] != '' :
+	        $c.AllManualData.elements[d].fields['value']  $c.AllMeasures.elements[c.AllManualData.elements[d].fields['m_id']].fields['unit']</a>
 	</div>
 	<div class="col-xs-3" >
-	    $transfer.fields['remark']
+	    $c.AllManualData.elements[d].fields['remark']
 	</div>
 	<div class="col-xs-1">
-	    <strong><a href="update/t_$transfer.fields['t_id']" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
+	    <strong><a href="$(type)_$(id)/$(d)" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
 	</div>
     </div>
     
@@ -69,6 +67,6 @@ $for transfer in elem.position:
     <div class="col-xs-5">
     </div>
     <div class="col-xs-6" id="addItem">
-	<a href="$(type)_$(id)/new"><span class="halflings halflings-plus"></span>$c.AllMessages.elements['transfer'].getName(self.lang)</a>
+	<a href="$(type)_$(id)/new"><span class="halflings halflings-plus"></span>$c.AllMessages.elements['manualdata'].getName(self.lang)</a>
     </div>
 </div> 

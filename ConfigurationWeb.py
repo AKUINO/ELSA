@@ -87,13 +87,13 @@ class WebObjectUpdate():
 		    c.AllBarcodes.add_barcode(currObject, data['code'], user)
 		    
 		if 'component' in data:
-		    currObject.addComponent(data['component'])
+		    currObject.add_component(data['component'])
 		    
 		if 'phase' in data:
-		    currObject.addPhase(data['phase'])
+		    currObject.add_phase(data['phase'])
 		    
 		if'measure' in data:
-		    currObject.addMeasure(data['measure'])
+		    currObject.add_measure(data['measure'])
 		    
 		if 'position' in data :
 		    currObject.set_position(data['position'])
@@ -449,6 +449,61 @@ class WebBatch(WebObjectUpdate):
     def getListing(self,mail):
 	return render.listing(mail,'batches')
 	
+class WebManualDataList(WebObjectUpdate):
+    def __init__(self):
+	self.name=u"WebManualData"
+	
+    def getRender(self, id, mail, mess):
+	myID = id.split('_')[1]
+	myType = id.split('_')[0]
+	return render.itemdata(myType,myID,mail)
+    
+    def getListing(self,mail):
+	raise web.seeother('/')
+
+class WebManualData(WebObjectDoubleID):
+    def __init__(self):
+	self.name=u"WebManualData"
+	
+    def POST(self, id1, id2):
+	mail = isConnected()
+	user  = c.connectedUsers.users[mail].cuser
+	if mail is not None:
+	    getID = id2
+	    currObject = c.getObject(getID,self.name)
+	    imgDirectory = 'static/img'
+	    infoCookie = mail + ',' + user.fields['password']
+	    update_cookie(infoCookie)
+	    data = web.input(placeImg={})
+	    method = data.get("method","malformed")
+	    cond = currObject.validate_form(data, c, user.fields['language'])
+	    if cond is True :
+		if currObject is None:
+		    raise web.seeother('/')
+		currObject.fields['time'] = data['time']
+		currObject.add_component(data['component'])
+		currObject.add_measure(data['measure'])
+		currObject.fields['value'] = data['value']
+		currObject.fields['remark'] = data['remark']
+		currObject.save(c,user)
+		allobjects = c.findAllFromType(currObject.fields['object_type']).elements[currObject.fields['object_id']].add_data(currObject)
+		return self.getListing(mail, id1)
+	    else:
+		if id2 == 'new' :
+		    currObject.delete(c)
+		return self.getRender(id1,id2, mail, cond)
+	raise web.seeother('/')
+    
+    def getRender(self,id1, id2, mail, mess = None):
+	if len(id1.split('_')) >1 or id1 =='update':
+	    return render.manualdata(id1,id2,mail, mess)
+	return self.getListing(mail, id1)
+    
+    def getListing(self,mail, id):
+	myType = id.split('_')[0]
+	myID = id.split('_')[1]
+	return render.itemdata(myType,myID,mail)
+	
 class WebPlaceGraph(WebObjectDoubleID):
     def __init__(self):
 	self.name=u"WebPlaceGraph"
@@ -543,6 +598,8 @@ def main():
             '/containers/(.+)','WebContainer',
             '/measures/', 'WebMeasures',
             '/measures/(.+)', 'WebMeasure',
+	    '/manualdata/(.+)/(.+)', 'WebManualData',
+            '/manualdata/(.+)', 'WebManualDataList',
             '/sensors/', 'WebSensors',
             '/sensors/(.+)', 'WebSensor',
             '/graphic/(.+)/(.+)', 'getRRD2',
@@ -562,6 +619,7 @@ def main():
 	#Configuration Singleton ELSA
 	c=elsa.Configuration()
 	c.load()
+	print c.AllPieces.elements['2'].data
 	web.template.Template.globals['c'] = c
 	app = web.application(urls, globals())
 	app.notfound = notfound

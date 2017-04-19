@@ -68,7 +68,7 @@ $def with(content)
 		    <li class="dropdown" data-show-icon="true">
 			<a href="#" class="dropdown-toggle" data-toggle="dropdown">Data<b class="caret"></b></a>
 			<ul class="dropdown-menu">
-			    <li><a href="/measures/" tabindex="-1"><span class="halflings halflings-reflect-y"></span> $c.AllMessages.elements['measure'].getName(content.lang)</a></li>
+			    <li><a href="/measures/" tabindex="-1"><span class="$c.AllHalflings.elements['measure'].getHalfling()"></span> $c.AllMessages.elements['measure'].getName(content.lang)</a></li>
 			    <li><a href="/alarms/" tabindex="-2"><span class="$c.AllHalflings.elements['alarm'].getHalfling()"></span> $c.AllMessages.elements['alarm'].getName(content.lang)</a></li>
 			    <li><a href="/monitoring/" tabindex="-3"><span class="halflings halflings-stats"></span> Monitoring</a></li>
 			    <li><a href="#" tabindex="-4"><span class="halflings halflings-barcode"></span> Barcodes</a></li>

@@ -38,7 +38,7 @@ def send_email(recipient, subject, text):
 def timestamp_to_date(now):
     return datetime.datetime.fromtimestamp(int(now)).strftime("%H:%M:%S  -  %d/%m/%y")
     
-def get_time(now):
+def get_time():
     now = int(time.time())
     return datetime.datetime.fromtimestamp(now).strftime("%H:%M:%S  -  %d/%m/%y")
 
