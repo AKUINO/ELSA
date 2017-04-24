@@ -15,6 +15,9 @@ $if id1 == 'p':
 $elif id1 == 'e':
     $code:
 	sensors = c.AllEquipments.elements[id2].get_sensors_in_component(c)
+$elif id1 == 'c':
+    $code:
+	sensors = c.AllContainers.elements[id2].get_sensors_in_component(c)
 $else :
     $code:
 	sensors = []

@@ -23,10 +23,6 @@ begin	lang	m_id	name	user
 01/01/2016 13:45:56	EN	barcode	Barcode	1
 01/01/2016 13:45:56	NL	barcode	Streepjescode	1
 01/01/2016 13:45:56	DE	barcode	Strichcode	1
-01/01/2016 13:45:56	FR	p_id	ID	1
-01/01/2016 13:45:56	EN	p_id	ID	1
-01/01/2016 13:45:56	NL	p_id	ID	1
-01/01/2016 13:45:56	DE	p_id	ID	1
 01/01/2016 13:45:56	FR	remark	Remarque	1
 01/01/2016 13:45:56	EN	remark	Remark	1
 01/01/2016 13:45:56	NL	remark	Opmerking	1
@@ -39,10 +35,6 @@ begin	lang	m_id	name	user
 01/01/2016 13:45:56	EN	user	User	1
 01/01/2016 13:45:56	NL	user	Gebruiker	1
 01/01/2016 13:45:56	DE	user	Benutzer	1
-01/01/2016 13:45:56	FR	e_id	ID	1
-01/01/2016 13:45:56	EN	e_id	ID	1
-01/01/2016 13:45:56	NL	e_id	ID	1
-01/01/2016 13:45:56	DE	e_id	ID	1
 01/01/2016 13:45:56	FR	file	Fichier	1
 01/01/2016 13:45:56	EN	file	File	1
 01/01/2016 13:45:56	NL	file	File	1
@@ -139,10 +131,10 @@ begin	lang	m_id	name	user
 01/01/2016 13:45:56	EN	color	"Color :"	1
 01/01/2016 13:45:56	NL	color	"Kleur :"	1
 01/01/2016 13:45:56	DE	color	"Farbe :"	1
-01/01/2016 13:45:56	FR	component	"Composant :"	1
-01/01/2016 13:45:56	EN	component	"Component :"	1
-01/01/2016 13:45:56	NL	component	"Bestanddeel :"	1
-01/01/2016 13:45:56	DE	component	"Komponente :"	1
+01/01/2016 13:45:56	FR	component	"Composant "	1
+01/01/2016 13:45:56	EN	component	"Component "	1
+01/01/2016 13:45:56	NL	component	"Bestanddeel "	1
+01/01/2016 13:45:56	DE	component	"Komponente "	1
 01/01/2016 13:45:56	FR	graphic	"Graphique :"	1
 01/01/2016 13:45:56	EN	graphic	"Graphic :"	1
 01/01/2016 13:45:56	NL	graphic	"Grafisch :"	1

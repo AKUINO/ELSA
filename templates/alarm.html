@@ -52,6 +52,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <label for="inputSms1" class="col-sm-3 col-form-label">$c.AllMessages.elements['phone'].getName(self.lang) 1</label>
 	    <div class="col-sm-9">
 		<select name = "o_sms1" class="form-control" id="inputSms1">
+		    <option value=""></option>
 		    $for k in c.AllGroups.elements.keys():
 			<option value="$k"
                         $if id != 'new':
@@ -66,6 +67,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <label for="inputMail1" class="col-sm-3 col-form-label">$c.AllMessages.elements['mail'].getName(self.lang) 1</label>
 	    <div class="col-sm-9">
 		<select name = "o_email1" class="form-control" id="inputMail1">
+		    <option value=""></option>
 		    $for k in c.AllGroups.elements.keys():
 			<option value="$k"
                         $if id != 'new':
@@ -80,6 +82,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <label for="inputSound1" class="col-sm-3 col-form-label">$c.AllMessages.elements['sound'].getName(self.lang) 1</label>
 	    <div class="col-sm-9">
 		<select name = "o_sound1" class="form-control" id="inputSound1">
+		    <option value=""></option>
 		    $for k in c.AllGroups.elements.keys():
 			<option value="$k"
                         $if id != 'new':
@@ -95,6 +98,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <label for="inputSms2" class="col-sm-3 col-form-label">$c.AllMessages.elements['phone'].getName(self.lang) 2</label>
 	    <div class="col-sm-9">
 		<select name = "o_sms2" class="form-control" id="inputSms2">
+		    <option value=""></option>
 		    $for k in c.AllGroups.elements.keys():
 			<option value="$k"
                         $if id != 'new':
@@ -109,6 +113,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <label for="inputMail2" class="col-sm-3 col-form-label">$c.AllMessages.elements['mail'].getName(self.lang) 2</label>
 	    <div class="col-sm-9">
 		<select name = "o_email2" class="form-control" id="inputMail2">
+		    <option value=""></option>
 		    $for k in c.AllGroups.elements.keys():
 			<option value="$k"
                         $if id != 'new':
@@ -123,6 +128,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <label for="inputSound2" class="col-sm-3 col-form-label">$c.AllMessages.elements['sound'].getName(self.lang) 2</label>
 	    <div class="col-sm-9">
 		<select name = "o_sound2" class="form-control" id="inputSound2">
+		    <option value=""></option>
 		    $for k in c.AllGroups.elements.keys():
 			<option value="$k"
                         $if id != 'new':

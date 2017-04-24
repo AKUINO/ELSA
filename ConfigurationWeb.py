@@ -101,7 +101,6 @@ class WebObjectUpdate():
                 
                 if data['placeImg'] != {}: 
                     if data.placeImg.filename != '': 
-                        printinfo(data['placeImg'])
                         filepath = data.placeImg.filename.replace('\\','/') 
                         ext = ((filepath.split('/')[-1]).split('.')[-1])
                         fout = open(currObject.getImageDirectory()+'jpg','w')
@@ -170,6 +169,21 @@ class WebPlace(WebObjectUpdate):
     def getListing(self,mail):
         return render.listing(mail,'places')
 
+class WebBarcode():
+    def __init__(self):
+        self.name=u"WebBarcode"
+	
+    def GET(self,id):
+        mail = isConnected()
+        if mail is not None:
+            return self.getRender(id,mail)
+        raise web.seeother('/')
+        
+    def getRender(self, id, mail):
+        return render.barcode(mail,id)
+        
+    def getListing(self,mail):
+        return render.listing(mail,'places')
         
 class WebEquipment(WebObjectUpdate):
     def __init__(self):
@@ -456,7 +470,9 @@ class WebManualDataList(WebObjectUpdate):
     def getRender(self, id, mail, mess):
         myID = id.split('_')[1]
         myType = id.split('_')[0]
-        return render.itemdata(myType,myID,mail)
+	if myType in 'pceb':
+	    return render.itemdata(myType,myID,mail)
+	return render.notfound()
     
     def getListing(self,mail):
         raise web.seeother('/')
@@ -486,6 +502,8 @@ class WebManualData(WebObjectDoubleID):
                 currObject.fields['value'] = data['value']
                 currObject.fields['remark'] = data['remark']
                 currObject.save(c,user)
+		if 'a_id' in data :
+		    alarm = c.AllAlarms.elements[data['a_id']].launch_alarm(currObject,c)
                 allobjects = c.findAllFromType(currObject.fields['object_type']).elements[currObject.fields['object_id']].add_data(currObject)
                 return self.getListing(mail, id1)
             else:
@@ -524,15 +542,15 @@ class WebEquipmentsGraph(WebObjectDoubleID):
     def getListing(self,mail):
         return render.listing(mail,'equipments')
         
-class WebEquipmentsGraph(WebObjectDoubleID):
+class WebContainersGraph(WebObjectDoubleID):
     def __init__(self):
-        self.name=u"WebEquipmentsGraph"
+        self.name=u"WebContainersGraph"
         
     def getRender(self,id1, id2, mail):
-        return render.listinggraphics('e',id2,mail)
+        return render.listinggraphics('c',id2,mail)
         
     def getListing(self,mail):
-        return render.listing(mail,'equipments')
+        return render.listing(mail,'containers')
         
 class WebListing():
     def __init__(self):
@@ -547,7 +565,14 @@ class WebListing():
     def getRender(self,id,mail, error):
         typeobject = id.split('_')[0]
         idobject = id.split('_')[1]
-        return render.listingcomponent(mail,idobject,typeobject)
+	if typeobject in 'pceb':
+	    return render.listingcomponent(mail,idobject,typeobject)
+	elif typeobject == 'm':
+	    return render.listingmeasures(mail,idobject)
+	elif typeobject == 'g':
+	    return render.listinggroup(mail,idobject)
+	return render.notfound()
+        
         
 
 def connexion(username,password):
@@ -578,7 +603,7 @@ def main():
 
     global c, render
     try:
-        web.config.debug = False
+        #web.config.debug = False
         render=web.template.render('templates/', base='layout')
         urls = (
             '/', 'WebIndex',
@@ -594,6 +619,7 @@ def main():
             '/groups/', 'WebGroups',
             '/groups/(.+)', 'WebGroup',
             '/permissions/(.+)', 'WebPermission',
+	    '/containers/(.+)/(.+)', 'WebContainersGraph',
             '/containers/', 'WebContainers',
             '/containers/(.+)','WebContainer',
             '/measures/', 'WebMeasures',
@@ -613,7 +639,8 @@ def main():
             '/transfers/(.+)/(.+)', 'WebCreateTransfer',
             '/transfers/', 'WebTransfers',
             '/transfers/(.+)', 'WebTransfer',    
-            '/listing/(.+)', 'WebListing',    
+            '/listing/(.+)', 'WebListing',
+	    '/barcode/(.+)', 'WebBarcode',    
         )
 
         #Configuration Singleton ELSA
