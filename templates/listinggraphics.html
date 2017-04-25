@@ -3,6 +3,7 @@ $var location: graphic/ $id2
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 <script>
     var graph_opts={legend: { noColumns:4}};
+    var rrdflot_defaults={graph_width: "600px"}
     var ds_graph_opts={'Oscilator':{ color: "#ff8000", lines: { show: true, fill: true, fillColor:"#FF0000"} },
 			 'Idle':{ label: 'IdleJobs', color: "#00c0c0", 
 				  lines: { show: true, fill: true} },
@@ -36,5 +37,5 @@ $for k in sensors:
 	
 	$code:
 	    url = '/graphic/id/'+c.AllSensors.elements[k].getRRDName()
-	flot_obj=new rrdFlotAsync("mygraph$(k)","$url",null,graph_opts,ds_graph_opts);
+	flot_obj=new rrdFlotAsync("mygraph$(k)","$url",null,graph_opts,ds_graph_opts,rrdflot_defaults);
     </script>

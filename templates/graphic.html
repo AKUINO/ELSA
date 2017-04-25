@@ -6,21 +6,17 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 
 
 
-    <table width="100%">
-	<tr>
-	    <td>
-		<div id="mygraph"></div>
-	    </td>
-	</tr>
-    </table>
+
+    <div id="mygraph"></div>
 
     <script type="text/javascript">
-	var graph_opts={legend: { noColumns:4}};
+	var graph_opts={legend: "top"};
+	var rrdflot_defaults={graph_width: "600px"}
 	var ds_graph_opts={'Oscilator':{ color: "#ff8000", lines: { show: true, fill: true, fillColor:"#FF0000"} },
                          'Idle':{ label: 'IdleJobs', color: "#00c0c0", 
                                   lines: { show: true, fill: true} },
                          'Running':{color: "#000000",yaxis:2}};
         $code:
             url = 'id/'+c.AllSensors.elements[id].getRRDName()
-	flot_obj=new rrdFlotAsync("mygraph","$url",null,graph_opts,ds_graph_opts);
+	flot_obj=new rrdFlotAsync("mygraph","$url",null,graph_opts,ds_graph_opts,rrdflot_defaults);
     </script>

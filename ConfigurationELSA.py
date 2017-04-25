@@ -12,18 +12,18 @@ import threading
 import time
 import os
 import rrdtool
-#import ow
+import ow
 import serial
 import myuseful as useful
 import HardConfig as hardconfig
 import barcode
 import re
 import socket
-"""from I2CScreen import *
+from I2CScreen import *
 
 import pigpio
 PIG = pigpio.pi()
-"""
+
 #mise a jour git
 csvDir = "../ELSAcsv/csv/"
 rrdDir = 'rrd/'
@@ -37,7 +37,7 @@ _lock_socket = None
 class Configuration():
 
     def __init__(self):
-	"""
+	
         self.HardConfig = hardconfig.HardConfig()
 	
 ##        # Run only OUNCE: Check if /run/akuino/ELSA.pid exists...
@@ -62,7 +62,7 @@ class Configuration():
             print 'AKUINO-ELSA lock exists'
             sys.exit()
 
-	"""
+	
 	self.InfoSystem = InfoSystem(self)
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
@@ -79,6 +79,7 @@ class Configuration():
 	self.AllBatches = AllBatches(self)
 	self.AllSensors = AllSensors(self)
 	self.AllAlarms = AllAlarms(self)
+	self.AllAlarmLogs= AllAlarmLogs(self)
 	self.AllHalflings = AllHalflings(self)
 	self.AllBarcodes = AllBarcodes(self)
 	self.AllManualData = AllManualData(self)
@@ -91,14 +92,14 @@ class Configuration():
 	self.screen = None
 
     def load(self):
-	"""
+	
         if not self.HardConfig.oled is None:
             # 128x64 display with hardware I2C:
             self.screen = I2CScreen(True, disp = SSD1306.SSD1305_132_64(rst=self.HardConfig.oled_reset,gpio=PIG))
             self.screen.clear()
         else:
             self.screen = I2CScreen(False, disp = None)
-	"""
+	
 	self.AllLanguages.load()
         self.AllUsers.load()
         self.AllPieces.load()
@@ -119,8 +120,9 @@ class Configuration():
 	self.loadRelation()
 	self.AllTransfers.load()
 	self.AllManualData.load()
-	#self.UpdateThread.start()
-	#self.RadioThread.start()
+	self.AllAlarmLogs.load()
+	self.UpdateThread.start()
+	self.RadioThread.start()
 	
     
     def findAllFromObject(self,anObject):
@@ -176,6 +178,8 @@ class Configuration():
 	elif className == u"WebTransfer" or className == u"t":
 	    return self.AllTransfers.getItem(idObject)
 	elif className == u"WebManualData" or className == u"d":
+	    return self.AllManualData.getItem(idObject)
+	elif className == u"WebAlarmLogs" or className == u"al":
 	    return self.AllManualData.getItem(idObject)
         else:
             return None
@@ -511,7 +515,9 @@ class ConfigurationObject():
 	
     def save(self,configuration,anUser=""):
         self.fields["begin"] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
-        self.fields["user"] = anUser.fields['u_id']
+	if anUser != "" :
+	    self.fields["user"] = anUser.fields['u_id']
+	
         allObjects = configuration.findAllFromObject(self)
 	print allObjects.fileobject
         print allObjects.fieldnames
@@ -1020,6 +1026,22 @@ class AllPieces(AllObjects):
 
     def newObject(self):
 	return Piece()
+	
+class AllAlarmLogs(AllObjects):
+
+    def __init__(self, config):
+	AllObjects.__init__(self)
+        self.elements = {}
+        self.config = config
+        self.fileobject = csvDir + "alarmlogs.csv"
+	self.filename = None
+        self.keyColumn = "al_id"
+	self.fieldnames = ['begin', 'al_id', 'cont_id', 'cont_type', 'cpehm_id','value','typealarm','begintime', 'alarmtime', 'degree']
+	self.fieldtranslate = None
+	self.count = 0
+
+    def newObject(self):
+	return AlarmLog()
 	
 class AllHalflings(AllObjects):
 
@@ -1815,6 +1837,31 @@ class Piece(ConfigurationObject):
 		if sensor.is_in_component(comp,id):
 		    listSensor.append(k)
 	return listSensor
+	
+class AlarmLog(ConfigurationObject):
+
+    def __init__(self):
+	ConfigurationObject.__init__(self)
+	
+
+    def __repr__(self):
+        string = unicode(self.id) 
+        return string
+
+    def __str__(self):
+        string = "\nAlarmLog :"
+        for field in self.fields:
+            string = string + "\n" + field + " : " + self.fields[field]
+        return string + "\n"
+	
+    def get_type(self):
+	return 'al'
+	
+    def get_name_listing(self):
+	return ''
+	
+    def get_name(self):
+	return 'alarmlog'
 
 class Halfling(ConfigurationObject):
 
@@ -1865,15 +1912,27 @@ class Alarm(ConfigurationObject):
 	    mess = config.AllMessages.elements['alarmmessage'].getName(lang)
 	    cpe = ''
 	    elem = ''
+	    currObject = c.getObject('new','al')
 	    if not sensor.fields['p_id'] == '':
 		cpe = config.AllMessages.elements['place'].getName(lang)
 		elem = config.AllPieces.elements[sensor.fields['p_id']]
+		currObject.fields['cont_type'] = 'p'
 	    elif not sensor.fields['e_id'] == '':
 		cpe = config.AllMessages.elements['equipment'].getName(lang)
 		elem = config.AllPieces.elements[sensor.fields['e_id']]
+		currObject.fields['cont_type'] = 'e'
 	    elif not sensor.fields['c_id'] == '':
 		cpe = config.AllMessages.elements['container'].getName(lang)
 		elem = config.AllPieces.elements[sensor.fields['c_id']]
+		currObject.fields['cont_type'] = 'c'
+	    currObject.fields['cont_id'] = elem.getID()
+	    currObject.fields['cpehm_id'] = sensor.getID()
+	    currObject.fields['value'] = unicode(sensor.lastvalue)
+	    currObject.fields['typealarm'] = sensor.actualAlarm
+	    currObject.fields['begintime'] = sensor.time
+	    currObject.fields['alarmtime'] = int(sensor.time) * sensor.countActual
+	    currObject.fields['degree'] = sensor.degreeAlarm
+	    currObject.save(config)
 	    return unicode.format(mess,u'Akuino 6001', cpe, elem.getName(lang), elem.fields['acronym'], sensor.getName(lang), sensor.fields['acronym'], unicode(sensor.lastvalue), sensor.actualAlarm, useful.timestamp_to_date(sensor.time), unicode(sensor.degreeAlarm))
 	else :
 	    return unicode('Il manque le message')

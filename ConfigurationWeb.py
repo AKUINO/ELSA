@@ -54,7 +54,6 @@ class WebObjectUpdate():
             update_cookie(infoCookie)
             if currObject is None:
                 raise web.seeother('/')
-            
             data = web.input(placeImg={})
             method = data.get("method","malformed")
             cond = currObject.validate_form(data, c, user.fields['language'])
@@ -180,7 +179,9 @@ class WebBarcode():
         raise web.seeother('/')
         
     def getRender(self, id, mail):
-        return render.barcode(mail,id)
+	if id in c.AllPieces.elements.keys() or id == 'new' :
+	    return render.barcode(mail,id)
+	return render.notfound()        
         
     def getListing(self,mail):
         return render.listing(mail,'places')
@@ -189,8 +190,10 @@ class WebEquipment(WebObjectUpdate):
     def __init__(self):
         self.name=u"WebEquipment"
         
-    def getRender(self, id, mail, errormess):
-        return render.equipment(id,mail, errormess)
+    def getRender(self, id, mail, errormess):        
+	if id in c.AllEquipments.elements.keys() or id == 'new' :
+	    return render.equipment(id,mail, errormess)
+	return render.notfound()
         
     def getListing(self,mail):
         return render.listing(mail,'equipments')
@@ -207,7 +210,10 @@ class WebUser(WebObjectUpdate):
         self.name=u"WebUser"
         
     def getRender(self, id, mail, mess):
-        return render.user(id,mail, mess)
+	if id in c.AllUsers.elements.keys() or id == 'new' :
+	    return render.user(id,mail, mess)
+	return render.notfound()
+        
         
     def getListing(self,mail):
         return render.listing(mail,'users')
@@ -224,7 +230,9 @@ class WebGroup(WebObjectUpdate):
         self.name=u"WebGroup"
         
     def getRender(self, id, mail, mess):
-        return render.group(id,mail, mess)
+	if id in c.AllGroups.elements.keys() or id == 'new' :
+	    return render.group(id,mail, mess)
+	return render.notfound()        
         
     def getListing(self,mail):
         return render.listing(mail,'groups')
@@ -236,7 +244,10 @@ class WebPermission(WebObjectUpdate):
     def getRender(self,id,mail, error):
         typeobject = id.split('_')[0]
         idobject = id.split('_')[1]
-        return render.permissions(mail,idobject,typeobject)
+	currObject = c.getObject(idobject, typeobject)
+	if currObject is not None:
+	    return render.permissions(mail,idobject,typeobject)
+	return render.notfound()
         
     def POST(self, id):
         mail = isConnected()
@@ -246,7 +257,7 @@ class WebPermission(WebObjectUpdate):
             idobject = id.split('_')[1]
             currObject = c.getObject(idobject, typeobject)
             if currObject is None:
-                raise web.seeother('/')
+                return render.notfound()
             data = web.input(placeImg={})
             method = data.get("method","malformed")
             print data
@@ -293,8 +304,11 @@ class WebContainer(WebObjectUpdate):
     def __init__(self):
         self.name=u"WebContainer"
         
-    def getRender(self, id, mail, mess):
-        return render.container(id,mail, mess)
+    def getRender(self, id, mail, mess):        
+	if id in c.AllContainers.elements.keys() or id == 'new' :
+	    return render.container(id,mail, mess)
+	return render.notfound()
+	
     
     def getListing(self,mail):
         return render.listing(mail,'containers')
@@ -312,7 +326,9 @@ class WebMeasure(WebObjectUpdate):
         self.name=u"WebMeasure"
         
     def getRender(self, id, mail, mess):
-        return render.measure(id,mail, mess)
+	if id in c.AllMeasures.elements.keys() or id == 'new' :
+	    return render.measure(id,mail, mess)
+	return render.notfound()
     
     def getListing(self,mail):
         return render.listing(mail,'measures')
@@ -330,7 +346,10 @@ class WebSensor(WebObjectUpdate):
         self.name=u"WebSensor"
         
     def getRender(self, id, mail, mess):
-        return render.sensor(id,mail, mess)
+	if id in c.AllSensors.elements.keys() or id == 'new' :
+	    return render.sensor(id,mail, mess)
+	return render.notfound()
+        
     
     def getListing(self,mail):
         return render.listing(mail,'sensors')
@@ -349,6 +368,9 @@ class WebTransfer(WebObjectUpdate):
     def getRender(self, id, mail, mess):
         myID = id.split('_')[1]
         myType = id.split('_')[0]
+	currObject = c.getObject(myIDD, myType)
+	if currObject is None :
+	    return render.notfound()
         return render.itemtransfers(myType,myID,mail)
     
     def getListing(self,mail):
@@ -366,6 +388,8 @@ class WebCreateTransfer(WebObjectDoubleID):
             if id1 == 'update':
                 getID = id2.split('_')[-1]
             currObject = c.getObject(getID,self.name)
+	    if currObject is None :
+		return render.notfound()
             imgDirectory = 'static/img'
             infoCookie = mail + ',' + user.fields['password']
             update_cookie(infoCookie)
@@ -424,7 +448,9 @@ class WebSensorGraph():
     def GET(self,id):
         mail = isConnected()
         if mail is not None:
-            return render.graphic(mail,id)
+	    if id in c.AllSensors.elements.keys() or id == 'new' :
+		return render.graphic(mail,id)
+	    return render.notfound()
         return render.index(False,'')
 
             
@@ -440,7 +466,10 @@ class WebAlarm(WebObjectUpdate):
         self.name=u"WebAlarm"
         
     def getRender(self, id, mail, mess):
-        return render.alarm(id,mail, mess)
+	if id in c.AllAlarms.elements.keys() or id == 'new' :
+	    return render.alarm(id,mail, mess)
+	return render.notfound()
+        
         
     def getListing(self,mail):
         return render.listing(mail,'alarms')
@@ -458,7 +487,10 @@ class WebBatch(WebObjectUpdate):
         self.name=u"WebBatch"
         
     def getRender(self, id, mail, mess):
-        return render.batch(id,mail, mess)
+	if id in c.AllBatches.elements.keys() or id == 'new' :
+	    return render.batch(id,mail, mess)
+	return render.notfound()
+        
         
     def getListing(self,mail):
         return render.listing(mail,'batches')
@@ -471,6 +503,9 @@ class WebManualDataList(WebObjectUpdate):
         myID = id.split('_')[1]
         myType = id.split('_')[0]
 	if myType in 'pceb':
+	    currObject = c.getObject(myID,myType)
+	    if currObject is None :
+		return render.notfound()
 	    return render.itemdata(myType,myID,mail)
 	return render.notfound()
     
@@ -487,6 +522,8 @@ class WebManualData(WebObjectDoubleID):
         if mail is not None:
             getID = id2
             currObject = c.getObject(getID,self.name)
+	    if currObject is None :
+		return render.notfound()
             imgDirectory = 'static/img'
             infoCookie = mail + ',' + user.fields['password']
             update_cookie(infoCookie)
@@ -495,7 +532,7 @@ class WebManualData(WebObjectDoubleID):
             cond = currObject.validate_form(data, c, user.fields['language'])
             if cond is True :
                 if currObject is None:
-                    raise web.seeother('/')
+                    return render.notfound()
                 currObject.fields['time'] = data['time']
                 currObject.add_component(data['component'])
                 currObject.add_measure(data['measure'])
@@ -513,21 +550,30 @@ class WebManualData(WebObjectDoubleID):
         raise web.seeother('/')
     
     def getRender(self,id1, id2, mail, mess = None):
-        if len(id1.split('_')) >1 or id1 =='update':
-            return render.manualdata(id1,id2,mail, mess)
+	try :
+	    if len(id1.split('_')) >1 or id1 =='update':
+		return render.manualdata(id1,id2,mail, mess)
+	except:
+	    return render.notfound()
         return self.getListing(mail, id1)
     
     def getListing(self,mail, id):
-        myType = id.split('_')[0]
-        myID = id.split('_')[1]
-        return render.itemdata(myType,myID,mail)
+	try :
+	    myType = id.split('_')[0]
+	    myID = id.split('_')[1]
+	    return render.itemdata(myType,myID,mail)
+	except :
+	    return render.notfound()
         
 class WebPlaceGraph(WebObjectDoubleID):
     def __init__(self):
         self.name=u"WebPlaceGraph"
         
     def getRender(self,id1, id2, mail):
-        return render.listinggraphics('p',id2,mail)
+	if id2 in c.AllPieces.elements.keys() or id2 == 'new' :
+	    return render.listinggraphics('p',id2,mail)
+	return render.notfound()
+        
         
     def getListing(self,mail):
         return render.listing(mail,'places')
@@ -537,7 +583,9 @@ class WebEquipmentsGraph(WebObjectDoubleID):
         self.name=u"WebEquipmentsGraph"
         
     def getRender(self,id1, id2, mail):
-        return render.listinggraphics('e',id2,mail)
+	if id2 in c.AllEquipments.elements.keys() or id2 == 'new' :
+	    return render.listinggraphics('e',id2,mail)
+	return render.notfound()
         
     def getListing(self,mail):
         return render.listing(mail,'equipments')
@@ -547,7 +595,9 @@ class WebContainersGraph(WebObjectDoubleID):
         self.name=u"WebContainersGraph"
         
     def getRender(self,id1, id2, mail):
-        return render.listinggraphics('c',id2,mail)
+        if id2 in c.AllContainers.elements.keys() or id2 == 'new' :
+	    return render.listinggraphics('c',id2,mail)
+	return render.notfound()
         
     def getListing(self,mail):
         return render.listing(mail,'containers')
@@ -563,16 +613,20 @@ class WebListing():
         return render.index(False,'')
         
     def getRender(self,id,mail, error):
-        typeobject = id.split('_')[0]
-        idobject = id.split('_')[1]
-	if typeobject in 'pceb':
-	    return render.listingcomponent(mail,idobject,typeobject)
-	elif typeobject == 'm':
-	    return render.listingmeasures(mail,idobject)
-	elif typeobject == 'g':
-	    return render.listinggroup(mail,idobject)
-	return render.notfound()
-        
+	try:
+	    typeobject = id.split('_')[0]
+	    idobject = id.split('_')[1]
+	    if typeobject in 'pceb':
+		return render.listingcomponent(mail,idobject,typeobject)
+	    elif typeobject == 'm':
+		return render.listingmeasures(mail,idobject)
+	    elif typeobject == 'g':
+		return render.listinggroup(mail,idobject)
+	    else:
+		return render.notfound()
+	except :
+	    return render.notfound()
+       
         
 
 def connexion(username,password):
@@ -643,7 +697,7 @@ def main():
 	    '/barcode/(.+)', 'WebBarcode',    
         )
 
-        #Configuration Singleton ELSA
+        Configuration Singleton ELSA
         c=elsa.Configuration()
         c.load()
         web.template.Template.globals['c'] = c
