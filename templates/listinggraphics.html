@@ -1,6 +1,26 @@
-$def with (id1,id2,mail)
-$var location: graphic/ $id2
+$def with (mail,type,id)
+$var recursive : False
+$var location: all/$(type)=$(c.findAllFromType(type).get_name_object()) graphic/$(type)_$(id)=graphic
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$code:
+    allobjects = c.findAllFromType(type)
+    elem = allobjects.elements[id]
+    keyID = c.findAllFromObject(elem).keyColumn
+    
+<script>
+    $$(function(){
+	$$("#includedAllMenu$(type)_$(id)").load("/allmenu/$(type)_$(id)");
+    });
+</script>
+<div id="includedAllMenu$(type)_$(id)"></div>
+
+<script>
+    $$(function(){
+	$$("#includedModal$(type)_$(id)").load("/modal/$(type)_$(id)");
+    });
+</script>
+<div id="includedModal$(type)_$(id)"></div>
+
 <script>
     var graph_opts={legend: { noColumns:4}};
     var rrdflot_defaults={graph_width: "600px"}
@@ -10,18 +30,8 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 			 'Running':{color: "#000000",yaxis:2}};
 </script>
 
-$if id1 == 'p':
-    $code:
-	sensors = c.AllPieces.elements[id2].get_sensors_in_component(c)
-$elif id1 == 'e':
-    $code:
-	sensors = c.AllEquipments.elements[id2].get_sensors_in_component(c)
-$elif id1 == 'c':
-    $code:
-	sensors = c.AllContainers.elements[id2].get_sensors_in_component(c)
-$else :
-    $code:
-	sensors = []
+$code:
+    sensors = c.findAllFromType(type).elements[id].get_sensors_in_component(c)
 
 $for k in sensors:
     <h1 id="title">Graphic sensor : $c.AllSensors.elements[k].getName(self.lang)</h1>
@@ -36,6 +46,6 @@ $for k in sensors:
     <script type="text/javascript">
 	
 	$code:
-	    url = '/graphic/id/'+c.AllSensors.elements[k].getRRDName()
+	    url = '/graphic/$(type)_$(id)/'+c.AllSensors.elements[k].getRRDName()
 	flot_obj=new rrdFlotAsync("mygraph$(k)","$url",null,graph_opts,ds_graph_opts,rrdflot_defaults);
     </script>

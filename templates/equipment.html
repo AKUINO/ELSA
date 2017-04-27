@@ -1,15 +1,14 @@
 $def with (id, mail, errormess)
-
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+$var recursive : False
 
 $if id == 'new':
-    $var location: equipments/ new
-    $var rmq : 
+    $var location: all/e=equipment edit/e_new=add
+    $var rmq :
     
 $else:
-    $var location: equipments/ $c.AllEquipments.elements[id].fields['e_id']
+    $var location: all/e=equipment edit/e_$(id)=edit
     $var rmq :  $c.AllEquipments.elements[id].fields['remark']
-
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	<div class="form-group row" id="error">

@@ -4,6 +4,7 @@ begin	m_id	default	user
 01/01/2016 13:45:56	people	People	1
 01/01/2016 13:45:56	cancel	Cancel	1
 01/01/2016 13:45:56	value	Value 	1
+01/01/2016 13:45:56	monitoring	Monitoring 	1
 01/01/2016 13:45:56	time	Time	1
 01/01/2016 13:45:56	componentmove	Component to move	1
 01/01/2016 13:45:56	componentin	Target	1
@@ -18,8 +19,9 @@ begin	m_id	default	user
 01/01/2016 13:45:56	datarules	If you enter a value, select a measure	1
 01/01/2016 13:45:56	transferrules	The batch is already in this component	1
 01/01/2016 13:45:56	formularules	The formula is not correct	1
-01/01/2016 13:45:56	actualposition	Actual Position :	1
+01/01/2016 13:45:56	actualposition	Actual Position 	1
 01/01/2016 13:45:56	lapse	Lapse	1
+01/01/2016 13:45:56	listing	Listing	1
 01/01/2016 13:45:56	begin	Begin	1
 01/01/2016 13:45:56	group	Group	1
 01/01/2016 13:45:56	deny	Deny	1
@@ -74,6 +76,8 @@ begin	m_id	default	user
 01/01/2016 13:45:56	max	"Max "	1
 01/01/2016 13:45:56	maxmax	"Max +++ "	1
 01/01/2016 13:45:56	phone	"Phone  "	1
+01/01/2016 13:45:56	add	"Add"	1
+01/01/2016 13:45:56	edit	"Edit"	1
 01/01/2016 13:45:56	alarmtitle	"{0}  {1}    {2}    {3} {4} {5} {6}    {7}"	1
 01/01/2016 13:45:56	alarmmessage	"Alarm from {0}
 {1} :

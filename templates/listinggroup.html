@@ -1,236 +1,112 @@
 $def with (mail,id)
+$var recursive : False
 $code:
     elem = c.AllGroups.elements[id]
     keyID = c.findAllFromObject(elem).keyColumn
     
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
-$var location: $(elem.get_name_listing())/
+$var location: all/g=group
 
-<div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
-    <div class="col-xs-12" >
-	<div class="col-xs-1" >
-	$if 'deny' in elem.fields :
-	    $if elem.fields['deny'] == '0' or  elem.fields['deny'] == 0 :
-		<span class="glyphicon glyphicon-remove-circle"> </span>
-	    $else:
-		<span class="glyphicon glyphicon-ok-circle"> </span>
-	</div>
-	<div class="col-xs-4" >
-	    $elem.fields['acronym']
-	</div>
-	<div class="col-xs-7">
-	    <strong>$elem.getName(self.lang)</strong>
-	</div>
-    </div>
-    <div class="col-xs-12" id="listing">
-	<div class="col-xs-2" >
-	</div>
+<script>
+    $$(function(){
+	$$("#includedAllMenug_$(id)").load("/allmenu/g_$(id)");
+    });
+</script>
+<div id="includedAllMenug_$(id)"></div>
+<script>
+    $$(function(){
+	$$("#includedModalg_$(id)").load("/modal/g_$(id)");
+    });
+</script>
+<div id="includedModalg_$(id)"></div>
 
-	<div class="col-xs-2" >
-	    <strong><a href="#" class="btn btn-success" role="button"><span class="$c.AllHalflings.elements['listing'].getHalfling()"></span></a></strong>
-	</div>
-	<div class="col-xs-2" >
-	</div>
-	<div class="col-xs-2">
-	    <strong><a href="/$(elem.get_name_listing())/$(elem.fields[keyID])" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
-	</div>
-	<div class="col-xs-2">
-	    <strong><a href="/permissions/g_$elem.fields[keyID]" class="btn btn-warning" role="button"><span class="halflings halflings-group"></span></a></strong>
-	</div>
-	<div class="col-xs-2">
-		<button type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#modal"><span class="$c.AllHalflings.elements['info'].getHalfling()"></span></button>
-	</div>
-    </div>
-</div>
-$code:
-    groupList = c.hierarchyString() 
-<div class="modal fade" id="modal" role="dialog">
-	<div class="modal-dialog">
-	    <!-- Modal content-->
-	    <div class="modal-content">
-		<div class="modal-header">
-		<button type="button" class="close" data-dismiss="modal">&times;</button>
-		<h4 class="modal-title">$elem.getName(self.lang)</h4>
-	    </div>
-	    <div class="modal-body">
-		<div class="container-fluid">
-		    <div class="row">
-			<div class="col-xs-3">
-			    <img src="/$(elem.getImageDirectory())jpg" alt="Image not found" style="width:128px;height:128px;">
-			</div>			
-			<div id="modalinfo" class="col-xs-6">
-			    <span class="glyphicon glyphicon-flag"><strong>   $elem.fields['acronym']</span></strong>
-			</div>
-			<div id="modalinfo" class="col-xs-2">
-			    $if elem.fields['deny'] == '1' or elem.fields['deny'] == 1 :
-				<span class="glyphicon glyphicon-ok-circle"> </span>
-			    $else :
-				<span class="glyphicon glyphicon-remove-circle"> </span>		    
-			</div>
-		    </div>
-		    <div class="row" id="listingMarge" style="margin-top:10px;">
-			<div class="col-xs-3">
-			    $c.AllMessages.elements['name'].getName(self.lang) :
-			</div>
-		    </div>
-		    $for lg in c.AllLanguages.elements.keys():
-			<div class="row">
-			    <div class="col-xs-3">
-			    </div>
-			    <div class="col-xs-2">
-				$lg
-			    </div>
-			    <div class="col-xs-7" id="modalinfo" >
-				$elem.getName(lg)
-			    </div>
-			</div>
-		    <div class="row">
-			<div class="col-xs-3">
-			    $c.AllMessages.elements['group'].getName(self.lang) :
-			</div>
-		    </div>
-		    $code:
-			indent = 1
-			cindent = 11
-			elemgroup = []
-			for k,v in elem.groups.items():
-			    elemgroup.append(k)
-		    $if len(groupList) > 0:
-			$for group in groupList:
-			    $if group == 'IN' :
-				$code:
-				    indent+=1
-				    cindent-=1
-			    $elif group == 'OUT':
-				$code:
-				    indent-=1
-				    cindent+=1
-			    $else :
-				<div class="row" >
-				    <div class="col-xs-$indent">
-				    </div>
-				    <div id="modalinfo" class="col-xs-$cindent">
-				    $if group == elem.fields['g_id']:
-					<strong><a href="/permissions/g_$group">$c.AllGroups.elements[group].getName(self.lang)</a></strong>
-				    $else:
-					<a href="/permissions/g_$group">$c.AllGroups.elements[group].getName(self.lang)</a>
-				    </div>
-				</div>
-		    <div class="row" style="margin-top:10px;">
-			<div class="col-xs-4">
-			    $c.AllMessages.elements['code'].getName(self.lang) :
-			</div>
-			<div class="col-xs-8" id="modalinfo" >
-			    $c.AllBarcodes.get_barcode(elem.get_type(), elem.id)
-			</div>
-		    </div>
-
-		    <div class="row" style="margin-top:3px;">
-			<div class="col-xs-4">
-			    $c.AllMessages.elements['remark'].getName(self.lang) :
-			</div>
-			<div class="col-xs-8" id="modalinfo" >
-			    $elem.fields['remark']
-			</div>
-		    </div>
-		    
-		    <div class="row" style="margin-top:3px;">
-			<div class="col-xs-4">
-			    $c.AllMessages.elements['created'].getName(self.lang) :
-			</div>
-			<div class="col-xs-8" id="modalinfo" >
-			    <strong>$c.AllUsers.elements[elem.creator].getName(self.lang) </strong> - <em>$elem.created</em>
-			</div>
-		    </div>
-		    <div class="row" style="margin-top:3px;">
-			<div class="col-xs-4">
-			    $c.AllMessages.elements['modified'].getName(self.lang) :
-			</div>
-			<div class="col-xs-8" id="modalinfo" >
-			    <strong>$c.AllUsers.elements[elem.fields['user']].getName(self.lang) </strong> - <em>$elem.fields['begin']</em>
-			</div>
-		    </div>
-		</div>
-	    </div>
-	    <div class="modal-footer">
-		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-	    </div>
-	</div>
-    </div>
-</div>
 
 <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
     <label class="col-sm-12">$c.AllMessages.elements['user'].getName(self.lang) :</label>    
     $for k,user in c.AllUsers.elements.items():
 	$if id in user.groups.keys() :
-	    <div class="row active" style="color:#f07e26;">
-		<div class="col-xs-2" >
-		</div>
-		<div class="col-xs-4" >
-		    <a href="/$(user.get_name_listing())/" >$user.fields['acronym'] - $user.getName(self.lang)</a>
-		</div>
-		<div class="col-xs-4" >
-		    $user.fields['remark']
-		</div>
-		<div class="col-xs-2" >
-		    <strong><a href="/$(user.get_name_listing())/$(k)" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
-		</div>
-	    </div>
+	    <script>
+		$$(function(){
+		    $$("#includedMenuu_$(k)").load("/menu/u_$(k)");
+		});
+	    </script>
+	    <div id="includedMenuu_$(k)"></div>
+	    <script>
+		$$(function(){
+		    $$("#includedModalu_$(k)").load("/modal/u_$(k)");
+		});
+	    </script>
+	    <div id="includedModalu_$(k)"></div>
 </div>
 
 <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
     <label class="col-sm-12">$c.AllMessages.elements['place'].getName(self.lang) :</label>    
     $for k,p in c.AllPieces.elements.items():
 	$if id in p.groups.keys() :
-	    <div class="row active" style="color:#f07e26;">
-		<div class="col-xs-2" >
-		</div>
-		<div class="col-xs-4" >
-		    <a href="/$(p.get_name_listing())/" >$p.fields['acronym'] - $p.getName(self.lang)</a>
-		</div>
-		<div class="col-xs-4" >
-		    $p.fields['remark']
-		</div>
-		<div class="col-xs-2" >
-		    <strong><a href="/$(p.get_name_listing())/$(k)" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
-		</div>
-	    </div>
+	    <script>
+		$$(function(){
+		    $$("#includedMenup_$(k)").load("/menu/p_$(k)");
+		});
+	    </script>
+	    <div id="includedMenup_$(k)"></div>
+	    <script>
+		$$(function(){
+		    $$("#includedModalp_$(k)").load("/modal/p_$(k)");
+		});
+	    </script>
+	    <div id="includedModalp_$(k)"></div>
 </div>
 
 <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
     <label class="col-sm-12">$c.AllMessages.elements['equipment'].getName(self.lang) :</label>    
     $for k,e in c.AllEquipments.elements.items():
 	$if id in e.groups.keys() :
-	    <div class="row active" style="color:#f07e26;">
-		<div class="col-xs-2" >
-		</div>
-		<div class="col-xs-4" >
-		    <a href="/$(e.get_name_listing())/" >$e.fields['acronym'] - $e.getName(self.lang)</a>
-		</div>
-		<div class="col-xs-4" >
-		    $e.fields['remark']
-		</div>
-		<div class="col-xs-2" >
-		    <strong><a href="/$(e.get_name_listing())/$(k)" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
-		</div>
-	    </div>
+	    <script>
+		$$(function(){
+		    $$("#includedMenue_$(k)").load("/menu/e_$(k)");
+		});
+	    </script>
+	    <div id="includedMenue_$(k)"></div>
+	    <script>
+		$$(function(){
+		    $$("#includedModale_$(k)").load("/modal/e_$(k)");
+		});
+	    </script>
+	    <div id="includedModale_$(k)"></div>
 </div>
 
 <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
     <label class="col-sm-12">$c.AllMessages.elements['container'].getName(self.lang) :</label>    
     $for k,cont in c.AllContainers.elements.items():
 	$if id in cont.groups.keys() :
-	    <div class="row active" style="color:#f07e26;">
-		<div class="col-xs-2" >
-		</div>
-		<div class="col-xs-4" >
-		    <a href="/$(cont.get_name_listing())/" >$cont.fields['acronym'] - $cont.getName(self.lang)</a>
-		</div>
-		<div class="col-xs-4" >
-		    $cont.fields['remark']
-		</div>
-		<div class="col-xs-2" >
-		    <strong><a href="/$(cont.get_name_listing())/$(k)" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
-		</div>
-	    </div>
+	    <script>
+		$$(function(){
+		    $$("#includedMenuc_$(k)").load("/menu/c_$(k)");
+		});
+	    </script>
+	    <div id="includedMenuc_$(k)"></div>
+	    <script>
+		$$(function(){
+		    $$("#includedModalc_$(k)").load("/modal/c_$(k)");
+		});
+	    </script>
+	    <div id="includedModalc_$(k)"></div>
+</div>
+
+<div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+    <label class="col-sm-12">$c.AllMessages.elements['batch'].getName(self.lang) :</label>    
+    $for k,b in c.AllBatches.elements.items():
+	$if id in b.groups.keys() :
+	    <script>
+		$$(function(){
+		    $$("#includedMenub_$(k)").load("/menu/b_$(k)");
+		});
+	    </script>
+	    <div id="includedMenub_$(k)"></div>
+	    <script>
+		$$(function(){
+		    $$("#includedModalb_$(k)").load("/modal/b_$(k)");
+		});
+	    </script>
+	    <div id="includedModalb_$(k)"></div>
 </div>

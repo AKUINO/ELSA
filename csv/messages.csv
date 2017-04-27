@@ -91,6 +91,8 @@ begin	lang	m_id	name	user
 01/01/2016 13:45:56	EN	alarm	"Alarm"	1
 01/01/2016 13:45:56	NL	alarm	"Alarm"	1
 01/01/2016 13:45:56	DE	alarm	"Alarm"	1
+01/01/2016 13:45:56	FR	batch	"Lot"	1
+01/01/2016 13:45:56	EN	batch	"Batch"	1
 01/01/2016 13:45:56	FR	removegroup	"Retirer du groupe :"	1
 01/01/2016 13:45:56	EN	removegroup	"Remove from group :"	1
 01/01/2016 13:45:56	NL	removegroup	"Uit de groep :"	1

@@ -1,17 +1,21 @@
 $def with (id1,id2, mail, errormess)
-
+$code:
+    myType = id1.split('_')[0]
+    myID = id1.split('_')[1]
 
 $if id2 == 'new':
-    $var location: manualdata/ new
+    $var location: all/$(myType)=$(c.findAllFromType(myType).get_name_object()) measures/$(myType)_$(myID)=manualdata measures/$(myType)_$(myID)/new=add
     $var rmq :  
     
 $else:
-    $var location: manualdata/ $c.AllManualData.elements[id2].fields['d_id']
+    $var location: all/$(myType)=$(c.findAllFromType(myType).get_name_object()) measures/$(myType)_$(myID)=manualdata measures/$(myType)_$(myID)/id2=edit
     $var rmq :  $c.AllManualData.elements[id2].fields['remark']
     $code :
 	data = c.AllManualData.elements[id2]
 
+
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+$var recursive : False
 
 
 
@@ -85,6 +89,16 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	</div>
 	
 	<div class="form-group row">
+	    <label for="inputValue" class="col-sm-3 col-form-label">$c.AllMessages.elements['value'].getName(self.lang)</label>
+	    <div class="col-sm-9">
+		<input name="value" type="text" class="form-control" id="inputValue" placeholder="$c.AllMessages.elements['value'].getName(self.lang)" 
+		$if id2 != 'new':
+		    value="$data.fields['value']"
+		>
+	    </div>
+	</div>
+	
+	<div class="form-group row">
 	    <label for="alarmSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['alarm'].getName(self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "a_id" class="form-control" id="alarmSelect">
@@ -92,16 +106,6 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 		    $for k in c.AllAlarms.elements.keys():
 			<option value="$k">$c.AllAlarms.elements[k].fields['acronym'] - $c.AllAlarms.elements[k].getName(self.lang) </option>
 		</select>
-	    </div>
-	</div>
-	
-	<div class="form-group row">
-	    <label for="inputValue" class="col-sm-3 col-form-label">$c.AllMessages.elements['value'].getName(self.lang)</label>
-	    <div class="col-sm-9">
-		<input name="value" type="text" class="form-control" id="inputValue" placeholder="$c.AllMessages.elements['value'].getName(self.lang)" 
-		$if id2 != 'new':
-		    value="$data.fields['value']"
-		>
 	    </div>
 	</div>
 	
@@ -116,7 +120,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <div class="col-sm-3">
 	    </div>
 	    <div class="col-sm-2">
-		<a href="/manualdata/" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		<a href="/measures/$(id1)" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>

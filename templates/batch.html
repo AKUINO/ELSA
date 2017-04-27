@@ -1,13 +1,16 @@
 $def with (id, mail, errormess)
 
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+$var recursive : False
 
 $if id == 'new':
-    $var location: batches/ new
+    $var location: all/b=batch edit/b_new=add
+    $var rmq :
     
 $else:
-    $var location: batches/ $c.AllBatches.elements[id].fields['b_id']
+    $var location: all/b=batch edit/b_$(id)=edit
+    $var rmq :  $c.AllBatches.elements[id].fields['remark']
 
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	<div class="form-group row" id="error">
@@ -58,10 +61,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	<div class="form-group row">
 	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
 	    <div class="col-sm-9">
-		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >
-$if id != 'new':
-    $c.AllBatches.elements[id].fields['remark']
-</textarea>
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >$self.rmq</textarea>
 	    </div>
 	</div>
 	
@@ -96,7 +96,7 @@ $if id != 'new':
 	    <div class="col-sm-3">
 	    </div>
 	    <div class="col-sm-2">
-		<a href="/batches/" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		<a href="/all/b" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>

@@ -1,15 +1,15 @@
 $def with (id, mail, errormess)
 
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+$var recursive : False
 
 $if id == 'new':
-    $var location: places/ new
-    $var rmq :  
+    $var location: all/p=place edit/p_new=add
+    $var rmq :
     
 $else:
-    $var location: places/ $c.AllPieces.elements[id].fields['p_id']
+    $var location: all/p=place edit/p_$(id)=edit
     $var rmq :  $c.AllPieces.elements[id].fields['remark']
-
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 
 
 
@@ -105,7 +105,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <div class="col-sm-3">
 	    </div>
 	    <div class="col-sm-2">
-		<a href="/places/" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		<a href="/all/p" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>

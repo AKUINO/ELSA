@@ -1,0 +1,39 @@
+$def with (mail,type, id)	
+$var recursive : True
+$code :
+    elem = c.findAllFromType(type).elements[id]
+    keyID = c.findAllFromType(type).keyColumn
+    permissionKey = type +'_'
+
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+
+<div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+    <div class="col-xs-12 " >
+	<div class="col-xs-2 vcenter">
+	    <button type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#$(type)_$(id)modal"><span class="$c.AllHalflings.elements['info'].getHalfling()"></span></button>
+	</div>
+	<div class="col-xs-1 vcenter" >
+	$if 'deny' in elem.fields :
+	    $if elem.fields['deny'] == '0' or  elem.fields['deny'] == 0 :
+		<span class="glyphicon glyphicon-remove-circle"> </span>
+	    $else:
+		<span class="glyphicon glyphicon-ok-circle"> </span>
+	</div>	    
+	<div class="col-xs-2 vcenter" ><span class="$c.AllHalflings.elements[elem.get_name()].getHalfling()"></span>    $elem.fields['acronym']</div>
+	<div class="col-xs-3 vcenter">
+	    <strong>$elem.getName(self.lang)</strong>
+	</div>
+	$if c.is_component(permissionKey[0:-1]) == True or permissionKey[0:-1] == 'm' :
+	    <div class="col-xs-2 vcenter" >
+		<strong><a href="/measures/$(permissionKey[0:-1])_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['measure'].getHalfling()"></span></a></strong>
+	    </div>
+	$elif permissionKey[0:-1] == 'g' :
+	    <div class="col-xs-2 vcenter" >
+		<strong><a href="/listing/$(permissionKey[0:-1])_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['listing'].getHalfling()"></span></a></strong>
+	    </div>
+	$if permissionKey[0:-1] in 'cpehm':
+	    <div class="col-xs-1 vcenter" >
+		<strong><a href="/graphic/$(permissionKey[0:-1])_$elem.fields[keyID]" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['graphic'].getHalfling()"></span></a></strong>
+	    </div>
+    </div>
+</div>

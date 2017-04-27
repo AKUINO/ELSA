@@ -1,6 +1,7 @@
 $def with (mail)
-$var location: monitoring/
+$var location: monitoring/=monitoring
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$var recursive : False
 
 <div class="row">
     <label for="graphSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['graphic'].getName(self.lang)</label>

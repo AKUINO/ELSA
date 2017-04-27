@@ -1,21 +1,23 @@
 $def with (id1, id2, mail, errormess)
-
+$var recursive : False
 $if id1 == 'new':
     $code :
 	myID = 'new'
 	rmq = ''
+    $var location: transfers=transfer transfers/new/new=add
 $elif id1 == 'update' :
     $code :
 	myID = 'update'
 	transfer = c.AllTransfers.elements[id2.split('_')[-1]]
 	elem = c.findAllFromType(transfer.fields['object_type']).elements[transfer.fields['object_id']]
 	rmq = transfer.fields['remark']
+    $var location: all/$(id1.split('_')[-0])=$(elem.get_name()) transfers/$(id1.split('_')[0])_$(elem.getID())=transfer edit/p_$(id2)=edit
 $else :
     $code:
 	myID = 'component'
 	elem = c.findAllFromType(id1.split('_')[0]).elements[id1.split('_')[-1]]
-	rmq = ''
-$var location: transfers/ new
+	rmq = '' 
+    $var location: all/$(id1.split('_')[-0])=$(elem.get_name()) transfers/$(id1.split('_')[0])_$(elem.getID())=transfer transfers/$(id1.split('_')[0])_$(elem.getID())/new=add
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 
