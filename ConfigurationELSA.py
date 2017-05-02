@@ -2176,10 +2176,10 @@ class Sensor(ConfigurationObject):
 	now = str( int(time.time())-60)
 	if self.fields['channel'] == 'wire' :
 	    data_sources = str('DS:'+name+'1:GAUGE:120:U:U')
-	    rrdtool.create( str('rrd/'+self.getRRDName()), "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+	    rrdtool.create( str(rrdDir+self.getRRDName()), "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
 	elif self.fields['channel'] == 'radio' :
 	    data_sources = str('DS:'+name+'1:GAUGE:360:U:U')
-	    rrdtool.create( str('rrd/'+self.getRRDName()), "--step", "180", '--start', now, data_sources, 'RRA:LAST:0.5:1:14400', 'RRA:AVERAGE:0.5:5:34560', 'RRA:AVERAGE:0.5:30:28800')
+	    rrdtool.create( str(rrdDir+self.getRRDName()), "--step", "180", '--start', now, data_sources, 'RRA:LAST:0.5:1:14400', 'RRA:AVERAGE:0.5:5:34560', 'RRA:AVERAGE:0.5:30:28800')
 	    
 	
     def getTypeAlarm(self,value):
