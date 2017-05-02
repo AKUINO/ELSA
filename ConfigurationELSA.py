@@ -12,7 +12,7 @@ import threading
 import time
 import os
 import rrdtool
-import ow
+import pyownet
 import serial
 import myuseful as useful
 import HardConfig as hardconfig
@@ -88,6 +88,7 @@ class Configuration():
 	self.RadioThread = RadioThread(self)
 	self.RadioThread.daemon = True
 	self.screen = None
+	self.owproxy = None
 
     def load(self):
 	
@@ -729,13 +730,14 @@ class UpdateThread(threading.Thread):
 
     def run(self):
 	time.sleep(60)
+	self.config.owproxy = pyownet.protocol.proxy(host="localhost", port=4304)
 	while self.config.isThreading is True:
-	    ow.init("/dev/i2c-1")
+	    #ow.init("/dev/i2c-1")
 	    now = useful.get_timestamp()
 	    self.config.InfoSystem.updateInfoSystem(now)
 	    if not len(self.config.AllSensors.elements) == 0 :
 		self.config.AllSensors.update(now)
-	    ow.finish()
+	    #ow.finish()
 	    time.sleep(60)
 	    
 class RadioThread(threading.Thread):
@@ -1159,7 +1161,7 @@ class AllSensors(AllObjects):
     def update(self, now) :
 	for k,sensor in self.elements.items():
 	    if sensor.fields['channel'] == 'wire' and not sensor.fields['deny'] == '0' :
-		value = sensor.get_value_sensor()
+		value = sensor.get_value_sensor(self.config)
 		sensor.update(now, value,self.config)
 		
     def check_rrd(self):
@@ -2060,21 +2062,22 @@ class Sensor(ConfigurationObject):
 	self.degreeAlarm = 0
 	self.time = 0
 	
-    def get_value_sensor(self):
+    def get_value_sensor(self,config):
 	if self.fields['channel'] == 'wire':
 	    try:
-		sensorAdress = '/'+unicode(self.fields['sensor'])
-		try:
-                    aDevice = ow.Sensor(str(sensorAdress))
-                except ow.exUnknownSensor:
-                    aDevice = None
-		if aDevice:
-		    owData = aDevice.__getattr__(self.fields['subsensor'])
-		    if owData:
-			if self.fields['formula']:
-			    value = float(owData)
-			    owData = unicode(eval(self.fields['formula']))
-			return owData
+		sensorAdress = u'/'+unicode(self.fields['sensor'])
+##		try:
+##                    aDevice = ow.Sensor(str(sensorAdress))
+##                except ow.exUnknownSensor:
+##                    aDevice = None
+##		if aDevice:
+##		    owData = aDevice.__getattr__(self.fields['subsensor'])
+                owData = config.owproxy.read(sensorAdress+u'/'+unicode(self.fields['subsensor']))
+                if owData:
+                    if self.fields['formula']:
+                        value = float(owData)
+                        owData = unicode(eval(self.fields['formula']))
+                    return owData
 	    except:
 		traceback.print_exc()
 	return None
