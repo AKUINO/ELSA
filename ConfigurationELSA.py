@@ -488,7 +488,7 @@ class InfoSystem():
 	    traceback.print_exc()
 	    
     def check_rrd(self):
-	now = unicode( int(time.time())-60)
+	now = str( int(time.time())-60)
 	if os.path.exists('rrd/systemuptime.rrd') is not True:
 	    data_sources = 'DS:Uptime:GAUGE:120:U:U'
 	    rrdtool.create( 'rrd/systemuptime.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
