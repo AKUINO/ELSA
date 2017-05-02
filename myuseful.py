@@ -50,12 +50,12 @@ def send_email(recipient, subject, text):
     smtpserver.sendmail(GMAIL_USER, recipient, msg.as_string())
     smtpserver.close()
 
-def timestamp_to_date(now):
-    return datetime.datetime.fromtimestamp(int(now)).strftime(u"%H:%M:%S  -  %d/%m/%y")
+def timestamp_to_date(now,datetimeformat):
+    return datetime.datetime.fromtimestamp(int(now)).strftime(datetimeformat)
     
-def get_time():
+def get_time(datetimeformat):
     now = int(time.time())
-    return datetime.datetime.fromtimestamp(now).strftime(u"%H:%M:%S  -  %d/%m/%y")
+    return datetime.datetime.fromtimestamp(now).strftime(datetimeformat)
 
 def get_ip_address(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -64,3 +64,6 @@ def get_ip_address(ifname):
         0x8915,  # SIOCGIFADDR
         struct.pack('256s', ifname[:15])
     )[20:24])
+
+def date_to_timestamp(date, datetimeformat):
+    return datetime.datetime.strptime(myDate, datetimeformat)

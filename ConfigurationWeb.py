@@ -9,27 +9,24 @@ import os
 import sys
 
 global c, render
-
+rrdDir = '../ELSArrd/rrd/'
 
 
 class WebModal():
-        
     def GET(self, type,id):
         mail = isConnected()
         if mail is not None:
             return render.modal(mail,type,id)
         return ''
 	
-class WebMenu():
-        
+class WebMenu():        
     def GET(self, type,id):
         mail = isConnected()
         if mail is not None:
             return render.menu(mail,type,id)
         return ''
 	
-class WebAllmenu():
-        
+class WebAllmenu():        
     def GET(self, type,id):
         mail = isConnected()
         if mail is not None:
@@ -421,7 +418,7 @@ class WebCreateTransfer(WebObjectDoubleID):
 class getRRD(): 
     def GET(self, filename):
         try: 
-            f = open('rrd/' + filename)
+            f = open(rrdDir + filename)
             return f.read()  
         except IOError: 
             web.notfound()
@@ -429,7 +426,7 @@ class getRRD():
 class getRRD2(): 
     def GET(self,id1,id2,filename):
         try: 
-            f = open('rrd/' + filename)
+            f = open(rrdDir + filename)
             return f.read()  
         except IOError: 
             web.notfound()
@@ -568,7 +565,7 @@ def main():
 
     global c, render
     try:
-        web.config.debug = True
+        web.config.debug = False
         render=web.template.render('templates/', base='layout')
         urls = (
             '/', 'WebIndex',

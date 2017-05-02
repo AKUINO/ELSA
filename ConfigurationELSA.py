@@ -12,33 +12,34 @@ import threading
 import time
 import os
 import rrdtool
-import ow
+import pyownet
 import serial
 import myuseful as useful
 import HardConfig as hardconfig
 import barcode
 import re
 import socket
-"""
+
 from I2CScreen import *
 
 import pigpio
 PIG = pigpio.pi()
-"""
+
 #mise a jour git
 csvDir = "../ELSAcsv/csv/"
-rrdDir = 'rrd/'
+rrdDir = '../ELSArrd/rrd/'
 ttyDir = '/dev/ttyS0'
 imgDir = 'static/img'
 barcodesDir = 'static/img/barcodes/'
 groupWebUsers = '_WEB'
+datetimeformat = "%H:%M:%S  -  %d/%m/%y"
 
 _lock_socket = None
 
 class Configuration():
 
     def __init__(self):
-	"""
+	
         self.HardConfig = hardconfig.HardConfig()
 	
 ##        # Run only OUNCE: Check if /run/akuino/ELSA.pid exists...
@@ -62,7 +63,7 @@ class Configuration():
         except socket.error:
             print 'AKUINO-ELSA lock exists'
             sys.exit()
-	"""
+	
 	self.InfoSystem = InfoSystem(self)
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
@@ -90,16 +91,19 @@ class Configuration():
 	self.RadioThread = RadioThread(self)
 	self.RadioThread.daemon = True
 	self.screen = None
+	self.owproxy = None
 
     def load(self):
-	"""
+	
         if not self.HardConfig.oled is None:
             # 128x64 display with hardware I2C:
             self.screen = I2CScreen(True, disp = SSD1306.SSD1305_132_64(rst=self.HardConfig.oled_reset,gpio=PIG))
             self.screen.clear()
         else:
             self.screen = I2CScreen(False, disp = None)
-	"""
+
+	
+
 	self.AllLanguages.load()
         self.AllUsers.load()
         self.AllPieces.load()
@@ -121,8 +125,8 @@ class Configuration():
 	self.AllTransfers.load()
 	self.AllManualData.load()
 	self.AllAlarmLogs.load()
-	#self.UpdateThread.start()
-	#self.RadioThread.start()
+	self.UpdateThread.start()
+	self.RadioThread.start()
 	
     
     def findAllFromObject(self,anObject):
@@ -331,7 +335,7 @@ class Configuration():
 	return objects.elements[id]
 	
     def get_time(self):
-	return useful.get_time()
+	return useful.get_time(datetimeformat)
 	
     def is_component(self, type):
 	if type == 'c' or type == 'p' or type == 'e' or type == 'b':
@@ -486,11 +490,11 @@ class InfoSystem():
     def check_rrd(self):
 	now = unicode( int(time.time())-60)
 	if os.path.exists('rrd/systemuptime.rrd') is not True:
-	    data_sources = unicode('DS:Uptime:GAUGE:120:U:U')
+	    data_sources = 'DS:Uptime:GAUGE:120:U:U'
 	    rrdtool.create( 'rrd/systemuptime.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
 	    
 	if not os.path.exists('rrd/temperaturecpu.rrd'):
-	    data_sources = unicode('DS:Temperature:GAUGE:120:U:U')
+	    data_sources = 'DS:Temperature:GAUGE:120:U:U'
 	    rrdtool.create( 'rrd/temperaturecpu.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
 	    
 	if not os.path.exists('rrd/memoryinfo.rrd'):
@@ -514,7 +518,7 @@ class ConfigurationObject():
 	self.data = []
 	
     def save(self,configuration,anUser=""):
-        self.fields["begin"] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
+        self.fields["begin"] = unicode(datetime.datetime.now().strftime(datetimeformat))
 	if anUser != "" :
 	    self.fields["user"] = anUser.fields['u_id']
 	
@@ -543,7 +547,7 @@ class ConfigurationObject():
 	print self.code	
 	with open(configuration.csvCodes,"a") as csvfile:
 	    tmpCode={}
-	    tmpCode['begin'] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
+	    tmpCode['begin'] = unicode(datetime.datetime.now().strftime(datetimeformat))
 	    tmpCode['type'] = self.get_type()
 	    tmpCode['idobject'] = self.fields[allObjects.keyColumn]
 	    tmpCode['code'] = self.code
@@ -557,7 +561,7 @@ class ConfigurationObject():
 	with open(configuration.csvRelations,"a") as csvfile:
 	    for k,v in self.groups.items():
 		tmpCode={}
-		tmpCode['begin'] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
+		tmpCode['begin'] = unicode(datetime.datetime.now().strftime(datetimeformat))
 		tmpCode['g_id'] = k
 		tmpCode['idobject'] = self.fields[allObjects.keyColumn]
 		tmpCode['type'] = self.get_type()
@@ -590,7 +594,7 @@ class ConfigurationObject():
     def setName(self,key,value,user,keyColumn):
 	if value != '' and value is not None:
 	    newName={}
-	    newName["begin"] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
+	    newName["begin"] = unicode(datetime.datetime.now().strftime(datetimeformat))
 	    newName['user'] = user.fields['u_id']
 	    newName['lang'] = key
 	    newName['name'] = value
@@ -659,7 +663,7 @@ class ConfigurationObject():
 	allObjects = configuration.findAllFromObject(self)
 	with open(configuration.csvRelations,"a") as csvfile:
 	    tmpCode={}
-	    tmpCode['begin'] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
+	    tmpCode['begin'] = unicode(datetime.datetime.now().strftime(datetimeformat))
 	    tmpCode['g_id'] = groupid
 	    tmpCode['idobject'] = self.fields[allObjects.keyColumn]
 	    tmpCode['type'] = self.get_type()
@@ -745,13 +749,14 @@ class UpdateThread(threading.Thread):
 
     def run(self):
 	time.sleep(60)
+	self.config.owproxy = pyownet.protocol.proxy(host="localhost", port=4304)
 	while self.config.isThreading is True:
-	    ow.init("/dev/i2c-1")
+	    #ow.init("/dev/i2c-1")
 	    now = useful.get_timestamp()
 	    self.config.InfoSystem.updateInfoSystem(now)
 	    if not len(self.config.AllSensors.elements) == 0 :
 		self.config.AllSensors.update(now)
-	    ow.finish()
+	    #ow.finish()
 	    time.sleep(60)
 	    
 class RadioThread(threading.Thread):
@@ -875,7 +880,7 @@ class AllObjects():
 	currObject.fields[self.keyColumn] = unicode(tmp)
 	currObject.id = str(tmp)
 	self.elements[unicode(tmp)] = currObject
-	currObject.fields["begin"] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
+	currObject.fields["begin"] = unicode(datetime.datetime.now().strftime(datetimeformat))
 	return currObject
 	
     def unique_acronym(self, acronym, myID):
@@ -1221,7 +1226,7 @@ class AllSensors(AllObjects):
     def update(self, now) :
 	for k,sensor in self.elements.items():
 	    if sensor.fields['channel'] == 'wire' and not sensor.fields['deny'] == '0' :
-		value = sensor.get_value_sensor()
+		value = sensor.get_value_sensor(self.config)
 		sensor.update(now, value,self.config)
 		
     def check_rrd(self):
@@ -1340,7 +1345,7 @@ class AllBarcodes(AllObjects):
 	
     def create_fields(self, code,deny, user, item = None):
 	fields = {}
-	fields['begin'] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
+	fields['begin'] = unicode(datetime.datetime.now().strftime(datetimeformat))
 	if item is None :
 	    fields['type'] = self.elements[code].element.get_type()
 	    fields['idobject'] = self.elements[code].element.id
@@ -1766,7 +1771,7 @@ class ManualData(ConfigurationObject):
 	print data
 	tmp = ''
 	try:
-	    value = datetime.datetime.strptime(data['time'],"%H:%M:%S  -  %d/%m/%y")
+	    value = datetime.datetime.strptime(data['time'],datetimeformat)
 	except:
 	    traceback.print_exc()
 	    tmp += configuration.AllMessages.elements['timerules'].getName(lang) + '\n'
@@ -1971,7 +1976,7 @@ class Alarm(ConfigurationObject):
 	    currObject.fields['alarmtime'] = int(sensor.time) * sensor.countActual
 	    currObject.fields['degree'] = sensor.degreeAlarm
 	    currObject.save(config)
-	    return unicode.format(mess,u'Akuino 6001', cpe, elem.getName(lang), elem.fields['acronym'], sensor.getName(lang), sensor.fields['acronym'], unicode(sensor.lastvalue), sensor.actualAlarm, useful.timestamp_to_date(sensor.time), unicode(sensor.degreeAlarm))
+	    return unicode.format(mess,u'Akuino 6001', cpe, elem.getName(lang), elem.fields['acronym'], sensor.getName(lang), sensor.fields['acronym'], unicode(sensor.lastvalue), sensor.actualAlarm, useful.timestamp_to_date(sensor.time, datetimeformat), unicode(sensor.degreeAlarm))
 	else :
 	    return unicode('Il manque le message')
        
@@ -2219,21 +2224,22 @@ class Sensor(ConfigurationObject):
 	self.degreeAlarm = 0
 	self.time = 0
 	
-    def get_value_sensor(self):
+    def get_value_sensor(self,config):
 	if self.fields['channel'] == 'wire':
 	    try:
-		sensorAdress = '/'+unicode(self.fields['sensor'])
-		try:
-                    aDevice = ow.Sensor(str(sensorAdress))
-                except ow.exUnknownSensor:
-                    aDevice = None
-		if aDevice:
-		    owData = aDevice.__getattr__(self.fields['subsensor'])
-		    if owData:
-			if self.fields['formula']:
-			    value = float(owData)
-			    owData = unicode(eval(self.fields['formula']))
-			return owData
+		sensorAdress = u'/'+unicode(self.fields['sensor'])
+##		try:
+##                    aDevice = ow.Sensor(str(sensorAdress))
+##                except ow.exUnknownSensor:
+##                    aDevice = None
+##		if aDevice:
+##		    owData = aDevice.__getattr__(self.fields['subsensor'])
+                owData = config.owproxy.read(sensorAdress+u'/'+unicode(self.fields['subsensor']))
+                if owData:
+                    if self.fields['formula']:
+                        value = float(owData)
+                        owData = unicode(eval(self.fields['formula']))
+                    return owData
 	    except:
 		traceback.print_exc()
 	return None
