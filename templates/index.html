@@ -1,6 +1,7 @@
 $def with (connected, mail)
 $var location : index
 $var lang : EN
+$var recursive : False
 
 $if connected is True:
     $var lang : $c.connectedUsers.users[mail].cuser.fields['language']

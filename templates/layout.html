@@ -1,122 +1,125 @@
 $def with(content)
-<!doctype html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang=""> <!--<![endif]-->
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title>ELSA - Beta</title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="icon" type="image/png" href="/static/favicon.ico">
+$if content.recursive == 'False' :
+    <!doctype html>
+    <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
+    <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
+    <!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]-->
+    <!--[if gt IE 8]><!--> <html class="no-js" lang=""> <!--<![endif]-->
+	<head>
+	    <meta charset="utf-8">
+	    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	    <title>ELSA - Beta</title>
+	    <meta name="description" content="">
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+	    <link rel="icon" type="image/png" href="/static/favicon.ico">
 
-        <link rel="stylesheet" href="/static/css/bootstrap.min.css">
-	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600,600italic,700,700italic,800,800italic' rel='stylesheet' type='text/css'>
-        <style>
-            body {
-                padding-top: 50px;
-                padding-bottom: 20px;
-            }
-        </style>
-        <link rel="stylesheet" href="/static/css/bootstrap-theme.min.css">
-        <link rel="stylesheet" href="/static/css/main.css">
-	<link rel="stylesheet" href="/static/css/glyphicons-halflings.css">
-        <script src="/static/js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
-	<script src="/static/js/jquery.js"></script> 
-	<script> 
-	    $$(function(){
-		$$("#includedContent").load("/static/html/colorpicker.html"); 
-	    });
-	</script> 
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-        <script>window.jQuery || document.write('<script src="/static/js/vendor/jquery-1.11.2.min.js"><\/script>')</script>
-        <script src="/static/js/vendor/bootstrap.min.js"></script>
-        <script src="/static/js/plugins.js"></script>
-        <script src="/static/js/main.js"></script>	
-	<script type="text/javascript" src="/static/js/javascriptrrd.wlibs.js"></script>
-    </head>
-    <body>
-        <!--[if lt IE 8]>
-            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-        <![endif]-->
-    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-	<div class="container">
-	    <div class="navbar-header">
-		<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-		    <span class="sr-only">Toggle navigation</span>
-		    <span class="icon-bar"></span>
-		    <span class="icon-bar"></span>
-		    <span class="icon-bar"></span>
-		</button>
-		<a class="navbar-brand" href="/" style="margin-top:-10px;"><img src="/static/img/akuino.png" border="0" alt="This application stores the configuration and the data of the different AKUINO modules installed"/></a>
+	    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+	    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600,600italic,700,700italic,800,800italic' rel='stylesheet' type='text/css'>
+	    <style>
+		body {
+		    padding-top: 50px;
+		    padding-bottom: 20px;
+		}
+	    </style>
+	    <link rel="stylesheet" href="/static/css/bootstrap-theme.min.css">
+	    <link rel="stylesheet" href="/static/css/main.css">
+	    <link rel="stylesheet" href="/static/css/glyphicons-halflings.css">
+	    <script src="/static/js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
+	    <script src="/static/js/jquery.js"></script> 
+	    <script> 
+		$$(function(){
+		    $$("#includedContent").load("/static/html/colorpicker.html"); 
+		});
+	    </script> 
+	    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	    <script>window.jQuery || document.write('<script src="/static/js/vendor/jquery-1.11.2.min.js"><\/script>')</script>
+	    <script src="/static/js/vendor/bootstrap.min.js"></script>
+	    <script src="/static/js/plugins.js"></script>
+	    <script src="/static/js/main.js"></script>	
+	    <script type="text/javascript" src="/static/js/javascriptrrd.wlibs.js"></script>
+	</head>
+	<body>
+	    <!--[if lt IE 8]>
+		<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+	    <![endif]-->
+	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+	    <div class="container">
+		<div class="navbar-header">
+		    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+			<span class="sr-only">Toggle navigation</span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+		    </button>
+		    <a class="navbar-brand" href="/" style="margin-top:-10px;"><img src="/static/img/akuino.png" border="0" alt="This application stores the configuration and the data of the different AKUINO modules installed"/></a>
+		</div>
+			
+		<div id="navbar" class="navbar-collapse collapse">
+		    <ul class="nav navbar-nav">
+			<li class="dropdown" data-show-icon="true">
+			    <a href="#" class="dropdown-toggle" data-toggle="dropdown">$c.AllMessages.elements['component'].getName(content.lang)<b class="caret"></b></a>
+			    <ul class="dropdown-menu">
+				<li><a href="/all/p" tabindex="-1"><span class="$c.AllHalflings.elements['place'].getHalfling()"></span> $c.AllMessages.elements['place'].getName(content.lang)</a></li>
+				<li><a href="/all/e" tabindex="-2"><span class="$c.AllHalflings.elements['equipment'].getHalfling()"></span> $c.AllMessages.elements['equipment'].getName(content.lang)</a></li>
+				<li><a href="/all/c" tabindex="-3"><span class="$c.AllHalflings.elements['container'].getHalfling()"></span> $c.AllMessages.elements['container'].getName(content.lang)</a></li>
+				<li><a href="/all/cpehm" tabindex="-4"><span class="$c.AllHalflings.elements['sensor'].getHalfling()"></span> $c.AllMessages.elements['sensor'].getName(content.lang)</a></li>
+				
+			    </ul>
+			</li>
+			<li class="dropdown" data-show-icon="true">
+			    <a href="#" class="dropdown-toggle" data-toggle="dropdown">$c.AllMessages.elements['data'].getName(content.lang)<b class="caret"></b></a>
+			    <ul class="dropdown-menu">
+				<li><a href="/all/m" tabindex="-1"><span class="$c.AllHalflings.elements['measure'].getHalfling()"></span> $c.AllMessages.elements['measure'].getName(content.lang)</a></li>
+				<li><a href="/all/a" tabindex="-2"><span class="$c.AllHalflings.elements['alarm'].getHalfling()"></span> $c.AllMessages.elements['alarm'].getName(content.lang)</a></li>
+				<li><a href="/monitoring/" tabindex="-3"><span class="$c.AllHalflings.elements['monitoring'].getHalfling()"></span> $c.AllMessages.elements['monitoring'].getName(content.lang)</a></li>
+				<li><a href="#" tabindex="-4"><span class="halflings halflings-barcode"></span> Barcodes</a></li>
+			    </ul>
+			</li>
+			<li class="dropdown" data-show-icon="true">
+			    <a href="#" class="dropdown-toggle" data-toggle="dropdown">$c.AllMessages.elements['production'].getName(content.lang)<b class="caret"></b></a>
+			    <ul class="dropdown-menu">
+				<li><a href="#" tabindex="-1"><span class="$c.AllHalflings.elements['recipe'].getHalfling()"></span> Recipe</a></li>
+				<li><a href="#" tabindex="-2"><span class="$c.AllHalflings.elements['recipeStep'].getHalfling()"></span> Recipe Step</a></li>
+				<li><a href="/all/b" tabindex="-3"><span class="$c.AllHalflings.elements['batch'].getHalfling()"></span> $c.AllMessages.elements['batch'].getName(content.lang)</a></li>
+				<li><a href="/all/t" tabindex="-4"><span class="$c.AllHalflings.elements['transfer'].getHalfling()"></span> $c.AllMessages.elements['transfer'].getName(content.lang)</a></li>
+				<li><a href="#" tabindex="-5"><span class="$c.AllHalflings.elements['ToDo'].getHalfling()"></span> ToDo</a></li>
+			    </ul>
+			</li>
+			<li class="dropdown" data-show-icon="true">
+			    <a href="#" class="dropdown-toggle" data-toggle="dropdown">$c.AllMessages.elements['people'].getName(content.lang)<b class="caret"></b></a>
+			    <ul class="dropdown-menu">
+				<li><a href="/all/u" tabindex="-1"><span class="$c.AllHalflings.elements['user'].getHalfling()"></span> $c.AllMessages.elements['user'].getName(content.lang)</a></li>
+				<li><a href="/all/g" tabindex="-2"><span class="$c.AllHalflings.elements['group'].getHalfling()"></span>  $c.AllMessages.elements['group'].getName(content.lang)</a></li>
+			    </ul>
+			</li>
+		    </ul>
+		</div><!--/.navbar-collapse -->
 	    </div>
-		    
-	    <div id="navbar" class="navbar-collapse collapse">
-		<ul class="nav navbar-nav">
-		    <li class="dropdown" data-show-icon="true">
-			<a href="#" class="dropdown-toggle" data-toggle="dropdown">Objects<b class="caret"></b></a>
-			<ul class="dropdown-menu">
-			    <li><a href="/places/" tabindex="-1"><span class="$c.AllHalflings.elements['place'].getHalfling()"></span> $c.AllMessages.elements['place'].getName(content.lang)</a></li>
-			    <li><a href="/equipments/" tabindex="-2"><span class="$c.AllHalflings.elements['equipment'].getHalfling()"></span> $c.AllMessages.elements['equipment'].getName(content.lang)</a></li>
-			    <li><a href="/containers/" tabindex="-3"><span class="$c.AllHalflings.elements['container'].getHalfling()"></span> $c.AllMessages.elements['container'].getName(content.lang)</a></li>
-			    <li><a href="/sensors/" tabindex="-4"><span class="$c.AllHalflings.elements['sensor'].getHalfling()"></span> $c.AllMessages.elements['sensor'].getName(content.lang)</a></li>
-			    
-			</ul>
-		    </li>
-		    <li class="dropdown" data-show-icon="true">
-			<a href="#" class="dropdown-toggle" data-toggle="dropdown">Data<b class="caret"></b></a>
-			<ul class="dropdown-menu">
-			    <li><a href="/measures/" tabindex="-1"><span class="$c.AllHalflings.elements['measure'].getHalfling()"></span> $c.AllMessages.elements['measure'].getName(content.lang)</a></li>
-			    <li><a href="/alarms/" tabindex="-2"><span class="$c.AllHalflings.elements['alarm'].getHalfling()"></span> $c.AllMessages.elements['alarm'].getName(content.lang)</a></li>
-			    <li><a href="/monitoring/" tabindex="-3"><span class="halflings halflings-stats"></span> Monitoring</a></li>
-			    <li><a href="#" tabindex="-4"><span class="halflings halflings-barcode"></span> Barcodes</a></li>
-			</ul>
-		    </li>
-		    <li class="dropdown" data-show-icon="true">
-			<a href="#" class="dropdown-toggle" data-toggle="dropdown">Production<b class="caret"></b></a>
-			<ul class="dropdown-menu">
-			    <li><a href="#" tabindex="-1"><span class="$c.AllHalflings.elements['recipe'].getHalfling()"></span> Recipe</a></li>
-			    <li><a href="#" tabindex="-2"><span class="$c.AllHalflings.elements['recipeStep'].getHalfling()"></span> Recipe Step</a></li>
-			    <li><a href="/batches/" tabindex="-3"><span class="$c.AllHalflings.elements['batch'].getHalfling()"></span> $c.AllMessages.elements['batch'].getName(content.lang)</a></li>
-			    <li><a href="/transfers/" tabindex="-4"><span class="$c.AllHalflings.elements['transfer'].getHalfling()"></span> $c.AllMessages.elements['transfer'].getName(content.lang)</a></li>
-			    <li><a href="#" tabindex="-5"><span class="$c.AllHalflings.elements['ToDo'].getHalfling()"></span> ToDo</a></li>
-			</ul>
-		    </li>
-		    <li class="dropdown" data-show-icon="true">
-			<a href="#" class="dropdown-toggle" data-toggle="dropdown">People<b class="caret"></b></a>
-			<ul class="dropdown-menu">
-			    <li><a href="/users/" tabindex="-1"><span class="$c.AllHalflings.elements['user'].getHalfling()"></span> $c.AllMessages.elements['user'].getName(content.lang)</a></li>
-			    <li><a href="/groups/" tabindex="-2"><span class="$c.AllHalflings.elements['group'].getHalfling()"></span>  $c.AllMessages.elements['group'].getName(content.lang)s</a></li>
-			</ul>
-		    </li>
-		</ul>
-	    </div><!--/.navbar-collapse -->
+	</nav>
+	<div class="container">
+	    <div style="margin-top:10px;font-size:20px;">
+		$if content.location != 'index' :
+		    <a href="/"><span class="glyphicon glyphicon-home"></span>   </a>
+		    $code : 
+			url = '/'
+		    $for elem in content.location.split():
+			$code:
+			    tmp = url+elem.split('=')[0]
+			/    <a href="$tmp" ><span class="$c.AllHalflings.elements[elem.split('=')[1]].getHalfling()"></span>$c.AllMessages.elements[elem.split('=')[1]].getName(content.lang)</a>
+			
+	    </div>
+	    
+	    <div style="margin-top:25px;">
+		$:content
+	    </div>
+	  
 	</div>
-    </nav>
-    <div class="container">
-	<div style="margin-top:10px;font-size:20px;">
-	    $if content.location != 'index' :
-		<a href="/"><span class="glyphicon glyphicon-home"></span></a>
-		$code : 
-		    url = '/'
-		$for elem in content.location.split():
-		    $code:
-			url = url+elem
-		    / <a href="$url" >$elem.split('/')[0]</a>
-		    
-	</div>
-	
-	<div style="margin-top:25px;">
-	    $:content
-	</div>
-      
-    </div>
-    <hr>
-    <footer style="margin-top:40px;">
-	<div class="col-xs-11 text-center"><a href="http://www.akuino.net">AKUINO</a>, &copy;<small><a href="http://www.destin-informatique.com">DESTIN-Informatique</a>, <a href="http://www.ethaconcept.be">EthaConcept</a>, <a href="http://www.glyphicons.com">GlyphIcons</a>, 2017</small></div>
-    </footer> 
-	
-    </body>
-</html>
+	<hr>
+	<footer style="margin-top:40px;">
+	    <div class="col-xs-11 text-center"><a href="http://www.akuino.net">AKUINO</a>, &copy;<small><a href="http://www.destin-informatique.com">DESTIN-Informatique</a>, <a href="http://www.glyphicons.com">GlyphIcons</a>, 2017</small></div>
+	</footer> 
+	    
+	</body>
+    </html>
+$else:
+    $:content

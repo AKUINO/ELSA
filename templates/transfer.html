@@ -1,21 +1,23 @@
 $def with (id1, id2, mail, errormess)
-
+$var recursive : False
 $if id1 == 'new':
     $code :
 	myID = 'new'
 	rmq = ''
+    $var location: transfers=transfer transfers/new/new=add
 $elif id1 == 'update' :
     $code :
 	myID = 'update'
 	transfer = c.AllTransfers.elements[id2.split('_')[-1]]
-	batch = c.AllBatches.elements[transfer.fields['object_id']]
+	elem = c.findAllFromType(transfer.fields['object_type']).elements[transfer.fields['object_id']]
 	rmq = transfer.fields['remark']
+    $var location: all/$(id1.split('_')[-0])=$(elem.get_name()) transfers/$(id1.split('_')[0])_$(elem.getID())=transfer edit/p_$(id2)=edit
 $else :
     $code:
-	myID = 'batch'
-	batch = c.AllBatches.elements[id1.split('_')[-1]]
-	rmq = ''
-$var location: transfers/ new
+	myID = 'component'
+	elem = c.findAllFromType(id1.split('_')[0]).elements[id1.split('_')[-1]]
+	rmq = '' 
+    $var location: all/$(id1.split('_')[-0])=$(elem.get_name()) transfers/$(id1.split('_')[0])_$(elem.getID())=transfer transfers/$(id1.split('_')[0])_$(elem.getID())/new=add
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 
@@ -39,21 +41,36 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputObject" class="col-sm-3 col-form-label">$c.AllMessages.elements['batch'].getName(self.lang) </label>
+	    <label for="inputObject" class="col-sm-3 col-form-label">$c.AllMessages.elements['componentmove'].getName(self.lang) </label>
 	    <div class="col-sm-9">
-		<select name = "object" class="form-control" id="inputObject">
+		<select name = "object" class="form-control" id="inputPosition">
+		    <optgroup label="$c.AllMessages.elements['batch'].getName(self.lang)">
 		    $for k in c.AllBatches.elements.keys():
 			<option value="b_$k"
-                        $if myID != 'new':
-			    $if k == batch.fields['b_id'] :
-				selected
+			    $if not myID == 'new':
+				$if 'b' == elem.get_type() and k == elem.getID() :
+				    selected
 			>$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang) </option>
+		    <optgroup label="$c.AllMessages.elements['equipment'].getName(self.lang)">
+		    $for k in c.AllEquipments.elements.keys():
+			<option value="e_$k"
+			    $if not myID == 'new':
+				$if 'e' == elem.get_type() and k == elem.getID() :
+				    selected			
+			>$c.AllEquipments.elements[k].fields['acronym'] - $c.AllEquipments.elements[k].getName(self.lang)</option>
+		    <optgroup label="$c.AllMessages.elements['container'].getName(self.lang)">
+		    $for k in c.AllContainers.elements.keys():
+			<option value="c_$k"
+			    $if not myID == 'new':
+				$if 'c' == elem.get_type() and k == elem.getID() :
+				    selected
+			>$c.AllContainers.elements[k].fields['acronym'] - $c.AllContainers.elements[k].getName(self.lang)</option>
 		</select>
 	    </div>
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputPosition" class="col-sm-3 col-form-label">$c.AllMessages.elements['component'].getName(self.lang)</label>
+	    <label for="inputPosition" class="col-sm-3 col-form-label">$c.AllMessages.elements['componentin'].getName(self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "position" class="form-control" id="inputPosition">
 		    <optgroup label="$c.AllMessages.elements['place'].getName(self.lang)">

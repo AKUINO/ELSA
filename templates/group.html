@@ -1,15 +1,15 @@
 $def with (id, mail, errormess)
-
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+$var recursive : False
 
 $if id == 'new':
-    $var location: groups/ new
-    $var rmq : 
+    $var location: all/g=group edit/g_new=add
+    $var rmq :
     
 $else:
-    $var location: groups/ $c.AllGroups.elements[id].fields['g_id']
+    $var location: all/g=group edit/g_$(id)=edit
     $var rmq :  $c.AllGroups.elements[id].fields['remark']
 
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 <div class="container">
     
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
@@ -94,7 +94,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <div class="col-sm-3">
 	    </div>
 	    <div class="col-sm-2">
-		<a href="/groups/" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		<a href="/all/g" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>

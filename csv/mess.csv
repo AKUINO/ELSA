@@ -1,8 +1,13 @@
 begin	m_id	default	user
 01/01/2016 13:45:56	name	Name	1
+01/01/2016 13:45:56	production	Production	1
+01/01/2016 13:45:56	people	People	1
 01/01/2016 13:45:56	cancel	Cancel	1
 01/01/2016 13:45:56	value	Value 	1
+01/01/2016 13:45:56	monitoring	Monitoring 	1
 01/01/2016 13:45:56	time	Time	1
+01/01/2016 13:45:56	componentmove	Component to move	1
+01/01/2016 13:45:56	componentin	Target	1
 01/01/2016 13:45:56	selecttransfer	"Select the object to transfer"	1
 01/01/2016 13:45:56	acronymrequired	Acronym is required !	1
 01/01/2016 13:45:56	acronymunique	Acronym must be unique !	1
@@ -13,18 +18,18 @@ begin	m_id	default	user
 01/01/2016 13:45:56	componentrules	Error component	1
 01/01/2016 13:45:56	datarules	If you enter a value, select a measure	1
 01/01/2016 13:45:56	transferrules	The batch is already in this component	1
-01/01/2016 13:45:56	actualposition	Actual Position :	1
+01/01/2016 13:45:56	formularules	The formula is not correct	1
+01/01/2016 13:45:56	actualposition	Actual Position 	1
 01/01/2016 13:45:56	lapse	Lapse	1
+01/01/2016 13:45:56	listing	Listing	1
 01/01/2016 13:45:56	begin	Begin	1
 01/01/2016 13:45:56	group	Group	1
 01/01/2016 13:45:56	deny	Deny	1
 01/01/2016 13:45:56	acronym	Acronym	1
 01/01/2016 13:45:56	barcode	Barcode	1
-01/01/2016 13:45:56	p_id	ID	1
 01/01/2016 13:45:56	remark	Remark	1
 01/01/2016 13:45:56	welcome	Welcome	1
 01/01/2016 13:45:56	user	User	1
-01/01/2016 13:45:56	e_id	ID	1
 01/01/2016 13:45:56	file	File	1
 01/01/2016 13:45:56	modified	Modified by	1
 01/01/2016 13:45:56	created	Created by	1
@@ -56,7 +61,7 @@ begin	m_id	default	user
 01/01/2016 13:45:56	source	"Source "	1
 01/01/2016 13:45:56	formula	"Formula "	1
 01/01/2016 13:45:56	unit	"Unit "	1
-01/01/2016 13:45:56	component	"Component "	1
+01/01/2016 13:45:56	component	Component 	1
 01/01/2016 13:45:56	subsensor	"Subsensor "	1
 01/01/2016 13:45:56	valuetype	"Value type "	1
 01/01/2016 13:45:56	channel	"Channel "	1
@@ -66,10 +71,13 @@ begin	m_id	default	user
 01/01/2016 13:45:56	sound	"Sound "	1
 01/01/2016 13:45:56	minmin	"Min --- "	1
 01/01/2016 13:45:56	min	"Min "	1
+01/01/2016 13:45:56	data	"Data "	1
 01/01/2016 13:45:56	typical	"Typical "	1
 01/01/2016 13:45:56	max	"Max "	1
 01/01/2016 13:45:56	maxmax	"Max +++ "	1
 01/01/2016 13:45:56	phone	"Phone  "	1
+01/01/2016 13:45:56	add	"Add"	1
+01/01/2016 13:45:56	edit	"Edit"	1
 01/01/2016 13:45:56	alarmtitle	"{0}  {1}    {2}    {3} {4} {5} {6}    {7}"	1
 01/01/2016 13:45:56	alarmmessage	"Alarm from {0}
 {1} :

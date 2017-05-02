@@ -1,0 +1,112 @@
+$def with (mail,id)
+$var recursive : False
+$code:
+    elem = c.AllGroups.elements[id]
+    keyID = c.findAllFromObject(elem).keyColumn
+    
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$var location: all/g=group
+
+<script>
+    $$(function(){
+	$$("#includedAllMenug_$(id)").load("/allmenu/g_$(id)");
+    });
+</script>
+<div id="includedAllMenug_$(id)"></div>
+<script>
+    $$(function(){
+	$$("#includedModalg_$(id)").load("/modal/g_$(id)");
+    });
+</script>
+<div id="includedModalg_$(id)"></div>
+
+
+<div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+    <label class="col-sm-12">$c.AllMessages.elements['user'].getName(self.lang) :</label>    
+    $for k,user in c.AllUsers.elements.items():
+	$if id in user.groups.keys() :
+	    <script>
+		$$(function(){
+		    $$("#includedMenuu_$(k)").load("/menu/u_$(k)");
+		});
+	    </script>
+	    <div id="includedMenuu_$(k)"></div>
+	    <script>
+		$$(function(){
+		    $$("#includedModalu_$(k)").load("/modal/u_$(k)");
+		});
+	    </script>
+	    <div id="includedModalu_$(k)"></div>
+</div>
+
+<div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+    <label class="col-sm-12">$c.AllMessages.elements['place'].getName(self.lang) :</label>    
+    $for k,p in c.AllPieces.elements.items():
+	$if id in p.groups.keys() :
+	    <script>
+		$$(function(){
+		    $$("#includedMenup_$(k)").load("/menu/p_$(k)");
+		});
+	    </script>
+	    <div id="includedMenup_$(k)"></div>
+	    <script>
+		$$(function(){
+		    $$("#includedModalp_$(k)").load("/modal/p_$(k)");
+		});
+	    </script>
+	    <div id="includedModalp_$(k)"></div>
+</div>
+
+<div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+    <label class="col-sm-12">$c.AllMessages.elements['equipment'].getName(self.lang) :</label>    
+    $for k,e in c.AllEquipments.elements.items():
+	$if id in e.groups.keys() :
+	    <script>
+		$$(function(){
+		    $$("#includedMenue_$(k)").load("/menu/e_$(k)");
+		});
+	    </script>
+	    <div id="includedMenue_$(k)"></div>
+	    <script>
+		$$(function(){
+		    $$("#includedModale_$(k)").load("/modal/e_$(k)");
+		});
+	    </script>
+	    <div id="includedModale_$(k)"></div>
+</div>
+
+<div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+    <label class="col-sm-12">$c.AllMessages.elements['container'].getName(self.lang) :</label>    
+    $for k,cont in c.AllContainers.elements.items():
+	$if id in cont.groups.keys() :
+	    <script>
+		$$(function(){
+		    $$("#includedMenuc_$(k)").load("/menu/c_$(k)");
+		});
+	    </script>
+	    <div id="includedMenuc_$(k)"></div>
+	    <script>
+		$$(function(){
+		    $$("#includedModalc_$(k)").load("/modal/c_$(k)");
+		});
+	    </script>
+	    <div id="includedModalc_$(k)"></div>
+</div>
+
+<div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+    <label class="col-sm-12">$c.AllMessages.elements['batch'].getName(self.lang) :</label>    
+    $for k,b in c.AllBatches.elements.items():
+	$if id in b.groups.keys() :
+	    <script>
+		$$(function(){
+		    $$("#includedMenub_$(k)").load("/menu/b_$(k)");
+		});
+	    </script>
+	    <div id="includedMenub_$(k)"></div>
+	    <script>
+		$$(function(){
+		    $$("#includedModalb_$(k)").load("/modal/b_$(k)");
+		});
+	    </script>
+	    <div id="includedModalb_$(k)"></div>
+</div>

@@ -1,0 +1,60 @@
+$def with (mail,id)
+$var recursive : False
+$code:
+    elem = c.AllMeasures.elements[id]
+    keyID = c.findAllFromObject(elem).keyColumn
+    
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$var location: all/m=$(c.findAllFromType('m').get_name_object()) measures/m_$(id)=manualdata
+
+<script>
+    $$(function(){
+	$$("#includedAllMenum_$(id)").load("/allmenu/m_$(id)");
+    });
+</script>
+<div id="includedAllMenum_$(id)"></div>
+
+<script>
+    $$(function(){
+	$$("#includedModalm_$(id)").load("/modal/m_$(id)");
+    });
+</script>
+<div id="includedModalm_$(id)"></div>
+
+<div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+    <label class="col-sm-12">$c.AllMessages.elements['sensor'].getName(self.lang) :</label>    
+    $for k,sensor in c.AllSensors.elements.items():
+	$if sensor.fields['m_id'] == id :
+	    <script>
+		$$(function(){
+		    $$("#includedMenucpehm_$(k)").load("/menu/cpehm_$(k)");
+		});
+	    </script>
+	    <div id="includedMenucpehm_$(k)"></div>
+	    <script>
+		$$(function(){
+		    $$("#includedModalcpehm_$(k)").load("/modal/cpehm_$(k)");
+		});
+	    </script>
+	    <div id="includedModalcpehm_$(k)"></div>
+</div>
+
+<div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+    <label class="col-sm-12">$c.AllMessages.elements['manualdata'].getName(self.lang) :</label>    
+    $for k,data in c.AllManualData.elements.items():
+	$if data.fields['m_id'] == id :
+	    <div class="row active" style="color:#f07e26;">
+		<div class="col-xs-3" >
+		    $data.fields['time']
+		</div>	    
+		<div class="col-xs-3" >
+			$data.fields['value']  $elem.fields['unit']</a>
+		</div>
+		<div class="col-xs-5" >
+		    $data.fields['remark']
+		</div>
+		<div class="col-xs-1">
+		    <strong><a href="m_$(id)/$(k)" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
+		</div>
+	    </div>
+</div>

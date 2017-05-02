@@ -19,6 +19,7 @@ import HardConfig as hardconfig
 import barcode
 import re
 import socket
+
 from I2CScreen import *
 
 import pigpio
@@ -28,7 +29,8 @@ PIG = pigpio.pi()
 csvDir = "../ELSAcsv/csv/"
 rrdDir = 'rrd/'
 ttyDir = '/dev/ttyS0'
-barcodesDir = 'barcodes/'
+imgDir = 'static/img'
+barcodesDir = 'static/img/barcodes/'
 groupWebUsers = '_WEB'
 
 _lock_socket = None
@@ -36,7 +38,6 @@ _lock_socket = None
 class Configuration():
 
     def __init__(self):
-	
         self.HardConfig = hardconfig.HardConfig()
 	
 ##        # Run only OUNCE: Check if /run/akuino/ELSA.pid exists...
@@ -61,7 +62,6 @@ class Configuration():
             print 'AKUINO-ELSA lock exists'
             sys.exit()
 
-	
 	self.InfoSystem = InfoSystem(self)
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
@@ -78,6 +78,7 @@ class Configuration():
 	self.AllBatches = AllBatches(self)
 	self.AllSensors = AllSensors(self)
 	self.AllAlarms = AllAlarms(self)
+	self.AllAlarmLogs= AllAlarmLogs(self)
 	self.AllHalflings = AllHalflings(self)
 	self.AllBarcodes = AllBarcodes(self)
 	self.AllManualData = AllManualData(self)
@@ -99,6 +100,7 @@ class Configuration():
         else:
             self.screen = I2CScreen(False, disp = None)
 	
+
 	self.AllLanguages.load()
         self.AllUsers.load()
         self.AllPieces.load()
@@ -119,6 +121,7 @@ class Configuration():
 	self.loadRelation()
 	self.AllTransfers.load()
 	self.AllManualData.load()
+	self.AllAlarmLogs.load()
 	self.UpdateThread.start()
 	self.RadioThread.start()
 	
@@ -153,53 +156,55 @@ class Configuration():
             return None
 	    
     def getObject(self, idObject,className):
-	if className == u"WebUser" or className == u"u":
+	if className == u"u":
             return self.AllUsers.getItem(idObject)
-        elif className == u"WebEquipment" or className == u"e":
+        elif className == u"e":
             return self.AllEquipments.getItem(idObject)
         elif className == u"Language":
             return self.AllLanguages.getItem(idObject)
-	elif className == u"WebPlace" or className == u"p":
+	elif className == u"p":
 	    return self.AllPieces.getItem(idObject)
-	elif className == u"WebGroup" or className == u"g":
+	elif className == u"g":
 	    return self.AllGroups.getItem(idObject)
-	elif className == u"WebContainer" or className == u"c":
+	elif className == u"c":
 	    return self.AllContainers.getItem(idObject)
-	elif className == u"WebMeasure" or className == u"m":
+	elif className == u"m":
 	    return self.AllMeasures.getItem(idObject)
-	elif className == u"WebSensor" or className == u"cpehm":
+	elif className == u"cpehm":
 	    return self.AllSensors.getItem(idObject)
-	elif className == u"WebAlarm" or className == u"a":
+	elif className == u"a":
 	    return self.AllAlarms.getItem(idObject)
-	elif className == u"WebBatch" or className == u"b":
+	elif className == u"b":
 	    return self.AllBatches.getItem(idObject)
 	elif className == u"WebTransfer" or className == u"t":
 	    return self.AllTransfers.getItem(idObject)
 	elif className == u"WebManualData" or className == u"d":
 	    return self.AllManualData.getItem(idObject)
+	elif className == u"WebAlarmLogs" or className == u"al":
+	    return self.AllManualData.getItem(idObject)
         else:
             return None
     
     def getFieldsname(self,className):
-        if className == u"WebUser":
+        if className == u"u":
             return self.AllUsers.fieldnames
-        elif className == u"WebEquipment":
+        elif className == u"e":
             return self.AllEquipments.fieldnames
         elif className == u"Language":
             return self.AllLanguages.fieldnames
-	elif className == u"WebPlace":
+	elif className == u"p":
 	    return self.AllPieces.fieldnames  
-	elif className == u"WebGroup":
+	elif className == u"g":
 	    return self.AllGroups.fieldnames  
-	elif className == u"WebContainer":
+	elif className == u"c":
 	    return self.AllContainers.fieldnames  
-	elif className == u"WebMeasure":
+	elif className == u"m":
 	    return self.AllMeasures.fieldnames  
-	elif className == u"WebSensor":
+	elif className == u"cpehm":
 	    return self.AllSensors.fieldnames 
-	elif className == u"WebAlarm":
+	elif className == u"a":
 	    return self.AllAlarms.fieldnames
-	elif className == u"WebBatch":
+	elif className == u"b":
 	    return self.AllAlarms.fieldnames
 	elif className == u"WebTransfer":
 	    return self.AllTransfers.fieldnames
@@ -511,7 +516,9 @@ class ConfigurationObject():
 	
     def save(self,configuration,anUser=""):
         self.fields["begin"] = unicode(datetime.datetime.now().strftime("%H:%M:%S  -  %d/%m/%y"))
-        self.fields["user"] = anUser.fields['u_id']
+	if anUser != "" :
+	    self.fields["user"] = anUser.fields['u_id']
+	
         allObjects = configuration.findAllFromObject(self)
 	print allObjects.fileobject
         print allObjects.fieldnames
@@ -575,7 +582,9 @@ class ConfigurationObject():
 	elif self.__class__.__name__ == u"Group":
             return directory + '/g/group_'+self.fields['g_id']+'.' 
 	elif self.__class__.__name__ == u"Container":
-            return directory + '/c/group_'+self.fields['c_id']+'.' 
+            return directory + '/c/container_'+self.fields['c_id']+'.' 
+	elif self.__class__.__name__ == u"Batch":
+            return directory + '/b/batch_'+self.fields['b_id']+'.' 
         else:
             return None
 
@@ -613,8 +622,7 @@ class ConfigurationObject():
 	    
     def getID(self):
 	return self.id
-	    
-		
+	    		
     def deleteGroup(self,groupid, configuration,anUser):
 	print self.groups
 	print groupid	
@@ -680,9 +688,22 @@ class ConfigurationObject():
 	try :
 	    if 'code' in data and len(data['code']) >0 :
 		code = int(data['code'])
-		configuration.AllBarcodes.validate_barcode(code, self.id, self.get_type())
+		cond = configuration.AllBarcodes.validate_barcode(code, self.id, self.get_type())
+		if cond == False :
+		    tmp += configuration.AllMessages.elements['barcoderules'].getName(lang) + '\n'
 	except:
 	    tmp += configuration.AllMessages.elements['barcoderules'].getName(lang) + '\n'
+	    
+	try : 
+	    if 'formula' in data  and len(data['formula']) >0:
+		print data
+		value = 1
+		owData = unicode(eval(data['formula']))
+		value = 0
+		owData = unicode(eval(data['formula']))
+	except:
+	    tmp += configuration.AllMessages.elements['formularules'].getName(lang) + '\n'
+	    
 	if tmp == '':
 	    return True
 	return tmp
@@ -705,12 +726,7 @@ class ConfigurationObject():
 	
     def is_actual_position(self, type, id):
 	tmp = self.get_actual_position()
-	print tmp
 	if tmp is not None :
-	    print type
-	    print tmp.fields['cont_type']
-	    print id
-	    print tmp.fields['cont_id']
 	    if type == tmp.fields['cont_type'] and str(id) == tmp.fields['cont_id']:
 		return True
 	return False
@@ -899,6 +915,9 @@ class AllObjects():
 		while tmp < len(self.fieldtranslate):
 		    csvfile.write('\t'+self.fieldtranslate[tmp])
 		    tmp = tmp + 1
+		    
+    def get_name_object(self ):
+	return 'component'
 	        
 class AllUsers(AllObjects):
 
@@ -923,6 +942,9 @@ class AllUsers(AllObjects):
 	for myId,user in self.elements.items():
 	    if user.fields['mail']==mail:
 		return user
+		
+    def get_name_object(self ):
+	return 'user'
 		
 
 class AllRoles(AllObjects):
@@ -977,11 +999,14 @@ class AllEquipments(AllObjects):
         self.fileobject = csvDir + "E.csv"
 	self.filename = csvDir + "Enames.csv"
         self.keyColumn = "e_id"
-	self.fieldnames = ["begin", "e_id", "deny", "acronym", "place", "remark",'colorgraph', "user"]
+	self.fieldnames = ["begin", "e_id", "deny", "acronym", "remark",'colorgraph', "user"]
 	self.fieldtranslate = ['begin', 'lang', 'e_id', 'name', 'user']
 
     def newObject(self):
         return Equipment()
+	
+    def get_name_object(self ):
+	return 'equipment'
 
 class AllContainers(AllObjects):
 
@@ -992,11 +1017,14 @@ class AllContainers(AllObjects):
         self.fileobject = csvDir + "C.csv"
 	self.filename = csvDir + "Cnames.csv"
         self.keyColumn = "c_id"
-	self.fieldnames = ["begin", "c_id", "deny", "acronym","place", "remark",'colorgraph', "user"]
+	self.fieldnames = ["begin", "c_id", "deny", "acronym", "remark",'colorgraph', "user"]
 	self.fieldtranslate = ['begin', 'lang', 'c_id', 'name', 'user']
 
     def newObject(self):
-        return Container()	
+        return Container()
+	
+    def get_name_object(self ):
+	return 'container'
 
 class AllPieces(AllObjects):
 
@@ -1013,6 +1041,25 @@ class AllPieces(AllObjects):
 
     def newObject(self):
 	return Piece()
+	
+    def get_name_object(self):
+	return 'place'
+	
+class AllAlarmLogs(AllObjects):
+
+    def __init__(self, config):
+	AllObjects.__init__(self)
+        self.elements = {}
+        self.config = config
+        self.fileobject = csvDir + "alarmlogs.csv"
+	self.filename = None
+        self.keyColumn = "al_id"
+	self.fieldnames = ['begin', 'al_id', 'cont_id', 'cont_type', 'cpehm_id','value','typealarm','begintime', 'alarmtime', 'degree']
+	self.fieldtranslate = None
+	self.count = 0
+
+    def newObject(self):
+	return AlarmLog()
 	
 class AllHalflings(AllObjects):
 
@@ -1051,6 +1098,9 @@ class AllAlarms(AllObjects):
     def newObject(self):
 	return Alarm()	
 	
+    def get_name_object(self ):
+	return 'alarm'
+	
 class AllManualData(AllObjects):
 
     def __init__(self, config):
@@ -1065,6 +1115,9 @@ class AllManualData(AllObjects):
 
     def newObject(self):
 	return ManualData()
+	
+    def get_name_object(self ):
+	return 'd'
     
 class AllGroups(AllObjects):
 
@@ -1080,6 +1133,9 @@ class AllGroups(AllObjects):
 
     def newObject(self):
         return Group()
+	
+    def get_name_object(self ):
+	return 'group'
 	
     def get_children(self,group, listchildren = None):
 	if listchildren == None :
@@ -1119,6 +1175,9 @@ class AllMeasures(AllObjects):
 
     def newObject(self):
         return Measure()
+	
+    def get_name_object(self ):
+	return 'measure'
 
 class AllSensors(AllObjects):
 
@@ -1135,6 +1194,9 @@ class AllSensors(AllObjects):
 
     def newObject(self):
         return Sensor()
+	
+    def get_name_object(self ):
+	return 'sensor'
 	
     def getColor(self, ids):
 	color = "#006600"
@@ -1185,6 +1247,9 @@ class AllBatches(AllObjects):
     def newObject(self):
         return Batch(self.config)
 	
+    def get_name_object(self ):
+	return 'batch'
+	
 class AllTransfers(AllObjects):
 
     def __init__(self, config):
@@ -1199,6 +1264,9 @@ class AllTransfers(AllObjects):
 
     def newObject(self):
         return Transfer(self.config)
+	
+    def get_name_object(self ):
+	return 'transfer'
 	
 
 class AllBarcodes(AllObjects):
@@ -1222,11 +1290,12 @@ class AllBarcodes(AllObjects):
 		key = row[self.keyColumn]
 		if row['deny'] == '0' :
 		    del self.elements[key]
-		else :
+		elif len(row['code']) > 0:
 		    currObject = self.newObject( self.config.getObject(row['idobject'], row['type']))
 		    currObject.fields = row
 		    currObject.id = key
 		    self.elements[key] = currObject
+	self.to_pictures()
 
     def newObject(self, item):
         return Barcode(item)
@@ -1235,12 +1304,13 @@ class AllBarcodes(AllObjects):
 	for k  in self.elements.keys():
             if self.elements[k].element:
                 if self.elements[k].element.get_type() == myType and unicode(self.elements[k].element.getID()) == myID:
+		    self.elements[k].barcode_picture()
                     return k
 	return ''
 	
     def unique_barcode(self,code, myID, myType):
 	for k,v in self.elements.items():
-	    if code == k and not myID == v.getID() and not myType == v.fields['type']:
+	    if int(code) == int(k) and not myID == v.getID() and not myType == v.fields['type']:
 		return False
 	return True
     
@@ -1575,6 +1645,9 @@ class User(ConfigurationObject):
 
     def get_name_listing(self):
 	return 'users'
+	
+    def get_name(self):
+	return 'user'
 	    
 class Role(ConfigurationObject):
 
@@ -1615,6 +1688,9 @@ class Equipment(ConfigurationObject):
     def get_name_listing(self):
 	return 'equipments'
 	
+    def get_name(self):
+	return 'equipment'
+	
     def get_sensors_in_component(self, config):
 	listSensor = []
 	for k, sensor in config.AllSensors.elements.items():
@@ -1642,6 +1718,16 @@ class Container(ConfigurationObject):
 	
     def get_name_listing(self):
 	return 'containers'
+	
+    def get_name(self):
+	return 'container'
+	
+    def get_sensors_in_component(self, config):
+	listSensor = []
+	for k, sensor in config.AllSensors.elements.items():
+	    if sensor.is_in_component('c',self.id):
+		listSensor.append(k)
+	return listSensor
 	
 class ManualData(ConfigurationObject):
 
@@ -1707,6 +1793,9 @@ class ManualData(ConfigurationObject):
 	    return True
 	return tmp
 	
+    def get_name(self):
+	return 'manueldata'
+	
 class Group(ConfigurationObject):
 
     def __init__(self):
@@ -1746,6 +1835,8 @@ class Group(ConfigurationObject):
     def get_name_listing(self):
 	return 'groups'
 		
+    def get_name(self):
+	return 'group'
 
 class Piece(ConfigurationObject):
 
@@ -1769,18 +1860,48 @@ class Piece(ConfigurationObject):
     def get_name_listing(self):
 	return 'places'
 	
+    def get_name(self):
+	return 'place'
+	
     def get_sensors_in_component(self, config):
 	listSensor = []
 	checklist = []
 	checklist.append(['p',self.id])
 	for k,v in config.AllEquipments.elements.items():
-	    if v.fields['place'] == self.id:
-		checklist.append(['e',k])
+	    transfer = v.get_actual_position()
+	    if transfer is not None: 
+		if transfer.fields['cont_type'] == 'e'and  transfer.fields['cont_id'] == self.id:
+		    checklist.append(['e',k])
 	for k, sensor in config.AllSensors.elements.items():
 	    for comp,id in checklist:
 		if sensor.is_in_component(comp,id):
 		    listSensor.append(k)
 	return listSensor
+	
+class AlarmLog(ConfigurationObject):
+
+    def __init__(self):
+	ConfigurationObject.__init__(self)
+	
+
+    def __repr__(self):
+        string = unicode(self.id) 
+        return string
+
+    def __str__(self):
+        string = "\nAlarmLog :"
+        for field in self.fields:
+            string = string + "\n" + field + " : " + self.fields[field]
+        return string + "\n"
+	
+    def get_type(self):
+	return 'al'
+	
+    def get_name_listing(self):
+	return ''
+	
+    def get_name(self):
+	return 'alarmlog'
 
 class Halfling(ConfigurationObject):
 
@@ -1803,6 +1924,9 @@ class Halfling(ConfigurationObject):
 	
     def getHalfling(self):
 	return 'halflings halflings-'+self.fields['glyphname']
+	
+    def get_name(self):
+	return 'halfling'
 
 class Alarm(ConfigurationObject):
 
@@ -1824,61 +1948,90 @@ class Alarm(ConfigurationObject):
 	return 'a'
 	
     def get_alarm_message(self, sensor,config, lang):
-	mess = config.AllMessages.elements['alarmmessage'].getName(lang)
-	cpe = ''
-	elem = ''
-	if not sensor.fields['p_id'] == '':
-	    cpe = config.AllMessages.elements['place'].getName(lang)
-	    elem = config.AllPieces.elements[sensor.fields['p_id']]
-	elif not sensor.fields['e_id'] == '':
-	    cpe = config.AllMessages.elements['equipment'].getName(lang)
-	    elem = config.AllPieces.elements[sensor.fields['e_id']]
-	elif not sensor.fields['c_id'] == '':
-	    cpe = config.AllMessages.elements['container'].getName(lang)
-	    elem = config.AllPieces.elements[sensor.fields['c_id']]	
-        return unicode.format(mess,u'Akuino 6001', cpe, elem.getName(lang), elem.fields['acronym'], sensor.getName(lang), sensor.fields['acronym'], unicode(sensor.lastvalue), sensor.actualAlarm, useful.timestamp_to_date(sensor.time), unicode(sensor.degreeAlarm))
+	if sensor.get_type() == 'cpehm' :
+	    mess = config.AllMessages.elements['alarmmessage'].getName(lang)
+	    cpe = ''
+	    elem = ''
+	    currObject = c.getObject('new','al')
+	    if not sensor.fields['p_id'] == '':
+		cpe = config.AllMessages.elements['place'].getName(lang)
+		elem = config.AllPieces.elements[sensor.fields['p_id']]
+		currObject.fields['cont_type'] = 'p'
+	    elif not sensor.fields['e_id'] == '':
+		cpe = config.AllMessages.elements['equipment'].getName(lang)
+		elem = config.AllPieces.elements[sensor.fields['e_id']]
+		currObject.fields['cont_type'] = 'e'
+	    elif not sensor.fields['c_id'] == '':
+		cpe = config.AllMessages.elements['container'].getName(lang)
+		elem = config.AllPieces.elements[sensor.fields['c_id']]
+		currObject.fields['cont_type'] = 'c'
+	    currObject.fields['cont_id'] = elem.getID()
+	    currObject.fields['cpehm_id'] = sensor.getID()
+	    currObject.fields['value'] = unicode(sensor.lastvalue)
+	    currObject.fields['typealarm'] = sensor.actualAlarm
+	    currObject.fields['begintime'] = sensor.time
+	    currObject.fields['alarmtime'] = int(sensor.time) * sensor.countActual
+	    currObject.fields['degree'] = sensor.degreeAlarm
+	    currObject.save(config)
+	    return unicode.format(mess,u'Akuino 6001', cpe, elem.getName(lang), elem.fields['acronym'], sensor.getName(lang), sensor.fields['acronym'], unicode(sensor.lastvalue), sensor.actualAlarm, useful.timestamp_to_date(sensor.time), unicode(sensor.degreeAlarm))
+	else :
+	    return unicode('Il manque le message')
+       
 	
     def get_alarm_title(self, sensor, config, lang):
-        title = config.AllMessages.elements['alarmtitle'].getName(lang)
-	code = ''
-	equal = ''
-	if sensor.actualAlarm == 'minmin':
-	    code = '---'
-	    equal = '<'
-	elif sensor.actualAlarm == 'min':
-	    code = '-'
-	    equal = '<'
-	elif sensor.actualAlarm == 'max':
-	    code = '+'
-	    equal = '>'
-	elif sensor.actualAlarm == 'maxmax':
-	    code = '+++'
-	    equal = '>'
-	    
-	return unicode.format(title, code, unicode(sensor.degreeAlarm), sensor.fields['acronym'], unicode(sensor.lastvalue), equal, sensor.fields[sensor.actualAlarm], config.AllMeasures.elements[sensor.fields['m_id']].fields['unit'], sensor.getName(lang))
-	
+	if sensor.get_type() == 'cpehm' :
+	    title = config.AllMessages.elements['alarmtitle'].getName(lang)
+	    code = ''
+	    equal = ''
+	    if sensor.actualAlarm == 'minmin':
+		code = '---'
+		equal = '<'
+	    elif sensor.actualAlarm == 'min':
+		code = '-'
+		equal = '<'
+	    elif sensor.actualAlarm == 'max':
+		code = '+'
+		equal = '>'
+	    elif sensor.actualAlarm == 'maxmax':
+		code = '+++'
+		equal = '>'
+	    return unicode.format(title, code, unicode(sensor.degreeAlarm), sensor.fields['acronym'], unicode(sensor.lastvalue), equal, sensor.fields[sensor.actualAlarm], config.AllMeasures.elements[sensor.fields['m_id']].fields['unit'], sensor.getName(lang))
+	else:
+	    return unicode('il manque un titre')
 	
     def launch_alarm(self, sensor, config):
-        level = sensor.degreeAlarm
-	if level == 1 :
-            print 'Send mails'
-	    userlist = config.get_user_group(self.fields['o_email1'])
-	    for user in userlist:
-                lang = config.AllUsers.elements[user].fields['language']
-                mess = self.get_alarm_message(sensor,config, lang)
-                title = self.get_alarm_title( sensor, config, lang)
-		useful.send_email(config.AllUsers.elements[user].fields['mail'], title, mess)
-	elif level == 2:
-            print 'Send mails'
+	if sensor.get_type() == 'cpehm' :
+	    level = sensor.degreeAlarm
+	    if level == 1 :
+		print 'Send mails'
+		userlist = config.get_user_group(self.fields['o_email1'])
+		for user in userlist:
+		    lang = config.AllUsers.elements[user].fields['language']
+		    mess = self.get_alarm_message(sensor,config, lang)
+		    title = self.get_alarm_title( sensor, config, lang)
+		    useful.send_email(config.AllUsers.elements[user].fields['mail'], title, mess)
+	    elif level == 2:
+		print 'Send mails'
+		userlist = config.get_user_group(self.fields['o_email2'])
+		for user in userlist:
+		    lang = config.AllUsers.elements[user].fields['language']
+		    mess = self.get_alarm_message(sensor,config, lang)
+		    title = self.get_alarm_title( sensor, config, lang)
+		    useful.send_email(config.AllUsers.elements[user].fields['mail'], title, mess)
+	else :
 	    userlist = config.get_user_group(self.fields['o_email2'])
 	    for user in userlist:
-                lang = config.AllUsers.elements[user].fields['language']
-                mess = self.get_alarm_message(sensor,config, lang)
-                title = self.get_alarm_title( sensor, config, lang)
+		lang = config.AllUsers.elements[user].fields['language']
+		mess = self.get_alarm_message(sensor,config, lang)
+		title = self.get_alarm_title( sensor, config, lang)
+		print 'Send mail depuis manuel data'
 		useful.send_email(config.AllUsers.elements[user].fields['mail'], title, mess)
 		
     def get_name_listing(self):
 	return 'alarms'
+	
+    def get_name(self):
+	return 'alarm'
 	    
 	
 class Measure(ConfigurationObject):
@@ -1902,6 +2055,9 @@ class Measure(ConfigurationObject):
 	
     def get_name_listing(self):
 	return 'measures'
+	
+    def get_name(self):
+	return 'measure'
 
 class Sensor(ConfigurationObject):
     def __init__(self):
@@ -1943,6 +2099,9 @@ class Sensor(ConfigurationObject):
 	
     def get_type(self):
 	return 'cpehm'
+	
+    def get_name(self):
+	return 'sensor'
 	
     def getRRDName(self):
 	name = 'cpehm_' + unicode(self.id)
@@ -2011,13 +2170,13 @@ class Sensor(ConfigurationObject):
 	
     def createRRD(self):
 	name = re.sub('[^\w]+', '', self.fields['acronym'])
-	now = unicode( int(time.time())-60)
+	now = str( int(time.time())-60)
 	if self.fields['channel'] == 'wire' :
-	    data_sources = unicode('DS:'+name+'1:GAUGE:120:U:U')
-	    rrdtool.create( unicode('rrd/'+self.getRRDName()), "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+	    data_sources = str('DS:'+name+'1:GAUGE:120:U:U')
+	    rrdtool.create( str('rrd/'+self.getRRDName()), "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
 	elif self.fields['channel'] == 'radio' :
-	    data_sources = unicode('DS:'+name+'1:GAUGE:360:U:U')
-	    rrdtool.create( unicode('rrd/'+self.getRRDName()), "--step", "180", '--start', now, data_sources, 'RRA:LAST:0.5:1:14400', 'RRA:AVERAGE:0.5:5:34560', 'RRA:AVERAGE:0.5:30:28800')
+	    data_sources = str('DS:'+name+'1:GAUGE:360:U:U')
+	    rrdtool.create( str('rrd/'+self.getRRDName()), "--step", "180", '--start', now, data_sources, 'RRA:LAST:0.5:1:14400', 'RRA:AVERAGE:0.5:5:34560', 'RRA:AVERAGE:0.5:30:28800')
 	    
 	
     def getTypeAlarm(self,value):
@@ -2105,6 +2264,11 @@ class Sensor(ConfigurationObject):
 	elif type == 'c':
 	    return id == self.fields['c_id']
 	return False
+	
+    def get_sensors_in_component(self, config):
+	tmp = []
+	tmp.append(self.id)
+	return tmp
 	    
 	    
 class Batch(ConfigurationObject):
@@ -2129,6 +2293,9 @@ class Batch(ConfigurationObject):
 	
     def get_name_listing(self):
 	return 'batches'
+    
+    def get_name(self):
+	return 'batch'
 
 class Transfer(ConfigurationObject):
     def __init__(self, config):
@@ -2185,6 +2352,9 @@ class Transfer(ConfigurationObject):
 	if tmp == '':
 	    return True
 	return tmp
+	
+    def get_name(self):
+	return 'transfer'
 
 class Barcode(ConfigurationObject):
     def __init__(self, item):
@@ -2216,6 +2386,8 @@ class Barcode(ConfigurationObject):
 	    self.barcode_picture()
 	return location
 	
+    def get_name(self):
+	return 'barcode'
 	
 
 class Phase(ConfigurationObject):

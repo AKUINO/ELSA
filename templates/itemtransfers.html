@@ -5,42 +5,22 @@ $code:
     keyID = c.findAllFromObject(elem).keyColumn
     
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
-$var location: transfers/
+$var location: all/$(type)=$(c.findAllFromType(type).get_name_object()) transfers/$(type)_$(id)=transfer
+$var recursive : False
 
-<div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
-    <div class="col-xs-12" >
-	<div class="col-xs-1" >
-	$if 'deny' in elem.fields :
-	    $if elem.fields['deny'] == '0' or  elem.fields['deny'] == 0 :
-		<span class="glyphicon glyphicon-remove-circle"> </span>
-	    $else:
-		<span class="glyphicon glyphicon-ok-circle"> </span>
-	</div>
-	<div class="col-xs-4" >
-	    $elem.fields['acronym']
-	</div>
-	<div class="col-xs-7">
-	    <strong>$elem.getName(self.lang)</strong>
-	</div>
-    </div>
-    <div class="col-xs-12" id="listing">
-	<div class="col-xs-6" >
-	</div>
-	$if type == 'cpehm':
-	    <div class="col-xs-2" >
-		<strong><a href="/graphic/$elem.fields[keyID]" class="btn btn-warning" role="button"><span class="halflings halflings-stats"></span></a></strong>
-	    </div>
-	$else:
-	    <div class="col-xs-2" >
-	    </div>
-	<div class="col-xs-2">
-	    <strong><a href="/$(elem.get_name_listing())/$(elem.fields[keyID])" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
-	</div>
-	<div class="col-xs-2">
-	    <strong><a href="/permissions/$(type)_$elem.fields[keyID]" class="btn btn-warning" role="button"><span class="halflings halflings-group"></span></a></strong>
-	</div>
-    </div>
-</div>
+<script>
+    $$(function(){
+	$$("#includedAllMenu$(type)_$(id)").load("/allmenu/$(type)_$(id)");
+    });
+</script>
+<div id="includedAllMenu$(type)_$(id)"></div>
+
+<script>
+    $$(function(){
+	$$("#includedModal$(type)_$(id)").load("/modal/$(type)_$(id)");
+    });
+</script>
+<div id="includedModal$(type)_$(id)"></div>
 
 <div class="row active">
     <label class="col-sm-12"></label>

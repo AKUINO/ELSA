@@ -1,11 +1,14 @@
 $def with (id, mail, errormess)
 
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+$var recursive : False
+
 $if id == 'new':
-    $var location: sensors/ new
-    $var rmq : 
+    $var location: all/cpehm=sensor edit/cpehm_new=add
+    $var rmq :
     
 $else:
-    $var location: sensors/ $c.AllSensors.elements[id].fields['cpehm_id']
+    $var location: all/cpehm=sensor edit/cpehm_$(id)=edit
     $var rmq :  $c.AllSensors.elements[id].fields['remark']
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
@@ -264,7 +267,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <div class="col-sm-3">
 	    </div>
 	    <div class="col-sm-2">
-		<a href="/sensors/" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		<a href="/all/cpehm" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>

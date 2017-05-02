@@ -1,15 +1,14 @@
 $def with (id, mail, errormess)
-
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+$var recursive : False
 
 $if id == 'new':
-    $var location: equipments/ new
-    $var rmq : 
+    $var location: all/e=equipment edit/e_new=add
+    $var rmq :
     
 $else:
-    $var location: equipments/ $c.AllEquipments.elements[id].fields['e_id']
+    $var location: all/e=equipment edit/e_$(id)=edit
     $var rmq :  $c.AllEquipments.elements[id].fields['remark']
-
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	<div class="form-group row" id="error">
@@ -45,20 +44,6 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 		>
 		</div>
 	    </div>
-	    
-	<div class="form-group row">
-	    <label for="inputPlace" class="col-sm-3 col-form-label">$c.AllMessages.elements['place'].getName(self.lang)</label>
-	    <div class="col-sm-9">
-		<select name = "place" class="form-control" id="placeSelect">
-		    $for p, place in c.AllPieces.elements.items():
-			<option value = $p
-			$if id != 'new':
-			    $if p == c.AllEquipments.elements[id].fields['place'] :
-				selected
-			>$place.getName(self.lang)</option>
-		</select>
-	    </div>
-	</div>
 	
 	<div class="form-group row">
 	    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.AllMessages.elements['code'].getName(self.lang)</label>

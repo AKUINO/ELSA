@@ -1,6 +1,7 @@
 $def with (mail)
-$var location: monitoring/
+$var location: monitoring/=monitoring
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$var recursive : False
 
 <div class="row">
     <label for="graphSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['graphic'].getName(self.lang)</label>
@@ -24,13 +25,14 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 <script type="text/javascript">
 
       var graph_opts={legend: { noColumns:4}};
+      var rrdflot_defaults={graph_width: "600px"}
       var ds_graph_opts={'Oscilator':{ color: "#ff8000", 
                                        lines: { show: true, fill: true, fillColor:"#ffff80"} },
                          'Idle':{ label: 'IdleJobs', color: "#00c0c0", 
                                   lines: { show: true, fill: true} },
                          'Running':{color: "#000000",yaxis:2}};
 
-      flot_obj=new rrdFlotAsync("mygraph",null,null,graph_opts,ds_graph_opts);
+      flot_obj=new rrdFlotAsync("mygraph",null,null,graph_opts,ds_graph_opts,rrdflot_defaults);
       // this function is invoked when the RRD file name changes
       function fname_update() {
         var fname=document.getElementById("input_fname").value;
