@@ -143,7 +143,7 @@ class WebAll():
         mail = isConnected()
         if mail is not None:
             return self.getRender( id, mail)
-        return render.index(False,'')
+        raise web.seeother('/')
 	
     def getRender(self, id, mail):
         return render.listing(mail, id)
@@ -266,8 +266,7 @@ class WebGraphic():
 	    if id in objects.elements.keys() :
 		return render.listinggraphics(mail,type,id)
 	    return render.notfound()
-	    
-        return render.index(False,'')	
+        raise web.seeother('/')	
 
 
 class WebObjectDoubleID():
@@ -278,19 +277,8 @@ class WebObjectDoubleID():
         mail = isConnected()
         if mail is not None:
             return self.getRender(id1, id2, mail)
-        return render.index(False,'')
+        raise web.seeother('/')
         
-    def POST(self,id1,id2):
-        data = web.input(nifile={})
-        method = data.get("method","malformed")
-        connectedUser = connexion(data._username_,data._password_)
-        if connectedUser is not None:
-            infoCookie = data._username_ + ',' + connectedUser.fields['password']
-            update_cookie(infoCookie)
-            c.connectedUsers.addUser(connectedUser)
-            return self.getRender(id2,mail) 
-  
-        return render.index(False, '')
 class WebObjectID():
     def __init__(self):
         self.name = u"WebIndex"
@@ -580,7 +568,7 @@ def main():
 
     global c, render
     try:
-        web.config.debug = False
+        web.config.debug = True
         render=web.template.render('templates/', base='layout')
         urls = (
             '/', 'WebIndex',
@@ -591,7 +579,6 @@ def main():
             '/group/(.+)', 'WebPermission',
             '/measures/(.+)/(.+)', 'WebManualData',
             '/measures/(.+)', 'WebManualDataList',
-            '/edit/cpehm_(.+)', 'WebSensor',
             '/graphic/(.+)_(.+)/(.+)', 'getRRD2',
             '/monitoring/', 'WebMonitoring',
             '/monitoring/(.+)', 'getRRD',
@@ -609,7 +596,6 @@ def main():
         #Configuration Singleton ELSA
         c=elsa.Configuration()
         c.load()
-	print c.AllTransfers.elements
         web.template.Template.globals['c'] = c
         app = web.application(urls, globals())
         app.notfound = notfound

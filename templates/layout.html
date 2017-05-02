@@ -105,7 +105,7 @@ $if content.recursive == 'False' :
 		    $for elem in content.location.split():
 			$code:
 			    tmp = url+elem.split('=')[0]
-			/    <a href="$tmp" ><span class="$c.AllHalflings.elements[elem.split('=')[1]].getHalfling()"></span>$c.AllMessages.elements[elem.split('=')[1]].getName(content.lang)</a>
+			/    <a href="$tmp" ><span class="$c.AllHalflings.elements[elem.split('=')[1]].getHalfling()"></span>&nbsp;$c.AllMessages.elements[elem.split('=')[1]].getName(content.lang)</a>
 			
 	    </div>
 	    
