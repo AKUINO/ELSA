@@ -443,12 +443,12 @@ class InfoSystem():
 	    info = info.read()
 	    info = info.split(' ')
 	    self.uptime = int(float(info[0]))
-	    rrdtool.update('rrd/systemuptime.rrd' , '%d:%d' % (now , self.uptime))
+	    rrdtool.update(rrdDir+'systemuptime.rrd' , '%d:%d' % (now , self.uptime))
 	    
 	    info = os.popen('cat /sys/class/thermal/thermal_zone0/temp','r')
 	    info = info.read()
 	    self.temperature = float(info.split('\n')[0])/1000.0
-	    rrdtool.update('rrd/temperaturecpu.rrd' , '%d:%f' % (now , self.temperature))
+	    rrdtool.update(rrdDir+'temperaturecpu.rrd' , '%d:%f' % (now , self.temperature))
 	    
 	    info = os.popen('cat /proc/meminfo','r')
 	    info = info.read()
@@ -468,7 +468,7 @@ class InfoSystem():
 	    self.memTot /= 1000.0
 	    self.memFree /= 1000.0
 	    self.memAvailable /= 1000.0
-	    rrdtool.update('rrd/memoryinfo.rrd' , '%d:%f:%f:%f' % (now , self.memTot, self.memFree, self.memAvailable))
+	    rrdtool.update(rrdDir+'memoryinfo.rrd' , '%d:%f:%f:%f' % (now , self.memTot, self.memFree, self.memAvailable))
 	    
 	    info = os.popen('cat /proc/loadavg')
 	    info = info.read()
@@ -476,7 +476,7 @@ class InfoSystem():
 	    self.load1 = float(info[0])
 	    self.load5 = float(info[1])
 	    self.load15 = float(info[2])
-	    rrdtool.update('rrd/cpuload.rrd' , '%d:%f:%f:%f' % (now , self.load1, self.load5, self.load15))
+	    rrdtool.update(rrdDir+'cpuload.rrd' , '%d:%f:%f:%f' % (now , self.load1, self.load5, self.load15))
 	    iptmp = useful.get_ip_address('eth0')
 	    if not iptmp == self.ip:
 		userlist = self.config.get_user_group(self.config.AllGroups.get_group(groupWebUsers))
@@ -489,21 +489,21 @@ class InfoSystem():
 	    
     def check_rrd(self):
 	now = str( int(time.time())-60)
-	if os.path.exists('rrd/systemuptime.rrd') is not True:
+	if os.path.exists(rrdDir+'systemuptime.rrd') is not True:
 	    data_sources = 'DS:Uptime:GAUGE:120:U:U'
-	    rrdtool.create( 'rrd/systemuptime.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+	    rrdtool.create( rrdDir+'systemuptime.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
 	    
-	if not os.path.exists('rrd/temperaturecpu.rrd'):
+	if not os.path.exists(rrdDir+'temperaturecpu.rrd'):
 	    data_sources = 'DS:Temperature:GAUGE:120:U:U'
-	    rrdtool.create( 'rrd/temperaturecpu.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+	    rrdtool.create( rrdDir+'temperaturecpu.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
 	    
-	if not os.path.exists('rrd/memoryinfo.rrd'):
+	if not os.path.exists(rrdDir+'memoryinfo.rrd'):
 	    data_sources=[ 'DS:MemTot:GAUGE:120:U:U', 'DS:MemFree:GAUGE:120:U:U', 'DS:MemAvailable:GAUGE:120:U:U' ]
-	    rrdtool.create( 'rrd/memoryinfo.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+	    rrdtool.create( rrdDir+'memoryinfo.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
 	    
-	if not os.path.exists('rrd/cpuload.rrd'):
+	if not os.path.exists(rrdDir+'cpuload.rrd'):
 	    data_sources=[ 'DS:Load1:GAUGE:120:U:U', 'DS:Load5:GAUGE:120:U:U', 'DS:Load15:GAUGE:120:U:U' ]
-	    rrdtool.create( 'rrd/cpuload.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+	    rrdtool.create( rrdDir+'cpuload.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
 
 class ConfigurationObject():
 
