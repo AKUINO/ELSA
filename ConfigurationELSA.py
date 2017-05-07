@@ -19,12 +19,12 @@ import HardConfig as hardconfig
 import barcode
 import re
 import socket
-
+"""
 from I2CScreen import *
 
 import pigpio
 PIG = pigpio.pi()
-
+"""
 #mise a jour git
 csvDir = "../ELSAcsv/csv/"
 rrdDir = '../ELSArrd/rrd/'
@@ -39,7 +39,7 @@ _lock_socket = None
 class Configuration():
 
     def __init__(self):
-	
+	"""
         self.HardConfig = hardconfig.HardConfig()
 	
 ##        # Run only OUNCE: Check if /run/akuino/ELSA.pid exists...
@@ -63,7 +63,7 @@ class Configuration():
         except socket.error:
             print 'AKUINO-ELSA lock exists'
             sys.exit()
-	
+	"""
 	self.InfoSystem = InfoSystem(self)
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
@@ -94,14 +94,14 @@ class Configuration():
 	self.owproxy = None
 
     def load(self):
-	
+	"""
         if not self.HardConfig.oled is None:
             # 128x64 display with hardware I2C:
             self.screen = I2CScreen(True, disp = SSD1306.SSD1305_132_64(rst=self.HardConfig.oled_reset,gpio=PIG))
             self.screen.clear()
         else:
             self.screen = I2CScreen(False, disp = None)
-
+	"""
 	
 
 	self.AllLanguages.load()
@@ -125,8 +125,8 @@ class Configuration():
 	self.AllTransfers.load()
 	self.AllManualData.load()
 	self.AllAlarmLogs.load()
-	self.UpdateThread.start()
-	self.RadioThread.start()
+	#self.UpdateThread.start()
+	#self.RadioThread.start()
 	
     
     def findAllFromObject(self,anObject):
@@ -1906,6 +1906,122 @@ class AlarmLog(ConfigurationObject):
     def get_name(self):
 	return 'alarmlog'
 
+class ExportData():
+    def __init__(self, config, batch, user):
+	self.config = config
+	self.fieldnames = ['timestamp','type', 'b_id', 'p_id', 'e_id', 'c_id','m_id','sensor','typevalue','value','unit', 'category', 'duration', 'remark', 'user']
+	self.history = []
+	self.filename = csvDir + "exportdata.csv"
+	self.b = batch
+	self.user = user
+	self.data = []
+	self.transfers = []
+	self.load_data()
+	self.load_transfers()
+	self.elements = []
+	
+    def load_data(self):
+	for k, m in c.AllManualData.elements.items():
+	    if m.fields['object_type'] == 'b' and m.fields['object_id'] == self.b.getID():
+		self.data.append(m)
+		
+    def load_transfers(self):
+	for t in self.b.transfers:
+		self.transfers.append(t)
+	
+    def create_export(self):
+	load_hierarchy()
+	lastSensor = None
+	count = 0
+	while count < (len(self.history)-1):
+	    e = self.history[count]
+	    time = useful.date_to_timestamp(e.fields['time'], datetimeformat)
+	    if e.get_type() == 'd':
+		tmp = transform_object_to_export_data(e,self.user)
+		self.elements.append(tmp)
+		if lastSensor != None:
+		    end = useful.date_to_timestamp(self.history[count+1].fields['time'], datetimeformat)
+		    infos = lastSensor.fetch(time,end)
+	    else :
+		end = useful.date_to_timestamp(self.history[count+1].fields['time'], datetimeformat)
+		infos = e.fetch(time,end)
+		lastSensor = e
+	    count += 1
+	
+	
+    def load_hierarchy(self):
+	i = 0
+	j = 0
+	while i < len(data) and j < len(transfers):
+	    timed = useful.date_to_timestamp(self.data[i].fields['time'], datetimeformat)
+	    timet = useful.date_to_timestamp(self.transfers[j].fields['time'], datetimeformat)
+	    if timed < timet :
+		self.history.add(self.data[i])
+		i += 1
+	    else:
+		self.transfers[j]
+		j += 1
+	if i < len(data):
+	    while i< len(self.data):
+		self.history.add(self.data[i])
+		i += 1
+	if j < len(self.transfers):
+	    while i< len(data):
+		self.history.add(self.transfers[i])
+		j += 1
+		
+    
+	
+    def transform_object_to_export_data(self, elem, user):
+	tmp = self.get_new_line()
+	if elem.get_type() in 'bcpem' :
+	    tmp['timestamp'] = elem.fields['begin']
+	    tmp[elem.get_type()+'_id'] = elem.getID()
+	    tmp['remark'] = elem.fields['remark']
+	    tmp['user'] = user.fields['u_id']
+	    if elem.get_type() == 'm':
+		tmp['type'] = 'm'
+		tmp['m_id'] = elem.getID()
+	elif elem.get_type() == 'cpehm' :
+	    tmp['timestamp'] = elem.fields['begin']
+	    tmp['p_id'] = elem.fields['p_id']
+	    tmp['e_id'] = elem.fields['e_id']
+	    tmp['c_id'] = elem.fields['c_id']
+	    tmp['c_id'] = elem.fields['c_id']
+	    tmp['m_id'] = elem.fields['m_id']
+	    tmp['unit'] = self.config.AllMeasures[tmp['m_id']].fields['unit']
+	    tmp['remark'] = elem.fields['remark']
+	elif elem.get_type() == 'al' :
+	    sensor = self.config.AllSensors.elements[elem.fields['cpehm_id']]
+	    tmp['timestamp'] = elem.fields['begintime']
+	    tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
+	    tmp['duration'] = elem.fields['alarmtime']
+	    tmp['category'] = elem.fields['degree']
+	    tmp['sensor'] = elem.fields['cpehm_id']
+	    tmp['value'] = elem.fields['value']
+	    tmp['unit'] = self.config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
+	    
+	return tmp
+
+    def get_new_line(self):
+	tmp = {}	
+	tmp['timestamp'] = ''
+	tmp['type'] = ''
+	tmp['b_id'] = ''
+	tmp['p_id'] = ''
+	tmp['e_id'] = ''
+	tmp['c_id'] = ''
+	tmp['m_id'] = ''
+	tmp['sensor'] = ''
+	tmp['typevalue'] = ''
+	tmp['value'] = ''
+	tmp['unit'] = ''
+	tmp['category'] = ''
+	tmp['duration'] = ''
+	tmp['remark'] = ''
+	tmp['user'] = ''
+	return tmp
+
 class Halfling(ConfigurationObject):
 
     def __init__(self):
@@ -2272,7 +2388,29 @@ class Sensor(ConfigurationObject):
 	tmp = []
 	tmp.append(self.id)
 	return tmp
-	    
+	  
+    def fetch(self, start, end=None, resolution=60):
+        """Fetch data from the RRD.
+
+        start -- integer start time in seconds since the epoch, or negative for
+                 relative to end
+        end -- integer end time in seconds since the epoch, or None for current
+               time
+        resolution -- resolution in seconds"""
+        if end is None:
+            end = int(time.time())
+        if start < 0:
+            start += end
+        end -= end % resolution
+        start -= start % resolution
+        time_span, _, values = rrdtool.fetch(
+            self.getRRDName(), 'AVERAGE',
+            '-s', str(int(start)),
+            '-e', str(int(end)),
+            '-r', str(resolution))
+        ts_start, ts_end, ts_res = time_span
+        times = range(ts_start, ts_end, ts_res)
+        return zip(times, values)
 	    
 class Batch(ConfigurationObject):
 
