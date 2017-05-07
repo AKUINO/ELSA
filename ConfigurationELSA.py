@@ -2223,7 +2223,7 @@ class Sensor(ConfigurationObject):
 	return 'sensor'
 	
     def getRRDName(self):
-	name = 'cpehm_' + str(self.id)
+	name = 'cpehm_' + unicode(self.id)
 	name += '.rrd'
 	return name
 
@@ -2404,7 +2404,7 @@ class Sensor(ConfigurationObject):
         end -= end % resolution
         start -= start % resolution
         time_span, _, values = rrdtool.fetch(
-            self.getRRDName(), 'AVERAGE',
+            str(rrdDir+self.getRRDName()), 'AVERAGE',
             '-s', str(int(start)),
             '-e', str(int(end)),
             '-r', str(resolution))
