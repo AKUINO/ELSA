@@ -593,6 +593,8 @@ def main():
         #Configuration Singleton ELSA
         c=elsa.Configuration()
         c.load()
+	last = int(time.time())-600
+	print c.AllSensors.elements['1'].fetch(last)
         web.template.Template.globals['c'] = c
         app = web.application(urls, globals())
         app.notfound = notfound

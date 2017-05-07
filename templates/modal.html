@@ -196,20 +196,20 @@ $code:
                     $elif type == 'cpehm':
                         <div class="row" style="margin-top:10px;">
                             <div class="col-xs-4">
-                            $c.AllMessages.elements['component'].getName(self.lang) :
+                                $c.AllMessages.elements['component'].getName(self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-                            $if not elem.fields['p_id'] == '' :
-                                <a href="/places/">$c.AllPieces.elements[elem.fields['p_id']].getName(self.lang)</a>
-                            $elif not elem.fields['e_id'] == '' :
-                                <a href="/equipments/">$c.AllEquipments.elements[elem.fields['e_id']].getName(self.lang)</a>
-                            $if not elem.fields['c_id'] == '' :
-                                <a href="/containers/">$c.AllContainers.elements[elem.fields['c_id']].getName(self.lang)</a>
+                                $if not elem.fields['p_id'] == '' :
+                                    <a href="/places/">$c.AllPieces.elements[elem.fields['p_id']].getName(self.lang)</a>
+                                $elif not elem.fields['e_id'] == '' :
+                                    <a href="/equipments/">$c.AllEquipments.elements[elem.fields['e_id']].getName(self.lang)</a>
+                                $if not elem.fields['c_id'] == '' :
+                                    <a href="/containers/">$c.AllContainers.elements[elem.fields['c_id']].getName(self.lang)</a>
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">
                             <div class="col-xs-4">
-                            $c.AllMessages.elements['measure'].getName(self.lang) :
+                                $c.AllMessages.elements['measure'].getName(self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
                                 <a href="/measures/">$c.AllMeasures.elements[elem.fields['m_id']].getName(self.lang)</a>
@@ -217,7 +217,7 @@ $code:
                         </div>
                         <div class="row" style="margin-top:10px;">
                             <div class="col-xs-4">
-                            $c.AllMessages.elements['formula'].getName(self.lang) :
+                                $c.AllMessages.elements['formula'].getName(self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
                                 $elem.fields['formula']
@@ -225,7 +225,7 @@ $code:
                         </div>
                         <div class="row" style="margin-top:10px;">
                             <div class="col-xs-4">
-                            $c.AllMessages.elements['sensor'].getName(self.lang) :
+                                $c.AllMessages.elements['sensor'].getName(self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
                                 $elem.fields['sensor']
@@ -233,7 +233,7 @@ $code:
                         </div>
                         <div class="row" style="margin-top:10px;">
                             <div class="col-xs-4">
-                            $c.AllMessages.elements['subsensor'].getName(self.lang) :
+                                $c.AllMessages.elements['subsensor'].getName(self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
                                 $elem.fields['subsensor']

@@ -2223,7 +2223,7 @@ class Sensor(ConfigurationObject):
 	return 'sensor'
 	
     def getRRDName(self):
-	name = 'cpehm_' + unicode(self.id)
+	name = 'cpehm_' + str(self.id)
 	name += '.rrd'
 	return name
 
@@ -2260,14 +2260,14 @@ class Sensor(ConfigurationObject):
             hours = (int(minutes / 60) % 24)+100
             minutes = (minutes % 60)+100
             strnow = unicode(hours)[1:3]+":"+unicode(minutes)[1:3]
-            pos = config.screen.show(0,strnow)
-            pos = config.screen.showBW(pos+2,self.get_acronym())
-            pos = config.screen.show(pos+2,unicode(round(float(value),1)))
+            #pos = config.screen.show(0,strnow)
+            #pos = config.screen.showBW(pos+2,self.get_acronym())
+            #pos = config.screen.show(pos+2,unicode(round(float(value),1)))
             if self.fields['m_id']:
                 id_measure = unicode(self.fields['m_id'])
                 if id_measure in config.AllMeasures.elements:
                     measure = config.AllMeasures.elements[id_measure]
-                    pos = config.screen.show(pos,measure.fields['unit'])
+                    #pos = config.screen.show(pos,measure.fields['unit'])
                 
 	    typeAlarm,symbAlarm = self.getTypeAlarm(value)
             print (u'Sensor update Channel : '+ self.fields['channel'] + u'    ' + self.fields['sensor'] + u' ==> ' + self.fields['acronym'] + u' = ' + unicode(value))
@@ -2276,9 +2276,9 @@ class Sensor(ConfigurationObject):
 	    else:
 		if not (( typeAlarm == 'min' and self.actualAlarm == 'minmin' ) or ( typeAlarm == 'max' and self.actualAlarm == 'maxmax')) :
 		    self.actualAlarm = typeAlarm
-                config.screen.show(pos+2,symbAlarm)
+                #config.screen.show(pos+2,symbAlarm)
 		self.launchAlarm(config, now)
-            config.screen.end_line()
+            #config.screen.end_line()
 	else :
 	    #TODO : si on ne sait pas se connecter au senseur, rajouter Alarme " Erreur Senseur not working"
 	    print 'Impossible d acceder au senseur TO DO'
