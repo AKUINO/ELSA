@@ -125,7 +125,7 @@ class Configuration():
 	self.AllTransfers.load()
 	self.AllManualData.load()
 	self.AllAlarmLogs.load()
-	#self.UpdateThread.start()
+	self.UpdateThread.start()
 	#self.RadioThread.start()
 	
     
@@ -911,6 +911,7 @@ class AllObjects():
 	    while tmp < len(self.fieldnames):
 		csvfile.write('\t'+self.fieldnames[tmp])
 		tmp = tmp + 1
+            csvfile.write('\n')
 	if self.filename is not None :
 	    with open(self.filename,'w') as csvfile:
 		csvfile.write(self.fieldtranslate[0])
@@ -918,6 +919,7 @@ class AllObjects():
 		while tmp < len(self.fieldtranslate):
 		    csvfile.write('\t'+self.fieldtranslate[tmp])
 		    tmp = tmp + 1
+            csvfile.write('\n')
 		    
     def get_name_object(self ):
 	return 'component'
@@ -1071,7 +1073,7 @@ class AllAlarmLogs(AllObjects):
 	    if id == e.fields['cpehm_id'] :
 		if time > begin and time < end :
 		    logs.append(e)
-	return e
+	return logs
 	
 class AllHalflings(AllObjects):
 
@@ -1930,107 +1932,129 @@ class ExportData():
 	self.elements = []
 	
     def load_data(self):
-	for k, m in c.AllManualData.elements.items():
+	for k, m in self.config.AllManualData.elements.items():
 	    if m.fields['object_type'] == 'b' and m.fields['object_id'] == self.b.getID():
 		self.data.append(m)
 		
     def load_transfers(self):
-	for t in self.b.transfers:
+	for t in self.b.position:
 		self.transfers.append(t)
 	
     def create_export(self):
-	load_hierarchy()
+	self.load_hierarchy()
+        self.elements.append(self.transform_object_to_export_data(self.b))
 	lastSensor = None
 	count = 0
 	while count < (len(self.history)):
 	    e = self.history[count]
-	    time = useful.date_to_timestamp(e.fields['time'], datetimeformat)
+	    begin = useful.date_to_timestamp(e.fields['time'], datetimeformat)
 	    infos = None
+            tmp = self.transform_object_to_export_data(e)
+	    self.elements.append(tmp)
 	    if e.get_type() == 'd':
-		tmp = transform_object_to_export_data(e,self.user)
-		self.elements.append(tmp)
 		if lastSensor != None:
 		    if len(self.history)-1 == count :
-			end = int(time.time())
+			end = time.time()
+                        end = int(end)
 		    else :
 			end = useful.date_to_timestamp(self.history[count+1].fields['time'], datetimeformat)
-		    infos = self.get_all_in_component(lastSensor,time,end)
+		    infos = self.get_all_in_component(lastSensor,begin,end)
 	    else :
 		e = self.config.getObject(e.fields['cont_id'],e.fields['cont_type'])
 		if len(self.history)-1 == count :
 		    end = int(time.time())
 		else :
 		    end = useful.date_to_timestamp(self.history[count+1].fields['time'], datetimeformat)
-		infos = self.get_all_in_component(e,time,end)
+		infos = self.get_all_in_component(e,begin,end)
 		lastSensor = e
 	    if infos is not None :
+                print infos
 		self.add_value_from_sensors(infos,lastSensor)
 	    count += 1
+        self.write_csv()
+
+    def write_csv(self):
+	with open(self.filename,'w') as csvfile:
+	    csvfile.write(self.fieldnames[0])
+	    tmp = 1
+	    while tmp < len(self.fieldnames):
+		csvfile.write('\t'+self.fieldnames[tmp])
+		tmp = tmp + 1
+            csvfile.write('\n')
+        for e in self.elements :
+            with open(self.filename,'a') as csvfile:
+                writer = unicodecsv.DictWriter(csvfile, delimiter = "\t",fieldnames=self.fieldnames,encoding="utf-8")
+                writer.writerow(e)
+                
+
 	
     def add_value_from_sensors(self, infos, component):
 	sensors = component.get_sensors_in_component(self.config)
 	for a in sensors :
-	    sensor = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
-	    begin = infos[a][0][0]
-	    end = infos[a][0][1]
-	    step = infos[a][0][2]
-	    count = 0
-	    for value in infos[a][2]:
-		sensor['timestamp'] = str(int(begin) + (int(step)*count))
-		sensor['value'] = value[0]
-		elements.append(sensor)
-		count += 1
-	    logs = c.AllAlarmLogs.get_alarmlog_component(a,begin,end)
-	    for log in logs :
-		tmp = self.transform_object_to_export_data(log)
-		self.elements.append(tmp)	    
+            self.elements.append(self.transform_object_to_export_data(self.config.AllSensors.elements[a]))
+            if infos[a] is not None :
+                begin = infos[a][0][0]
+	        for value in infos[a]:
+                    sensor = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
+                    sensor['remark'] = ''
+                    print value[0]
+		    sensor['timestamp'] = value[0]
+                    end = sensor['timestamp']
+		    sensor['value'] = str(value[1][0])
+                    sensor['typevalue'] = 'AVERAGE'
+		    self.elements.append(sensor)
+	        logs = self.config.AllAlarmLogs.get_alarmlog_component(a,begin,end)
+	        for log in logs :
+		    tmp = self.transform_object_to_export_data(log)
+		    self.elements.append(tmp)	    
 	
 	
     def load_hierarchy(self):
 	i = 0
 	j = 0
-	while i < len(data) and j < len(transfers):
+	while i < len(self.data) and j < len(self.transfers):
 	    timed = useful.date_to_timestamp(self.data[i].fields['time'], datetimeformat)
 	    timet = useful.date_to_timestamp(self.transfers[j].fields['time'], datetimeformat)
 	    if timed < timet :
-		self.history.add(self.data[i])
+		self.history.append(self.data[i])
 		i += 1
 	    else:
-		self.transfers[j]
+		self.history.append(self.transfers[j])
 		j += 1
-	if i < len(data):
+	if i < len(self.data):
 	    while i< len(self.data):
-		self.history.add(self.data[i])
+		self.history.append(self.data[i])
 		i += 1
 	if j < len(self.transfers):
-	    while i< len(data):
-		self.history.add(self.transfers[i])
+	    while j< len(self.transfers):
+		self.history.append(self.transfers[i])
 		j += 1
 		
     def get_all_in_component(self,component,begin,end):
 	sensors = component.get_sensors_in_component(self.config)
+	infos = {}
 	for a in sensors:
-	    infos[i] = self.config.AllSensors.elements[i].fetch(time,end)
+	    infos[a] = self.config.AllSensors.elements[a].fetch(begin,end)
 	return infos
 	
     def transform_object_to_export_data(self, elem):
 	tmp = self.get_new_line()
 	tmp['user'] = self.user.fields['u_id']
+        tmp['timestamp'] = useful.date_to_timestamp(elem.fields['begin'],datetimeformat)
 	if elem.get_type() in 'bcpem' :
-	    tmp['timestamp'] = elem.fields['begin']
 	    tmp[elem.get_type()+'_id'] = elem.getID()
 	    tmp['remark'] = elem.fields['remark']
 	    if elem.get_type() == 'm':
 		tmp['type'] = 'm'
 		tmp['m_id'] = elem.getID()
 	elif elem.get_type() == 'cpehm' :
-	    tmp['timestamp'] = elem.fields['begin']
 	    tmp['p_id'] = elem.fields['p_id']
 	    tmp['e_id'] = elem.fields['e_id']
 	    tmp['c_id'] = elem.fields['c_id']
 	    tmp['c_id'] = elem.fields['c_id']
+            tmp['sensor'] = elem.fields['cpehm_id']
 	    tmp['m_id'] = elem.fields['m_id']
-	    tmp['unit'] = self.config.AllMeasures[tmp['m_id']].fields['unit']
+	    tmp['unit'] = self.config.AllMeasures.elements[tmp['m_id']].fields['unit']
 	    tmp['remark'] = elem.fields['remark']
 	elif elem.get_type() == 'al' :
 	    sensor = self.config.AllSensors.elements[elem.fields['cpehm_id']]
@@ -2043,11 +2067,18 @@ class ExportData():
 	    tmp['unit'] = self.config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
 	elif elem.get_type() == 'd' :
 	    tmp['type'] = 'D'
-	    tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
+            tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'],datetimeformat)
+	    tmp[elem.fields['object_type']+'_id'] = elem.fields['object_id']
 	    tmp['value'] = elem.fields['value']
-	    tmp['unit'] = self.config.AllMeasures[tmp['m_id']].fields['unit']
+	    tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
+            tmp['m_id'] = elem.fields['m_id']
 	    tmp['remark'] = elem.fields['remark']
 	    tmp['user'] = elem.fields['user']
+        elif elem.get_type() == 't':
+            tmp['type'] = 'T'
+            tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'],datetimeformat)
+            tmp['remark'] = elem.fields['remark']
+            tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
 	return tmp
 
     def get_new_line(self):
@@ -2445,17 +2476,20 @@ class Sensor(ConfigurationObject):
         end -- integer end time in seconds since the epoch, or None for current
                time
         resolution -- resolution in seconds"""
+        print start
         if end is None:
             end = int(time.time())
         if start < 0:
             start += end
-        end -= end % resolution
-        start -= start % resolution
-        time_span, _, values = rrdtool.fetch(str(rrdDir+self.getRRDName()), 'AVERAGE','-s', str(int(start)),'-e', str(int(end)),'-r', str(resolution))
-        ts_start, ts_end, ts_res = time_span
-        times = range(ts_start, ts_end, ts_res)
-        return zip(times, values)
-	    
+        if end - start > resolution :
+            end -= end % resolution
+            start -= start % resolution
+            time_span, _, values = rrdtool.fetch(str(rrdDir+self.getRRDName()), 'AVERAGE','-s', str(int(start)),'-e', str(int(end)),'-r', str(resolution))
+            ts_start, ts_end, ts_res = time_span
+            times = range(ts_start, ts_end, ts_res)
+            return zip(times, values)
+	return None
+    
 class Batch(ConfigurationObject):
 
     def __init__(self, config):

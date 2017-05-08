@@ -595,6 +595,10 @@ def main():
         c.load()
 	last = int(time.time())-600
 	print c.AllSensors.elements['1'].fetch(last)
+        ed = elsa.ExportData(c,c.AllBatches.elements['1'],c.AllUsers.elements['1'])
+        print ed.data[0]
+        print ed.transfers[0]
+        ed.create_export()
         web.template.Template.globals['c'] = c
         app = web.application(urls, globals())
         app.notfound = notfound
