@@ -1064,6 +1064,15 @@ class AllAlarmLogs(AllObjects):
     def newObject(self):
 	return AlarmLog()
 	
+    def get_alarmlog_component(self, id,begin,end):
+	logs = ()
+	for k, e in self.elements.items():
+	    time = useful.date_to_timestamp(e.fields['begintime'],datetimeformat)
+	    if id == e.fields['cpehm_id'] :
+		if time > begin and time < end :
+		    logs.append(e)
+	return e
+	
 class AllHalflings(AllObjects):
 
     def __init__(self, config):
@@ -1933,20 +1942,48 @@ class ExportData():
 	load_hierarchy()
 	lastSensor = None
 	count = 0
-	while count < (len(self.history)-1):
+	while count < (len(self.history)):
 	    e = self.history[count]
 	    time = useful.date_to_timestamp(e.fields['time'], datetimeformat)
+	    infos = None
 	    if e.get_type() == 'd':
 		tmp = transform_object_to_export_data(e,self.user)
 		self.elements.append(tmp)
 		if lastSensor != None:
-		    end = useful.date_to_timestamp(self.history[count+1].fields['time'], datetimeformat)
-		    infos = lastSensor.fetch(time,end)
+		    if len(self.history)-1 == count :
+			end = int(time.time())
+		    else :
+			end = useful.date_to_timestamp(self.history[count+1].fields['time'], datetimeformat)
+		    infos = self.get_all_in_component(lastSensor,time,end)
 	    else :
-		end = useful.date_to_timestamp(self.history[count+1].fields['time'], datetimeformat)
-		infos = e.fetch(time,end)
+		e = self.config.getObject(e.fields['cont_id'],e.fields['cont_type'])
+		if len(self.history)-1 == count :
+		    end = int(time.time())
+		else :
+		    end = useful.date_to_timestamp(self.history[count+1].fields['time'], datetimeformat)
+		infos = self.get_all_in_component(e,time,end)
 		lastSensor = e
+	    if infos is not None :
+		self.add_value_from_sensors(infos,lastSensor)
 	    count += 1
+	
+    def add_value_from_sensors(self, infos, component):
+	sensors = component.get_sensors_in_component(self.config)
+	for a in sensors :
+	    sensor = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
+	    begin = infos[a][0][0]
+	    end = infos[a][0][1]
+	    step = infos[a][0][2]
+	    count = 0
+	    for value in infos[a][2]:
+		sensor['timestamp'] = str(int(begin) + (int(step)*count))
+		sensor['value'] = value[0]
+		elements.append(sensor)
+		count += 1
+	    logs = c.AllAlarmLogs.get_alarmlog_component(a,begin,end)
+	    for log in logs :
+		tmp = self.transform_object_to_export_data(log)
+		self.elements.append(tmp)	    
 	
 	
     def load_hierarchy(self):
@@ -1970,15 +2007,19 @@ class ExportData():
 		self.history.add(self.transfers[i])
 		j += 1
 		
-    
+    def get_all_in_component(self,component,begin,end):
+	sensors = component.get_sensors_in_component(self.config)
+	for a in sensors:
+	    infos[i] = self.config.AllSensors.elements[i].fetch(time,end)
+	return infos
 	
-    def transform_object_to_export_data(self, elem, user):
+    def transform_object_to_export_data(self, elem):
 	tmp = self.get_new_line()
+	tmp['user'] = self.user.fields['u_id']
 	if elem.get_type() in 'bcpem' :
 	    tmp['timestamp'] = elem.fields['begin']
 	    tmp[elem.get_type()+'_id'] = elem.getID()
 	    tmp['remark'] = elem.fields['remark']
-	    tmp['user'] = user.fields['u_id']
 	    if elem.get_type() == 'm':
 		tmp['type'] = 'm'
 		tmp['m_id'] = elem.getID()
@@ -2000,7 +2041,13 @@ class ExportData():
 	    tmp['sensor'] = elem.fields['cpehm_id']
 	    tmp['value'] = elem.fields['value']
 	    tmp['unit'] = self.config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
-	    
+	elif elem.get_type() == 'd' :
+	    tmp['type'] = 'D'
+	    tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
+	    tmp['value'] = elem.fields['value']
+	    tmp['unit'] = self.config.AllMeasures[tmp['m_id']].fields['unit']
+	    tmp['remark'] = elem.fields['remark']
+	    tmp['user'] = elem.fields['user']
 	return tmp
 
     def get_new_line(self):
@@ -2384,6 +2431,7 @@ class Sensor(ConfigurationObject):
 	    return id == self.fields['c_id']
 	return False
 	
+	
     def get_sensors_in_component(self, config):
 	tmp = []
 	tmp.append(self.id)
@@ -2403,11 +2451,7 @@ class Sensor(ConfigurationObject):
             start += end
         end -= end % resolution
         start -= start % resolution
-        time_span, _, values = rrdtool.fetch(
-            str(rrdDir+self.getRRDName()), 'AVERAGE',
-            '-s', str(int(start)),
-            '-e', str(int(end)),
-            '-r', str(resolution))
+        time_span, _, values = rrdtool.fetch(str(rrdDir+self.getRRDName()), 'AVERAGE','-s', str(int(start)),'-e', str(int(end)),'-r', str(resolution))
         ts_start, ts_end, ts_res = time_span
         times = range(ts_start, ts_end, ts_res)
         return zip(times, values)
