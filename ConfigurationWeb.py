@@ -593,11 +593,11 @@ def main():
         #Configuration Singleton ELSA
         c=elsa.Configuration()
         c.load()
-	last = int(time.time())-600
-	print c.AllSensors.elements['1'].fetch(last)
         ed = elsa.ExportData(c,c.AllBatches.elements['1'],c.AllUsers.elements['1'])
-        print ed.data[0]
+        print ed.data
         print ed.transfers[0]
+        ed.load_hierarchy()
+        print ed.history
         ed.create_export()
         web.template.Template.globals['c'] = c
         app = web.application(urls, globals())

@@ -101,7 +101,7 @@ class Configuration():
             self.screen.clear()
         else:
             self.screen = I2CScreen(False, disp = None)
-	"""
+        """
 	
 
 	self.AllLanguages.load()
@@ -1932,20 +1932,21 @@ class ExportData():
 	self.elements = []
 	
     def load_data(self):
-	for k, m in self.config.AllManualData.elements.items():
-	    if m.fields['object_type'] == 'b' and m.fields['object_id'] == self.b.getID():
-		self.data.append(m)
+	for d in self.b.data:
+	    self.data.append(self.config.AllManualData.elements[d])
 		
     def load_transfers(self):
 	for t in self.b.position:
-		self.transfers.append(t)
+	    self.transfers.append(t)
 	
     def create_export(self):
 	self.load_hierarchy()
         self.elements.append(self.transform_object_to_export_data(self.b))
 	lastSensor = None
 	count = 0
+        print str(len(self.history))
 	while count < (len(self.history)):
+            print 'Passage N° :' + str(count)
 	    e = self.history[count]
 	    begin = useful.date_to_timestamp(e.fields['time'], datetimeformat)
 	    infos = None
@@ -1968,7 +1969,6 @@ class ExportData():
 		infos = self.get_all_in_component(e,begin,end)
 		lastSensor = e
 	    if infos is not None :
-                print infos
 		self.add_value_from_sensors(infos,lastSensor)
 	    count += 1
         self.write_csv()
@@ -1997,7 +1997,6 @@ class ExportData():
 	        for value in infos[a]:
                     sensor = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
                     sensor['remark'] = ''
-                    print value[0]
 		    sensor['timestamp'] = value[0]
                     end = sensor['timestamp']
 		    sensor['value'] = str(value[1][0])
@@ -2010,9 +2009,11 @@ class ExportData():
 	
 	
     def load_hierarchy(self):
+        self.history = []
 	i = 0
 	j = 0
 	while i < len(self.data) and j < len(self.transfers):
+            print self.data[i]
 	    timed = useful.date_to_timestamp(self.data[i].fields['time'], datetimeformat)
 	    timet = useful.date_to_timestamp(self.transfers[j].fields['time'], datetimeformat)
 	    if timed < timet :
@@ -2023,11 +2024,12 @@ class ExportData():
 		j += 1
 	if i < len(self.data):
 	    while i< len(self.data):
+                print self.data[i]
 		self.history.append(self.data[i])
 		i += 1
 	if j < len(self.transfers):
 	    while j< len(self.transfers):
-		self.history.append(self.transfers[i])
+		self.history.append(self.transfers[j])
 		j += 1
 		
     def get_all_in_component(self,component,begin,end):
@@ -2069,8 +2071,9 @@ class ExportData():
 	    tmp['type'] = 'D'
             tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'],datetimeformat)
 	    tmp[elem.fields['object_type']+'_id'] = elem.fields['object_id']
-	    tmp['value'] = elem.fields['value']
-	    tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
+            if elem.fields['m_id'] != '':
+	        tmp['value'] = elem.fields['value']
+	        tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
             tmp['m_id'] = elem.fields['m_id']
 	    tmp['remark'] = elem.fields['remark']
 	    tmp['user'] = elem.fields['user']
@@ -2238,7 +2241,7 @@ class Measure(ConfigurationObject):
         self.sensors = sets.Set()
 
     def __repr__(self):
-        string = self.id + " " + self.fields['name']
+        string = self.id 
         return string
 
     def __str__(self):
