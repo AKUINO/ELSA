@@ -1981,20 +1981,15 @@ class ExportData():
 		    self.elements.append(tmp)
 		elif self.cond['transfer'] is True and e.get_type() == 't':
 		    self.elements.append(tmp)
+		if len(self.history)-1 == count :
+		    end = int(time.time())
+		else :
+		    end = useful.date_to_timestamp(self.history[count+1].fields['time'], datetimeformat)
 		if e.get_type() == 'd':
 		    if lastSensor != None:
-			if len(self.history)-1 == count :
-			    end = time.time()
-			    end = int(end)
-			else :
-			    end = useful.date_to_timestamp(self.history[count+1].fields['time'], datetimeformat)
 			infos = self.get_all_in_component(lastSensor,begin,end)
 		else :
 		    e = self.config.getObject(e.fields['cont_id'],e.fields['cont_type'])
-		    if len(self.history)-1 == count :
-			end = int(time.time())
-		    else :
-			end = useful.date_to_timestamp(self.history[count+1].fields['time'], datetimeformat)
 		    infos = self.get_all_in_component(e,begin,end)
 		    lastSensor = e
 		if infos is not None and self.cond['valuesensor'] is True:
