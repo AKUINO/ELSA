@@ -929,7 +929,15 @@ class AllObjects():
 		    
     def get_name_object(self ):
 	return 'component'
-	        
+	
+    def get_transfers_in_time_interval(self, begin, end):
+	tmp = []
+	for t in self.position:
+	    time = useful.date_to_timestamp(t.fields['time'],datetimeformat)
+	    if begin < time and time < end :
+	        tmp.append(t)
+	return tmp
+	
 class AllUsers(AllObjects):
 
     def __init__(self, config):
@@ -1952,9 +1960,15 @@ class ExportData():
 	    self.data.append(self.config.AllManualData.elements[d])
 		
     def load_transfers(self):
+	begin = self.b.fields['time']
 	for t in self.b.position:
+	    end = t.fields['time']
 	    self.transfers.append(t)
-	
+	    tmp = t.get_cont().get_transfers_in_time_interval(begin,end)
+	    if tmp is not None :
+		for s in tmp :
+		    self.transfers.append(s)
+
     def create_export(self):
 	if self.elem.get_type() != 'b':
 	    if self.cond['manualdata'] is True:
@@ -2662,6 +2676,12 @@ class Barcode(ConfigurationObject):
 	
     def get_name(self):
 	return 'barcode'
+	
+    def get_source(self):
+	return c.findAllFromType(self.fields['object_type']).elements[self.fields['object_id']]
+	
+    def get_cont(self):
+	return c.findAllFromType(self.fields['cont_type']).elements[self.fields['cont_id']]
 	
 
 class Phase(ConfigurationObject):
