@@ -9,14 +9,14 @@ $var recursive : False
 $var location: all/$(type)=$(c.findAllFromType(type).get_name_object()) listing/$(type)_$(id)=listing
 <script>
     $$(function(){
-	$$("#includedAllMenu$(type)_$(id)").load("/allmenu/$(type)_$(id)");
+        $$("#includedAllMenu$(type)_$(id)").load("/allmenu/$(type)_$(id)");
     });
 </script>
 <div id="includedAllMenu$(type)_$(id)"></div>
 
 <script>
     $$(function(){
-	$$("#includedModal$(type)_$(id)").load("/modal/$(type)_$(id)");
+        $$("#includedModal$(type)_$(id)").load("/modal/$(type)_$(id)");
     });
 </script>
 <div id="includedModal$(type)_$(id)"></div>
@@ -27,8 +27,8 @@ $code:
 	
 $if t is not None :
     $code:
-	pos = c.findAllFromType(t.fields['cont_type'])
-	p = pos.elements[t.fields['cont_id']]
+        pos = c.findAllFromType(t.fields['cont_type'])
+        p = pos.elements[t.fields['cont_id']]
     <div class="row active" style ="margin-top:10px;margin-bottom:10px;background-color:#E5E5E7;padding:15px;" >
 	<label class="col-sm-12">$c.AllMessages.elements['actualposition'].getName(self.lang) :</label>   
 	<div class="col-xs-12">
@@ -52,81 +52,78 @@ $code:
     toCheck =[[type,id]]
 
 <div class="row active" style ="margin-top:10px;margin-bottom:10px;background-color:#E5E5E7;padding:15px;" >
-    <label class="col-sm-12">$c.AllMessages.elements['equipment'].getName(self.lang) :</label>    
-    
+    <label class="col-sm-12">$c.AllMessages.elements['equipment'].getName(self.lang) :</label>
     $for k,equipment in c.AllEquipments.elements.items():
-	$if equipment.is_actual_position(toCheck[0][0],id) :
-	    $code
-		toCheck.append(['e',k])
-	    <script>
-		$$(function(){
-		    $$("#includedMenue_$(k)").load("/menu/e_$(k)");
-		});
-	    </script>
-	    <div id="includedMenue_$(k)"></div>
-	    <script>
-		$$(function(){
-		    $$("#includedModale_$(k)").load("/modal/e_$(k)");
-		});
-	    </script>
-	    <div id="includedModale_$(k)"></div>
+        $if equipment.is_actual_position(toCheck[0][0],id) :
+            $code
+                toCheck.append(['e',k])
+            <script>
+            $$(function(){
+                $$("#includedMenue_$(k)").load("/menu/e_$(k)");
+            });
+            </script>
+            <div id="includedMenue_$(k)"></div>
+            <script>
+            $$(function(){
+                $$("#includedModale_$(k)").load("/modal/e_$(k)");
+            });
+            </script>
+            <div id="includedModale_$(k)"></div>
 </div>
 <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
     <label class="col-sm-12">$c.AllMessages.elements['container'].getName(self.lang) :</label>    
-
     $for k,container in c.AllContainers.elements.items():
-	$if container.is_actual_position(toCheck[0][0],id) :
-	    $code
-		toCheck.append(['c',k])
-	    <script>
-		$$(function(){
-		    $$("#includedMenuc_$(k)").load("/menu/c_$(k)");
-		});
-	    </script>
-	    <div id="includedMenuc_$(k)"></div>
-	    <script>
-		$$(function(){
-		    $$("#includedModalc_$(k)").load("/modal/c_$(k)");
-		});
-	    </script>
-	    <div id="includedModalc_$(k)"></div>
+        $if container.is_actual_position(toCheck[0][0],id) :
+            $code
+                toCheck.append(['c',k])
+            <script>
+            $$(function(){
+                $$("#includedMenuc_$(k)").load("/menu/c_$(k)");
+            });
+            </script>
+            <div id="includedMenuc_$(k)"></div>
+            <script>
+            $$(function(){
+                $$("#includedModalc_$(k)").load("/modal/c_$(k)");
+            });
+            </script>
+            <div id="includedModalc_$(k)"></div>
 </div>
 $if type not in 'bg':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<label class="col-sm-12">$c.AllMessages.elements['sensor'].getName(self.lang) :</label>    
 
-	$for k,sensor in c.AllSensors.elements.items():
-	    $if sensor.fields[type+'_id'] is not '' :
-		$if sensor.fields[type+'_id'] == id :
-		    <script>
-			$$(function(){
-			    $$("#includedMenucpehm_$(k)").load("/menu/cpehm_$(k)");
-			});
-		    </script>
-		    <div id="includedMenucpehm_$(k)"></div>
-		    <script>
-			$$(function(){
-			    $$("#includedModalcpehm_$(k)").load("/modal/cpehm_$(k)");
-			});
-		    </script>
-		    <div id="includedModalcpehm_$(k)"></div>
+    $for k,sensor in c.AllSensors.elements.items():
+        $if sensor.fields[type+'_id'] is not '' :
+            $if sensor.fields[type+'_id'] == id :
+                <script>
+                    $$(function(){
+                        $$("#includedMenucpehm_$(k)").load("/menu/cpehm_$(k)");
+                    });
+                </script>
+                <div id="includedMenucpehm_$(k)"></div>
+                <script>
+                    $$(function(){
+                        $$("#includedModalcpehm_$(k)").load("/modal/cpehm_$(k)");
+                    });
+                </script>
+                <div id="includedModalcpehm_$(k)"></div>
     </div>
 <div class="row active"style = "background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
     <label class="col-sm-12">$c.AllMessages.elements['batch'].getName(self.lang) :</label>
-
     $for k,batch in c.AllBatches.elements.items():
-	$for t, i in toCheck:
-	    $if batch.is_actual_position(t, i) is True:
-		<script>
-			$$(function(){
-			    $$("#includedMenub_$(k)").load("/menu/b_$(k)");
-			});
-		    </script>
-		    <div id="includedMenub_$(k)"></div>
-		<script>
-		    $$(function(){
-			$$("#includedModalb_$(k)").load("/modal/b_$(k)");
-		    });
-		</script>
-		<div id="includedModalb_$(k)"></div>
+        $for t, i in toCheck:
+            $if batch.is_actual_position(t, i) is True:
+                <script>
+                    $$(function(){
+                        $$("#includedMenub_$(k)").load("/menu/b_$(k)");
+                    });
+                    </script>
+                    <div id="includedMenub_$(k)"></div>
+                <script>
+                    $$(function(){
+                        $$("#includedModalb_$(k)").load("/modal/b_$(k)");
+                    });
+                </script>
+                <div id="includedModalb_$(k)"></div>
 </div>

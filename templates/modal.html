@@ -13,9 +13,12 @@ $code:
 	<div class="modal-dialog">
 	    <!-- Modal content-->
 	    <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">$elem.getName(self.lang)</h4>
+            <div class="modal-header row ">
+		<div class="col-xs-2" >
+		    <strong><a href="/edit/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['edit'].getHalfling()"></span></a></strong>
+		</div>
+                <button type="button" class="close col-xs-3" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title col-xs-5 ">$elem.getName(self.lang)</h4>
             </div>
             <div class="modal-body">
                 <div class="container-fluid">
@@ -200,11 +203,11 @@ $code:
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
                                 $if not elem.fields['p_id'] == '' :
-                                    <a href="/places/">$c.AllPieces.elements[elem.fields['p_id']].getName(self.lang)</a>
+                                    <a href="/all/p">$c.AllPieces.elements[elem.fields['p_id']].getName(self.lang)</a>
                                 $elif not elem.fields['e_id'] == '' :
-                                    <a href="/equipments/">$c.AllEquipments.elements[elem.fields['e_id']].getName(self.lang)</a>
+                                    <a href="/all/e">$c.AllEquipments.elements[elem.fields['e_id']].getName(self.lang)</a>
                                 $if not elem.fields['c_id'] == '' :
-                                    <a href="/containers/">$c.AllContainers.elements[elem.fields['c_id']].getName(self.lang)</a>
+                                    <a href="/all/c">$c.AllContainers.elements[elem.fields['c_id']].getName(self.lang)</a>
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">
@@ -212,7 +215,7 @@ $code:
                                 $c.AllMessages.elements['measure'].getName(self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-                                <a href="/measures/">$c.AllMeasures.elements[elem.fields['m_id']].getName(self.lang)</a>
+                                <a href="/all/m">$c.AllMeasures.elements[elem.fields['m_id']].getName(self.lang)</a>
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">
@@ -244,7 +247,10 @@ $code:
                             $c.AllMessages.elements['code'].getName(self.lang) :
                         </div>
                         <div class="col-xs-8" id="modalinfo" >
-                            $c.AllBarcodes.get_barcode(elem.get_type(), elem.id)
+			    $code :
+				barcode = c.AllBarcodes.get_barcode(elem.get_type(), elem.id)
+			    $if barcode != '' :
+				<a href="/barcode/$(barcode)">$(barcode)</a>
                         </div>
                     </div>
 
@@ -253,7 +259,10 @@ $code:
                             $c.AllMessages.elements['remark'].getName(self.lang) :
                         </div>
                         <div class="col-xs-8" id="modalinfo" >
-                            $elem.fields['remark']
+			    $if elem.fields['remark'] != '' :
+				$elem.fields['remark']
+			    $else:
+				-
                         </div>
                     </div>
                     

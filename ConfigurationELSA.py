@@ -740,6 +740,12 @@ class ConfigurationObject():
     def get_acronym(self):
         return self.fields['acronym']
 	
+    def get_batch_in_component(self,config):
+	batches = []
+	for k,v in config.AllBatches.elements.items():
+	    if v.is_actual_position(self.get_type(),self.getID()):
+		batches.append(v)
+	return batches
 
 class UpdateThread(threading.Thread):
 
@@ -1640,6 +1646,7 @@ class User(ConfigurationObject):
 	ConfigurationObject.__init__(self)
         self.roles = sets.Set()
         self.context = Context()
+	self.exportdata = None
 
     def __repr__(self):
         string = unicode(self.id) + " " + self.fields['acronym']
@@ -1918,18 +1925,27 @@ class AlarmLog(ConfigurationObject):
 	return 'alarmlog'
 
 class ExportData():
-    def __init__(self, config, batch, user):
+    def __init__(self, config, elem,cond, user):
 	self.config = config
 	self.fieldnames = ['timestamp','type', 'b_id', 'p_id', 'e_id', 'c_id','m_id','sensor','typevalue','value','unit', 'category', 'duration', 'remark', 'user']
 	self.history = []
 	self.filename = csvDir + "exportdata.csv"
-	self.b = batch
+	self.cond = cond
+	self.elem = elem
+	if elem.get_type() != 'b' :
+	    self.batches = elem.get_batch_in_component(self.config)
+	else :
+	    self.batches = []
+	    self.batches.append(self.elem)
+	self.b = None
 	self.user = user
 	self.data = []
 	self.transfers = []
-	self.load_data()
-	self.load_transfers()
 	self.elements = []
+	self.min = 999999
+	self.max = -999999
+	self.average = 0
+	self.count = 0
 	
     def load_data(self):
 	for d in self.b.data:
@@ -1940,38 +1956,50 @@ class ExportData():
 	    self.transfers.append(t)
 	
     def create_export(self):
-	self.load_hierarchy()
-        self.elements.append(self.transform_object_to_export_data(self.b))
-	lastSensor = None
-	count = 0
-        print str(len(self.history))
-	while count < (len(self.history)):
-            print 'Passage N° :' + str(count)
-	    e = self.history[count]
-	    begin = useful.date_to_timestamp(e.fields['time'], datetimeformat)
-	    infos = None
-            tmp = self.transform_object_to_export_data(e)
-	    self.elements.append(tmp)
-	    if e.get_type() == 'd':
-		if lastSensor != None:
+	if self.elem.get_type() != 'b':
+	    if self.cond['manualdata'] is True:
+		for data in self.elem.data:
+		    self.elements.append(self.transform_object_to_export_data(self.config.AllManualData.elements[data]))
+	    if self.cond['transfer'] is True:
+		for t in self.elem.position:
+		    self.elements.append(self.transform_object_to_export_data(t))		    
+	    
+	for self.b in self.batches :
+	    print "je passe ici"
+	    self.load_data()
+	    self.load_transfers()
+	    self.load_hierarchy()
+	    self.elements.append(self.transform_object_to_export_data(self.b))
+	    lastSensor = None
+	    count = 0
+	    while count < (len(self.history)):
+		e = self.history[count]
+		begin = useful.date_to_timestamp(e.fields['time'], datetimeformat)
+		infos = None
+		tmp = self.transform_object_to_export_data(e)
+		if self.cond['manualdata'] is True and e.get_type() == 'd':
+		    self.elements.append(tmp)
+		elif self.cond['transfer'] is True and e.get_type() == 't':
+		    self.elements.append(tmp)
+		if e.get_type() == 'd':
+		    if lastSensor != None:
+			if len(self.history)-1 == count :
+			    end = time.time()
+			    end = int(end)
+			else :
+			    end = useful.date_to_timestamp(self.history[count+1].fields['time'], datetimeformat)
+			infos = self.get_all_in_component(lastSensor,begin,end)
+		else :
+		    e = self.config.getObject(e.fields['cont_id'],e.fields['cont_type'])
 		    if len(self.history)-1 == count :
-			end = time.time()
-                        end = int(end)
+			end = int(time.time())
 		    else :
 			end = useful.date_to_timestamp(self.history[count+1].fields['time'], datetimeformat)
-		    infos = self.get_all_in_component(lastSensor,begin,end)
-	    else :
-		e = self.config.getObject(e.fields['cont_id'],e.fields['cont_type'])
-		if len(self.history)-1 == count :
-		    end = int(time.time())
-		else :
-		    end = useful.date_to_timestamp(self.history[count+1].fields['time'], datetimeformat)
-		infos = self.get_all_in_component(e,begin,end)
-		lastSensor = e
-	    if infos is not None :
-		self.add_value_from_sensors(infos,lastSensor)
-	    count += 1
-        self.write_csv()
+		    infos = self.get_all_in_component(e,begin,end)
+		    lastSensor = e
+		if infos is not None and self.cond['valuesensor'] is True:
+		    self.add_value_from_sensors(infos,lastSensor)
+		count += 1
 
     def write_csv(self):
 	with open(self.filename,'w') as csvfile:
@@ -1985,27 +2013,55 @@ class ExportData():
             with open(self.filename,'a') as csvfile:
                 writer = unicodecsv.DictWriter(csvfile, delimiter = "\t",fieldnames=self.fieldnames,encoding="utf-8")
                 writer.writerow(e)
-                
-
 	
     def add_value_from_sensors(self, infos, component):
 	sensors = component.get_sensors_in_component(self.config)
 	for a in sensors :
+	    self.min = 999999
+	    self.max = -99999
+	    self.average = 0.0
+	    self.count = 0
             self.elements.append(self.transform_object_to_export_data(self.config.AllSensors.elements[a]))
             if infos[a] is not None :
                 begin = infos[a][0][0]
 	        for value in infos[a]:
+		    tmp = value[1][0]
                     sensor = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
                     sensor['remark'] = ''
 		    sensor['timestamp'] = value[0]
                     end = sensor['timestamp']
-		    sensor['value'] = str(value[1][0])
-                    sensor['typevalue'] = 'AVERAGE'
+		    sensor['value'] = str(tmp)
+		    if tmp is not None:
+			tmp = float(value[1][0])
+			self.count += 1
+			self.average += tmp
+			if tmp < self.min :
+			    self.min = tmp
+			if tmp > self.max :
+			    self.max = tmp
+                    sensor['typevalue'] = 'BASE'
 		    self.elements.append(sensor)
-	        logs = self.config.AllAlarmLogs.get_alarmlog_component(a,begin,end)
-	        for log in logs :
-		    tmp = self.transform_object_to_export_data(log)
-		    self.elements.append(tmp)	    
+		if self.count >0 :
+		    self.average /= self.count
+		if self.cond['specialvalue'] is True and self.count >0:
+		    sensor1 = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
+		    sensor1['value'] = self.min
+		    sensor1['typevalue'] = 'MIN'
+		    self.elements.append(sensor1)
+		    sensor2 = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
+		    sensor2['value'] = self.max
+		    sensor2['typevalue'] = 'MAX'
+		    self.elements.append(sensor2)
+		    sensor3 = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
+		    sensor3['value'] = self.average
+		    sensor3['typevalue'] = 'AVERAGE'
+		    self.elements.append(sensor3)
+		if self.cond['alarm'] is True :
+		    logs = self.config.AllAlarmLogs.get_alarmlog_component(a,begin,end)
+		    for log in logs :
+			tmp = self.transform_object_to_export_data(log)
+			self.elements.append(tmp)	    
+	    
 	
 	
     def load_hierarchy(self):
@@ -2041,13 +2097,13 @@ class ExportData():
 	
     def transform_object_to_export_data(self, elem):
 	tmp = self.get_new_line()
-	tmp['user'] = self.user.fields['u_id']
+	tmp['user'] = self.elem.fields['user']
         tmp['timestamp'] = useful.date_to_timestamp(elem.fields['begin'],datetimeformat)
 	if elem.get_type() in 'bcpem' :
 	    tmp[elem.get_type()+'_id'] = elem.getID()
 	    tmp['remark'] = elem.fields['remark']
+	    tmp['type'] = elem.get_type()
 	    if elem.get_type() == 'm':
-		tmp['type'] = 'm'
 		tmp['m_id'] = elem.getID()
 	elif elem.get_type() == 'cpehm' :
 	    tmp['p_id'] = elem.fields['p_id']
@@ -2101,6 +2157,7 @@ class ExportData():
 	tmp['duration'] = ''
 	tmp['remark'] = ''
 	tmp['user'] = ''
+	tmp[self.elem.get_type()+'_id'] = self.elem.getID()
 	return tmp
 
 class Halfling(ConfigurationObject):
