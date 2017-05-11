@@ -83,6 +83,7 @@ begin	m_id	default	user
 01/01/2016 13:45:56	add	"Add"	1
 01/01/2016 13:45:56	edit	"Edit"	1
 01/01/2016 13:45:56	alarmtitle	"{0}  {1}    {2}    {3} {4} {5} {6}    {7}"	1
+01/01/2016 13:45:56	alarmmanualtitle	"ManualData : {0} {1} in {2}"	1
 01/01/2016 13:45:56	alarmmessage	"Alarm from {0}
 {1} :
      Name : {2}
@@ -94,4 +95,11 @@ Sensor :
      Type Alarm : {7}
 Time : {8}
 Degree : {9}"	1
-
+01/01/2016 13:45:56	alarmmanual	"Alarm from {0}
+{1} :
+     Name : {2}
+     Acronym : {3}
+ManualData :
+     Value : {4} {5}
+     Remark : {6}
+Time : {7}"	1

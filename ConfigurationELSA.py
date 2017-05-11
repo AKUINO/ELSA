@@ -17,13 +17,13 @@ import HardConfig as hardconfig
 import barcode
 import re
 import socket
-
+"""
 import SSD1306
 from I2CScreen import *
 
 import pigpio
 PIG = pigpio.pi()
-
+"""
 #mise a jour git
 csvDir = "../ELSAcsv/csv/"
 rrdDir = '../ELSArrd/rrd/'
@@ -38,6 +38,7 @@ _lock_socket = None
 class Configuration():
 
     def __init__(self):
+	"""
         self.HardConfig = hardconfig.HardConfig()
 	
 ##        # Run only OUNCE: Check if /run/akuino/ELSA.pid exists...
@@ -61,7 +62,7 @@ class Configuration():
         except socket.error:
             print 'AKUINO-ELSA lock exists'
             sys.exit()
-
+	"""
 	self.InfoSystem = InfoSystem(self)
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
@@ -93,13 +94,14 @@ class Configuration():
 	self.owproxy = None
 
     def load(self):
+	"""
         if not self.HardConfig.oled is None:
             # 128x64 display with hardware I2C:
             self.screen = I2CScreen(True, disp = SSD1306.SSD1305_132_64(rst=self.HardConfig.oled_reset,gpio=PIG))
             self.screen.clear()
         else:
             self.screen = I2CScreen(False, disp = None)	
-
+	"""
 	self.AllLanguages.load()
         self.AllUsers.load()
         self.AllPieces.load()
@@ -123,7 +125,7 @@ class Configuration():
 	self.AllPourings.load()
 	self.AllAlarmLogs.load()
 	self.UpdateThread.start()
-	self.RadioThread.start()
+	#self.RadioThread.start()
     
     def findAllFromName(self,className):
         if className == User.__name__:
@@ -2272,11 +2274,17 @@ class Alarm(ConfigurationObject):
 	    currObject.fields['begintime'] = unicode(sensor.time)
 	    currObject.fields['alarmtime'] = unicode(int(sensor.time) * sensor.countActual)
 	    currObject.fields['degree'] = unicode(sensor.degreeAlarm)
-	    print currObject
 	    currObject.save(config)
 	    return unicode.format(mess,config.HardConfig.hostname, cpe, elem.getName(lang), elem.fields['acronym'], sensor.getName(lang), sensor.fields['acronym'], unicode(sensor.lastvalue), sensor.actualAlarm, useful.timestamp_to_date(sensor.time, datetimeformat), unicode(sensor.degreeAlarm))
 	else :
-	    return unicode('Il manque le message')
+	    mess = config.AllMessages.elements['alarmmanual'].getName(lang)
+	    elem = config.findAllFromType(sensor.fields['object_type']).elements[sensor.fields['object_id']]
+	    name = config.AllMessages.elements[elem.get_name()].getName(lang)
+	    if sensor.fields['m_id'] != '' :
+		measure = config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
+	    else :
+		measure = ''
+	    return unicode.format(mess,config.HardConfig.hostname, name, elem.getName(lang), elem.fields['acronym'],unicode(sensor.fields['value']), measure,sensor.fields['remark'], sensor.fields['time'])
        
 	
     def get_alarm_title(self, sensor, config, lang):
@@ -2298,7 +2306,13 @@ class Alarm(ConfigurationObject):
 		equal = '>'
 	    return unicode.format(title, code, unicode(sensor.degreeAlarm), sensor.fields['acronym'], unicode(sensor.lastvalue), equal, sensor.fields[sensor.actualAlarm], config.AllMeasures.elements[sensor.fields['m_id']].fields['unit'], sensor.getName(lang))
 	else:
-	    return unicode('il manque un titre')
+	    title = config.AllMessages.elements['alarmmanualtitle'].getName(lang)
+	    elem = config.findAllFromType(sensor.fields['object_type']).elements[sensor.fields['object_id']]
+	    if sensor.fields['m_id'] != ''  :
+		measure = config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
+	    else :
+		measure = ''
+	    return unicode.format(title,sensor.fields['value'],measure,elem.getName(lang))
 	
     def launch_alarm(self, sensor, config):
 	if sensor.get_type() == 'cpehm' :
@@ -2720,7 +2734,6 @@ class Barcode(ConfigurationObject):
 	
 
 class Phase(ConfigurationObject):
-
     def __repr__(self):
         string = self.id + " " + self.fields['name']
         return string
@@ -2732,7 +2745,6 @@ class Phase(ConfigurationObject):
         return string + "\n"
 
 class StepValue():
-
     def __init__(self):
         self.min = 999999
         self.max = -999999
@@ -2742,7 +2754,6 @@ class StepValue():
         self.end = 0
 
 class StepMeasure(ConfigurationObject):
-
     def __repr__(self):
         string = self.fields['seq'] + " " + self.fields['name']
         return string

@@ -461,7 +461,7 @@ class WebManualData(WebObjectDoubleID):
         user  = c.connectedUsers.users[mail].cuser
         if mail is not None:
             getID = id2
-            currObject = c.getObject(getID,self.name)
+            currObject = c.getObject(getID,'d')
 	    if currObject is None :
 		return render.notfound()
             infoCookie = mail + ',' + user.fields['password']
@@ -596,6 +596,8 @@ class WebListing():
 	    return render.listingcomponent(mail,idobject,typeobject)
 	elif typeobject == 'g':
 	    return render.listinggroup(mail,idobject)
+	elif typeobject == 'm':
+	    return render.listingmeasures(mail,idobject)
 	else:
 	    return render.notfound()
 	"""except :
