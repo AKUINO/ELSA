@@ -626,12 +626,9 @@ class ConfigurationObject():
     def getID(self):
 	return self.id
 	    		
-    def deleteGroup(self,groupid, configuration,anUser):
-	print self.groups
-	print groupid	
+    def deleteGroup(self,groupid, configuration,anUser):	
 	self.write_group(groupid, configuration, anUser, 1)
 	del self.groups[groupid]
-	print self.groups
 	
     def add_group(self, groupid, configuration, anUser):
 	tmp = configuration.get_parents_list(configuration.AllGroups.elements[groupid])
@@ -709,6 +706,23 @@ class ConfigurationObject():
 	    
 	if tmp == '':
 	    return True
+	return tmp
+	
+    def get_transfers_in_time_interval(self, begin, end):
+	tmp = []
+	first = True
+	count = 0
+	while count < len(self.position):
+	    t = self.position [count]
+	    time = useful.date_to_timestamp(t.fields['time'],datetimeformat)
+	    if begin < time and time < end :
+		if first is True :
+		    first = False
+		    if count  > 0: 
+			if useful.date_to_timestamp(self.position[count-1].fields['time']) > begin :
+			    tmp.append(self.position[count -1])
+	        tmp.append(t)
+	    count += 1
 	return tmp
 	
     def delete(self, configuration):
@@ -929,14 +943,6 @@ class AllObjects():
 		    
     def get_name_object(self ):
 	return 'component'
-	
-    def get_transfers_in_time_interval(self, begin, end):
-	tmp = []
-	for t in self.position:
-	    time = useful.date_to_timestamp(t.fields['time'],datetimeformat)
-	    if begin < time and time < end :
-	        tmp.append(t)
-	return tmp
 	
 class AllUsers(AllObjects):
 
@@ -1960,14 +1966,8 @@ class ExportData():
 	    self.data.append(self.config.AllManualData.elements[d])
 		
     def load_transfers(self):
-	begin = self.b.fields['time']
 	for t in self.b.position:
-	    end = t.fields['time']
 	    self.transfers.append(t)
-	    tmp = t.get_cont().get_transfers_in_time_interval(begin,end)
-	    if tmp is not None :
-		for s in tmp :
-		    self.transfers.append(s)
 
     def create_export(self):
 	if self.elem.get_type() != 'b':
@@ -1979,7 +1979,6 @@ class ExportData():
 		    self.elements.append(self.transform_object_to_export_data(t))		    
 	    
 	for self.b in self.batches :
-	    print "je passe ici"
 	    self.load_data()
 	    self.load_transfers()
 	    self.load_hierarchy()
@@ -2078,7 +2077,6 @@ class ExportData():
 	i = 0
 	j = 0
 	while i < len(self.data) and j < len(self.transfers):
-            print self.data[i]
 	    timed = useful.date_to_timestamp(self.data[i].fields['time'], datetimeformat)
 	    timet = useful.date_to_timestamp(self.transfers[j].fields['time'], datetimeformat)
 	    if timed < timet :
@@ -2089,7 +2087,6 @@ class ExportData():
 		j += 1
 	if i < len(self.data):
 	    while i< len(self.data):
-                print self.data[i]
 		self.history.append(self.data[i])
 		i += 1
 	if j < len(self.transfers):
@@ -2097,9 +2094,14 @@ class ExportData():
 		self.history.append(self.transfers[j])
 		j += 1
 		
-    def get_all_in_component(self,component,begin,end):
+    def get_all_in_component(self,component,begin,end, infos = None):
+	if infos is None :
+	    infos = {}
 	sensors = component.get_sensors_in_component(self.config)
-	infos = {}
+	tmp = component.get_transfers_in_time_interval(begin,end)
+	if len(tmp) > 0 :
+	    for t in tmp :
+		self.get_all_in_component(t.get_cont(),begin,end,infos)
 	for a in sensors:
 	    infos[a] = self.config.AllSensors.elements[a].fetch(begin,end)
 	return infos
