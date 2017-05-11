@@ -5,11 +5,9 @@ import time
 import datetime
 import traceback
 import unicodecsv
-import datetime
-import random
+#import random
 import sys
 import threading
-import time
 import os
 import rrdtool
 import pyownet
@@ -19,12 +17,13 @@ import HardConfig as hardconfig
 import barcode
 import re
 import socket
-"""
+
+import SSD1306
 from I2CScreen import *
 
 import pigpio
 PIG = pigpio.pi()
-"""
+
 #mise a jour git
 csvDir = "../ELSAcsv/csv/"
 rrdDir = '../ELSArrd/rrd/'
@@ -39,7 +38,6 @@ _lock_socket = None
 class Configuration():
 
     def __init__(self):
-	"""
         self.HardConfig = hardconfig.HardConfig()
 	
 ##        # Run only OUNCE: Check if /run/akuino/ELSA.pid exists...
@@ -63,7 +61,7 @@ class Configuration():
         except socket.error:
             print 'AKUINO-ELSA lock exists'
             sys.exit()
-	"""
+
 	self.InfoSystem = InfoSystem(self)
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
@@ -86,6 +84,7 @@ class Configuration():
 	self.AllManualData = AllManualData(self)
 	self.connectedUsers = AllConnectedUsers()
 	self.AllTransfers = AllTransfers(self)
+	self.AllPourings = AllPourings(self)
 	self.isThreading = True
 	self.UpdateThread = UpdateThread(self)
 	self.RadioThread = RadioThread(self)
@@ -94,15 +93,12 @@ class Configuration():
 	self.owproxy = None
 
     def load(self):
-	"""
         if not self.HardConfig.oled is None:
             # 128x64 display with hardware I2C:
             self.screen = I2CScreen(True, disp = SSD1306.SSD1305_132_64(rst=self.HardConfig.oled_reset,gpio=PIG))
             self.screen.clear()
         else:
-            self.screen = I2CScreen(False, disp = None)
-        """
-	
+            self.screen = I2CScreen(False, disp = None)	
 
 	self.AllLanguages.load()
         self.AllUsers.load()
@@ -124,95 +120,85 @@ class Configuration():
 	self.loadRelation()
 	self.AllTransfers.load()
 	self.AllManualData.load()
+	self.AllPourings.load()
 	self.AllAlarmLogs.load()
 	self.UpdateThread.start()
-	#self.RadioThread.start()
-	
+	self.RadioThread.start()
     
-    def findAllFromObject(self,anObject):
-        className = anObject.__class__.__name__
-        if className == u"User":
+    def findAllFromName(self,className):
+        if className == User.__name__:
             return self.AllUsers
-        elif className == u"Equipment":
+        elif className == Equipment.__name__:
             return self.AllEquipments
-        elif className == u"Language":
+        elif className == Language.__name__:
             return self.AllLanguages
-	elif className == u"Piece":
+	elif className == Piece.__name__:
 	    return self.AllPieces 
-	elif className == u"Group":
+	elif className == Group.__name__:
 	    return self.AllGroups 
-	elif className == u"Container":
+	elif className == Container.__name__:
 	    return self.AllContainers 
-	elif className == u"Measure":
+	elif className == Measure.__name__:
 	    return self.AllMeasures 
-	elif className == u"Sensor":
+	elif className == Sensor.__name__:
 	    return self.AllSensors 
-	elif className == u"Alarm":
+	elif className == Alarm.__name__:
 	    return self.AllAlarms 
-	elif className == u"Batch":
+	elif className == Batch.__name__:
 	    return self.AllBatches 
-	elif className == u"Transfer":
+	elif className == Transfer.__name__:
 	    return self.AllTransfers 
-	elif className == u"ManualData":
+	elif className == ManualData.__name__:
 	    return self.AllManualData 
+	elif className == Pouring.__name__:
+	    return self.AllPourings 
+	elif className == AlarmLog.__name__:
+	    return self.AllAlarmLogs 
+	elif className == u"u":
+            return self.AllUsers
+        elif className == u"e":
+            return self.AllEquipments
+        elif className == u"l":
+            return self.AllLanguages
+	elif className == u"p":
+	    return self.AllPieces
+	elif className == u"g":
+	    return self.AllGroups
+	elif className == u"c":
+	    return self.AllContainers
+	elif className == u"m":
+	    return self.AllMeasures
+	elif className == u"cpehm":
+	    return self.AllSensors
+	elif className == u"a":
+	    return self.AllAlarms
+	elif className == u"b":
+	    return self.AllBatches
+	elif className == u"t":
+	    return self.AllTransfers
+	elif className == u"d":
+	    return self.AllManualData
+	elif className == u"v":
+	    return self.AllPourings
+	elif className == u"al":
+	    return self.AllAlarmLogs
         else:
             return None
 	    
+    def findAllFromObject(self,anObject):
+        return self.findAllFromName(anObject.__class__.__name__)
+
     def getObject(self, idObject,className):
-	if className == u"u":
-            return self.AllUsers.getItem(idObject)
-        elif className == u"e":
-            return self.AllEquipments.getItem(idObject)
-        elif className == u"Language":
-            return self.AllLanguages.getItem(idObject)
-	elif className == u"p":
-	    return self.AllPieces.getItem(idObject)
-	elif className == u"g":
-	    return self.AllGroups.getItem(idObject)
-	elif className == u"c":
-	    return self.AllContainers.getItem(idObject)
-	elif className == u"m":
-	    return self.AllMeasures.getItem(idObject)
-	elif className == u"cpehm":
-	    return self.AllSensors.getItem(idObject)
-	elif className == u"a":
-	    return self.AllAlarms.getItem(idObject)
-	elif className == u"b":
-	    return self.AllBatches.getItem(idObject)
-	elif className == u"WebTransfer" or className == u"t":
-	    return self.AllTransfers.getItem(idObject)
-	elif className == u"WebManualData" or className == u"d":
-	    return self.AllManualData.getItem(idObject)
-	elif className == u"WebAlarmLogs" or className == u"al":
-	    return self.AllManualData.getItem(idObject)
+        allObjects = self.findAllFromName(className)
+        if allObjects is not None:
+            return allObjects.getItem(idObject)
         else:
             return None
     
     def getFieldsname(self,className):
-        if className == u"u":
-            return self.AllUsers.fieldnames
-        elif className == u"e":
-            return self.AllEquipments.fieldnames
-        elif className == u"Language":
-            return self.AllLanguages.fieldnames
-	elif className == u"p":
-	    return self.AllPieces.fieldnames  
-	elif className == u"g":
-	    return self.AllGroups.fieldnames  
-	elif className == u"c":
-	    return self.AllContainers.fieldnames  
-	elif className == u"m":
-	    return self.AllMeasures.fieldnames  
-	elif className == u"cpehm":
-	    return self.AllSensors.fieldnames 
-	elif className == u"a":
-	    return self.AllAlarms.fieldnames
-	elif className == u"b":
-	    return self.AllAlarms.fieldnames
-	elif className == u"WebTransfer":
-	    return self.AllTransfers.fieldnames
-	elif className == u"WebManualData":
-	    return self.AllManualData.fieldnames
+        allObjects = self.findAllFromName(className)
+        if allObjects is not None:
+            return allObjects.fieldnames
         else:
             return None
 	    
@@ -221,33 +207,8 @@ class Configuration():
 	return obj.keyColumn
 	
     def findAllFromType(self, aType):
-        if aType == u"u":
-            return self.AllUsers
-        elif aType == u"e":
-            return self.AllEquipments
-        elif aType == u"l":
-            return self.AllLanguages
-	elif aType == u"p":
-	    return self.AllPieces 
-	elif aType == u"g":
-	    return self.AllGroups
-	elif aType == u"c":
-	    return self.AllContainers
-	elif aType == u"m":
-	    return self.AllMeasures
-	elif aType == u"cpehm":
-	    return self.AllSensors
-	elif aType == u"a":
-	    return self.AllAlarms
-	elif aType == u"b":
-	    return self.AllBatches
-	elif aType == u"t":
-	    return self.AllTransfers
-	elif aType == u"d":
-	    return self.AllManualData
-        else:
-            return None
-	    
+	return self.findAllFromName(aType)
+
     def loadRelation(self):
 	with open(self.csvRelations) as csvfile:
 	    reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
@@ -478,10 +439,11 @@ class InfoSystem():
 	    self.load15 = float(info[2])
 	    rrdtool.update(rrdDir+'cpuload.rrd' , '%d:%f:%f:%f' % (now , self.load1, self.load5, self.load15))
 	    iptmp = useful.get_ip_address('eth0')
-	    if not iptmp == self.ip:
+	    if iptmp != self.ip:
 		userlist = self.config.get_user_group(self.config.AllGroups.get_group(groupWebUsers))
 		for user in userlist:
-		    useful.send_email(self.config.AllUsers.elements[user].fields['mail'],u'Nouvelle IP pour ELSA: '+iptmp,u'Pour acceder ELSA:\nhttp://'+iptmp+u':8080')
+                    print "Not sending mail to user#"+user
+		#   useful.send_email(self.config.AllUsers.elements[user].fields['mail'],u'Nouvelle IP pour ELSA: '+iptmp,u'Pour acceder ELSA:\nhttp://'+iptmp+u':8080')
 		self.ip = iptmp
 	    
 	except:
@@ -797,15 +759,15 @@ class RadioThread(threading.Thread):
 		    data = elaSerial.read()
 		    if data == '[' :
 			line = []
-		    elif line != None:
+		    elif line is not None:
 			if data == ']' :
 			    if len(line) == 10:
                                 now = useful.get_timestamp()
 				RSS = int(line[0]+line[1],16)
 				HEX = line[2]+line[3]+line[4]
-				ADDRESS = int(HEX,16)
+				#ADDRESS = int(HEX,16)
 				VAL = int(line[5]+line[6]+line[7],16)
-				READER = int(line[8]+line[9],16)
+				#READER = int(line[8]+line[9],16)
 				print "ELA="+HEX+", RSS="+unicode(RSS)+", val="+unicode(VAL)
 				currSensor = None
 				value = VAL
@@ -858,15 +820,17 @@ class AllObjects():
 		    currObject.creator = self.elements[key].creator
 		else :
 		    currObject.created = currObject.fields['begin']
-		    currObject.creator = row['user']
+		    if 'user' in row:
+                        currObject.creator = row['user']
+                    else:
+                        currObject.creator = None
 		self.elements[key] = currObject
 		if currObject.get_type() == 't':
 		    objects = self.config.findAllFromType(currObject.fields['object_type'])
 		    objects.elements[currObject.fields['object_id']].add_position(currObject)
 		elif currObject.get_type() == 'd':
 		    objects = self.config.findAllFromType(currObject.fields['object_type'])
-		    objects.elements[currObject.fields['object_id']].add_data(currObject)
-		    
+		    objects.elements[currObject.fields['object_id']].add_data(currObject)		    
 		
     def loadNames(self):
 	with open(self.filename) as csvfile:
@@ -910,7 +874,7 @@ class AllObjects():
 	return True
 	
     def getItem(self,iditem):
-	if iditem == 'new':
+	if iditem == u'new':
 	    return self.createObject()
 	elif iditem in self.elements.keys():
 	    return self.elements[str(iditem)]
@@ -996,25 +960,6 @@ class AllRoles(AllObjects):
     def newObject(self):
         return Role()
     
-class AllUO():
-
-    def __init__(self, config):
-        self.config = config
-
-    def load(self):
-        with open(csvDir + "UO.csv") as csvfile:
-            reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
-            for row in reader:
-                if((not 'deny' in row) or (row['deny'] != "1")):
-                    for user in self.config.AllUsers.elements: 
-                        if (self.config.AllUsers.elements[user].fields['u_id'] == row['u_id']):
-                            self.config.AllUsers.elements[user].roles.add(row['o_id'])
-                    for role in self.config.AllRoles.elements: 
-                        if (self.config.AllRoles.elements[role].fields['o_id'] == row['o_id']):
-                            self.config.AllRoles.elements[role].users.add(row['u_id'])
-                else:
-                    print self.filename+': '+row['name'] + " is denied !"
-
 class AllEquipments(AllObjects):
 
     def __init__(self, config):
@@ -1152,6 +1097,24 @@ class AllManualData(AllObjects):
 	
     def get_name_object(self ):
 	return 'd'
+    
+class AllPourings(AllObjects):
+
+    def __init__(self, config):
+	AllObjects.__init__(self)
+        self.elements = {}
+        self.config = config
+        self.fileobject = csvDir + "V.csv"
+	self.filename = None
+        self.keyColumn = "v_id"
+	self.fieldnames = ['begin', 'v_id', 'input_id', 'b_id', 'time', 'remark', 'm_id', 'value', 'user']
+	self.fieldtranslate = None
+
+    def newObject(self):
+	return Pouring()
+	
+    def get_name_object(self ):
+	return 'v'
     
 class AllGroups(AllObjects):
 
@@ -1815,12 +1778,12 @@ class ManualData(ConfigurationObject):
 	    try : 
 		value = float(data['value'])
 	    except:
-		tmp += configuration.AllMessages.elements['floatrules'].getName(lang) + '\n'
+		tmp += configuration.AllMessages.elements['floatrules'].getName(lang) + ' '+data['value']+'\n'
 	try:
-	    type = data['component'].split('_')[0]
-	    id = data['component'].split('_')[1]
-	    if not configuration.is_component(type):
-		tmp += configuration.AllMessages.elements['componentrules'].getName(lang) + '\n'
+	    aType = data['component'].split('_')[0]
+	    anId = data['component'].split('_')[1]
+	    if not configuration.is_component(aType):
+		tmp += configuration.AllMessages.elements['componentrules'].getName(lang) + ' '+data['component']+'\n'
 	except:
 	    tmp += configuration.AllMessages.elements['componentrules'].getName(lang) + '\n'
 		    
@@ -1829,7 +1792,74 @@ class ManualData(ConfigurationObject):
 	return tmp
 	
     def get_name(self):
-	return 'manueldata'
+	return 'manualdata'
+	
+class Pouring(ConfigurationObject):
+
+    def __init__(self):
+	ConfigurationObject.__init__(self)
+	self.id = str(self.id)
+
+    def __repr__(self):
+        string = unicode(self.id)
+        return string
+
+    def __str__(self):
+        string = "\nPouring :"
+        for field in self.fields:
+            string = string + "\n" + field + " : " + self.fields[field]
+        return string + "\n"
+	
+    def get_type(self):
+	return 'v'
+	
+    def get_name_listing(self):
+	return 'pourings'
+	
+    def add_measure(self, measure):
+	if not measure =='None':
+	    self.fields['m_id'] = str(measure)
+	else:
+	    self.fields['m_id'] = ''
+	
+	
+    def validate_form(self, data, configuration, lang) :
+	print data
+	tmp = ''
+	try:
+	    value = datetime.datetime.strptime(data['time'],datetimeformat)
+	except:
+	    traceback.print_exc()
+	    tmp += configuration.AllMessages.elements['timerules'].getName(lang) + '\n'
+	
+	if 'value' in data and data['measure'] == u'None':
+	    if not data['value'] == '' :
+		tmp += configuration.AllMessages.elements['datarules'].getName(lang) + '\n'
+	elif 'value' in data:
+	    try : 
+		value = float(data['value'])
+	    except:
+		tmp += configuration.AllMessages.elements['floatrules'].getName(lang) + '\n'
+	try:
+	    b_id = data['inputbatch']
+	    if not configuration.is_batch(b_id):
+		tmp += configuration.AllMessages.elements['batchrules'].getName(lang) + '\n'
+	except:
+	    tmp += configuration.AllMessages.elements['batchrules'].getName(lang) + '\n'
+		    
+	try:
+	    b_id = data['b_id']
+	    if not configuration.is_batch(b_id):
+		tmp += configuration.AllMessages.elements['batchrules'].getName(lang) + '\n'
+	except:
+	    tmp += configuration.AllMessages.elements['batchrules'].getName(lang) + '\n'
+		    
+	if tmp == '':
+	    return True
+	return tmp
+	
+    def get_name(self):
+	return 'pouring'
 	
 class Group(ConfigurationObject):
 
@@ -1861,11 +1891,11 @@ class Group(ConfigurationObject):
 		    return True
 	return False
 	
-    def addGroup(self, oGroup):
-	currContainsGroup = currObject.containsGroup(group)
-	groupContainsCurr = group.containsGroup(currObject)
-	if ( not currContainsGroup ) and ( not groupContainsCurr ):
-	    self.groups[k] = group
+##    def addGroup(self, oGroup):
+##	currContainsGroup = currObject.containsGroup(group)
+##	groupContainsCurr = group.containsGroup(currObject)
+##	if ( not currContainsGroup ) and ( not groupContainsCurr ):
+##	    self.groups[k] = group
 	    
     def get_name_listing(self):
 	return 'groups'
@@ -1916,8 +1946,7 @@ class Piece(ConfigurationObject):
 class AlarmLog(ConfigurationObject):
 
     def __init__(self):
-	ConfigurationObject.__init__(self)
-	
+	ConfigurationObject.__init__(self)	
 
     def __repr__(self):
         string = unicode(self.id) 
@@ -2223,7 +2252,7 @@ class Alarm(ConfigurationObject):
 	    mess = config.AllMessages.elements['alarmmessage'].getName(lang)
 	    cpe = ''
 	    elem = ''
-	    currObject = c.getObject('new','al')
+	    currObject = config.AllAlarmLogs.newObject()
 	    if not sensor.fields['p_id'] == '':
 		cpe = config.AllMessages.elements['place'].getName(lang)
 		elem = config.AllPieces.elements[sensor.fields['p_id']]
@@ -2239,12 +2268,13 @@ class Alarm(ConfigurationObject):
 	    currObject.fields['cont_id'] = elem.getID()
 	    currObject.fields['cpehm_id'] = sensor.getID()
 	    currObject.fields['value'] = unicode(sensor.lastvalue)
-	    currObject.fields['typealarm'] = sensor.actualAlarm
-	    currObject.fields['begintime'] = sensor.time
-	    currObject.fields['alarmtime'] = int(sensor.time) * sensor.countActual
-	    currObject.fields['degree'] = sensor.degreeAlarm
+	    currObject.fields['typealarm'] = unicode(sensor.actualAlarm)
+	    currObject.fields['begintime'] = unicode(sensor.time)
+	    currObject.fields['alarmtime'] = unicode(int(sensor.time) * sensor.countActual)
+	    currObject.fields['degree'] = unicode(sensor.degreeAlarm)
+	    print currObject
 	    currObject.save(config)
-	    return unicode.format(mess,u'Akuino 6001', cpe, elem.getName(lang), elem.fields['acronym'], sensor.getName(lang), sensor.fields['acronym'], unicode(sensor.lastvalue), sensor.actualAlarm, useful.timestamp_to_date(sensor.time, datetimeformat), unicode(sensor.degreeAlarm))
+	    return unicode.format(mess,config.HardConfig.hostname, cpe, elem.getName(lang), elem.fields['acronym'], sensor.getName(lang), sensor.fields['acronym'], unicode(sensor.lastvalue), sensor.actualAlarm, useful.timestamp_to_date(sensor.time, datetimeformat), unicode(sensor.degreeAlarm))
 	else :
 	    return unicode('Il manque le message')
        
@@ -2274,7 +2304,7 @@ class Alarm(ConfigurationObject):
 	if sensor.get_type() == 'cpehm' :
 	    level = sensor.degreeAlarm
 	    if level == 1 :
-		print 'Send mails'
+		print 'Send mails, level 1'
 		userlist = config.get_user_group(self.fields['o_email1'])
 		for user in userlist:
 		    lang = config.AllUsers.elements[user].fields['language']
@@ -2282,7 +2312,7 @@ class Alarm(ConfigurationObject):
 		    title = self.get_alarm_title( sensor, config, lang)
 		    useful.send_email(config.AllUsers.elements[user].fields['mail'], title, mess)
 	    elif level == 2:
-		print 'Send mails'
+		print 'Send mails, level 2'
 		userlist = config.get_user_group(self.fields['o_email2'])
 		for user in userlist:
 		    lang = config.AllUsers.elements[user].fields['language']
@@ -2409,17 +2439,18 @@ class Sensor(ConfigurationObject):
 	    self.updateRRD(now, value)
 
             minutes = int(now / 60)
-            hours = (int(minutes / 60) % 24)+100
+            #GMT + DST
+            hours = (int(minutes / 60) % 24)+100 + 2
             minutes = (minutes % 60)+100
             strnow = unicode(hours)[1:3]+":"+unicode(minutes)[1:3]
-            #pos = config.screen.show(0,strnow)
-            #pos = config.screen.showBW(pos+2,self.get_acronym())
-            #pos = config.screen.show(pos+2,unicode(round(float(value),1)))
+            pos = config.screen.show(config.screen.begScreen,strnow)
+            pos = config.screen.showBW(pos+2,self.get_acronym())
+            pos = config.screen.show(pos+2,unicode(round(float(value),1)))
             if self.fields['m_id']:
                 id_measure = unicode(self.fields['m_id'])
                 if id_measure in config.AllMeasures.elements:
                     measure = config.AllMeasures.elements[id_measure]
-                    #pos = config.screen.show(pos,measure.fields['unit'])
+                    pos = config.screen.show(pos,measure.fields['unit'])
                 
 	    typeAlarm,symbAlarm = self.getTypeAlarm(value)
             print (u'Sensor update Channel : '+ self.fields['channel'] + u'    ' + self.fields['sensor'] + u' ==> ' + self.fields['acronym'] + u' = ' + unicode(value))
@@ -2428,9 +2459,9 @@ class Sensor(ConfigurationObject):
 	    else:
 		if not (( typeAlarm == 'min' and self.actualAlarm == 'minmin' ) or ( typeAlarm == 'max' and self.actualAlarm == 'maxmax')) :
 		    self.actualAlarm = typeAlarm
-                #config.screen.show(pos+2,symbAlarm)
+                config.screen.showBW(-1,symbAlarm)
 		self.launchAlarm(config, now)
-            #config.screen.end_line()
+            config.screen.end_line()
 	else :
 	    #TODO : si on ne sait pas se connecter au senseur, rajouter Alarme " Erreur Senseur not working"
 	    print 'Impossible d acceder au senseur TO DO'

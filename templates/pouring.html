@@ -1,0 +1,176 @@
+$def with (id1, id2, mail, errormess)
+$var recursive : False
+$if id1 == 'new':
+    $code :
+	myID = 'new'
+	inBatch = None
+	if id2 == 'new':
+		outBatch = None
+	else:
+		outBatch = c.AllBatches.elements[id2]
+	rmq = ''
+    $var location: pourings=pouring pourings/new/new=add
+$elif id1 == 'update' :
+    $code :
+	myID = 'update'
+	pouring = c.AllPourings.elements[id2]
+	outBatch = c.AllBatches.elements[pouring.fields['b_id']]
+	inBatch = c.AllBatches.elements[pouring.fields['inputbatch']]
+	rmq = pouring.fields['remark']
+    $var location: all/b=$(elem.get_name()) pourings/$(elem.getID())=pouring edit/$(id2)=edit
+$elif id2 == 'new':
+    $code :
+	myID = 'new'
+	inBatch = c.AllBatches.elements[id1]
+	outBatch = None
+	rmq = ''
+    $var location: pourings=pouring pourings/new/new=add
+$elif id1 == 'in':
+    $code :
+	myID = 'batch'
+	inBatch = c.AllBatches.elements[id1]
+	outBatch = None
+	rmq = ''
+    $var location: pourings=pouring pourings/new/new=add
+$elif id1 == 'out':
+    $code :
+	myID = 'batch'
+	outBatch = c.AllBatches.elements[id1]
+	inBatch = None
+	rmq = ''
+    $var location: pourings=pouring pourings/new/new=add
+$else :
+    $code:
+	myID = 'pouring'
+	inBatch = c.AllBatches.elements[id1]
+	outBatch = c.AllBatches.elements[id2]
+	rmq = '' 
+    $var location: all/b=$(elem.get_name()) pourings/$(elem.getID())=pouring pourings/$(elem.getID())/new=add
+
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+
+
+<div class="container">
+    <form  method="post" action="" id="modifyPouring"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
+	<div class="col-sm-12" >
+	    <p id="error">$errormess</p>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputTime" class="col-sm-3 col-form-label">$c.AllMessages.elements['time'].getName(self.lang)</label>
+	    <div class="col-sm-9">
+		<input name="time" type="text" class="form-control" id="inputTime" placeholder="$c.AllMessages.elements['time'].getName(self.lang)" 
+		$if myID == 'update':
+		    value="$pouring.fields['time']"
+		$else :
+		    value ="$c.get_time()"
+		>
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="b_id" class="col-sm-3 col-form-label">$c.AllMessages.elements['batchmove'].getName(self.lang) </label>
+	    <div class="col-sm-9">
+		<select name="b_id" class="form-control" id="b_id">
+		    <optgroup label="$c.AllMessages.elements['batch'].getName(self.lang)">
+		    $for k in c.AllBatches.elements.keys():
+			<option value="$k"
+			    $if not myID == 'new':
+				$if 'b' == elem.get_type() and k == elem.getID() :
+				    selected
+			>$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang) </option>
+		</select>
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputbatch" class="col-sm-3 col-form-label">$c.AllMessages.elements['batchin'].getName(self.lang)</label>
+	    <div class="col-sm-9">
+		<select name = "inputbatch" class="form-control" id="inputbatch">
+		    <optgroup label="$c.AllMessages.elements['batch'].getName(self.lang)">
+		    $for k in c.AllBatches.elements.keys():
+			<option value="$k"
+			    $if not myID == 'new':
+				$if 'b' == elem.get_type() and k == elem.getID() :
+				    selected
+			>$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang) </option>
+		</select>
+	    </div>
+	</div>
+	
+	
+	
+	<div class="form-group row">
+	    <label for="itemSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['component'].getName(self.lang)</label>
+	    <div class="col-sm-9">
+		<select name = "component" class="form-control" id="langSelect">
+		    <optgroup label="$c.AllMessages.elements['batch'].getName(self.lang)">
+		    $for k in c.AllBatches.elements.keys():
+			<option value="b_$k"
+			    $if k == id1.split('_')[1] and 'b' == id1.split('_')[0]:
+				selected
+			>$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang)</option>
+		    </optgroup>
+		</select>
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="measureSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['measure'].getName(self.lang)</label>
+	    <div class="col-sm-9">
+		<select name = "measure" class="form-control" id="measureSelect">
+		    <option value="None"></option>
+		    $for k in c.AllMeasures.elements.keys():
+			<option value="$k"
+			    $if id2 != 'new':
+				$if k == c.AllManualData.elements[id2].fields['m_id'] :
+				    selected
+			>$c.AllMeasures.elements[k].fields['acronym'] - $c.AllMeasures.elements[k].getName(self.lang) - $c.AllMeasures.elements[k].fields['unit']</option>
+		</select>
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputValue" class="col-sm-3 col-form-label">$c.AllMessages.elements['value'].getName(self.lang)</label>
+	    <div class="col-sm-9">
+		<input name="value" type="text" class="form-control" id="inputValue" placeholder="$c.AllMessages.elements['value'].getName(self.lang)" 
+		$if id2 != 'new':
+		    value="$data.fields['value']"
+		>
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="alarmSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['alarm'].getName(self.lang)</label>
+	    <div class="col-sm-9">
+		<select name = "a_id" class="form-control" id="alarmSelect">
+		    <option value=""></option>
+		    $for k in c.AllAlarms.elements.keys():
+			<option value="$k">$c.AllAlarms.elements[k].fields['acronym'] - $c.AllAlarms.elements[k].getName(self.lang) </option>
+		</select>
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
+	    <div class="col-sm-9">
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.AllMessages.elements['remark'].getName(self.lang)" >$self.rmq</textarea>
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <div class="col-sm-3">
+	    </div>
+	    <div class="col-sm-2">
+		<a href="/places/" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+	    </div>
+	    <div class="col-sm-2">
+	    </div>
+	    <div class="col-sm-2">
+		<button type="submit" class="btn btn-primary btn-block">Save</button>
+	    </div> 
+	    <div class="col-sm-3">
+	    </div>
+	</div>
+    </form>
+</div>
