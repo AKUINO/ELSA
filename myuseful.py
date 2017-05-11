@@ -66,4 +66,4 @@ def get_ip_address(ifname):
     )[20:24])
 
 def date_to_timestamp(date, datetimeformat):
-    return datetime.datetime.strptime(date, datetimeformat)
+    return int(time.mktime(datetime.datetime.strptime(date, datetimeformat).timetuple()))

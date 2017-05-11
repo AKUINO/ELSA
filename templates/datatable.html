@@ -1,0 +1,26 @@
+$def with (mail, type,id)
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$code :
+    elem = c.connectedUsers.users[mail].cuser.exportdata
+$var recursive : False
+$var location: all/$(type)=$(c.findAllFromType(type).get_name_object()) exportdata/$(type)_$(id)=exportdata datatable/$(type)_$(id)=datatable
+$if elem is not None:
+    <div class="container">           
+	<table class="table table-condensed">
+	    <thead>
+		<tr>
+		    $for e in elem.fieldnames:
+			<th>$e</th>
+		</tr>
+	    </thead>
+	    <tbody>
+		$for line in elem.elements:
+		    <tr>
+			$for e in elem.fieldnames:
+			    <td>$line[e]</td>
+		    </tr>
+	    </tbody>
+	</table>
+    </div>
+$else:
+    FLIIIIIIP

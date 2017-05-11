@@ -19,12 +19,16 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 		<span class="glyphicon glyphicon-ok-circle"> </span>
 	</div>	    
 	<div class="col-xs-2 vcenter" ><span class="$c.AllHalflings.elements[elem.get_name()].getHalfling()"></span>    $elem.fields['acronym']</div>
-	<div class="col-xs-4 vcenter">
+	<div class="col-xs-3 vcenter">
 	    <strong>$elem.getName(self.lang)</strong>
 	</div>
 	$if c.AllBarcodes.get_barcode(elem.get_type(), elem.id) != '':
 	    <div class="col-xs-2 vcenter">
 		<strong><a href="/barcode/$(c.AllBarcodes.get_barcode(elem.get_type(), elem.id))" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['barcode'].getHalfling()"></span></a></strong>
+	    </div>
+	$if type in 'cpeb':
+	    <div class="col-xs-1 vcenter">
+		<strong><a href="/exportdata/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['exportdata'].getHalfling()"></span></a></strong>
 	    </div>
     </div>
     <div class="col-xs-12 " style ="margin-top:10px" >
@@ -35,7 +39,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	$else :
 	    <div class="col-xs-2" >
 	    </div>
-	$if type in 'cpehm':
+	$if type in 'cpem':
 	    <div class="col-xs-2" >
 		<strong><a href="/listing/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['listing'].getHalfling()"></span></a></strong>
 	    </div>

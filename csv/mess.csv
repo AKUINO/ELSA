@@ -1,9 +1,13 @@
 begin	m_id	default	user
 01/01/2016 13:45:56	name	Name	1
 01/01/2016 13:45:56	production	Production	1
+01/01/2016 13:45:56	exportdata	Export data	1
 01/01/2016 13:45:56	people	People	1
 01/01/2016 13:45:56	cancel	Cancel	1
+01/01/2016 13:45:56	datatable	Data Table	1
+01/01/2016 13:45:56	valuesensor	Values from sensor	1
 01/01/2016 13:45:56	value	Value 	1
+01/01/2016 13:45:56	specialvalue	Min Max Average 	1
 01/01/2016 13:45:56	monitoring	Monitoring 	1
 01/01/2016 13:45:56	time	Time	1
 01/01/2016 13:45:56	componentmove	Component to move	1

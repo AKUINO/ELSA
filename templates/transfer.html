@@ -45,26 +45,26 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <div class="col-sm-9">
 		<select name = "object" class="form-control" id="inputPosition">
 		    <optgroup label="$c.AllMessages.elements['batch'].getName(self.lang)">
-		    $for k in c.AllBatches.elements.keys():
-			<option value="b_$k"
-			    $if not myID == 'new':
-				$if 'b' == elem.get_type() and k == elem.getID() :
-				    selected
-			>$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang) </option>
+            $for k in c.AllBatches.elements.keys():
+                <option value="b_$k"
+                    $if not myID == 'new':
+                        $if 'b' == elem.get_type() and k == elem.getID() :
+                            selected
+                >$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang) </option>
 		    <optgroup label="$c.AllMessages.elements['equipment'].getName(self.lang)">
-		    $for k in c.AllEquipments.elements.keys():
-			<option value="e_$k"
-			    $if not myID == 'new':
-				$if 'e' == elem.get_type() and k == elem.getID() :
-				    selected			
-			>$c.AllEquipments.elements[k].fields['acronym'] - $c.AllEquipments.elements[k].getName(self.lang)</option>
+            $for k in c.AllEquipments.elements.keys():
+                <option value="e_$k"
+                    $if not myID == 'new':
+                        $if 'e' == elem.get_type() and k == elem.getID() :
+                            selected			
+                >$c.AllEquipments.elements[k].fields['acronym'] - $c.AllEquipments.elements[k].getName(self.lang)</option>
 		    <optgroup label="$c.AllMessages.elements['container'].getName(self.lang)">
-		    $for k in c.AllContainers.elements.keys():
-			<option value="c_$k"
-			    $if not myID == 'new':
-				$if 'c' == elem.get_type() and k == elem.getID() :
-				    selected
-			>$c.AllContainers.elements[k].fields['acronym'] - $c.AllContainers.elements[k].getName(self.lang)</option>
+            $for k in c.AllContainers.elements.keys():
+                <option value="c_$k"
+                    $if not myID == 'new':
+                        $if 'c' == elem.get_type() and k == elem.getID() :
+                            selected
+                >$c.AllContainers.elements[k].fields['acronym'] - $c.AllContainers.elements[k].getName(self.lang)</option>
 		</select>
 	    </div>
 	</div>
@@ -74,26 +74,26 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <div class="col-sm-9">
 		<select name = "position" class="form-control" id="inputPosition">
 		    <optgroup label="$c.AllMessages.elements['place'].getName(self.lang)">
-		    $for k in c.AllPieces.elements.keys():
-			<option value="p_$k"
-			    $if myID == 'update':
-				$if 'p' == transfer.fields['cont_type'] and k == transfer.fields['cont_id'] :
-				    selected
-			>$c.AllPieces.elements[k].fields['acronym'] - $c.AllPieces.elements[k].getName(self.lang) </option>
+            $for k in c.AllPieces.elements.keys():
+                <option value="p_$k"
+                    $if myID == 'update':
+                        $if 'p' == transfer.fields['cont_type'] and k == transfer.fields['cont_id'] :
+                            selected
+                >$c.AllPieces.elements[k].fields['acronym'] - $c.AllPieces.elements[k].getName(self.lang) </option>
 		    <optgroup label="$c.AllMessages.elements['equipment'].getName(self.lang)">
-		    $for k in c.AllEquipments.elements.keys():
-			<option value="e_$k"
-			    $if myID == 'update':
-				$if 'e' == transfer.fields['cont_type'] and k == transfer.fields['cont_id'] :
-				    selected			
-			>$c.AllEquipments.elements[k].fields['acronym'] - $c.AllEquipments.elements[k].getName(self.lang)</option>
+            $for k in c.AllEquipments.elements.keys():
+                <option value="e_$k"
+                    $if myID == 'update':
+                        $if 'e' == transfer.fields['cont_type'] and k == transfer.fields['cont_id'] :
+                            selected			
+                >$c.AllEquipments.elements[k].fields['acronym'] - $c.AllEquipments.elements[k].getName(self.lang)</option>
 		    <optgroup label="$c.AllMessages.elements['container'].getName(self.lang)">
-		    $for k in c.AllContainers.elements.keys():
-			<option value="c_$k"
-			    $if myID == 'update':
-				$if 'c' == transfer.fields['cont_type'] and k == transfer.fields['cont_id'] :
-				    selected
-			>$c.AllContainers.elements[k].fields['acronym'] - $c.AllContainers.elements[k].getName(self.lang)</option>
+            $for k in c.AllContainers.elements.keys():
+                <option value="c_$k"
+                    $if myID == 'update':
+                        $if 'c' == transfer.fields['cont_type'] and k == transfer.fields['cont_id'] :
+                            selected
+                >$c.AllContainers.elements[k].fields['acronym'] - $c.AllContainers.elements[k].getName(self.lang)</option>
 		</select>
 	    </div>
 	</div>
@@ -111,7 +111,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <div class="col-sm-3">
 	    </div>
 	    <div class="col-sm-2">
-		<a href="/places/" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		<a href="/all/$(id1.split('_')[-0])" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>

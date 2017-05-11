@@ -1,0 +1,129 @@
+$def with (mail, type,id)
+
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+$var recursive : False
+$if type == 'new':
+    $var location: exportdata/=exportdata
+$else:
+    $code:
+        elem = c.findAllFromType(type).elements[id]
+    $var location: all/$(type)=$(elem.get_name()) exportdata/$(type)_$(id)=exportdata
+
+<div class="container">
+    <form  method="post" action="" id="exportdata"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
+        <div class="form-group row">
+            <label for="inputElement" class="col-sm-3 col-form-label">$c.AllMessages.elements['component'].getName(self.lang)</label>
+            <div class="col-sm-9">
+            <select name = "element" class="form-control" id="inputElement">
+                <optgroup label="$c.AllMessages.elements['place'].getName(self.lang)">
+                $for k in c.AllPieces.elements.keys():
+                    <option value="p_$k"
+                        $if type != 'new':
+                            $if 'p' == type and k == id :
+                                selected
+                    >$c.AllPieces.elements[k].fields['acronym'] - $c.AllPieces.elements[k].getName(self.lang) </option>
+                <optgroup label="$c.AllMessages.elements['equipment'].getName(self.lang)">
+                $for k in c.AllEquipments.elements.keys():
+                    <option value="e_$k"
+                        $if type != 'new':
+                            $if 'e' == type and k == id :
+                                selected			
+                    >$c.AllEquipments.elements[k].fields['acronym'] - $c.AllEquipments.elements[k].getName(self.lang)</option>
+                <optgroup label="$c.AllMessages.elements['container'].getName(self.lang)">
+                $for k in c.AllContainers.elements.keys():
+                    <option value="c_$k"
+                        $if type != 'new':
+                            $if 'c' == type and k == id :
+                                selected
+                    >$c.AllContainers.elements[k].fields['acronym'] - $c.AllContainers.elements[k].getName(self.lang)</option>
+                <optgroup label="$c.AllMessages.elements['batch'].getName(self.lang)">
+                $for k in c.AllBatches.elements.keys():
+                    <option value="b_$k"
+                        $if type != 'new':
+                            $if 'b' == type and k == id :
+                                selected
+                    >$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang)</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-group row">
+            <label class="col-sm-6 col-form-label">$c.AllMessages.elements['alarm'].getName(self.lang)</label>
+            <span class="glyphicon glyphicon-remove-circle"> </span>
+            <label class="switch">
+                <input name="alarm" type="checkbox" value="1" checked >
+                <div class="slider round"></div>
+            </label>
+            <span class="glyphicon glyphicon-ok-circle"> </span>
+        </div>
+        
+        <div class="form-group row">
+            <label class="col-sm-6 col-form-label">$c.AllMessages.elements['manualdata'].getName(self.lang)</label>
+            <span class="glyphicon glyphicon-remove-circle"> </span>
+            <label class="switch">
+                <input name="manualdata" type="checkbox" value="1" checked >
+                <div class="slider round"></div>
+            </label>
+            <span class="glyphicon glyphicon-ok-circle"> </span>
+        </div>
+        
+        <div class="form-group row">
+            <label  class="col-sm-6 col-form-label">$c.AllMessages.elements['transfer'].getName(self.lang)</label>
+            <span class="glyphicon glyphicon-remove-circle"> </span>
+            <label class="switch">
+                <input name="transfer" type="checkbox" value="1" checked>
+                <div class="slider round"></div>
+            </label>
+            <span class="glyphicon glyphicon-ok-circle"> </span>
+        </div>
+        
+        <div class="form-group row">
+            <label  class="col-sm-6 col-form-label">$c.AllMessages.elements['valuesensor'].getName(self.lang)</label>
+            <span class="glyphicon glyphicon-remove-circle"> </span>
+            <label class="switch">
+                <input  name="valuesensor" type="checkbox" value="1" >
+                <div class="slider round"></div>
+            </label>
+            <span class="glyphicon glyphicon-ok-circle"> </span>
+        </div>
+        
+        <div class="form-group row">
+            <label class="col-sm-6 col-form-label">$c.AllMessages.elements['specialvalue'].getName(self.lang)</label>
+            <span class="glyphicon glyphicon-remove-circle"> </span>
+            <label class="switch">
+                <input  name="specialvalue" type="checkbox" value="1" checked>
+                <div class="slider round"></div>
+            </label>
+            <span class="glyphicon glyphicon-ok-circle"> </span>
+        </div>
+        
+        <div class="form-group row">
+            <div class="col-sm-1">
+            </div>
+            
+            <div class="col-sm-2">
+                $if type != 'new':
+                    <a href="/all/$(type)" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+                $else:
+                    <a href="/" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+            </div>
+            
+            <div class="col-sm-2">
+            </div>
+            
+            <div class="col-sm-2">
+                <button type="submit" class="btn btn-primary btn-block" name = "download" value ="1">Download</button>
+            </div> 
+            
+            <div class="col-sm-2">
+            </div>
+            
+            <div class="col-sm-2">
+                <button href="/" type="submit" class="btn btn-primary btn-block"name = "web" value ="1">On Web</button>
+            </div>
+            
+            <div class="col-sm-1">
+            </div>
+        </div>
+    </form>
+</div>

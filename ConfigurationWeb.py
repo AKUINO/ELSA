@@ -589,19 +589,85 @@ class WebListing():
         return render.index(False,'')
         
     def getRender(self,id,mail, error):
+	#try:
+	typeobject = id.split('_')[0]
+	idobject = id.split('_')[1]
+	if typeobject in 'pceb':
+	    return render.listingcomponent(mail,idobject,typeobject)
+	elif typeobject == 'g':
+	    return render.listinggroup(mail,idobject)
+	else:
+	    return render.notfound()
+	"""except :
+	    return render.notfound()"""
+       
+class WebExportData():        
+    def GET(self, type, id):
+        mail = isConnected()
+        if mail is not None:
+            return self.getRender(type, id,mail)
+        return render.index(False,'')
+	
+    def POST(self,type, id):
+	mail = isConnected()
+        user  = c.connectedUsers.users[mail].cuser
+        if mail is not None:
+	    infoCookie = mail + ',' + user.fields['password']
+            update_cookie(infoCookie)
+            data = web.input(placeImg={})
+	    cond = {}
+	    cond['alarm'] = True if 'alarm' in data else False
+	    cond['manualdata'] = True if 'manualdata' in data else False
+	    cond['transfer'] = True if 'transfer' in data else False
+	    cond['specialvalue'] = True if 'specialvalue' in data else False
+	    cond['valuesensor'] = True if 'valuesensor' in data else False
+            method = data.get("method","malformed")
+	    elem = c.findAllFromType(data['element'].split('_')[0]).elements[data['element'].split('_')[1]]
+	    tmp = elsa.ExportData(c,elem,cond,user)
+	    tmp.create_export()
+	    if "download" in data :
+		tmp.write_csv()
+		raise web.seeother('/exportdata/'+str(type)+'_'+str(id)+'/exportdata.csv')
+	    else:
+		user.exportdata = tmp
+		raise web.seeother('/datatable/'+str(type)+'_'+str(id))
+	return render.index(False,'')
+        
+    def getRender(self,type, id,mail):
 	try:
-	    typeobject = id.split('_')[0]
-	    idobject = id.split('_')[1]
-	    if typeobject in 'pceb':
-		return render.listingcomponent(mail,idobject,typeobject)
-	    elif typeobject == 'g':
-		return render.listinggroup(mail,idobject)
+	    if type in 'cpeb':
+		return render.exportdata(mail,type, id)
 	    else:
 		return render.notfound()
 	except :
 	    return render.notfound()
-       
-        
+	    
+class WebDataTable():        
+    def GET(self, type, id):
+        mail = isConnected()
+        if mail is not None:
+            return self.getRender(type, id,mail)
+        return render.index(False,'')
+	      
+    def getRender(self,type, id,mail):
+	try:
+	    if type in 'cpeb':
+		return render.datatable(mail,type, id)
+	    else:
+		return render.notfound()
+	except :
+	    return render.notfound()
+	    
+class WebDownloadData():     
+    def GET(self,id1,id2, filename):
+        try:
+	    web.header('Content-Disposition', 'attachment; filename="'+str(filename)+'"')
+	    web.header('Content-type','text/tab-separated-values')
+	    web.header('Content-transfer-encoding','binary')
+	    f = open(elsa.csvDir + filename)
+            return f.read()  
+        except IOError: 
+            web.notfound()
 
 def connexion(username,password):
     user = c.AllUsers.getUser(username)
@@ -631,7 +697,7 @@ def main():
 
     global c, render
     try:
-        web.config.debug = False
+        web.config.debug = True
         render=web.template.render('templates/', base='layout')
         urls = (
             '/', 'WebIndex',
@@ -656,6 +722,9 @@ def main():
 	    '/modal/(.+)_(.+)', 'WebModal',  
 	    '/menu/(.+)_(.+)', 'WebMenu',  
 	    '/allmenu/(.+)_(.+)', 'WebAllmenu',  
+	    '/exportdata/(.+)_(.+)/(.+)', 'WebDownloadData',
+	    '/exportdata/(.+)_(.+)', 'WebExportData',  
+	    '/datatable/(.+)_(.+)', 'WebDataTable',  
         )
 
         #Configuration Singleton ELSA
