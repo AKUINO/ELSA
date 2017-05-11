@@ -21,7 +21,6 @@
 # THE SOFTWARE.
 import logging
 import subprocess
-import traceback
 
 import smbus
 

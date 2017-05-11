@@ -5,8 +5,8 @@ from PIL import ImageDraw
 from PIL import ImageFont
 import datetime
 import time
-import SSD1306
 import threading
+import traceback
 
 
 class I2CScreen:    
@@ -15,7 +15,7 @@ class I2CScreen:
     font = None
     begScreen = 4
     endScreen = 131
-    lineHeight = 13
+    lineHeight = 10
     newConnect = False
     i2cPresent = True
     refreshDisplay = datetime.datetime.now()
@@ -75,6 +75,8 @@ class I2CScreen:
     def show(self,pos,message):
         if message and self.i2cPresent:
             lgText = self.draw.textsize(message,font=self.font)[0]
+            if pos < 0:
+                pos = self.endScreen - lgText - 1
             self.draw.text((pos,self.linePos), message, font=self.font,fill=255)
             return pos+lgText+2
         else:
@@ -83,7 +85,9 @@ class I2CScreen:
     def showBW(self,pos,message):
         if message and self.i2cPresent:
             lgText = self.draw.textsize(message,font=self.font)[0]
-            self.draw.rectangle((pos-2,self.linePos,pos+lgText+2,self.linePos+self.lineHeight-2),fill=255)
+            if pos < 0:
+                pos = self.endScreen - lgText - 1
+            self.draw.rectangle((pos-2,self.linePos, pos+lgText-1,self.linePos+self.lineHeight-2),fill=255)
             self.draw.text((pos,self.linePos), message, font=self.font,fill=0)
             return pos+lgText+2
         else:

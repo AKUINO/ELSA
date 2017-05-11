@@ -2,10 +2,8 @@
 # -*- coding: utf-8 -*-
 import web
 import ConfigurationELSA as elsa
-import time
 import myuseful as useful
 import traceback
-import os
 import sys
 
 global c, render
@@ -45,7 +43,7 @@ class WebObject():
         
     def POST(self):
         data = web.input(nifile={})
-        method = data.get("method","malformed")
+        #method = data.get("method","malformed")
         connectedUser = connexion(data._username_,data._password_)
         if connectedUser is not None:
             infoCookie = data._username_ + ',' + connectedUser.fields['password']
@@ -66,13 +64,12 @@ class WebObjectUpdate():
         user  = c.connectedUsers.users[mail].cuser
         if mail is not None:
             currObject = c.getObject(id,self.name)
-            imgDirectory = 'static/img'
             infoCookie = mail + ',' + user.fields['password']
             update_cookie(infoCookie)
             if currObject is None:
                 raise web.seeother('/')
             data = web.input(placeImg={})
-            method = data.get("method","malformed")
+            #method = data.get("method","malformed")
             cond = currObject.validate_form(data, c, user.fields['language'])
             if cond is True:
                 for key in c.getFieldsname(self.name):
@@ -158,13 +155,12 @@ class WebEdit():
         user  = c.connectedUsers.users[mail].cuser
         if mail is not None:
             currObject = c.getObject(id, type)
-            imgDirectory = 'static/img'
             infoCookie = mail + ',' + user.fields['password']
             update_cookie(infoCookie)
             if currObject is None:
                 raise web.seeother('/')
             data = web.input(placeImg={})
-            method = data.get("method","malformed")
+            #method = data.get("method","malformed")
 	    print data
             cond = currObject.validate_form(data, c, user.fields['language'])
             if cond is True:
@@ -335,7 +331,7 @@ class WebPermission(WebObjectUpdate):
             if currObject is None:
                 return render.notfound()
             data = web.input(placeImg={})
-            method = data.get("method","malformed")
+            #method = data.get("method","malformed")
             print data
             for k,group in currObject.groups.items():
                 print  unicode(k) + '\n'
@@ -387,11 +383,10 @@ class WebCreateTransfer(WebObjectDoubleID):
             currObject = c.getObject(getID,self.name)
 	    if currObject is None :
 		return render.notfound()
-            imgDirectory = 'static/img'
             infoCookie = mail + ',' + user.fields['password']
             update_cookie(infoCookie)
             data = web.input(placeImg={})
-            method = data.get("method","malformed")
+            #method = data.get("method","malformed")
             cond = currObject.validate_form(data, c, user.fields['language'])
             if cond is True :
                 if currObject is None:
@@ -469,11 +464,10 @@ class WebManualData(WebObjectDoubleID):
             currObject = c.getObject(getID,self.name)
 	    if currObject is None :
 		return render.notfound()
-            imgDirectory = 'static/img'
             infoCookie = mail + ',' + user.fields['password']
             update_cookie(infoCookie)
             data = web.input(placeImg={})
-            method = data.get("method","malformed")
+            #method = data.get("method","malformed")
             cond = currObject.validate_form(data, c, user.fields['language'])
             if cond is True :
                 if currObject is None:
@@ -486,8 +480,8 @@ class WebManualData(WebObjectDoubleID):
                 currObject.save(c,user)
 		if 'a_id' in data :
 		    if len(data['a_id']) >0 :
-			alarm = c.AllAlarms.elements[data['a_id']].launch_alarm(currObject,c)
-                allobjects = c.findAllFromType(currObject.fields['object_type']).elements[currObject.fields['object_id']].add_data(currObject)
+			c.AllAlarms.elements[data['a_id']].launch_alarm(currObject,c)
+                c.findAllFromType(currObject.fields['object_type']).elements[currObject.fields['object_id']].add_data(currObject)
                 return self.getListing(mail, id1)
             else:
                 if id2 == 'new' :
@@ -499,6 +493,78 @@ class WebManualData(WebObjectDoubleID):
 	try :
 	    if len(id1.split('_')) >1:
 		return render.manualdata(id1,id2,mail, mess)
+	except:
+	    return render.notfound()
+        return render.notfound()
+    
+    def getListing(self,mail, id):
+	try :
+	    myType = id.split('_')[0]
+	    myID = id.split('_')[1]
+	    return render.itemdata(myType,myID,mail)
+	except :
+	    return render.notfound()
+
+class WebPouringList(WebObjectUpdate):
+    def __init__(self):
+        self.name=u"WebPouring"
+        
+    def getRender(self, id, mail, mess):
+	myID = id.split('_')[1]
+	myType = id.split('_')[0]
+	if myType in 'pceb':
+	    currObject = c.getObject(myID,myType)
+	    if currObject is None :
+		return render.notfound()
+	    return render.itemdata(myType,myID,mail)
+	elif myType == 'm':
+		return render.listingmeasures(mail,myID)
+	return render.notfound()
+    
+    def getListing(self,mail):
+        raise web.seeother('/')
+
+class WebPouring(WebObjectDoubleID):
+    def __init__(self):
+        self.name=u"WebPouring"
+        
+    def POST(self, id1, id2):
+        mail = isConnected()
+        user  = c.connectedUsers.users[mail].cuser
+        if mail is not None:
+            getID = id2
+            currObject = c.getObject(getID,self.name)
+	    if currObject is None :
+		return render.notfound()
+            infoCookie = mail + ',' + user.fields['password']
+            update_cookie(infoCookie)
+            data = web.input(placeImg={})
+            #method = data.get("method","malformed")
+            cond = currObject.validate_form(data, c, user.fields['language'])
+            if cond is True :
+                if currObject is None:
+                    return render.notfound()
+                currObject.fields['time'] = data['time']
+                currObject.add_batch(data['inputbatch'])
+                currObject.add_measure(data['measure'])
+                currObject.fields['value'] = data['value']
+                currObject.fields['remark'] = data['remark']
+                currObject.save(c,user)
+		if 'a_id' in data :
+		    if len(data['a_id']) >0 :
+			c.AllAlarms.elements[data['a_id']].launch_alarm(currObject,c)
+                c.findAllFromType(currObject.fields['object_type']).elements[currObject.fields['object_id']].add_data(currObject)
+                return self.getListing(mail, id1)
+            else:
+                if id2 == 'new' :
+                    currObject.delete(c)
+                return self.getRender(id1,id2, mail, cond)
+        raise web.seeother('/')
+    
+    def getRender(self,id1, id2, mail, mess = None):
+	try :
+	    if len(id1.split('_')) >1:
+		return render.pouring(id1,id2,mail, mess)
 	except:
 	    return render.notfound()
         return render.notfound()
@@ -576,6 +642,8 @@ def main():
             '/group/(.+)', 'WebPermission',
             '/measures/(.+)/(.+)', 'WebManualData',
             '/measures/(.+)', 'WebManualDataList',
+            '/pourings/(.+)/(.+)', 'WebPouring',
+            '/pourings/(.+)', 'WebPouringList',
             '/graphic/(.+)_(.+)/(.+)', 'getRRD2',
             '/monitoring/', 'WebMonitoring',
             '/monitoring/(.+)', 'getRRD',
@@ -606,7 +674,7 @@ def main():
             c.UpdateThread.join()
             c.RadioThread.join()
 # Replaced by an abstract socket:
-#            os.unlink(c.pidfile)
+#            unlink(c.pidfile)
         print 'Exit system'
 
 if __name__ == "__main__":
