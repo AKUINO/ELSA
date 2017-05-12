@@ -9,6 +9,7 @@ import unicodecsv
 import sys
 import threading
 import os
+import os.path
 import rrdtool
 import pyownet
 import serial
@@ -552,6 +553,13 @@ class ConfigurationObject():
             return directory + '/b/batch_'+self.fields['b_id']+'.' 
         else:
             return None
+
+    def isImaged(self):
+        fileName = self.getImageDirectory()
+        if fileName is None:
+            return False
+        else:
+            return os.path.isfile(fileName+".jpg")
 
     def setName(self,key,value,user,keyColumn):
 	if value != '' and value is not None:
@@ -2357,6 +2365,14 @@ class Measure(ConfigurationObject):
     def get_name(self):
 	return 'measure'
 
+    def get_sensors_in_component(self, config):
+	listSensor = []
+	for k, sensor in config.AllSensors.elements.items():
+	    if sensor.is_in_component('m',self.id):
+		listSensor.append(k)
+	return listSensor
+
+
 class Sensor(ConfigurationObject):
     def __init__(self):
 	ConfigurationObject.__init__(self)
@@ -2420,7 +2436,9 @@ class Sensor(ConfigurationObject):
 	elif typeComponent == 'e' :
 	    self.fields['e_id'] = tmp[-1]
 	    self.fields['p_id'] = ''
-	    self.fields['c_id'] = ''	    
+	    self.fields['c_id'] = ''
+	elif typeComponent == 'm' :
+            self.fields['m_id'] = tmp[-1]
 	    
     def add_measure(self, data):
 	tmp = data.split('_')
@@ -2562,6 +2580,8 @@ class Sensor(ConfigurationObject):
 	    return id == self.fields['p_id']
 	elif type == 'c':
 	    return id == self.fields['c_id']
+	elif type == 'm':
+	    return id == self.fields['m_id']
 	return False
 	
 	

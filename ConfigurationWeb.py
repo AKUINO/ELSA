@@ -458,10 +458,10 @@ class WebManualData(WebObjectDoubleID):
         
     def POST(self, id1, id2):
         mail = isConnected()
-        user  = c.connectedUsers.users[mail].cuser
         if mail is not None:
+            user  = c.connectedUsers.users[mail].cuser
             getID = id2
-            currObject = c.getObject(getID,self.name)
+            currObject = c.getObject(getID,"d")
 	    if currObject is None :
 		return render.notfound()
             infoCookie = mail + ',' + user.fields['password']
@@ -494,6 +494,7 @@ class WebManualData(WebObjectDoubleID):
 	    if len(id1.split('_')) >1:
 		return render.manualdata(id1,id2,mail, mess)
 	except:
+            traceback.print_exc()
 	    return render.notfound()
         return render.notfound()
     
@@ -503,6 +504,7 @@ class WebManualData(WebObjectDoubleID):
 	    myID = id.split('_')[1]
 	    return render.itemdata(myType,myID,mail)
 	except :
+            traceback.print_exc()
 	    return render.notfound()
 
 class WebPouringList(WebObjectUpdate):
@@ -533,7 +535,7 @@ class WebPouring(WebObjectDoubleID):
         user  = c.connectedUsers.users[mail].cuser
         if mail is not None:
             getID = id2
-            currObject = c.getObject(getID,self.name)
+            currObject = c.getObject(getID,"v")
 	    if currObject is None :
 		return render.notfound()
             infoCookie = mail + ',' + user.fields['password']
