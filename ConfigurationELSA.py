@@ -2167,7 +2167,7 @@ class ExportData():
 	
     def transform_object_to_export_data(self, elem):
 	tmp = self.get_new_line()
-        if self.cond['acronym'] is True :
+        if self.cond['acronym'] is True and elem.get_type() != 'al':
             tmp['user'] = self.config.AllUsers.elements[elem.creator].fields['acronym']
         else :
 	    tmp['user'] = elem.creator
@@ -2209,10 +2209,14 @@ class ExportData():
 	    sensor = self.config.AllSensors.elements[elem.fields['cpehm_id']]
 	    tmp['timestamp'] = elem.fields['begintime']
             tmp['type'] = 'ALOG'
-	    tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
-	    tmp['duration'] = elem.fields['alarmtime']
+            if self.cond['acronym'] is True :
+                tmp[elem.fields['cont_type']+'_id'] = self.config.findAllFromType(elem.fields['cont_type']).elements[elem.fields['cont_id']].fields['acronym']
+                tmp['sensor'] = self.config.AllSensors.elements[elem.fields['cpehm_id']].fields['acronym']
+            else:
+	        tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
+                tmp['sensor'] = elem.fields['cpehm_id']
+	    tmp['duration'] = useful.date_to_timestamp(elem.fields['begin'],datetimeformat) - int(elem.fields['begintime'])
 	    tmp['category'] = elem.fields['degree']
-	    tmp['sensor'] = elem.fields['cpehm_id']
 	    tmp['value'] = elem.fields['value']
 	    tmp['unit'] = self.config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
 	elif elem.get_type() == 'd' :
