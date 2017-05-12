@@ -2314,27 +2314,15 @@ class Alarm(ConfigurationObject):
 	    mess = config.AllMessages.elements['alarmmessage'].getName(lang)
 	    cpe = ''
 	    elem = ''
-	    currObject = config.AllAlarmLogs.newObject()
 	    if not sensor.fields['p_id'] == '':
 		cpe = config.AllMessages.elements['place'].getName(lang)
 		elem = config.AllPieces.elements[sensor.fields['p_id']]
-		currObject.fields['cont_type'] = 'p'
 	    elif not sensor.fields['e_id'] == '':
 		cpe = config.AllMessages.elements['equipment'].getName(lang)
 		elem = config.AllPieces.elements[sensor.fields['e_id']]
-		currObject.fields['cont_type'] = 'e'
 	    elif not sensor.fields['c_id'] == '':
 		cpe = config.AllMessages.elements['container'].getName(lang)
 		elem = config.AllPieces.elements[sensor.fields['c_id']]
-		currObject.fields['cont_type'] = 'c'
-	    currObject.fields['cont_id'] = elem.getID()
-	    currObject.fields['cpehm_id'] = sensor.getID()
-	    currObject.fields['value'] = unicode(sensor.lastvalue)
-	    currObject.fields['typealarm'] = unicode(sensor.actualAlarm)
-	    currObject.fields['begintime'] = unicode(sensor.time)
-	    currObject.fields['alarmtime'] = unicode(int(sensor.time) * sensor.countActual)
-	    currObject.fields['degree'] = unicode(sensor.degreeAlarm)
-	    currObject.save(config)
 	    return unicode.format(mess,config.HardConfig.hostname, cpe, elem.getName(lang), elem.fields['acronym'], sensor.getName(lang), sensor.fields['acronym'], unicode(sensor.lastvalue), sensor.actualAlarm, useful.timestamp_to_date(sensor.time, datetimeformat), unicode(sensor.degreeAlarm))
 	else :
 	    mess = config.AllMessages.elements['alarmmanual'].getName(lang)
@@ -2376,6 +2364,7 @@ class Alarm(ConfigurationObject):
 	
     def launch_alarm(self, sensor, config):
 	if sensor.get_type() == 'cpehm' :
+	    self.create_log(sensor,config)
 	    level = sensor.degreeAlarm
 	    if level == 1 :
 		print 'Send mails, level 1'
@@ -2407,7 +2396,26 @@ class Alarm(ConfigurationObject):
 	
     def get_name(self):
 	return 'alarm'
-	    
+	
+    def create_log(self, sensor, config):
+	currObject = config.getObject('new','al')
+	if not sensor.fields['p_id'] == '':
+	    elem = config.AllPieces.elements[sensor.fields['p_id']]
+	    currObject.fields['cont_type'] = 'p'
+	elif not sensor.fields['e_id'] == '':
+	    elem = config.AllPieces.elements[sensor.fields['e_id']]
+	    currObject.fields['cont_type'] = 'e'
+	elif not sensor.fields['c_id'] == '':
+	    elem = config.AllPieces.elements[sensor.fields['c_id']]
+	    currObject.fields['cont_type'] = 'c'
+	currObject.fields['cont_id'] = elem.getID()
+	currObject.fields['cpehm_id'] = sensor.getID()
+	currObject.fields['value'] = unicode(sensor.lastvalue)
+	currObject.fields['typealarm'] = unicode(sensor.actualAlarm)
+	currObject.fields['begintime'] = unicode(sensor.time)
+	currObject.fields['alarmtime'] = unicode(int(sensor.time) * sensor.countActual)
+	currObject.fields['degree'] = unicode(sensor.degreeAlarm)
+	currObject.save(config)
 	
 class Measure(ConfigurationObject):
 
