@@ -124,7 +124,7 @@ class Configuration():
 	self.AllPourings.load()
 	self.AllAlarmLogs.load()
 	self.UpdateThread.start()
-	self.RadioThread.start()
+	#self.RadioThread.start()
     
     def findAllFromName(self,className):
         if className == User.__name__:
@@ -2044,6 +2044,7 @@ class ExportData():
 		    lastSensor = e
 		if infos is not None and self.cond['valuesensor'] is True:
 		    self.add_value_from_sensors(infos,lastSensor)
+                    print infos
 		count += 1
 
     def write_csv(self):
@@ -2061,7 +2062,7 @@ class ExportData():
 	
     def add_value_from_sensors(self, infos, component):
 	sensors = component.get_sensors_in_component(self.config)
-	for a in sensors :
+	for a in infos.keys() :
 	    self.min = 999999
 	    self.max = -99999
 	    self.average = 0.0
@@ -2138,8 +2139,10 @@ class ExportData():
 	tmp = component.get_transfers_in_time_interval(begin,end)
 	if len(tmp) > 0 :
 	    for t in tmp :
-		self.get_all_in_component(t.get_cont(),begin,end,infos)
+                print "Reccursion ok begin : " + str(begin) + "     end : " + str(end)
+		infos = self.get_all_in_component(t.get_cont(),begin,end,infos)
 	for a in sensors:
+            print "chargement data  begin : " + str(begin) + "     end : " + str(end)
 	    infos[a] = self.config.AllSensors.elements[a].fetch(begin,end)
 	return infos
 	
@@ -2277,11 +2280,17 @@ class Alarm(ConfigurationObject):
 	    currObject.fields['begintime'] = unicode(sensor.time)
 	    currObject.fields['alarmtime'] = unicode(int(sensor.time) * sensor.countActual)
 	    currObject.fields['degree'] = unicode(sensor.degreeAlarm)
-	    print currObject
 	    currObject.save(config)
 	    return unicode.format(mess,config.HardConfig.hostname, cpe, elem.getName(lang), elem.fields['acronym'], sensor.getName(lang), sensor.fields['acronym'], unicode(sensor.lastvalue), sensor.actualAlarm, useful.timestamp_to_date(sensor.time, datetimeformat), unicode(sensor.degreeAlarm))
 	else :
-	    return unicode('Il manque le message')
+	    mess = config.AllMessages.elements['alarmmanual'].getName(lang)
+	    elem = config.findAllFromType(sensor.fields['object_type']).elements[sensor.fields['object_id']]
+	    name = config.AllMessages.elements[elem.get_name()].getName(lang)
+	    if sensor.fields['m_id'] != '' :
+		measure = config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
+	    else :
+		measure = ''
+	    return unicode.format(mess,config.HardConfig.hostname, name, elem.getName(lang), elem.fields['acronym'],unicode(sensor.fields['value']), measure,sensor.fields['remark'], sensor.fields['time'])
        
 	
     def get_alarm_title(self, sensor, config, lang):
@@ -2303,7 +2312,13 @@ class Alarm(ConfigurationObject):
 		equal = '>'
 	    return unicode.format(title, code, unicode(sensor.degreeAlarm), sensor.fields['acronym'], unicode(sensor.lastvalue), equal, sensor.fields[sensor.actualAlarm], config.AllMeasures.elements[sensor.fields['m_id']].fields['unit'], sensor.getName(lang))
 	else:
-	    return unicode('il manque un titre')
+	    title = config.AllMessages.elements['alarmmanualtitle'].getName(lang)
+	    elem = config.findAllFromType(sensor.fields['object_type']).elements[sensor.fields['object_id']]
+	    if sensor.fields['m_id'] != ''  :
+		measure = config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
+	    else :
+		measure = ''
+	    return unicode.format(title,sensor.fields['value'],measure,elem.getName(lang))
 	
     def launch_alarm(self, sensor, config):
 	if sensor.get_type() == 'cpehm' :
@@ -2693,7 +2708,12 @@ class Transfer(ConfigurationObject):
 	if tmp == '':
 	    return True
 	return tmp
+    def get_source(self):
+	return self.config.findAllFromType(self.fields['object_type']).elements[self.fields['object_id']]
 	
+    def get_cont(self):
+	return self.config.findAllFromType(self.fields['cont_type']).elements[self.fields['cont_id']]
+		
     def get_name(self):
 	return 'transfer'
 
@@ -2730,15 +2750,8 @@ class Barcode(ConfigurationObject):
     def get_name(self):
 	return 'barcode'
 	
-    def get_source(self):
-	return c.findAllFromType(self.fields['object_type']).elements[self.fields['object_id']]
-	
-    def get_cont(self):
-	return c.findAllFromType(self.fields['cont_type']).elements[self.fields['cont_id']]
-	
 
 class Phase(ConfigurationObject):
-
     def __repr__(self):
         string = self.id + " " + self.fields['name']
         return string
@@ -2750,7 +2763,6 @@ class Phase(ConfigurationObject):
         return string + "\n"
 
 class StepValue():
-
     def __init__(self):
         self.min = 999999
         self.max = -999999
@@ -2760,7 +2772,6 @@ class StepValue():
         self.end = 0
 
 class StepMeasure(ConfigurationObject):
-
     def __repr__(self):
         string = self.fields['seq'] + " " + self.fields['name']
         return string
