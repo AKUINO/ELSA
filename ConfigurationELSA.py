@@ -2078,14 +2078,18 @@ class ExportData():
                     end = sensor['timestamp']
 		    sensor['value'] = str(tmp)
 		    sensor['type'] = 'MES'
+		    timemin = ''
+		    timemax = ''
 		    if tmp is not None:
 			tmp = float(value[1][0])
 			self.count += 1
 			self.average += tmp
 			if tmp < self.min :
 			    self.min = tmp
+			    timemin = value[0]
 			if tmp > self.max :
 			    self.max = tmp
+			    timemax = value[0]
                     sensor['typevalue'] = 'DAT'
 		    self.elements.append(sensor)
 		if self.count >0 :
@@ -2094,21 +2098,23 @@ class ExportData():
 		    sensor1 = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
 		    sensor1['value'] = self.min
 		    sensor1['typevalue'] = 'MIN'
+		    sensor1['timestamp'] = timemin
 		    self.elements.append(sensor1)
 		    sensor2 = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
 		    sensor2['value'] = self.max
 		    sensor2['typevalue'] = 'MAX'
+		    sensor2['timestamp'] = timemax
 		    self.elements.append(sensor2)
 		    sensor3 = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
 		    sensor3['value'] = self.average
 		    sensor3['typevalue'] = 'AVERAGE'
+		    sensor3['timestamp'] = ''
 		    self.elements.append(sensor3)
 		if self.cond['alarm'] is True :
 		    logs = self.config.AllAlarmLogs.get_alarmlog_component(a,begin,end)
 		    for log in logs :
 			tmp = self.transform_object_to_export_data(log)
 			self.elements.append(tmp)	    
-	    
 	
 	
     def load_hierarchy(self):
