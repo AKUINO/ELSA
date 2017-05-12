@@ -2087,10 +2087,10 @@ class ExportData():
 			self.average += tmp
 			if tmp < self.min :
 			    self.min = tmp
-			    timemin = value[0]
+			    timemin = sensor['timestamp']
 			if tmp > self.max :
 			    self.max = tmp
-			    timemax = value[0]
+			    timemax = sensor['timestamp']
                     sensor['typevalue'] = 'DAT'
                     if self.cond['valuesensor'] is True :
 		        self.elements.append(sensor)
