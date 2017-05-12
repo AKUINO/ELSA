@@ -1039,9 +1039,9 @@ class AllAlarmLogs(AllObjects):
 	return AlarmLog()
 	
     def get_alarmlog_component(self, id,begin,end):
-	logs = ()
+	logs = []
 	for k, e in self.elements.items():
-	    time = useful.date_to_timestamp(e.fields['begintime'],datetimeformat)
+	    time = useful.date_to_timestamp(e.fields['begin'],datetimeformat)
 	    if id == e.fields['cpehm_id'] :
 		if time > begin and time < end :
 		    logs.append(e)
@@ -2174,7 +2174,7 @@ class ExportData():
 	    tmp['remark'] = elem.fields['remark']
 	elif elem.get_type() == 'al' :
 	    sensor = self.config.AllSensors.elements[elem.fields['cpehm_id']]
-	    tmp['timestamp'] = elem.fields['begintime']
+	    tmp['timestamp'] = elem.fields['begin']
 	    tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
 	    tmp['duration'] = elem.fields['alarmtime']
 	    tmp['category'] = elem.fields['degree']
