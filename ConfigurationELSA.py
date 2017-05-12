@@ -2021,14 +2021,15 @@ class ExportData():
 		begin = useful.date_to_timestamp(e.fields['time'], datetimeformat)
 		infos = None
 		tmp = self.transform_object_to_export_data(e)
-		if self.cond['manualdata'] is True and e.get_type() == 'd':
-		    self.elements.append(tmp)
-		elif self.cond['transfer'] is True and e.get_type() == 't':
-		    self.elements.append(tmp)
 		if len(self.history)-1 == count :
 		    end = int(time.time())
 		else :
 		    end = useful.date_to_timestamp(self.history[count+1].fields['time'], datetimeformat)
+		if self.cond['manualdata'] is True and e.get_type() == 'd':
+		    self.elements.append(tmp)
+		elif self.cond['transfer'] is True and e.get_type() == 't':
+		    tmp['duration'] = int(end - begin)
+		    self.elements.append(tmp)
 		if e.get_type() == 'd':
 		    if lastSensor != None:
 			infos = self.get_all_in_component(lastSensor,begin,end)
@@ -2061,7 +2062,6 @@ class ExportData():
 	    self.max = -99999
 	    self.average = 0.0
 	    self.count = 0
-            self.elements.append(self.transform_object_to_export_data(self.config.AllSensors.elements[a]))
             if infos[a] is not None :
                 begin = infos[a][0][0]
 	        for value in infos[a]:
@@ -2071,6 +2071,7 @@ class ExportData():
 		    sensor['timestamp'] = value[0]
                     end = sensor['timestamp']
 		    sensor['value'] = str(tmp)
+		    sensor['type'] = 'MES'
 		    if tmp is not None:
 			tmp = float(value[1][0])
 			self.count += 1
@@ -2079,7 +2080,7 @@ class ExportData():
 			    self.min = tmp
 			if tmp > self.max :
 			    self.max = tmp
-                    sensor['typevalue'] = 'BASE'
+                    sensor['typevalue'] = 'DAT'
 		    self.elements.append(sensor)
 		if self.count >0 :
 		    self.average /= self.count
@@ -2169,7 +2170,7 @@ class ExportData():
 	    tmp['value'] = elem.fields['value']
 	    tmp['unit'] = self.config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
 	elif elem.get_type() == 'd' :
-	    tmp['type'] = 'D'
+	    tmp['type'] = 'MAN'
             tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'],datetimeformat)
 	    tmp[elem.fields['object_type']+'_id'] = elem.fields['object_id']
             if elem.fields['m_id'] != '':
@@ -2179,7 +2180,7 @@ class ExportData():
 	    tmp['remark'] = elem.fields['remark']
 	    tmp['user'] = elem.fields['user']
         elif elem.get_type() == 't':
-            tmp['type'] = 'T'
+            tmp['type'] = 'TRF'
             tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'],datetimeformat)
             tmp['remark'] = elem.fields['remark']
             tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
