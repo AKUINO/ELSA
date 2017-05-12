@@ -27,7 +27,7 @@ class I2CScreen:
         self.__dict__.update(kwds)
         self.lock = threading.Lock() #Synchronize screen accesses
 
-        if self.i2cPresent:
+        if self.i2cPresent is True:
             # Initialize library.
             self.disp.begin()
             # Clear display.
@@ -54,12 +54,12 @@ class I2CScreen:
         self.fontG10 = ImageFont.truetype('glyphicons-halflings-regular.ttf', 10)
 
     def clear(self):
-        if self.i2cPresent:
+        if self.i2cPresent is True:
             self.draw.rectangle((self.begScreen,0,self.begScreen+self.width-1,self.height),fill=0)
         self.linePos = 0
 
     def end_line(self):
-        if self.i2cPresent:
+        if self.i2cPresent is True:
             # Display image.
             self.disp.image(self.image)
             try:
@@ -73,7 +73,7 @@ class I2CScreen:
         self.draw.rectangle((self.begScreen,self.linePos,self.begScreen+self.width-1,self.linePos+self.lineHeight-1),fill=0)
 
     def show(self,pos,message):
-        if message and self.i2cPresent:
+        if message and (self.i2cPresent is True):
             lgText = self.draw.textsize(message,font=self.font)[0]
             if pos < 0:
                 pos = self.endScreen - lgText - 1
@@ -83,7 +83,7 @@ class I2CScreen:
             return pos
 
     def showBW(self,pos,message):
-        if message and self.i2cPresent:
+        if message and (self.i2cPresent is True):
             lgText = self.draw.textsize(message,font=self.font)[0]
             if pos < 0:
                 pos = self.endScreen - lgText - 1
