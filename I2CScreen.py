@@ -26,7 +26,7 @@ class I2CScreen:
     def __init__(self, i2cPresent = True, **kwds):
         self.__dict__.update(kwds)
         self.lock = threading.Lock() #Synchronize screen accesses
-
+        self.i2cPresent = i2cPresent
         if self.i2cPresent is True:
             # Initialize library.
             self.disp.begin()
