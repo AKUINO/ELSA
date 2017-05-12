@@ -94,14 +94,14 @@ class Configuration():
 	self.owproxy = None
 
     def load(self):
-        """
+        
         if not self.HardConfig.oled is None:
             # 128x64 display with hardware I2C:
             self.screen = I2CScreen(True, disp = SSD1306.SSD1305_132_64(rst=self.HardConfig.oled_reset,gpio=PIG))
             self.screen.clear()
         else:
             self.screen = I2CScreen(False, disp = None)	
-        """
+        
 	self.AllLanguages.load()
         self.AllUsers.load()
         self.AllPieces.load()
@@ -2068,6 +2068,8 @@ class ExportData():
 	    self.min = 999999
 	    self.max = -99999
 	    self.average = 0.0
+	    timemin = ''
+	    timemax = ''
 	    self.count = 0
             if infos[a] is not None :
                 begin = infos[a][0][0]
@@ -2079,8 +2081,6 @@ class ExportData():
                     end = sensor['timestamp']
 		    sensor['value'] = str(tmp)
 		    sensor['type'] = 'MES'
-		    timemin = ''
-		    timemax = ''
 		    if tmp is not None:
 			tmp = float(value[1][0])
 			self.count += 1
@@ -2482,14 +2482,15 @@ class Sensor(ConfigurationObject):
             hours = (int(minutes / 60) % 24)+100 + 2
             minutes = (minutes % 60)+100
             strnow = unicode(hours)[1:3]+":"+unicode(minutes)[1:3]
-            #pos = config.screen.show(config.screen.begScreen,strnow)
-            #pos = config.screen.showBW(pos+2,self.get_acronym())
-            #pos = config.screen.show(pos+2,unicode(round(float(value),1)))
+	    if config.screen is not None :
+		pos = config.screen.show(config.screen.begScreen,strnow)
+		pos = config.screen.showBW(pos+2,self.get_acronym())
+		pos = config.screen.show(pos+2,unicode(round(float(value),1)))
             if self.fields['m_id']:
                 id_measure = unicode(self.fields['m_id'])
-                if id_measure in config.AllMeasures.elements:
+                if id_measure in config.AllMeasures.elements and config.screen is not None:
                     measure = config.AllMeasures.elements[id_measure]
-                    #pos = config.screen.show(pos,measure.fields['unit'])
+                    pos = config.screen.show(pos,measure.fields['unit'])
                 
 	    typeAlarm,symbAlarm = self.getTypeAlarm(value)
             print (u'Sensor update Channel : '+ self.fields['channel'] + u'    ' + self.fields['sensor'] + u' ==> ' + self.fields['acronym'] + u' = ' + unicode(value))
@@ -2498,9 +2499,11 @@ class Sensor(ConfigurationObject):
 	    else:
 		if not (( typeAlarm == 'min' and self.actualAlarm == 'minmin' ) or ( typeAlarm == 'max' and self.actualAlarm == 'maxmax')) :
 		    self.actualAlarm = typeAlarm
-                #config.screen.showBW(-1,symbAlarm)
+		if config.screen is not None :
+		    config.screen.showBW(-1,symbAlarm)
 		self.launchAlarm(config, now)
-            #config.screen.end_line()
+	    if config.screen is not None :
+		config.screen.end_line()
 	else :
 	    #TODO : si on ne sait pas se connecter au senseur, rajouter Alarme " Erreur Senseur not working"
 	    print 'Impossible d acceder au senseur TO DO'
