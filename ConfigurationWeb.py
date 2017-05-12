@@ -655,6 +655,7 @@ class WebDataTable():
         return render.index(False,'')
               
     def getRender(self,type, id,mail):
+        """
         try:
             if type in 'cpeb':
                 return render.datatable(mail,type, id)
@@ -662,6 +663,8 @@ class WebDataTable():
                 return render.notfound()
         except :
             return render.notfound()
+        """
+        return render.datatable(mail,type, id)
             
 class WebDownloadData():     
     def GET(self,id1,id2, filename):

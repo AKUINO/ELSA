@@ -18,10 +18,14 @@ $if elem is not None:
 		    $if line['value'] != 'None' :
 			<tr>
 			    $for e in elem.fieldnames:
-				<td>$line[e]</td>
+                                $if e == 'timestamp':
+                                    $if line['timestamp'] != '' :
+                                        <td>$useful.timestamp_to_date(int(line['timestamp']),c.get_time_format())</td>
+                                $else :
+				    <td>$line[e]</td>
 			</tr>
 	    </tbody>
 	</table>
     </div>
 $else:
-    FLIIIIIIP
+    -

@@ -302,6 +302,9 @@ class Configuration():
 	if type == 'c' or type == 'p' or type == 'e' or type == 'b':
 	    return True
 	return False
+
+    def get_time_format(self):
+        return datetimeformat
 	
 	
 
@@ -2018,7 +2021,8 @@ class ExportData():
 	    self.load_data()
 	    self.load_transfers()
 	    self.load_hierarchy()
-	    self.elements.append(self.transform_object_to_export_data(self.b))
+            bexport = self.transform_object_to_export_data(self.b)
+	    self.elements.append(bexport)
 	    lastSensor = None
 	    count = 0
 	    while count < (len(self.history)):
@@ -2030,6 +2034,7 @@ class ExportData():
 		    end = int(time.time())
 		else :
 		    end = useful.date_to_timestamp(self.history[count+1].fields['time'], datetimeformat)
+                bexport['duration'] = end - bexport['timestamp']
 		if self.cond['manualdata'] is True and e.get_type() == 'd':
 		    self.elements.append(tmp)
 		elif self.cond['transfer'] is True and e.get_type() == 't':
@@ -2098,17 +2103,24 @@ class ExportData():
 		    sensor1 = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
 		    sensor1['value'] = self.min
 		    sensor1['typevalue'] = 'MIN'
+		    sensor1['type'] = 'MES'
 		    sensor1['timestamp'] = timemin
+                    sensor1['remark'] = ''
 		    self.elements.append(sensor1)
 		    sensor2 = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
 		    sensor2['value'] = self.max
 		    sensor2['typevalue'] = 'MAX'
+		    sensor2['type'] = 'MES'
 		    sensor2['timestamp'] = timemax
+                    sensor2['remark'] = ''
 		    self.elements.append(sensor2)
 		    sensor3 = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
 		    sensor3['value'] = self.average
-		    sensor3['typevalue'] = 'AVERAGE'
-		    sensor3['timestamp'] = ''
+		    sensor3['typevalue'] = 'AVG'
+		    sensor3['type'] = 'MES'
+		    sensor3['timestamp'] = end
+                    sensor3['duration'] = end - begin
+                    sensor3['remark'] = ''
 		    self.elements.append(sensor3)
 		if self.cond['alarm'] is True :
 		    logs = self.config.AllAlarmLogs.get_alarmlog_component(a,begin,end)
@@ -2156,7 +2168,7 @@ class ExportData():
     def transform_object_to_export_data(self, elem):
 	tmp = self.get_new_line()
 	tmp['user'] = self.elem.fields['user']
-        tmp['timestamp'] = useful.date_to_timestamp(elem.fields['begin'],datetimeformat)
+        tmp['timestamp'] = useful.date_to_timestamp(elem.created,datetimeformat)
 	if elem.get_type() in 'bcpem' :
 	    tmp[elem.get_type()+'_id'] = elem.getID()
 	    tmp['remark'] = elem.fields['remark']
@@ -2175,6 +2187,7 @@ class ExportData():
 	elif elem.get_type() == 'al' :
 	    sensor = self.config.AllSensors.elements[elem.fields['cpehm_id']]
 	    tmp['timestamp'] = elem.fields['begintime']
+            tmp['type'] = 'ALOG'
 	    tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
 	    tmp['duration'] = elem.fields['alarmtime']
 	    tmp['category'] = elem.fields['degree']
