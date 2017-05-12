@@ -1,6 +1,7 @@
-$def with (mail,type, id,source)	
+$def with (mail,type, id)	
 $var recursive : True
 $code :
+    source = ""
     allElem = c.findAllFromType(type)
     elem = allElem.elements[id]
     keyID = allElem.keyColumn
