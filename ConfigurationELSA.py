@@ -2170,18 +2170,36 @@ class ExportData():
 	tmp['user'] = self.elem.fields['user']
         tmp['timestamp'] = useful.date_to_timestamp(elem.created,datetimeformat)
 	if elem.get_type() in 'bcpem' :
-	    tmp[elem.get_type()+'_id'] = elem.getID()
+	    if cond['acronym'] is True :
+		tmp[elem.get_type()+'_id'] = elem.fields['acronym']
+	    else :
+	     tmp[elem.get_type()+'_id'] = elem.getID()
 	    tmp['remark'] = elem.fields['remark']
 	    tmp['type'] = elem.get_type()
 	    if elem.get_type() == 'm':
 		tmp['m_id'] = elem.getID()
 	elif elem.get_type() == 'cpehm' :
-	    tmp['p_id'] = elem.fields['p_id']
-	    tmp['e_id'] = elem.fields['e_id']
-	    tmp['c_id'] = elem.fields['c_id']
-	    tmp['c_id'] = elem.fields['c_id']
-            tmp['sensor'] = elem.fields['cpehm_id']
-	    tmp['m_id'] = elem.fields['m_id']
+	    if cond['acronym'] is True :
+		if elem.fields['p_id'] != '' :
+		    tmp['p_id'] = self.config.AllPieces.element[elem.fields['p_id']].fields['acronym']
+		else :
+		    tmp['p_id'] = ''
+		if elem.fields['e_id'] != '' :
+		    tmp['e_id'] = self.config.AllEquipments.element[elem.fields['e_id']].fields['acronym']
+		else :
+		    tmp['e_id'] = ''
+		if elem.fields['c_id'] != '' :
+		    tmp['pcid'] = self.config.AllContainers.element[elem.fields['c_id']].fields['acronym']
+		else :
+		    tmp['c_id'] = ''
+		tmp['sensor'] = elem.fields['acronym']
+		tmp['m_id'] = self.config.AllMeasures.elements[tmp['m_id']].fields['acronym']
+	    else :
+		tmp['p_id'] = elem.fields['p_id']
+		tmp['e_id'] = elem.fields['e_id']
+		tmp['c_id'] = elem.fields['c_id']
+		tmp['sensor'] = elem.fields['cpehm_id']
+		tmp['m_id'] = elem.fields['m_id']
 	    tmp['unit'] = self.config.AllMeasures.elements[tmp['m_id']].fields['unit']
 	    tmp['remark'] = elem.fields['remark']
 	elif elem.get_type() == 'al' :
@@ -2201,7 +2219,12 @@ class ExportData():
             if elem.fields['m_id'] != '':
 	        tmp['value'] = elem.fields['value']
 	        tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
-            tmp['m_id'] = elem.fields['m_id']
+		if cond['acronym'] is True:
+		    tmp['m_id'] = self.config.AllMeasures.elements[tmp['m_id']].fields['acronym']
+		else:
+		    tmp['m_id'] = elem.fields['m_id']
+	    else:
+		tmp['m_id'] = elem.fields['m_id']
 	    tmp['remark'] = elem.fields['remark']
 	    tmp['user'] = elem.fields['user']
         elif elem.get_type() == 't':

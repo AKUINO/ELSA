@@ -626,6 +626,7 @@ class WebExportData():
             cond['transfer'] = True if 'transfer' in data else False
             cond['specialvalue'] = True if 'specialvalue' in data else False
             cond['valuesensor'] = True if 'valuesensor' in data else False
+            cond['acronym'] = True if 'acronym' in data else False
             method = data.get("method","malformed")
             elem = c.findAllFromType(data['element'].split('_')[0]).elements[data['element'].split('_')[1]]
             tmp = elsa.ExportData(c,elem,cond,user)
