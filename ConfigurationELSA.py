@@ -2168,10 +2168,13 @@ class ExportData():
 	
     def transform_object_to_export_data(self, elem):
 	tmp = self.get_new_line()
-        if self.cond['acronym'] is True and elem.get_type() != 'al':
-            tmp['user'] = self.config.AllUsers.elements[elem.creator].fields['acronym']
-        else :
+	tmp['user'] = ""
+	if elem.creator:
 	    tmp['user'] = elem.creator
+            if self.cond['acronym'] is True and elem.get_type() != 'al':
+                aUser = self.config.AllUsers.elements[elem.creator]
+                if aUser and aUser.fields['acronym']:
+                    tmp['user'] = aUser.fields['acronym']
         tmp['timestamp'] = useful.date_to_timestamp(elem.created,datetimeformat)
 	if elem.get_type() in 'bcpem' :
 	    if self.cond['acronym'] is True :
