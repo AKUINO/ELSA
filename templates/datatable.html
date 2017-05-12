@@ -15,10 +15,11 @@ $if elem is not None:
 	    </thead>
 	    <tbody>
 		$for line in elem.elements:
-		    <tr>
-			$for e in elem.fieldnames:
-			    <td>$line[e]</td>
-		    </tr>
+		    $if line['value'] != 'None' :
+			<tr>
+			    $for e in elem.fieldnames:
+				<td>$line[e]</td>
+			</tr>
 	    </tbody>
 	</table>
     </div>

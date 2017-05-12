@@ -736,6 +736,7 @@ def main():
         c=elsa.Configuration()
         c.load() 
         web.template.Template.globals['c'] = c
+        web.template.Template.globals['useful'] = useful
         app = web.application(urls, globals())
         app.notfound = notfound
         app.run()       

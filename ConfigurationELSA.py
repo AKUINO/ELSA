@@ -94,13 +94,14 @@ class Configuration():
 	self.owproxy = None
 
     def load(self):
+        """
         if not self.HardConfig.oled is None:
             # 128x64 display with hardware I2C:
             self.screen = I2CScreen(True, disp = SSD1306.SSD1305_132_64(rst=self.HardConfig.oled_reset,gpio=PIG))
             self.screen.clear()
         else:
             self.screen = I2CScreen(False, disp = None)	
-
+        """
 	self.AllLanguages.load()
         self.AllUsers.load()
         self.AllPieces.load()
@@ -2027,14 +2028,15 @@ class ExportData():
 		begin = useful.date_to_timestamp(e.fields['time'], datetimeformat)
 		infos = None
 		tmp = self.transform_object_to_export_data(e)
-		if self.cond['manualdata'] is True and e.get_type() == 'd':
-		    self.elements.append(tmp)
-		elif self.cond['transfer'] is True and e.get_type() == 't':
-		    self.elements.append(tmp)
 		if len(self.history)-1 == count :
 		    end = int(time.time())
 		else :
 		    end = useful.date_to_timestamp(self.history[count+1].fields['time'], datetimeformat)
+		if self.cond['manualdata'] is True and e.get_type() == 'd':
+		    self.elements.append(tmp)
+		elif self.cond['transfer'] is True and e.get_type() == 't':
+		    tmp['duration'] = int(end - begin)
+		    self.elements.append(tmp)
 		if e.get_type() == 'd':
 		    if lastSensor != None:
 			infos = self.get_all_in_component(lastSensor,begin,end)
@@ -2042,7 +2044,7 @@ class ExportData():
 		    e = self.config.getObject(e.fields['cont_id'],e.fields['cont_type'])
 		    infos = self.get_all_in_component(e,begin,end)
 		    lastSensor = e
-		if infos is not None and self.cond['valuesensor'] is True:
+		if infos is not None:
 		    self.add_value_from_sensors(infos,lastSensor)
                     print infos
 		count += 1
@@ -2067,7 +2069,6 @@ class ExportData():
 	    self.max = -99999
 	    self.average = 0.0
 	    self.count = 0
-            self.elements.append(self.transform_object_to_export_data(self.config.AllSensors.elements[a]))
             if infos[a] is not None :
                 begin = infos[a][0][0]
 	        for value in infos[a]:
@@ -2077,37 +2078,45 @@ class ExportData():
 		    sensor['timestamp'] = value[0]
                     end = sensor['timestamp']
 		    sensor['value'] = str(tmp)
+		    sensor['type'] = 'MES'
+		    timemin = ''
+		    timemax = ''
 		    if tmp is not None:
 			tmp = float(value[1][0])
 			self.count += 1
 			self.average += tmp
 			if tmp < self.min :
 			    self.min = tmp
+			    timemin = sensor['timestamp']
 			if tmp > self.max :
 			    self.max = tmp
-                    sensor['typevalue'] = 'BASE'
-		    self.elements.append(sensor)
+			    timemax = sensor['timestamp']
+                    sensor['typevalue'] = 'DAT'
+                    if self.cond['valuesensor'] is True :
+		        self.elements.append(sensor)
 		if self.count >0 :
 		    self.average /= self.count
 		if self.cond['specialvalue'] is True and self.count >0:
 		    sensor1 = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
 		    sensor1['value'] = self.min
 		    sensor1['typevalue'] = 'MIN'
+		    sensor1['timestamp'] = timemin
 		    self.elements.append(sensor1)
 		    sensor2 = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
 		    sensor2['value'] = self.max
 		    sensor2['typevalue'] = 'MAX'
+		    sensor2['timestamp'] = timemax
 		    self.elements.append(sensor2)
 		    sensor3 = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
 		    sensor3['value'] = self.average
 		    sensor3['typevalue'] = 'AVERAGE'
+		    sensor3['timestamp'] = ''
 		    self.elements.append(sensor3)
 		if self.cond['alarm'] is True :
 		    logs = self.config.AllAlarmLogs.get_alarmlog_component(a,begin,end)
 		    for log in logs :
 			tmp = self.transform_object_to_export_data(log)
 			self.elements.append(tmp)	    
-	    
 	
 	
     def load_hierarchy(self):
@@ -2175,7 +2184,7 @@ class ExportData():
 	    tmp['value'] = elem.fields['value']
 	    tmp['unit'] = self.config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
 	elif elem.get_type() == 'd' :
-	    tmp['type'] = 'D'
+	    tmp['type'] = 'MAN'
             tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'],datetimeformat)
 	    tmp[elem.fields['object_type']+'_id'] = elem.fields['object_id']
             if elem.fields['m_id'] != '':
@@ -2185,7 +2194,7 @@ class ExportData():
 	    tmp['remark'] = elem.fields['remark']
 	    tmp['user'] = elem.fields['user']
         elif elem.get_type() == 't':
-            tmp['type'] = 'T'
+            tmp['type'] = 'TRF'
             tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'],datetimeformat)
             tmp['remark'] = elem.fields['remark']
             tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
@@ -2473,14 +2482,14 @@ class Sensor(ConfigurationObject):
             hours = (int(minutes / 60) % 24)+100 + 2
             minutes = (minutes % 60)+100
             strnow = unicode(hours)[1:3]+":"+unicode(minutes)[1:3]
-            pos = config.screen.show(config.screen.begScreen,strnow)
-            pos = config.screen.showBW(pos+2,self.get_acronym())
-            pos = config.screen.show(pos+2,unicode(round(float(value),1)))
+            #pos = config.screen.show(config.screen.begScreen,strnow)
+            #pos = config.screen.showBW(pos+2,self.get_acronym())
+            #pos = config.screen.show(pos+2,unicode(round(float(value),1)))
             if self.fields['m_id']:
                 id_measure = unicode(self.fields['m_id'])
                 if id_measure in config.AllMeasures.elements:
                     measure = config.AllMeasures.elements[id_measure]
-                    pos = config.screen.show(pos,measure.fields['unit'])
+                    #pos = config.screen.show(pos,measure.fields['unit'])
                 
 	    typeAlarm,symbAlarm = self.getTypeAlarm(value)
             print (u'Sensor update Channel : '+ self.fields['channel'] + u'    ' + self.fields['sensor'] + u' ==> ' + self.fields['acronym'] + u' = ' + unicode(value))
@@ -2489,9 +2498,9 @@ class Sensor(ConfigurationObject):
 	    else:
 		if not (( typeAlarm == 'min' and self.actualAlarm == 'minmin' ) or ( typeAlarm == 'max' and self.actualAlarm == 'maxmax')) :
 		    self.actualAlarm = typeAlarm
-                config.screen.showBW(-1,symbAlarm)
+                #config.screen.showBW(-1,symbAlarm)
 		self.launchAlarm(config, now)
-            config.screen.end_line()
+            #config.screen.end_line()
 	else :
 	    #TODO : si on ne sait pas se connecter au senseur, rajouter Alarme " Erreur Senseur not working"
 	    print 'Impossible d acceder au senseur TO DO'
