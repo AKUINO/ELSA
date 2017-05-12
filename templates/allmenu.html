@@ -1,8 +1,9 @@
 $def with (mail,type, id)	
 $var recursive : True
 $code :
-    elem = c.findAllFromType(type).elements[id]
-    keyID = c.findAllFromType(type).keyColumn
+    allElem = c.findAllFromType(type)
+    elem = allElem.elements[id]
+    keyID = allElem.keyColumn
     permissionKey = type +'_'
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']

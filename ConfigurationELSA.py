@@ -9,6 +9,7 @@ import unicodecsv
 import sys
 import threading
 import os
+import os.path
 import rrdtool
 import pyownet
 import serial
@@ -17,13 +18,13 @@ import HardConfig as hardconfig
 import barcode
 import re
 import socket
-"""
+
 import SSD1306
 from I2CScreen import *
 
 import pigpio
 PIG = pigpio.pi()
-"""
+
 #mise a jour git
 csvDir = "../ELSAcsv/csv/"
 rrdDir = '../ELSArrd/rrd/'
@@ -38,7 +39,6 @@ _lock_socket = None
 class Configuration():
 
     def __init__(self):
-	"""
         self.HardConfig = hardconfig.HardConfig()
 	
 ##        # Run only OUNCE: Check if /run/akuino/ELSA.pid exists...
@@ -62,7 +62,7 @@ class Configuration():
         except socket.error:
             print 'AKUINO-ELSA lock exists'
             sys.exit()
-	"""
+
 	self.InfoSystem = InfoSystem(self)
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
@@ -94,14 +94,13 @@ class Configuration():
 	self.owproxy = None
 
     def load(self):
-	"""
         if not self.HardConfig.oled is None:
             # 128x64 display with hardware I2C:
             self.screen = I2CScreen(True, disp = SSD1306.SSD1305_132_64(rst=self.HardConfig.oled_reset,gpio=PIG))
             self.screen.clear()
         else:
             self.screen = I2CScreen(False, disp = None)	
-	"""
+
 	self.AllLanguages.load()
         self.AllUsers.load()
         self.AllPieces.load()
@@ -554,6 +553,13 @@ class ConfigurationObject():
             return directory + '/b/batch_'+self.fields['b_id']+'.' 
         else:
             return None
+
+    def isImaged(self):
+        fileName = self.getImageDirectory()
+        if fileName is None:
+            return False
+        else:
+            return os.path.isfile(fileName+".jpg")
 
     def setName(self,key,value,user,keyColumn):
 	if value != '' and value is not None:
@@ -2375,6 +2381,14 @@ class Measure(ConfigurationObject):
     def get_name(self):
 	return 'measure'
 
+    def get_sensors_in_component(self, config):
+	listSensor = []
+	for k, sensor in config.AllSensors.elements.items():
+	    if sensor.is_in_component('m',self.id):
+		listSensor.append(k)
+	return listSensor
+
+
 class Sensor(ConfigurationObject):
     def __init__(self):
 	ConfigurationObject.__init__(self)
@@ -2438,7 +2452,9 @@ class Sensor(ConfigurationObject):
 	elif typeComponent == 'e' :
 	    self.fields['e_id'] = tmp[-1]
 	    self.fields['p_id'] = ''
-	    self.fields['c_id'] = ''	    
+	    self.fields['c_id'] = ''
+	elif typeComponent == 'm' :
+            self.fields['m_id'] = tmp[-1]
 	    
     def add_measure(self, data):
 	tmp = data.split('_')
@@ -2580,6 +2596,8 @@ class Sensor(ConfigurationObject):
 	    return id == self.fields['p_id']
 	elif type == 'c':
 	    return id == self.fields['c_id']
+	elif type == 'm':
+	    return id == self.fields['m_id']
 	return False
 	
 	

@@ -22,30 +22,34 @@ $code:
 <div id="includedModal$(type)_$(id)"></div>
 
 <script>
-    var graph_opts={legend: { noColumns:4}};
-    var rrdflot_defaults={graph_width: "600px"}
-    var ds_graph_opts={'Oscilator':{ color: "#ff8000", lines: { show: true, fill: true, fillColor:"#FF0000"} },
-			 'Idle':{ label: 'IdleJobs', color: "#00c0c0", 
-				  lines: { show: true, fill: true} },
-			 'Running':{color: "#000000",yaxis:2}};
+    var graph_opts={legend: { noColumns:4},
+		tooltip: true,
+	    	tooltipOpts: { show:true, xDateFormat:"%H:%M:%S", content:"<h4>%s</h4> Value: %y.3 <br/> %x " } };
+    var rrdflot_defaults={graph_width: "600px", graph_only:true}
 </script>
-
 $code:
-    sensors = c.findAllFromType(type).elements[id].get_sensors_in_component(c)
+    sensors = elem.get_sensors_in_component(c)
 
 $for k in sensors:
-    <h1 id="title">Graphic sensor : $c.AllSensors.elements[k].getName(self.lang)</h1>
-    <table width="100%">
-	<tr>
-	    <td>
-		<div id="mygraph$(k)"></div>
-	    </td>
-	</tr>
-    </table>
-
-    <script type="text/javascript">
-	
 	$code:
-	    url = '/graphic/$(type)_$(id)/'+c.AllSensors.elements[k].getRRDName()
-	flot_obj=new rrdFlotAsync("mygraph$(k)","$url",null,graph_opts,ds_graph_opts,rrdflot_defaults);
-    </script>
+	    currSensor = c.AllSensors.elements[k]
+	$if currSensor and (currSensor.fields['deny'] == '1' or currSensor.fields['deny'] == 1):
+	    <h1 id="title"><a href="/graphic/cpehm_$currSensor.id"><strong><span class="$c.AllHalflings.elements['sensor'].getHalfling()"></span></strong> $currSensor.getName(self.lang)</a></h1>
+	    <table width="100%">
+		<tr>
+		    <td>
+			<div id="mygraph$(k)"></div>
+		    </td>
+		</tr>
+	    </table>
+	
+	    <script type="text/javascript">		
+		$code:
+		    url = '/graphic/$(type)_$(id)/'+currSensor.getRRDName()
+		    dsName = currSensor.fields['acronym']
+	   	    dsColor = None #currSensor.fields['color']
+		    if not dsColor:
+			dsColor = "#0080ff"
+		var ds_graph_opts = { '$dsName': { color:'$dsColor' }}
+		flot_obj=new rrdFlotAsync("mygraph$(k)","$url",null,graph_opts,ds_graph_opts,rrdflot_defaults);
+	    </script>

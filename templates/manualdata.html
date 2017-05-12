@@ -20,7 +20,7 @@ $var recursive : False
 
 
 <div class="container">
-    <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
+    <form  method="post" action="" id="modifyManualData"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
 	<div class="col-sm-12" >
 	    <p id="error">$errormess</p>
 	</div>
@@ -80,9 +80,10 @@ $var recursive : False
 		    <option value="None"></option>
 		    $for k in c.AllMeasures.elements.keys():
 			<option value="$k"
-			    $if id2 != 'new':
-				$if k == c.AllManualData.elements[id2].fields['m_id'] :
-				    selected
+			    $if id2 != "new" and k == c.AllManualData.elements[id2].fields['m_id'] :
+				selected
+			    $elif k == id1.split('_')[1] and 'm' == id1.split('_')[0]:
+				selected			
 			>$c.AllMeasures.elements[k].fields['acronym'] - $c.AllMeasures.elements[k].getName(self.lang) - $c.AllMeasures.elements[k].fields['unit']</option>
 		</select>
 	    </div>
