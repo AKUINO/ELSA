@@ -2167,40 +2167,43 @@ class ExportData():
 	
     def transform_object_to_export_data(self, elem):
 	tmp = self.get_new_line()
-	tmp['user'] = self.elem.fields['user']
+        if self.cond['acronym'] is True :
+            tmp['user'] = self.config.AllUsers.elements[elem.creator].fields['acronym']
+        else :
+	    tmp['user'] = elem.creator
         tmp['timestamp'] = useful.date_to_timestamp(elem.created,datetimeformat)
 	if elem.get_type() in 'bcpem' :
-	    if cond['acronym'] is True :
+	    if self.cond['acronym'] is True :
 		tmp[elem.get_type()+'_id'] = elem.fields['acronym']
 	    else :
-	     tmp[elem.get_type()+'_id'] = elem.getID()
+	        tmp[elem.get_type()+'_id'] = elem.getID()
 	    tmp['remark'] = elem.fields['remark']
 	    tmp['type'] = elem.get_type()
 	    if elem.get_type() == 'm':
 		tmp['m_id'] = elem.getID()
 	elif elem.get_type() == 'cpehm' :
-	    if cond['acronym'] is True :
+	    if self.cond['acronym'] is True :
 		if elem.fields['p_id'] != '' :
-		    tmp['p_id'] = self.config.AllPieces.element[elem.fields['p_id']].fields['acronym']
+		    tmp['p_id'] = self.config.AllPieces.elements[elem.fields['p_id']].fields['acronym']
 		else :
 		    tmp['p_id'] = ''
 		if elem.fields['e_id'] != '' :
-		    tmp['e_id'] = self.config.AllEquipments.element[elem.fields['e_id']].fields['acronym']
+		    tmp['e_id'] = self.config.AllEquipments.elements[elem.fields['e_id']].fields['acronym']
 		else :
 		    tmp['e_id'] = ''
 		if elem.fields['c_id'] != '' :
-		    tmp['pcid'] = self.config.AllContainers.element[elem.fields['c_id']].fields['acronym']
+		    tmp['c_id'] = self.config.AllContainers.elements[elem.fields['c_id']].fields['acronym']
 		else :
 		    tmp['c_id'] = ''
 		tmp['sensor'] = elem.fields['acronym']
-		tmp['m_id'] = self.config.AllMeasures.elements[tmp['m_id']].fields['acronym']
+		tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['acronym']
 	    else :
 		tmp['p_id'] = elem.fields['p_id']
 		tmp['e_id'] = elem.fields['e_id']
 		tmp['c_id'] = elem.fields['c_id']
 		tmp['sensor'] = elem.fields['cpehm_id']
 		tmp['m_id'] = elem.fields['m_id']
-	    tmp['unit'] = self.config.AllMeasures.elements[tmp['m_id']].fields['unit']
+	    tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
 	    tmp['remark'] = elem.fields['remark']
 	elif elem.get_type() == 'al' :
 	    sensor = self.config.AllSensors.elements[elem.fields['cpehm_id']]
@@ -2215,23 +2218,25 @@ class ExportData():
 	elif elem.get_type() == 'd' :
 	    tmp['type'] = 'MAN'
             tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'],datetimeformat)
-	    tmp[elem.fields['object_type']+'_id'] = elem.fields['object_id']
             if elem.fields['m_id'] != '':
 	        tmp['value'] = elem.fields['value']
 	        tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
-		if cond['acronym'] is True:
-		    tmp['m_id'] = self.config.AllMeasures.elements[tmp['m_id']].fields['acronym']
-		else:
-		    tmp['m_id'] = elem.fields['m_id']
+	    if self.cond['acronym'] is True and elem.fields['m_id'] != '':
+	        tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['acronym']
+                tmp[elem.fields['object_type']+'_id'] = self.config.findAllFromType(elem.fields['object_type']).elements[elem.fields['object_id']].fields['acronym']
 	    else:
 		tmp['m_id'] = elem.fields['m_id']
+                tmp[elem.fields['object_type']+'_id'] = elem.fields['object_id']
 	    tmp['remark'] = elem.fields['remark']
 	    tmp['user'] = elem.fields['user']
         elif elem.get_type() == 't':
             tmp['type'] = 'TRF'
             tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'],datetimeformat)
             tmp['remark'] = elem.fields['remark']
-            tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
+            if self.cond['acronym'] is True :
+                tmp[elem.fields['cont_type']+'_id'] = self.config.findAllFromType(elem.fields['cont_type']).elements[elem.fields['cont_id']].fields['acronym']
+            else :
+                tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
 	return tmp
 
     def get_new_line(self):
@@ -2251,7 +2256,6 @@ class ExportData():
 	tmp['duration'] = ''
 	tmp['remark'] = ''
 	tmp['user'] = ''
-	tmp[self.elem.get_type()+'_id'] = self.elem.getID()
 	return tmp
 
 class Halfling(ConfigurationObject):
