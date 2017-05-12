@@ -1043,7 +1043,8 @@ class AllAlarmLogs(AllObjects):
 	
     def get_alarmlog_component(self, id,begin,end):
 	logs = []
-	for k, e in self.elements.items():
+	for i in range(len(self.elements)):
+	    e = self.elements[str(i)]
 	    time = useful.date_to_timestamp(e.fields['begin'],datetimeformat)
 	    if id == e.fields['cpehm_id'] :
 		if time > begin and time < end :
