@@ -1,10 +1,10 @@
 $def with (mail,type, id)	
 $var recursive : True
 $code :
-    elem = c.findAllFromType(type).elements[id]
-    keyID = c.findAllFromType(type).keyColumn
-    permissionKey = type +'_'
-
+    allElem = c.findAllFromType(type)
+    elem = allElem.elements[id]
+    keyID = allElem.keyColumn
+ 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 
 <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
@@ -23,17 +23,21 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	<div class="col-xs-3 vcenter">
 	    <strong>$elem.getName(self.lang)</strong>
 	</div>
-	$if c.is_component(permissionKey[0:-1]) == True or permissionKey[0:-1] == 'm' :
+	$if c.is_component(type) == True or type == 'm' :
 	    <div class="col-xs-2 vcenter" >
-		<strong><a href="/measures/$(permissionKey[0:-1])_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['measure'].getHalfling()"></span></a></strong>
+		<strong><a href="/measures/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['measure'].getHalfling()"></span></a></strong>
 	    </div>
-	$elif permissionKey[0:-1] == 'g' :
+	$elif type == 'g' :
 	    <div class="col-xs-2 vcenter" >
-		<strong><a href="/listing/$(permissionKey[0:-1])_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['listing'].getHalfling()"></span></a></strong>
+		<strong><a href="/listing/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['listing'].getHalfling()"></span></a></strong>
 	    </div>
-	$if permissionKey[0:-1] in 'cpehm':
+	$if type in 'cpehm':
 	    <div class="col-xs-1 vcenter" >
-		<strong><a href="/graphic/$(permissionKey[0:-1])_$elem.fields[keyID]" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['graphic'].getHalfling()"></span></a></strong>
+		<strong><a href="/graphic/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['graphic'].getHalfling()"></span></a></strong>
+	    </div>
+	$if type in 'ceb':
+	    <div class="col-xs-1 vcenter" >
+		<strong><a href="/transfers/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['transfer'].getHalfling()"></span></a></strong>
 	    </div>
     </div>
 </div>

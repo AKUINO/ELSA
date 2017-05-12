@@ -63,7 +63,7 @@ class WebObjectUpdate():
         mail = isConnected()
         user  = c.connectedUsers.users[mail].cuser
         if mail is not None:
-            currObject = c.getObject(id,self.name)
+            currObject = c.getObject(id,self.recordType)
             infoCookie = mail + ',' + user.fields['password']
             update_cookie(infoCookie)
             if currObject is None:
@@ -72,7 +72,7 @@ class WebObjectUpdate():
             #method = data.get("method","malformed")
             cond = currObject.validate_form(data, c, user.fields['language'])
             if cond is True:
-                for key in c.getFieldsname(self.name):
+                for key in c.getFieldsname(self.recordType):
                     if key in data:
                         currObject.fields[key] = data[key]
                         
@@ -301,7 +301,6 @@ class WebBarcode():
     def getRender(self, id, mail):
         return render.barcode(mail,id)
 	        
-        
     def getListing(self,mail):
         return render.listing(mail,'places')
 
@@ -310,6 +309,7 @@ class WebBarcode():
 class WebPermission(WebObjectUpdate):
     def __init__(self):
         self.name=u"WebPermission"
+        self.recordType = "g"
         
     def getRender(self,id,mail, error):
         typeobject = id.split('_')[0]
@@ -355,6 +355,7 @@ class WebTransfers(WebObject):
 class WebTransfer(WebObjectUpdate):
     def __init__(self):
         self.name=u"WebTransfer"
+        self.recordType = "t"
         
     def getRender(self, id, mail, mess):
         myID = id.split('_')[1]
@@ -378,7 +379,7 @@ class WebCreateTransfer(WebObjectDoubleID):
             getID = 'new'
             if id1 == 'update':
                 getID = id2.split('_')[-1]
-            currObject = c.getObject(getID,self.name)
+            currObject = c.getObject(getID,"t")
             if currObject is None :
                 return render.notfound()
             infoCookie = mail + ',' + user.fields['password']
@@ -434,6 +435,7 @@ class WebMonitoring(WebObject):
 class WebManualDataList(WebObjectUpdate):
     def __init__(self):
         self.name=u"WebManualData"
+        self.recordType = "d"
         
     def getRender(self, id, mail, mess):
         myID = id.split('_')[1]
@@ -508,6 +510,7 @@ class WebManualData(WebObjectDoubleID):
 class WebPouringList(WebObjectUpdate):
     def __init__(self):
         self.name=u"WebPouring"
+        self.recordType = "v"
         
     def getRender(self, id, mail, mess):
         myID = id.split('_')[1]

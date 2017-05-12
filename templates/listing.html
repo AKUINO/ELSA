@@ -2,8 +2,9 @@ $def with (mail,type)
 $var location: all/$(type)=$(c.findAllFromType(type).get_name_object())
 $var recursive : False
 $code :
-    elements = c.findAllFromType(type).elements
-    keyID = c.findAllFromType(type).keyColumn
+    allObjects = c.findAllFromType(type)
+    elements = allObjects.elements
+    keyID = allObjects.keyColumn
     permissionKey = type +'_'
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
@@ -30,6 +31,6 @@ $for a,elem in elements.items():
     <div class="col-xs-5">
     </div>
     <div class="col-xs-6" id="addItem">
-	<a href="/edit/$(permissionKey[0:-1])_new"><span class="halflings halflings-plus"></span>$c.AllMessages.elements[c.findAllFromType(type).get_name_object()].getName(self.lang)</a>
+	<a href="/edit/$(type)_new"><span class="halflings halflings-plus"></span>$c.AllMessages.elements[c.findAllFromType(type).get_name_object()].getName(self.lang)</a>
     </div>
 </div>    

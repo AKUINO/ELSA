@@ -1,4 +1,4 @@
-$def with (mail,type, id)	
+$def with (mail,type, id,source)	
 $var recursive : True
 $code :
     allElem = c.findAllFromType(type)
@@ -23,31 +23,31 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	<div class="col-xs-3 vcenter">
 	    <strong>$elem.getName(self.lang)</strong>
 	</div>
-	$if c.AllBarcodes.get_barcode(elem.get_type(), elem.id) != '':
+	$if c.AllBarcodes.get_barcode(elem.get_type(), elem.id) != '' and source != "barcode":
 	    <div class="col-xs-2 vcenter">
 		<strong><a href="/barcode/$(c.AllBarcodes.get_barcode(elem.get_type(), elem.id))" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['barcode'].getHalfling()"></span></a></strong>
 	    </div>
-	$if type in 'cpeb':
+	$if type in 'cpeb' and source != "exportdata":
 	    <div class="col-xs-1 vcenter">
 		<strong><a href="/exportdata/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['exportdata'].getHalfling()"></span></a></strong>
 	    </div>
     </div>
     <div class="col-xs-12 " style ="margin-top:10px" >
-	$if type in 'cpehmb' :
+	$if type in 'cpehmb' and source != "measure":
 	    <div class="col-xs-2" >
 		<strong><a href="/measures/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['measure'].getHalfling()"></span></a></strong>
 	    </div>
 	$else :
 	    <div class="col-xs-2" >
 	    </div>
-	$if type in 'cpem':
+	$if type in 'cpem' and source != "listing":
 	    <div class="col-xs-2" >
 		<strong><a href="/listing/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['listing'].getHalfling()"></span></a></strong>
 	    </div>
 	$else :
 	    <div class="col-xs-2" >
 	    </div>
-	$if type in 'cpehm':
+	$if type in 'cpehm' and source != "graphic":
 	    <div class="col-xs-2" >
 		<strong><a href="/graphic/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['graphic'].getHalfling()"></span></a></strong>
 	    </div>
@@ -60,7 +60,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	<div class="col-xs-2" >
 	    <strong><a href="/permissions/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['group'].getHalfling()"></span></a></strong>
 	</div>
-	$if type in 'bce':
+	$if type in 'bce' and source != "transfer":
 	    <div class="col-xs-2" >
 		<strong><a href="/transfers/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['transfer'].getHalfling()"></span></a></strong>
 	    </div>
