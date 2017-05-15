@@ -92,6 +92,7 @@ class Configuration():
 	self.RadioThread.daemon = True
 	self.screen = None
 	self.owproxy = None
+	self.batteryVoltage = 0.0
 
     def load(self):
         if not self.HardConfig.oled is None:
@@ -313,6 +314,21 @@ class InfoSystem():
 ##    global lastBatt
 ##
 ##    def readBattery(self):
+
+    def __init__(self, config):
+	self.uptime = 0
+	self.memTot = 0
+	self.memFree = 0
+	self.memAvailable = 0
+	self.load1 = 0
+	self.load5 = 0
+	self.load15 = 0
+	self.temperature = 0
+	self.ip = ''
+	self.config = config
+	self.battery = 0.0
+	
+    def updateInfoSystem(self,now):
 ##        if self.conf.HardConfig.battery:
 ##            try:
 ##                if self.bus_pi is None:
@@ -387,21 +403,6 @@ class InfoSystem():
 ##
 ##        except:
 ##                traceback.print_exc()
-
-    def __init__(self, config):
-	self.uptime = 0
-	self.memTot = 0
-	self.memFree = 0
-	self.memAvailable = 0
-	self.load1 = 0
-	self.load5 = 0
-	self.load15 = 0
-	self.temperature = 0
-	self.ip = ''
-	self.config = config
-	self.battery = 0.0
-	
-    def updateInfoSystem(self,now):
 	try:
 	    info = os.popen('cat /proc/uptime','r')
 	    info = info.read()
@@ -1981,7 +1982,7 @@ class AlarmLog(ConfigurationObject):
 class ExportData():
     def __init__(self, config, elem,cond, user):
 	self.config = config
-	self.fieldnames = ['timestamp','type', 'b_id', 'p_id', 'e_id', 'c_id','m_id','sensor','typevalue','value','unit', 'category', 'duration', 'remark', 'user']
+	self.fieldnames = ['timestamp','user','type', 'b_id', 'p_id', 'e_id', 'c_id','m_id','sensor','value','unit', 'category', 'duration', 'remark']
 	self.history = []
 	self.filename = csvDir + "exportdata.csv"
 	self.cond = cond
@@ -2095,7 +2096,7 @@ class ExportData():
 			if tmp > self.max :
 			    self.max = tmp
 			    timemax = sensor['timestamp']
-                    sensor['typevalue'] = 'DAT'
+                    #sensor['typevalue'] = 'DAT'
                     if self.cond['valuesensor'] is True :
 		        self.elements.append(sensor)
 		if self.count >0 :
@@ -2103,22 +2104,22 @@ class ExportData():
 		if self.cond['specialvalue'] is True and self.count >0:
 		    sensor1 = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
 		    sensor1['value'] = self.min
-		    sensor1['typevalue'] = 'MIN'
-		    sensor1['type'] = 'MES'
+		    #sensor1['typevalue'] = 'MIN'
+		    sensor1['type'] = 'MIN'
 		    sensor1['timestamp'] = timemin
                     sensor1['remark'] = ''
 		    self.elements.append(sensor1)
 		    sensor2 = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
 		    sensor2['value'] = self.max
-		    sensor2['typevalue'] = 'MAX'
-		    sensor2['type'] = 'MES'
+		    #sensor2['typevalue'] = 'MAX'
+		    sensor2['type'] = 'MAX'
 		    sensor2['timestamp'] = timemax
                     sensor2['remark'] = ''
 		    self.elements.append(sensor2)
 		    sensor3 = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
 		    sensor3['value'] = self.average
-		    sensor3['typevalue'] = 'AVG'
-		    sensor3['type'] = 'MES'
+		    #sensor3['typevalue'] = 'AVG'
+		    sensor3['type'] = 'AVG'
 		    sensor3['timestamp'] = end
                     sensor3['duration'] = end - begin
                     sensor3['remark'] = ''
@@ -2171,11 +2172,12 @@ class ExportData():
 	tmp['user'] = ""
 	if elem.creator:
 	    tmp['user'] = elem.creator
-            if self.cond['acronym'] is True and elem.get_type() != 'al':
+            if self.cond['acronym'] is True and elem.creator:
                 aUser = self.config.AllUsers.elements[elem.creator]
                 if aUser and aUser.fields['acronym']:
                     tmp['user'] = aUser.fields['acronym']
-        tmp['timestamp'] = useful.date_to_timestamp(elem.created,datetimeformat)
+        if elem.created:
+            tmp['timestamp'] = useful.date_to_timestamp(elem.created,datetimeformat)
 	if elem.get_type() in 'bcpem' :
 	    if self.cond['acronym'] is True :
 		tmp[elem.get_type()+'_id'] = elem.fields['acronym']
@@ -2212,7 +2214,7 @@ class ExportData():
 	elif elem.get_type() == 'al' :
 	    sensor = self.config.AllSensors.elements[elem.fields['cpehm_id']]
 	    tmp['timestamp'] = elem.fields['begintime']
-            tmp['type'] = 'ALOG'
+            tmp['type'] = 'ALR'
             if self.cond['acronym'] is True :
                 tmp[elem.fields['cont_type']+'_id'] = self.config.findAllFromType(elem.fields['cont_type']).elements[elem.fields['cont_id']].fields['acronym']
                 tmp['sensor'] = self.config.AllSensors.elements[elem.fields['cpehm_id']].fields['acronym']
@@ -2250,6 +2252,7 @@ class ExportData():
     def get_new_line(self):
 	tmp = {}	
 	tmp['timestamp'] = ''
+	tmp['user'] = ''
 	tmp['type'] = ''
 	tmp['b_id'] = ''
 	tmp['p_id'] = ''
@@ -2257,13 +2260,12 @@ class ExportData():
 	tmp['c_id'] = ''
 	tmp['m_id'] = ''
 	tmp['sensor'] = ''
-	tmp['typevalue'] = ''
+	#tmp['typevalue'] = ''
 	tmp['value'] = ''
 	tmp['unit'] = ''
 	tmp['category'] = ''
 	tmp['duration'] = ''
 	tmp['remark'] = ''
-	tmp['user'] = ''
 	return tmp
 
 class Halfling(ConfigurationObject):
@@ -2561,13 +2563,12 @@ class Sensor(ConfigurationObject):
     def createRRD(self):
 	name = re.sub('[^\w]+', '', self.fields['acronym'])
 	now = str( int(time.time())-60)
-	if self.fields['channel'] == 'wire' :
+	if self.fields['channel'] in ['wire','battery','cputemp'] :
 	    data_sources = str('DS:'+name+'1:GAUGE:120:U:U')
 	    rrdtool.create( str(rrdDir+self.getRRDName()), "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
 	elif self.fields['channel'] == 'radio' :
 	    data_sources = str('DS:'+name+'1:GAUGE:360:U:U')
-	    rrdtool.create( str(rrdDir+self.getRRDName()), "--step", "180", '--start', now, data_sources, 'RRA:LAST:0.5:1:14400', 'RRA:AVERAGE:0.5:5:34560', 'RRA:AVERAGE:0.5:30:28800')
-	    
+	    rrdtool.create( str(rrdDir+self.getRRDName()), "--step", "180", '--start', now, data_sources, 'RRA:LAST:0.5:1:14400', 'RRA:AVERAGE:0.5:5:34560', 'RRA:AVERAGE:0.5:30:28800')	    
 	
     def getTypeAlarm(self,value):
 	value = float(value)
@@ -2627,6 +2628,29 @@ class Sensor(ConfigurationObject):
                         value = float(owData)
                         owData = unicode(eval(self.fields['formula']))
                     return owData
+	    except:
+		traceback.print_exc()
+	elif self.fields['channel'] == 'battery':
+	    try:
+                owData = config.batteryVoltage
+                if owData:
+                    if self.fields['formula']:
+                        value = float(owData)
+                        owData = eval(self.fields['formula'])
+                    return unicode(owData)
+	    except:
+		traceback.print_exc()
+	elif self.fields['channel'] == 'cputemp':
+	    try:
+                info = file('/sys/class/thermal/thermal_zone0/temp', 'r').read()
+                #info = os.popen('cat /sys/class/thermal/thermal_zone0/temp','r')
+                #info = info.read()
+                owdata = float(info)/1000.0
+                if owData:
+                    if self.fields['formula']:
+                        value = owData
+                        owData = eval(self.fields['formula'])
+                    return unicode(owData)
 	    except:
 		traceback.print_exc()
 	return None

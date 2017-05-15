@@ -109,12 +109,22 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 			$if id != 'new':
 			    $if "wire" == c.AllSensors.elements[id].fields['channel'] :
 				selected
-			>wire</option>
+			>1-Wire</option>
 		    <option value="radio"
 			$if id != 'new':
 			    $if "radio" == c.AllSensors.elements[id].fields['channel'] :
 				selected
-		    >radio</option>
+		    >ELA Radio</option>
+		    <option value="battery"
+			$if id != 'new':
+			    $if "battery" == c.AllSensors.elements[id].fields['channel'] :
+				selected
+		    >AKUINO battery</option>
+		    <option value="cputemp"
+			$if id != 'new':
+			    $if "cputemp" == c.AllSensors.elements[id].fields['channel'] :
+				selected
+		    >CPU temperature</option>
 		</select>
 	    </div>
 	</div>
