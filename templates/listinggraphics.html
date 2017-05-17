@@ -45,7 +45,7 @@ $for k in sensors:
 	
 	    <script type="text/javascript">		
 		$code:
-		    url = '/graphic/$(type)_$(id)/'+currSensor.getRRDName()
+		    url = '/graphic/'+type+'_'+id+'/'+currSensor.getRRDName()
 		    dsName = currSensor.fields['acronym']
 	   	    dsColor = None #currSensor.fields['color']
 		    if not dsColor:

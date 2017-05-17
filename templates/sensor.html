@@ -125,6 +125,11 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 			    $if "cputemp" == c.AllSensors.elements[id].fields['channel'] :
 				selected
 		    >CPU temperature</option>
+		    <option value="system"
+			$if id != 'new':
+			    $if "system" == c.AllSensors.elements[id].fields['channel'] :
+				selected
+		    >System File</option>
 		</select>
 	    </div>
 	</div>
