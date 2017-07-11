@@ -1,22 +1,27 @@
-$def with (id1,id2, mail, errormess)
-$code:
-    myType = id1.split('_')[0]
-    myID = id1.split('_')[1]
-
-$if id2 == 'new':
-    $var location: all/$(myType)=$(c.findAllFromType(myType).get_name_object()) measures/$(myType)_$(myID)=manualdata measures/$(myType)_$(myID)/new=add
-    $var rmq :  
-    
-$else:
-    $var location: all/$(myType)=$(c.findAllFromType(myType).get_name_object()) measures/$(myType)_$(myID)=manualdata measures/$(myType)_$(myID)/id2=edit
-    $var rmq :  $c.AllManualData.elements[id2].fields['remark']
+$def with (id, mail, errormess)
+$var recursive : False
+$if id == 'new':
     $code :
-	data = c.AllManualData.elements[id2]
-
+	myID = 'new'
+	rmq = ''
+    $var location: /find/m=manualdata create/m=add
+$else :
+    $code:
+	if not id.split('_')[0] in 'bcep':
+	    data = c.AllManualData.elements[id]
+	    elem = c.findAllFromType(data.fields['object_type']).elements[data.fields['object_id']]
+	    myID = 'update'
+	    rmq = data.fields['remark']
+	else:
+	    myID = 'component'
+	    elem = c.findAllFromType(id.split('_')[0]).elements[id.split('_')[-1]]
+	    rmq = '' 
+$if myID == 'update':
+    $var location: list/$(elem.get_type())=$(elem.get_name()) manualdata/$(elem.get_type())_$(elem.getID())=manualdata edit/m_$(data.getID())=edit
+$elif myID == 'component':
+    $var location: list/$(id.split('_')[-0])=$(elem.get_name()) manualdata/$(id.split('_')[0])_$(elem.getID())=manualdata transfers/$(id.split('_')[0])_$(elem.getID())/new=add
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
-$var recursive : False
-
 
 
 <div class="container">
@@ -29,7 +34,7 @@ $var recursive : False
 	    <label for="inputTime" class="col-sm-3 col-form-label">$c.AllMessages.elements['time'].getName(self.lang)</label>
 	    <div class="col-sm-9">
 		<input name="time" type="text" class="form-control" id="inputTime" placeholder="$c.AllMessages.elements['time'].getName(self.lang)" 
-		$if id2 != 'new':
+		$if myID == 'update':
 		    value="$data.fields['time']"
 		$else :
 		    value ="$c.get_time()"
@@ -40,33 +45,40 @@ $var recursive : False
 	<div class="form-group row">
 	    <label for="itemSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['component'].getName(self.lang)</label>
 	    <div class="col-sm-9">
-		<select name = "component" class="form-control" id="langSelect">
+		<select name = "component" class="form-control" id="langSelect"
+		$if myID == 'component':
+		    disabled
+		>
 		    <optgroup label="$c.AllMessages.elements['place'].getName(self.lang)">
 		    $for k in c.AllPieces.elements.keys():
 			<option value="p_$k"
-			    $if k == id1.split('_')[1] and 'p' == id1.split('_')[0]:
-				selected
+			    $if myID == 'component':
+				$if 'p' == elem.get_type() and k == elem.getID(): 
+				    selected
 			>$c.AllPieces.elements[k].fields['acronym'] - $c.AllPieces.elements[k].getName(self.lang) </option>
 		    </optgroup>
 		    <optgroup label="$c.AllMessages.elements['equipment'].getName(self.lang)">
 		    $for k in c.AllEquipments.elements.keys():
 			<option value="e_$k"
-			    $if k == id1.split('_')[1] and 'e' == id1.split('_')[0]:
-				selected			
+			    $if myID == 'component':
+				$if 'e' == elem.get_type() and k == elem.getID(): 
+				    selected			
 			>$c.AllEquipments.elements[k].fields['acronym'] - $c.AllEquipments.elements[k].getName(self.lang)</option>
 		    </optgroup>
 		    <optgroup label="$c.AllMessages.elements['container'].getName(self.lang)">
 		    $for k in c.AllContainers.elements.keys():
 			<option value="c_$k"
-			    $if k == id1.split('_')[1] and 'c' == id1.split('_')[0]:
-				selected
+			    $if myID == 'component':
+				$if 'c' == elem.get_type() and k == elem.getID(): 
+				    selected
 			>$c.AllContainers.elements[k].fields['acronym'] - $c.AllContainers.elements[k].getName(self.lang)</option>
 		    </optgroup>
 		    <optgroup label="$c.AllMessages.elements['batch'].getName(self.lang)">
 		    $for k in c.AllBatches.elements.keys():
 			<option value="b_$k"
-			    $if k == id1.split('_')[1] and 'b' == id1.split('_')[0]:
-				selected
+			    $if myID == 'component':
+				$if 'b' == elem.get_type() and k == elem.getID(): 
+				    selected
 			>$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang)</option>
 		    </optgroup>
 		</select>
@@ -80,10 +92,9 @@ $var recursive : False
 		    <option value="None"></option>
 		    $for k in c.AllMeasures.elements.keys():
 			<option value="$k"
-			    $if id2 != "new" and k == c.AllManualData.elements[id2].fields['m_id'] :
-				selected
-			    $elif k == id1.split('_')[1] and 'm' == id1.split('_')[0]:
-				selected			
+			    $if myID == "update":
+				$if k == data.fields['m_id']:
+				    selected			
 			>$c.AllMeasures.elements[k].fields['acronym'] - $c.AllMeasures.elements[k].getName(self.lang) - $c.AllMeasures.elements[k].fields['unit']</option>
 		</select>
 	    </div>
@@ -93,7 +104,7 @@ $var recursive : False
 	    <label for="inputValue" class="col-sm-3 col-form-label">$c.AllMessages.elements['value'].getName(self.lang)</label>
 	    <div class="col-sm-9">
 		<input name="value" type="text" class="form-control" id="inputValue" placeholder="$c.AllMessages.elements['value'].getName(self.lang)" 
-		$if id2 != 'new':
+		$if myID == 'update':
 		    value="$data.fields['value']"
 		>
 	    </div>
@@ -113,7 +124,7 @@ $var recursive : False
 	<div class="form-group row">
 	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
 	    <div class="col-sm-9">
-		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.AllMessages.elements['remark'].getName(self.lang)" >$self.rmq</textarea>
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.AllMessages.elements['remark'].getName(self.lang)" >$rmq</textarea>
 	    </div>
 	</div>
 	
@@ -121,7 +132,7 @@ $var recursive : False
 	    <div class="col-sm-3">
 	    </div>
 	    <div class="col-sm-2">
-		<a href="/measures/$(id1)" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		<a href="/index" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>

@@ -10,7 +10,7 @@ $var location: all/$(type)=$(c.findAllFromType(type).get_name_object()) measures
 
 <script>
     $$(function(){
-	$$("#includedAllMenu$(type)_$(id)").load("/allmenu/$(type)_$(id)");
+	$$("#includedAllMenu$(type)_$(id)").load("/fullentry/$(type)_$(id)");
     });
 </script>
 <div id="includedAllMenu$(type)_$(id)"></div>
@@ -22,143 +22,7 @@ $var location: all/$(type)=$(c.findAllFromType(type).get_name_object()) measures
 </script>
 <div id="includedModal$(type)_$(id)"></div>
 
-$code:
-    groupList = c.hierarchyString() 
-<div class="modal fade" id="modal" role="dialog">
-	<div class="modal-dialog">
-	    <!-- Modal content-->
-	    <div class="modal-content">
-		<div class="modal-header">
-		<button type="button" class="close" data-dismiss="modal">&times;</button>
-		<h4 class="modal-title">$elem.getName(self.lang)</h4>
-	    </div>
-	    <div class="modal-body">
-		<div class="container-fluid">
-		    <div class="row">
-			<div class="col-xs-3">
-			    <img src="/$(elem.getImageDirectory())jpg" alt="Image not found" style="width:128px;height:128px;">
-			</div>
-			<div id="modalinfo" class="col-xs-6">
-			    <span class="glyphicon glyphicon-flag"><strong>   $elem.fields['acronym']</span></strong>
-			</div>
-			<div id="modalinfo" class="col-xs-2">
-			    $if elem.fields['deny'] == '1' or elem.fields['deny'] == 1 :
-				<span class="glyphicon glyphicon-ok-circle"> </span>
-			    $else :
-				<span class="glyphicon glyphicon-remove-circle"> </span>		    
-			</div>
-		    </div>
-			<div class="row" id="listingMarge" style="margin-top:10px;">
-			    <div class="col-xs-3">
-				$c.AllMessages.elements['name'].getName(self.lang) :
-			    </div>
-			</div>
-			$for lg in c.AllLanguages.elements.keys():
-			    <div class="row">
-				<div class="col-xs-3">
-				</div>
-				<div class="col-xs-2">
-				    $lg
-				</div>
-				<div class="col-xs-7" id="modalinfo" >
-				    $elem.getName(lg)
-				</div>
-			    </div>
-		    <div class="row">
-			<div class="col-xs-3">
-			    $c.AllMessages.elements['group'].getName(self.lang) :
-			</div>
-		    </div>
-		    $code:
-			indent = 1
-			cindent = 11
-			elemgroup = []
-			for k,v in elem.groups.items():
-			    elemgroup.append(k)
-		    $if len(groupList) > 0:
-			$for group in groupList:
-			    $if group == 'IN' :
-				$code:
-				    indent+=1
-				    cindent-=1
-			    $elif group == 'OUT':
-				$code:
-				    indent-=1
-				    cindent+=1
-			    $else :
-				<div class="row" >
-				    <div class="col-xs-$indent">
-				    </div>
-				    <div id="modalinfo" class="col-xs-$cindent">
-					$if type != 'groups':
-					    $if group in elemgroup:
-						<strong><a href="/permissions/g_$group">$c.AllGroups.elements[group].getName(self.lang)</a></strong>
-					    $else:
-						<a href="/permissions/g_$group">$c.AllGroups.elements[group].getName(self.lang)</a>
-					$else:
-					    $if group == elem.fields['g_id']:
-						<strong><a href="/permissions/g_$group">$c.AllGroups.elements[group].getName(self.lang)</a></strong>
-					    $else:
-						<a href="/permissions/g_$group">$c.AllGroups.elements[group].getName(self.lang)</a>
-				    </div>
-				</div>
-		    
-		    
-		    <div class="row" style="margin-top:10px;">
-			<div class="col-xs-4">
-			    $c.AllMessages.elements['code'].getName(self.lang) :
-			</div>
-			<div class="col-xs-8" id="modalinfo" >
-			    $c.AllBarcodes.get_barcode(elem.get_type(), elem.id)
-			</div>
-		    </div>
 
-		    <div class="row" style="margin-top:3px;">
-			<div class="col-xs-4">
-			    $c.AllMessages.elements['remark'].getName(self.lang) :
-			</div>
-			<div class="col-xs-8" id="modalinfo" >
-			    $elem.fields['remark']
-			</div>
-		    </div>
-		    
-		    $if 'colorgraph' in elem.fields :
-			<div class="row" style="margin-top:3px;" >
-			    <div class="col-xs-4">
-				$c.AllMessages.elements['color'].getName(self.lang) 
-			    </div>
-			    <div class="col-xs-2">
-			    </div>
-			    <div class="col-xs-4" style="background-color:$elem.fields['colorgraph'];" >$elem.fields['colorgraph']
-			    </div>
-			    <div class="col-xs-2">
-			    </div>
-			</div>
-		    
-		    <div class="row" style="margin-top:3px;">
-			<div class="col-xs-4">
-			    $c.AllMessages.elements['created'].getName(self.lang) :
-			</div>
-			<div class="col-xs-8" id="modalinfo" >
-			    <strong>$c.AllUsers.elements[elem.creator].getName(self.lang) </strong> - <em>$elem.created</em>
-			</div>
-		    </div>
-		    <div class="row" style="margin-top:3px;">
-			<div class="col-xs-4">
-			    $c.AllMessages.elements['modified'].getName(self.lang) :
-			</div>
-			<div class="col-xs-8" id="modalinfo" >
-			    <strong>$c.AllUsers.elements[elem.fields['user']].getName(self.lang) </strong> - <em>$elem.fields['begin']</em>
-			</div>
-		    </div>
-		</div>
-	    </div>
-	    <div class="modal-footer">
-		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-	    </div>
-	  </div>
-	</div>
-    </div>
 <div class="row active">
     <label class="col-sm-12">$c.AllMessages.elements['manualdata'].getName(self.lang) :</label>
 </div>
@@ -176,7 +40,7 @@ $for d in elem.data:
 	    $c.AllManualData.elements[d].fields['remark']
 	</div>
 	<div class="col-xs-1">
-	    <strong><a href="$(type)_$(id)/$(d)" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
+	    <strong><a href="/edit/d_$(d)" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
 	</div>
     </div>
     
@@ -184,6 +48,6 @@ $for d in elem.data:
     <div class="col-xs-5">
     </div>
     <div class="col-xs-6" id="addItem">
-	<a href="$(type)_$(id)/new"><span class="halflings halflings-plus"></span>$c.AllMessages.elements['manualdata'].getName(self.lang)</a>
+	<a href="/create/d/$(type)_$(id)"><span class="halflings halflings-plus"></span>$c.AllMessages.elements['manualdata'].getName(self.lang)</a>
     </div>
 </div> 

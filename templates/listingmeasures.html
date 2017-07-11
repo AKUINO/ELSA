@@ -1,4 +1,4 @@
-$def with (mail,id)
+$def with (id,mail)
 $var recursive : False
 $code:
     permissionKey = 'm_'
@@ -10,7 +10,7 @@ $var location: all/m=$(c.findAllFromType('m').get_name_object()) measures/m_$(id
 
 <script>
     $$(function(){
-	$$("#includedAllMenum_$(id)").load("/allmenu/m_$(id)");
+	$$("#includedAllMenum_$(id)").load("/fullentry/m_$(id)");
     });
 </script>
 <div id="includedAllMenum_$(id)"></div>

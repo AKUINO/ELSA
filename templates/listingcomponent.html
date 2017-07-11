@@ -1,4 +1,4 @@
-$def with (mail,id,type)
+$def with (type,id,mail)
 $code:
     allobjects = c.findAllFromType(type)
     elem = allobjects.elements[id]
@@ -6,10 +6,10 @@ $code:
     
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : False
-$var location: all/$(type)=$(c.findAllFromType(type).get_name_object()) listing/$(type)_$(id)=listing
+$var location: list/$(type)=$(c.findAllFromType(type).get_name_object()) find/related/$(type)_$(id)=related
 <script>
     $$(function(){
-        $$("#includedAllMenu$(type)_$(id)").load("/allmenu/$(type)_$(id)");
+        $$("#includedAllMenu$(type)_$(id)").load("/fullentry/$(type)_$(id)");
     });
 </script>
 <div id="includedAllMenu$(type)_$(id)"></div>
@@ -59,7 +59,7 @@ $code:
                 toCheck.append(['e',k])
             <script>
             $$(function(){
-                $$("#includedMenue_$(k)").load("/menu/e_$(k)");
+                $$("#includedMenue_$(k)").load("/entry/e_$(k)");
             });
             </script>
             <div id="includedMenue_$(k)"></div>
@@ -78,7 +78,7 @@ $code:
                 toCheck.append(['c',k])
             <script>
             $$(function(){
-                $$("#includedMenuc_$(k)").load("/menu/c_$(k)");
+                $$("#includedMenuc_$(k)").load("/entry/c_$(k)");
             });
             </script>
             <div id="includedMenuc_$(k)"></div>
@@ -98,7 +98,7 @@ $if type not in 'bg':
             $if sensor.fields[type+'_id'] == id :
                 <script>
                     $$(function(){
-                        $$("#includedMenucpehm_$(k)").load("/menu/cpehm_$(k)");
+                        $$("#includedMenucpehm_$(k)").load("/entry/cpehm_$(k)");
                     });
                 </script>
                 <div id="includedMenucpehm_$(k)"></div>
@@ -116,7 +116,7 @@ $if type not in 'bg':
             $if batch.is_actual_position(t, i) is True:
                 <script>
                     $$(function(){
-                        $$("#includedMenub_$(k)").load("/menu/b_$(k)");
+                        $$("#includedMenub_$(k)").load("/entry/b_$(k)");
                     });
                     </script>
                     <div id="includedMenub_$(k)"></div>

@@ -1,5 +1,5 @@
 $def with (mail,type)	
-$var location: all/$(type)=$(c.findAllFromType(type).get_name_object())
+$var location: list/$(type)=$(c.findAllFromType(type).get_name_object())
 $var recursive : False
 $code :
     allObjects = c.findAllFromType(type)
@@ -10,11 +10,32 @@ $code :
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $code:
     groupList = c.hierarchyString()
+$if type == 'b' :    
+    <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+	<form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
+	    <div class="form-group row">
+		<label for="inputObject" class="col-sm-2 col-form-label">$c.AllMessages.elements['batch'].getName(self.lang) </label>
+		<div class="col-sm-4">
+		    <select name = "batch" class="form-control" id="inputPosition">
+		    $for k in c.AllBatches.elements.keys():
+			<option value="b_$k">$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang) </option>
+		    </select>
+		</div>
+		<label for="inputLapse1" class="col-sm-2 col-form-label">$c.AllMessages.elements['quantity'].getName(self.lang)</label>
+		<div class="col-sm-2">
+		    <input name="quantity" type="number" min="0" step="1" data-bind="value:replyNumber" class="form-control" id="inputLapse1" placeholder="$c.AllMessages.elements['quantity'].getName(self.lang)" >
+		</div>	    
+		<div class="col-sm-2">
+		    <button type="submit" class="btn btn-primary btn-block">$c.AllMessages.elements['duplicate'].getName(self.lang)</button>
+		</div> 
+	    </div>
+	</form>
+    </div>
 $for a,elem in elements.items():
     <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<script>
 	    $$(function(){
-		$$("#includedMenu$(type)_$(a)").load("/menu/$(type)_$(a)");
+		$$("#includedMenu$(type)_$(a)").load("/entry/$(type)_$(a)");
 	    });
 	</script>
 	<div id="includedMenu$(type)_$(a)"></div>
@@ -31,6 +52,6 @@ $for a,elem in elements.items():
     <div class="col-xs-5">
     </div>
     <div class="col-xs-6" id="addItem">
-	<a href="/edit/$(type)_new"><span class="halflings halflings-plus"></span>$c.AllMessages.elements[c.findAllFromType(type).get_name_object()].getName(self.lang)</a>
+	<a href="/create/$(type)"><span class="halflings halflings-plus"></span>$c.AllMessages.elements[c.findAllFromType(type).get_name_object()].getName(self.lang)</a>
     </div>
 </div>    

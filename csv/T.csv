@@ -1,6 +1,0 @@
-begin	t_id	cont_id	cont_type	object_id	object_type	remark	user
-14:09:33  -  21/03/17	1	1	p	1	b	"rmq1"	6
-15:09:33  -  21/03/17	2	2	p	1	b	"rmq2"	6
-16:09:33  -  21/03/17	3	1	p	1	b		6
-17:09:33  -  21/03/17	4	2	p	1	b	"good"	6
-18:09:33  -  21/03/17	5	1	p	1	b	"pasbon"	6

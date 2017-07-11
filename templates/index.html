@@ -4,17 +4,16 @@ $var lang : EN
 $var recursive : False
 
 $if connected is True:
-	$code:
-	    lang = c.connectedUsers.users[mail].cuser.fields['language']
+	$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	<div>
-		$c.AllMessages.elements['welcome'].getName(lang) <em>$c.connectedUsers.users[mail].cuser.getName(lang)</em>
+		$c.AllMessages.elements['welcome'].getName(self.lang) <em>$c.connectedUsers.users[mail].cuser.getName(self.lang)</em>
 	</div>
 
 	$for a,elem in c.AllBatches.elements.items():
 	    <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 		<script>
 		    $$(function(){
-			$$("#includedMenub_$(a)").load("/menu/b_$(a)");
+			$$("#includedMenub_$(a)").load("/entry/b_$(a)");
 		    });
 		</script>
 		<div id="includedMenub_$(a)"></div>
@@ -31,7 +30,7 @@ $if connected is True:
 	    <div class="col-xs-5">
 	    </div>
 	    <div class="col-xs-6" id="addItem">
-		<a href="/edit/b_new"><span class="halflings halflings-plus"></span>$c.AllMessages.elements[c.AllBatches.get_name_object()].getName(self.lang)</a>
+		<a href="/create/b"><span class="halflings halflings-plus"></span>$c.AllMessages.elements[c.AllBatches.get_name_object()].getName(self.lang)</a>
 	    </div>
 	</div>    
 $else :

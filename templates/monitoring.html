@@ -7,18 +7,15 @@ $var recursive : False
     <label for="graphSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['graphic'].getName(self.lang)</label>
     <div class="col-sm-9">
 	<select id="input_fname" onchange="fname_update()">
-	    <option value="systemuptime.rrd">systemuptime.rrd</option>
-	    <option value="temperaturecpu.rrd">temperaturecpu.rrd</option>
-	    <option value="memoryinfo.rrd">memoryinfo.rrd</option>
-	    <option value="cpuload.rrd">cpuload.rrd</option>
+	    <option value="/rrd/systemuptime.rrd">systemuptime.rrd</option>
+	    <option value="/rrd/temperaturecpu.rrd">temperaturecpu.rrd</option>
+	    <option value="/rrd/memoryinfo.rrd">memoryinfo.rrd</option>
+	    <option value="/rrd/cpuload.rrd">cpuload.rrd</option>
 	</select>
 	<button onclick="fname_update()">Update</button>
     </div>
 </div>    
 
-<table id="infotable" border=1>
-    <tr><td><b>RRD file</b></td><td id="fname" colspan="5">None</td></tr>
-</table>
 
 <div id="mygraph"></div>
 
@@ -35,9 +32,7 @@ $var recursive : False
       flot_obj=new rrdFlotAsync("mygraph",null,null,graph_opts,ds_graph_opts,rrdflot_defaults);
       // this function is invoked when the RRD file name changes
       function fname_update() {
-        var fname=document.getElementById("input_fname").value;
-        flot_obj.reload(fname);
-        document.getElementById("fname").firstChild.data=fname;
+        flot_obj.reload(document.getElementById("input_fname").value);
       }
 
 </script>

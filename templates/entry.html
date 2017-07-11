@@ -13,8 +13,8 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <button type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#$(type)_$(id)modal"><span class="$c.AllHalflings.elements['info'].getHalfling()"></span></button>
 	</div>
 	<div class="col-xs-1 vcenter" >
-	$if 'deny' in elem.fields :
-	    $if elem.fields['deny'] == '0' or  elem.fields['deny'] == 0 :
+	$if 'active' in elem.fields :
+	    $if elem.fields['active'] == '0' or  elem.fields['active'] == 0 :
 		<span class="glyphicon glyphicon-remove-circle"> </span>
 	    $else:
 		<span class="glyphicon glyphicon-ok-circle"> </span>
@@ -25,19 +25,19 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	</div>
 	$if c.is_component(type) == True or type == 'm' :
 	    <div class="col-xs-2 vcenter" >
-		<strong><a href="/measures/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['measure'].getHalfling()"></span></a></strong>
+		<strong><a href="/find/d/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['measure'].getHalfling()"></span></a></strong>
 	    </div>
 	$elif type == 'g' :
 	    <div class="col-xs-2 vcenter" >
-		<strong><a href="/listing/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['listing'].getHalfling()"></span></a></strong>
+		<strong><a href="/find/related/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['listing'].getHalfling()"></span></a></strong>
 	    </div>
 	$if type in 'cpehm':
 	    <div class="col-xs-1 vcenter" >
 		<strong><a href="/graphic/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['graphic'].getHalfling()"></span></a></strong>
 	    </div>
-	$if type in 'ceb':
+	$elif type in 'b':
 	    <div class="col-xs-1 vcenter" >
-		<strong><a href="/transfers/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['transfer'].getHalfling()"></span></a></strong>
+		<strong><a href="/find/t/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['transfer'].getHalfling()"></span></a></strong>
 	    </div>
     </div>
 </div>

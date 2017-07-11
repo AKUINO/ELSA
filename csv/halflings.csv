@@ -1,26 +1,26 @@
 begin	classname	glyphname	user
-14:08:46  -  21/03/17	place	map-marker	1
-14:08:46  -  21/03/17	equipment	screenshot	1
-14:08:46  -  21/03/17	phase	download_all	1
-14:08:46  -  21/03/17	container	shopping-cart	1
-14:08:46  -  21/03/17	sensor	save	1
-14:08:46  -  21/03/17	computer	hdd	1
-14:08:46  -  21/03/17	measure	reflect-y	1
-14:08:46  -  21/03/17	manualdata	reflect-y	1
-14:08:46  -  21/03/17	alarm	bell	1
-14:08:46  -  21/03/17	recipe	sortable	1
-14:08:46  -  21/03/17	recipeStep	option-vertical	1
-14:08:46  -  21/03/17	batch	inbox	1
-14:08:46  -  21/03/17	transfer	transfer	1
-14:08:46  -  21/03/17	ToDo	flag	1
-14:08:46  -  21/03/17	group	group	1
-14:08:46  -  21/03/17	user	user	1
-14:08:46  -  21/03/17	graphic	stats	1
-14:08:46  -  21/03/17	monitoring	stats	1
-14:08:46  -  21/03/17	edit	edit	1
-14:08:46  -  21/03/17	info	info-sign	1
-14:08:46  -  21/03/17	listing	folder-open	1
-14:08:46  -  21/03/17	barcode	barcode	1
-14:08:46  -  21/03/17	add	plus	1
-14:08:46  -  21/03/17	exportdata	floppy-save 1
-14:08:46  -  21/03/17	datatable	list 1
+2017-03-21 14:08:46	place	map-marker	1
+2017-03-21 14:08:46	equipment	screenshot	1
+2017-03-21 14:08:46	phase	download_all	1
+2017-03-21 14:08:46	container	shopping-cart	1
+2017-03-21 14:08:46	sensor	save	1
+2017-03-21 14:08:46	computer	hdd	1
+2017-03-21 14:08:46	measure	reflect-y	1
+2017-03-21 14:08:46	manualdata	reflect-y	1
+2017-03-21 14:08:46	alarm	bell	1
+2017-03-21 14:08:46	recipe	sortable	1
+2017-03-21 14:08:46	recipeStep	option-vertical	1
+2017-03-21 14:08:46	batch	inbox	1
+2017-03-21 14:08:46	transfer	transfer	1
+2017-03-21 14:08:46	ToDo	flag	1
+2017-03-21 14:08:46	group	group	1
+2017-03-21 14:08:46	user	user	1
+2017-03-21 14:08:46	graphic	stats	1
+2017-03-21 14:08:46	monitoring	stats	1
+2017-03-21 14:08:46	edit	edit	1
+2017-03-21 14:08:46	info	info-sign	1
+2017-03-21 14:08:46	related	folder-open	1
+2017-03-21 14:08:46	barcode	barcode	1
+2017-03-21 14:08:46	add	plus	1
+2017-03-21 14:08:46	exportdata	floppy-save 1	
+2017-03-21 14:08:46	datatable	list 1	

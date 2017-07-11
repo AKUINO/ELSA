@@ -65,20 +65,20 @@ $else:
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputDeny" class="col-sm-6 col-form-label">$c.AllMessages.elements['deny'].getName(self.lang)</label>
+	    <label for="inputactive" class="col-sm-6 col-form-label">$c.AllMessages.elements['active'].getName(self.lang)</label>
 	    <span class="glyphicon glyphicon-remove-circle"> </span>
 	    $code:
-		cond = not (id == 'new')
-		if cond :
-		    cond = (c.AllGroups.elements[id].fields['deny'] == 1 or c.AllGroups.elements[id].fields['deny'] == '1')
+		cond = (id == 'new')
+		if not cond :
+		    cond = (c.AllGroups.elements[id].fields['active'] == 1 or c.AllGroups.elements[id].fields['active'] == '1')
 	    $if cond :
 		<label class="switch">
-		    <input id='inputDeny' name="deny" type="checkbox" value="1" checked>
+		    <input id='inputactive' name="active" type="checkbox" value="1" checked>
 		    <div class="slider round"></div>
 		</label>
 	    $else :
 		<label class="switch">
-		    <input id='inputDeny' name="deny" type="checkbox" value="1" >
+		    <input id='inputactive' name="active" type="checkbox" value="1" >
 		    <div class="slider round"></div>
 		</label>
 	    <span class="glyphicon glyphicon-ok-circle"> </span>
@@ -94,7 +94,7 @@ $else:
 	    <div class="col-sm-3">
 	    </div>
 	    <div class="col-sm-2">
-		<a href="/all/g" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		<a href="/list/g" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>

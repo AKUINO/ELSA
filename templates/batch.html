@@ -16,6 +16,19 @@ $else:
 	<div class="form-group row" id="error">
 	    $errormess
 	</div>
+	
+	<div class="form-group row">
+	    <label for="inputTime" class="col-sm-3 col-form-label">$c.AllMessages.elements['time'].getName(self.lang)</label>
+	    <div class="col-sm-9">
+		<input name="time" type="text" class="form-control" id="inputTime" placeholder="$c.AllMessages.elements['time'].getName(self.lang)" 
+		$if id != 'new':
+		    value="$c.AllBatches.elements[id].fields['time']"
+		$else :
+		    value ="$c.get_time()"
+		>
+	    </div>
+	</div>
+	
 	<div class="form-group row">
 	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(self.lang)</label>
 	    <div class="col-sm-9">
@@ -47,6 +60,40 @@ $else:
 		>
 		</div>
 	    </div>
+	    
+	<div class="form-group row">
+	    <label for="measureSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['measure'].getName(self.lang)</label>
+	    <div class="col-sm-9">
+		<select name = "measure" class="form-control" id="measureSelect">
+		    $for k in c.AllMeasures.elements.keys():
+			<option value="m_$k"
+			    $if id != 'new':
+				$if k == c.AllBatches.elements[id].fields['m_id'] :
+				    selected
+			>$c.AllMeasures.elements[k].fields['acronym'] - $c.AllMeasures.elements[k].getName(self.lang) - $c.AllMeasures.elements[k].fields['unit']</option>
+		</select>
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputLapse1" class="col-sm-3 col-form-label">$c.AllMessages.elements['quantity'].getName(self.lang)</label>
+	    <div class="col-sm-9">
+		<input name="basicqt" type="text" class="form-control" id="inputLapse1" placeholder="$c.AllMessages.elements['quantity'].getName(self.lang)" 
+		    $if id != 'new':
+			value="$c.AllBatches.elements[id].fields['basicqt']"
+		>
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputLapse1" class="col-sm-3 col-form-label">$c.AllMessages.elements['cost'].getName(self.lang)</label>
+	    <div class="col-sm-9">
+		<input name="cost" type="text" class="form-control" id="inputLapse1" placeholder="$c.AllMessages.elements['cost'].getName(self.lang)" 
+		    $if id != 'new':
+			value="$c.AllBatches.elements[id].fields['cost']"
+		>
+	    </div>
+	</div>
 	
 	<div class="form-group row">
 	    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.AllMessages.elements['code'].getName(self.lang)</label>
@@ -66,20 +113,20 @@ $else:
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputDeny" class="col-sm-6 col-form-label">$c.AllMessages.elements['deny'].getName(self.lang)</label>
+	    <label for="inputactive" class="col-sm-6 col-form-label">$c.AllMessages.elements['active'].getName(self.lang)</label>
 	    <span class="glyphicon glyphicon-remove-circle"> </span>
 	    $code:
-		cond = not (id == 'new')
-		if cond :
-		    cond = (c.AllBatches.elements[id].fields['deny'] == 1 or c.AllBatches.elements[id].fields['deny'] == '1')
+		cond = (id == 'new')
+		if not cond :
+		    cond = (c.AllBatches.elements[id].fields['active'] == 1 or c.AllBatches.elements[id].fields['active'] == '1')
 	    $if cond :
 		<label class="switch">
-		    <input id='inputDeny' name="deny" type="checkbox" value="1" checked>
+		    <input id='inputactive' name="active" type="checkbox" value="1" checked>
 		    <div class="slider round"></div>
 		</label>
 	    $else :
 		<label class="switch">
-		    <input id='inputDeny' name="deny" type="checkbox" value="1" >
+		    <input id='inputactive' name="active" type="checkbox" value="1" >
 		    <div class="slider round"></div>
 		</label>
 	    <span class="glyphicon glyphicon-ok-circle"> </span>
@@ -96,7 +143,7 @@ $else:
 	    <div class="col-sm-3">
 	    </div>
 	    <div class="col-sm-2">
-		<a href="/all/b" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		<a href="/list/b" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>

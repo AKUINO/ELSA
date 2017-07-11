@@ -33,7 +33,7 @@ $code:
 $for k in sensors:
 	$code:
 	    currSensor = c.AllSensors.elements[k]
-	$if currSensor and (currSensor.fields['deny'] == '1' or currSensor.fields['deny'] == 1):
+	$if currSensor and (currSensor.fields['active'] == '1' or currSensor.fields['active'] == 1):
 	    <h1 id="title"><a href="/graphic/cpehm_$currSensor.id"><strong><span class="$c.AllHalflings.elements['sensor'].getHalfling()"></span></strong> $currSensor.getName(self.lang)</a></h1>
 	    <table width="100%">
 		<tr>
@@ -45,7 +45,7 @@ $for k in sensors:
 	
 	    <script type="text/javascript">		
 		$code:
-		    url = '/graphic/$(type)_$(id)/'+currSensor.getRRDName()
+		    url = '/rrd/'+currSensor.getRRDName()
 		    dsName = currSensor.fields['acronym']
 	   	    dsColor = None #currSensor.fields['color']
 		    if not dsColor:

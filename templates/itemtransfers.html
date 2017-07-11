@@ -5,12 +5,12 @@ $code:
     keyID = c.findAllFromObject(elem).keyColumn
     
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
-$var location: all/$(type)=$(c.findAllFromType(type).get_name_object()) transfers/$(type)_$(id)=transfer
+$var location: list/$(type)=$(c.findAllFromType(type).get_name_object()) find/t/$(type)_$(id)=transfer
 $var recursive : False
 
 <script>
     $$(function(){
-	$$("#includedAllMenu$(type)_$(id)").load("/allmenu/$(type)_$(id)");
+	$$("#includedAllMenu$(type)_$(id)").load("/fullentry/$(type)_$(id)");
     });
 </script>
 <div id="includedAllMenu$(type)_$(id)"></div>
@@ -23,7 +23,7 @@ $var recursive : False
 <div id="includedModal$(type)_$(id)"></div>
 
 <div class="row active">
-    <label class="col-sm-12"></label>
+    <label class="col-sm-12">$c.AllMessages.elements['transfer'].getName(self.lang) :</label>
 </div>
 
 $for transfer in elem.position:
@@ -41,7 +41,7 @@ $for transfer in elem.position:
 	    $transfer.fields['remark']
 	</div>
 	<div class="col-xs-1">
-	    <strong><a href="update/t_$transfer.fields['t_id']" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
+	    <strong><a href="/edit/t_$transfer.fields['t_id']" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
 	</div>
     </div>
     
@@ -49,6 +49,6 @@ $for transfer in elem.position:
     <div class="col-xs-5">
     </div>
     <div class="col-xs-6" id="addItem">
-	<a href="$(type)_$(id)/new"><span class="halflings halflings-plus"></span>$c.AllMessages.elements['transfer'].getName(self.lang)</a>
+	<a href="/create/t/$(type)_$(id)"><span class="halflings halflings-plus"></span>$c.AllMessages.elements['transfer'].getName(self.lang)</a>
     </div>
 </div> 

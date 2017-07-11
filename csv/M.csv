@@ -1,5 +1,0 @@
-begin	m_id	deny	acronym	unit	source	formula	remark	user
-14:11:28  -  21/03/17	1	1	Temp	°C	sensor			1
-14:12:12  -  21/03/17	2	1	Humi	%H2O	sensor			1
-14:12:52  -  21/03/17	3	1	Lumen	Lumen	sensor			1
-14:13:53  -  21/03/17	4	1	C-CO2	PPM	sensor			1

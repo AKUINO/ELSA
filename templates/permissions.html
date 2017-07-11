@@ -47,7 +47,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 				<label class="col-sm-2 col-form-label">
 				<span class="glyphicon glyphicon-remove-circle"> </span>
 				    <label class="switch">
-					<input id='inputDeny' name="$group" type="checkbox" value="1" checked>
+					<input id='inputactive' name="$group" type="checkbox" value="1" checked>
 					<div class="slider round"></div>
 				    </label>
 				    <span class="glyphicon glyphicon-ok-circle"> </span>
@@ -58,7 +58,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 				<label class="col-sm-2 col-form-label">
 				<span class="glyphicon glyphicon-remove-circle"> </span>
 				    <label class="switch">
-					<input id='inputDeny' name="$group" type="checkbox" >
+					<input id='inputactive' name="$group" type="checkbox" >
 					<div class="slider round"></div>
 				    </label>
 				    <span class="glyphicon glyphicon-ok-circle"> </span>
@@ -68,12 +68,12 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 				<span class="glyphicon glyphicon-remove-circle"> </span>
                                 $if group in element.groups:
 					<label class="switch">
-					    <input id='inputDeny' name="$group" type="checkbox" value="1" checked>
+					    <input id='inputactive' name="$group" type="checkbox" value="1" checked>
 					    <div class="slider round"></div>
 					</label>
                                 $else:
                                 	<label class="switch">
-					    <input id='inputDeny' name="$group" type="checkbox">
+					    <input id='inputactive' name="$group" type="checkbox">
 					    <div class="slider round"></div>
 					</label>
 				<span class="glyphicon glyphicon-ok-circle"> </span>

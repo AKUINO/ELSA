@@ -67,20 +67,20 @@ $else:
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputDeny" class="col-sm-6 col-form-label">$c.AllMessages.elements['deny'].getName(self.lang)</label>
+	    <label for="inputactive" class="col-sm-6 col-form-label">$c.AllMessages.elements['active'].getName(self.lang)</label>
 	    <span class="glyphicon glyphicon-remove-circle"> </span>
 	    $code:
-		cond = not (id == 'new')
-		if cond :
-		    cond = (c.AllPieces.elements[id].fields['deny'] == 1 or c.AllPieces.elements[id].fields['deny'] == '1')
+		cond = (id == 'new')
+		if not cond :
+		    cond = (c.AllPieces.elements[id].fields['active'] == 1 or c.AllPieces.elements[id].fields['active'] == '1')
 	    $if cond :
 		<label class="switch">
-		    <input id='inputDeny' name="deny" type="checkbox" value="1" checked>
+		    <input id='inputactive' name="active" type="checkbox" value="1" checked>
 		    <div class="slider round"></div>
 		</label>
 	    $else :
 		<label class="switch">
-		    <input id='inputDeny' name="deny" type="checkbox" value="1" >
+		    <input id='inputactive' name="active" type="checkbox" value="1" >
 		    <div class="slider round"></div>
 		</label>
 	    <span class="glyphicon glyphicon-ok-circle"> </span>
@@ -88,10 +88,14 @@ $else:
 	
 	<div class="form-group row">
 	    <div class="col-sm-3">
-		<label for="includedContent" class="col-sm-6 col-form-label">$c.AllMessages.elements['color'].getName(self.lang)</label>
+		<label for="includedContent" >$c.AllMessages.elements['color'].getName(self.lang)</label>
 	    </div>
-	    <div id="includedContent" class="form-group col-sm-9">
-	    </div>
+	    <script>
+		$$(function(){
+		    $$("#includedColor").load("/color/p_$(id)");
+		});
+	    </script>
+	    <div id="includedColor" class="col-sm-9"></div>
 	</div>
 	
 	
@@ -105,7 +109,7 @@ $else:
 	    <div class="col-sm-3">
 	    </div>
 	    <div class="col-sm-2">
-		<a href="/all/p" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		<a href="/list/p" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>

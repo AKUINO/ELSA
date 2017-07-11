@@ -34,7 +34,7 @@ $code:
                         <strong>$elem.fields['acronym']</strong>
                     </div>
                     <div id="modalinfo" class="col-xs-1">
-                        $if elem.fields['deny'] == '1' or elem.fields['deny'] == 1 :
+                        $if elem.fields['active'] == '1' or elem.fields['active'] == 1 :
                             <span class="glyphicon glyphicon-ok-circle"> </span>
                         $else :
                             <span class="glyphicon glyphicon-remove-circle"> </span>		    
@@ -63,7 +63,7 @@ $code:
 			$if type in 'bce':
                             <div class="row">
 			        <div class="col-xs-3" >
-				    <strong><a href="/transfers/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['transfer'].getHalfling()"></span></a></strong>
+				    <strong><a href="/find/t/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['transfer'].getHalfling()"></span></a></strong>
 			        </div>
 			    </div>	
                         <div class="row">
@@ -205,11 +205,11 @@ $code:
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
                                 $if not elem.fields['p_id'] == '' :
-                                    <a href="/all/p">$c.AllPieces.elements[elem.fields['p_id']].getName(self.lang)</a>
+                                    <a href="/list/p">$c.AllPieces.elements[elem.fields['p_id']].getName(self.lang)</a>
                                 $elif not elem.fields['e_id'] == '' :
-                                    <a href="/all/e">$c.AllEquipments.elements[elem.fields['e_id']].getName(self.lang)</a>
+                                    <a href="/list/e">$c.AllEquipments.elements[elem.fields['e_id']].getName(self.lang)</a>
                                 $if not elem.fields['c_id'] == '' :
-                                    <a href="/all/c">$c.AllContainers.elements[elem.fields['c_id']].getName(self.lang)</a>
+                                    <a href="/list/c">$c.AllContainers.elements[elem.fields['c_id']].getName(self.lang)</a>
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">
@@ -295,14 +295,14 @@ $code:
             <div class="modal-footer">
 		$if type in 'cpehmb' :
 		    <div class="col-xs-2" >
-			<strong><a href="/measures/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['measure'].getHalfling()"></span></a></strong>
+			<strong><a href="/find/d/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['measure'].getHalfling()"></span></a></strong>
 		    </div>
 		$else :
 		    <div class="col-xs-2" >
 		    </div>
 		$if type in 'cpem':
 		    <div class="col-xs-2" >
-			<strong><a href="/listing/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['listing'].getHalfling()"></span></a></strong>
+			<strong><a href="/find/related/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['related'].getHalfling()"></span></a></strong>
 		    </div>
 		$else :
 		    <div class="col-xs-2" >
@@ -316,7 +316,7 @@ $code:
 		    </div>
 		$if type in 'cpeb':
 		    <div class="col-xs-2">
-			<strong><a href="/exportdata/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['exportdata'].getHalfling()"></span></a></strong>
+			<strong><a href="/export/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['exportdata'].getHalfling()"></span></a></strong>
 		    </div>
 		$else :
 		    <div class="col-xs-2" >
