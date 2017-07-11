@@ -22,7 +22,7 @@ $if elem is not None:
                                     $if line['timestamp'] != '' :
                                         <td>$useful.timestamp_to_date(int(line['timestamp']),c.get_time_format())</td>
                                 $else :
-				    <td>$line[e]</td>
+				    <td align="center">$line[e]</td>
 			</tr>
 	    </tbody>
 	</table>

@@ -36,6 +36,8 @@ datetimeformat = "%Y-%m-%d %H:%M:%S"
 
 _lock_socket = None
 
+queryChannels = ['wire','battery','cputemp','system']
+
 class Configuration():
 
     def __init__(self):
@@ -93,6 +95,7 @@ class Configuration():
 	self.RadioThread.daemon = True
 	self.screen = None
 	self.owproxy = None
+	self.batteryVoltage = 0.0
 
     def load(self):
 	"""
@@ -310,86 +313,7 @@ class Configuration():
         return datetimeformat
 	
 	
-
 class InfoSystem():
-
-##    global lastBatt
-##
-##    def readBattery(self):
-##        if self.conf.HardConfig.battery:
-##            try:
-##                if self.bus_pi is None:
-##                    if self.conf.HardConfig.battery == 'I2C':
-##                        #bus_pi = I2C.get_i2c_device(hardConf.battery_address, busnum=hardConf.i2c_bus)
-##                        self.bus_pi = SMBus(self.conf.HardConfig.i2c_bus)
-##                        print self.bus_pi
-##                    elif self.conf.HardConfig.battery == 'SPI':
-##                        self.bus_pi = ADCDACPi()  # create an instance of the ADCDAC Pi with a DAC gain set to 1
-##
-##                        # set the reference voltage.  this should be set to the exact voltage
-##                        # measured on the raspberry pi 3.3V rail.
-##                        self.bus_pi.set_adc_refvoltage(3.3)
-##
-##                if self.conf.HardConfig.battery == 'I2C':
-##
-##                    #bus_pi.write_byte(ADCaddr,0x98)# va charger la valeur du registre
-##                                                # dans le mcp
-##                    """print 'ADC I2C:',hex(addr)"""
-##                    #xa = bus_pi.read_word_data(ADCaddr,0)# recupère la valeur en décimal
-##                    xa = self.bus_pi.read_i2c_block_data(hardConf.battery_address,ADCconf,3)
-##                    if len(xa) < 2:
-##                        continue
-##                    x1 = xa[0] # les 2 premier Bytes et les 2 derniers doivent                    
-##                    x2 = xa[1] # être inversé pour récupérer la bonne valeur
-##                    #x1b = int(x1,16)*256                
-##                    #x2b = int(x2,16)
-##                    tens = (x1*256) + x2
-##                    if tens == 32767:
-##                        continue   #TODO: Implanter la bonne synchronisation avec l'arrivee du résultat...
-##                    elif tens >=32768:
-##                        tens = tens - 65536
-##                    tens = (tens*0.0625)/1000 # 0.0625 codé sur 16 bits
-##                                              # et /1000 pour avoir la valeur en volt
-##                elif self.conf.HardConfig.battery == 'SPI':
-##                    tens = self.bus_pi.read_adc_voltage(1, 0)
-##                tens= tens*self.conf.HardConfig.battery_divider # 9.4727 est le coefficient du pont diviseur de
-##                                      # tension qui est placé au borne de l'ADC
-##                tens = round(tens, 2) # Arrondi la valeur au centième près
-##
-##                if tens < 4:
-##                    print ("Sous tension: "+unicode(tens))
-##                    pass
-##                else:
-##                    lastBatt = tens
-##                    if tens <= self.conf.HardConfig.battery_breakout_volt:
-##                        stats_label.set(unicode(tens)+u"V : ATTENTION")
-##                        print (tens+"V lower than "+unicode(self.conf.HardConfig.battery_breakout_volt)+"...")
-##                        time.sleep(5)
-##                        if self.conf.HardConfig.battery == 'I2C':
-##                            self.bus_pi.write_byte(self.conf.HardConfig.battery_address,ADCconf)
-##                            xa = self.bus_pi.read_i2c_block_data(self.conf.HardConfig.battery_address,0)
-##                            if len(xa) < 3:
-##                                continue
-##                            x = hex(xa) 
-##                            x1 = x[4:6]                    
-##                            x2 = x[2:4]
-##                            tens = (x1*256) + x2
-##                            if tens >=32768:
-##                                tens = tens - 65536
-##                            tens = (tens*0.0625)/1000
-##                        elif self.conf.HardConfig.battery == 'SPI':
-##                            tens = self.bus_pi.read_adc_voltage(1, 0)
-##                        tens= tens*self.conf.HardConfig.battery_divider
-##                        tens = round(tens, 2)
-##                        if tens < self.conf.HardConfig.battery_breakout_volt:
-##                            stats_label.set(unicode(tens)+u"V : HALTE DU SYSTEME")
-##                            print(tens+"V : Shutdown...")
-##                            SHUT_NOW(None)
-##                    else:  
-##                        print 'Sensor battery: '+unicode(tens)+' V'
-##
-##        except:
-##                traceback.print_exc()
 
     def __init__(self, config):
 	self.uptime = 0
@@ -402,9 +326,79 @@ class InfoSystem():
 	self.temperature = 0
 	self.ip = ''
 	self.config = config
-	self.battery = 0.0
+	self.bus_pi = None
 	
+    def SHUT_NOW(self):
+        print "SHUTING DOWN NOW!"
+        os.system(self.config.HardConfig.battery_shutdown)
+
+    def readBattery(self):
+        tens = 0.0
+        try:
+            if self.config.HardConfig.battery == 'I2C':
+
+                #bus_pi.write_byte(ADCaddr,0x98)# va charger la valeur du registre
+                                            # dans le mcp
+                """print 'ADC I2C:',hex(addr)"""
+                #xa = bus_pi.read_word_data(ADCaddr,0)# recupère la valeur en décimal
+                xa = self.bus_pi.read_i2c_block_data(hardConf.battery_address,ADCconf,3)
+                if len(xa) < 2:
+                    return 0.0
+                x1 = xa[0] # les 2 premier Bytes et les 2 derniers doivent                    
+                x2 = xa[1] # être inversé pour récupérer la bonne valeur
+                #x1b = int(x1,16)*256                
+                #x2b = int(x2,16)
+                tens = (x1*256) + x2
+                if tens == 32767:
+                    return 0.0   #TODO: Implanter la bonne synchronisation avec l'arrivee du résultat...
+                elif tens >=32768:
+                    tens = tens - 65536
+                tens = (tens*0.0625)/1000 # 0.0625 codé sur 16 bits
+                                          # et /1000 pour avoir la valeur en volt
+            elif self.config.HardConfig.battery == 'SPI':
+                tens = self.bus_pi.read_adc_voltage(1, 0)
+            tens= tens*self.config.HardConfig.battery_divider # 9.4727 est le coefficient du pont diviseur de
+                                  # tension qui est placé au borne de l'ADC
+            tens = round(tens, 2) # Arrondi la valeur au centième près
+        except:
+            traceback.print_exc()
+        return tens
+    
     def updateInfoSystem(self,now):
+        if self.config.HardConfig.battery:
+            try:
+                if self.bus_pi is None:
+                    if self.config.HardConfig.battery == 'I2C':
+                        #bus_pi = I2C.get_i2c_device(hardConf.battery_address, busnum=hardConf.i2c_bus)
+                        self.bus_pi = SMBus(self.config.HardConfig.i2c_bus)
+                        print self.bus_pi
+                    elif self.config.HardConfig.battery == 'SPI':
+                        self.bus_pi = ADCDACPi()  # create an instance of the ADCDAC Pi with a DAC gain set to 1
+
+                        # set the reference voltage.  this should be set to the exact voltage
+                        # measured on the raspberry pi 3.3V rail.
+                        self.bus_pi.set_adc_refvoltage(3.3)
+
+                tens = self.readBattery()
+                if tens == 0.0 :
+                    pass
+                elif tens < 4:
+                    print ("Sous tension: "+unicode(tens))
+                else:
+                    self.config.batteryVoltage = tens
+                    if tens <= self.config.HardConfig.battery_breakout_volt:
+                        stats_label.set(unicode(tens)+u"V : ATTENTION")
+                        print (tens+"V lower than "+unicode(self.config.HardConfig.battery_breakout_volt)+"...")
+                        time.sleep(5)
+                        tens = self.readBattery()
+                        if tens < self.config.HardConfig.battery_breakout_volt:
+                            stats_label.set(unicode(tens)+u"V : HALTE DU SYSTEME")
+                            print(tens+"V : Shutdown...")
+                            SHUT_NOW(None)
+                    else:  
+                        print 'Sensor battery: '+unicode(tens)+' V'
+            except:
+                traceback.print_exc()
 	try:
 	    info = os.popen('cat /proc/uptime','r')
 	    info = info.read()
@@ -451,8 +445,7 @@ class InfoSystem():
 		for user in userlist:
                     print "Not sending mail to user#"+user
 		#   useful.send_email(self.config.AllUsers.elements[user].fields['mail'],u'Nouvelle IP pour ELSA: '+iptmp,u'Pour acceder ELSA:\nhttp://'+iptmp+u':8080')
-		self.ip = iptmp
-	    
+		self.ip = iptmp	    
 	except:
 	    traceback.print_exc()
 	    
@@ -1062,7 +1055,7 @@ class AllAlarmLogs(AllObjects):
     def get_alarmlog_component(self, id,begin,end):
 	logs = []
 	for i in range(len(self.elements)):
-	    e = self.elements[str(i)]
+	    e = self.elements[str(i+1)]
 	    time = useful.date_to_timestamp(e.fields['begin'],datetimeformat)
 	    if id == e.fields['cpehm_id'] :
 		if time > begin and time < end :
@@ -1248,7 +1241,7 @@ class AllSensors(AllObjects):
 	    
     def update(self, now) :
 	for k,sensor in self.elements.items():
-	    if sensor.fields['channel'] == 'wire' and not sensor.fields['active'] == '0' :
+	    if sensor.fields['channel'] in queryChannels and not sensor.fields['active'] == '0' :
 		value = sensor.get_value_sensor(self.config)
 		sensor.update(now, value,self.config)
 		
@@ -2062,7 +2055,7 @@ class AlarmLog(ConfigurationObject):
 class ExportData():
     def __init__(self, config, elem,cond, user):
 	self.config = config
-	self.fieldnames = ['timestamp','type', 'b_id', 'p_id', 'e_id', 'c_id','m_id','sensor','typevalue','value','unit', 'category', 'duration', 'remark', 'user']
+	self.fieldnames = ['timestamp','user','type', 'b_id', 'p_id', 'e_id', 'c_id','m_id','sensor','value','unit', 'category', 'duration', 'remark']
 	self.history = []
 	self.filename = csvDir + "exportdata.csv"
 	self.cond = cond
@@ -2176,7 +2169,7 @@ class ExportData():
 			if tmp > self.max :
 			    self.max = tmp
 			    timemax = sensor['timestamp']
-                    sensor['typevalue'] = 'DAT'
+                    #sensor['typevalue'] = 'DAT'
                     if self.cond['valuesensor'] is True :
 		        self.elements.append(sensor)
 		if self.count >0 :
@@ -2184,22 +2177,22 @@ class ExportData():
 		if self.cond['specialvalue'] is True and self.count >0:
 		    sensor1 = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
 		    sensor1['value'] = self.min
-		    sensor1['typevalue'] = 'MIN'
-		    sensor1['type'] = 'MES'
+		    #sensor1['typevalue'] = 'MIN'
+		    sensor1['type'] = 'MIN'
 		    sensor1['timestamp'] = timemin
                     sensor1['remark'] = ''
 		    self.elements.append(sensor1)
 		    sensor2 = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
 		    sensor2['value'] = self.max
-		    sensor2['typevalue'] = 'MAX'
-		    sensor2['type'] = 'MES'
+		    #sensor2['typevalue'] = 'MAX'
+		    sensor2['type'] = 'MAX'
 		    sensor2['timestamp'] = timemax
                     sensor2['remark'] = ''
 		    self.elements.append(sensor2)
 		    sensor3 = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
 		    sensor3['value'] = self.average
-		    sensor3['typevalue'] = 'AVG'
-		    sensor3['type'] = 'MES'
+		    #sensor3['typevalue'] = 'AVG'
+		    sensor3['type'] = 'AVG'
 		    sensor3['timestamp'] = end
                     sensor3['duration'] = end - begin
                     sensor3['remark'] = ''
@@ -2252,11 +2245,12 @@ class ExportData():
 	tmp['user'] = ""
 	if elem.creator:
 	    tmp['user'] = elem.creator
-            if self.cond['acronym'] is True and elem.get_type() != 'al':
+            if self.cond['acronym'] is True and elem.creator:
                 aUser = self.config.AllUsers.elements[elem.creator]
                 if aUser and aUser.fields['acronym']:
                     tmp['user'] = aUser.fields['acronym']
-        tmp['timestamp'] = useful.date_to_timestamp(elem.created,datetimeformat)
+        if elem.created:
+            tmp['timestamp'] = useful.date_to_timestamp(elem.created,datetimeformat)
 	if elem.get_type() in 'bcpem' :
 	    if self.cond['acronym'] is True :
 		tmp[elem.get_type()+'_id'] = elem.fields['acronym']
@@ -2293,7 +2287,7 @@ class ExportData():
 	elif elem.get_type() == 'al' :
 	    sensor = self.config.AllSensors.elements[elem.fields['cpehm_id']]
 	    tmp['timestamp'] = elem.fields['begintime']
-            tmp['type'] = 'ALOG'
+            tmp['type'] = 'ALR'
             if self.cond['acronym'] is True :
                 tmp[elem.fields['cont_type']+'_id'] = self.config.findAllFromType(elem.fields['cont_type']).elements[elem.fields['cont_id']].fields['acronym']
                 tmp['sensor'] = self.config.AllSensors.elements[elem.fields['cpehm_id']].fields['acronym']
@@ -2333,6 +2327,7 @@ class ExportData():
     def get_new_line(self):
 	tmp = {}	
 	tmp['timestamp'] = ''
+	tmp['user'] = ''
 	tmp['type'] = ''
 	tmp['b_id'] = ''
 	tmp['p_id'] = ''
@@ -2340,13 +2335,12 @@ class ExportData():
 	tmp['c_id'] = ''
 	tmp['m_id'] = ''
 	tmp['sensor'] = ''
-	tmp['typevalue'] = ''
+	#tmp['typevalue'] = ''
 	tmp['value'] = ''
 	tmp['unit'] = ''
 	tmp['category'] = ''
 	tmp['duration'] = ''
 	tmp['remark'] = ''
-	tmp['user'] = ''
 	return tmp
 
 class Halfling(ConfigurationObject):
@@ -2410,15 +2404,27 @@ class Alarm(ConfigurationObject):
 	    mess = config.AllMessages.elements['alarmmessage'].getName(lang)
 	    cpe = ''
 	    elem = ''
+	    currObject = config.AllAlarmLogs.createObject()
 	    if not sensor.fields['p_id'] == '':
 		cpe = config.AllMessages.elements['place'].getName(lang)
 		elem = config.AllPieces.elements[sensor.fields['p_id']]
+		currObject.fields['cont_type'] = 'p'
 	    elif not sensor.fields['e_id'] == '':
 		cpe = config.AllMessages.elements['equipment'].getName(lang)
 		elem = config.AllPieces.elements[sensor.fields['e_id']]
+		currObject.fields['cont_type'] = 'e'
 	    elif not sensor.fields['c_id'] == '':
 		cpe = config.AllMessages.elements['container'].getName(lang)
 		elem = config.AllPieces.elements[sensor.fields['c_id']]
+		currObject.fields['cont_type'] = 'c'
+	    currObject.fields['cont_id'] = elem.getID()
+	    currObject.fields['cpehm_id'] = sensor.getID()
+	    currObject.fields['value'] = unicode(sensor.lastvalue)
+	    currObject.fields['typealarm'] = unicode(sensor.actualAlarm)
+	    currObject.fields['begintime'] = unicode(sensor.time)
+	    currObject.fields['alarmtime'] = unicode(int(sensor.time) * sensor.countActual)
+	    currObject.fields['degree'] = unicode(sensor.degreeAlarm)
+	    currObject.save(config)
 	    return unicode.format(mess,config.HardConfig.hostname, cpe, elem.getName(lang), elem.fields['acronym'], sensor.getName(lang), sensor.fields['acronym'], unicode(sensor.lastvalue), sensor.actualAlarm, useful.timestamp_to_date(sensor.time, datetimeformat), unicode(sensor.degreeAlarm))
 	else :
 	    mess = config.AllMessages.elements['alarmmanual'].getName(lang)
@@ -2460,7 +2466,6 @@ class Alarm(ConfigurationObject):
 	
     def launch_alarm(self, sensor, config):
 	if sensor.get_type() == 'cpehm' :
-	    self.create_log(sensor,config)
 	    level = sensor.degreeAlarm
 	    if level == 1 :
 		print 'Send mails, level 1'
@@ -2492,26 +2497,7 @@ class Alarm(ConfigurationObject):
 	
     def get_name(self):
 	return 'alarm'
-	
-    def create_log(self, sensor, config):
-	currObject = config.getObject('new','al')
-	if not sensor.fields['p_id'] == '':
-	    elem = config.AllPieces.elements[sensor.fields['p_id']]
-	    currObject.fields['cont_type'] = 'p'
-	elif not sensor.fields['e_id'] == '':
-	    elem = config.AllPieces.elements[sensor.fields['e_id']]
-	    currObject.fields['cont_type'] = 'e'
-	elif not sensor.fields['c_id'] == '':
-	    elem = config.AllPieces.elements[sensor.fields['c_id']]
-	    currObject.fields['cont_type'] = 'c'
-	currObject.fields['cont_id'] = elem.getID()
-	currObject.fields['cpehm_id'] = sensor.getID()
-	currObject.fields['value'] = unicode(sensor.lastvalue)
-	currObject.fields['typealarm'] = unicode(sensor.actualAlarm)
-	currObject.fields['begintime'] = unicode(sensor.time)
-	currObject.fields['alarmtime'] = unicode(int(sensor.time) * sensor.countActual)
-	currObject.fields['degree'] = unicode(sensor.degreeAlarm)
-	currObject.save(config)
+	    
 	
 class Measure(ConfigurationObject):
 
@@ -2694,13 +2680,12 @@ class Sensor(ConfigurationObject):
     def createRRD(self):
 	name = re.sub('[^\w]+', '', self.fields['acronym'])
 	now = str( int(time.time())-60)
-	if self.fields['channel'] == 'wire' :
+	if self.fields['channel'] in queryChannels :
 	    data_sources = str('DS:'+name+'1:GAUGE:120:U:U')
 	    rrdtool.create( str(rrdDir+self.getRRDName()), "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
 	elif self.fields['channel'] == 'radio' :
 	    data_sources = str('DS:'+name+'1:GAUGE:360:U:U')
-	    rrdtool.create( str(rrdDir+self.getRRDName()), "--step", "180", '--start', now, data_sources, 'RRA:LAST:0.5:1:14400', 'RRA:AVERAGE:0.5:5:34560', 'RRA:AVERAGE:0.5:30:28800')
-	    
+	    rrdtool.create( str(rrdDir+self.getRRDName()), "--step", "180", '--start', now, data_sources, 'RRA:LAST:0.5:1:14400', 'RRA:AVERAGE:0.5:5:34560', 'RRA:AVERAGE:0.5:30:28800')	    
 	
     def getTypeAlarm(self,value):
 	value = float(value)
@@ -2755,13 +2740,31 @@ class Sensor(ConfigurationObject):
 ##		if aDevice:
 ##		    owData = aDevice.__getattr__(self.fields['subsensor'])
                 owData = config.owproxy.read(sensorAdress+u'/'+unicode(self.fields['subsensor']))
-                if owData:
-                    if self.fields['formula']:
-                        value = float(owData)
-                        owData = unicode(eval(self.fields['formula']))
-                    return owData
 	    except:
 		traceback.print_exc()
+	elif self.fields['channel'] == 'battery':
+            owData = config.batteryVoltage
+	elif self.fields['channel'] == 'cputemp':
+	    try:
+                info = file('/sys/class/thermal/thermal_zone0/temp', 'r').read()
+                owData = float(info)/1000.0
+	    except:
+		traceback.print_exc()
+	elif self.fields['channel'] == 'system':
+	    try:
+		sensorFile = u'/'+unicode(self.fields['sensor'])
+                info = file(sensorFile, 'r').read()
+                owData = float(info)
+	    except:
+		traceback.print_exc()
+	try:
+            if owData:
+                if self.fields['formula']:
+                    value = float(owData)
+                    owData = unicode(eval(self.fields['formula']))
+                return owData
+        except:
+            traceback.print_exc()
 	return None
     
     def get_alarm(self):

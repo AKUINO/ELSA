@@ -8,10 +8,10 @@ $if id == 'new':
     
 $else:
     $var location: all/a=alarm edit/a_$(id)=edit
-    $var rmq :  $c.AllPieces.elements[id].fields['remark']
+    $var rmq :  $c.AllAlarms.elements[id].fields['remark']
 
 <div class="container">
-    <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
+    <form  method="post" action="" id="modifyPlace" enctype="multipart/form-data" data-bv-message="This value is not valid" data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	<div class="form-group row" id="error">
 	    $errormess
 	</div>
