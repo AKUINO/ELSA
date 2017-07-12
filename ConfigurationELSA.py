@@ -41,7 +41,7 @@ queryChannels = ['wire','battery','cputemp','system']
 class Configuration():
 
     def __init__(self):
-	
+	"""
         self.HardConfig = hardconfig.HardConfig()
 	
 
@@ -66,7 +66,7 @@ class Configuration():
         except socket.error:
             print 'AKUINO-ELSA lock exists'
             sys.exit()
-	
+	"""
 	self.InfoSystem = InfoSystem(self)
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
@@ -129,8 +129,8 @@ class Configuration():
 	self.AllManualData.load()
 	self.AllPourings.load()
 	self.AllAlarmLogs.load()
-	self.UpdateThread.start()
-	self.RadioThread.start()
+	#self.UpdateThread.start()
+	#self.RadioThread.start()
     
     def findAllFromName(self,className):
         if className == User.__name__:
@@ -175,7 +175,7 @@ class Configuration():
 	    return self.AllContainers
 	elif className == u"m":
 	    return self.AllMeasures
-	elif className == u"cpehm":
+	elif className == u"s":
 	    return self.AllSensors
 	elif className == u"a":
 	    return self.AllAlarms
@@ -1046,7 +1046,7 @@ class AllAlarmLogs(AllObjects):
         self.fileobject = csvDir + "alarmlogs.csv"
 	self.filename = None
         self.keyColumn = "al_id"
-	self.fieldnames = ['begin', 'al_id', 'cont_id', 'cont_type', 'cpehm_id','value','typealarm','begintime', 'alarmtime', 'degree']
+	self.fieldnames = ['begin', 'al_id', 'cont_id', 'cont_type', 's_id','value','typealarm','begintime', 'alarmtime', 'degree']
 	self.fieldtranslate = None
 	self.count = 0
 
@@ -1058,7 +1058,7 @@ class AllAlarmLogs(AllObjects):
 	for i in range(len(self.elements)):
 	    e = self.elements[str(i+1)]
 	    time = useful.date_to_timestamp(e.fields['begin'],datetimeformat)
-	    if id == e.fields['cpehm_id'] :
+	    if id == e.fields['s_id'] :
 		if time > begin and time < end :
 		    logs.append(e)
 	return logs
@@ -1205,11 +1205,11 @@ class AllSensors(AllObjects):
         AllObjects.__init__(self)
         self.elements = {}
         self.config = config
-        self.fileobject = csvDir + "CPEHM.csv"
-	self.filename = csvDir + "CPEHMnames.csv"
-        self.keyColumn = "cpehm_id"
-	self.fieldnames = ['begin', 'cpehm_id', 'c_id', 'p_id', 'e_id', 'h_id', 'm_id', 'active', 'acronym', 'remark', 'channel', 'sensor', 'subsensor', 'valuetype', 'formula', 'minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax', 'lapse1', 'lapse2', 'lapse3', 'user']
-	self.fieldtranslate = ['begin', 'lang', 'cpehm_id', 'name', 'user']
+        self.fileobject = csvDir + "S.csv"
+	self.filename = csvDir + "Snames.csv"
+        self.keyColumn = "s_id"
+	self.fieldnames = ['begin', 's_id', 'c_id', 'p_id', 'e_id', 'h_id', 'm_id', 'active', 'acronym', 'remark', 'channel', 'sensor', 'subsensor', 'valuetype', 'formula', 'minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax', 'lapse1', 'lapse2', 'lapse3', 'user']
+	self.fieldtranslate = ['begin', 'lang', 's_id', 'name', 'user']
 	self.count = 0
 
     def newObject(self):
@@ -2261,7 +2261,7 @@ class ExportData():
 	    tmp['type'] = elem.get_type()
 	    if elem.get_type() == 'm':
 		tmp['m_id'] = elem.getID()
-	elif elem.get_type() == 'cpehm' :
+	elif elem.get_type() == 's' :
 	    if self.cond['acronym'] is True :
 		if elem.fields['p_id'] != '' :
 		    tmp['p_id'] = self.config.AllPieces.elements[elem.fields['p_id']].fields['acronym']
@@ -2281,21 +2281,21 @@ class ExportData():
 		tmp['p_id'] = elem.fields['p_id']
 		tmp['e_id'] = elem.fields['e_id']
 		tmp['c_id'] = elem.fields['c_id']
-		tmp['sensor'] = elem.fields['cpehm_id']
+		tmp['sensor'] = elem.fields['s_id']
 		tmp['m_id'] = elem.fields['m_id']
 	    tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
 	    tmp['remark'] = elem.fields['remark']
 	elif elem.get_type() == 'al' :
-	    sensor = self.config.AllSensors.elements[elem.fields['cpehm_id']]
+	    sensor = self.config.AllSensors.elements[elem.fields['s_id']]
 	    tmp['timestamp'] = elem.fields['begintime']
             tmp['type'] = 'ALR'
             if self.cond['acronym'] is True :
                 tmp[elem.fields['cont_type']+'_id'] = self.config.findAllFromType(elem.fields['cont_type']).elements[elem.fields['cont_id']].fields['acronym']
-                tmp['sensor'] = self.config.AllSensors.elements[elem.fields['cpehm_id']].fields['acronym']
-		tmp['m_id'] = self.config.AllMeasures.elements[self.config.AllSensors.elements[elem.fields['cpehm_id']].fields['m_id']].fields['acronym']
+                tmp['sensor'] = self.config.AllSensors.elements[elem.fields['s_id']].fields['acronym']
+		tmp['m_id'] = self.config.AllMeasures.elements[self.config.AllSensors.elements[elem.fields['s_id']].fields['m_id']].fields['acronym']
             else:
 	        tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
-                tmp['sensor'] = elem.fields['cpehm_id']
+                tmp['sensor'] = elem.fields['s_id']
 		tmp['m_id'] = elem.fields['m_id']
 	    tmp['duration'] = useful.date_to_timestamp(elem.fields['begin'],datetimeformat) - int(elem.fields['begintime'])
 	    tmp['category'] = elem.fields['degree']
@@ -2401,7 +2401,7 @@ class Alarm(ConfigurationObject):
 	
 	
     def get_alarm_message(self, sensor,config, lang):
-	if sensor.get_type() == 'cpehm' :
+	if sensor.get_type() == 's' :
 	    mess = config.AllMessages.elements['alarmmessage'].getName(lang)
 	    cpe = ''
 	    elem = ''
@@ -2419,7 +2419,7 @@ class Alarm(ConfigurationObject):
 		elem = config.AllPieces.elements[sensor.fields['c_id']]
 		currObject.fields['cont_type'] = 'c'
 	    currObject.fields['cont_id'] = elem.getID()
-	    currObject.fields['cpehm_id'] = sensor.getID()
+	    currObject.fields['s_id'] = sensor.getID()
 	    currObject.fields['value'] = unicode(sensor.lastvalue)
 	    currObject.fields['typealarm'] = unicode(sensor.actualAlarm)
 	    currObject.fields['begintime'] = unicode(sensor.time)
@@ -2439,7 +2439,7 @@ class Alarm(ConfigurationObject):
        
 	
     def get_alarm_title(self, sensor, config, lang):
-	if sensor.get_type() == 'cpehm' :
+	if sensor.get_type() == 's' :
 	    title = config.AllMessages.elements['alarmtitle'].getName(lang)
 	    code = ''
 	    equal = ''
@@ -2466,7 +2466,7 @@ class Alarm(ConfigurationObject):
 	    return unicode.format(title,sensor.fields['value'],measure,elem.getName(lang))
 	
     def launch_alarm(self, sensor, config):
-	if sensor.get_type() == 'cpehm' :
+	if sensor.get_type() == 's' :
 	    level = sensor.degreeAlarm
 	    if level == 1 :
 		print 'Send mails, level 1'
@@ -2602,13 +2602,13 @@ class Sensor(ConfigurationObject):
 	    self.fields['lapse3'] = 99999
 	
     def get_type(self):
-	return 'cpehm'
+	return 's'
 	
     def get_name(self):
 	return 'sensor'
 	
     def getRRDName(self):
-	name = 'cpehm_' + unicode(self.id)
+	name = 's_' + unicode(self.id)
 	name += '.rrd'
 	return name
 

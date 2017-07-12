@@ -98,16 +98,16 @@ $if type not in 'bg':
             $if sensor.fields[type+'_id'] == id :
                 <script>
                     $$(function(){
-                        $$("#includedMenucpehm_$(k)").load("/entry/cpehm_$(k)");
+                        $$("#includedMenus_$(k)").load("/entry/s_$(k)");
                     });
                 </script>
-                <div id="includedMenucpehm_$(k)"></div>
+                <div id="includedMenus_$(k)"></div>
                 <script>
                     $$(function(){
-                        $$("#includedModalcpehm_$(k)").load("/modal/cpehm_$(k)");
+                        $$("#includedModals_$(k)").load("/modal/s_$(k)");
                     });
                 </script>
-                <div id="includedModalcpehm_$(k)"></div>
+                <div id="includedModals_$(k)"></div>
     </div>
 <div class="row active"style = "background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
     <label class="col-sm-12">$c.AllMessages.elements['batch'].getName(self.lang) :</label>

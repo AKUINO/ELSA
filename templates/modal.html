@@ -26,7 +26,7 @@ $code:
             <div class="modal-body">
                 <div class="container-fluid">
                     <div class="row">
-                    $if type != 'm' and type != 'cpehm' and type != 'a' and elem.isImaged():
+                    $if type != 'm' and type != 's' and type != 'a' and elem.isImaged():
                         <div class="col-xs-5">
                             <img src="/$(elem.getImageDirectory())jpg" alt="Image not found" style="width:128px;height:128px;">
                         </div>
@@ -59,7 +59,7 @@ $code:
                             $elem.getName(self.lang)
                             </div>
                         </div>
-                    $if type != 'm' and type != 'cpehm' and type != 'a':
+                    $if type != 'm' and type != 's' and type != 'a':
 			$if type in 'bce':
                             <div class="row">
 			        <div class="col-xs-3" >
@@ -198,7 +198,7 @@ $code:
                             $elem.fields['relay2']
                             </div>
                         </div>
-                    $elif type == 'cpehm':
+                    $elif type == 's':
                         <div class="row" style="margin-top:10px;">
                             <div class="col-xs-4">
                                 $c.AllMessages.elements['component'].getName(self.lang) :
@@ -217,7 +217,7 @@ $code:
                                 $c.AllMessages.elements['measure'].getName(self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-                                <a href="/all/m">$c.AllMeasures.elements[elem.fields['m_id']].getName(self.lang)</a>
+                                <a href="/list/m">$c.AllMeasures.elements[elem.fields['m_id']].getName(self.lang)</a>
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">
@@ -293,7 +293,7 @@ $code:
                 </div>
             </div>
             <div class="modal-footer">
-		$if type in 'cpehmb' :
+		$if type in 'scpemb' :
 		    <div class="col-xs-2" >
 			<strong><a href="/find/d/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['measure'].getHalfling()"></span></a></strong>
 		    </div>
@@ -307,7 +307,7 @@ $code:
 		$else :
 		    <div class="col-xs-2" >
 		    </div>
-		$if type in 'cpehm':
+		$if type in 'cpesm':
 		    <div class="col-xs-2" >
 			<strong><a href="/graphic/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['graphic'].getHalfling()"></span></a></strong>
 		    </div>

@@ -45,7 +45,7 @@ class WebList():
     def GET(self, type):
         mail = isConnected()
         if mail is not None:
-	    if type in 'abcpehmug':
+	    if type in 'abcpesmug':
 		return self.getRender(type, mail)
 	    else:
 		return render.notfound()
@@ -114,7 +114,7 @@ class WebEdit():
 		    return render.batch(id,mail, errormess) 
 		elif type == 'c' :
 		    return render.container(id,mail, errormess) 
-		elif type == 'cpehm' :
+		elif type == 's' :
 		    return render.sensor(id,mail, errormess) 
 		elif type == 'm' :
 		    return render.measure(id,mail, errormess) 
@@ -189,7 +189,7 @@ class WebGraphic():
         mail = isConnected()
         if mail is not None:
             objects = c.findAllFromType(type)
-            if id in objects.elements.keys() and type in 'scpehm':
+            if id in objects.elements.keys() and type in 'scpem':
                 return render.listinggraphics(mail,type,id)
             return render.notfound()
         raise web.seeother('/') 
