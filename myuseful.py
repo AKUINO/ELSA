@@ -11,10 +11,13 @@ import socket
 import fcntl
 import struct
 
+import unicodecsv
+
 GMAIL_USER = u'akuino6002@gmail.com'
 GMAIL_PASS = u'My_Password6002'
 SMTP_SERVER = u'smtp.gmail.com'
 SMTP_PORT = 587
+csvDir = "../ELSAcsv/csv/"
 
 def get_timestamp():
     now = time.time()
@@ -69,9 +72,10 @@ def date_to_timestamp(date, datetimeformat):
     return int(time.mktime(datetime.datetime.strptime(date, datetimeformat).timetuple()))
     
 def date_normalize():
-    files = ['A.csv', 'alarmlogs.csv','Anames.csv','B.csv','Bnames.csv','C.csv','Cnames.csv', 'codes.csv', 'CPEHM.csv','CPEHMnames.csv', 'D.csv', 'E.csv', 'Enames.csv', 'G.csv', 'Gnames.csv', 'halflings.csv', 'language.csv', 'M.csv', 'mess.csv', 'messages.csv', 'Mnames.csv', 'P.csv', 'Pnames.csv', 'relations.csv', 'T.csv', 'U.csv', 'Unames.csv', 'V.csv']
+    files = ['A.csv','alarmlogs.csv','Anames.csv','B.csv','Bnames.csv','C.csv','Cnames.csv', 'codes.csv', 'CPEHM.csv','CPEHMnames.csv', 'D.csv', 'E.csv', 'Enames.csv', 'G.csv', 'Gnames.csv', 'halflings.csv', 'language.csv', 'M.csv', 'mess.csv', 'messages.csv', 'Mnames.csv', 'P.csv', 'Pnames.csv', 'relations.csv', 'T.csv', 'U.csv', 'Unames.csv', 'V.csv']
     for e in files :
-	fname = 'csv/'+e
+	fname = csvDir+e
+	print fname
 	with open(fname, 'r') as csvfile:
 	    row =  csvfile.readline()		
 	with open(fname) as csvfile:
@@ -82,11 +86,14 @@ def date_normalize():
 		    row[row.index('deny')] = 'active'
 		for e in row:
 		    csvfile.write(e)
-		    if not 'user' in e:
+		    if not 'user' in e or ('alarmlogs' in fname and 'degree' in e):
 			csvfile.write('\t')
 		if 'active'in row:
 		    row[row.index('active')] = 'deny'
-		row[-1] = u'user'
+		if 'alarmlog' in fname:
+                    row[-1] = u'degree'
+                else: 
+                    row[-1] = u'user'
 		print row
 	    with open(fname,"a") as copyfile:
 		for elems in reader:
@@ -103,3 +110,5 @@ def transform_date( date):
     except:
 	tmp = datetime.datetime.strptime(date, "%d/%m/%Y %H:%M:%S").isoformat()
     return tmp
+
+

@@ -321,7 +321,7 @@ class WebExport():
             tmp.create_export()
             if "download" in data :
                 tmp.write_csv()
-                raise web.seeother('/exportdata/'+str(type)+'_'+str(id)+'/exportdata.csv')
+                raise web.seeother('/export/'+str(type)+'_'+str(id)+'/exportdata.csv')
             else:
                 user.exportdata = tmp
                 raise web.seeother('/datatable/'+str(type)+'_'+str(id))
@@ -394,7 +394,7 @@ def main():
 
     global c, render
     try:
-        web.config.debug = True
+        web.config.debug = False
         render=web.template.render('templates/', base='layout')
         urls = (
             '/', 'WebIndex',
@@ -419,7 +419,6 @@ def main():
         #Configuration Singleton ELSA
         c=elsa.Configuration()
         c.load()
-	#c.AllBatches.elements['7'].clone(c,c.AllUsers.elements['6'])
         web.template.Template.globals['c'] = c
         web.template.Template.globals['useful'] = useful
         app = web.application(urls, globals())

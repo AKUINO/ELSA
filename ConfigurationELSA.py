@@ -41,9 +41,10 @@ queryChannels = ['wire','battery','cputemp','system']
 class Configuration():
 
     def __init__(self):
-	"""
+	
         self.HardConfig = hardconfig.HardConfig()
 	
+
 ##        # Run only OUNCE: Check if /run/akuino/ELSA.pid exists...
 ##        pid = str(os.getpid())
 ##        self.pidfile = self.HardConfig.RUNdirectory+"/ELSA.pid"
@@ -65,7 +66,7 @@ class Configuration():
         except socket.error:
             print 'AKUINO-ELSA lock exists'
             sys.exit()
-	"""
+	
 	self.InfoSystem = InfoSystem(self)
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
@@ -128,8 +129,8 @@ class Configuration():
 	self.AllManualData.load()
 	self.AllPourings.load()
 	self.AllAlarmLogs.load()
-	#self.UpdateThread.start()
-	#self.RadioThread.start()
+	self.UpdateThread.start()
+	self.RadioThread.start()
     
     def findAllFromName(self,className):
         if className == User.__name__:
@@ -2291,7 +2292,7 @@ class ExportData():
             if self.cond['acronym'] is True :
                 tmp[elem.fields['cont_type']+'_id'] = self.config.findAllFromType(elem.fields['cont_type']).elements[elem.fields['cont_id']].fields['acronym']
                 tmp['sensor'] = self.config.AllSensors.elements[elem.fields['cpehm_id']].fields['acronym']
-		tmp['m_id'] = self.config.AllSensors.elements[elem.fields['m_id']].fields['acronym']
+		tmp['m_id'] = self.config.AllMeasures.elements[self.config.AllSensors.elements[elem.fields['cpehm_id']].fields['m_id']].fields['acronym']
             else:
 	        tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
                 tmp['sensor'] = elem.fields['cpehm_id']
