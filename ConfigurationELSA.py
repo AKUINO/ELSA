@@ -25,6 +25,8 @@ from I2CScreen import *
 import pigpio
 PIG = pigpio.pi()
 """
+import smbus
+
 #mise a jour git
 csvDir = "../ELSAcsv/csv/"
 rrdDir = '../ELSArrd/rrd/'
@@ -41,7 +43,7 @@ queryChannels = ['wire','battery','cputemp','system']
 class Configuration():
 
     def __init__(self):
-	"""
+	
         self.HardConfig = hardconfig.HardConfig()
 	
 
@@ -66,7 +68,7 @@ class Configuration():
         except socket.error:
             print 'AKUINO-ELSA lock exists'
             sys.exit()
-	"""
+	
 	self.InfoSystem = InfoSystem(self)
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
@@ -129,8 +131,8 @@ class Configuration():
 	self.AllManualData.load()
 	self.AllPourings.load()
 	self.AllAlarmLogs.load()
-	#self.UpdateThread.start()
-	#self.RadioThread.start()
+	self.UpdateThread.start()
+	self.RadioThread.start()
     
     def findAllFromName(self,className):
         if className == User.__name__:
@@ -342,7 +344,7 @@ class InfoSystem():
                                             # dans le mcp
                 """print 'ADC I2C:',hex(addr)"""
                 #xa = bus_pi.read_word_data(ADCaddr,0)# recupère la valeur en décimal
-                xa = self.bus_pi.read_i2c_block_data(hardConf.battery_address,ADCconf,3)
+                xa = self.bus_pi.read_i2c_block_data(self.config.HardConfig.battery_address,0x98+self.config.HardConfig.battery_port,3)
                 if len(xa) < 2:
                     return 0.0
                 x1 = xa[0] # les 2 premier Bytes et les 2 derniers doivent                    
@@ -370,8 +372,8 @@ class InfoSystem():
             try:
                 if self.bus_pi is None:
                     if self.config.HardConfig.battery == 'I2C':
-                        #bus_pi = I2C.get_i2c_device(hardConf.battery_address, busnum=hardConf.i2c_bus)
-                        self.bus_pi = SMBus(self.config.HardConfig.i2c_bus)
+                        #self.bus_pi = I2C.get_i2c_device(self.config.HardConfig.battery_address, busnum=self.config.HardConfig.i2c_bus)
+                        self.bus_pi = smbus.SMBus(self.config.HardConfig.i2c_bus)
                         print self.bus_pi
                     elif self.config.HardConfig.battery == 'SPI':
                         self.bus_pi = ADCDACPi()  # create an instance of the ADCDAC Pi with a DAC gain set to 1
