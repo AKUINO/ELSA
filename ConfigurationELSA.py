@@ -757,12 +757,10 @@ class UpdateThread(threading.Thread):
 	time.sleep(60)
 	self.config.owproxy = pyownet.protocol.proxy(host="localhost", port=4304)
 	while self.config.isThreading is True:
-	    #ow.init("/dev/i2c-1")
 	    now = useful.get_timestamp()
 	    self.config.InfoSystem.updateInfoSystem(now)
 	    if not len(self.config.AllSensors.elements) == 0 :
 		self.config.AllSensors.update(now)
-	    #ow.finish()
 	    time.sleep(60)
 	    
 class RadioThread(threading.Thread):
@@ -2747,19 +2745,11 @@ class Sensor(ConfigurationObject):
 		traceback.print_exc()
 	elif self.fields['channel'] == 'battery':
             owData = config.batteryVoltage
-	elif self.fields['channel'] == 'cputemp':
-	    try:
-                info = file('/sys/class/thermal/thermal_zone0/temp', 'r').read()
-                owData = float(info)/1000.0
-	    except:
-		traceback.print_exc()
 	elif self.fields['channel'] == 'system':
-	    try:
-		sensorFile = u'/'+unicode(self.fields['sensor'])
-                info = file(sensorFile, 'r').read()
-                owData = float(info)
-	    except:
-		traceback.print_exc()
+	    with open(self.fields['sensor'],'r') as sensorfile:
+		info = sensorfile.read()
+		owData = eval(self.fields['subsensor'])
+		print owData
 	try:
             if owData:
                 if self.fields['formula']:
