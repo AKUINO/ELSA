@@ -2967,7 +2967,7 @@ class Batch(ConfigurationObject):
 	except:
 	    tmp += configuration.AllMessages.elements['quantityrules'].getName(lang) + '\n'
 	    
-	if data['m_id'] == '':
+	if data['measure'] == '':
 	    tmp += configuration.AllMessages.elements['measurerules'].getName(lang) + '\n'
 	
 	if tmp == '':
@@ -2976,9 +2976,10 @@ class Batch(ConfigurationObject):
 	
     def set_value_from_data(self, data, c,user):
 	ConfigurationObject.set_value_from_data(self, data, c,user)
-	tmp = ['basicqt', 'm_id', 'time', 'cost']
+	tmp = ['basicqt', 'time', 'cost']
 	for elem in tmp:
 	    self.fields[elem] = data[elem]
+        self.add_measure(data['measure'])
 	self.save(c,user)	
 	    
 
