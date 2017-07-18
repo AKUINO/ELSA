@@ -1,5 +1,6 @@
 begin	m_id	default	user
 2016-01-01 13:45:56	name	Name	1
+2016-01-01 13:45:56	pouring	Pouring	1
 2016-01-01 13:45:56	production	Production	1
 2016-01-01 13:45:56	exportdata	Export data	1
 2016-01-01 13:45:56	people	People	1
@@ -15,7 +16,9 @@ begin	m_id	default	user
 2016-01-01 13:45:56	monitoring	Monitoring 	1
 2016-01-01 13:45:56	time	Time	1
 2016-01-01 13:45:56	componentmove	Component to move	1
-2016-01-01 13:45:56	componentin	Target	1
+2016-01-01 13:45:56	target	Target	1
+2016-01-01 13:45:56	source	Source	1
+2016-01-01 13:45:56	residualqt	Residual quantity	1
 2016-01-01 13:45:56	selecttransfer	Select the object to transfer	1
 2016-01-01 13:45:56	acronymrequired	Acronym is required !	1
 2016-01-01 13:45:56	acronymunique	Acronym must be unique !	1
@@ -27,6 +30,9 @@ begin	m_id	default	user
 2016-01-01 13:45:56	measurerules	A measure is required !	1
 2016-01-01 13:45:56	passwordrules	Password must contain at least eight characters! !	1
 2016-01-01 13:45:56	sensorrules	A sensor is required !	1
+2016-01-01 13:45:56	batchrules1	A Batch source is required !	1
+2016-01-01 13:45:56	batchrules2	A Batch target is required !	1
+2016-01-01 13:45:56	batchrules3	The batch target must be different from batch source!	1
 2016-01-01 13:45:56	unitrules	An unit is required !	1
 2016-01-01 13:45:56	channelrules	A channel is required !	1
 2016-01-01 13:45:56	datarules	If you enter a value, select a measure	1
@@ -95,6 +101,7 @@ begin	m_id	default	user
 2016-01-01 13:45:56	edit	Edit	1
 2016-01-01 13:45:56	alarmtitle	{0}  {1}    {2}    {3} {4} {5} {6}    {7}	1
 2016-01-01 13:45:56	alarmmanualtitle	ManualData : {0} {1} in {2}	1
+2016-01-01 13:45:56	alarmpouringtitle	Pouring from {0} {1} to {2} {3}	1
 2016-01-01 13:45:56	alarmmessage	"Alarm from {0}
 {1} :
      Name : {2}
@@ -106,7 +113,7 @@ Sensor :
      Type Alarm : {7}
 Time : {8}
 Degree : {9}"	1
-2016-01-01 13:45:56	alarmmanual	"Alarm from {0}
+2016-01-01 13:45:56	alarmmanual	"Manual Data from {0}
 {1} :
      Name : {2}
      Acronym : {3}
@@ -114,3 +121,13 @@ ManualData :
      Value : {4} {5}
      Remark : {6}
 Time : {7}"	1
+2016-01-01 13:45:56	alarmpouring	"Alarm from {0}
+Pouring from Batch :
+     Name : {1}
+     Acronym : {2}
+To Batch :
+     Name : {3}
+     Acronym : {4}
+Quantity : {5} {6}
+Remark : {7}
+Time : {8}"	1
