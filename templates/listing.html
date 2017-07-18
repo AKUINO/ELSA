@@ -1,4 +1,7 @@
-$def with (mail,type)	
+$def with (mail,type)
+$code :
+    if type == 'v' :
+	type = 'b'	
 $var location: list/$(type)=$(c.findAllFromType(type).get_name_object())
 $var recursive : False
 $code :

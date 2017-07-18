@@ -18,14 +18,12 @@ import HardConfig as hardconfig
 import barcode
 import re
 import socket
-"""
+
 import SSD1306
 from I2CScreen import *
-
 import pigpio
 PIG = pigpio.pi()
-"""
-import smbus
+#import smbus
 
 #mise a jour git
 csvDir = "../ELSAcsv/csv/"
@@ -191,6 +189,8 @@ class Configuration():
 	    return self.AllPourings
 	elif className == u"al":
 	    return self.AllAlarmLogs
+	elif className == u"v":
+	    return self.AllPourings
         else:
             return None
 	    
@@ -853,6 +853,10 @@ class AllObjects():
 		elif currObject.get_type() == 'd':
 		    objects = self.config.findAllFromType(currObject.fields['object_type'])
 		    objects.elements[currObject.fields['object_id']].add_data(currObject)		    
+		elif currObject.get_type() == 'v':
+		    objects = self.config.AllBatches
+		    objects.elements[currObject.fields['b_in']].add_pouringIN(currObject)		    
+		    objects.elements[currObject.fields['b_out']].add_pouringOUT(currObject)		    
 		
     def loadNames(self):
 	with open(self.filename) as csvfile:
@@ -1130,7 +1134,7 @@ class AllPourings(AllObjects):
         self.fileobject = csvDir + "V.csv"
 	self.filename = None
         self.keyColumn = "v_id"
-	self.fieldnames = ['begin', 'v_id', 'input_id', 'b_id', 'time', 'remark', 'm_id', 'value', 'user']
+	self.fieldnames = ['begin', 'v_id', 'b_in', 'b_out', 'time', 'quantity', 'm_id', 'remark', 'user']
 	self.fieldtranslate = None
 
     def newObject(self):
@@ -1865,7 +1869,6 @@ class ManualData(ConfigurationObject):
 	return 'manualdata'
 	
 class Pouring(ConfigurationObject):
-
     def __init__(self):
 	ConfigurationObject.__init__(self)
 	self.id = str(self.id)
@@ -1887,10 +1890,8 @@ class Pouring(ConfigurationObject):
 	return 'pouring'
 	
     def add_measure(self, measure):
-	if not measure =='None':
-	    self.fields['m_id'] = str(measure)
-	else:
-	    self.fields['m_id'] = ''
+	tmp = measure.split('_')
+	self.fields['m_id']= tmp[-1]
 	
 	
     def validate_form(self, data, configuration, lang) :
@@ -1899,34 +1900,38 @@ class Pouring(ConfigurationObject):
 	try:
 	    value = datetime.datetime.strptime(data['time'],datetimeformat)
 	except:
-	    traceback.print_exc()
 	    tmp += configuration.AllMessages.elements['timerules'].getName(lang) + '\n'
+	if data['measure'] == u'':
+	    tmp += configuration.AllMessages.elements['measurerules'].getName(lang) + '\n'
+	try : 
+	    value = float(data['quantity'])
+	except:
+	    tmp += configuration.AllMessages.elements['floatrules'].getName(lang) + '\n'
+	try:
+	    b_id = data['b_in']
+	    if not b_id in configuration.AllBatches.elements.keys():
+		tmp += configuration.AllMessages.elements['batchrules1'].getName(lang) + '\n'
+	except:
+	    tmp += configuration.AllMessages.elements['batchrules1'].getName(lang) + '\n'
+	try:
+	    b_id = data['b_out']
+	    if not b_id in configuration.AllBatches.elements.keys():
+		tmp += configuration.AllMessages.elements['batchrules2'].getName(lang) + '\n'
+	except:
+	    tmp += configuration.AllMessages.elements['batchrules2'].getName(lang) + '\n'
+	if data['b_in'] == data['b_out']:
+	    tmp += configuration.AllMessages.elements['batchrules3'].getName(lang) + '\n'
 	
-	if 'value' in data and data['measure'] == u'None':
-	    if not data['value'] == '' :
-		tmp += configuration.AllMessages.elements['datarules'].getName(lang) + '\n'
-	elif 'value' in data:
-	    try : 
-		value = float(data['value'])
-	    except:
-		tmp += configuration.AllMessages.elements['floatrules'].getName(lang) + '\n'
-	try:
-	    b_id = data['inputbatch']
-	    if not configuration.is_batch(b_id):
-		tmp += configuration.AllMessages.elements['batchrules'].getName(lang) + '\n'
-	except:
-	    tmp += configuration.AllMessages.elements['batchrules'].getName(lang) + '\n'
-		    
-	try:
-	    b_id = data['b_id']
-	    if not configuration.is_batch(b_id):
-		tmp += configuration.AllMessages.elements['batchrules'].getName(lang) + '\n'
-	except:
-	    tmp += configuration.AllMessages.elements['batchrules'].getName(lang) + '\n'
-		    
 	if tmp == '':
 	    return True
 	return tmp
+	
+    def set_value_from_data(self, data, c,user):
+	tmp = ['time', 'remark', 'b_in', 'b_out', 'quantity' ]
+	for elem in tmp:
+	    self.fields[elem] = data[elem]
+	self.add_measure(data['measure'])
+	self.save(c,user)
 	
     def get_name(self):
 	return 'pouring'
@@ -2427,7 +2432,7 @@ class Alarm(ConfigurationObject):
 	    currObject.fields['degree'] = unicode(sensor.degreeAlarm)
 	    currObject.save(config)
 	    return unicode.format(mess,config.HardConfig.hostname, cpe, elem.getName(lang), elem.fields['acronym'], sensor.getName(lang), sensor.fields['acronym'], unicode(sensor.lastvalue), sensor.actualAlarm, useful.timestamp_to_date(sensor.time, datetimeformat), unicode(sensor.degreeAlarm))
-	else :
+	elif sensor.get_type() == 'd' :
 	    mess = config.AllMessages.elements['alarmmanual'].getName(lang)
 	    elem = config.findAllFromType(sensor.fields['object_type']).elements[sensor.fields['object_id']]
 	    name = config.AllMessages.elements[elem.get_name()].getName(lang)
@@ -2436,6 +2441,15 @@ class Alarm(ConfigurationObject):
 	    else :
 		measure = ''
 	    return unicode.format(mess,config.HardConfig.hostname, name, elem.getName(lang), elem.fields['acronym'],unicode(sensor.fields['value']), measure,sensor.fields['remark'], sensor.fields['time'])
+	elif sensor.get_type() == 'v' :
+	    mess = config.AllMessages.elements['alarmpouring'].getName(lang)
+	    elemin = config.AllBatches.elements[sensor.fields['b_in']]
+	    elemout = config.AllBatches.elements[sensor.fields['b_out']]
+	    if sensor.fields['m_id'] != '' :
+		measure = config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
+	    else :
+		measure = ''
+	    return unicode.format(mess, config.HardConfig.hostname, elemout.getName(lang), elemout.fields['acronym'], elemin.getName(lang), elemin.fields['acronym'],unicode(sensor.fields['quantity']), measure,sensor.fields['remark'], sensor.fields['time'])
        
 	
     def get_alarm_title(self, sensor, config, lang):
@@ -2456,7 +2470,7 @@ class Alarm(ConfigurationObject):
 		code = '+++'
 		equal = '>'
 	    return unicode.format(title, code, unicode(sensor.degreeAlarm), sensor.fields['acronym'], unicode(sensor.lastvalue), equal, sensor.fields[sensor.actualAlarm], config.AllMeasures.elements[sensor.fields['m_id']].fields['unit'], sensor.getName(lang))
-	else:
+	elif sensor.get_type() == 'd' :
 	    title = config.AllMessages.elements['alarmmanualtitle'].getName(lang)
 	    elem = config.findAllFromType(sensor.fields['object_type']).elements[sensor.fields['object_id']]
 	    if sensor.fields['m_id'] != ''  :
@@ -2464,6 +2478,11 @@ class Alarm(ConfigurationObject):
 	    else :
 		measure = ''
 	    return unicode.format(title,sensor.fields['value'],measure,elem.getName(lang))
+	elif sensor.get_type() == 'v' :
+	    title = config.AllMessages.elements['alarmpouringtitle'].getName(lang)
+	    elemin = config.AllBatches.elements[sensor.fields['b_in']]
+	    elemout = config.AllBatches.elements[sensor.fields['b_out']]
+	    return unicode.format(title,elemout.fields['acronym'],elemout.getName(lang),elemin.fields['acronym'],elemin.getName(lang))
 	
     def launch_alarm(self, sensor, config):
 	if sensor.get_type() == 's' :
@@ -2484,7 +2503,7 @@ class Alarm(ConfigurationObject):
 		    mess = self.get_alarm_message(sensor,config, lang)
 		    title = self.get_alarm_title( sensor, config, lang)
 		    useful.send_email(config.AllUsers.elements[user].fields['mail'], title, mess)
-	else :
+	elif sensor.get_type() == 'd' :
 	    userlist = config.get_user_group(self.fields['o_email2'])
 	    for user in userlist:
 		lang = config.AllUsers.elements[user].fields['language']
@@ -2492,6 +2511,15 @@ class Alarm(ConfigurationObject):
 		title = self.get_alarm_title( sensor, config, lang)
 		print 'Send mail depuis manuel data'
 		useful.send_email(config.AllUsers.elements[user].fields['mail'], title, mess)
+	elif sensor.get_type() == 'v' :
+	    userlist = config.get_user_group(self.fields['o_email2'])
+	    for user in userlist:
+		lang = config.AllUsers.elements[user].fields['language']
+		mess = self.get_alarm_message(sensor,config, lang)
+		title = self.get_alarm_title( sensor, config, lang)
+		print 'Send mail depuis versement'
+		useful.send_email(config.AllUsers.elements[user].fields['mail'], title, mess)
+	
 		
     def get_name_listing(self):
 	return 'alarms'
@@ -2682,10 +2710,10 @@ class Sensor(ConfigurationObject):
 	name = re.sub('[^\w]+', '', self.fields['acronym'])
 	now = str( int(time.time())-60)
 	if self.fields['channel'] in queryChannels :
-	    data_sources = str('DS:'+name+'1:GAUGE:120:U:U')
+	    data_sources = str('DS:'+name+':GAUGE:120:U:U')
 	    rrdtool.create( str(rrdDir+self.getRRDName()), "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
 	elif self.fields['channel'] == 'radio' :
-	    data_sources = str('DS:'+name+'1:GAUGE:360:U:U')
+	    data_sources = str('DS:'+name+':GAUGE:360:U:U')
 	    rrdtool.create( str(rrdDir+self.getRRDName()), "--step", "180", '--start', now, data_sources, 'RRA:LAST:0.5:1:14400', 'RRA:AVERAGE:0.5:5:34560', 'RRA:AVERAGE:0.5:30:28800')	    
 	
     def getTypeAlarm(self,value):
@@ -2868,8 +2896,8 @@ class Batch(ConfigurationObject):
     def __init__(self, config):
 	ConfigurationObject.__init__(self)
 	self.config = config
-	self.pourings = []
-            
+	self.pouringsIN = []
+	self.pouringsOUT = []
 
     def __repr__(self):
         string = unicode(self.id) + " " + self.fields['acronym']
@@ -2900,8 +2928,8 @@ class Batch(ConfigurationObject):
 	
     def get_quantity_used(self):
 	qt = 0
-	for e in pourings:
-	    qt += float(e.fields['quantity'])
+	for e in self.pouringsOUT:
+	    qt += float(self.config.AllPourings.elements[e].fields['quantity'])
 	return qt
 	    
 	
@@ -2915,18 +2943,17 @@ class Batch(ConfigurationObject):
 		return useful.date_to_timestamp(self.pourings.fields['time'],datetimeformat) - useful.date_to_timestamp(self.fields['time'],datetimeformat)
 	return useful.get_timestamp() - useful.date_to_timestamp(self.fields['time'],datetimeformat)
 		
-    def add_pouring(self, pouring):
-	if isinstance(pouring, Pouring):
-	    added = False
-	    for i in range(len(self.pourings)):
-		if useful.date_to_timestamp(pourings[i].fields['time'] ,datetimeformat) > useful.date_to_timestamp(pouring.fields['time'],datetimeformat):
-		    added = True
-		    pourings.insert(pouring,i)
-	    if not added:
-		pouring.append(pouring)
+    def add_pouringIN(self, pouring):
+	if not pouring.getID() in self.pouringsIN:
+	    self.pouringsIN.append(pouring.getID())
+    def add_pouringOUT(self, pouring):
+	if not pouring.getID() in self.pouringsOUT:
+	    self.pouringsOUT.append(pouring.getID())
 		
     def get_residual_quantity(self):
 	val = self.get_quantity_used()
+	if self.fields['basicqt'] == '' or self.fields['basicqt'] == 0:
+	    self.fields['basicqt'] = 0
 	return float(self.fields['basicqt']) - val
 	
     def clone(self, user, name = 'copy' ):
@@ -2967,7 +2994,7 @@ class Batch(ConfigurationObject):
 	except:
 	    tmp += configuration.AllMessages.elements['quantityrules'].getName(lang) + '\n'
 	    
-	if data['m_id'] == '':
+	if data['measure'] == '':
 	    tmp += configuration.AllMessages.elements['measurerules'].getName(lang) + '\n'
 	
 	if tmp == '':
@@ -2976,9 +3003,10 @@ class Batch(ConfigurationObject):
 	
     def set_value_from_data(self, data, c,user):
 	ConfigurationObject.set_value_from_data(self, data, c,user)
-	tmp = ['basicqt', 'm_id', 'time', 'cost']
+	tmp = ['basicqt', 'time', 'cost']
 	for elem in tmp:
 	    self.fields[elem] = data[elem]
+	self.fields['m_id'] = data['measure']
 	self.save(c,user)	
 	    
 

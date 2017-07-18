@@ -59,7 +59,7 @@ $code:
                             $elem.getName(self.lang)
                             </div>
                         </div>
-                    $if type != 'm' and type != 's' and type != 'a':
+                    $if type != 'm' and type != 's' and type != 'a' and type != 'v':
 			$if type in 'bce':
                             <div class="row">
 			        <div class="col-xs-3" >
@@ -303,6 +303,10 @@ $code:
 		$if type in 'cpem':
 		    <div class="col-xs-2" >
 			<strong><a href="/find/related/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['related'].getHalfling()"></span></a></strong>
+		    </div>
+		$elif type in 'b' :
+		    <div class="col-xs-2" >
+			<strong><a href="/find/v/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['pouring'].getHalfling()"></span></a></strong>
 		    </div>
 		$else :
 		    <div class="col-xs-2" >

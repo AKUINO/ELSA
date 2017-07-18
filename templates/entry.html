@@ -29,7 +29,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    </div>
 	$elif type == 'g' :
 	    <div class="col-xs-2 vcenter" >
-		<strong><a href="/find/related/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['listing'].getHalfling()"></span></a></strong>
+		<strong><a href="/find/related/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['related'].getHalfling()"></span></a></strong>
 	    </div>
 	$if type in 'cpesm':
 	    <div class="col-xs-1 vcenter" >

@@ -44,6 +44,10 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <div class="col-xs-2" >
 		<strong><a href="/find/related/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['related'].getHalfling()"></span></a></strong>
 	    </div>
+	$elif type in 'b' :
+	    <div class="col-xs-2" >
+		<strong><a href="/find/v/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['pouring'].getHalfling()"></span></a></strong>
+	    </div>
 	$else :
 	    <div class="col-xs-2" >
 	    </div>

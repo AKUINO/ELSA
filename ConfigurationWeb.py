@@ -75,10 +75,11 @@ class WebEdit():
     def GET(self,type,id):
         mail = isConnected()
         if mail is not None:
+	    print 'typpe   : ' + type
             return self.getRender(type, id,mail, '')
         raise web.seeother('/')
         
-    def POST(self, type, id):
+    def POST(self, type, id, context = None):
         mail = isConnected()
         user  = c.connectedUsers.users[mail].cuser
         if mail is not None:
@@ -88,10 +89,13 @@ class WebEdit():
             if currObject is None:
                 raise web.seeother('/')
             data = web.input(placeImg={})
-            #method = data.get("method","malformed")
+            method = data.get("method","malformed")
             cond = currObject.validate_form(data, c, user.fields['language'])
             if cond is True:
                 currObject.set_value_from_data(data,c,user)
+		if 'a_id' in data :
+		    if len(data['a_id']) >0 :
+			c.AllAlarms.elements[data['a_id']].launch_alarm(currObject,c)
                 return self.getListing(mail, type)
             else :
                 if id == 'new' :
@@ -103,8 +107,8 @@ class WebEdit():
         return render.listing(mail, type)
     
     def getRender(self,type, id, mail, errormess):
-	if not type in 'td':
-	    print type
+	print type + '    :tyype'
+	if not type in 'tdv':
 	    if id in c.findAllFromType(type).elements.keys() or  id == 'new':
 		if type == 'p' :
 		    return render.place(id,mail, errormess)
@@ -128,6 +132,8 @@ class WebEdit():
 	    return render.transfer(id,mail, errormess) 
 	elif type =='d':
 	    return render.manualdata(id,mail, errormess) 
+	elif type == 'v':
+	    return render.pouring(id,mail, errormess) 
         return render.notfound()
 	
 class WebCreate(WebEdit):
@@ -141,7 +147,7 @@ class WebCreate(WebEdit):
         raise web.seeother('/')
 	
     def POST(self, type):
-	return WebEdit.POST(self,type,'new')    
+	return WebEdit.POST(self,type.split('/')[0],'new')    
 
 class WebFind():
     def GET(self,type,id1,id2):
@@ -178,6 +184,8 @@ class WebFind():
 	    return render.itemdata(id1,id2,mail)
 	elif type == 't':
 	    return render.itemtransfers(id1,id2,mail)
+	elif type == 'v':
+	    return render.listingpourings(id2,mail)
 	elif type == 'related':
 	    return render.listingcomponent(id1,id2,mail)
 
@@ -288,6 +296,7 @@ class WebListing():
         elif typeobject == 'g':
             return render.listinggroup(mail,idobject)
         elif typeobject == 'm':
+	    print 'flibidi'
             return render.listingmeasures(mail,idobject)
         else:
             return render.notfound()
@@ -344,7 +353,6 @@ class WebDataTable():
         return render.index(False,'')
               
     def getRender(self,type, id,mail):
-        """
         try:
             if type in 'cpeb':
                 return render.datatable(mail,type, id)
@@ -352,8 +360,6 @@ class WebDataTable():
                 return render.notfound()
         except :
             return render.notfound()
-        """
-        return render.datatable(mail,type, id)
             
 class WebDownloadData():     
     def GET(self,id1,id2, filename):
@@ -394,7 +400,7 @@ def main():
 
     global c, render
     try:
-        web.config.debug = False
+        web.config.debug = True
         render=web.template.render('templates/', base='layout')
         urls = (
             '/', 'WebIndex',
@@ -419,6 +425,7 @@ def main():
         #Configuration Singleton ELSA
         c=elsa.Configuration()
         c.load()
+	print c.AllPourings.elements['1'].fields
         web.template.Template.globals['c'] = c
         web.template.Template.globals['useful'] = useful
         app = web.application(urls, globals())
