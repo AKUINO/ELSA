@@ -18,13 +18,13 @@ import HardConfig as hardconfig
 import barcode
 import re
 import socket
-
+"""
 import SSD1306
 from I2CScreen import *
 import pigpio
 PIG = pigpio.pi()
 #import smbus
-
+"""
 #mise a jour git
 csvDir = "../ELSAcsv/csv/"
 rrdDir = '../ELSArrd/rrd/'
@@ -130,7 +130,7 @@ class Configuration():
 	self.AllPourings.load()
 	self.AllAlarmLogs.load()
 	self.UpdateThread.start()
-	self.RadioThread.start()
+	#self.RadioThread.start()
     
     def findAllFromName(self,className):
         if className == User.__name__:
@@ -960,31 +960,6 @@ class AllUsers(AllObjects):
 		
     def get_name_object(self ):
 	return 'user'
-		
-
-class AllRoles(AllObjects):
-
-    def __init__(self, config):
-        self.elements = {}
-        self.config = config
-        self.filename = csvDir + "O.csv"
-        self.keyColumn = "o_id"
-
-    def load(self):
-        with open(self.filename) as csvfile:
-            reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
-            for row in reader:
-                if((not 'active' in row) or (row['active'] != "1")):
-                    key = row[self.keyColumn]
-                    currObject = self.newObject()
-                    currObject.fields = row
-                    currObject.id = key
-                    self.elements[key] = currObject
-                else:
-                    print self.filename+': '+row['name'] + " is denied !"
-                
-    def newObject(self):
-        return Role()
     
 class AllEquipments(AllObjects):
 
@@ -1123,7 +1098,7 @@ class AllManualData(AllObjects):
 	return ManualData()
 	
     def get_name_object(self ):
-	return 'd'
+	return 'manualdata'
     
 class AllPourings(AllObjects):
 
@@ -1394,141 +1369,6 @@ class AllBarcodes(AllObjects):
     def to_pictures(self):
 	for k, v in self.elements.items():
 	    v.barcode_picture()
-    
-	    
-
-class AllPhases(AllObjects):
-
-    def __init__(self, config):
-        self.elements = {}
-        self.config = config
-        self.filename = csvDir + "testH.csv"
-        self.keyColumn = "h_id"
-	self.fieldnames = ['begin', 'p_id', 'active', 'acronym', 'remark','colorgraph', 'user']
-
-    def newObject(self):
-        return Phase()
-
-
-
-class AllStepMeasures(AllObjects):
-    
-    def __init__(self, config):
-        self.elements = {}
-        self.config = config
-        self.filename = csvDir + "RPEHMA.csv"
-        self.keyColumn = "r_id"
-        self.keyColumn2 = "p_id"
-        self.keyColumn3 = "e_id"
-        self.keyColumn4 = "h_id"
-        self.keyColumn5 = "m_id"
-
-    def load(self):
-        with open(self.filename) as csvfile:
-            reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
-            for row in reader:
-                if((not 'active' in row) or (row['active'] != "1")):
-                    key = row[self.keyColumn] + "-" + row[self.keyColumn2] + "-" + row[self.keyColumn3] + "-" + row[self.keyColumn4] + "-" + row[self.keyColumn5]
-                    currObject = self.newObject()
-                    currObject.fields = row
-                    currObject.id = key
-                    self.elements[key] = currObject
-                else:
-                    print self.filename+': '+row['name'] + " is denied !"
-
-    def newObject(self):
-        return StepMeasure()
-
-class AllSteps(AllObjects):
-
-    def __init__(self, config):
-        self.elements = {}
-        self.config = config
-        self.filename = csvDir + "RPEHMA.csv"
-        self.keyColumn = "seq"
-        self.recipe = None
-
-    def load(self, recipe):
-        self.recipe = recipe
-        with open(self.filename) as csvfile:
-            reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
-            for row in reader:
-                if ((not 'active' in row) or (row['active'] != "1")) and (row['r_id'] == self.config.AllRecipes.elements[self.recipe].id):
-                    key = row[self.keyColumn]
-                    if (key not in self.elements):
-                        currObject = self.newObject()
-                        currObject.fields = {'r_id':row['r_id'],'p_id':row['p_id'],'e_id':row['e_id'],'h_id':row['h_id'],'seq':row['seq']}
-                        currObject.id = key
-                        self.elements[key] = currObject
-            for stepmeasure in self.config.AllStepMeasures.elements:
-                for seq in self.elements:
-                    if (self.config.AllStepMeasures.elements[stepmeasure].fields['r_id'] == self.elements[seq].fields['r_id'] and self.config.AllStepMeasures.elements[stepmeasure].fields['p_id'] == self.elements[seq].fields['p_id'] and self.config.AllStepMeasures.elements[stepmeasure].fields['e_id'] == self.elements[seq].fields['e_id'] and self.config.AllStepMeasures.elements[stepmeasure].fields['h_id'] == self.elements[seq].fields['h_id']):
-                        self.elements[seq].stepmeasures[self.config.AllStepMeasures.elements[stepmeasure].fields['m_id']] = self.config.AllStepMeasures.elements[stepmeasure]
-
-    def newObject(self):
-        return Step()        
-
-class AllRecipes(AllObjects):
-
-    def __init__(self, config):
-        self.elements = {}
-        self.config = config
-        self.filename = csvDir + "R.csv"
-        self.keyColumn = "r_id"
-
-    def load(self):
-        with open(self.filename) as csvfile:
-            reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
-            for row in reader:
-                if((not 'active' in row) or (row['active'] != "1")):
-                    key = row[self.keyColumn]
-                    currObject = self.newObject()
-                    currObject.fields = row
-                    currObject.id = key
-                    currObject.recipe = row['r_id']
-                    self.elements[key] = currObject
-                else:
-                    print self.filename+': '+row['name'] + " is denied !"
-
-    def newObject(self):
-        return Recipe(self.config)
-
-class AllScanners(AllObjects):
-
-    def __init__(self, config):
-        self.elements = {}
-        self.config = config
-        self.filename = csvDir + "S.csv"
-        self.keyColumn = "s_id"
-
-    def makeKey(self, MAC):
-        return hash(MAC.upper()) % 1000
-
-    def load(self):
-        with open(self.filename) as csvfile:
-            reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
-            i = 0;
-            for row in reader:
-                if((not 'active' in row) or (row['active'] != "1")):
-                    key = mac = None
-                    if self.keyColumn in row:
-                        key = row[self.keyColumn]
-                    if 'mac' in row:
-                        mac = row['mac'].upper()
-                    if mac and not key:
-                        key = self.makeKey(mac)
-                    currObject = self.newObject()
-                    currObject.fields = row
-                    currObject.id = key
-                    currObject.mac = mac
-                    currObject.rank = i
-                    self.elements[key] = currObject
-                    i+=1
-                else:
-                    print self.filename+': '+row['name'] + " is denied !"
-
-    def newObject(self):
-        return Scanner()
 
 class ConnectedUser():
     
@@ -1648,8 +1488,6 @@ class User(ConfigurationObject):
 
     def __init__(self):
 	ConfigurationObject.__init__(self)
-        self.roles = sets.Set()
-        self.context = Context()
 	self.exportdata = None
 
     def __repr__(self):
@@ -1695,21 +1533,6 @@ class User(ConfigurationObject):
 	self.fields['registration'] = self.created
 	self.fields['password'] = useful.encrypt(data['password'],self.fields['registration'])
 	self.save(c,user)
-	    
-class Role(ConfigurationObject):
-
-    def __init__(self):
-        self.users = sets.Set()
-
-    def __repr__(self):
-        string = self.id + " " + self.fields['name']
-        return string
-
-    def __str__(self):
-        string = "\nRole :"
-        for field in self.fields:
-            string = string + "\n" + field + " : " + self.fields[field]
-        return string + "\n"
 
 class Equipment(ConfigurationObject):
 
@@ -1988,8 +1811,7 @@ class Group(ConfigurationObject):
 class Piece(ConfigurationObject):
 
     def __init__(self):
-	ConfigurationObject.__init__(self)
-	
+	ConfigurationObject.__init__(self)	
 
     def __repr__(self):
         string = unicode(self.id) + " " + self.fields['acronym']
@@ -3115,135 +2937,3 @@ class Barcode(ConfigurationObject):
 	
     def get_name(self):
 	return 'barcode'
-	
-
-class Phase(ConfigurationObject):
-    def __repr__(self):
-        string = self.id + " " + self.fields['name']
-        return string
-
-    def __str__(self):
-        string = "\nPhase :"
-        for field in self.fields:
-            string = string + "\n" + field + " : " + self.fields[field]
-        return string + "\n"
-
-class StepValue():
-    def __init__(self):
-        self.min = 999999
-        self.max = -999999
-        self.total = 0
-        self.number = 0
-        self.begin = 0
-        self.end = 0
-
-class StepMeasure(ConfigurationObject):
-    def __repr__(self):
-        string = self.fields['seq'] + " " + self.fields['name']
-        return string
-
-class Step(ConfigurationObject):
-    
-    def __init__(self):
-        self.stepmeasures = {}
-
-    def __repr__(self):
-        string = "\nStep :"
-        for field in self.fields:
-            string = string + "\n" + field + " : " + self.fields[field]
-        return string + "\n"
-
-class Recipe(ConfigurationObject):
-    
-    def __init__(self, config):
-        self.config = config
-        self.recipe = None
-        self.AllSteps = AllSteps(self.config)
-
-    def __repr__(self):
-        string = self.id + " " + self.fields['name']
-        return string
-
-    def __str__(self):
-        string = "\nRecette :"
-        for field in self.fields:
-            string = string + "\n" + field + " : " + self.fields[field]
-        return string + "\n"
-
-class Scanner(ConfigurationObject):
-    mac = None
-    key = None
-    there = False
-    paired = False
-    last = None
-    reader = None
-
-    def __repr__(self):
-        string = unicode(self.rank)+"#"+unicode(self.id) + "=" + self.fields['name']
-        return string
-
-    def __str__(self):
-        string = "\nScanner "+unicode(self.rank)+"#"+unicode(self.id)
-        for field in self.fields:
-            string = string + "\n" + field + " : " + self.fields[field]
-        return string + "\n"
-
-class Context():
-
-    def __init__(self):
-        self.piece = ""
-        self.equipment = ""
-        self.phase = ""
-        self.measure = ""
-        self.batch = ""
-        self.number = ""
-
-    def __repr__(self):
-        string = ""
-        if self.piece != "":
-            piece = self.piece.id
-        else:
-            piece = ""
-        if self.equipment != "":
-            equipment = self.equipment.id
-        else:
-            equipment = ""
-        if self.phase != "":
-            phase = self.phase.id
-        else:
-            phase = ""
-        if self.measure != "":
-            measure = self.measure.id
-        else:
-            measure = ""
-        if self.batch != "":
-            batch = self.batch.id
-        else:
-            batch = ""
-        string = string + piece + " " + equipment + " " + phase + " " + measure + " " + batch + " "
-        return string
-
-    def __str__(self):
-        string = "\nContext :\n"
-        if self.piece != "":
-            piece = unicode(self.piece)
-        else:
-            piece = ""
-        if self.equipment != "":
-            equipment = unicode(self.equipment)
-        else:
-            equipment = ""
-        if self.phase != "":
-            phase = unicode(self.phase)
-        else:
-            phase = ""
-        if self.measure != "":
-            measure = unicode(self.measure)
-        else:
-            measure = ""
-        if self.batch != "":
-            batch = unicode(self.batch)
-        else:
-            batch = ""
-        string = string + piece + equipment + phase + measure + batch
-        return string
