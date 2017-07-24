@@ -25,6 +25,7 @@ import pigpio
 PIG = pigpio.pi()
 #import smbus
 """
+
 #mise a jour git
 csvDir = "../ELSAcsv/csv/"
 rrdDir = '../ELSArrd/rrd/'
@@ -561,7 +562,7 @@ class ConfigurationObject():
         if fileName is None:
             return False
         else:
-            return os.path.isfile(fileName+".jpg")
+            return os.path.isfile(fileName+"jpg")
 
     def setName(self,key,value,user,keyColumn):
 	if value != '' and value is not None:
@@ -684,7 +685,7 @@ class ConfigurationObject():
 	    if data.placeImg.filename != '': 
 		filepath = data.placeImg.filename.replace('\\','/') 
 		ext = ((filepath.split('/')[-1]).split('.')[-1])
-		fout = open(currObject.getImageDirectory()+'jpg','w')
+		fout = open(self.getImageDirectory()+'jpg','w')
 		fout.write(data.placeImg.file.read())
 		fout.close()
 		
@@ -2437,19 +2438,19 @@ class Sensor(ConfigurationObject):
 
     def setCorrectAlarmValue(self):
         if self.fields['minmin'] == '' :
-            self.fields['minmin'] = -99999
+            self.fields['minmin'] = -99999999
         if self.fields['min'] == '' :
-            self.fields['min'] = -99999
+            self.fields['min'] = -99999999
         if self.fields['max'] == '' :
-            self.fields['max'] = 99999
+            self.fields['max'] = 99999999
         if self.fields['maxmax'] == '' :
-            self.fields['maxmax'] = 99999
+            self.fields['maxmax'] = 99999999
 	if self.fields['lapse1'] =='':
-	    self.fields['lapse1'] = 99999
+	    self.fields['lapse1'] = 99999999
 	if self.fields['lapse2'] =='':
-	    self.fields['lapse2'] = 99999
+	    self.fields['lapse2'] = 99999999
 	if self.fields['lapse3'] =='':
-	    self.fields['lapse3'] = 99999
+	    self.fields['lapse3'] = 99999999
 	
     def get_type(self):
 	return 's'

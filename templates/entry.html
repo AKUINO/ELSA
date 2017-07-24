@@ -19,8 +19,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    $else:
 		<span class="glyphicon glyphicon-ok-circle"> </span>
 	</div>	    
-	<div class="col-xs-2 vcenter" ><span class="$c.AllHalflings.elements[elem.get_name()].getHalfling()"></span>    $elem.fields['acronym']</div>
-	<div class="col-xs-3 vcenter">
+	<div class="col-xs-5 vcenter" ><span class="$c.AllHalflings.elements[elem.get_name()].getHalfling()"></span> $elem.fields['acronym']<br/>
 	    <strong>$elem.getName(self.lang)</strong>
 	</div>
 	$if c.is_component(type) == True or type == 'm' :
