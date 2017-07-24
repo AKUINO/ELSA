@@ -75,7 +75,6 @@ class WebEdit():
     def GET(self,type,id):
         mail = isConnected()
         if mail is not None:
-	    print 'typpe   : ' + type
             return self.getRender(type, id,mail, '')
         raise web.seeother('/')
         
@@ -96,7 +95,10 @@ class WebEdit():
 		if 'a_id' in data :
 		    if len(data['a_id']) >0 :
 			c.AllAlarms.elements[data['a_id']].launch_alarm(currObject,c)
-                return self.getListing(mail, type)
+		if type not in 'tdv':
+		    return self.getListing(mail, type)
+		else :
+		    raise web.seeother('/')
             else :
                 if id == 'new' :
                     currObject.delete(c)
@@ -107,7 +109,6 @@ class WebEdit():
         return render.listing(mail, type)
     
     def getRender(self,type, id, mail, errormess):
-	print type + '    :tyype'
 	if not type in 'tdv':
 	    if id in c.findAllFromType(type).elements.keys() or  id == 'new':
 		if type == 'p' :

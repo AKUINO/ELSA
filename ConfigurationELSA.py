@@ -23,8 +23,9 @@ import SSD1306
 from I2CScreen import *
 import pigpio
 PIG = pigpio.pi()
-#import smbus
 """
+
+import smbus
 
 #mise a jour git
 csvDir = "../ELSAcsv/csv/"
@@ -131,7 +132,7 @@ class Configuration():
 	self.AllPourings.load()
 	self.AllAlarmLogs.load()
 	self.UpdateThread.start()
-	#self.RadioThread.start()
+	self.RadioThread.start()
     
     def findAllFromName(self,className):
         if className == User.__name__:
