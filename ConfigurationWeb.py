@@ -395,10 +395,11 @@ def update_cookie(infoCookie):
     web.setcookie('webpy', infoCookie, expires=9000)
 
 c = None
+wsgiapp = None
     
 def main():
 
-    global c, render
+    global c, wsgiapp, render
     try:
         web.config.debug = True
         render=web.template.render('templates/', base='layout')
@@ -425,12 +426,13 @@ def main():
         #Configuration Singleton ELSA
         c=elsa.Configuration()
         c.load()
-	print c.AllPourings.elements['1'].fields
+        print c.AllSensors.elements['7'].fields
         web.template.Template.globals['c'] = c
         web.template.Template.globals['useful'] = useful
         app = web.application(urls, globals())
         app.notfound = notfound
-        app.run()       
+        app.run()
+        #wsgiapp = app.wsgifunc()
     except :
         traceback.print_exc(file=sys.stdout)
     finally:
@@ -445,3 +447,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+#main()

@@ -208,7 +208,7 @@ $code:
                                     <a href="/list/p">$c.AllPieces.elements[elem.fields['p_id']].getName(self.lang)</a>
                                 $elif not elem.fields['e_id'] == '' :
                                     <a href="/list/e">$c.AllEquipments.elements[elem.fields['e_id']].getName(self.lang)</a>
-                                $if not elem.fields['c_id'] == '' :
+                                $elif not elem.fields['c_id'] == '' :
                                     <a href="/list/c">$c.AllContainers.elements[elem.fields['c_id']].getName(self.lang)</a>
                             </div>
                         </div>
