@@ -6,12 +6,8 @@ $code :
     keyID = allElem.keyColumn
     permissionKey = type +'_'
 
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
-$code:
-    groupList = c.hierarchyString()   
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']  
 
-<div class="modal fade" id="$(type)_$(id)modal" role="dialog">
-	<div class="modal-dialog">
 	    <!-- Modal content-->
 	    <div class="modal-content">
             <div class="modal-header row ">
@@ -66,44 +62,7 @@ $code:
 				    <strong><a href="/find/t/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['transfer'].getHalfling()"></span></a></strong>
 			        </div>
 			    </div>	
-                        <div class="row">
-                            <div class="col-xs-3">
-                            <strong><a href="/permissions/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['group'].getHalfling()"></span></a></strong>
-                            </div>
-                        </div>
-                        $code:
-                            indent = 1
-                            cindent = 11
-                            elemgroup = []
-                            for k,v in elem.groups.items():
-                                elemgroup.append(k)
-                        $if len(groupList) > 0:
-                            $for group in groupList:
-                                $if group == 'IN' :
-                                    $code:
-                                        indent+=1
-                                        cindent-=1
-                                $elif group == 'OUT':
-                                    $code:
-                                        indent-=1
-                                        cindent+=1
-                                $else :
-                                    <div class="row" >
-                                        <div class="col-xs-$indent">
-                                        </div>
-                                        <div id="modalinfo" class="col-xs-$cindent">
-                                            $if type != 'groups':
-                                                $if group in elemgroup:
-                                                    <strong><a href="/permissions/g_$group">$c.AllGroups.elements[group].getName(self.lang)</a></strong>
-                                                $else:
-                                                    <a href="/permissions/g_$group">$c.AllGroups.elements[group].getName(self.lang)</a>
-                                            $else:
-                                                $if group == elem.fields['g_id']:
-                                                    <strong><a href="/permissions/g_$group">$c.AllGroups.elements[group].getName(self.lang)</a></strong>
-                                                $else:
-                                                    <a href="/permissions/g_$group">$c.AllGroups.elements[group].getName(self.lang)</a>
-                                            </div>
-                                        </div>
+
                     $elif type == 'm':
                         <div class="row" style="margin-top:10px;">
                             <div class="col-xs-4">
@@ -139,7 +98,7 @@ $code:
                             $c.AllMessages.elements['phone'].getName(self.lang) 1:
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-                            $c.AllGroups.elements[elem.fields['o_sms1']].getName(self.lang)
+                            $c.AllGrFunction.elements[elem.fields['o_sms1']].getName(self.lang)
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">
@@ -147,7 +106,7 @@ $code:
                             $c.AllMessages.elements['mail'].getName(self.lang) 1:
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-                            $c.AllGroups.elements[elem.fields['o_email1']].getName(self.lang)
+                            $c.AllGrFunction.elements[elem.fields['o_email1']].getName(self.lang)
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">
@@ -155,7 +114,7 @@ $code:
                             $c.AllMessages.elements['sound'].getName(self.lang) 1:
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-                            $c.AllGroups.elements[elem.fields['o_sound1']].getName(self.lang)
+                            $c.AllGrFunction.elements[elem.fields['o_sound1']].getName(self.lang)
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">
@@ -171,7 +130,7 @@ $code:
                             $c.AllMessages.elements['phone'].getName(self.lang) 2:
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-                            $c.AllGroups.elements[elem.fields['o_sms2']].getName(self.lang)
+                            $c.AllGrFunction.elements[elem.fields['o_sms2']].getName(self.lang)
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">
@@ -187,7 +146,7 @@ $code:
                             $c.AllMessages.elements['sound'].getName(self.lang) 1:
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-                            $c.AllGroups.elements[elem.fields['o_sound2']].getName(self.lang)
+                            $c.AllGrFunction.elements[elem.fields['o_sound2']].getName(self.lang)
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">
@@ -330,5 +289,3 @@ $code:
 		<button type="button" class="col-xs-2 btn btn-primary" data-dismiss="modal"><strong><big>&times;</big></strong></button>
             </div>
         </div>
-    </div>
-    </div>

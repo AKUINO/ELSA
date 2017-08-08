@@ -25,7 +25,7 @@ import pigpio
 PIG = pigpio.pi()
 """
 
-import smbus
+#import smbus
 
 #mise a jour git
 csvDir = "../ELSAcsv/csv/"
@@ -73,17 +73,18 @@ class Configuration():
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
 	self.fieldcode = ['begin', 'type', 'idobject', 'code', 'user']
-	self.fieldrelations = ['begin', 'g_id', 'idobject', 'type', 'active', 'user']
         self.AllUsers = AllUsers(self)
 	self.AllLanguages = AllLanguages(self)
         self.AllPieces = AllPieces(self)
         self.AllContainers = AllContainers(self)
 	self.AllMessages = AllMessages(self)
 	self.AllEquipments = AllEquipments(self)
-	self.AllGroups = AllGroups(self)
 	self.AllMeasures = AllMeasures(self)
 	self.AllBatches = AllBatches(self)
 	self.AllSensors = AllSensors(self)
+	self.AllGrFunction = AllGrFunction(self)
+	self.AllGrUsage = AllGrUsage(self)
+	self.AllGrRecipe= AllGrRecipe(self)
 	self.AllAlarms = AllAlarms(self)
 	self.AllAlarmLogs= AllAlarmLogs(self)
 	self.AllHalflings = AllHalflings(self)
@@ -115,7 +116,6 @@ class Configuration():
 	self.AllEquipments.load()
 	self.AllContainers.load()	
 	self.AllMessages.load()
-	self.AllGroups.load()
 	self.AllMeasures.load()
 	self.AllSensors.load()
 	self.AllSensors.check_rrd()
@@ -125,14 +125,19 @@ class Configuration():
 	self.AllHalflings.load()
 	self.AllBatches.load()
 	#doit toujours être appelé à la fin
+	self.AllGrFunction.load()
+	self.AllGrUsage.load()
+	self.AllGrRecipe.load()
+	self.AllGrFunction.load_relation()
+	self.AllGrUsage.load_relation()
+	self.AllGrRecipe.load_relation()
 	self.AllBarcodes.load()
-	self.loadRelation()
 	self.AllTransfers.load()
 	self.AllManualData.load()
 	self.AllPourings.load()
 	self.AllAlarmLogs.load()
-	self.UpdateThread.start()
-	self.RadioThread.start()
+	#self.UpdateThread.start()
+	#self.RadioThread.start()
     
     def findAllFromName(self,className):
         if className == User.__name__:
@@ -143,8 +148,12 @@ class Configuration():
             return self.AllLanguages
 	elif className == Piece.__name__:
 	    return self.AllPieces 
-	elif className == Group.__name__:
-	    return self.AllGroups 
+	elif className == GrUsage.__name__:
+	    return self.AllGrUsage
+	elif className == GrRecipe.__name__:
+	    return self.AllGrRecipe
+	elif className == GrFunction.__name__:
+	    return self.AllGrFunction 
 	elif className == Container.__name__:
 	    return self.AllContainers 
 	elif className == Measure.__name__:
@@ -171,8 +180,12 @@ class Configuration():
             return self.AllLanguages
 	elif className == u"p":
 	    return self.AllPieces
-	elif className == u"g":
-	    return self.AllGroups
+	elif className == u"gu":
+	    return self.AllGrUsage
+	elif className == u"gr":
+	    return self.AllGrRecipe
+	elif className == u"gf":
+	    return self.AllGrFunction
 	elif className == u"c":
 	    return self.AllContainers
 	elif className == u"m":
@@ -220,87 +233,13 @@ class Configuration():
     def findAllFromType(self, aType):
 	return self.findAllFromName(aType)
 
-    def loadRelation(self):
-	with open(self.csvRelations) as csvfile:
-	    reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
-	    for row in reader:
-		keyObj = row['idobject']
-		keyGroup = row['g_id']
-		keyType = row['type']
-		objects = self.findAllFromType(keyType)
-		currObject = objects.elements[keyObj]
-		if row['active'] =='0':		    
-		    currObject.groups[keyGroup] = self.AllGroups.elements[keyGroup]
-		elif row['active'] == '1' :
-		    currObject.removekey(keyGroup)
-		    
-    
-    def createHierarchy(self):
-	children = {}
-	for k,group in self.AllGroups.elements.items():
-	    if len(group.groups) > 0:
-		for i,g in group.groups.items():
-		    if i in children:
-			del children[i]
-		children[k] = group
-	return children
-    
-    def hierarchyString(self, g = None, myString = None):
-	if myString is None:
-	    myString = []
-	for k,group in self.AllGroups.elements.items():
-	    cond1 = ( g == None and len(group.groups) == 0 )
-	    cond2 = ( g is not None and g.fields['g_id'] in group.groups )
-	    if cond1 or cond2:
-		myString.append(k)
-		myString.append('IN')
-		self.hierarchyString(group,myString)
-		myString.append('OUT')
-	return myString
-		
-	
-    def clearInOut(self,myList):
-	i = 0
-	tmp = []
-	while i < len(myList):
-	    if myList[i] == 'IN' and myList[i+1] == 'OUT':
-		i+=2
-	    else :
-		tmp.append(myList[i])
-		i+=1
-	return tmp
-
-    def get_parents_list(self, item):
-	if item.get_type() == 'g':
-	    return self.AllGroups.get_parents(item)
-	listparents = []
-	for k,g in item.groups.items():
-	    tmp = self.AllGroups.get_parents(g)
-	    for idGroup in tmp :
-		if not idGroup in listparents : 
-		    listparents.append(idGroup)
-	return listparents
-	
-    def get_children_list(self, item):
-	if item.get_type() == 'g':
-	    return self.AllGroups.get_children(item)
-	listchildren = []
-	for k,g in item.groups.items():
-	    tmp = self.AllGroups.get_children(g)
-	    for idGroup in tmp :
-		if not idGroup in listchildren : 
-		    listchildren.append(idGroup)
-	return listchildren
-	
-    def get_user_group(self, idg):
-	listusers = []
-	childrenlist = self.AllGroups.get_children(self.AllGroups.elements[idg])
-	childrenlist.append(idg)
-	for k,user in self.AllUsers.elements.items():
-	    userG = user.groups.keys()
-	    if len(list(set(childrenlist) & set(userG))) > 0:
-		listusers.append(k)
-	return listusers
+    def get_group(self, key):
+	if key == 'gu':
+	    return self.AllGrUsage
+	elif key == 'gr':
+	    return self.AllGrRecipe
+	elif key == 'gf':
+	    return self.AllGrFunction
 	
     def get_object(self, type, id):
 	objects = self.findAllFromType(type)
@@ -599,36 +538,6 @@ class ConfigurationObject():
 	    
     def getID(self):
 	return self.id
-	    		
-    def deleteGroup(self,groupid, configuration,anUser):	
-	self.write_group(groupid, configuration, anUser, 1)
-	del self.groups[groupid]
-	
-    def add_group(self, groupid, configuration, anUser):
-	tmp = configuration.get_parents_list(configuration.AllGroups.elements[groupid])
-	for k in tmp :
-	    if k in self.groups.keys():
-		return None
-	tmp = configuration.get_children_list(configuration.AllGroups.elements[groupid])
-	for k in tmp :
-	    if k in self.groups.keys():
-		return None
-	self.groups[groupid] = configuration.AllGroups.elements[groupid]
-	self.write_group(groupid, configuration, anUser, 0)
-		
-    def add_data(self,manualdata):
-	if not manualdata.getID() in self.data:
-	    self.data.append(manualdata.getID())
-    
-    def removekey(self, key):
-	del self.groups[key]
-	
-    def containsGroup(self, oGroup):
-	if len(self.groups) >0:
-	    for k,v in self.groups.items():
-		if v.containsGroup(oGroup):
-		    return True
-	return False
 	
     def write_group(self, groupid, configuration, user, active):
 	allObjects = configuration.findAllFromObject(self)
@@ -693,15 +602,34 @@ class ConfigurationObject():
 	self.fields['remark'] = data['remark']
 	
 	if self.creator is None:
-                    self.creator = user.fields['u_id']
-                    self.created = self.fields['begin']
+	    self.creator = user.fields['u_id']
+	    self.created = self.fields['begin']
+	    
+    def add_data(self,manualdata):
+	if manualdata.getID() in self.data:
+	    self.data.remove(manualdata.getID())
+	if len(self.data) == 0:
+	    self.data.append(manualdata.getID())
+	else:
+	    time = useful.date_to_timestamp(manualdata.fields['time'],datetimeformat)
+	    insert = False
+	    for i in range(len(self.data)):
+		tmp = self.config.AllManualData.elements[self.data[i]]
+		tmptime = useful.date_to_timestamp(tmp.fields['time'],datetimeformat)
+		if time < tmptime:
+		    insert = True
+		    self.data.insert(i,manualdata.getID())
+		    break
+	    if insert is False:
+		self.data.append(manualdata.getID())
+			
 	
     def get_transfers_in_time_interval(self, begin, end):
 	tmp = []
 	first = True
 	count = 0
 	while count < len(self.position):
-	    t = self.position [count]
+	    t = self.config.AllTransfers.elements[self.position[count]]
 	    time = useful.date_to_timestamp(t.fields['time'],datetimeformat)
 	    if begin < time and time < end :
 		if first is True :
@@ -722,7 +650,22 @@ class ConfigurationObject():
 	    self.fields['active'] = active
 	    
     def add_position(self, transfer):
-	self.position.append(transfer)
+	if transfer.getID() in self.position:
+	    self.position.remove(transfer.getID())
+	if len(self.position) == 0:
+	    self.position.append(transfer.getID())
+	else:
+	    time = useful.date_to_timestamp(transfer.fields['time'],datetimeformat)
+	    insert = False
+	    for i in range(len(self.position)):
+		tmp = self.config.AllTransfers.elements[self.position[i]]
+		tmptime = useful.date_to_timestamp(tmp.fields['time'],datetimeformat)
+		if time < tmptime:
+		    insert = True
+		    self.position.insert(i,transfer.getID())
+		    break
+	    if insert is False:
+		self.position.append(transfer.getID())
 	
     def get_actual_position(self):
 	if len(self.position) > 0:
@@ -732,6 +675,7 @@ class ConfigurationObject():
     def is_actual_position(self, type, id):
 	tmp = self.get_actual_position()
 	if tmp is not None :
+	    tmp = self.config.AllTransfers.elements[tmp]
 	    if type == tmp.fields['cont_type'] and str(id) == tmp.fields['cont_id']:
 		return True
 	return False
@@ -857,8 +801,8 @@ class AllObjects():
 		    objects.elements[currObject.fields['object_id']].add_data(currObject)		    
 		elif currObject.get_type() == 'v':
 		    objects = self.config.AllBatches
-		    objects.elements[currObject.fields['b_in']].add_pouringIN(currObject)		    
-		    objects.elements[currObject.fields['b_out']].add_pouringOUT(currObject)		    
+		    objects.elements[currObject.fields['src']].add_source(currObject)		    
+		    objects.elements[currObject.fields['dest']].add_destination(currObject)		    
 		
     def loadNames(self):
 	with open(self.filename) as csvfile:
@@ -931,7 +875,7 @@ class AllObjects():
 		while tmp < len(self.fieldtranslate):
 		    csvfile.write('\t'+self.fieldtranslate[tmp])
 		    tmp = tmp + 1
-            csvfile.write('\n')
+		csvfile.write('\n')
 		    
     def get_name_object(self ):
 	return 'component'
@@ -945,7 +889,7 @@ class AllUsers(AllObjects):
         self.fileobject = csvDir + "U.csv"
 	self.filename = csvDir + "Unames.csv"
         self.keyColumn = "u_id"
-	self.fieldnames = ['begin', 'u_id', 'active', 'acronym', 'remark', 'registration', 'phone','mail', 'password', 'language', 'user']
+	self.fieldnames = ['begin', 'u_id', 'active', 'acronym', 'remark', 'registration', 'phone','mail', 'password', 'language','gf_id', 'user']
 	self.fieldtranslate = ['begin', 'lang', 'u_id', 'name', 'user']
 
     def newObject(self):
@@ -962,6 +906,9 @@ class AllUsers(AllObjects):
 		
     def get_name_object(self ):
 	return 'user'
+	
+    def get_key_group(self):
+	return 'gf'
     
 class AllEquipments(AllObjects):
 
@@ -972,14 +919,17 @@ class AllEquipments(AllObjects):
         self.fileobject = csvDir + "E.csv"
 	self.filename = csvDir + "Enames.csv"
         self.keyColumn = "e_id"
-	self.fieldnames = ["begin", "e_id", "active", "acronym", "remark",'colorgraph', "user"]
+	self.fieldnames = ["begin", "e_id", "active", "acronym", "remark",'colorgraph','gu_id', "user"]
 	self.fieldtranslate = ['begin', 'lang', 'e_id', 'name', 'user']
 
     def newObject(self):
-        return Equipment()
+        return Equipment(self.config)
 	
     def get_name_object(self ):
 	return 'equipment'
+	
+    def get_key_group(self):
+	return 'gu'
 
 class AllContainers(AllObjects):
 
@@ -990,14 +940,17 @@ class AllContainers(AllObjects):
         self.fileobject = csvDir + "C.csv"
 	self.filename = csvDir + "Cnames.csv"
         self.keyColumn = "c_id"
-	self.fieldnames = ["begin", "c_id", "active", "acronym", "remark",'colorgraph', "user"]
+	self.fieldnames = ["begin", "c_id", "active", "acronym", "remark",'colorgraph','gu_id', "user"]
 	self.fieldtranslate = ['begin', 'lang', 'c_id', 'name', 'user']
 
     def newObject(self):
-        return Container()
+        return Container(self.config)
 	
     def get_name_object(self ):
 	return 'container'
+	
+    def get_key_group(self):
+	return 'gu'
 
 class AllPieces(AllObjects):
 
@@ -1008,15 +961,18 @@ class AllPieces(AllObjects):
         self.fileobject = csvDir + "P.csv"
 	self.filename = csvDir + "Pnames.csv"
         self.keyColumn = "p_id"
-	self.fieldnames = ['begin', 'p_id', 'active', 'acronym', 'remark','colorgraph', 'user']
+	self.fieldnames = ['begin', 'p_id', 'active', 'acronym', 'remark','colorgraph','gu_id', 'user']
 	self.fieldtranslate = ['begin', 'lang', 'p_id', 'name', 'user']
 	self.count = 0
 
     def newObject(self):
-	return Piece()
+	return Piece(self.config)
 	
     def get_name_object(self):
 	return 'place'
+	
+    def get_key_group(self):
+	return 'gu'
 	
 class AllAlarmLogs(AllObjects):
 
@@ -1111,7 +1067,7 @@ class AllPourings(AllObjects):
         self.fileobject = csvDir + "V.csv"
 	self.filename = None
         self.keyColumn = "v_id"
-	self.fieldnames = ['begin', 'v_id', 'b_in', 'b_out', 'time', 'quantity', 'm_id', 'remark', 'user']
+	self.fieldnames = ['begin', 'v_id', 'src', 'dest', 'time', 'quantity', 'm_id', 'remark', 'user']
 	self.fieldtranslate = None
 
     def newObject(self):
@@ -1121,45 +1077,134 @@ class AllPourings(AllObjects):
 	return 'v'
     
 class AllGroups(AllObjects):
-
     def __init__(self, config):
 	AllObjects.__init__(self)
         self.elements = {}
         self.config = config
-        self.fileobject = csvDir + "G.csv"
-	self.filename = csvDir + "Gnames.csv"
-        self.keyColumn = "g_id"
-	self.fieldnames = ["begin", "g_id", "active", "acronym", "remark", "user"]
-	self.fieldtranslate = ['begin', 'lang', 'g_id', 'name', 'user']
-
-    def newObject(self):
-        return Group()
+	self.fieldrelations = ['begin', 'parent_id', 'child_id', 'active', 'user']
 	
-    def get_name_object(self ):
-	return 'group'
+    def get_master_groups(self):
+	children = {}
+	for k,group in self.elements.items():
+	    if group.fields['g_parent'] == '':
+		children[k] = group
+	return children
 	
-    def get_children(self,group, listchildren = None):
-	if listchildren == None :
-	    listchildren = []
-	for k, g in self.elements.items():
-	    if group.fields['g_id'] in g.groups:
-		listchildren.append(k)
-		self.get_children(g,listchildren)
-	return listchildren
+    def load_relation(self):
+	with open(self.csvRelations) as csvfile:
+	    reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
+	    for row in reader:
+		print self.elements
+		parent = row['parent_id']
+		child = row['child_id']
+		print child
+		currObject = self.elements[child]
+		if row['active'] =='0':		    
+		    currObject.add_relation(self.elements[parent])
+		elif row['active'] == '1' :
+		    currObject.remove_relation(self.elements[parent])
+	self.load_family()
 	
-    def get_parents(self, group, listparents = None):
-	if listparents == None :
-	    listparents = []
-	for k, v in group.groups.items():
-	    listparents.append(k)
-	    self.get_parents(v,listparents)
-	return listparents
+    def load_family(self):
+	for k,g in self.elements.items():
+	    g.parents = []
+	    g.children = []
+	    g.siblings = []
+	    g.load_parents()
+	    g.load_children()
+	    g.load_siblings()
+    
+    """
+    def get_hierarchy_str(self, g = None, myString = None):
+	if myString is None:
+	    myString = []
+	for k,group in self.elements.items():
+	    cond1 = ( g is None and group.fields['g_parent'] == '' )
+	    cond2 = ( g is not None and g.getID() == group.fields['g_parent'])
+	    if cond1 or cond2:
+		myString.append(k)
+		myString.append('IN')
+		self.get_hierarchy_str(group,myString)
+		myString.append('OUT')
+	return myString
+    """
+    
+    def get_hierarchy_str(self, g = None, myString = None):
+	if myString is None:
+	    myString = []
+	for k,group in self.elements.items():
+	    cond1 = ( g == None and len(group.related) == 0 )
+	    cond2 = ( g is not None and g.getID() in group.related )
+	    if cond1 or cond2:
+		myString.append(k)
+		myString.append('IN')
+		self.get_hierarchy_str(group,myString)
+		myString.append('OUT')
+	return myString
 	
     def get_group(self, acro):
 	for k,g in self.elements.items():
 	    if g.fields['acronym'] == groupWebUsers:
 		return k
+	    
+	    
 	
+class AllGrUsage(AllGroups):
+    def __init__(self, config):
+	AllGroups.__init__(self, config)
+        self.fileobject = csvDir + "GU.csv"
+	self.filename = csvDir + "GUnames.csv"
+        self.keyColumn = "gu_id"
+	self.fieldnames = ["begin", "gu_id", "active", "acronym", "remark", "user"]
+	self.fieldtranslate = ['begin', 'lang', 'gu_id', 'name', 'user']
+	self.csvRelations = csvDir + "GUrelations.csv"
+
+    def newObject(self):
+        return GrUsage(self.config)
+	
+    def get_name_object(self):
+	return 'guse'
+	
+    def get_key_group(self):
+	return 'gu'
+	
+class AllGrRecipe(AllGroups):
+    def __init__(self, config):
+	AllGroups.__init__(self, config)
+        self.fileobject = csvDir + "GR.csv"
+	self.filename = csvDir + "GRnames.csv"
+        self.keyColumn = "gr_id"
+	self.fieldnames = ["begin", "gr_id", "active", "acronym", "remark", "user"]
+	self.fieldtranslate = ['begin', 'lang', 'gr_id', 'name', 'user']
+	self.csvRelations = csvDir + "GRrelations.csv"
+
+    def newObject(self):
+        return GrRecipe(self.config)
+	
+    def get_name_object(self):
+	return 'grecipe'
+	
+    def get_key_group(self):
+	return 'gr'
+	
+class AllGrFunction(AllGroups):
+    def __init__(self, config):
+	AllGroups.__init__(self, config)
+        self.fileobject = csvDir + "GF.csv"
+	self.filename = csvDir + "GFnames.csv"
+        self.keyColumn = "gf_id"
+	self.fieldnames = ["begin", "gf_id", "active", "acronym", "remark", "user"]
+	self.fieldtranslate = ['begin', 'lang', 'gf_id', 'name', 'user']
+	self.csvRelations = csvDir + "GFrelations.csv"
+
+    def newObject(self):
+        return GrFunction(self.config)
+	
+    def get_name_object(self):
+	return 'gfunction'
+	
+    def get_key_group(self):
+	return 'gf'
 
 class AllMeasures(AllObjects):
 
@@ -1242,7 +1287,7 @@ class AllBatches(AllObjects):
         self.fileobject = csvDir + "B.csv"
 	self.filename = csvDir + "Bnames.csv"
         self.keyColumn = "b_id"
-	self.fieldnames = ["begin", "b_id", "active", "acronym", "basicqt", "m_id", "time", "cost", "remark", "user"]
+	self.fieldnames = ["begin", "b_id", "active", "acronym", "basicqt", "m_id", "time", "cost", "remark", 'gr_id',"user"]
 	self.fieldtranslate = ['begin', 'lang', 'b_id', 'name', 'user']
 
     def newObject(self):
@@ -1250,6 +1295,9 @@ class AllBatches(AllObjects):
 	
     def get_name_object(self ):
 	return 'batch'
+	
+    def get_key_group(self):
+	return 'gr'
 	
 class AllTransfers(AllObjects):
 
@@ -1534,12 +1582,17 @@ class User(ConfigurationObject):
 	    self.fields[elem] = data[elem]
 	self.fields['registration'] = self.created
 	self.fields['password'] = useful.encrypt(data['password'],self.fields['registration'])
+	self.fields['gf_id'] = data['group']
 	self.save(c,user)
+	
+    def get_group(self):
+	return self.fields['gf_id']
 
 class Equipment(ConfigurationObject):
 
-    def __init__(self):
+    def __init__(self,config):
 	ConfigurationObject.__init__(self)
+	self.config = config
 
     def __repr__(self):
         string = unicode(self.id) + " " + self.fields['acronym']
@@ -1576,12 +1629,17 @@ class Equipment(ConfigurationObject):
     def set_value_from_data(self, data, c,user):
 	ConfigurationObject.set_value_from_data(self, data, c,user)
 	self.fields['colorgraph'] = data['colorgraph']
+	self.fields['gu_id'] = data['group']
 	self.save(c,user)
+	
+    def get_group(self):
+	return self.fields['gu_id']
 
 class Container(ConfigurationObject):
 
-    def __init__(self):
+    def __init__(self, config):
 	ConfigurationObject.__init__(self)
+	self.config = config
 
     def __repr__(self):
         string = unicode(self.id) + " " + self.fields['acronym']
@@ -1615,7 +1673,11 @@ class Container(ConfigurationObject):
     def set_value_from_data(self, data, c,user):
 	ConfigurationObject.set_value_from_data(self, data, c,user)
 	self.fields['colorgraph'] = data['colorgraph']
+	self.fields['gu_id'] = data['group']
 	self.save(c,user)
+	
+    def get_group(self):
+	return self.fields['gu_id']
 	
 class ManualData(ConfigurationObject):
 
@@ -1651,9 +1713,7 @@ class ManualData(ConfigurationObject):
 	else:
 	    self.fields['m_id'] = ''
 	
-	
     def validate_form(self, data, configuration, lang) :
-	print data
 	tmp = ''
 	try:
 	    value = datetime.datetime.strptime(data['time'],datetimeformat)
@@ -1687,6 +1747,7 @@ class ManualData(ConfigurationObject):
 	    self.fields[elem] = data[elem]
 	self.add_component(data['component'])
 	self.add_measure(data['measure'])
+	c.findAllFromType(self.fields['object_type']).elements[self.fields['object_id']].add_data(self)
 	self.save(c,user)
 	
 	
@@ -1720,7 +1781,6 @@ class Pouring(ConfigurationObject):
 	
 	
     def validate_form(self, data, configuration, lang) :
-	print data
 	tmp = ''
 	try:
 	    value = datetime.datetime.strptime(data['time'],datetimeformat)
@@ -1733,18 +1793,18 @@ class Pouring(ConfigurationObject):
 	except:
 	    tmp += configuration.AllMessages.elements['floatrules'].getName(lang) + '\n'
 	try:
-	    b_id = data['b_in']
+	    b_id = data['src']
 	    if not b_id in configuration.AllBatches.elements.keys():
 		tmp += configuration.AllMessages.elements['batchrules1'].getName(lang) + '\n'
 	except:
 	    tmp += configuration.AllMessages.elements['batchrules1'].getName(lang) + '\n'
 	try:
-	    b_id = data['b_out']
+	    b_id = data['dest']
 	    if not b_id in configuration.AllBatches.elements.keys():
 		tmp += configuration.AllMessages.elements['batchrules2'].getName(lang) + '\n'
 	except:
 	    tmp += configuration.AllMessages.elements['batchrules2'].getName(lang) + '\n'
-	if data['b_in'] == data['b_out']:
+	if data['src'] == data['dest']:
 	    tmp += configuration.AllMessages.elements['batchrules3'].getName(lang) + '\n'
 	
 	if tmp == '':
@@ -1752,21 +1812,26 @@ class Pouring(ConfigurationObject):
 	return tmp
 	
     def set_value_from_data(self, data, c,user):
-	tmp = ['time', 'remark', 'b_in', 'b_out', 'quantity' ]
+	tmp = ['time', 'remark', 'src', 'dest', 'quantity' ]
 	for elem in tmp:
 	    self.fields[elem] = data[elem]
 	self.add_measure(data['measure'])
+	c.AllBatches.elements[data['src']].add_source(self)
+	c.AllBatches.elements[data['dest']].add_destination(self)
 	self.save(c,user)
 	
     def get_name(self):
 	return 'pouring'
 	
 class Group(ConfigurationObject):
-
-    def __init__(self):
+    def __init__(self, config):
 	ConfigurationObject.__init__(self)
 	self.classes = {}
 	self.groups = {}
+	self.config = config
+	self.parents = []
+	self.children = []
+	self.related = []
 
     def __repr__(self):
         string = unicode(self.id) + " " + self.fields['acronym']
@@ -1784,36 +1849,153 @@ class Group(ConfigurationObject):
     def containsGroup(self, oGroup):
 	if len(self.groups) >0:
 	    for k,v in self.groups.items():
-		if 'g_id' in oGroup.fields.keys():
-		    if k == oGroup.fields['g_id'] :
+		if self.keyColumn in oGroup.fields.keys():
+		    if k == oGroup.fields[self.keyColumn] :
 			return True
 		elif v.containsGroup(oGroup):
 		    return True
 	return False
-	
-##    def addGroup(self, oGroup):
-##	currContainsGroup = currObject.containsGroup(group)
-##	groupContainsCurr = group.containsGroup(currObject)
-##	if ( not currContainsGroup ) and ( not groupContainsCurr ):
-##	    self.groups[k] = group
 	    
     def get_name_listing(self):
 	return 'groups'
-		
-    def get_name(self):
-	return 'group'
 	
     def validate_form(self, data, configuration, lang):
 	return ConfigurationObject.validate_form(self, data, configuration, lang)	
 	
     def set_value_from_data(self, data, c,user):
 	ConfigurationObject.set_value_from_data(self, data, c,user)
+	self.parents = []
+	self.children = []
+	self.siblings = []
+	for a in self.related:
+	    if a not in data:
+		self.write_group(a,c,user,'1')
+		self.related.remove(a)
+	for k in c.findAllFromObject(self).elements.keys():
+	    if k in data and k not in self.related:
+		self.related.append(k)
+		self.write_group(k,c,user,'0')
+	c.findAllFromObject(self).load_family()		
 	self.save(c,user)
-
+	
+    def write_group(self, parentid, configuration, user, active):
+  	with open(configuration.findAllFromObject(self).csvRelations,"a") as csvfile:
+  	    tmpCode={}
+	    tmpCode['begin'] = unicode(datetime.datetime.now().strftime(datetimeformat))
+	    tmpCode['parent_id'] = parentid
+	    tmpCode['child_id'] = self.getID()
+	    tmpCode["user"] = user.fields['u_id']
+	    tmpCode['active'] = active
+	    writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames = configuration.findAllFromObject(self).fieldrelations, encoding="utf-8")
+	    writer.writerow(tmpCode)
+	
+    def get_group(self):
+	return self.related
+	
+    def get_parents(self):
+	return self.parents
+	
+    def get_children(self):
+	return self.children
+	
+    def get_siblings(self):
+	return self.siblings
+    
+    def add_parent(self, parent):
+	if not parent.getID() in self.parents:
+	    self.parents.append(parent.getID())
+	    
+    def remove_parent(self, exparent):
+	self.parents.remove(exparent.getID())
+	    
+    def add_child(self, child):
+	if not child.getID() in self.children:
+	    self.children.append(child.getID())
+	    
+    def remove_child(self, exchild):
+	self.children.remove(exchild.getID())
+    
+    def add_relation(self, group):
+	if not group.getID() in self.related:
+	    self.related.append(group.getID())
+    
+    def remove_relation(self, group):
+	self.related.remove(group.getID())
+	
+    def load_parents(self, group = None):
+	if group == None:
+	    group = self
+	    self.parents = []
+	for i in self.related:
+	    if i not in self.parents :
+		group.add_parent(self)
+		self.config.findAllFromType(self.get_type()).elements[i].load_parents(group)
+	    else :
+		print "Error Group : GROUPE EN RELATION CIRCLAIRE"
+		
+    def load_children(self, g = None):
+	if g == None:
+	    g = self
+	for k, group in self.config.findAllFromType(self.get_type()).elements.items():
+	    if self.getID() in group.related:
+		if group.getID() not in g.children:
+		    g.add_child(group)
+		    group.load_children(g)
+		else:
+		    print "Error Group : GROUPE EN RELATION CIRCLAIRE"
+		    
+    def load_siblings(self):
+	for k,group in self.config.findAllFromType(self.get_type()).elements.items():
+	    for rel in group.related:
+		if rel in self.related and k != self.getID():
+		    self.siblings.append(k)
+	    
+	
+class GrUsage(Group):
+    def __init__(self,config):
+	Group.__init__(self,config)
+	self.keyColumn = 'gu_id'
+	
+    def get_type(self):
+	return 'gu'
+		
+    def get_name(self):
+	return 'guse'
+	
+class GrRecipe(Group):
+    def __init__(self,config):
+	Group.__init__(self,config)
+	self.keyColumn = 'gr_id'
+	
+    def get_type(self):
+	return 'gr'
+	    
+		
+    def get_name(self):
+	return 'grecipe'
+	
+class GrFunction(Group):
+    def __init__(self,config):
+	Group.__init__(self,config)
+	self.keyColumn = 'gf_id'
+	
+    def get_type(self):
+	return 'gf'
+	
+    def get_user_group(self):
+	listusers=[]
+	for k,user in self.config.AllUsers.elements.items():
+	    if user.fields['gf_id'] in self.children or user.fields['gf_id'] == self.fields['gf_id']:
+		listusers.append(k)
+	return listusers
+		
+    def get_name(self):
+	return 'gfunction'
+	
 class Piece(ConfigurationObject):
-
-    def __init__(self):
-	ConfigurationObject.__init__(self)	
+    def __init__(self, config):
+	ConfigurationObject.__init__(self)
+	self.config = config	
 
     def __repr__(self):
         string = unicode(self.id) + " " + self.fields['acronym']
@@ -1841,6 +2023,7 @@ class Piece(ConfigurationObject):
 	for k,v in config.AllEquipments.elements.items():
 	    transfer = v.get_actual_position()
 	    if transfer is not None: 
+		transfer = config.AllTransfers.elements[transfer]
 		if transfer.fields['cont_type'] == 'e'and  transfer.fields['cont_id'] == self.id:
 		    checklist.append(['e',k])
 	for k, sensor in config.AllSensors.elements.items():
@@ -1855,7 +2038,11 @@ class Piece(ConfigurationObject):
     def set_value_from_data(self, data, c,user):
 	ConfigurationObject.set_value_from_data(self, data, c,user)
 	self.fields['colorgraph'] = data['colorgraph']
+	self.fields['gu_id'] = data['group']
 	self.save(c,user)
+	
+    def get_group(self):
+	return self.fields['gu_id']
 	
 	
 class AlarmLog(ConfigurationObject):
@@ -1900,8 +2087,8 @@ class ExportData():
 	self.data = []
 	self.transfers = []
 	self.elements = []
-	self.min = 999999
-	self.max = -999999
+	self.min = 99999999999
+	self.max = -99999999999
 	self.average = 0
 	self.count = 0
 	
@@ -1911,7 +2098,7 @@ class ExportData():
 		
     def load_transfers(self):
 	for t in self.b.position:
-	    self.transfers.append(t)
+	    self.transfers.append(self.config.AllTransfers.elements[t])
 
     def create_export(self):
 	if self.elem.get_type() != 'b':
@@ -1920,7 +2107,7 @@ class ExportData():
 		    self.elements.append(self.transform_object_to_export_data(self.config.AllManualData.elements[data]))
 	    if self.cond['transfer'] is True:
 		for t in self.elem.position:
-		    self.elements.append(self.transform_object_to_export_data(t))		    
+		    self.elements.append(self.transform_object_to_export_data(self.config.AllTransfers.elements[t]))		    
 	    
 	for self.b in self.batches :
 	    self.load_data()
@@ -1954,8 +2141,15 @@ class ExportData():
 		    lastSensor = e
 		if infos is not None:
 		    self.add_value_from_sensors(infos,lastSensor)
-                    print infos
 		count += 1
+	    if self.cond['pouring'] is True :
+		for e in self.b.source:
+		    tmp = self.transform_object_to_export_data(self.config.AllPourings.elements[e])
+		    self.elements.append(tmp)
+		for e in self.b.destination:
+		    tmp = self.transform_object_to_export_data(self.config.AllPourings.elements[e])
+		    self.elements.append(tmp)
+		
 
     def write_csv(self):
 	with open(self.filename,'w') as csvfile:
@@ -1973,8 +2167,8 @@ class ExportData():
     def add_value_from_sensors(self, infos, component):
 	sensors = component.get_sensors_in_component(self.config)
 	for a in infos.keys() :
-	    self.min = 999999
-	    self.max = -99999
+	    self.min = 99999999999
+	    self.max = -99999999999
 	    self.average = 0.0
 	    timemin = ''
 	    timemax = ''
@@ -2063,10 +2257,8 @@ class ExportData():
 	tmp = component.get_transfers_in_time_interval(begin,end)
 	if len(tmp) > 0 :
 	    for t in tmp :
-                print "Reccursion ok begin : " + str(begin) + "     end : " + str(end)
 		infos = self.get_all_in_component(t.get_cont(),begin,end,infos)
 	for a in sensors:
-            print "chargement data  begin : " + str(begin) + "     end : " + str(end)
 	    infos[a] = self.config.AllSensors.elements[a].fetch(begin,end)
 	return infos
 	
@@ -2152,6 +2344,22 @@ class ExportData():
                 tmp[elem.fields['cont_type']+'_id'] = self.config.findAllFromType(elem.fields['cont_type']).elements[elem.fields['cont_id']].fields['acronym']
             else :
                 tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
+	elif elem.get_type() == 'v':
+	    tmp['type'] = 'VERS'
+            tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'],datetimeformat)
+            tmp['remark'] = elem.fields['remark']
+	    tmp['value'] = elem.fields['quantity']
+	    tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
+	    if elem.fields['src'] == self.b.getID():
+		if self.cond['acronym'] is True :
+		    tmp['b_id'] = 'TO : ' + self.config.AllBatches.elements[elem.fields['dest']].fields['acronym']
+		else:
+		    tmp['b_id'] = 'TO : ' + elem.fields['dest']
+	    else :
+		if self.cond['acronym'] is True :
+		    tmp['b_id'] = 'FROM : ' + self.config.AllBatches.elements[elem.fields['src']].fields['acronym']
+		else:
+		    tmp['b_id'] = 'FROM : ' + elem.fields['src']
 	return tmp
 
     def get_new_line(self):
@@ -2267,8 +2475,8 @@ class Alarm(ConfigurationObject):
 	    return unicode.format(mess,config.HardConfig.hostname, name, elem.getName(lang), elem.fields['acronym'],unicode(sensor.fields['value']), measure,sensor.fields['remark'], sensor.fields['time'])
 	elif sensor.get_type() == 'v' :
 	    mess = config.AllMessages.elements['alarmpouring'].getName(lang)
-	    elemin = config.AllBatches.elements[sensor.fields['b_in']]
-	    elemout = config.AllBatches.elements[sensor.fields['b_out']]
+	    elemin = config.AllBatches.elements[sensor.fields['src']]
+	    elemout = config.AllBatches.elements[sensor.fields['dest']]
 	    if sensor.fields['m_id'] != '' :
 		measure = config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
 	    else :
@@ -2304,8 +2512,8 @@ class Alarm(ConfigurationObject):
 	    return unicode.format(title,sensor.fields['value'],measure,elem.getName(lang))
 	elif sensor.get_type() == 'v' :
 	    title = config.AllMessages.elements['alarmpouringtitle'].getName(lang)
-	    elemin = config.AllBatches.elements[sensor.fields['b_in']]
-	    elemout = config.AllBatches.elements[sensor.fields['b_out']]
+	    elemin = config.AllBatches.elements[sensor.fields['src']]
+	    elemout = config.AllBatches.elements[sensor.fields['dest']]
 	    return unicode.format(title,elemout.fields['acronym'],elemout.getName(lang),elemin.fields['acronym'],elemin.getName(lang))
 	
     def launch_alarm(self, sensor, config):
@@ -2313,7 +2521,7 @@ class Alarm(ConfigurationObject):
 	    level = sensor.degreeAlarm
 	    if level == 1 :
 		print 'Send mails, level 1'
-		userlist = config.get_user_group(self.fields['o_email1'])
+		userlist = config.AllGrFunction.elements[self.fields['o_email1']].get_user_group()
 		for user in userlist:
 		    lang = config.AllUsers.elements[user].fields['language']
 		    mess = self.get_alarm_message(sensor,config, lang)
@@ -2321,14 +2529,14 @@ class Alarm(ConfigurationObject):
 		    useful.send_email(config.AllUsers.elements[user].fields['mail'], title, mess)
 	    elif level == 2:
 		print 'Send mails, level 2'
-		userlist = config.get_user_group(self.fields['o_email2'])
+		userlist = config.AllGrFunction.elements[self.fields['o_email2']].get_user_group()
 		for user in userlist:
 		    lang = config.AllUsers.elements[user].fields['language']
 		    mess = self.get_alarm_message(sensor,config, lang)
 		    title = self.get_alarm_title( sensor, config, lang)
 		    useful.send_email(config.AllUsers.elements[user].fields['mail'], title, mess)
 	elif sensor.get_type() == 'd' :
-	    userlist = config.get_user_group(self.fields['o_email2'])
+	    userlist = config.AllGrFunction.elements[self.fields['o_email2']].get_user_group()
 	    for user in userlist:
 		lang = config.AllUsers.elements[user].fields['language']
 		mess = self.get_alarm_message(sensor,config, lang)
@@ -2336,7 +2544,7 @@ class Alarm(ConfigurationObject):
 		print 'Send mail depuis manuel data'
 		useful.send_email(config.AllUsers.elements[user].fields['mail'], title, mess)
 	elif sensor.get_type() == 'v' :
-	    userlist = config.get_user_group(self.fields['o_email2'])
+	    userlist = config.AllGrFunction.elements[self.fields['o_email2']].get_user_group()
 	    for user in userlist:
 		lang = config.AllUsers.elements[user].fields['language']
 		mess = self.get_alarm_message(sensor,config, lang)
@@ -2652,7 +2860,6 @@ class Sensor(ConfigurationObject):
         end -- integer end time in seconds since the epoch, or None for current
                time
         resolution -- resolution in seconds"""
-        print start
         if end is None:
             end = int(time.time())
         if start < 0:
@@ -2716,12 +2923,11 @@ class Sensor(ConfigurationObject):
 	self.save(c,user)
     
 class Batch(ConfigurationObject):
-
     def __init__(self, config):
 	ConfigurationObject.__init__(self)
 	self.config = config
-	self.pouringsIN = []
-	self.pouringsOUT = []
+	self.source = []
+	self.destination = []
 
     def __repr__(self):
         string = unicode(self.id) + " " + self.fields['acronym']
@@ -2752,7 +2958,7 @@ class Batch(ConfigurationObject):
 	
     def get_quantity_used(self):
 	qt = 0
-	for e in self.pouringsOUT:
+	for e in self.destination:
 	    qt += float(self.config.AllPourings.elements[e].fields['quantity'])
 	return qt
 	    
@@ -2767,12 +2973,41 @@ class Batch(ConfigurationObject):
 		return useful.date_to_timestamp(self.pourings.fields['time'],datetimeformat) - useful.date_to_timestamp(self.fields['time'],datetimeformat)
 	return useful.get_timestamp() - useful.date_to_timestamp(self.fields['time'],datetimeformat)
 		
-    def add_pouringIN(self, pouring):
-	if not pouring.getID() in self.pouringsIN:
-	    self.pouringsIN.append(pouring.getID())
-    def add_pouringOUT(self, pouring):
-	if not pouring.getID() in self.pouringsOUT:
-	    self.pouringsOUT.append(pouring.getID())
+    def add_source(self, pouring):	    
+	if pouring.getID() in self.source:
+	    self.source.remove(pouring.getID())
+	if len(self.source) == 0:
+	    self.source.append(pouring.getID())
+	else:
+	    time = useful.date_to_timestamp(pouring.fields['time'],datetimeformat)
+	    insert = False
+	    for i in range(len(self.source)):
+		tmp = self.config.AllPourings.elements[self.source[i]]
+		tmptime = useful.date_to_timestamp(tmp.fields['time'],datetimeformat)
+		if time < tmptime:
+		    insert = True
+		    self.source.insert(i,pouring.getID())
+		    break
+	    if insert is False:
+		self.source.append(pouring.getID())
+	    
+    def add_destination(self, pouring):
+	if pouring.getID() in self.destination:
+	    self.destination.remove(pouring.getID())
+	if len(self.source) == 0:
+	    self.destination.append(pouring.getID())
+	else:
+	    time = useful.date_to_timestamp(pouring.fields['time'],datetimeformat)
+	    insert = False
+	    for i in range(len(self.destination)):
+		tmp = self.config.AllPourings.elements[self.source[i]]
+		tmptime = useful.date_to_timestamp(tmp.fields['time'],datetimeformat)
+		if time < tmptime:
+		    insert = True
+		    self.destination.insert(i,pouring.getID())
+		    break
+	    if insert is False:
+		self.destination.append(pouring.getID())
 		
     def get_residual_quantity(self):
 	val = self.get_quantity_used()
@@ -2831,8 +3066,11 @@ class Batch(ConfigurationObject):
 	for elem in tmp:
 	    self.fields[elem] = data[elem]
 	self.fields['m_id'] = data['measure']
+	self.fields['gr_id'] = data['group']
 	self.save(c,user)	
 	    
+    def get_group(self):
+	return self.fields['gr_id']
 
 class Transfer(ConfigurationObject):
     def __init__(self, config):

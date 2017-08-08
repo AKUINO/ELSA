@@ -63,6 +63,15 @@ $else:
 	</div>
 	
 	<div class="form-group row">
+	    <script>
+		$$(function(){
+		    $$("#includedPermission").load("/permission/e_$(id)");
+		});
+	    </script>
+	    <div id="includedPermission" class="col-sm-12"></div>
+	</div>
+	
+	<div class="form-group row">
 	    <label for="inputactive" class="col-sm-6 col-form-label">$c.AllMessages.elements['active'].getName(self.lang)</label>
 	    <span class="glyphicon glyphicon-remove-circle"> </span>
 	    $code:

@@ -45,6 +45,9 @@ begin	m_id	default	user
 2016-01-01 13:45:56	related	Listing	1
 2016-01-01 13:45:56	begin	Begin	1
 2016-01-01 13:45:56	group	Group	1
+2016-01-01 13:45:56	guse	Group Use	1
+2016-01-01 13:45:56	gfunction	Group Function	1
+2016-01-01 13:45:56	grecipe	Group Recipe	1
 2016-01-01 13:45:56	active	Active	1
 2016-01-01 13:45:56	acronym	Acronym	1
 2016-01-01 13:45:56	barcode	Barcode	1

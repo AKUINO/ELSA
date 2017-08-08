@@ -9,20 +9,34 @@ $else :
     $code:
 	if not id.split('_')[0] == 'b':
 	    pouring = c.AllPourings.elements[id]
-	    batchin = c.AllBatches.elements[pouring.fields['b_in']]
-	    batchout = c.AllBatches.elements[pouring.fields['b_out']]
+	    src = c.AllBatches.elements[pouring.fields['src']]
+	    dest = c.AllBatches.elements[pouring.fields['dest']]
 	    myID = 'update'
 	    rmq = pouring.fields['remark']
 	else:
-	    myID = 'component'
-	    batchout = c.findAllFromType(id.split('_')[0]).elements[id.split('_')[-1]]
+	    myID = id.split('_')[2]
+	    batch = c.findAllFromType(id.split('_')[0]).elements[id.split('_')[1]]
 	    rmq = '' 
 $if myID == 'update':
-    $var location: list/b=batch pourings/b_$(batchout.getID())=pouring edit/v_$(batchout.getID())=edit
-$elif myID == 'component':
-    $var location: list/b=batch pourings/b_$(batchout.getID())=pouring create/v/b_$(batchout.getID())/new=add
+    $var location: list/b=batch find/v/b_$(dest.getID())=pouring edit/v_$(dest.getID())=edit
+$elif myID == 'in' or myID == 'out':
+    $var location: list/b=batch find/v/b_$(batch.getID())=pouring create/v/b_$(batch.getID())/new=add
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+
+
+<script>
+function flip() {
+    $$("#src").appendTo("#divdest");
+    $$("#dest").appendTo("#divsrc");
+    document.getElementsByName("src")[0].setAttribute("id", "test");
+    document.getElementsByName("dest")[0].setAttribute("id", "src");
+    document.getElementsByName("src")[0].setAttribute("id", "dest");
+    document.getElementsByName("src")[0].setAttribute("name", "test");
+    document.getElementsByName("dest")[0].setAttribute("name", "src");
+    document.getElementsByName("test")[0].setAttribute("name", "dest");
+}
+</script>
 
 
 <div class="container">
@@ -45,34 +59,42 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	
 	<div class="form-group row">
 	    <label for="b_id" class="col-sm-3 col-form-label">$c.AllMessages.elements['batch'].getName(self.lang) $c.AllMessages.elements['source'].getName(self.lang)</label>
-	    <div class="col-sm-9">
-		<select name="b_out" class="form-control" id="b_id">
-		    $if myID == 'new':
+	    <div class="col-sm-9" id = "divsrc">
+		<select name="src" class="form-control" id="src">
+		    $if myID != 'out':
 			$for k in c.AllBatches.elements.keys():
-			    <option value="$k">$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang) [$c.AllMessages.elements['residualqt'].getName(self.lang) : $c.AllBatches.elements[k].get_residual_quantity()] </option>
+			    $if not (myID == 'in' and k == batch.getID()):
+				<option value="$k"
+				$if myID == 'update':
+					    $if k == src.getID() :
+						selected
+				>$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang) [$c.AllMessages.elements['residualqt'].getName(self.lang) : $c.AllBatches.elements[k].get_residual_quantity()] </option>
 		    $else:
-			<option value="$batchout.getID()">$batchout.fields['acronym'] - $batchout.getName(self.lang) [$c.AllMessages.elements['residualqt'].getName(self.lang) : $batchout.get_residual_quantity()] </option>
+			<option value="$batch.getID()">$batch.fields['acronym'] - $batch.getName(self.lang) [$c.AllMessages.elements['residualqt'].getName(self.lang) : $batch.get_residual_quantity()] </option>
+		</select>
+	    </div>
+	</div>
+	<div class="form-group row">
+	    <label for="inputbatch" class="col-sm-3 col-form-label">$c.AllMessages.elements['batch'].getName(self.lang) $c.AllMessages.elements['target'].getName(self.lang)</label>
+	    <div class="col-sm-9" id = "divdest">
+		<select name = "dest" class="form-control" id="dest">
+		    <optgroup label="$c.AllMessages.elements['batch'].getName(self.lang)">
+			$if myID != 'in' :
+			    $for k in c.AllBatches.elements.keys():
+				$if not (myID == 'out' and k == batch.getID()):
+				    <option value="$k"
+				    $if myID == 'update':
+					$if k == dest.getID() :
+					    selected
+				    >$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang) </option>
+			$else:
+			    <option value="$batch.getID()">$batch.fields['acronym'] - $batch.getName(self.lang) [$c.AllMessages.elements['residualqt'].getName(self.lang) : $batch.get_residual_quantity()] </option>
 		</select>
 	    </div>
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputbatch" class="col-sm-3 col-form-label">$c.AllMessages.elements['batch'].getName(self.lang) $c.AllMessages.elements['target'].getName(self.lang)</label>
-	    <div class="col-sm-9">
-		<select name = "b_in" class="form-control" id="inputbatch">
-		    <optgroup label="$c.AllMessages.elements['batch'].getName(self.lang)">
-		    $for k in c.AllBatches.elements.keys():
-			$if myID != 'new':
-			    $if k != batchout.getID() :
-				<option value="$k"
-				    $if myID == 'update':
-					$if k == batchin.getID() :
-					    selected
-				>$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang) </option>
-			$else :
-			    <option value="$k">$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang) </option>
-		</select>
-	    </div>
+	    <button type ="button" class="btn btn-info col-sm-2 col-md-offset-5" onclick="flip()">invert</button>
 	</div>
 	
 	<div class="form-group row">

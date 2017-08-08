@@ -26,17 +26,11 @@ $if content.recursive == 'False' :
 	    <link rel="stylesheet" href="/static/css/glyphicons-halflings.css">
 	    <script src="/static/js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
 	    <script src="/static/js/jquery.js"></script>
-	    <script> 
-		$$(function(){
-		    $$("#includedContent").load("/static/html/colorpicker.html"); 
-		});
-	    </script> 
 	    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 	    <script>window.jQuery || document.write('<script src="/static/js/vendor/jquery-1.11.2.min.js"><\/script>')</script>
 	    <script src="/static/js/vendor/bootstrap.min.js"></script>
 	    <script src="/static/js/plugins.js"></script>
-	    <script src="/static/js/main.js"></script>	
-	    <script type="text/javascript" src="/static/js/javascriptrrd.wlibs.js"></script>
+	    <script src="/static/js/main.js"></script>
 
 	</head>
 	<body>
@@ -77,11 +71,9 @@ $if content.recursive == 'False' :
 			<li class="dropdown" data-show-icon="true">
 			    <a href="#" class="dropdown-toggle" data-toggle="dropdown">$c.AllMessages.elements['production'].getName(content.lang)<b class="caret"></b></a>
 			    <ul class="dropdown-menu">
-				<!--li><a href="#" tabindex="-1"><span class="$c.AllHalflings.elements['recipe'].getHalfling()"></span> Recipe</a></li>
-				<li><a href="#" tabindex="-2"><span class="$c.AllHalflings.elements['recipeStep'].getHalfling()"></span> Recipe Step</a></li-->
-				<li><a href="/list/b" tabindex="-3"><span class="$c.AllHalflings.elements['batch'].getHalfling()"></span> $c.AllMessages.elements['batch'].getName(content.lang)</a></li>
-				<li><a href="/create/t" tabindex="-4"><span class="$c.AllHalflings.elements['transfer'].getHalfling()"></span> $c.AllMessages.elements['transfer'].getName(content.lang)</a></li>
-				<li><a href="/create/d" tabindex="-4"><span class="$c.AllHalflings.elements['manualdata'].getHalfling()"></span> $c.AllMessages.elements['manualdata'].getName(content.lang)</a></li>
+				<li><a href="/list/b" tabindex="-1"><span class="$c.AllHalflings.elements['batch'].getHalfling()"></span> $c.AllMessages.elements['batch'].getName(content.lang)</a></li>
+				<li><a href="/create/t" tabindex="-2"><span class="$c.AllHalflings.elements['transfer'].getHalfling()"></span> $c.AllMessages.elements['transfer'].getName(content.lang)</a></li>
+				<li><a href="/create/d" tabindex="-3"><span class="$c.AllHalflings.elements['manualdata'].getHalfling()"></span> $c.AllMessages.elements['manualdata'].getName(content.lang)</a></li>
 				<li><a href="/create/v" tabindex="-4"><span class="$c.AllHalflings.elements['pouring'].getHalfling()"></span> $c.AllMessages.elements['pouring'].getName(content.lang)</a></li>
 				<!--li><a href="#" tabindex="-5"><span class="$c.AllHalflings.elements['ToDo'].getHalfling()"></span> ToDo</a></li-->
 			    </ul>
@@ -90,7 +82,9 @@ $if content.recursive == 'False' :
 			    <a href="#" class="dropdown-toggle" data-toggle="dropdown">$c.AllMessages.elements['people'].getName(content.lang)<b class="caret"></b></a>
 			    <ul class="dropdown-menu">
 				<li><a href="/list/u" tabindex="-1"><span class="$c.AllHalflings.elements['user'].getHalfling()"></span> $c.AllMessages.elements['user'].getName(content.lang)</a></li>
-				<li><a href="/list/g" tabindex="-2"><span class="$c.AllHalflings.elements['group'].getHalfling()"></span>  $c.AllMessages.elements['group'].getName(content.lang)</a></li>
+				<li><a href="/list/gu" tabindex="-2"><span class="$c.AllHalflings.elements['guse'].getHalfling()"></span>  $c.AllMessages.elements['guse'].getName(content.lang)</a></li>
+				<li><a href="/list/gr" tabindex="-3"><span class="$c.AllHalflings.elements['grecipe'].getHalfling()"></span>  $c.AllMessages.elements['grecipe'].getName(content.lang)</a></li>
+				<li><a href="/list/gf" tabindex="-4"><span class="$c.AllHalflings.elements['gfunction'].getHalfling()"></span>  $c.AllMessages.elements['gfunction'].getName(content.lang)</a></li>
 			    </ul>
 			</li>
 			<li class="dropdown" data-show-icon="true">

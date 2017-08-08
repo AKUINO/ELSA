@@ -14,6 +14,9 @@ begin	classname	glyphname	user
 2017-03-21 14:08:46	transfer	transfer	1
 2017-03-21 14:08:46	ToDo	flag	1
 2017-03-21 14:08:46	group	group	1
+2017-03-21 14:08:46	guse	wrench	1
+2017-03-21 14:08:46	grecipe	list-alt	1
+2017-03-21 14:08:46	gfunction	group	1
 2017-03-21 14:08:46	user	user	1
 2017-03-21 14:08:46	graphic	stats	1
 2017-03-21 14:08:46	monitoring	stats	1
@@ -24,4 +27,4 @@ begin	classname	glyphname	user
 2017-03-21 14:08:46	add	plus	1
 2017-03-21 14:08:46	exportdata	floppy-save 1	
 2017-03-21 14:08:46	datatable	list 1	
-2017-03-21 14:08:46	pouring	tint 1	
+2017-03-21 14:08:46	pouring	filter 1	

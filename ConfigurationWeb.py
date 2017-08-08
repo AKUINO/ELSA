@@ -16,6 +16,13 @@ class WebColor():
         if mail is not None:
             return render.colorpicker(mail,type,id)
         return ''
+	
+class WebPermission():
+    def GET(self, type,id):
+        mail = isConnected()
+        if mail is not None:
+            return render.permission(mail,type,id)
+        return ''
 
 class WebModal():
     def GET(self, type,id):
@@ -45,7 +52,7 @@ class WebList():
     def GET(self, type):
         mail = isConnected()
         if mail is not None:
-	    if type in 'abcpesmug':
+	    if type in 'abcpesmugugrgf':
 		return self.getRender(type, mail)
 	    else:
 		return render.notfound()
@@ -125,8 +132,12 @@ class WebEdit():
 		    return render.measure(id,mail, errormess) 
 		elif type == 'a' :
 		    return render.alarm(id,mail, errormess) 
-		elif type == 'g' :
-		    return render.group(id,mail, errormess) 
+		elif type == 'gu' :
+		    return render.group(type,id,mail, errormess) 
+		elif type == 'gr' :
+		    return render.group(type,id,mail, errormess) 
+		elif type == 'gf' :
+		    return render.group(type,id,mail, errormess) 
 		elif type == 'u' :
 		    return render.user(id,mail, errormess) 
 	elif type =='t':
@@ -322,6 +333,7 @@ class WebExport():
             cond['alarm'] = True if 'alarm' in data else False
             cond['manualdata'] = True if 'manualdata' in data else False
             cond['transfer'] = True if 'transfer' in data else False
+            cond['pouring'] = True if 'pouring' in data else False
             cond['specialvalue'] = True if 'specialvalue' in data else False
             cond['valuesensor'] = True if 'valuesensor' in data else False
             cond['acronym'] = True if 'acronym' in data else False
@@ -422,12 +434,16 @@ def main():
             '/export/(.+)_(.+)', 'WebExport',  
             '/datatable/(.+)_(.+)', 'WebDataTable',  
             '/find/(.+)/(.+)_(.+)', 'WebFind',  
+            '/permission/(.+)_(.+)', 'WebPermission',  
         )
 
         #Configuration Singleton ELSA
         c=elsa.Configuration()
         c.load()
-        print c.AllSensors.elements['7'].fields
+	print c.AllGrFunction.get_hierarchy_str()
+	print c.AllGrFunction.elements['4'].get_parents()
+	print c.AllGrFunction.elements['4'].get_children()
+	print c.AllGrFunction.elements['4'].get_siblings()
         web.template.Template.globals['c'] = c
         web.template.Template.globals['useful'] = useful
         app = web.application(urls, globals())
