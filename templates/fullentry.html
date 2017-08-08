@@ -10,7 +10,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
     <div class="col-xs-12 " >
 	<div class="col-xs-2 vcenter">
-	    <button type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#$(type)_$(id)modal"><span class="$c.AllHalflings.elements['info'].getHalfling()"></span></button>
+	    <button type="button" class="btn btn-warning btn-md $(type)_$(id)" data-toggle="modal" data-target="#$(type)_$(id)modal"><span class="$c.AllHalflings.elements['info'].getHalfling()"></span></button>
 	</div>
 	<div class="col-xs-1 vcenter" >
 	$if 'active' in elem.fields :
@@ -73,3 +73,17 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    </div>
     </div>
 </div>
+
+<div class="modal" id="modal_$(type)_$(id)">
+    <div class="modal-dialog">
+    </div>
+</div>
+
+<script>
+    $$(document).ready(function(){
+	$$('.$(type)_$(id)').on("click",function(e){
+	    $$("#modal_$(type)_$(id)").find(".modal-dialog").load("/modal/$(type)_$(id)");
+	    $$("#modal_$(type)_$(id)").modal('show');
+	});
+    });
+</script>

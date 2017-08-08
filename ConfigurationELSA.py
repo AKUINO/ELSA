@@ -136,8 +136,8 @@ class Configuration():
 	self.AllManualData.load()
 	self.AllPourings.load()
 	self.AllAlarmLogs.load()
-	self.UpdateThread.start()
-	self.RadioThread.start()
+	#self.UpdateThread.start()
+	#self.RadioThread.start()
     
     def findAllFromName(self,className):
         if className == User.__name__:
@@ -704,7 +704,7 @@ class UpdateThread(threading.Thread):
 	self.config.owproxy = pyownet.protocol.proxy(host="localhost", port=4304)
 	while self.config.isThreading is True:
 	    now = useful.get_timestamp()
-	    self.config.InfoSystem.updateInfoSystem(now)
+	    #self.config.InfoSystem.updateInfoSystem(now)
 	    if not len(self.config.AllSensors.elements) == 0 :
 		self.config.AllSensors.update(now)
 	    time.sleep(60)
