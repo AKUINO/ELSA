@@ -69,7 +69,7 @@ class Configuration():
             print 'AKUINO-ELSA lock exists'
             sys.exit()
 	
-	self.InfoSystem = InfoSystem(self)
+	#self.InfoSystem = InfoSystem(self)
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
 	self.fieldcode = ['begin', 'type', 'idobject', 'code', 'user']
@@ -119,7 +119,7 @@ class Configuration():
 	self.AllMeasures.load()
 	self.AllSensors.load()
 	self.AllSensors.check_rrd()
-	self.InfoSystem.check_rrd()
+	#self.InfoSystem.check_rrd()
 	self.AllSensors.correctValueAlarm()
 	self.AllAlarms.load()
 	self.AllHalflings.load()
@@ -136,8 +136,8 @@ class Configuration():
 	self.AllManualData.load()
 	self.AllPourings.load()
 	self.AllAlarmLogs.load()
-	#self.UpdateThread.start()
-	#self.RadioThread.start()
+	self.UpdateThread.start()
+	self.RadioThread.start()
     
     def findAllFromName(self,className):
         if className == User.__name__:
@@ -256,7 +256,7 @@ class Configuration():
     def get_time_format(self):
         return datetimeformat
 	
-	
+"""	
 class InfoSystem():
 
     def __init__(self, config):
@@ -283,7 +283,7 @@ class InfoSystem():
 
                 #bus_pi.write_byte(ADCaddr,0x98)# va charger la valeur du registre
                                             # dans le mcp
-                """print 'ADC I2C:',hex(addr)"""
+                print 'ADC I2C:',hex(addr)
                 #xa = bus_pi.read_word_data(ADCaddr,0)# recupère la valeur en décimal
                 xa = self.bus_pi.read_i2c_block_data(self.config.HardConfig.battery_address,0x98+self.config.HardConfig.battery_port,3)
                 if len(xa) < 2:
@@ -410,7 +410,7 @@ class InfoSystem():
 	if not os.path.exists(rrdDir+'cpuload.rrd'):
 	    data_sources=[ 'DS:Load1:GAUGE:120:U:U', 'DS:Load5:GAUGE:120:U:U', 'DS:Load15:GAUGE:120:U:U' ]
 	    rrdtool.create( rrdDir+'cpuload.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
-
+"""
 class ConfigurationObject():
 
     def __init__(self):
@@ -867,7 +867,7 @@ class AllObjects():
 	    while tmp < len(self.fieldnames):
 		csvfile.write('\t'+self.fieldnames[tmp])
 		tmp = tmp + 1
-            csvfile.write('\n')
+            csvfile.write('\n\n')
 	if self.filename is not None :
 	    with open(self.filename,'w') as csvfile:
 		csvfile.write(self.fieldtranslate[0])
@@ -875,7 +875,7 @@ class AllObjects():
 		while tmp < len(self.fieldtranslate):
 		    csvfile.write('\t'+self.fieldtranslate[tmp])
 		    tmp = tmp + 1
-		csvfile.write('\n')
+		csvfile.write('\n\n')
 		    
     def get_name_object(self ):
 	return 'component'
@@ -1082,6 +1082,24 @@ class AllGroups(AllObjects):
         self.elements = {}
         self.config = config
 	self.fieldrelations = ['begin', 'parent_id', 'child_id', 'active', 'user']
+	
+    def load(self):
+	AllObjects.load(self)
+	self.check_relation()
+	
+    def check_relation(self):
+	filename = self.csvRelations
+	if not os.path.exists(filename):
+	    self.create_relation(filename)
+	    
+    def create_relation(self, fname):
+	with open(fname,'w') as csvfile:
+	    csvfile.write(self.fieldrelations[0])
+	    tmp = 1
+	    while tmp < len(self.fieldnames):
+		csvfile.write('\t'+self.fieldnames[tmp])
+		tmp = tmp + 1
+            csvfile.write('\n\n')
 	
     def get_master_groups(self):
 	children = {}
