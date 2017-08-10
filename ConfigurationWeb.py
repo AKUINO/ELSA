@@ -440,10 +440,7 @@ def main():
         #Configuration Singleton ELSA
         c=elsa.Configuration()
         c.load()
-	print c.AllGrFunction.get_hierarchy_str()
-	print c.AllGrFunction.elements['4'].get_parents()
-	print c.AllGrFunction.elements['4'].get_children()
-	print c.AllGrFunction.elements['4'].get_siblings()
+	print c.AllPieces.elements['1']
         web.template.Template.globals['c'] = c
         web.template.Template.globals['useful'] = useful
         app = web.application(urls, globals())
