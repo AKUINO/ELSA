@@ -800,6 +800,7 @@ class AllObjects():
 		    objects = self.config.findAllFromType(currObject.fields['object_type'])
 		    objects.elements[currObject.fields['object_id']].add_data(currObject)		    
 		elif currObject.get_type() == 'v':
+		    print 'flibidi'
 		    objects = self.config.AllBatches
 		    objects.elements[currObject.fields['src']].add_source(currObject)		    
 		    objects.elements[currObject.fields['dest']].add_destination(currObject)		    
@@ -1112,10 +1113,8 @@ class AllGroups(AllObjects):
 	with open(self.csvRelations) as csvfile:
 	    reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
 	    for row in reader:
-		print self.elements
 		parent = row['parent_id']
 		child = row['child_id']
-		print child
 		currObject = self.elements[child]
 		if row['active'] =='0':		    
 		    currObject.add_relation(self.elements[parent])
@@ -2991,7 +2990,7 @@ class Batch(ConfigurationObject):
 		return useful.date_to_timestamp(self.pourings.fields['time'],datetimeformat) - useful.date_to_timestamp(self.fields['time'],datetimeformat)
 	return useful.get_timestamp() - useful.date_to_timestamp(self.fields['time'],datetimeformat)
 		
-    def add_source(self, pouring):	    
+    def add_source(self, pouring):
 	if pouring.getID() in self.source:
 	    self.source.remove(pouring.getID())
 	if len(self.source) == 0:
@@ -3012,15 +3011,15 @@ class Batch(ConfigurationObject):
     def add_destination(self, pouring):
 	if pouring.getID() in self.destination:
 	    self.destination.remove(pouring.getID())
-	if len(self.source) == 0:
+	if len(self.destination) == 0:
 	    self.destination.append(pouring.getID())
 	else:
 	    time = useful.date_to_timestamp(pouring.fields['time'],datetimeformat)
 	    insert = False
 	    for i in range(len(self.destination)):
-		tmp = self.config.AllPourings.elements[self.source[i]]
+		tmp = self.config.AllPourings.elements[self.destination [i]]
 		tmptime = useful.date_to_timestamp(tmp.fields['time'],datetimeformat)
-		if time < tmptime:
+		if int(time) < int(tmptime):
 		    insert = True
 		    self.destination.insert(i,pouring.getID())
 		    break
