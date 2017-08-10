@@ -2143,11 +2143,11 @@ class ExportData():
 		    end = int(time.time())
 		else :
 		    end = useful.date_to_timestamp(self.history[count+1].fields['time'], datetimeformat)
-                bexport['duration'] = end - bexport['timestamp']
+                bexport['duration'] = self.get_duration(bexport['timestamp'],end)
 		if self.cond['manualdata'] is True and e.get_type() == 'd':
 		    self.elements.append(tmp)
 		elif self.cond['transfer'] is True and e.get_type() == 't':
-		    tmp['duration'] = int(end - begin)
+		    tmp['duration'] = self.get_duration(begin, end) 
 		    self.elements.append(tmp)
 		if e.get_type() == 'd':
 		    if lastSensor != None:
@@ -2235,7 +2235,7 @@ class ExportData():
 		    #sensor3['typevalue'] = 'AVG'
 		    sensor3['type'] = 'AVG'
 		    sensor3['timestamp'] = end
-                    sensor3['duration'] = end - begin
+                    sensor3['duration'] = self.get_duration(begin,end)
                     sensor3['remark'] = ''
 		    self.elements.append(sensor3)
 		if self.cond['alarm'] is True :
@@ -2281,7 +2281,6 @@ class ExportData():
 	
     def transform_object_to_export_data(self, elem):
 	tmp = self.get_new_line()
-	tmp['user'] = ""
 	if elem.creator:
 	    tmp['user'] = elem.creator
             if self.cond['acronym'] is True and elem.creator:
@@ -2289,12 +2288,20 @@ class ExportData():
                 if aUser and aUser.fields['acronym']:
                     tmp['user'] = aUser.fields['acronym']
         if elem.created:
-            tmp['timestamp'] = useful.date_to_timestamp(elem.created,datetimeformat)
+	    tmp['timestamp'] = useful.date_to_timestamp(elem.created,datetimeformat)		
 	if elem.get_type() in 'bcpem' :
+	    if elem.get_type() == 'b':
+		tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
+		tmp['value'] = elem.fields['basicqt']
+		
 	    if self.cond['acronym'] is True :
 		tmp[elem.get_type()+'_id'] = elem.fields['acronym']
+		if elem.get_type() == 'b':
+		    tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['acronym']
 	    else :
 	        tmp[elem.get_type()+'_id'] = elem.getID()
+		if elem.get_type() == 'b':
+		    tmp['m_id'] = elem.fields['m_id']
 	    tmp['remark'] = elem.fields['remark']
 	    tmp['type'] = elem.get_type()
 	    if elem.get_type() == 'm':
@@ -2335,7 +2342,7 @@ class ExportData():
 	        tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
                 tmp['sensor'] = elem.fields['s_id']
 		tmp['m_id'] = elem.fields['m_id']
-	    tmp['duration'] = useful.date_to_timestamp(elem.fields['begin'],datetimeformat) - int(elem.fields['begintime'])
+	    tmp['duration'] = self.get_duration(useful.date_to_timestamp(elem.fields['begin'],datetimeformat),int(elem.fields['begintime']))
 	    tmp['category'] = elem.fields['degree']
 	    tmp['value'] = elem.fields['value']
 	    tmp['unit'] = self.config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
@@ -2345,6 +2352,10 @@ class ExportData():
             if elem.fields['m_id'] != '':
 	        tmp['value'] = elem.fields['value']
 	        tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
+		if self.cond['acronym'] is True :
+		    tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['acronym']
+		else :
+		    tmp['m_id'] = elem.fields['m_id']
 	    if self.cond['acronym'] is True and elem.fields['m_id'] != '':
 	        tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['acronym']
                 tmp[elem.fields['object_type']+'_id'] = self.config.findAllFromType(elem.fields['object_type']).elements[elem.fields['object_id']].fields['acronym']
@@ -2352,13 +2363,19 @@ class ExportData():
 		tmp['m_id'] = elem.fields['m_id']
                 tmp[elem.fields['object_type']+'_id'] = elem.fields['object_id']
 	    tmp['remark'] = elem.fields['remark']
-	    tmp['user'] = elem.fields['user']
+	    if self.cond['acronym'] is True :
+		tmp['user'] = self.config.AllUsers.elements[elem.fields['user']].fields['acronym']
+		tmp[elem.fields['object_type']+'_id'] = self.config.findAllFromType(elem.fields['object_type']).elements[elem.fields['object_id']].fields['acronym']
+	    else:
+		tmp['user'] = elem.fields['user']
+		tmp[elem.fields['object_type']+'_id'] = elem.fields['object_id']
         elif elem.get_type() == 't':
             tmp['type'] = 'TRF'
             tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'],datetimeformat)
             tmp['remark'] = elem.fields['remark']
             if self.cond['acronym'] is True :
                 tmp[elem.fields['cont_type']+'_id'] = self.config.findAllFromType(elem.fields['cont_type']).elements[elem.fields['cont_id']].fields['acronym']
+		print self.config.findAllFromType(elem.fields['cont_type']).elements[elem.fields['cont_id']].fields['acronym']
             else :
                 tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
 	elif elem.get_type() == 'v':
@@ -2370,14 +2387,26 @@ class ExportData():
 	    if elem.fields['src'] == self.b.getID():
 		if self.cond['acronym'] is True :
 		    tmp['b_id'] = 'TO : ' + self.config.AllBatches.elements[elem.fields['dest']].fields['acronym']
+		    tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['acronym']
 		else:
 		    tmp['b_id'] = 'TO : ' + elem.fields['dest']
+		    tmp['m_id'] = elem.fields['m_id']
 	    else :
 		if self.cond['acronym'] is True :
 		    tmp['b_id'] = 'FROM : ' + self.config.AllBatches.elements[elem.fields['src']].fields['acronym']
 		else:
 		    tmp['b_id'] = 'FROM : ' + elem.fields['src']
 	return tmp
+
+    def get_duration(self, begin, end):
+	timestamp = end - begin
+	string = ''
+	if timestamp > 86400 :
+	    string = str(timestamp/86400) + 'd'
+	    timestamp = timestamp% 86400
+	string += useful.timestamp_to_time(timestamp)
+	return string
+    
 
     def get_new_line(self):
 	tmp = {}	
@@ -2390,7 +2419,6 @@ class ExportData():
 	tmp['c_id'] = ''
 	tmp['m_id'] = ''
 	tmp['sensor'] = ''
-	#tmp['typevalue'] = ''
 	tmp['value'] = ''
 	tmp['unit'] = ''
 	tmp['category'] = ''
@@ -3082,7 +3110,7 @@ class Batch(ConfigurationObject):
 	tmp = ['basicqt', 'time', 'cost']
 	for elem in tmp:
 	    self.fields[elem] = data[elem]
-	self.fields['m_id'] = data['measure']
+	self.add_measure(data['measure'])
 	self.fields['gr_id'] = data['group']
 	self.save(c,user)	
 	    

@@ -56,6 +56,9 @@ def send_email(recipient, subject, text):
 def timestamp_to_date(now,datetimeformat):
     return datetime.datetime.fromtimestamp(int(now)).strftime(datetimeformat)
     
+def timestamp_to_time(now):
+    return datetime.datetime.fromtimestamp(int(now)).strftime("%H:%M:%S")
+    
 def get_time(datetimeformat):
     now = int(time.time())
     return datetime.datetime.fromtimestamp(now).strftime(datetimeformat)
