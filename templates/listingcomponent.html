@@ -53,16 +53,10 @@ $code:
                 toCheck.append(['e',k])
             <script>
             $$(function(){
-                $$("#includedMenue_$(k)").load("/entry/e_$(k)");
+                $$("#includedMenue_$(k)").load("/fullentry/e_$(k)");
             });
             </script>
             <div id="includedMenue_$(k)"></div>
-            <script>
-            $$(function(){
-                $$("#includedModale_$(k)").load("/modal/e_$(k)");
-            });
-            </script>
-            <div id="includedModale_$(k)"></div>
 </div>
 <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
     <label class="col-sm-12">$c.AllMessages.elements['container'].getName(self.lang) :</label>    
@@ -72,16 +66,10 @@ $code:
                 toCheck.append(['c',k])
             <script>
             $$(function(){
-                $$("#includedMenuc_$(k)").load("/entry/c_$(k)");
+                $$("#includedMenuc_$(k)").load("/fullentry/c_$(k)");
             });
             </script>
             <div id="includedMenuc_$(k)"></div>
-            <script>
-            $$(function(){
-                $$("#includedModalc_$(k)").load("/modal/c_$(k)");
-            });
-            </script>
-            <div id="includedModalc_$(k)"></div>
 </div>
 $if type not in 'bg':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
@@ -92,16 +80,10 @@ $if type not in 'bg':
             $if sensor.fields[type+'_id'] == id :
                 <script>
                     $$(function(){
-                        $$("#includedMenus_$(k)").load("/entry/s_$(k)");
+                        $$("#includedMenus_$(k)").load("/fullentry/s_$(k)");
                     });
                 </script>
                 <div id="includedMenus_$(k)"></div>
-                <script>
-                    $$(function(){
-                        $$("#includedModals_$(k)").load("/modal/s_$(k)");
-                    });
-                </script>
-                <div id="includedModals_$(k)"></div>
     </div>
 <div class="row active"style = "background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
     <label class="col-sm-12">$c.AllMessages.elements['batch'].getName(self.lang) :</label>
@@ -110,14 +92,8 @@ $if type not in 'bg':
             $if batch.is_actual_position(t, i) is True:
                 <script>
                     $$(function(){
-                        $$("#includedMenub_$(k)").load("/entry/b_$(k)");
+                        $$("#includedMenub_$(k)").load("/fullentry/b_$(k)");
                     });
-                    </script>
-                    <div id="includedMenub_$(k)"></div>
-                <script>
-                    $$(function(){
-                        $$("#includedModalb_$(k)").load("/modal/b_$(k)");
-                    });
-                </script>
-                <div id="includedModalb_$(k)"></div>
+		</script>
+		<div id="includedMenub_$(k)"></div>
 </div>

@@ -800,7 +800,6 @@ class AllObjects():
 		    objects = self.config.findAllFromType(currObject.fields['object_type'])
 		    objects.elements[currObject.fields['object_id']].add_data(currObject)		    
 		elif currObject.get_type() == 'v':
-		    print 'flibidi'
 		    objects = self.config.AllBatches
 		    objects.elements[currObject.fields['src']].add_source(currObject)		    
 		    objects.elements[currObject.fields['dest']].add_destination(currObject)		    

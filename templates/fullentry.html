@@ -51,7 +51,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
             <div class="modal-header row ">
 		<div class="col-xs-2" >
 		</div>
-                <h4 class="modal-title col-xs-6 ">Menu</h4>
+                <h4 class="modal-title col-xs-6 "> $elem.fields['acronym'] - $elem.getName(self.lang)</h4>
 		<div class="col-xs-2" >
 		</div>
                 <button type="button" class="col-xs-2 btn btn-primary" data-dismiss="modal"><strong><big>&times;</big></strong></button>
@@ -97,7 +97,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 				<strong><a href="/find/v/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['pouring'].getHalfling()"></span></a></strong>
 			    </div>
 			    <div class="col-xs-10">
-				$len(c.AllBatches.elements[id].source)
+				$len(c.AllBatches.elements[id].source) pouring(s)
 			    </div>
 			</div>
 		    $if type in 'cpeb' :
@@ -106,7 +106,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 				<strong><a href="/find/d/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['manualdata'].getHalfling()"></span></a></strong>
 			    </div>
 			    <div class="col-xs-10">
-				$len(c.findAllFromType(type).elements[id].data)
+				$len(c.findAllFromType(type).elements[id].data) Observation(s)
 			    </div>
 			</div>
 		    $if type in 'cpeb' :
@@ -115,7 +115,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 				<strong><a href="/find/t/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['transfer'].getHalfling()"></span></a></strong>
 			    </div>
 			    <div class="col-xs-10">
-				$len(c.findAllFromType(type).elements[id].position)
+				$len(c.findAllFromType(type).elements[id].position) Tranfert(s)
 			    </div>
 			</div>
 		    <div class="row" style="margin-top:10px;">
