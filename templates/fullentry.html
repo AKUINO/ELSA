@@ -19,62 +19,17 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    $else:
 		<span class="glyphicon glyphicon-ok-circle"> </span>
 	</div>	    
-	<div class="col-xs-2 vcenter" ><span class="$c.AllHalflings.elements[elem.get_name()].getHalfling()"></span>    $elem.fields['acronym']</div>
-	<div class="col-xs-3 vcenter">
+	<div class="col-xs-3 vcenter" ><span class="$c.AllHalflings.elements[elem.get_name()].getHalfling()"></span>    $elem.fields['acronym']</div>
+	<div class="col-xs-4 vcenter">
 	    <strong>$elem.getName(self.lang)</strong>
 	</div>
-	$if c.AllBarcodes.get_barcode(elem.get_type(), elem.id) != '' :
-	    <div class="col-xs-2 vcenter">
-		<strong><a href="/barcode/$(c.AllBarcodes.get_barcode(elem.get_type(), elem.id))" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['barcode'].getHalfling()"></span></a></strong>
-	    </div>
-	$if type in 'cpeb' :
-	    <div class="col-xs-1 vcenter">
-		<strong><a href="/export/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['exportdata'].getHalfling()"></span></a></strong>
-	    </div>
-    </div>
-    <div class="col-xs-12 " style ="margin-top:10px" >
-	$if type in 'cpesmb' :
-	    <div class="col-xs-2" >
-		<strong><a href="/find/d/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['measure'].getHalfling()"></span></a></strong>
-	    </div>
-	$else :
-	    <div class="col-xs-1" >
-	    </div>
-	$if type in 'cpem' :
-	    <div class="col-xs-2" >
-		<strong><a href="/find/related/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['related'].getHalfling()"></span></a></strong>
-	    </div>
-	$elif type in 'b' :
-	    <div class="col-xs-2" >
-		<strong><a href="/find/v/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['pouring'].getHalfling()"></span></a></strong>
-	    </div>
-	$else :
-	    <div class="col-xs-1" >
-	    </div>
-	$if type in 'cpesm' :
-	    <div class="col-xs-2" >
-		<strong><a href="/graphic/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['graphic'].getHalfling()"></span></a></strong>
-	    </div>
-	$else :
-	    <div class="col-xs-1" >
-	    </div>
-	<div class="col-xs-2" >
-	    <strong><a href="/edit/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['edit'].getHalfling()"></span></a></strong>
+	<div class="col-xs-1 vcenter">
+	    <button type="button" class="btn btn-warning btn-md " data-toggle="modal" data-target="#modal_menu_$(type)_$(id)"><span class="$c.AllHalflings.elements['menu'].getHalfling()"></span></button>
 	</div>
-	<div class="col-xs-2" >
-	    <strong><a href="/permissions/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['group'].getHalfling()"></span></a></strong>
-	</div>
-	$if type in 'bce' :
-	    <div class="col-xs-2" >
-		<strong><a href="/find/t/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['transfer'].getHalfling()"></span></a></strong>
-	    </div>
-	$else :
-	    <div class="col-xs-1" >
-	    </div>
     </div>
 </div>
 
-<div class="modal" id="modal_$(type)_$(id)">
+<div class="modal" id="modal_$(type)_$(id)" style="color:back;">
     <div class="modal-dialog">
     </div>
 </div>
@@ -82,8 +37,155 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 <script>
     $$(document).ready(function(){
 	$$('.$(type)_$(id)').on("click",function(e){
+	    $$('#modal_menu_$(type)_$(id)').modal('hide')
 	    $$("#modal_$(type)_$(id)").find(".modal-dialog").load("/modal/$(type)_$(id)");
 	    $$("#modal_$(type)_$(id)").modal('show');
 	});
     });
 </script>
+
+
+<div class="modal" id="modal_menu_$(type)_$(id)">
+    <div class="modal-dialog">
+	<div class="modal-content">
+            <div class="modal-header row ">
+		<div class="col-xs-2" >
+		</div>
+                <h4 class="modal-title col-xs-6 ">Menu</h4>
+		<div class="col-xs-2" >
+		</div>
+                <button type="button" class="col-xs-2 btn btn-primary" data-dismiss="modal"><strong><big>&times;</big></strong></button>
+            </div>
+	<div class="modal-body">
+                <div class="container-fluid">
+		    $if type == "TODO" :
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-2">
+				<strong><a href="#" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['alarm'].getHalfling()"></span></a></strong>
+			    </div>
+			    <div class="col-xs-10">
+				Alertes en cours
+			    </div>
+			</div>
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-2">
+				<strong><a href="#" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['alarm'].getHalfling()"></span></a></strong>
+			    </div>
+			    <div class="col-xs-10">
+				Alarmes en cours
+			    </div>
+			</div>
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-2">
+				<strong><a href="#" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['ToDo'].getHalfling()"></span></a></strong>
+			    </div>
+			    <div class="col-xs-10">
+				Things to Do
+			    </div>
+			</div>
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-2">
+				<strong><a href="#" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['recipe'].getHalfling()"></span></a></strong>
+			    </div>
+			    <div class="col-xs-10">
+				Point de controle
+			    </div>
+			</div>
+		    $if type == 'b' :
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-2">
+				<strong><a href="/find/v/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['pouring'].getHalfling()"></span></a></strong>
+			    </div>
+			    <div class="col-xs-10">
+				$len(c.AllBatches.elements[id].source)
+			    </div>
+			</div>
+		    $if type in 'cpeb' :
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-2">
+				<strong><a href="/find/d/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['manualdata'].getHalfling()"></span></a></strong>
+			    </div>
+			    <div class="col-xs-10">
+				$len(c.findAllFromType(type).elements[id].data)
+			    </div>
+			</div>
+		    $if type in 'cpeb' :
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-2">
+				<strong><a href="/find/t/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['transfer'].getHalfling()"></span></a></strong>
+			    </div>
+			    <div class="col-xs-10">
+				$len(c.findAllFromType(type).elements[id].position)
+			    </div>
+			</div>
+		    <div class="row" style="margin-top:10px;">
+			<div class="col-xs-2">
+			    <button type="button" class="btn btn-warning btn-md $(type)_$(id)" data-toggle="modal" data-target="#$(type)_$(id)modal"><span class="$c.AllHalflings.elements['info'].getHalfling()"></span></button>
+			</div>
+			<div class="col-xs-10">
+			    Info
+			</div>
+		    </div>
+		    $if type in 'cpemgugrgf' :
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-2">
+				<strong><a href="/find/related/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['related'].getHalfling()"></span></a></strong>
+			    </div>
+			    <div class="col-xs-10">
+				Related
+			    </div>
+			</div>
+		    $if type in 'cpesm' :
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-2" >
+				<strong><a href="/graphic/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['graphic'].getHalfling()"></span></a></strong>
+			    </div>
+			    <div class="col-xs-10">
+				Graphics
+			    </div>
+			</div>
+		    $if type in 'cpesm' :
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-2" >
+				<strong><a href="#" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['alarm'].getHalfling()"></span></a></strong>
+			    </div>
+			    <div class="col-xs-10">
+				Alarmlog
+			    </div>
+			</div>
+		    $if type in 'cpeb' :
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-2" >
+				<strong><a href="/export/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['exportdata'].getHalfling()"></span></a></strong>
+			    </div>
+			    <div class="col-xs-10">
+				Export
+			    </div>
+			</div>
+		    $if c.AllBarcodes.get_barcode(elem.get_type(), elem.id) != '' :
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-2" >
+				<strong><a href="/barcode/$(c.AllBarcodes.get_barcode(elem.get_type(), elem.id))" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['barcode'].getHalfling()"></span></a></strong>
+			    </div>
+			    <div class="col-xs-10">
+				Barcode
+			    </div>
+			</div>			
+		    <div class="row" style="margin-top:10px;">
+			<div class="col-xs-2" >
+			    <strong><a href="/edit/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['edit'].getHalfling()"></span></a></strong>
+			</div>
+			<div class="col-xs-10">
+			    Update
+			</div>
+		    </div>			
+                </div>
+            </div>
+            <div class="modal-footer row">
+		<div class="col-xs-10" >
+		</div>
+		<button type="button" class="col-xs-2 btn btn-primary" data-dismiss="modal"><strong><big>&times;</big></strong></button>
+            </div>
+        </div>
+    </div>
+</div>

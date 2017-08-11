@@ -78,7 +78,6 @@ function flip() {
 	    <label for="inputbatch" class="col-sm-3 col-form-label">$c.AllMessages.elements['batch'].getName(self.lang) $c.AllMessages.elements['target'].getName(self.lang)</label>
 	    <div class="col-sm-9" id = "divdest">
 		<select name = "dest" class="form-control" id="dest">
-		    <optgroup label="$c.AllMessages.elements['batch'].getName(self.lang)">
 			$if myID != 'in' :
 			    $for k in c.AllBatches.elements.keys():
 				$if not (myID == 'out' and k == batch.getID()):

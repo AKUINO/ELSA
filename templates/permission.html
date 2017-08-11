@@ -19,6 +19,7 @@ $code:
 	    mygroup = groups.elements[id]
 	else:
 	    myid = elements.elements[id].get_group()
+	    mygroup = []
 $if len(groupList) > 0:
     $for group in groupList:
 	$if group == 'IN' :
@@ -38,7 +39,7 @@ $if len(groupList) > 0:
 			    style="background-color:black;"	    
 		    >$groups.elements[group].getName(self.lang)</label>
 		$if 'g' in type:
-		    $if group in mygroup.related:
+		    $if id != 'new' and group in mygroup.related:
 			<label class="col-sm-2 col-form-label">
 			<span class="glyphicon glyphicon-remove-circle"> </span>
 			    <label class="switch">
@@ -47,7 +48,7 @@ $if len(groupList) > 0:
 			    </label>
 			    <span class="glyphicon glyphicon-ok-circle"> </span>
 			</label>
-		    $elif group in mygroup.get_children() or group in mygroup.get_parents() or group in mygroup.get_siblings():
+		    $elif id != 'new' and (group in mygroup.get_children() or group in mygroup.get_parents() or group in mygroup.get_siblings() or id == group):
 			<label class="col-sm-2 col-form-label">-</label>
 		    $else :
 			<label class="col-sm-2 col-form-label">
