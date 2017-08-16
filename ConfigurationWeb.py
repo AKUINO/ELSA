@@ -198,6 +198,8 @@ class WebFind():
 	    return render.itemtransfers(id1,id2,mail)
 	elif type == 'v':
 	    return render.listingpourings(id2,mail)
+	elif type == 'related'and 'g' in id1:
+	    return render.listinggroup(id1,id2,mail)
 	elif type == 'related':
 	    return render.listingcomponent(id1,id2,mail)
 	else:
