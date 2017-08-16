@@ -22,16 +22,10 @@ $var location: list/m=$(c.findAllFromType('m').get_name_object()) find/d/m_$(id)
 	$if sensor.fields['m_id'] == id :
 	    <script>
 		$$(function(){
-		    $$("#includedMenus_$(k)").load("/menu/s_$(k)");
+		    $$("#includedMenus_$(k)").load("/fullentry/s_$(k)");
 		});
 	    </script>
 	    <div id="includedMenus_$(k)"></div>
-	    <script>
-		$$(function(){
-		    $$("#includedModals_$(k)").load("/modal/s_$(k)");
-		});
-	    </script>
-	    <div id="includedModals_$(k)"></div>
 </div>
 
 <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
@@ -43,7 +37,7 @@ $var location: list/m=$(c.findAllFromType('m').get_name_object()) find/d/m_$(id)
 		    $data.fields['time']
 		</div>	    
 		<div class="col-xs-3" >
-			$data.fields['value']  $elem.fields['unit']</a>
+			$elem.fields['acronym'] : $data.fields['value']  $elem.fields['unit']</a>
 		</div>
 		<div class="col-xs-5" >
 		    $data.fields['remark']

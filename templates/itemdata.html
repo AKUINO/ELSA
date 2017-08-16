@@ -6,7 +6,7 @@ $code:
     
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : False
-$var location: all/$(type)=$(c.findAllFromType(type).get_name_object()) measures/$(type)_$(id)=manualdata
+$var location: list/$(type)=$(c.findAllFromType(type).get_name_object()) find/d/$(type)_$(id)=manualdata
 
 <script>
     $$(function(){
@@ -20,6 +20,11 @@ $var location: all/$(type)=$(c.findAllFromType(type).get_name_object()) measures
 <div class="row active">
     <label class="col-sm-12">$c.AllMessages.elements['manualdata'].getName(self.lang) :</label>
 </div>
+<div class="row active">
+    <label class="col-sm-3">$c.AllMessages.elements['time'].getName(self.lang)</label>
+    <label class="col-sm-3">$c.AllMessages.elements['measure'].getName(self.lang)</label>
+    <label class="col-sm-5">$c.AllMessages.elements['remark'].getName(self.lang)</label>
+</div>
 
 $for d in elem.data:
     <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
@@ -28,7 +33,7 @@ $for d in elem.data:
 	</div>	    
 	<div class="col-xs-3" >
 	    $if c.AllManualData.elements[d].fields['m_id'] != '' :
-	        $c.AllManualData.elements[d].fields['value']  $c.AllMeasures.elements[c.AllManualData.elements[d].fields['m_id']].fields['unit']</a>
+	        $c.AllMeasures.elements[c.AllManualData.elements[d].fields['m_id']].fields['acronym'] : $c.AllManualData.elements[d].fields['value']  $c.AllMeasures.elements[c.AllManualData.elements[d].fields['m_id']].fields['unit']</a>
 	</div>
 	<div class="col-xs-5" >
 	    $c.AllManualData.elements[d].fields['remark']

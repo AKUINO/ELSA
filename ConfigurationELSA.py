@@ -1438,6 +1438,11 @@ class AllBarcodes(AllObjects):
     def to_pictures(self):
 	for k, v in self.elements.items():
 	    v.barcode_picture()
+	    
+    def barcode_to_item(self, code):
+	for k,barcode in self.elements.items():
+	    if barcode.fields['code'] == code :
+		return self.config.findAllFromType(barcode.fields['type']).elements[barcode.fields['idobject']]
 
 class ConnectedUser():
     

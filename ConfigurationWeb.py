@@ -196,7 +196,7 @@ class WebFind():
         raise web.seeother('/')
 	
     def getRender(self, type, id1, id2, mail):
-	if type == 'd' and id1 == 'm':
+	if type == 'related' and id1 == 'm':
 	    return render.listingmeasures(id2,mail)
 	elif type == 'd':
 	    return render.itemdata(id1,id2,mail)
@@ -318,7 +318,6 @@ class WebListing():
         elif typeobject == 'g':
             return render.listinggroup(mail,idobject)
         elif typeobject == 'm':
-	    print 'flibidi'
             return render.listingmeasures(mail,idobject)
         else:
             return render.notfound()

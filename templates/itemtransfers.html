@@ -19,21 +19,26 @@ $var recursive : False
 <div class="row active">
     <label class="col-sm-12">$c.AllMessages.elements['transfer'].getName(self.lang) :</label>
 </div>
+<div class="row active">
+    <label class="col-sm-3">$c.AllMessages.elements['time'].getName(self.lang)</label>
+    <label class="col-sm-3">$c.AllMessages.elements['component'].getName(self.lang)</label>
+    <label class="col-sm-5">$c.AllMessages.elements['remark'].getName(self.lang)</label>
+</div>
 
 $for i in elem.position:
     $code:
 	transfer = c.AllTransfers.elements[i]
     <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
-	<div class="col-xs-4" >
+	<div class="col-xs-3" >
 	    $transfer.fields['time']
 	</div>
 	$code :
 	    cont = c.findAllFromType(transfer.fields['cont_type']).elements[transfer.fields['cont_id']]
 	    
-	<div class="col-xs-4" >
-	    <a href="/$(cont.get_name_listing())/" >$cont.fields['acronym'] - $cont.getName(self.lang)</a>
-	</div>
 	<div class="col-xs-3" >
+	    $cont.fields['acronym'] - $cont.getName(self.lang)
+	</div>
+	<div class="col-xs-5" >
 	    $transfer.fields['remark']
 	</div>
 	<div class="col-xs-1">
