@@ -18,6 +18,7 @@ import HardConfig as hardconfig
 import barcode
 import re
 import socket
+import collections
 """
 import SSD1306
 from I2CScreen import *
@@ -879,6 +880,9 @@ class AllObjects():
 		    
     def get_name_object(self ):
 	return 'component'
+	
+    def get_sorted(self):
+	return collections.OrderedDict(sorted(self.elements.items(),key = lambda t:t[1].fields['acronym'])).keys()
 	
 class AllUsers(AllObjects):
 

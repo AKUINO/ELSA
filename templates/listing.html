@@ -6,7 +6,7 @@ $var location: list/$(type)=$(c.findAllFromType(type).get_name_object())
 $var recursive : False
 $code :
     allObjects = c.findAllFromType(type)
-    elements = allObjects.elements
+    elements = allObjects.get_sorted()
     keyID = allObjects.keyColumn
     permissionKey = type +'_'
 
@@ -32,7 +32,7 @@ $if type == 'b' :
 	    </div>
 	</form>
     </div>
-$for a,elem in elements.items():
+$for a in elements:
     <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<script>
 	    $$(function(){
