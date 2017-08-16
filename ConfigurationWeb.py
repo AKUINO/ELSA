@@ -108,7 +108,7 @@ class WebEdit():
 		    if context == None:
 			raise web.seeother('/index')
 		    else:
-			raise web.seeother('/find/'+type+'/'+context)
+			raise web.seeother('/find/'+type+'/'+context.split('_')[0]+'_'+context.split('_')[1])
             else :
                 if id == 'new' :
                     currObject.delete(c)

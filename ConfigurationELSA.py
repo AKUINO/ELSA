@@ -1761,6 +1761,8 @@ class ManualData(ConfigurationObject):
 	return tmp
 	
     def set_value_from_data(self, data, c,user):
+	if self.fields['object_type'] != '' and self.fields['object_id'] != '' :
+	    c.findAllFromType(self.fields['object_type']).elements[self.fields['object_id']].remove_data(self)
 	tmp = ['time', 'value', 'remark']
 	for elem in tmp:
 	    self.fields[elem] = data[elem]
@@ -1836,6 +1838,9 @@ class Pouring(ConfigurationObject):
 	return tmp
 	
     def set_value_from_data(self, data, c,user):
+	if self.fields['src'] != '' and self.fields['dest'] != '' :
+	    c.AllBatches.elements[self.fields['src']].remove_source(self)
+	    c.AllBatches.elements[self.fields['dest']].remove_destination(self)
 	tmp = ['time', 'remark', 'src', 'dest', 'quantity' ]
 	for elem in tmp:
 	    self.fields[elem] = data[elem]
@@ -3018,7 +3023,7 @@ class Batch(ConfigurationObject):
 	
     def get_quantity_used(self):
 	qt = 0
-	for e in self.destination:
+	for e in self.source:
 	    qt += float(self.config.AllPourings.elements[e].fields['quantity'])
 	return qt
 	    
@@ -3196,6 +3201,8 @@ class Transfer(ConfigurationObject):
 	return tmp
 	
     def set_value_from_data(self, data, c,user):
+	if self.fields['object_type'] != '' and self.fields['object_id'] != '':
+	    self.get_source().remove_position(self)
 	tmp = ['time', 'remark']
 	for elem in tmp:
 	    self.fields[elem] = data[elem]
