@@ -66,7 +66,7 @@ $if 'g' not in type :
     <div class="form-group row">
 	<label for="inputGroup" class="col-sm-3 col-form-label">$c.AllMessages.elements['group'].getName(self.lang) </label>
 	<div class="col-sm-9" id = "divgroup">
-	    <select name = "group" class="form-control" id="group">
+	    <select name = "group" class="form-control" id="group" onchange="mySelectChange()">
 		<option value=''></option>
 		$if len(groupList) > 0:
 		
@@ -89,4 +89,4 @@ $if 'g' not in type :
 			    >$tmp $groups.elements[group].fields['acronym'] - $groups.elements[group].getName(self.lang)</option>
 	    </select>
 	</div>
-    </div
+    </div>

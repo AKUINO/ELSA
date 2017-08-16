@@ -21,6 +21,16 @@ $if errormess != '':
 	<div class="col-sm-12" >
 	    <p id="error">$errormess</p>
 	</div>
+	
+	<div class="form-group row">
+	    <script>
+		$$(function(){
+		    $$("#includedPermission").load("/permission/p_$(id)");
+		});
+	    </script>
+	    <div id="includedPermission" class="col-sm-12"></div>
+	</div>
+	
 	<div class="form-group row">
 	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(self.lang)</label>
 	    <div class="col-sm-9">
@@ -76,15 +86,6 @@ $if errormess != '':
 	    <div class="col-sm-9">
 		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.AllMessages.elements['remark'].getName(self.lang)" >$self.rmq</textarea>
 	    </div>
-	</div>
-	
-	<div class="form-group row">
-	    <script>
-		$$(function(){
-		    $$("#includedPermission").load("/permission/p_$(id)");
-		});
-	    </script>
-	    <div id="includedPermission" class="col-sm-12"></div>
 	</div>
 	
 	<div class="form-group row">
@@ -148,3 +149,10 @@ $if errormess != '':
     </form>
 </div>
 
+<script>
+    function mySelectChange() {
+	var select = document.getElementById("group");
+	var value = select.options[select.selectedIndex].text.split(" -")[0];
+	document.getElementById("inputAcronym").value = value+"_";
+    }
+</script>
