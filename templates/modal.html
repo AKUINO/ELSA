@@ -231,7 +231,10 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
                                 $c.AllMessages.elements['measure'].getName(self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-                                $c.AllMeasures.elements[elem.fields['m_id']].getName(self.lang)
+				$if elem.fields['m_id'] != '' :
+				    $c.AllMeasures.elements[elem.fields['m_id']].getName(self.lang)
+				$else:
+				    -
                             </div>
                         </div>
 			<div class="row" style="margin-top:10px;">
@@ -239,7 +242,10 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
                                 $c.AllMessages.elements['quantity'].getName(self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-                                $elem.fields['basicqt']
+				$if elem.fields['basicqt'] != '' :
+				    $elem.fields['basicqt']
+				$else :
+				    -
                             </div>
                         </div>
 			<div class="row" style="margin-top:10px;">
@@ -247,7 +253,10 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
                                 $c.AllMessages.elements['cost'].getName(self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-                                $elem.fields['cost']
+                                $if elem.fields['cost'] != '' :
+				    $elem.fields['cost']
+				$else :
+				    -
                             </div>
                         </div>
 		    $code :

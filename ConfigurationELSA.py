@@ -607,8 +607,7 @@ class ConfigurationObject():
 	    self.created = self.fields['begin']
 	    
     def add_data(self,manualdata):
-	if manualdata.getID() in self.data:
-	    self.data.remove(manualdata.getID())
+	self.remove_data(manualdata)
 	if len(self.data) == 0:
 	    self.data.append(manualdata.getID())
 	else:
@@ -623,7 +622,10 @@ class ConfigurationObject():
 		    break
 	    if insert is False:
 		self.data.append(manualdata.getID())
-			
+		
+    def remove_data(self, manualdata):
+	if manualdata.getID() in self.data:
+	    self.data.remove(manualdata.getID())			
 	
     def get_transfers_in_time_interval(self, begin, end):
 	tmp = []
@@ -651,8 +653,7 @@ class ConfigurationObject():
 	    self.fields['active'] = active
 	    
     def add_position(self, transfer):
-	if transfer.getID() in self.position:
-	    self.position.remove(transfer.getID())
+	self.remove_position(transfer)
 	if len(self.position) == 0:
 	    self.position.append(transfer.getID())
 	else:
@@ -667,6 +668,10 @@ class ConfigurationObject():
 		    break
 	    if insert is False:
 		self.position.append(transfer.getID())
+    
+    def remove_position(self, transfer):
+	if transfer.getID() in self.position:
+	    self.position.remove(transfer.getID())
 	
     def get_actual_position(self):
 	if len(self.position) > 0:
@@ -796,15 +801,24 @@ class AllObjects():
 		self.elements[key] = currObject
 		if currObject.get_type() == 't':
 		    objects = self.config.findAllFromType(currObject.fields['object_type'])
-		    objects.elements[currObject.fields['object_id']].add_position(currObject)
+		    if currObject.fields['active'] == '1' :
+			objects.elements[currObject.fields['object_id']].add_position(currObject)
+		    else:
+			objects.elements[currObject.fields['object_id']].remove_position(currObject)
 		elif currObject.get_type() == 'd':
 		    objects = self.config.findAllFromType(currObject.fields['object_type'])
-		    objects.elements[currObject.fields['object_id']].add_data(currObject)		    
+		    if currObject.fields['active'] == '1' :
+			objects.elements[currObject.fields['object_id']].add_data(currObject)
+		    else:
+			objects.elements[currObject.fields['object_id']].remove_data(currObject)		    
 		elif currObject.get_type() == 'v':
 		    objects = self.config.AllBatches
-		    objects.elements[currObject.fields['src']].add_source(currObject)		    
-		    objects.elements[currObject.fields['dest']].add_destination(currObject)		    
-		
+		    if currObject.fields['active'] == '1' :
+			objects.elements[currObject.fields['src']].add_source(currObject)		    
+			objects.elements[currObject.fields['dest']].add_destination(currObject)
+		    else:
+			objects.elements[currObject.fields['src']].remove_source(currObject)		    
+			objects.elements[currObject.fields['dest']].remove_destination(currObject)
     def loadNames(self):
 	with open(self.filename) as csvfile:
 	    reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
@@ -1053,7 +1067,7 @@ class AllManualData(AllObjects):
         self.fileobject = csvDir + "D.csv"
 	self.filename = None
         self.keyColumn = "d_id"
-	self.fieldnames = ['begin', 'd_id', 'object_id', 'object_type', 'time', 'remark', 'm_id', 'value', 'user']
+	self.fieldnames = ['begin', 'd_id', 'object_id', 'object_type', 'time', 'remark', 'm_id', 'value', 'active', 'user']
 	self.fieldtranslate = None
 
     def newObject(self):
@@ -1071,7 +1085,7 @@ class AllPourings(AllObjects):
         self.fileobject = csvDir + "V.csv"
 	self.filename = None
         self.keyColumn = "v_id"
-	self.fieldnames = ['begin', 'v_id', 'src', 'dest', 'time', 'quantity', 'm_id', 'remark', 'user']
+	self.fieldnames = ['begin', 'v_id', 'src', 'dest', 'time', 'quantity', 'm_id', 'remark','active', 'user']
 	self.fieldtranslate = None
 
     def newObject(self):
@@ -1313,7 +1327,7 @@ class AllTransfers(AllObjects):
         self.fileobject = csvDir + "T.csv"
 	self.filename = None
         self.keyColumn = "t_id"
-	self.fieldnames = ["begin","t_id",'time', "cont_id", "cont_type", "object_id", "object_type", "remark", "user"]
+	self.fieldnames = ["begin","t_id",'time', "cont_id", "cont_type", "object_id", "object_type", "remark", 'active', "user"]
 	self.fieldtranslate = None
 
     def newObject(self):
@@ -1752,7 +1766,14 @@ class ManualData(ConfigurationObject):
 	    self.fields[elem] = data[elem]
 	self.add_component(data['component'])
 	self.add_measure(data['measure'])
-	c.findAllFromType(self.fields['object_type']).elements[self.fields['object_id']].add_data(self)
+	if 'active' in data :
+	    self.fields['active'] = '1'
+	else :
+	    self.fields['active'] = '0'
+	if self.fields['active'] == '1' :
+	    c.findAllFromType(self.fields['object_type']).elements[self.fields['object_id']].add_data(self)
+	else:
+	    c.findAllFromType(self.fields['object_type']).elements[self.fields['object_id']].remove_data(self)
 	self.save(c,user)
 	
 	
@@ -1819,8 +1840,16 @@ class Pouring(ConfigurationObject):
 	for elem in tmp:
 	    self.fields[elem] = data[elem]
 	self.fields['m_id'] = c.AllBatches.elements[data['src']].fields['m_id']
-	c.AllBatches.elements[data['src']].add_source(self)
-	c.AllBatches.elements[data['dest']].add_destination(self)
+	if 'active' in data :
+	    self.fields['active'] = '1'
+	else :
+	    self.fields['active'] = '0'
+	if self.fields['active'] == '1' :
+	    c.AllBatches.elements[data['src']].add_source(self)
+	    c.AllBatches.elements[data['dest']].add_destination(self)
+	else:
+	    c.AllBatches.elements[data['src']].remove_source(self)
+	    c.AllBatches.elements[data['dest']].remove_destination(self)
 	self.save(c,user)
 	
     def get_name(self):
@@ -3005,8 +3034,7 @@ class Batch(ConfigurationObject):
 	return useful.get_timestamp() - useful.date_to_timestamp(self.fields['time'],datetimeformat)
 		
     def add_source(self, pouring):
-	if pouring.getID() in self.source:
-	    self.source.remove(pouring.getID())
+	self.remove_source(pouring)
 	if len(self.source) == 0:
 	    self.source.append(pouring.getID())
 	else:
@@ -3021,10 +3049,13 @@ class Batch(ConfigurationObject):
 		    break
 	    if insert is False:
 		self.source.append(pouring.getID())
+    
+    def remove_source(self, pouring):
+	if pouring.getID() in self.source:
+	    self.source.remove(pouring.getID())
 	    
     def add_destination(self, pouring):
-	if pouring.getID() in self.destination:
-	    self.destination.remove(pouring.getID())
+	self.remove_destination(pouring)
 	if len(self.destination) == 0:
 	    self.destination.append(pouring.getID())
 	else:
@@ -3039,6 +3070,10 @@ class Batch(ConfigurationObject):
 		    break
 	    if insert is False:
 		self.destination.append(pouring.getID())
+    
+    def remove_destination(self, pouring):
+	if pouring.getID() in self.destination:
+	    self.destination.remove(pouring.getID())
 		
     def get_residual_quantity(self):
 	val = self.get_quantity_used()
@@ -3151,7 +3186,8 @@ class Transfer(ConfigurationObject):
 	    postype = data['position'].split('_')[0]
 	    posid = data['position'].split('_')[1]
 	    objet = configuration.get_object(objtype,objid)
-	    if objet.is_actual_position(postype, posid) is True :
+	    print objet.get_actual_position()
+	    if objet.is_actual_position(postype, posid) is True and objet.get_actual_position() != self.id:
 		tmp += configuration.AllMessages.elements['transferrules'].getName(lang) + '\n'
 	else :
 	    tmp += configuration.AllMessages.elements['transferrules'].getName(lang) + '\n'
@@ -3163,8 +3199,16 @@ class Transfer(ConfigurationObject):
 	tmp = ['time', 'remark']
 	for elem in tmp:
 	    self.fields[elem] = data[elem]
+	if 'active' in data :
+	    self.fields['active'] = '1'
+	else :
+	    self.fields['active'] = '0'
 	self.set_position(data['position'])
 	self.set_object(data['object'])
+	if self.fields['active'] == '1':
+	    self.get_source().add_position(self)
+	else :
+	    self.get_source().remove_position(self)
 	self.save(c,user)
 	
     def get_source(self):

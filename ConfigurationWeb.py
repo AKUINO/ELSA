@@ -105,7 +105,10 @@ class WebEdit():
 		if type not in 'tdv':
 		    return self.getListing(mail, type)
 		else :
-		    raise web.seeother('/find/'+type+'/'+id)
+		    if context == None:
+			raise web.seeother('/index')
+		    else:
+			raise web.seeother('/find/'+type+'/'+context)
             else :
                 if id == 'new' :
                     currObject.delete(c)
@@ -159,7 +162,10 @@ class WebCreate(WebEdit):
         raise web.seeother('/')
 	
     def POST(self, type):
-	return WebEdit.POST(self,type.split('/')[0],'new')    
+	if len(type.split('_'))>1:
+	    return WebEdit.POST(self,type.split('/')[0],'new',type.split('/')[-1] )
+	else :
+	    return WebEdit.POST(self,type.split('/')[0],'new')
 
 class WebFind():
     def GET(self,type,id1,id2):
