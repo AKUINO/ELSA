@@ -22,21 +22,23 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
             <div class="modal-body">
                 <div class="container-fluid">
                     <div class="row">
-                    $if type != 'm' and type != 's' and type != 'a' and elem.isImaged():
-                        <div class="col-xs-5">
-                            <img src="/$(elem.getImageDirectory())jpg" alt="Image not found" style="width:128px;height:128px;">
-                        </div>
-                    <div id="modalinfo" class="col-xs-5">
-                        <strong>$elem.fields['acronym']</strong>
+			$if type in 'pecbgugfgr' and elem.isImaged():
+			    <div class="col-xs-5">
+				<img src="/$(elem.getImageDirectory())jpg" alt="Image not found" style="width:128px;height:128px;">
+			    </div>
+			<div id="modalinfo" class="col-xs-5">
+			    <strong>$elem.fields['acronym']</strong>
+			</div>
+			<div id="modalinfo" class="col-xs-1">
+			    $if elem.fields['active'] == '1' or elem.fields['active'] == 1 :
+				<span class="glyphicon glyphicon-ok-circle"> </span>
+			    $else :
+				<span class="glyphicon glyphicon-remove-circle"> </span>		    
+			</div>
                     </div>
-                    <div id="modalinfo" class="col-xs-1">
-                        $if elem.fields['active'] == '1' or elem.fields['active'] == 1 :
-                            <span class="glyphicon glyphicon-ok-circle"> </span>
-                        $else :
-                            <span class="glyphicon glyphicon-remove-circle"> </span>		    
-                    </div>
-                    </div>
-                    $if type!= 'u':
+		    <button type="button" class="btn btn-warning btn-md flip" data-toggle="modal" data-target="#modal_menu_$(type)_$(id)"><span class="$c.AllHalflings.elements['menu'].getHalfling()"></span></button>
+		    
+                    $if type != 'u':
                         $for lg in c.AllLanguages.elements.keys():
                             <div class="row">
                             <div class="col-xs-2">
@@ -55,15 +57,27 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
                             $elem.getName(self.lang)
                             </div>
                         </div>
-                    $if type != 'm' and type != 's' and type != 'a' and type != 'v':
-			$if type in 'bce':
-                            <div class="row">
-			        <div class="col-xs-3" >
-				    <strong><a href="/find/t/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['transfer'].getHalfling()"></span></a></strong>
-			        </div>
-			    </div>	
+		    $if type in 'cpebu':
+			$code :
+			    groups = c.get_group(allElem.get_key_group())
+			$if elem.get_group() != '' :
+			    <div class="row" id="listingMarge">
+				<div class="col-xs-3">
+				    $c.AllMessages.elements['group'].getName(self.lang) :
+				</div>
+				<div class="col-xs-9" id="modalinfo" >
+				    $groups.elements[elem.get_group()].fields['acronym']
+				</div>
+			    </div>
+		    
+		    $if type in 'bce':
+			<div class="row">
+			    <div class="col-xs-3" >
+				<strong><a href="/find/t/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['transfer'].getHalfling()"></span></a></strong>
+			    </div>
+			</div>	
 
-                    $elif type == 'm':
+                    $if type == 'm':
                         <div class="row" style="margin-top:10px;">
                             <div class="col-xs-4">
                             $c.AllMessages.elements['source'].getName(self.lang) :
@@ -120,7 +134,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
                                 $c.AllGrFunction.elements[elem.fields['o_sound1']].getName(self.lang)
                                 </div>
                             </div>
-                        $if elem.fields['o_relay1'] != '':
+                        $if elem.fields['relay1'] != '':
                             <div class="row" style="margin-top:10px;">
                                 <div class="col-xs-4">
                                 $c.AllMessages.elements['relay'].getName(self.lang) 1:
@@ -156,7 +170,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
                                 $c.AllGrFunction.elements[elem.fields['o_sound2']].getName(self.lang)
                                 </div>
                             </div>
-                        $if elem.fields['o_relay2'] != '':
+                        $if elem.fields['relay2'] != '':
                             <div class="row" style="margin-top:10px;">
                                 <div class="col-xs-4">
                                 $c.AllMessages.elements['relay'].getName(self.lang) 2:
@@ -211,6 +225,31 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
                                 $elem.fields['subsensor']
                             </div>
                         </div>
+		    $elif type == 'b':
+			<div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
+                                $c.AllMessages.elements['measure'].getName(self.lang) :
+                            </div>
+                            <div class="col-xs-8" id="modalinfo" >
+                                $c.AllMeasures.elements[elem.fields['m_id']].getName(self.lang)
+                            </div>
+                        </div>
+			<div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
+                                $c.AllMessages.elements['quantity'].getName(self.lang) :
+                            </div>
+                            <div class="col-xs-8" id="modalinfo" >
+                                $elem.fields['basicqt']
+                            </div>
+                        </div>
+			<div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
+                                $c.AllMessages.elements['cost'].getName(self.lang) :
+                            </div>
+                            <div class="col-xs-8" id="modalinfo" >
+                                $elem.fields['cost']
+                            </div>
+                        </div>
 		    $code :
 			barcode = c.AllBarcodes.get_barcode(elem.get_type(), elem.id)
 		    $if barcode != '' :
@@ -262,7 +301,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
             <div class="modal-footer">
 		$if type in 'scpemb' :
 		    <div class="col-xs-2" >
-			<strong><a href="/find/d/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['measure'].getHalfling()"></span></a></strong>
+			<strong><a href="/find/d/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['manualdata'].getHalfling()"></span></a></strong>
 		    </div>
 		$else :
 		    <div class="col-xs-2" >
@@ -297,3 +336,10 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 		<button type="button" class="col-xs-2 btn btn-primary" data-dismiss="modal"><strong><big>&times;</big></strong></button>
             </div>
         </div>
+<script>
+    $$(document).ready(function(){
+	$$('.flip').on("click",function(e){
+	    $$('#modal_$(type)_$(id)').modal('hide');
+	});
+    });
+</script>

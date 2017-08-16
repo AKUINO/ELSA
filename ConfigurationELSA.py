@@ -867,7 +867,7 @@ class AllObjects():
 	    while tmp < len(self.fieldnames):
 		csvfile.write('\t'+self.fieldnames[tmp])
 		tmp = tmp + 1
-            csvfile.write('\n\n')
+            csvfile.write('\n')
 	if self.filename is not None :
 	    with open(self.filename,'w') as csvfile:
 		csvfile.write(self.fieldtranslate[0])
@@ -875,7 +875,7 @@ class AllObjects():
 		while tmp < len(self.fieldtranslate):
 		    csvfile.write('\t'+self.fieldtranslate[tmp])
 		    tmp = tmp + 1
-		csvfile.write('\n\n')
+		csvfile.write('\n')
 		    
     def get_name_object(self ):
 	return 'component'
@@ -1096,10 +1096,10 @@ class AllGroups(AllObjects):
 	with open(fname,'w') as csvfile:
 	    csvfile.write(self.fieldrelations[0])
 	    tmp = 1
-	    while tmp < len(self.fieldnames):
-		csvfile.write('\t'+self.fieldnames[tmp])
+	    while tmp < len(self.fieldrelations):
+		csvfile.write('\t'+self.fieldrelations[tmp])
 		tmp = tmp + 1
-            csvfile.write('\n\n')
+            csvfile.write('\n')
 	
     def get_master_groups(self):
 	children = {}
@@ -1129,21 +1129,6 @@ class AllGroups(AllObjects):
 	    g.load_parents()
 	    g.load_children()
 	    g.load_siblings()
-    
-    """
-    def get_hierarchy_str(self, g = None, myString = None):
-	if myString is None:
-	    myString = []
-	for k,group in self.elements.items():
-	    cond1 = ( g is None and group.fields['g_parent'] == '' )
-	    cond2 = ( g is not None and g.getID() == group.fields['g_parent'])
-	    if cond1 or cond2:
-		myString.append(k)
-		myString.append('IN')
-		self.get_hierarchy_str(group,myString)
-		myString.append('OUT')
-	return myString
-    """
     
     def get_hierarchy_str(self, g = None, myString = None):
 	if myString is None:
@@ -1802,8 +1787,6 @@ class Pouring(ConfigurationObject):
 	    value = datetime.datetime.strptime(data['time'],datetimeformat)
 	except:
 	    tmp += configuration.AllMessages.elements['timerules'].getName(lang) + '\n'
-	if data['measure'] == u'':
-	    tmp += configuration.AllMessages.elements['measurerules'].getName(lang) + '\n'
 	try : 
 	    value = float(data['quantity'])
 	except:
@@ -1831,7 +1814,7 @@ class Pouring(ConfigurationObject):
 	tmp = ['time', 'remark', 'src', 'dest', 'quantity' ]
 	for elem in tmp:
 	    self.fields[elem] = data[elem]
-	self.add_measure(data['measure'])
+	self.fields['m_id'] = c.AllBatches.elements[data['src']].fields['m_id']
 	c.AllBatches.elements[data['src']].add_source(self)
 	c.AllBatches.elements[data['dest']].add_destination(self)
 	self.save(c,user)

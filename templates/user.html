@@ -1,4 +1,4 @@
-$def with (id, mail, errormess)
+$def with (id, mail, errormess, data)
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
@@ -10,6 +10,9 @@ $if id == 'new':
 $else:
     $var location: all/u=user edit/u_$(id)=edit
     $var rmq :  $c.AllUsers.elements[id].fields['remark']
+$if errormess != '':
+    $if 'remark' in data :
+	$var rmq : $data['remark']
     
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
@@ -20,7 +23,10 @@ $else:
 	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(self.lang)</label>
 	    <div class="col-sm-9">
 		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="Acronym" 
-		$if id != 'new':
+		$if errormess != '':
+		    $if 'acronym' in data :
+			value="$data['acronym']" 
+		$elif id != 'new':
 		    value="$c.AllUsers.elements[id].fields['acronym']"
 		required="true">
 	    </div>
@@ -30,7 +36,10 @@ $else:
 	    <label for="inputName" class="col-sm-3 col-form-label">$c.AllMessages.elements['name'].getName(self.lang)</label>
 	    <div class="col-sm-9">
 		<input name="EN" type="text" class="form-control" id="inputName" placeholder="Name"
-		$if id !='new':
+		$if errormess != '':
+		    $if 'EN' in data :
+			value="$data['EN']"
+		$elif id !='new':
 		    value="$c.AllUsers.elements[id].getName('EN')"
 		required="true" >
 	    </div>
@@ -40,7 +49,10 @@ $else:
 	    <label for="inputMail" class="col-sm-3 col-form-label">$c.AllMessages.elements['mail'].getName(self.lang)</label>
 	    <div class="col-sm-9">
 		<input name="mail" type="email" class="form-control" id="inputMail" aria-describedby="emailHelp" placeholder="Enter email"
-		$if id !='new':
+		$if errormess != '':
+		    $if 'mail' in data :
+			value="$data['mail']"
+		$elif id !='new':
 		    value="$c.AllUsers.elements[id].fields['mail']"
 		required="true" >
 	    </div>
@@ -50,9 +62,12 @@ $else:
 	    <label for="inputPhone" class="col-sm-3 col-form-label">$c.AllMessages.elements['phone'].getName(self.lang)</label>
 	    <div class="col-sm-9">
 		<input name="phone" type="tel" class="form-control" id="inputPhone" placeholder="Enter Phone"
-		$if id !='new':
+		$if errormess != '':
+		    $if 'phone' in data :
+			value="$data['phone']"
+		$elif id !='new':
 		    value="$c.AllUsers.elements[id].fields['phone']"
-		required="true" >
+		>
 	    </div>
 	</div>
 	
@@ -67,7 +82,10 @@ $else:
 	    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.AllMessages.elements['code'].getName(self.lang)</label>
 	    <div class="col-sm-9">
 		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.AllMessages.elements['code'].getName(self.lang)" 
-		$if id != 'new':
+		$if errormess != '':
+		    $if 'code' in data :
+			value="$data['code']"
+		$elif id != 'new':
 		    value="$c.AllBarcodes.get_barcode(c.AllUsers.elements[id].get_type(), id)"
 		>
 	    </div>
@@ -96,6 +114,11 @@ $else:
 		cond = (id == 'new')
 		if not cond :
 		    cond = (c.AllUsers.elements[id].fields['active'] == 1 or c.AllUsers.elements[id].fields['active'] == '1')
+		if errormess != '' :
+		    if 'active' in data :
+			cond  = True
+		    else:
+			cond = False
 	    $if cond :
 		<label class="switch">
 		    <input id='inputactive' name="active" type="checkbox" value="1" checked>
@@ -114,7 +137,15 @@ $else:
 	    <div class="col-sm-9">
 		<select name = "language" class="form-control" id="langSelect">
 		  $for lg in c.AllLanguages.elements.keys():
-		    <option>$lg</option>
+		    <option
+		    $if errormess != '':
+			$if 'language' in data :
+			    $if lg == data['language']:
+				selected
+		    $elif id !='new':
+			$if lg == c.AllUsers.elements[id].fields['language'] :
+			    selected
+		    >$lg</option>
 		</select>
 	    </div>
 	</div>

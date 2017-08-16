@@ -68,7 +68,7 @@ class WebList():
 		borne  = int(data['quantity'])
 		elem = c.AllBatches.elements[data['batch'].split('_')[1]]
 		while count <= borne :
-		    elem.clone(user,'copy_'+str(count))
+		    elem.clone(user,'_'+str(count))
 		    count+=1
 	    return self.getRender(type,mail)
 	raise web.seeother('/') 
@@ -82,7 +82,7 @@ class WebEdit():
     def GET(self,type,id):
         mail = isConnected()
         if mail is not None:
-            return self.getRender(type, id,mail, '')
+            return self.getRender(type, id,mail, '', '')
         raise web.seeother('/')
         
     def POST(self, type, id, context = None):
@@ -105,41 +105,41 @@ class WebEdit():
 		if type not in 'tdv':
 		    return self.getListing(mail, type)
 		else :
-		    raise web.seeother('/')
+		    raise web.seeother('/find/'+type+'/'+id)
             else :
                 if id == 'new' :
                     currObject.delete(c)
-                return self.getRender(type,id, mail, cond)
+                return self.getRender(type,id, mail, cond,data)
         raise web.seeother('/')
 	
     def getListing(self,mail, type):
         return render.listing(mail, type)
     
-    def getRender(self,type, id, mail, errormess):
+    def getRender(self,type, id, mail, errormess, data):
 	if not type in 'tdv':
 	    if id in c.findAllFromType(type).elements.keys() or  id == 'new':
 		if type == 'p' :
-		    return render.place(id,mail, errormess)
+		    return render.place(id,mail, errormess, data)
 		elif type == 'e' :
-		    return render.equipment(id,mail, errormess) 
+		    return render.equipment(id,mail, errormess, data) 
 		elif type == 'b' :
-		    return render.batch(id,mail, errormess) 
+		    return render.batch(id,mail, errormess, data) 
 		elif type == 'c' :
-		    return render.container(id,mail, errormess) 
+		    return render.container(id,mail, errormess, data) 
 		elif type == 's' :
-		    return render.sensor(id,mail, errormess) 
+		    return render.sensor(id,mail, errormess, data) 
 		elif type == 'm' :
-		    return render.measure(id,mail, errormess) 
+		    return render.measure(id,mail, errormess, data) 
 		elif type == 'a' :
-		    return render.alarm(id,mail, errormess) 
+		    return render.alarm(id,mail, errormess, data) 
 		elif type == 'gu' :
-		    return render.group(type,id,mail, errormess) 
+		    return render.group(type,id,mail, errormess, data) 
 		elif type == 'gr' :
-		    return render.group(type,id,mail, errormess) 
+		    return render.group(type,id,mail, errormess, data) 
 		elif type == 'gf' :
-		    return render.group(type,id,mail, errormess) 
+		    return render.group(type,id,mail, errormess, data) 
 		elif type == 'u' :
-		    return render.user(id,mail, errormess) 
+		    return render.user(id,mail, errormess, data) 
 	elif type =='t':
 	    return render.transfer(id,mail, errormess) 
 	elif type =='d':
@@ -153,9 +153,9 @@ class WebCreate(WebEdit):
         mail = isConnected()
         if mail is not None:
 	    if len(type.split('/')) == 1 :
-		return self.getRender(type, 'new',mail,'')
+		return self.getRender(type, 'new',mail,'', '')
 	    else:
-		return self.getRender(type.split('/')[0], type.split('/')[-1],mail,'')
+		return self.getRender(type.split('/')[0], type.split('/')[-1],mail,'', '')
         raise web.seeother('/')
 	
     def POST(self, type):
@@ -194,12 +194,14 @@ class WebFind():
 	    return render.listingmeasures(id2,mail)
 	elif type == 'd':
 	    return render.itemdata(id1,id2,mail)
-	elif type == 't':
+	elif type == 't' and id1 in 'ceb':
 	    return render.itemtransfers(id1,id2,mail)
 	elif type == 'v':
 	    return render.listingpourings(id2,mail)
 	elif type == 'related':
 	    return render.listingcomponent(id1,id2,mail)
+	else:
+	    return render.notfound()
 
 class WebGraphic():
     def __init__(self):

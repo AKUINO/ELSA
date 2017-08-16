@@ -1,4 +1,4 @@
-$def with (id, mail, errormess)
+$def with (id, mail, errormess, data)
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
@@ -10,6 +10,9 @@ $if id == 'new':
 $else:
     $var location: all/p=place edit/p_$(id)=edit
     $var rmq :  $c.AllPieces.elements[id].fields['remark']
+$if errormess != '':
+    $if 'remark' in data :
+	$var rmq : $data['remark']
 
 
 
@@ -21,8 +24,11 @@ $else:
 	<div class="form-group row">
 	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.AllMessages.elements['acronym'].getName(self.lang)" 
-		$if id != 'new':
+		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.AllMessages.elements['acronym'].getName(self.lang)"
+		$if errormess != '':
+		    $if 'acronym' in data :
+			value="$data['acronym']" 
+		$elif id != 'new':
 		    value="$c.AllPieces.elements[id].fields['acronym']"
 		required="true">
 	    </div>
@@ -41,7 +47,10 @@ $else:
 		</div>
 		<div class="col-sm-8">
 		    <input name="$k" type="text" class="form-control" id="inputName" placeholder="Name"
-		$if id !='new':
+		$if errormess != '':
+		    $if k in data :
+			value="$data[k]"
+		$elif id !='new':
 		    value="$c.AllPieces.elements[id].get_real_name(k)"
 		$if self.lang == k: 
 		    required="true"
@@ -53,7 +62,10 @@ $else:
 	    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.AllMessages.elements['code'].getName(self.lang)</label>
 	    <div class="col-sm-9">
 		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.AllMessages.elements['code'].getName(self.lang)" 
-		$if id != 'new':
+		$if errormess != '':
+		    $if 'code' in data :
+			value="$data['code']"
+		$elif id != 'new':
 		    value="$c.AllBarcodes.get_barcode(c.AllPieces.elements[id].get_type(), id)"
 		>
 	    </div>
@@ -82,6 +94,11 @@ $else:
 		cond = (id == 'new')
 		if not cond :
 		    cond = (c.AllPieces.elements[id].fields['active'] == 1 or c.AllPieces.elements[id].fields['active'] == '1')
+		if errormess != '' :
+		    if 'active' in data :
+			cond  = True
+		    else:
+			cond = False
 	    $if cond :
 		<label class="switch">
 		    <input id='inputactive' name="active" type="checkbox" value="1" checked>

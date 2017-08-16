@@ -1,4 +1,4 @@
-$def with (type,id, mail, errormess)
+$def with (type,id, mail, errormess, data)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
 
@@ -11,6 +11,9 @@ $else:
     $var rmq :  $c.findAllFromType(type).elements[id].fields['remark']
     $code:
 	elem = c.findAllFromType(type).elements[id]
+$if errormess != '':
+    $if 'remark' in data :
+	$var rmq : $data['remark']
 
 <div class="container">
     
@@ -22,7 +25,10 @@ $else:
 	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].names[self.lang]['name']</label>
 	    <div class="col-sm-9">
 		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="Acronym" 
-		$if id != 'new':
+		$if errormess != '':
+		    $if 'acronym' in data :
+			value="$data['acronym']" 
+		$elif id != 'new':
 		    value="$elem.fields['acronym']"
 		required="true">
 	    </div>
@@ -41,7 +47,10 @@ $else:
 		</div>
 		<div class="col-sm-8">
 		    <input name="$k" type="text" class="form-control" id="inputName" placeholder="Name"
-		$if id !='new':
+		$if errormess != '':
+		    $if k in data :
+			value="$data[k]"
+		$elif id !='new':
 		    value="$elem.get_real_name(k)"
 		$if self.lang == k: 
 		    required="true"
@@ -53,7 +62,10 @@ $else:
 	    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.AllMessages.elements['code'].getName(self.lang)</label>
 	    <div class="col-sm-9">
 		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.AllMessages.elements['code'].getName(self.lang)" 
-		$if id != 'new':
+		$if errormess != '':
+		    $if 'code' in data :
+			value="$data['code']"
+		$elif id != 'new':
 		    value="$c.AllBarcodes.get_barcode(elem.get_type(), id)"
 		>
 	    </div>

@@ -5,9 +5,7 @@ $code :
     groups = c.get_group(elements.get_key_group())
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
-<div class="form-group row">
-    <label class="col-sm-3 col-form-label">$c.AllMessages.elements['group'].getName(self.lang)</label>
-</div>
+
 $code:
     groupList = groups.get_hierarchy_str()
     tmp = ''
@@ -20,46 +18,50 @@ $code:
 	else:
 	    myid = elements.elements[id].get_group()
 	    mygroup = []
-$if len(groupList) > 0:
-    $for group in groupList:
-	$if group == 'IN' :
-	    $code:
-		indent+=1
-		cindent-=1
-	$elif group == 'OUT':
-	    $code:
-		indent-=1
-		cindent+=1
-	$else :
-	    <div class="form-group row">
-		<label class="col-xs-$indent col-form-label"></label>
-		<label id="modalinfo" for="inputGroups" class="col-xs-$cindent col-form-label"
-		    $if id != 'new':
-			$if group == myid:
-			    style="background-color:black;"	    
-		    >$groups.elements[group].getName(self.lang)</label>
-		$if 'g' in type:
-		    $if id != 'new' and group in mygroup.related:
-			<label class="col-sm-2 col-form-label">
-			<span class="glyphicon glyphicon-remove-circle"> </span>
-			    <label class="switch">
-				<input id='inputactive' name="$group" type="checkbox" value="1" checked>
-				<div class="slider round"></div>
+$if 'g' in type:
+    <div class="form-group row">
+	<label class="col-sm-3 col-form-label">$c.AllMessages.elements['group'].getName(self.lang)</label>
+    </div>
+    $if len(groupList) > 0:
+	$for group in groupList:
+	    $if group == 'IN' :
+		$code:
+		    indent+=1
+		    cindent-=1
+	    $elif group == 'OUT':
+		$code:
+		    indent-=1
+		    cindent+=1
+	    $else :
+		<div class="form-group row">
+		    <label class="col-xs-$indent col-form-label"></label>
+		    <label id="modalinfo" for="inputGroups" class="col-xs-$cindent col-form-label"
+			$if id != 'new':
+			    $if group == myid:
+				style="background-color:black;"	    
+			>$groups.elements[group].getName(self.lang)</label>
+		    $if 'g' in type:
+			$if id != 'new' and group in mygroup.related:
+			    <label class="col-sm-2 col-form-label">
+			    <span class="glyphicon glyphicon-remove-circle"> </span>
+				<label class="switch">
+				    <input id='inputactive' name="$group" type="checkbox" value="1" checked>
+				    <div class="slider round"></div>
+				</label>
+				<span class="glyphicon glyphicon-ok-circle"> </span>
 			    </label>
-			    <span class="glyphicon glyphicon-ok-circle"> </span>
-			</label>
-		    $elif id != 'new' and (group in mygroup.get_children() or group in mygroup.get_parents() or group in mygroup.get_siblings() or id == group):
-			<label class="col-sm-2 col-form-label">-</label>
-		    $else :
-			<label class="col-sm-2 col-form-label">
-			<span class="glyphicon glyphicon-remove-circle"> </span>
-			    <label class="switch">
-				<input id='inputactive' name="$group" type="checkbox" >
-				<div class="slider round"></div>
+			$elif id != 'new' and (group in mygroup.get_children() or group in mygroup.get_parents() or group in mygroup.get_siblings() or id == group):
+			    <label class="col-sm-2 col-form-label">-</label>
+			$else :
+			    <label class="col-sm-2 col-form-label">
+			    <span class="glyphicon glyphicon-remove-circle"> </span>
+				<label class="switch">
+				    <input id='inputactive' name="$group" type="checkbox" >
+				    <div class="slider round"></div>
+				</label>
+				<span class="glyphicon glyphicon-ok-circle"> </span>
 			    </label>
-			    <span class="glyphicon glyphicon-ok-circle"> </span>
-			</label>
-	    </div>
+		</div>
 $if 'g' not in type :
     <div class="form-group row">
 	<label for="inputGroup" class="col-sm-3 col-form-label">$c.AllMessages.elements['group'].getName(self.lang) </label>

@@ -95,9 +95,13 @@ begin	m_id	default	user
 2016-01-01 13:45:56	sound	Sound 	1
 2016-01-01 13:45:56	minmin	Min --- 	1
 2016-01-01 13:45:56	min	Min 	1
+2016-01-01 13:45:56	info	Info 	1
 2016-01-01 13:45:56	data	Data 	1
 2016-01-01 13:45:56	typical	Typical 	1
 2016-01-01 13:45:56	max	Max 	1
+2016-01-01 13:45:56	mpouring	Pouring(s) 	1
+2016-01-01 13:45:56	mtransfer	Transfer(s) 	1
+2016-01-01 13:45:56	mdata	Observation(s)	1
 2016-01-01 13:45:56	maxmax	Max +++ 	1
 2016-01-01 13:45:56	phone	Phone  	1
 2016-01-01 13:45:56	add	Add	1
