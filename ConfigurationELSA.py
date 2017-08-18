@@ -1902,7 +1902,19 @@ class Group(ConfigurationObject):
 	return 'groups'
 	
     def validate_form(self, data, configuration, lang):
-	return ConfigurationObject.validate_form(self, data, configuration, lang)	
+	tmp = ConfigurationObject.validate_form(self, data, configuration, lang)	
+	if tmp is True:
+	    tmp = ''
+	for k,v in configuration.findAllFromObject(self).elements.items():
+	    if k in data:
+		for i,j in configuration.findAllFromObject(self).elements.items():
+		    if i in data:
+			if i in v.parents or i in v.children or i in v.siblings:
+			    tmp += configuration.AllMessages.elements['grouprules'].getName(lang) + '\n'
+			    return tmp
+	if tmp == '':
+	    return True
+	return tmp
 	
     def set_value_from_data(self, data, c,user):
 	ConfigurationObject.set_value_from_data(self, data, c,user)
@@ -3197,8 +3209,10 @@ class Transfer(ConfigurationObject):
 	    posid = data['position'].split('_')[1]
 	    objet = configuration.get_object(objtype,objid)
 	    print objet.get_actual_position()
-	    if objet.is_actual_position(postype, posid) is True and objet.get_actual_position() != self.id:
+	    if (objet.is_actual_position(postype, posid) is True and objet.get_actual_position() != self.id):
 		tmp += configuration.AllMessages.elements['transferrules'].getName(lang) + '\n'
+	    if ( objtype =='e' and postype != 'p') or(objtype =='c' and postype not in 'ep'):
+		tmp += configuration.AllMessages.elements['transferhierarchy'].getName(lang) + '\n'
 	else :
 	    tmp += configuration.AllMessages.elements['transferrules'].getName(lang) + '\n'
 	if tmp == '':

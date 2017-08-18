@@ -8,7 +8,10 @@ $if connected is True:
 	<div>
 		$c.AllMessages.elements['welcome'].getName(self.lang) <em>$c.connectedUsers.users[mail].cuser.getName(self.lang)</em>
 	</div>
-	$for a,elem in c.AllBatches.elements.items():
+	$code:
+	    allObjects = c.findAllFromType('b')
+	    elements = allObjects.get_sorted()
+	$for a in elements:
 	    <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 		<script>
 		    $$(function(){

@@ -11,6 +11,7 @@ $else :
 	    pouring = c.AllPourings.elements[id]
 	    src = c.AllBatches.elements[pouring.fields['src']]
 	    dest = c.AllBatches.elements[pouring.fields['dest']]
+	    batch = dest
 	    myID = 'update'
 	    rmq = pouring.fields['remark']
 	else:
@@ -138,7 +139,10 @@ function flip() {
 	    <div class="col-sm-3">
 	    </div>
 	    <div class="col-sm-2">
-		<a href="/index" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		$if id == 'new' :
+		    <a href="/index" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		$else:
+		    <a href="/find/v/b_$(batch.getID())" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>

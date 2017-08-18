@@ -31,13 +31,6 @@ class WebModal():
             return render.modal(mail,type,id)
         return ''
 	
-class WebEntry():        
-    def GET(self, type,id):
-        mail = isConnected()
-        if mail is not None:
-            return render.entry(mail,type,id)
-        return ''
-	
 class WebFullEntry():        
     def GET(self, type,id):
         mail = isConnected()
@@ -52,7 +45,7 @@ class WebList():
     def GET(self, type):
         mail = isConnected()
         if mail is not None:
-	    if type in 'abcpesmugugrgf':
+	    if type in 'abcpesmugugrgf' and type != 't' and type !='f':
 		return self.getRender(type, mail)
 	    else:
 		return render.notfound()
@@ -68,14 +61,12 @@ class WebList():
 		borne  = int(data['quantity'])
 		elem = c.AllBatches.elements[data['batch'].split('_')[1]]
 		while count <= borne :
-		    elem.clone(user,'_'+str(count))
+		    elem.clone(user,str(count))
 		    count+=1
 	    return self.getRender(type,mail)
 	raise web.seeother('/') 
 	
     def getRender(self, type, mail):
-	if type == 't' :
-	    return render.listingtransfers(mail)
         return render.listing(mail, type)
 	
 class WebEdit():        
@@ -105,10 +96,16 @@ class WebEdit():
 		if type not in 'tdv':
 		    return self.getListing(mail, type)
 		else :
-		    if context == None:
-			raise web.seeother('/index')
-		    else:
-			raise web.seeother('/find/'+type+'/'+context.split('_')[0]+'_'+context.split('_')[1])
+		    if currObject.get_type() == 'v':
+			elemtype = 'b'
+			elemid = currObject.fields['dest']
+		    elif currObject.get_type() == 't':
+			elemtype = currObject.fields['object_type']
+			elemid = currObject.fields['object_id']
+		    elif currObject.get_type() == 'd':
+			elemtype = currObject.fields['object_type']
+			elemid = currObject.fields['object_id']
+		    raise web.seeother('/find/'+type+'/'+elemtype+'_'+elemid)
             else :
                 if id == 'new' :
                     currObject.delete(c)
@@ -119,7 +116,7 @@ class WebEdit():
         return render.listing(mail, type)
     
     def getRender(self,type, id, mail, errormess, data):
-	if not type in 'tdv':
+	if type in 'pebcsmagugrgfu' and type != 'g' and type !='f':
 	    if id in c.findAllFromType(type).elements.keys() or  id == 'new':
 		if type == 'p' :
 		    return render.place(id,mail, errormess, data)
@@ -144,11 +141,14 @@ class WebEdit():
 		elif type == 'u' :
 		    return render.user(id,mail, errormess, data) 
 	elif type =='t':
-	    return render.transfer(id,mail, errormess) 
+	    if id == 'new' or id in c.findAllFromType(type).elements.keys() or id.split('_')[1] in c.findAllFromType(id.split('_')[0]).elements.keys():
+		return render.transfer(id,mail, errormess) 
 	elif type =='d':
-	    return render.manualdata(id,mail, errormess) 
+	    if id == 'new' or id in c.findAllFromType(type).elements.keys() or id.split('_')[1] in c.findAllFromType(id.split('_')[0]).elements.keys():
+		return render.manualdata(id,mail, errormess) 
 	elif type == 'v':
-	    return render.pouring(id,mail, errormess) 
+	    if id == 'new' or id in c.findAllFromType(type).elements.keys() or id.split('_')[1] in c.findAllFromType(id.split('_')[0]).elements.keys():
+		return render.pouring(id,mail, errormess)
         return render.notfound()
 	
 class WebCreate(WebEdit):
@@ -198,11 +198,11 @@ class WebFind():
     def getRender(self, type, id1, id2, mail):
 	if type == 'related' and id1 == 'm':
 	    return render.listingmeasures(id2,mail)
-	elif type == 'd':
+	elif type == 'd'and id1 in 'pceb':
 	    return render.itemdata(id1,id2,mail)
 	elif type == 't' and id1 in 'ceb':
 	    return render.itemtransfers(id1,id2,mail)
-	elif type == 'v':
+	elif type == 'v' and id1 in 'ecb':
 	    return render.listingpourings(id2,mail)
 	elif type == 'related'and 'g' in id1:
 	    return render.listinggroup(id1,id2,mail)
@@ -437,7 +437,6 @@ def main():
             '/barcode/(.+)', 'WebBarcode',
             '/modal/(.+)_(.+)', 'WebModal',  
             '/color/(.+)_(.+)', 'WebColor',  
-            '/entry/(.+)_(.+)', 'WebEntry',  
             '/fullentry/(.+)_(.+)', 'WebFullEntry',  
             '/export/(.+)_(.+)/(.+)', 'WebDownloadData',
             '/export/(.+)_(.+)', 'WebExport',  

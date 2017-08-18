@@ -158,7 +158,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
                                 $c.AllMessages.elements['mail'].getName(self.lang) 2:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                $elem.fields['o_email2']
+                                $c.AllGrFunction.elements[elem.fields['o_email2']].getName(self.lang)
                                 </div>
                             </div>
                         $if elem.fields['o_sound2'] != '':
@@ -308,7 +308,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
                 </div>
             </div>
             <div class="modal-footer">
-		$if type in 'scpemb' :
+		$if type in 'scpeb' :
 		    <div class="col-xs-2" >
 			<strong><a href="/find/d/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['manualdata'].getHalfling()"></span></a></strong>
 		    </div>
