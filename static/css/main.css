@@ -245,6 +245,13 @@ a {
     color:#f07e26;
     text-decoration: none;
 }
+
+a.blue {
+    color: #337ab7;
+}
+a.blue:hover {
+    color: #f07e26;
+}
 .navbar-inverse .navbar-nav > .active > a, .navbar-inverse .navbar-nav > .active > a:hover, .navbar-inverse .navbar-nav > .active > a:focus {
 	background-color: #f07e26;
 }

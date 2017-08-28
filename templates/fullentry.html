@@ -32,7 +32,7 @@ $if 'colorgraph' in elem.fields.keys() :
 		   <strong>$elem.getName(self.lang)</strong>
 	       </div>
 	</div>
-	$if type in 'cpeu':
+	$if type in 'cpeudmvmtm' and type not in 'tvd':
 	    $code :
 		groups = c.get_group(allElem.get_key_group())
 	    <div class="col-xs-1 vcenter">
@@ -40,7 +40,7 @@ $if 'colorgraph' in elem.fields.keys() :
 	    </div>
 	    $if elem.get_group() != '' :
 		<div class="col-xs-2 vcenter">
-		       $groups.elements[elem.get_group()].fields['acronym']
+		       <a href="/item/$(allElem.get_key_group())_$elem.get_group()">$groups.elements[elem.get_group()].fields['acronym']</a>
 		</div>
 	    $else :
 		<div class="col-xs-2 vcenter">
@@ -55,11 +55,11 @@ $if 'colorgraph' in elem.fields.keys() :
 			<span class="$c.AllHalflings.elements[groups.get_name_object()].getHalfling()"></span>
 		    </div>
 		    $if elem.get_group() != '' :
-			<div class="col-xs-2 vcenter">
-			       $groups.elements[elem.get_group()].fields['acronym']
+			<div class="col-xs-10 vcenter">
+			       <a href="/item/$(allElem.get_key_group())_$elem.get_group()">$groups.elements[elem.get_group()].fields['acronym']</a>
 			</div>
 		    $else :
-			<div class="col-xs-2 vcenter">
+			<div class="col-xs-10 vcenter">
 			    -
 			</div>
 		</div>
@@ -67,11 +67,46 @@ $if 'colorgraph' in elem.fields.keys() :
 		    <div class="col-xs-1 vcenter">
 			<span class="$c.AllHalflings.elements['scale'].getHalfling()"></span>
 		    </div>
-		    <div class="col-xs-2 vcenter">
+		    <div class="col-xs-10 vcenter">
 			$if elem.fields['m_id'] != '':
-			    $(elem.get_residual_quantity()) $(c.AllMeasures.elements[elem.fields['m_id']].fields['unit'])
+			    $(elem.get_residual_quantity()) <a href="/item/m_$elem.fields['m_id']">$(c.AllMeasures.elements[elem.fields['m_id']].fields['unit'])</a>
 		    </div>
 		</div>
+	    </div>
+	$elif type == 'h':
+	    <div class="col-xs-1 vcenter">
+		<span class="$c.AllHalflings.elements['grecipe'].getHalfling()"></span>
+	    </div>
+	    $if elem.get_group() != '' :
+		<div class="col-xs-2 vcenter">
+		       <a href="/item/gr_$elem.fields['gr_id']">$c.AllGrRecipe.elements[elem.fields['gr_id']].fields['acronym']</a>
+		</div>
+	    $else :
+		<div class="col-xs-2 vcenter">
+		    -
+		</div>
+	$elif type == 's':
+	    <div class="col-xs-3 vcenter">
+		<div class="row">
+		    <div class="col-xs-1 vcenter">
+			<span class="$c.AllHalflings.elements[elem.get_component(c).get_name()].getHalfling()"></span>
+		    </div>
+		    <div class="col-xs-10 vcenter">
+			   <a href="/item/$elem.get_component(c).get_type()_$elem.get_component(c).getID()">$elem.get_component(c).fields['acronym']</a>
+		    </div>
+		</div>
+		<div class="row">
+		    <div class="col-xs-1 vcenter">
+			<span class="$c.AllHalflings.elements['measure'].getHalfling()"></span>
+		    </div>
+		    <div class="col-xs-10 vcenter">
+			$(elem.lastvalue) <a href="/item/m_$elem.fields['m_id']">$(c.AllMeasures.elements[elem.fields['m_id']].fields['unit'])</a>
+		    </div>
+		</div>
+	    </div>
+	$elif type == 'm':
+	    <div class="col-xs-3 vcenter">
+		$elem.fields['unit']
 	    </div>
 	$else:
 	    <div class="col-xs-3 vcenter">
@@ -136,12 +171,13 @@ $if 'colorgraph' in elem.fields.keys() :
 				Things to Do
 			    </div>
 			</div>
+		    $if 'm' in type and 'm' != type:
 			<div class="row" style="margin-top:10px;">
 			    <div class="col-xs-2">
-				<strong><a href="#" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['recipe'].getHalfling()"></span></a></strong>
+				<strong><a href="/item/h_$(allElem.elements[id].fields['h_id'])" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['checkpoint'].getHalfling()"></span></a></strong>
 			    </div>
 			    <div class="col-xs-10">
-				Point de controle
+				$c.AllMessages.elements['checkpoint'].getName(self.lang)
 			    </div>
 			</div>
 		    $if type == 'b' :
@@ -179,7 +215,7 @@ $if 'colorgraph' in elem.fields.keys() :
 			    $c.AllMessages.elements['info'].getName(self.lang)
 			</div>
 		    </div>
-		    $if type in 'cpemgugrgf' and type not in 'u':
+		    $if type in 'cpemgugrgfh' and type not in 'u':
 			<div class="row" style="margin-top:10px;">
 			    <div class="col-xs-2">
 				<strong><a href="/find/related/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['related'].getHalfling()"></span></a></strong>

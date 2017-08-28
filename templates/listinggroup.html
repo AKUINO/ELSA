@@ -26,6 +26,40 @@ $if type == 'gf':
 		</script>
 		<div id="includedMenuu_$(k)"></div>
     </div>
+$elif type == 'h':
+    <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+	<label class="col-sm-12">$c.AllMessages.elements['manualdatamodel'].getName(self.lang) :</label>    
+	$for k,dm in c.AllManualDataModels.elements.items():
+	    $if dm.get_group() == id :
+		<script>
+		    $$(function(){
+			$$("#includedMenudm_$(k)").load("/fullentry/dm_$(k)");
+		    });
+		</script>
+		<div id="includedMenudm_$(k)"></div>
+    </div>
+    <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+	<label class="col-sm-12">$c.AllMessages.elements['transfermodel'].getName(self.lang) :</label>    
+	$for k,dm in c.AllTransferModels.elements.items():
+	    $if dm.get_group() == id :
+		<script>
+		    $$(function(){
+			$$("#includedMenutm_$(k)").load("/fullentry/tm_$(k)");
+		    });
+		</script>
+		<div id="includedMenutm_$(k)"></div>
+    </div>
+    <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+	<label class="col-sm-12">$c.AllMessages.elements['pouringmodel'].getName(self.lang) :</label>    
+	$for k,dm in c.AllPouringModels.elements.items():
+	    $if dm.get_group() == id :
+		<script>
+		    $$(function(){
+			$$("#includedMenuvm_$(k)").load("/fullentry/vm_$(k)");
+		    });
+		</script>
+		<div id="includedMenuvm_$(k)"></div>
+    </div>
 $elif type == 'gu':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<label class="col-sm-12">$c.AllMessages.elements['place'].getName(self.lang) :</label>    
@@ -70,6 +104,17 @@ $elif type == 'gr':
 		<script>
 		    $$(function(){
 			$$("#includedMenub_$(k)").load("/fullentry/b_$(k)");
+		    });
+		</script>
+		<div id="includedMenub_$(k)"></div>
+    </div>
+    <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+	<label class="col-sm-12">$c.AllMessages.elements['checkpoint'].getName(self.lang) :</label>    
+	$for k,cp in c.AllCheckPoints.elements.items():
+	    $if cp.fields['gr_id'] == id:
+		<script>
+		    $$(function(){
+			$$("#includedMenub_$(k)").load("/fullentry/h_$(k)");
 		    });
 		</script>
 		<div id="includedMenub_$(k)"></div>

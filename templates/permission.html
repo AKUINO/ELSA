@@ -12,13 +12,13 @@ $code:
     indent = 1
     cindent = 9
     if id != 'new':
-	if 'g' in elements.elements[id].get_type():
+	if 'g' in elements.elements[id].get_type() or type == 'h':
 	    myid = elements.elements[id].getID()
 	    mygroup = groups.elements[id]
 	else:
 	    myid = elements.elements[id].get_group()
 	    mygroup = []
-$if 'g' in type:
+$if 'g' in type or type == 'h':
     <div class="form-group row">
 	<label class="col-sm-3 col-form-label">$c.AllMessages.elements['group'].getName(self.lang)</label>
     </div>
@@ -40,7 +40,7 @@ $if 'g' in type:
 			    $if group == myid:
 				style="background-color:black;"	    
 			>$groups.elements[group].getName(self.lang)</label>
-		    $if 'g' in type:
+		    $if 'g' in type or type == 'h':
 			$if id != 'new' and group in mygroup.related:
 			    <label class="col-sm-2 col-form-label">
 			    <span class="glyphicon glyphicon-remove-circle"> </span>
@@ -62,14 +62,14 @@ $if 'g' in type:
 				<span class="glyphicon glyphicon-ok-circle"> </span>
 			    </label>
 		</div>
-$if 'g' not in type :
+		
+$if 'g' not in type and type != 'h':
     <div class="form-group row">
 	<label for="inputGroup" class="col-sm-3 col-form-label">$c.AllMessages.elements['group'].getName(self.lang) </label>
 	<div class="col-sm-9" id = "divgroup">
 	    <select name = "group" class="form-control" id="group" onchange="mySelectChange()">
 		<option value=''></option>
 		$if len(groupList) > 0:
-		
 		    $for group in groupList:
 			$if group == 'IN' :
 			    $code:

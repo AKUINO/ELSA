@@ -1,6 +1,6 @@
 $def with (mail,type,id)
 $var recursive : False
-$var location: all/$(type)=$(c.findAllFromType(type).get_name_object()) graphic/$(type)_$(id)=graphic
+$var location: list/$(type)=$(c.findAllFromType(type).get_name_object()) graphic/$(type)_$(id)=graphic
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $code:
     allobjects = c.findAllFromType(type)

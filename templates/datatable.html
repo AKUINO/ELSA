@@ -3,10 +3,18 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $code :
     elem = c.connectedUsers.users[mail].cuser.exportdata
 $var recursive : False
-$var location: all/$(type)=$(c.findAllFromType(type).get_name_object()) exportdata/$(type)_$(id)=exportdata datatable/$(type)_$(id)=datatable
-$if elem is not None:
-    <div class="container">           
-	<table class="table table-condensed">
+$var location: list/$(type)=$(c.findAllFromType(type).get_name_object()) exportdata/$(type)_$(id)=exportdata datatable/$(type)_$(id)=datatable
+
+<script>
+    $$(function(){
+	$$("#includedMenu$(type)_$(id)").load("/fullentry/$(type)_$(id)");
+    });
+</script>
+<div id="includedMenu$(type)_$(id)"></div>
+
+$if elem is not None:    
+    <div class="container" style="margin-top:15px;">           
+	<table class="table table-condensed" >
 	    <thead>
 		<tr>
 		    $for e in elem.fieldnames:

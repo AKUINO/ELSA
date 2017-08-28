@@ -70,7 +70,6 @@ class Configuration():
             print 'AKUINO-ELSA lock exists'
             sys.exit()
 	
-	#self.InfoSystem = InfoSystem(self)
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
 	self.fieldcode = ['begin', 'type', 'idobject', 'code', 'user']
@@ -86,6 +85,7 @@ class Configuration():
 	self.AllGrFunction = AllGrFunction(self)
 	self.AllGrUsage = AllGrUsage(self)
 	self.AllGrRecipe= AllGrRecipe(self)
+	self.AllCheckPoints= AllCheckPoints(self)
 	self.AllAlarms = AllAlarms(self)
 	self.AllAlarmLogs= AllAlarmLogs(self)
 	self.AllHalflings = AllHalflings(self)
@@ -94,6 +94,9 @@ class Configuration():
 	self.connectedUsers = AllConnectedUsers()
 	self.AllTransfers = AllTransfers(self)
 	self.AllPourings = AllPourings(self)
+	self.AllTransferModels = AllTransferModels(self)
+	self.AllManualDataModels = AllManualDataModels(self)
+	self.AllPouringModels = AllPouringModels(self)
 	self.isThreading = True
 	self.UpdateThread = UpdateThread(self)
 	self.RadioThread = RadioThread(self)
@@ -120,7 +123,6 @@ class Configuration():
 	self.AllMeasures.load()
 	self.AllSensors.load()
 	self.AllSensors.check_rrd()
-	#self.InfoSystem.check_rrd()
 	self.AllSensors.correctValueAlarm()
 	self.AllAlarms.load()
 	self.AllHalflings.load()
@@ -129,13 +131,18 @@ class Configuration():
 	self.AllGrFunction.load()
 	self.AllGrUsage.load()
 	self.AllGrRecipe.load()
+	self.AllCheckPoints.load()
 	self.AllGrFunction.load_relation()
 	self.AllGrUsage.load_relation()
 	self.AllGrRecipe.load_relation()
+	self.AllCheckPoints.load_relation()
 	self.AllBarcodes.load()
 	self.AllTransfers.load()
 	self.AllManualData.load()
 	self.AllPourings.load()
+	self.AllTransferModels.load()
+	self.AllManualDataModels.load()
+	self.AllPouringModels.load()
 	self.AllAlarmLogs.load()
 	self.UpdateThread.start()
 	self.RadioThread.start()
@@ -153,6 +160,8 @@ class Configuration():
 	    return self.AllGrUsage
 	elif className == GrRecipe.__name__:
 	    return self.AllGrRecipe
+	elif className == CheckPoint.__name__:
+	    return self.AllCheckPoints
 	elif className == GrFunction.__name__:
 	    return self.AllGrFunction 
 	elif className == Container.__name__:
@@ -173,6 +182,12 @@ class Configuration():
 	    return self.AllPourings 
 	elif className == AlarmLog.__name__:
 	    return self.AllAlarmLogs 
+	elif className == TransferModel.__name__:
+	    return self.AllTransferModels 
+	elif className == ManualDataModel.__name__:
+	    return self.AllManualDataModels 
+	elif className == PouringModel.__name__:
+	    return self.AllPouringModels 
 	elif className == u"u":
             return self.AllUsers
         elif className == u"e":
@@ -187,6 +202,8 @@ class Configuration():
 	    return self.AllGrRecipe
 	elif className == u"gf":
 	    return self.AllGrFunction
+	elif className == u"h":
+	    return self.AllCheckPoints
 	elif className == u"c":
 	    return self.AllContainers
 	elif className == u"m":
@@ -199,6 +216,10 @@ class Configuration():
 	    return self.AllBatches
 	elif className == u"t":
 	    return self.AllTransfers
+	elif className == u"tm":
+	    return self.AllTransferModels
+	elif className == u"dm":
+	    return self.AllManualDataModels
 	elif className == u"d":
 	    return self.AllManualData
 	elif className == u"v":
@@ -207,6 +228,8 @@ class Configuration():
 	    return self.AllAlarmLogs
 	elif className == u"v":
 	    return self.AllPourings
+	elif className == u"vm":
+	    return self.AllPouringModels
         else:
             return None
 	    
@@ -241,6 +264,8 @@ class Configuration():
 	    return self.AllGrRecipe
 	elif key == 'gf':
 	    return self.AllGrFunction
+	elif key == 'h':
+	    return self.AllCheckPoints
 	
     def get_object(self, type, id):
 	objects = self.findAllFromType(type)
@@ -256,162 +281,7 @@ class Configuration():
 
     def get_time_format(self):
         return datetimeformat
-	
-"""	
-class InfoSystem():
 
-    def __init__(self, config):
-	self.uptime = 0
-	self.memTot = 0
-	self.memFree = 0
-	self.memAvailable = 0
-	self.load1 = 0
-	self.load5 = 0
-	self.load15 = 0
-	self.temperature = 0
-	self.ip = ''
-	self.config = config
-	self.bus_pi = None
-	
-    def SHUT_NOW(self):
-        print "SHUTING DOWN NOW!"
-        os.system(self.config.HardConfig.battery_shutdown)
-
-    def readBattery(self):
-        tens = 0.0
-        try:
-            if self.config.HardConfig.battery == 'I2C':
-
-                #bus_pi.write_byte(ADCaddr,0x98)# va charger la valeur du registre
-                                            # dans le mcp
-                print 'ADC I2C:',hex(addr)
-                #xa = bus_pi.read_word_data(ADCaddr,0)# recupère la valeur en décimal
-                xa = self.bus_pi.read_i2c_block_data(self.config.HardConfig.battery_address,0x98+self.config.HardConfig.battery_port,3)
-                if len(xa) < 2:
-                    return 0.0
-                x1 = xa[0] # les 2 premier Bytes et les 2 derniers doivent                    
-                x2 = xa[1] # être inversé pour récupérer la bonne valeur
-                #x1b = int(x1,16)*256                
-                #x2b = int(x2,16)
-                tens = (x1*256) + x2
-                if tens == 32767:
-                    return 0.0   #TODO: Implanter la bonne synchronisation avec l'arrivee du résultat...
-                elif tens >=32768:
-                    tens = tens - 65536
-                tens = (tens*0.0625)/1000 # 0.0625 codé sur 16 bits
-                                          # et /1000 pour avoir la valeur en volt
-            elif self.config.HardConfig.battery == 'SPI':
-                tens = self.bus_pi.read_adc_voltage(1, 0)
-            tens= tens*self.config.HardConfig.battery_divider # 9.4727 est le coefficient du pont diviseur de
-                                  # tension qui est placé au borne de l'ADC
-            tens = round(tens, 2) # Arrondi la valeur au centième près
-        except:
-            traceback.print_exc()
-        return tens
-    
-    def updateInfoSystem(self,now):
-        if self.config.HardConfig.battery:
-            try:
-                if self.bus_pi is None:
-                    if self.config.HardConfig.battery == 'I2C':
-                        #self.bus_pi = I2C.get_i2c_device(self.config.HardConfig.battery_address, busnum=self.config.HardConfig.i2c_bus)
-                        self.bus_pi = smbus.SMBus(self.config.HardConfig.i2c_bus)
-                        print self.bus_pi
-                    elif self.config.HardConfig.battery == 'SPI':
-                        self.bus_pi = ADCDACPi()  # create an instance of the ADCDAC Pi with a DAC gain set to 1
-
-                        # set the reference voltage.  this should be set to the exact voltage
-                        # measured on the raspberry pi 3.3V rail.
-                        self.bus_pi.set_adc_refvoltage(3.3)
-
-                tens = self.readBattery()
-                if tens == 0.0 :
-                    pass
-                elif tens < 4:
-                    print ("Sous tension: "+unicode(tens))
-                else:
-                    self.config.batteryVoltage = tens
-                    if tens <= self.config.HardConfig.battery_breakout_volt:
-                        stats_label.set(unicode(tens)+u"V : ATTENTION")
-                        print (tens+"V lower than "+unicode(self.config.HardConfig.battery_breakout_volt)+"...")
-                        time.sleep(5)
-                        tens = self.readBattery()
-                        if tens < self.config.HardConfig.battery_breakout_volt:
-                            stats_label.set(unicode(tens)+u"V : HALTE DU SYSTEME")
-                            print(tens+"V : Shutdown...")
-                            SHUT_NOW(None)
-                    else:  
-                        print 'Sensor battery: '+unicode(tens)+' V'
-            except:
-                traceback.print_exc()
-	try:
-	    info = os.popen('cat /proc/uptime','r')
-	    info = info.read()
-	    info = info.split(' ')
-	    self.uptime = int(float(info[0]))
-	    rrdtool.update(rrdDir+'systemuptime.rrd' , '%d:%d' % (now , self.uptime))
-	    
-	    info = os.popen('cat /sys/class/thermal/thermal_zone0/temp','r')
-	    info = info.read()
-	    self.temperature = float(info.split('\n')[0])/1000.0
-	    rrdtool.update(rrdDir+'temperaturecpu.rrd' , '%d:%f' % (now , self.temperature))
-	    
-	    info = os.popen('cat /proc/meminfo','r')
-	    info = info.read()
-	    info = info.split('\n')
-	    self.memTot = info[0]
-	    self.memFree = info[1]
-	    self.memAvailable = info[2]
-	    self.memTot = self.memTot.split(':')[1]
-	    self.memFree = self.memFree.split(':')[1]
-	    self.memAvailable = self.memAvailable.split(':')[1]
-	    self.memTot = self.memTot.split(' ')[-2]
-	    self.memFree = self.memFree.split(' ')[-2]
-	    self.memAvailable = self.memAvailable.split(' ')[-2]
-	    self.memTot = float(self.memTot)
-	    self.memFree = float(self.memFree)
-	    self.memAvailable = float(self.memAvailable)
-	    self.memTot /= 1000.0
-	    self.memFree /= 1000.0
-	    self.memAvailable /= 1000.0
-	    rrdtool.update(rrdDir+'memoryinfo.rrd' , '%d:%f:%f:%f' % (now , self.memTot, self.memFree, self.memAvailable))
-	    
-	    info = os.popen('cat /proc/loadavg')
-	    info = info.read()
-	    info = info.split(' ')
-	    self.load1 = float(info[0])
-	    self.load5 = float(info[1])
-	    self.load15 = float(info[2])
-	    rrdtool.update(rrdDir+'cpuload.rrd' , '%d:%f:%f:%f' % (now , self.load1, self.load5, self.load15))
-	    
-	    iptmp = useful.get_ip_address('eth0')
-	    if iptmp != self.ip:
-		userlist = self.config.get_user_group(self.config.AllGroups.get_group(groupWebUsers))
-		for user in userlist:
-                    print "Not sending mail to user#"+user
-		#   useful.send_email(self.config.AllUsers.elements[user].fields['mail'],u'Nouvelle IP pour ELSA: '+iptmp,u'Pour acceder ELSA:\nhttp://'+iptmp+u':8080')
-		self.ip = iptmp	    
-	except:
-	    traceback.print_exc()
-	    
-    def check_rrd(self):
-	now = str( int(time.time())-60)
-	if os.path.exists(rrdDir+'systemuptime.rrd') is not True:
-	    data_sources = 'DS:Uptime:GAUGE:120:U:U'
-	    rrdtool.create( rrdDir+'systemuptime.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
-	    
-	if not os.path.exists(rrdDir+'temperaturecpu.rrd'):
-	    data_sources = 'DS:Temperature:GAUGE:120:U:U'
-	    rrdtool.create( rrdDir+'temperaturecpu.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
-	    
-	if not os.path.exists(rrdDir+'memoryinfo.rrd'):
-	    data_sources=[ 'DS:MemTot:GAUGE:120:U:U', 'DS:MemFree:GAUGE:120:U:U', 'DS:MemAvailable:GAUGE:120:U:U' ]
-	    rrdtool.create( rrdDir+'memoryinfo.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
-	    
-	if not os.path.exists(rrdDir+'cpuload.rrd'):
-	    data_sources=[ 'DS:Load1:GAUGE:120:U:U', 'DS:Load5:GAUGE:120:U:U', 'DS:Load15:GAUGE:120:U:U' ]
-	    rrdtool.create( rrdDir+'cpuload.rrd', "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
-"""
 class ConfigurationObject():
 
     def __init__(self):
@@ -428,7 +298,6 @@ class ConfigurationObject():
         self.fields["begin"] = unicode(datetime.datetime.now().strftime(datetimeformat))
 	if anUser != "" :
 	    self.fields["user"] = anUser.fields['u_id']
-	
         allObjects = configuration.findAllFromObject(self)
 	print allObjects.fileobject
         print allObjects.fieldnames
@@ -461,21 +330,6 @@ class ConfigurationObject():
 	    tmpCode["user"] = anUser.fields['u_id']
             writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames = configuration.fieldcode, encoding="utf-8")
             writer.writerow(tmpCode)
-	
-    def saveGroups(self, configuration,anUser):
-	print self.groups	
-	allObjects = configuration.findAllFromObject(self)
-	with open(configuration.csvRelations,"a") as csvfile:
-	    for k,v in self.groups.items():
-		tmpCode={}
-		tmpCode['begin'] = unicode(datetime.datetime.now().strftime(datetimeformat))
-		tmpCode['g_id'] = k
-		tmpCode['idobject'] = self.fields[allObjects.keyColumn]
-		tmpCode['type'] = self.get_type()
-		tmpCode["user"] = anUser.fields['u_id']
-		tmpCode['active'] = '0'
-		writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames = configuration.fieldrelations, encoding="utf-8")
-		writer.writerow(tmpCode)
 	
     def initialise(self, fieldsname):
 	for field in fieldsname:
@@ -1164,9 +1018,7 @@ class AllGroups(AllObjects):
     def get_group(self, acro):
 	for k,g in self.elements.items():
 	    if g.fields['acronym'] == groupWebUsers:
-		return k
-	    
-	    
+		return k	    
 	
 class AllGrUsage(AllGroups):
     def __init__(self, config):
@@ -1206,6 +1058,26 @@ class AllGrRecipe(AllGroups):
     def get_key_group(self):
 	return 'gr'
 	
+class AllCheckPoints(AllGroups):
+    def __init__(self, config):
+	AllGroups.__init__(self, config)
+        self.fileobject = csvDir + "H.csv"
+	self.filename = csvDir + "Hnames.csv"
+        self.keyColumn = "h_id"
+	self.fieldnames = ["begin", "h_id", "active", "acronym", "remark",'gr_id', "user"]
+	self.fieldtranslate = ['begin', 'lang', 'h_id', 'name', 'user']
+	self.csvRelations = csvDir + "Hrelations.csv"
+
+    def newObject(self):
+        return CheckPoint(self.config)
+	
+    def get_name_object(self):
+	return 'checkpoint'
+	
+    def get_key_group(self):
+	return 'h'
+	
+	
 class AllGrFunction(AllGroups):
     def __init__(self, config):
 	AllGroups.__init__(self, config)
@@ -1234,7 +1106,7 @@ class AllMeasures(AllObjects):
         self.fileobject = csvDir + "M.csv"
 	self.filename = csvDir + "Mnames.csv"
         self.keyColumn = "m_id"
-	self.fieldnames = ['begin', 'm_id', 'active', 'acronym', 'unit', 'source', 'formula', 'remark', 'user']
+	self.fieldnames = ['begin', 'm_id', 'active', 'acronym', 'unit', 'formula', 'remark', 'user']
 	self.fieldtranslate = ['begin', 'lang', 'm_id', 'name', 'user']
 	self.count = 0
 
@@ -1253,7 +1125,7 @@ class AllSensors(AllObjects):
         self.fileobject = csvDir + "S.csv"
 	self.filename = csvDir + "Snames.csv"
         self.keyColumn = "s_id"
-	self.fieldnames = ['begin', 's_id', 'c_id', 'p_id', 'e_id', 'h_id', 'm_id', 'active', 'acronym', 'remark', 'channel', 'sensor', 'subsensor', 'valuetype', 'formula', 'minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax', 'lapse1', 'lapse2', 'lapse3', 'user']
+	self.fieldnames = ['begin', 's_id', 'c_id', 'e_id', 'h_id', 'm_id', 'active', 'acronym', 'remark', 'channel', 'sensor', 'subsensor', 'valuetype', 'formula', 'minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax', 'lapse1', 'lapse2', 'lapse3', 'user']
 	self.fieldtranslate = ['begin', 'lang', 's_id', 'name', 'user']
 	self.count = 0
 
@@ -1335,6 +1207,71 @@ class AllTransfers(AllObjects):
 	
     def get_name_object(self ):
 	return 'transfer'
+	
+class AllTransferModels(AllObjects):
+
+    def __init__(self, config):
+	AllObjects.__init__(self)
+        self.elements = {}
+        self.config = config
+        self.fileobject = csvDir + "TM.csv"
+	self.filename = csvDir + "TMnames.csv"
+        self.keyColumn = "tm_id"
+	self.fieldnames = ["begin","tm_id",'acronym','gu_id','h_id','rank', "remark", 'active', "user"]
+	self.fieldtranslate = ['begin', 'lang', 'tm_id', 'name', 'user']
+
+    def newObject(self):
+        return TransferModel(self.config)
+	
+    def get_name_object(self ):
+	return 'transfermodel'
+    
+    def get_key_group(self):
+	return 'h'
+	
+class AllPouringModels(AllObjects):
+
+    def __init__(self, config):
+	AllObjects.__init__(self)
+        self.elements = {}
+        self.config = config
+        self.fileobject = csvDir + "VM.csv"
+	self.filename = csvDir + "VMnames.csv"
+        self.keyColumn = "vm_id"
+	self.fieldnames = ["begin","vm_id",'acronym','src','dest','quantity','h_id', 'rank', "remark", 'active', "user"]
+	self.fieldtranslate = ['begin', 'lang', 'vm_id', 'name', 'user']
+
+    def newObject(self):
+        return PouringModel(self.config)
+	
+    def get_name_object(self ):
+	return 'pouringmodel'
+    
+    def get_key_group(self):
+	return 'h'
+	
+
+	
+class AllManualDataModels(AllObjects):
+
+    def __init__(self, config):
+	AllObjects.__init__(self)
+        self.elements = {}
+        self.config = config
+        self.fileobject = csvDir + "DM.csv"
+	self.filename = csvDir + "DMnames.csv"
+        self.keyColumn = "dm_id"
+	self.fieldnames = ["begin","dm_id",'acronym','m_id','h_id', 'rank', "remark", 'active', "user"]
+	self.fieldtranslate = ['begin', 'lang', 'dm_id', 'name', 'user']
+
+    def newObject(self):
+        return ManualDataModel(self.config)
+	
+    def get_name_object(self ):
+	return 'manualdatamodel'
+	
+    def get_key_group(self):
+	return 'h'
 	
 
 class AllBarcodes(AllObjects):
@@ -1907,11 +1844,9 @@ class Group(ConfigurationObject):
 	    tmp = ''
 	for k,v in configuration.findAllFromObject(self).elements.items():
 	    if k in data:
-		for i,j in configuration.findAllFromObject(self).elements.items():
-		    if i in data:
-			if i in v.parents or i in v.children or i in v.siblings:
-			    tmp += configuration.AllMessages.elements['grouprules'].getName(lang) + '\n'
-			    return tmp
+		if self.getID() in v.parents or self.getID() in v.children or self.getID() in v.siblings:
+		    tmp += configuration.AllMessages.elements['grouprules'].getName(lang) + '\n'
+		    return tmp
 	if tmp == '':
 	    return True
 	return tmp
@@ -1929,8 +1864,7 @@ class Group(ConfigurationObject):
 	    if k in data and k not in self.related:
 		self.related.append(k)
 		self.write_group(k,c,user,'0')
-	c.findAllFromObject(self).load_family()		
-	self.save(c,user)
+	c.findAllFromObject(self).load_family()
 	
     def write_group(self, parentid, configuration, user, active):
   	with open(configuration.findAllFromObject(self).csvRelations,"a") as csvfile:
@@ -2016,6 +1950,38 @@ class GrUsage(Group):
     def get_name(self):
 	return 'guse'
 	
+    def validate_form(self, data, configuration, lang):
+	tmp = Group.validate_form(self, data, configuration, lang)	
+	if tmp == '':
+	    return True
+	return tmp
+	
+    def set_value_from_data(self, data, c,user):
+	Group.set_value_from_data(self, data, c,user)
+	self.save(c,user)
+	
+class CheckPoint(Group):
+    def __init__(self,config):
+	Group.__init__(self,config)
+	self.keyColumn = 'h_id'
+	
+    def get_type(self):
+	return 'h'
+		
+    def get_name(self):
+	return 'checkpoint'
+	
+    def validate_form(self, data, configuration, lang):
+	tmp = Group.validate_form(self, data, configuration, lang)	
+	if tmp == '':
+	    return True
+	return tmp
+	
+    def set_value_from_data(self, data, c,user):
+	Group.set_value_from_data(self, data, c,user)
+	self.fields['gr_id'] = data['recipe']
+	self.save(c,user)
+	
 class GrRecipe(Group):
     def __init__(self,config):
 	Group.__init__(self,config)
@@ -2023,10 +1989,19 @@ class GrRecipe(Group):
 	
     def get_type(self):
 	return 'gr'
-	    
 		
     def get_name(self):
 	return 'grecipe'
+    
+    def validate_form(self, data, configuration, lang):
+	tmp = Group.validate_form(self, data, configuration, lang)	
+	if tmp == '':
+	    return True
+	return tmp
+	
+    def set_value_from_data(self, data, c,user):
+	Group.set_value_from_data(self, data, c,user)
+	self.save(c,user)
 	
 class GrFunction(Group):
     def __init__(self,config):
@@ -2045,6 +2020,16 @@ class GrFunction(Group):
 		
     def get_name(self):
 	return 'gfunction'
+    
+    def validate_form(self, data, configuration, lang):
+	tmp = Group.validate_form(self, data, configuration, lang)	
+	if tmp == '':
+	    return True
+	return tmp
+	
+    def set_value_from_data(self, data, c,user):
+	Group.set_value_from_data(self, data, c,user)
+	self.save(c,user)
 	
 class Piece(ConfigurationObject):
     def __init__(self, config):
@@ -2928,6 +2913,13 @@ class Sensor(ConfigurationObject):
 	    return id == self.fields['m_id']
 	return False
 	
+    def get_component(self, config):
+	if self.fields['p_id'] != '':
+	    return config.AllPieces.elements[self.fields['p_id']]
+	elif self.fields['e_id'] != '':
+	    return config.AllPieces.elements[self.fields['e_id']]
+	elif self.fields['c_id'] != '':
+	    return config.AllPieces.elements[self.fields['c_id']]
 	
     def get_sensors_in_component(self, config):
 	tmp = []
@@ -3043,7 +3035,6 @@ class Batch(ConfigurationObject):
 	for e in self.source:
 	    qt += float(self.config.AllPourings.elements[e].fields['quantity'])
 	return qt
-	    
 	
     def get_lifetime(self):
 	if self.fields['basicqt'] == '' or self.fields['basicqt'] == 0:
@@ -3103,15 +3094,25 @@ class Batch(ConfigurationObject):
 	    self.fields['basicqt'] = 0
 	return float(self.fields['basicqt']) - val
 	
-    def clone(self, user, name = 'copy' ):
+    def clone(self, user, name = 1 ):
 	b = self.config.getObject('new','b')
 	b.fields['active'] = self.fields['active']
-	b.fields['acronym'] = self.fields['acronym']+ '_' + name
+	tmp = len(self.fields['acronym'])-self.fields['acronym'].rfind('_')-1-len(str(name))
+	tmpname = self.fields['acronym'][0:self.fields['acronym'].rfind('_')+1] + '0' * tmp + str(name)
+	allObjects = self.config.findAllFromObject(self)    
+	cond = allObjects.unique_acronym( tmpname, self.id)
+	while not cond:
+	    name += 1
+	    tmp = len(self.fields['acronym'])-self.fields['acronym'].rfind('_')-1-len(str(name))
+	    tmpname = self.fields['acronym'][0:self.fields['acronym'].rfind('_')+1] + '0' * tmp + str(name)
+	    cond = allObjects.unique_acronym( tmpname, self.id)
+	b.fields['acronym'] = tmpname
 	b.fields['basicqt'] = self.fields['basicqt']
 	b.fields['m_id'] = self.fields['m_id']
 	b.fields['time'] = self.fields['time']
 	b.fields['cost'] = self.fields['cost']
 	b.fields['remark'] = self.fields['remark']
+	b.fields['gr_id'] = self.fields['gr_id']
 	for lang in self.config.AllLanguages.elements:
 	    b.setName(lang, self.get_real_name(lang),user, self.config.getKeyColumn(b))
 	b.creator = user.fields['u_id']
@@ -3160,6 +3161,110 @@ class Batch(ConfigurationObject):
     def get_group(self):
 	return self.fields['gr_id']
 
+class PouringModel(ConfigurationObject):
+    def __init__(self, config):
+	ConfigurationObject.__init__(self)
+        self.config = config
+            
+    def __repr__(self):
+        string = unicode(self.id)
+        return string
+
+    def __str__(self):
+        string = "\nPouring Model :"
+        for field in self.fields:
+            string = string + "\n" + field + " : " + self.fields[field]
+        return string + "\n"
+    
+    def get_type(self):
+	return 'dm'
+	
+    def get_name(self):
+	return 'pouringmodel'
+	
+    def get_group(self):
+	return self.fields['h_id']
+    
+    def validate_form(self, data, configuration, lang):
+	return ConfigurationObject.validate_form(self, data, configuration, lang)	
+	
+    def set_value_from_data(self, data, c,user):
+	ConfigurationObject.set_value_from_data(self, data, c,user)
+	self.fields['quantity'] = data['quantity']
+	self.fields['src'] = data['src']
+	self.fields['dest'] = data['dest']
+	self.fields['h_id'] = data['checkpoint']
+	self.fields['rank'] = data['rank']
+	self.save(c,user)
+	
+class ManualDataModel(ConfigurationObject):
+    def __init__(self, config):
+	ConfigurationObject.__init__(self)
+        self.config = config
+            
+    def __repr__(self):
+        string = unicode(self.id)
+        return string
+
+    def __str__(self):
+        string = "\nManual Data Model :"
+        for field in self.fields:
+            string = string + "\n" + field + " : " + self.fields[field]
+        return string + "\n"
+    
+    def get_type(self):
+	return 'dm'
+	
+    def get_name(self):
+	return 'manualdatamodel'
+	
+    def get_group(self):
+	return self.fields['h_id']
+    
+    def validate_form(self, data, configuration, lang):
+	return ConfigurationObject.validate_form(self, data, configuration, lang)	
+	
+    def set_value_from_data(self, data, c,user):
+	ConfigurationObject.set_value_from_data(self, data, c,user)
+	self.fields['m_id'] = data['measure']
+	self.fields['h_id'] = data['checkpoint']
+	self.fields['rank'] = data['rank']
+	self.save(c,user)
+	
+class TransferModel(ConfigurationObject):
+    def __init__(self, config):
+	ConfigurationObject.__init__(self)
+        self.config = config
+            
+    def __repr__(self):
+        string = unicode(self.id)
+        return string
+
+    def __str__(self):
+        string = "\nModelTransfer :"
+        for field in self.fields:
+            string = string + "\n" + field + " : " + self.fields[field]
+        return string + "\n"
+    
+    def get_type(self):
+	return 'tm'
+	
+    def get_name(self):
+	return 'transfermodel'
+	
+    def validate_form(self, data, configuration, lang):
+	return ConfigurationObject.validate_form(self, data, configuration, lang)	
+	
+    def set_value_from_data(self, data, c,user):
+	ConfigurationObject.set_value_from_data(self, data, c,user)
+	self.fields['gu_id'] = data['position']
+	self.fields['h_id'] = data['checkpoint']
+	self.fields['rank'] = data['rank']
+	self.save(c,user)
+	
+    def get_group(self):
+	return self.fields['h_id']
+	
 class Transfer(ConfigurationObject):
     def __init__(self, config):
 	ConfigurationObject.__init__(self)

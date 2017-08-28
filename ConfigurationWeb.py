@@ -9,7 +9,6 @@ import sys
 global c, render
 rrdDir = '../ELSArrd/rrd/'
 
-
 class WebColor():
     def GET(self, type,id):
         mail = isConnected()
@@ -45,7 +44,7 @@ class WebList():
     def GET(self, type):
         mail = isConnected()
         if mail is not None:
-	    if type in 'abcpesmugugrgf' and type != 't' and type !='f':
+	    if type in 'abcpehsmugugrgftmdmvm' and type != 't' and type !='f':
 		return self.getRender(type, mail)
 	    else:
 		return render.notfound()
@@ -60,14 +59,28 @@ class WebList():
 		count = 1
 		borne  = int(data['quantity'])
 		elem = c.AllBatches.elements[data['batch'].split('_')[1]]
+		try:
+		    name = int(elem.fields['acronym'][elem.fields['acronym'].rfind('_')+1:])
+		except:
+		    name = 0
 		while count <= borne :
-		    elem.clone(user,str(count))
+		    elem.clone(user,(name + count))
 		    count+=1
 	    return self.getRender(type,mail)
 	raise web.seeother('/') 
 	
     def getRender(self, type, mail):
         return render.listing(mail, type)
+	
+class WebItem():        
+    def GET(self,type,id):
+        mail = isConnected()
+        if mail is not None:
+	    try :
+		return render.item(type, id,mail)
+	    except:
+		return render.notfound()
+        raise web.seeother('/')
 	
 class WebEdit():        
     def GET(self,type,id):
@@ -116,7 +129,7 @@ class WebEdit():
         return render.listing(mail, type)
     
     def getRender(self,type, id, mail, errormess, data):
-	if type in 'pebcsmagugrgfu' and type != 'g' and type !='f':
+	if type in 'hpebcsmagugrgfutmdmvm' and type != 'g' and type !='f' and type != 'd' and type != 'v'and type != 't':
 	    if id in c.findAllFromType(type).elements.keys() or  id == 'new':
 		if type == 'p' :
 		    return render.place(id,mail, errormess, data)
@@ -138,8 +151,16 @@ class WebEdit():
 		    return render.group(type,id,mail, errormess, data) 
 		elif type == 'gf' :
 		    return render.group(type,id,mail, errormess, data) 
+		elif type == 'h' :
+		    return render.group(type,id,mail, errormess, data) 
 		elif type == 'u' :
 		    return render.user(id,mail, errormess, data) 
+		elif type == 'tm' :
+		    return render.transfermodel(id,mail, errormess, data) 
+		elif type == 'dm' :
+		    return render.manualdatamodel(id,mail, errormess, data) 
+		elif type == 'vm' :
+		    return render.pouringmodel(id,mail, errormess, data) 
 	elif type =='t':
 	    if id == 'new' or id in c.findAllFromType(type).elements.keys() or id.split('_')[1] in c.findAllFromType(id.split('_')[0]).elements.keys():
 		return render.transfer(id,mail, errormess) 
@@ -196,19 +217,23 @@ class WebFind():
         raise web.seeother('/')
 	
     def getRender(self, type, id1, id2, mail):
-	if type == 'related' and id1 == 'm':
-	    return render.listingmeasures(id2,mail)
-	elif type == 'd'and id1 in 'pceb':
-	    return render.itemdata(id1,id2,mail)
-	elif type == 't' and id1 in 'ceb':
-	    return render.itemtransfers(id1,id2,mail)
-	elif type == 'v' and id1 in 'ecb':
-	    return render.listingpourings(id2,mail)
-	elif type == 'related'and 'g' in id1:
-	    return render.listinggroup(id1,id2,mail)
-	elif type == 'related':
-	    return render.listingcomponent(id1,id2,mail)
-	else:
+	try :
+	    if type == 'related' and id1 == 'm':
+		return render.listingmeasures(id2,mail)
+	    elif type == 'd'and id1 in 'pceb':
+		return render.itemdata(id1,id2,mail)
+	    elif type == 't' and id1 in 'ceb':
+		return render.itemtransfers(id1,id2,mail)
+	    elif type == 'v' and id1 in 'ecb':
+		return render.listingpourings(id2,mail)
+	    elif type == 'related'and ('g' in id1 or id1 =='h'):
+		return render.listinggroup(id1,id2,mail)
+	    elif type == 'related':
+		return render.listingcomponent(id1,id2,mail)
+	    else:
+		return render.notfound()
+	except:
+	    traceback.print_exc()
 	    return render.notfound()
 
 class WebGraphic():
@@ -310,7 +335,6 @@ class WebListing():
         return render.index(False,'')
 	
     def getRender(self,id,mail, error):
-        #try:
         typeobject = id.split('_')[0]
         idobject = id.split('_')[1]
         if typeobject in 'pceb':
@@ -321,8 +345,6 @@ class WebListing():
             return render.listingmeasures(mail,idobject)
         else:
             return render.notfound()
-        """except :
-            return render.notfound()"""
        
 class WebExport():        
     def GET(self, type, id):
@@ -375,13 +397,13 @@ class WebDataTable():
         return render.index(False,'')
               
     def getRender(self,type, id,mail):
-        try:
-            if type in 'cpeb':
-                return render.datatable(mail,type, id)
-            else:
-                return render.notfound()
-        except :
-            return render.notfound()
+        #try:
+	if type in 'cpeb':
+	    return render.datatable(mail,type, id)
+	else:
+	    return render.notfound()
+        """except :
+            return render.notfound()"""
             
 class WebDownloadData():     
     def GET(self,id1,id2, filename):
@@ -429,6 +451,7 @@ def main():
             '/', 'WebIndex',
             '/index','WebIndex',  
             '/edit/(.+)_(.+)', 'WebEdit',
+            '/item/(.+)_(.+)', 'WebItem',
             '/create/(.+)', 'WebCreate',
             '/monitoring/', 'WebMonitoring',
             '/rrd/(.+)', 'getRRD',

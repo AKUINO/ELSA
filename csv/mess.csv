@@ -1,6 +1,8 @@
 begin	m_id	default	user
 2016-01-01 13:45:56	name	Name	1
 2016-01-01 13:45:56	pouring	Pouring	1
+2016-01-01 13:45:56	pouringmodel	Pouring Model	1
+2016-01-01 13:45:56	transfermodel	Transfer Model	1
 2016-01-01 13:45:56	production	Production	1
 2016-01-01 13:45:56	exportdata	Export data	1
 2016-01-01 13:45:56	people	People	1
@@ -15,6 +17,7 @@ begin	m_id	default	user
 2016-01-01 13:45:56	specialvalue	Min Max Average 	1
 2016-01-01 13:45:56	monitoring	Monitoring 	1
 2016-01-01 13:45:56	time	Time	1
+2016-01-01 13:45:56	rank	Rank	1
 2016-01-01 13:45:56	componentmove	Component to move	1
 2016-01-01 13:45:56	target	Target	1
 2016-01-01 13:45:56	source	Source	1
@@ -26,6 +29,7 @@ begin	m_id	default	user
 2016-01-01 13:45:56	barcoderules	Barcode must be an EAN 13!\nBarcode must be unique!	1
 2016-01-01 13:45:56	floatrules	The value must be a number	1
 2016-01-01 13:45:56	timerules	The time must be in this format %H:%M:%S  -  %d/%m/%y	1
+2016-01-01 13:45:56	grouprules	A group can't be added to a parent, child or sibling	1
 2016-01-01 13:45:56	componentrules	Error component	1
 2016-01-01 13:45:56	measurerules	A measure is required !	1
 2016-01-01 13:45:56	passwordrules	Password must contain at least eight characters! !	1
@@ -37,6 +41,7 @@ begin	m_id	default	user
 2016-01-01 13:45:56	channelrules	A channel is required !	1
 2016-01-01 13:45:56	datarules	If you enter a value, select a measure	1
 2016-01-01 13:45:56	transferrules	The batch is already in this component	1
+2016-01-01 13:45:56	transferhierarchy	This object can't be moved to this component	1
 2016-01-01 13:45:56	formularules	The formula is not correct	1
 2016-01-01 13:45:56	costrules	The cost must be a positive float	1
 2016-01-01 13:45:56	quantityrules	The quantity must be a positive float	1
@@ -65,14 +70,17 @@ begin	m_id	default	user
 2016-01-01 13:45:56	removegroup	Remove from group :	1
 2016-01-01 13:45:56	place	Place	1
 2016-01-01 13:45:56	equipment	Equipment	1
+2016-01-01 13:45:56	checkpoint	Checkpoint	1
 2016-01-01 13:45:56	container	Container	1
 2016-01-01 13:45:56	batch	Batch	1
 2016-01-01 13:45:56	manualdata	Observation	1
+2016-01-01 13:45:56	manualdatamodel	Observation Model	1
 2016-01-01 13:45:56	transfer	Transfer	1
 2016-01-01 13:45:56	measure	Measure	1
 2016-01-01 13:45:56	sensor	Sensor	1
 2016-01-01 13:45:56	alarm	Alarm	1
 2016-01-01 13:45:56	createe	Add a new equipment	1
+2016-01-01 13:45:56	createtm	Add a new TransferModel	1
 2016-01-01 13:45:56	createp	Add a new place	1
 2016-01-01 13:45:56	createu	Add a new user	1
 2016-01-01 13:45:56	createg	Add a new group	1

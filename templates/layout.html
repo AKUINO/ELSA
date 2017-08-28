@@ -55,8 +55,7 @@ $if content.recursive == 'False' :
 				<li><a href="/list/p" tabindex="-1"><span class="$c.AllHalflings.elements['place'].getHalfling()"></span> $c.AllMessages.elements['place'].getName(content.lang)</a></li>
 				<li><a href="/list/e" tabindex="-2"><span class="$c.AllHalflings.elements['equipment'].getHalfling()"></span> $c.AllMessages.elements['equipment'].getName(content.lang)</a></li>
 				<li><a href="/list/c" tabindex="-3"><span class="$c.AllHalflings.elements['container'].getHalfling()"></span> $c.AllMessages.elements['container'].getName(content.lang)</a></li>
-				<li><a href="/list/s" tabindex="-4"><span class="$c.AllHalflings.elements['sensor'].getHalfling()"></span> $c.AllMessages.elements['sensor'].getName(content.lang)</a></li>
-				<li><a href="/list/gu" tabindex="-5"><span class="$c.AllHalflings.elements['guse'].getHalfling()"></span>  $c.AllMessages.elements['guse'].getName(content.lang)</a></li>				
+				<li><a href="/list/gu" tabindex="-4"><span class="$c.AllHalflings.elements['guse'].getHalfling()"></span>  $c.AllMessages.elements['guse'].getName(content.lang)</a></li>				
 			    </ul>
 			</li>
 			<li class="dropdown" data-show-icon="true">
@@ -64,6 +63,16 @@ $if content.recursive == 'False' :
 			    <ul class="dropdown-menu">
 				<li><a href="/list/m" tabindex="-1"><span class="$c.AllHalflings.elements['measure'].getHalfling()"></span> $c.AllMessages.elements['measure'].getName(content.lang)</a></li>
 				<li><a href="/list/a" tabindex="-2"><span class="$c.AllHalflings.elements['alarm'].getHalfling()"></span> $c.AllMessages.elements['alarm'].getName(content.lang)</a></li>
+				<li><a href="/list/s" tabindex="-3"><span class="$c.AllHalflings.elements['sensor'].getHalfling()"></span> $c.AllMessages.elements['sensor'].getName(content.lang)</a></li>
+			    </ul>
+			</li>
+			<li class="dropdown" data-show-icon="true">
+			    <a href="#" class="dropdown-toggle" data-toggle="dropdown">$c.AllMessages.elements['checkpoint'].getName(content.lang)<b class="caret"></b></a>
+			    <ul class="dropdown-menu">
+				<li><a href="/list/h" tabindex="-1" class="blue"><span class="$c.AllHalflings.elements['checkpoint'].getHalfling()"></span> $c.AllMessages.elements['checkpoint'].getName(content.lang)</a></li>
+				<li><a href="/list/dm" tabindex="-2" class="blue"><span class="$c.AllHalflings.elements['manualdatamodel'].getHalfling()"></span> $c.AllMessages.elements['manualdatamodel'].getName(content.lang)</a></li>
+				<li><a href="/list/tm" tabindex="-3" class="blue"><span class="$c.AllHalflings.elements['transfermodel'].getHalfling()"></span> $c.AllMessages.elements['transfermodel'].getName(content.lang)</a></li>
+				<li><a href="/list/vm" tabindex="-4"><span class="$c.AllHalflings.elements['pouringmodel'].getHalfling()"></span> $c.AllMessages.elements['pouringmodel'].getName(content.lang)</a></li>
 			    </ul>
 			</li>
 			<li class="dropdown" data-show-icon="true">
@@ -71,8 +80,8 @@ $if content.recursive == 'False' :
 			    <ul class="dropdown-menu">
 				<li><a href="/list/b" tabindex="-1"><span class="$c.AllHalflings.elements['batch'].getHalfling()"></span> $c.AllMessages.elements['batch'].getName(content.lang)</a></li>
 				<li><a href="/list/gr" tabindex="-2"><span class="$c.AllHalflings.elements['grecipe'].getHalfling()"></span>  $c.AllMessages.elements['grecipe'].getName(content.lang)</a></li>
-				<li><a href="/create/t" tabindex="-3"><span class="$c.AllHalflings.elements['transfer'].getHalfling()"></span> $c.AllMessages.elements['transfer'].getName(content.lang)</a></li>
-				<li><a href="/create/d" tabindex="-4"><span class="$c.AllHalflings.elements['manualdata'].getHalfling()"></span> $c.AllMessages.elements['manualdata'].getName(content.lang)</a></li>
+				<li><a href="/create/d" tabindex="-3"><span class="$c.AllHalflings.elements['manualdata'].getHalfling()"></span> $c.AllMessages.elements['manualdata'].getName(content.lang)</a></li>
+				<li><a href="/create/t" tabindex="-4"><span class="$c.AllHalflings.elements['transfer'].getHalfling()"></span> $c.AllMessages.elements['transfer'].getName(content.lang)</a></li>
 				<li><a href="/create/v" tabindex="-5"><span class="$c.AllHalflings.elements['pouring'].getHalfling()"></span> $c.AllMessages.elements['pouring'].getName(content.lang)</a></li>
 			    </ul>
 			</li>
@@ -96,7 +105,10 @@ $if content.recursive == 'False' :
 		    $for elem in content.location.split():
 			$code:
 			    tmp = url+elem.split('=')[0]
-			/    <a href="$tmp" ><span class="$c.AllHalflings.elements[elem.split('=')[1]].getHalfling()"></span>&nbsp;$c.AllMessages.elements[elem.split('=')[1]].getName(content.lang)</a>
+			    css = ''
+			    if 'tm' in tmp or 'vm' in tmp or 'dm' in tmp:
+				css = 'blue'
+			/    <a href="$tmp" class="$(css)"><span class="$c.AllHalflings.elements[elem.split('=')[1]].getHalfling()"></span>&nbsp;$c.AllMessages.elements[elem.split('=')[1]].getName(content.lang)</a>
 			
 	    </div>
 	    

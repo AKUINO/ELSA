@@ -57,7 +57,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
                             $elem.getName(self.lang)
                             </div>
                         </div>
-		    $if type in 'cpebu':
+		    $if type in 'hcpebudmvmtm' and type not in 'tvd':
 			$code :
 			    groups = c.get_group(allElem.get_key_group())
 			$if elem.get_group() != '' :
@@ -66,7 +66,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 				    $c.AllMessages.elements['group'].getName(self.lang) :
 				</div>
 				<div class="col-xs-9" id="modalinfo" >
-				    $groups.elements[elem.get_group()].fields['acronym']
+				    <a href="/item/$(allElem.get_key_group())_$elem.get_group()">$groups.elements[elem.get_group()].fields['acronym']</a>
 				</div>
 			    </div>
 		    
@@ -78,14 +78,6 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 			</div>	
 
                     $if type == 'm':
-                        <div class="row" style="margin-top:10px;">
-                            <div class="col-xs-4">
-                            $c.AllMessages.elements['source'].getName(self.lang) :
-                            </div>
-                            <div class="col-xs-8" id="modalinfo" >
-                            $elem.fields['source']
-                            </div>
-                        </div>
                         <div class="row" style="margin-top:10px;">
                             <div class="col-xs-4">
                             $c.AllMessages.elements['formula'].getName(self.lang) :
@@ -113,7 +105,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
                                 $c.AllMessages.elements['phone'].getName(self.lang) 1:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                $c.AllGrFunction.elements[elem.fields['o_sms1']].getName(self.lang)
+                                <a href="/item/gu_$elem.fields['o_sms1']">$c.AllGrFunction.elements[elem.fields['o_sms1']].getName(self.lang)</a>
                                 </div>
                             </div>
                         $if elem.fields['o_email1'] != '':
@@ -122,7 +114,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
                                 $c.AllMessages.elements['mail'].getName(self.lang) 1:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                $c.AllGrFunction.elements[elem.fields['o_email1']].getName(self.lang)
+                                <a href="/item/gu_$elem.fields['o_email1']">$c.AllGrFunction.elements[elem.fields['o_email1']].getName(self.lang)</a>
                                 </div>
                             </div>
                         $if elem.fields['o_sound1'] != '':
@@ -131,7 +123,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
                                 $c.AllMessages.elements['sound'].getName(self.lang) 1:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                $c.AllGrFunction.elements[elem.fields['o_sound1']].getName(self.lang)
+                                <a href="/item/gu_$elem.fields['o_sound1']">$c.AllGrFunction.elements[elem.fields['o_sound1']].getName(self.lang)</a>
                                 </div>
                             </div>
                         $if elem.fields['relay1'] != '':
@@ -149,7 +141,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
                                 $c.AllMessages.elements['phone'].getName(self.lang) 2:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                $c.AllGrFunction.elements[elem.fields['o_sms2']].getName(self.lang)
+                                <a href="/item/gu_$elem.fields['o_sms2']">$c.AllGrFunction.elements[elem.fields['o_sms2']].getName(self.lang)</a>
                                 </div>
                             </div>
                         $if elem.fields['o_email2'] != '':
@@ -158,7 +150,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
                                 $c.AllMessages.elements['mail'].getName(self.lang) 2:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                $c.AllGrFunction.elements[elem.fields['o_email2']].getName(self.lang)
+                                <a href="/item/gu_$elem.fields['o_email2']">$c.AllGrFunction.elements[elem.fields['o_email2']].getName(self.lang)</a>
                                 </div>
                             </div>
                         $if elem.fields['o_sound2'] != '':
@@ -167,7 +159,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
                                 $c.AllMessages.elements['sound'].getName(self.lang) 1:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                $c.AllGrFunction.elements[elem.fields['o_sound2']].getName(self.lang)
+                                <a href="/item/gu_$elem.fields['o_sound2']">$c.AllGrFunction.elements[elem.fields['o_sound2']].getName(self.lang)</a>
                                 </div>
                             </div>
                         $if elem.fields['relay2'] != '':
@@ -185,12 +177,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
                                 $c.AllMessages.elements['component'].getName(self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-                                $if not elem.fields['p_id'] == '' :
-                                    <a href="/list/p">$c.AllPieces.elements[elem.fields['p_id']].getName(self.lang)</a>
-                                $elif not elem.fields['e_id'] == '' :
-                                    <a href="/list/e">$c.AllEquipments.elements[elem.fields['e_id']].getName(self.lang)</a>
-                                $elif not elem.fields['c_id'] == '' :
-                                    <a href="/list/c">$c.AllContainers.elements[elem.fields['c_id']].getName(self.lang)</a>
+                                <a href="/item/$elem.get_component(c).get_type()_$elem.get_component(c).getID()">$elem.get_component(c).fields['acronym']</a>
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">
@@ -198,7 +185,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
                                 $c.AllMessages.elements['measure'].getName(self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-                                <a href="/list/m">$c.AllMeasures.elements[elem.fields['m_id']].getName(self.lang)</a>
+                                <a href="/item/m_$(elem.fields['m_id'])">$c.AllMeasures.elements[elem.fields['m_id']].getName(self.lang)</a>
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">
@@ -232,7 +219,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
 				$if elem.fields['m_id'] != '' :
-				    $c.AllMeasures.elements[elem.fields['m_id']].getName(self.lang)
+				    <a href="/item/m_$elem.fields['m_id']">$c.AllMeasures.elements[elem.fields['m_id']].getName(self.lang)</a>
 				$else:
 				    -
                             </div>
@@ -308,7 +295,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
                 </div>
             </div>
             <div class="modal-footer">
-		$if type in 'scpeb' :
+		$if type in 'cpeb' :
 		    <div class="col-xs-2" >
 			<strong><a href="/find/d/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['manualdata'].getHalfling()"></span></a></strong>
 		    </div>

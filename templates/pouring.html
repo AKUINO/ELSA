@@ -71,7 +71,7 @@ function flip() {
 						selected
 				>$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang) [= $c.AllBatches.elements[k].get_residual_quantity()] </option>
 		    $else:
-			<option value="$batch.getID()">$batch.fields['acronym'] - $batch.getName(self.lang) [$c.AllMessages.elements['residualqt'].getName(self.lang) : $batch.get_residual_quantity()] </option>
+			<option value="$batch.getID()">$batch.fields['acronym'] - $batch.getName(self.lang) [= $batch.get_residual_quantity()] </option>
 		</select>
 	    </div>
 	</div>
@@ -88,7 +88,7 @@ function flip() {
 					    selected
 				    >$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang) [= $c.AllBatches.elements[k].get_residual_quantity()]</option>
 			$else:
-			    <option value="$batch.getID()">$batch.fields['acronym'] - $batch.getName(self.lang) [$c.AllMessages.elements['residualqt'].getName(self.lang) : $batch.get_residual_quantity()] </option>
+			    <option value="$batch.getID()">$batch.fields['acronym'] - $batch.getName(self.lang) [= $batch.get_residual_quantity()] </option>
 		</select>
 	    </div>
 	</div>

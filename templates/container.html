@@ -148,6 +148,7 @@ $if errormess != '':
     function mySelectChange() {
 	var select = document.getElementById("group");
 	var value = select.options[select.selectedIndex].text.split(" -")[0];
+	value = value.replace(/_/g , "")
 	document.getElementById("inputAcronym").value = value+"_";
     }
 </script>

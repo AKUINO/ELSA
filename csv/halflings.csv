@@ -1,17 +1,19 @@
 begin	classname	glyphname	user
 2017-03-21 14:08:46	place	map-marker	1
 2017-03-21 14:08:46	equipment	screenshot	1
-2017-03-21 14:08:46	phase	download_all	1
+2017-03-21 14:08:46	checkpoint	check	1
 2017-03-21 14:08:46	container	shopping-cart	1
-2017-03-21 14:08:46	sensor	save	1
+2017-03-21 14:08:46	sensor	scale	1
 2017-03-21 14:08:46	computer	hdd	1
 2017-03-21 14:08:46	measure	reflect-y	1
 2017-03-21 14:08:46	manualdata	eye-open	1
+2017-03-21 14:08:46	manualdatamodel	eye-open	1
 2017-03-21 14:08:46	alarm	bell	1
 2017-03-21 14:08:46	recipe	sortable	1
 2017-03-21 14:08:46	recipeStep	option-vertical	1
 2017-03-21 14:08:46	batch	inbox	1
 2017-03-21 14:08:46	transfer	transfer	1
+2017-03-21 14:08:46	transfermodel	transfer	1
 2017-03-21 14:08:46	ToDo	flag	1
 2017-03-21 14:08:46	group	group	1
 2017-03-21 14:08:46	guse	wrench	1
@@ -28,7 +30,8 @@ begin	classname	glyphname	user
 2017-03-21 14:08:46	exportdata	floppy-save 1	
 2017-03-21 14:08:46	datatable	list 1	
 2017-03-21 14:08:46	pouring	filter 1
+2017-03-21 14:08:46	pouringmodel	filter 1
 2017-03-21 14:08:46	input	import 1
 2017-03-21 14:08:46	output	export 1
 2017-03-21 14:08:46	menu	cog 1
-2017-03-21 14:08:46	scale	scale	1
+2017-03-21 14:08:46	scale	oil	1

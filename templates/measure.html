@@ -70,19 +70,6 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputSource" class="col-sm-3 col-form-label">$c.AllMessages.elements['source'].getName(self.lang)</label>
-	    <div class="col-sm-9">
-		<input name="source" type="text" class="form-control" id="inputSource" placeholder="$c.AllMessages.elements['source'].getName(self.lang)" 
-		$if errormess != '':
-		    $if 'source' in data :
-			value="$data['source']"
-		$elif id !='new':
-		    value="$c.AllMeasures.elements[id].fields['source']"
-		required="true">
-	    </div>
-	</div>
-	
-	<div class="form-group row">
 	    <label for="inputUnit" class="col-sm-3 col-form-label">$c.AllMessages.elements['unit'].getName(self.lang)</label>
 	    <div class="col-sm-9">
 		<input name="unit" type="text" class="form-control" id="inputUnit" placeholder="$c.AllMessages.elements['unit'].getName(self.lang)" 

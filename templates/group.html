@@ -14,6 +14,8 @@ $else:
 $if errormess != '':
     $if 'remark' in data :
 	$var rmq : $data['remark']
+$code:
+    elements = c.findAllFromType(type)
 
 <div class="container">
     
@@ -21,6 +23,41 @@ $if errormess != '':
 	<div class="form-group row" id="error">
 	    $errormess
 	</div>
+	
+	$if type =='h':
+	    <div class="form-group row">
+		<label for="inputGroup" class="col-sm-3 col-form-label">$c.AllMessages.elements['group'].getName(self.lang) </label>
+		<div class="col-sm-9" id = "divgroup">
+		    <select name = "recipe" class="form-control" id="recipe" onchange="mySelectChange()">
+			<option value=''></option>
+			$code :
+			    groupList = c.AllGrRecipe.get_hierarchy_str()
+			    groups = c.AllGrRecipe
+			    tmp = ''
+			    indent = 1
+			    cindent = 9
+			$if len(groupList) > 0:
+			    $for group in groupList:
+				$if group == 'IN' :
+				    $code:
+					indent+=1
+					cindent-=1
+					tmp = ((indent-1)*4)*"_"
+				$elif group == 'OUT':
+				    $code:
+					indent-=1
+					cindent+=1
+					tmp = ((indent-1)*4)*"_"
+				$else :
+				    <option value="$group"
+				    $if id != 'new':
+					$if group == elements.elements[id].fields['gr_id'] :
+					    selected
+				    >$tmp $groups.elements[group].fields['acronym'] - $groups.elements[group].getName(self.lang)</option>
+		    </select>
+		</div>
+	    </div>
+	
 	<div class="form-group row">
 	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].names[self.lang]['name']</label>
 	    <div class="col-sm-9">
@@ -133,3 +170,12 @@ $if errormess != '':
     </form>
 </div>
 
+$if type == 'h':
+    <script>
+    function mySelectChange() {
+	var select = document.getElementById("recipe");
+	var value = select.options[select.selectedIndex].text.split(" -")[0];
+	value = value.replace(/_/g , "")
+	document.getElementById("inputAcronym").value = value+"_";
+    }
+    </script>
