@@ -66,10 +66,13 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 				    $c.AllMessages.elements['group'].getName(self.lang) :
 				</div>
 				<div class="col-xs-9" id="modalinfo" >
-				    <a href="/item/$(allElem.get_key_group())_$elem.get_group()">$groups.elements[elem.get_group()].fields['acronym']</a>
+				    $if type != 'h':
+					<a href="/item/$(allElem.get_key_group())_$(elem.get_group())">$groups.elements[elem.get_group()].fields['acronym']</a>
+				    $else :
+					$if elem.fields['gr_id'] != '' :
+					    <a href="/item/gr_$(elem.fields['gr_id'])">$c.AllGrRecipe.elements[elem.fields['gr_id']].fields['acronym']</a>
 				</div>
 			    </div>
-		    
 		    $if type in 'bce':
 			<div class="row">
 			    <div class="col-xs-3" >
