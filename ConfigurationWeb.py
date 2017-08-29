@@ -16,6 +16,13 @@ class WebColor():
             return render.colorpicker(mail,type,id)
         return ''
 	
+class WebDisconnect():
+    def GET(self):
+        mail = isConnected()
+        if mail is not None:
+	    c.connectedUsers.disconnect(mail)
+	raise web.seeother('/')
+	
 class WebPermission():
     def GET(self, type,id):
         mail = isConnected()
@@ -54,8 +61,8 @@ class WebList():
 	mail = isConnected()
         user  = c.connectedUsers.users[mail].cuser
         if mail is not None:
+	    data = web.input(placeImg={})
 	    if type == 'b':
-		data = web.input(placeImg={})
 		count = 1
 		borne  = int(data['quantity'])
 		elem = c.AllBatches.elements[data['batch'].split('_')[1]]
@@ -95,11 +102,11 @@ class WebEdit():
         if mail is not None:
             currObject = c.getObject(id, type)
             infoCookie = mail + ',' + user.fields['password']
+	    data = web.input(placeImg={})
+            method = data.get("method","malformed")
             update_cookie(infoCookie)
             if currObject is None:
                 raise web.seeother('/')
-            data = web.input(placeImg={})
-            method = data.get("method","malformed")
             cond = currObject.validate_form(data, c, user.fields['language'])
             if cond is True:
                 currObject.set_value_from_data(data,c,user)
@@ -503,12 +510,12 @@ def main():
             '/find/(.+)/(.+)_(.+)', 'WebFind',  
             '/permission/(.+)_(.+)', 'WebPermission',  
             '/control/b_(.+)/h_(.+)', 'WebControl',  
+            '/disconnect', 'WebDisconnect',  
         )
 
         #Configuration Singleton ELSA
         c=elsa.Configuration()
         c.load()
-	tmp = c.AllCheckPoints.elements['1'].get_model_sorted()
         web.template.Template.globals['c'] = c
         web.template.Template.globals['useful'] = useful
         app = web.application(urls, globals())

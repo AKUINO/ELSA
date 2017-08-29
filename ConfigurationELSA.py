@@ -1467,6 +1467,10 @@ class AllConnectedUsers():
 	if mail in self.users:
 	    return self.users[mail].cuser.fields['language']
 	return 'english'
+    
+    def disconnect(self, mail):
+	if mail in self.users:
+	    del self.users[mail]
 			
 class AllLanguages(AllObjects):
 

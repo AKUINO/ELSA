@@ -89,7 +89,8 @@ $if content.recursive == 'False' :
 			    <a href="#" class="dropdown-toggle" data-toggle="dropdown">$c.AllMessages.elements['people'].getName(content.lang)<b class="caret"></b></a>
 			    <ul class="dropdown-menu">
 				<li><a href="/list/u" tabindex="-1"><span class="$c.AllHalflings.elements['user'].getHalfling()"></span> $c.AllMessages.elements['user'].getName(content.lang)</a></li>
-				<li><a href="/list/gf" tabindex="-4"><span class="$c.AllHalflings.elements['gfunction'].getHalfling()"></span>  $c.AllMessages.elements['gfunction'].getName(content.lang)</a></li>
+				<li><a href="/list/gf" tabindex="-2"><span class="$c.AllHalflings.elements['gfunction'].getHalfling()"></span>  $c.AllMessages.elements['gfunction'].getName(content.lang)</a></li>
+				<li><a href="/disconnect" tabindex="-3"><span class="$c.AllHalflings.elements['disconnect'].getHalfling()"></span>  $c.AllMessages.elements['disconnect'].getName(content.lang)</a></li>
 			    </ul>
 			</li>
 		    </ul>
