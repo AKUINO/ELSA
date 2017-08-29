@@ -32,7 +32,7 @@ $if 'colorgraph' in elem.fields.keys() :
 		   <strong>$elem.getName(self.lang)</strong>
 	       </div>
 	</div>
-	$if type in 'cpeudmvmtm' and type not in 'tvd':
+	$if type in 'cpeu' :
 	    $code :
 		groups = c.get_group(allElem.get_key_group())
 	    <div class="col-xs-1 vcenter">
@@ -73,7 +73,38 @@ $if 'colorgraph' in elem.fields.keys() :
 		    </div>
 		</div>
 	    </div>
+	$elif type in 'dmvmtm' and type not in 'mtvd':
+	    $code :
+		groups = c.get_group(allElem.get_key_group())
+	    <div class="col-xs-3 vcenter">
+		<div class="row">
+		    <div class="col-xs-1 vcenter">
+			<span class="$c.AllHalflings.elements[groups.get_name_object()].getHalfling()"></span>
+		    </div>
+		    $if elem.get_group() != '' :
+			<div class="col-xs-10 vcenter">
+			       <a href="/item/$(allElem.get_key_group())_$elem.get_group()">$groups.elements[elem.get_group()].fields['acronym']</a>
+			</div>
+		    $else :
+			<div class="col-xs-10 vcenter">
+			    -
+			</div>
+		</div>
+		<div class="row">
+		    <div class="col-xs-1 vcenter">
+			<span class="$c.AllHalflings.elements['rank'].getHalfling()"></span>
+		    </div>
+		    <div class="col-xs-10 vcenter">
+			$if elem.fields['rank']:
+			    $elem.fields['rank']
+			$else:
+			    -
+			    
+		    </div>
+		</div>
+	    </div>
 	$elif type == 'h':
+	    
 	    <div class="col-xs-1 vcenter">
 		<span class="$c.AllHalflings.elements['grecipe'].getHalfling()"></span>
 	    </div>
@@ -138,6 +169,7 @@ $if 'colorgraph' in elem.fields.keys() :
 	<div class="modal-content">
             <div class="modal-header row ">
 		<div class="col-xs-2" >
+		    <strong><span class="$c.AllHalflings.elements[allElem.get_name_object()].getHalfling()"></span></strong>
 		</div>
                 <h4 class="modal-title col-xs-6 "> $elem.fields['acronym'] - $elem.getName(self.lang)</h4>
 		<div class="col-xs-2" >
@@ -207,6 +239,15 @@ $if 'colorgraph' in elem.fields.keys() :
 				$len(c.findAllFromType(type).elements[id].position) $c.AllMessages.elements['mtransfer'].getName(self.lang)
 			    </div>
 			</div>
+		    $if type == 'b' :
+			<div class="row" style="margin-top:10px;">
+			    <div class="col-xs-2">
+				<strong><a href="/find/h/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['checkpoint'].getHalfling()"></span></a></strong>
+			    </div>
+			    <div class="col-xs-10">
+				$len(c.AllBatches.elements[id].checkpoints) $(c.AllMessages.elements['checkpoint'].getName(self.lang))(s)
+			    </div>
+			</div>
 		    <div class="row" style="margin-top:10px;">
 			<div class="col-xs-2">
 			    <button type="button" class="btn btn-warning btn-md $(type)_$(id)" data-toggle="modal" data-target="#$(type)_$(id)modal"><span class="$c.AllHalflings.elements['info'].getHalfling()"></span></button>
@@ -221,7 +262,7 @@ $if 'colorgraph' in elem.fields.keys() :
 				<strong><a href="/find/related/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['related'].getHalfling()"></span></a></strong>
 			    </div>
 			    <div class="col-xs-10">
-				Related
+				$c.AllMessages.elements['related'].getName(self.lang)
 			    </div>
 			</div>
 		    $if type in 'cpesm' :
@@ -230,7 +271,7 @@ $if 'colorgraph' in elem.fields.keys() :
 				<strong><a href="/graphic/$(type)_$id" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['graphic'].getHalfling()"></span></a></strong>
 			    </div>
 			    <div class="col-xs-10">
-				Graphics
+				$c.AllMessages.elements['graphic'].getName(self.lang)
 			    </div>
 			</div>
 		    $if type in 'cpesm' :
@@ -239,7 +280,7 @@ $if 'colorgraph' in elem.fields.keys() :
 				<strong><a href="#" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['alarm'].getHalfling()"></span></a></strong>
 			    </div>
 			    <div class="col-xs-10">
-				Alarmlog
+				$c.AllMessages.elements['alarmlog'].getName(self.lang)
 			    </div>
 			</div>
 		    $if type in 'cpeb' :
@@ -248,7 +289,7 @@ $if 'colorgraph' in elem.fields.keys() :
 				<strong><a href="/export/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['exportdata'].getHalfling()"></span></a></strong>
 			    </div>
 			    <div class="col-xs-10">
-				Export
+				$c.AllMessages.elements['export'].getName(self.lang)
 			    </div>
 			</div>
 		    $if c.AllBarcodes.get_barcode(elem.get_type(), elem.id) != '' :
@@ -257,7 +298,7 @@ $if 'colorgraph' in elem.fields.keys() :
 				<strong><a href="/barcode/$(c.AllBarcodes.get_barcode(elem.get_type(), elem.id))" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['barcode'].getHalfling()"></span></a></strong>
 			    </div>
 			    <div class="col-xs-10">
-				Barcode
+				$c.AllMessages.elements['barcode'].getName(self.lang)
 			    </div>
 			</div>			
 		    <div class="row" style="margin-top:10px;">
@@ -265,7 +306,7 @@ $if 'colorgraph' in elem.fields.keys() :
 			    <strong><a href="/edit/$(type)_$(id)" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['edit'].getHalfling()"></span></a></strong>
 			</div>
 			<div class="col-xs-10">
-			    Update
+			    $c.AllMessages.elements['update'].getName(self.lang)
 			</div>
 		    </div>			
                 </div>

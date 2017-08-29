@@ -57,7 +57,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
                             $elem.getName(self.lang)
                             </div>
                         </div>
-		    $if type in 'hcpebudmvmtm' and type not in 'tvd':
+		    $if type in 'hcpebudmvmtm' and type not in 'mtvd':
 			$code :
 			    groups = c.get_group(allElem.get_key_group())
 			$if elem.get_group() != '' :
@@ -81,17 +81,6 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 			</div>	
 
                     $if type == 'm':
-                        <div class="row" style="margin-top:10px;">
-                            <div class="col-xs-4">
-                            $c.AllMessages.elements['formula'].getName(self.lang) :
-                            </div>
-                            <div class="col-xs-8" id="modalinfo" >
-                            $if elem.fields['formula'] != '':
-                                $elem.fields['formula']
-                            $else : 
-                                -
-                            </div>
-                        </div>
                         <div class="row" style="margin-top:10px;">
                             <div class="col-xs-4">
                             $c.AllMessages.elements['unit'].getName(self.lang) :

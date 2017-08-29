@@ -187,6 +187,30 @@ class WebCreate(WebEdit):
 	    return WebEdit.POST(self,type.split('/')[0],'new',type.split('/')[-1] )
 	else :
 	    return WebEdit.POST(self,type.split('/')[0],'new')
+	    
+class WebControl():        
+    def GET(self,idbatch,idcontrol):
+        mail = isConnected()
+        if mail is not None:
+            return render.control(idbatch, idcontrol,mail, '')
+        raise web.seeother('/')
+        
+    def POST(self, idbatch, idcontrol, context = None):
+        mail = isConnected()
+        user  = c.connectedUsers.users[mail].cuser
+        if mail is not None:
+            infoCookie = mail + ',' + user.fields['password']
+            update_cookie(infoCookie)
+            data = web.input(placeImg={})
+            method = data.get("method","malformed")
+	    currObject = c.getObject(idcontrol, 'h')
+	    cond = currObject.validate_control(data, user.fields['language'])
+	    if cond is True:
+		currObject.create_control(data,user)
+		raise web.seeother('/find/h/b_' + str(idbatch))
+	    else:
+		return render.control(idbatch, idcontrol,mail, cond)
+        raise web.seeother('/')
 
 class WebFind():
     def GET(self,type,id1,id2):
@@ -196,9 +220,11 @@ class WebFind():
         raise web.seeother('/')
 	
     def POST(self, type, id1, id2):
+	print 'JE PASSE DANS POST WEB FIND'
         mail = isConnected()
         user  = c.connectedUsers.users[mail].cuser
         if mail is not None:
+	    """
             currObject = c.getObject(type, 'new')
             infoCookie = mail + ',' + user.fields['password']
             update_cookie(infoCookie)
@@ -214,6 +240,14 @@ class WebFind():
                 if id == 'new' :
                     currObject.delete(c)
                 return self.getRender(type,id, mail, cond)
+	    """
+	    infoCookie = mail + ',' + user.fields['password']
+            update_cookie(infoCookie)
+	    data = web.input(placeImg={})
+	    if type =='h':
+		if 'checkpoint' in data :
+		    raise web.seeother('/control/b_'+id2+'/h_'+data['checkpoint'])
+		raise web.seeother('/item/b_'+id2)
         raise web.seeother('/')
 	
     def getRender(self, type, id1, id2, mail):
@@ -230,6 +264,8 @@ class WebFind():
 		return render.listinggroup(id1,id2,mail)
 	    elif type == 'related':
 		return render.listingcomponent(id1,id2,mail)
+	    elif type == 'h':
+		return render.listingcontrol(id1,id2,mail)
 	    else:
 		return render.notfound()
 	except:
@@ -466,11 +502,13 @@ def main():
             '/datatable/(.+)_(.+)', 'WebDataTable',  
             '/find/(.+)/(.+)_(.+)', 'WebFind',  
             '/permission/(.+)_(.+)', 'WebPermission',  
+            '/control/b_(.+)/h_(.+)', 'WebControl',  
         )
 
         #Configuration Singleton ELSA
         c=elsa.Configuration()
         c.load()
+	tmp = c.AllCheckPoints.elements['1'].get_model_sorted()
         web.template.Template.globals['c'] = c
         web.template.Template.globals['useful'] = useful
         app = web.application(urls, globals())

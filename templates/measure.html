@@ -57,19 +57,6 @@ $if errormess != '':
 	    </div>
 	
 	<div class="form-group row">
-	    <label for="inputFormula" class="col-sm-3 col-form-label">$c.AllMessages.elements['formula'].getName(self.lang)</label>
-	    <div class="col-sm-9">
-		<input name="formula" type="text" class="form-control" id="inputFormula" placeholder="$c.AllMessages.elements['formula'].getName(self.lang)" 
-		$if errormess != '':
-		    $if 'formula' in data :
-			value="$data['formula']"
-		$elif id !='new':
-		    value="$c.AllMeasures.elements[id].fields['formula']"
-		>
-	    </div>
-	</div>
-	
-	<div class="form-group row">
 	    <label for="inputUnit" class="col-sm-3 col-form-label">$c.AllMessages.elements['unit'].getName(self.lang)</label>
 	    <div class="col-sm-9">
 		<input name="unit" type="text" class="form-control" id="inputUnit" placeholder="$c.AllMessages.elements['unit'].getName(self.lang)" 

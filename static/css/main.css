@@ -4,6 +4,14 @@
    Author's custom styles
    ========================================================================== */
 
+#hrform {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 2px solid #f07e26;
+    margin: 1em 0;
+    padding: 0; 
+}
 
 .modal {
     display: none; /* Hidden by default */
@@ -142,6 +150,7 @@ form{
     background-color:#E5E5E7;
     padding : 15px;
 }
+
 
 #listing {
     font-size:18px;

@@ -132,10 +132,6 @@ class Configuration():
 	self.AllGrUsage.load()
 	self.AllGrRecipe.load()
 	self.AllCheckPoints.load()
-	self.AllGrFunction.load_relation()
-	self.AllGrUsage.load_relation()
-	self.AllGrRecipe.load_relation()
-	self.AllCheckPoints.load_relation()
 	self.AllBarcodes.load()
 	self.AllTransfers.load()
 	self.AllManualData.load()
@@ -564,7 +560,6 @@ class UpdateThread(threading.Thread):
 	self.config.owproxy = pyownet.protocol.proxy(host="localhost", port=4304)
 	while self.config.isThreading is True:
 	    now = useful.get_timestamp()
-	    #self.config.InfoSystem.updateInfoSystem(now)
 	    if not len(self.config.AllSensors.elements) == 0 :
 		self.config.AllSensors.update(now)
 	    time.sleep(60)
@@ -665,6 +660,24 @@ class AllObjects():
 			objects.elements[currObject.fields['object_id']].add_data(currObject)
 		    else:
 			objects.elements[currObject.fields['object_id']].remove_data(currObject)		    
+		elif currObject.get_type() == 'dm':
+		    objects = self.config.AllCheckPoints
+		    if currObject.fields['active'] == '1' :
+			objects.elements[currObject.fields['h_id']].add_dm(currObject)
+		    else:
+			objects.elements[currObject.fields['h_id']].remove_dm(currObject)		    
+		elif currObject.get_type() == 'tm':
+		    objects = self.config.AllCheckPoints
+		    if currObject.fields['active'] == '1' :
+			objects.elements[currObject.fields['h_id']].add_tm(currObject)
+		    else:
+			objects.elements[currObject.fields['h_id']].remove_tm(currObject)		    
+		elif currObject.get_type() == 'vm':
+		    objects = self.config.AllCheckPoints
+		    if currObject.fields['active'] == '1' :
+			objects.elements[currObject.fields['h_id']].add_vm(currObject)
+		    else:
+			objects.elements[currObject.fields['h_id']].remove_vm(currObject)		    
 		elif currObject.get_type() == 'v':
 		    objects = self.config.AllBatches
 		    if currObject.fields['active'] == '1' :
@@ -958,6 +971,7 @@ class AllGroups(AllObjects):
     def load(self):
 	AllObjects.load(self)
 	self.check_relation()
+	self.load_relation()
 	
     def check_relation(self):
 	filename = self.csvRelations
@@ -1066,7 +1080,9 @@ class AllCheckPoints(AllGroups):
         self.keyColumn = "h_id"
 	self.fieldnames = ["begin", "h_id", "active", "acronym", "remark",'gr_id', "user"]
 	self.fieldtranslate = ['begin', 'lang', 'h_id', 'name', 'user']
+	self.fieldcontrols = ['begin', 'h_id', 'object_type','object_id', 'user']
 	self.csvRelations = csvDir + "Hrelations.csv"
+	self.csvControls = csvDir + "Hcontrols.csv"
 
     def newObject(self):
         return CheckPoint(self.config)
@@ -1077,6 +1093,32 @@ class AllCheckPoints(AllGroups):
     def get_key_group(self):
 	return 'h'
 	
+    def load(self):
+	AllGroups.load(self)
+	self.check_controls()
+	self.load_controls()
+    
+    def check_controls(self):
+	filename = self.csvControls
+	if not os.path.exists(filename):
+	    self.create_control(filename)
+	    
+    def create_control(self, fname):
+	with open(fname,'w') as csvfile:
+	    csvfile.write(self.fieldcontrols[0])
+	    tmp = 1
+	    while tmp < len(self.fieldcontrols):
+		csvfile.write('\t'+self.fieldcontrols[tmp])
+		tmp = tmp + 1
+            csvfile.write('\n')
+    
+    def load_controls(self):
+	with open(self.csvControls) as csvfile:
+	    reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
+	    for row in reader:
+		type = row['object_type']
+		id = row['object_id']
+		currObject = self.config.findAllFromType(type).elements[id].add_checkpoint(row['h_id'])
 	
 class AllGrFunction(AllGroups):
     def __init__(self, config):
@@ -1106,7 +1148,7 @@ class AllMeasures(AllObjects):
         self.fileobject = csvDir + "M.csv"
 	self.filename = csvDir + "Mnames.csv"
         self.keyColumn = "m_id"
-	self.fieldnames = ['begin', 'm_id', 'active', 'acronym', 'unit', 'formula', 'remark', 'user']
+	self.fieldnames = ['begin', 'm_id', 'active', 'acronym', 'unit', 'remark', 'user']
 	self.fieldtranslate = ['begin', 'lang', 'm_id', 'name', 'user']
 	self.count = 0
 
@@ -1964,6 +2006,9 @@ class CheckPoint(Group):
     def __init__(self,config):
 	Group.__init__(self,config)
 	self.keyColumn = 'h_id'
+	self.tm = []
+	self.vm = []
+	self.dm = []
 	
     def get_type(self):
 	return 'h'
@@ -1981,6 +2026,209 @@ class CheckPoint(Group):
 	Group.set_value_from_data(self, data, c,user)
 	self.fields['gr_id'] = data['recipe']
 	self.save(c,user)
+	
+    def remove_tm(self, model):
+	if model.fields['tm_id'] in self.tm:
+	    self.tm.remove(model.fields['tm_id'])
+	    
+    def add_tm(self,model):
+	self.remove_tm(model)
+	if len(self.tm) == 0:
+	    self.tm.append(model.getID())
+	else:
+	    rank = int(model.fields['rank'])
+	    insert = False
+	    for i in range(len(self.tm)):
+		tmp = self.config.AllTransferModels.elements[self.tm[i]]
+		tmprank = int(tmp.fields['rank'])
+		if rank < tmprank:
+		    insert = True
+		    self.tm.insert(i,model.getID())
+		    break
+	    if insert is False:
+		self.tm.append(tm.getID())	    
+    
+    def remove_dm(self, model):
+	if model.fields['dm_id'] in self.dm:
+	    self.dm.remove(model.fields['dm_id'])
+	    
+    def add_dm(self,model):
+	print model.fields
+	self.remove_dm(model)
+	if len(self.dm) == 0:
+	    self.dm.append(model.getID())
+	else:
+	    rank = int(model.fields['rank'])
+	    insert = False
+	    for i in range(len(self.dm)):
+		dmp = self.config.AllManualDataModels.elements[self.dm[i]]
+		dmprank = int(dmp.fields['rank'])
+		if rank < dmprank:
+		    insert = True
+		    self.dm.insert(i,model.getID())
+		    break
+	    if insert is False:
+		self.dm.append(dm.getID())
+    
+    def remove_vm(self, model):
+	if model.fields['vm_id'] in self.vm:
+	    self.vm.remove(model.fields['vm_id'])
+	    
+    def add_vm(self,model):
+	self.remove_vm(model)
+	if len(self.vm) == 0:
+	    self.vm.append(model.getID())
+	else:
+	    rank = int(model.fields['rank'])
+	    insert = False
+	    for i in range(len(self.vm)):
+		vmp = self.config.AllPouringModels.elements[self.vm[i]]
+		vmprank = int(vmp.fields['rank'])
+		if rank < vmprank:
+		    insert = True
+		    self.vm.insert(i,model.getID())
+		    break
+	    if insert is False:
+		self.vm.append(vm.getID())
+    
+    def get_model_sorted(self):
+	sum = len(self.dm) + len(self.vm) + len (self.tm)
+	count = 0
+	sorted = []
+	iddm = 0
+	idtm = 0
+	idvm = 0
+	while count < sum:
+	    if iddm < len(self.dm):
+		tmpdm = self.config.AllManualDataModels.elements[self.dm[iddm]]
+	    else:
+		tmpdm = None
+	    if idtm < len(self.tm):
+		tmptm = self.config.AllTransferModels.elements[self.tm[idtm]]
+	    else:
+		tmptm = None
+	    if idvm < len(self.vm):
+		tmpvm = self.config.AllPouringModels.elements[self.vm[idvm]]
+	    else:
+		tmpvm = None
+	    if tmpdm is not None :
+		rank = tmpdm.fields['rank']
+		type = 'dm'
+	    elif tmptm is not None:
+		rank = tmptm.fields['rank']
+		type = 'tm'
+	    elif tmpvm is not None:
+		rank = tmpvm.fields['rank']
+		type = 'vm'
+	    else:
+		break
+	    if tmptm is not None :
+		if tmptm.fields['rank'] < rank:
+		    type = 'tm'
+		    rank = tmptm.fields['rank']
+	    if tmpvm is not None:
+		if tmpvm.fields['rank'] < rank:
+		    type = 'vm'
+		    rank = tmpvm.fields['rank']
+	    if type == 'vm':
+		sorted.append(tmpvm)
+		idvm += 1
+		count += 1
+	    elif type == 'tm':
+		sorted.append(tmptm)
+		idtm += 1
+		count += 1
+	    elif type == 'dm':
+		sorted.append(tmpdm)
+		iddm += 1
+		count += 1
+	return sorted
+	
+    def validate_control(self,data, lang):
+	model = self.get_model_sorted()
+	countdm = 1
+	countvm = 1
+	counttm = 1
+	tmp = ''
+	try:
+	    value = datetime.datetime.strptime(data['time'],datetimeformat)
+	except:
+	    traceback.print_exc()
+	    tmp += self.config.AllMessages.elements['timerules'].getName(lang) + '\n'
+	for m in model:
+	    type = m.get_type()
+	    if type == 'dm':
+		try:
+		    value = float(data['dm_value_'+str(countdm)])
+		except:
+		    tmp += self.config.AllMessages.elements['floatrules'].getName(lang) + ' '+data['dm_value_'+str(countdm)]+'\n'
+		countdm += 1
+	    elif type == 'vm' :
+		try:
+		    value = float(data['vm_quantity_'+str(countvm)])
+		except:
+		    tmp += self.config.AllMessages.elements['floatrules'].getName(lang) + ' '+data['vm_quantity_'+str(countvm)]+'\n'
+		countvm += 1
+	if tmp == '' :
+	    return True
+	return tmp
+    
+    def create_control(self, data, user):
+	model = self.get_model_sorted()
+	countdm = 1
+	countvm = 1
+	counttm = 1
+	for m in model:
+	    type = m.get_type()
+	    currObject = self.config.getObject('new', type[0])
+	    if type == 'dm':
+		tmp = self.create_data(data,type, countdm)
+		countdm += 1
+	    elif type == 'tm' :
+		tmp = self.create_data(data,type, counttm)
+		counttm += 1
+	    elif type == 'vm' :
+		tmp = self.create_data(data,type, countvm)
+		countvm += 1
+	    currObject.set_value_from_data(tmp,self.config,user)
+	type = data['batch'].split('_')[0]
+	id = data['batch'].split('_')[1]
+	self.write_control( type, id, user)
+	self.config.findAllFromType(type).elements[id].add_checkpoint(self.getID())
+		
+    def create_data(self, data, type, count):
+	batch = data['batch']
+	time = data['time']
+	tmp = {}
+	tmp['time'] = time
+	tmp['active'] = '1'
+	if type == 'dm':
+	    tmp['component'] = batch
+	    tmp['remark'] = data['dm_remark_'+str(count)]
+	    tmp['measure'] = data['dm_measure_'+str(count)]
+	    tmp['value'] = data['dm_value_'+str(count)]
+	elif type == 'tm' :
+	    tmp['object'] = batch
+	    tmp['position'] = data['tm_position_'+str(count)]
+	    tmp['remark'] = data['tm_remark_'+str(count)]
+	elif type == 'vm' :
+	    tmp['src'] = data['vm_src_'+str(count)]
+	    tmp['dest'] = data['vm_dest_'+str(count)]
+	    tmp['quantity'] = data['vm_quantity_'+str(count)]
+	    tmp['remark'] = data['tm_remark_'+str(count)]
+	return tmp
+    
+    def write_control(self, type,id, user):
+  	with open(self.config.findAllFromObject(self).csvControls,"a") as csvfile:
+  	    tmpCode={}
+	    tmpCode['begin'] = unicode(datetime.datetime.now().strftime(datetimeformat))
+	    tmpCode['h_id'] = self.getID()
+	    tmpCode['object_type'] = type
+	    tmpCode['object_id'] = id
+	    tmpCode["user"] = user.fields['u_id']
+	    writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames = self.config.findAllFromObject(self).fieldcontrols, encoding="utf-8")
+	    writer.writerow(tmpCode)
+	
 	
 class GrRecipe(Group):
     def __init__(self,config):
@@ -2684,7 +2932,7 @@ class Measure(ConfigurationObject):
 	
     def set_value_from_data(self, data, c,user):
 	ConfigurationObject.set_value_from_data(self, data, c,user)
-	tmp = ['unit', 'source', 'formula']
+	tmp = ['unit']
 	for elem in tmp:
 	    self.fields[elem] = data[elem]
 	self.save(c,user)
@@ -3002,6 +3250,7 @@ class Batch(ConfigurationObject):
 	self.config = config
 	self.source = []
 	self.destination = []
+	self.checkpoints = []
 
     def __repr__(self):
         string = unicode(self.id) + " " + self.fields['acronym']
@@ -3087,6 +3336,9 @@ class Batch(ConfigurationObject):
     def remove_destination(self, pouring):
 	if pouring.getID() in self.destination:
 	    self.destination.remove(pouring.getID())
+	    
+    def add_checkpoint(self, cp):
+	self.checkpoints.append(cp)
 		
     def get_residual_quantity(self):
 	val = self.get_quantity_used()
@@ -3177,7 +3429,7 @@ class PouringModel(ConfigurationObject):
         return string + "\n"
     
     def get_type(self):
-	return 'dm'
+	return 'vm'
 	
     def get_name(self):
 	return 'pouringmodel'
@@ -3189,12 +3441,16 @@ class PouringModel(ConfigurationObject):
 	return ConfigurationObject.validate_form(self, data, configuration, lang)	
 	
     def set_value_from_data(self, data, c,user):
+	if self.fields['h_id'] != '':
+	    self.config.AllCheckPoints.elements[self.fields['h_id']].remove_vm(self)
 	ConfigurationObject.set_value_from_data(self, data, c,user)
 	self.fields['quantity'] = data['quantity']
 	self.fields['src'] = data['src']
 	self.fields['dest'] = data['dest']
 	self.fields['h_id'] = data['checkpoint']
 	self.fields['rank'] = data['rank']
+	if 'active' in data:
+	    self.config.AllCheckPoints.elements[self.fields['h_id']].add_vm(self)
 	self.save(c,user)
 	
 class ManualDataModel(ConfigurationObject):
@@ -3225,10 +3481,14 @@ class ManualDataModel(ConfigurationObject):
 	return ConfigurationObject.validate_form(self, data, configuration, lang)	
 	
     def set_value_from_data(self, data, c,user):
+	if self.fields['h_id'] != '':
+	    self.config.AllCheckPoints.elements[self.fields['h_id']].remove_dm(self)
 	ConfigurationObject.set_value_from_data(self, data, c,user)
 	self.fields['m_id'] = data['measure']
 	self.fields['h_id'] = data['checkpoint']
 	self.fields['rank'] = data['rank']
+	if 'active' in data:
+	    self.config.AllCheckPoints.elements[self.fields['h_id']].add_dm(self)
 	self.save(c,user)
 	
 class TransferModel(ConfigurationObject):
@@ -3256,10 +3516,14 @@ class TransferModel(ConfigurationObject):
 	return ConfigurationObject.validate_form(self, data, configuration, lang)	
 	
     def set_value_from_data(self, data, c,user):
+	if self.fields['h_id'] != '':
+	    self.config.AllCheckPoints.elements[self.fields['h_id']].remove_tm(self)
 	ConfigurationObject.set_value_from_data(self, data, c,user)
 	self.fields['gu_id'] = data['position']
 	self.fields['h_id'] = data['checkpoint']
 	self.fields['rank'] = data['rank']
+	if 'active' in data:
+	    self.config.AllCheckPoints.elements[self.fields['h_id']].add_tm(self)
 	self.save(c,user)
 	
     def get_group(self):

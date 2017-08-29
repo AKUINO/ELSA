@@ -20,6 +20,9 @@ begin	m_id	default	user
 2016-01-01 13:45:56	rank	Rank	1
 2016-01-01 13:45:56	componentmove	Component to move	1
 2016-01-01 13:45:56	target	Target	1
+2016-01-01 13:45:56	export	Export	1
+2016-01-01 13:45:56	update	Update	1
+2016-01-01 13:45:56	alarmlog	AlarmLog	1
 2016-01-01 13:45:56	source	Source	1
 2016-01-01 13:45:56	residualqt	Residual quantity	1
 2016-01-01 13:45:56	selecttransfer	Select the object to transfer	1

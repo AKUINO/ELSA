@@ -29,8 +29,7 @@ $if type == 'gf':
 $elif type == 'h':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<label class="col-sm-12">$c.AllMessages.elements['manualdatamodel'].getName(self.lang) :</label>    
-	$for k,dm in c.AllManualDataModels.elements.items():
-	    $if dm.get_group() == id :
+	$for k in elem.dm:
 		<script>
 		    $$(function(){
 			$$("#includedMenudm_$(k)").load("/fullentry/dm_$(k)");
@@ -40,8 +39,7 @@ $elif type == 'h':
     </div>
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<label class="col-sm-12">$c.AllMessages.elements['transfermodel'].getName(self.lang) :</label>    
-	$for k,dm in c.AllTransferModels.elements.items():
-	    $if dm.get_group() == id :
+	$for k in elem.tm:
 		<script>
 		    $$(function(){
 			$$("#includedMenutm_$(k)").load("/fullentry/tm_$(k)");
@@ -51,8 +49,7 @@ $elif type == 'h':
     </div>
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<label class="col-sm-12">$c.AllMessages.elements['pouringmodel'].getName(self.lang) :</label>    
-	$for k,dm in c.AllPouringModels.elements.items():
-	    $if dm.get_group() == id :
+	$for k in elem.vm:
 		<script>
 		    $$(function(){
 			$$("#includedMenuvm_$(k)").load("/fullentry/vm_$(k)");

@@ -19,6 +19,21 @@ $if errormess != '':
 	<div class="col-sm-12" >
 	    <p id="error">$errormess</p>
 	</div>
+	
+	<div class="form-group row">
+	    <label for="inputPosition" class="col-sm-3 col-form-label">$c.AllMessages.elements['checkpoint'].getName(self.lang)</label>
+	    <div class="col-sm-9">
+		<select name = "checkpoint" class="form-control" id="inputPosition">
+		    $for k in c.AllCheckPoints.elements.keys():
+			<option value="$k"
+			    $if id != 'new':
+				$if  k == c.AllManualDataModels.elements[id].fields['h_id'] :
+				    selected
+			>$c.AllCheckPoints.elements[k].fields['acronym'] - $c.AllCheckPoints.elements[k].getName(self.lang) </option>
+		</select>
+	    </div>
+	</div>
+	
 	<div class="form-group row">
 	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(self.lang)</label>
 	    <div class="col-sm-9">
@@ -81,20 +96,6 @@ $if errormess != '':
 				$if  k == c.AllTransferModels.elements[id].fields['gu_id'] :
 				    selected
 			>$c.AllGrUsage.elements[k].fields['acronym'] - $c.AllGrUsage.elements[k].getName(self.lang) </option>
-		</select>
-	    </div>
-	</div>
-	
-	<div class="form-group row">
-	    <label for="inputPosition" class="col-sm-3 col-form-label">$c.AllMessages.elements['checkpoint'].getName(self.lang)</label>
-	    <div class="col-sm-9">
-		<select name = "checkpoint" class="form-control" id="inputPosition">
-		    $for k in c.AllCheckPoints.elements.keys():
-			<option value="$k"
-			    $if id != 'new':
-				$if  k == c.AllManualDataModels.elements[id].fields['h_id'] :
-				    selected
-			>$c.AllCheckPoints.elements[k].fields['acronym'] - $c.AllCheckPoints.elements[k].getName(self.lang) </option>
 		</select>
 	    </div>
 	</div>
