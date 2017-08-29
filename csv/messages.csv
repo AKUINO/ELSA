@@ -1,151 +1,358 @@
 begin	lang	m_id	name	user
-2016-01-01 13:45:56	FR	name	Nom	1
-2016-01-01 13:45:56	EN	name	Name	1
-2016-01-01 13:45:56	NL	name	Naam	1
-2016-01-01 13:45:56	DE	name	afang	1
-2016-01-01 13:45:56	FR	begin	Début	1
-2016-01-01 13:45:56	EN	begin	Begin	1
-2016-01-01 13:45:56	NL	begin	Begin	1
-2016-01-01 13:45:56	DE	begin	Afang	1
-2016-01-01 13:45:56	FR	group	Groupe	1
-2016-01-01 13:45:56	EN	group	Group	1
-2016-01-01 13:45:56	NL	group	Groep	1
-2016-01-01 13:45:56	DE	group	Gruppe	1
-2016-01-01 13:45:56	FR	active	Actif	1
-2016-01-01 13:45:56	EN	active	Active	1
-2016-01-01 13:45:56	NL	active	Actief	1
-2016-01-01 13:45:56	DE	active	Aktiv	1
-2016-01-01 13:45:56	FR	acronym	Acronyme	1
-2016-01-01 13:45:56	EN	acronym	Acronym	1
-2016-01-01 13:45:56	NL	acronym	Acroniem	1
 2016-01-01 13:45:56	DE	acronym	Akronym	1
-2016-01-01 13:45:56	FR	barcode	Code Barre	1
-2016-01-01 13:45:56	EN	barcode	Barcode	1
-2016-01-01 13:45:56	NL	barcode	Streepjescode	1
-2016-01-01 13:45:56	DE	barcode	Strichcode	1
-2016-01-01 13:45:56	FR	remark	Remarque	1
-2016-01-01 13:45:56	EN	remark	Remark	1
-2016-01-01 13:45:56	NL	remark	Opmerking	1
-2016-01-01 13:45:56	DE	remark	Bemerkung	1
-2016-01-01 13:45:56	FR	welcome	Bienvenue	1
-2016-01-01 13:45:56	EN	welcome	Welcome	1
-2016-01-01 13:45:56	NL	welcome	Welcom	1
-2016-01-01 13:45:56	DE	welcome	Willkomen	1
-2016-01-01 13:45:56	FR	user	Utilisateur	1
-2016-01-01 13:45:56	EN	user	User	1
-2016-01-01 13:45:56	NL	user	Gebruiker	1
-2016-01-01 13:45:56	DE	user	Benutzer	1
-2016-01-01 13:45:56	FR	file	Fichier	1
-2016-01-01 13:45:56	EN	file	File	1
-2016-01-01 13:45:56	NL	file	File	1
-2016-01-01 13:45:56	DE	file	Datei	1
-2016-01-01 13:45:56	FR	modified	Modifié par	1
-2016-01-01 13:45:56	EN	modified	Modified by	1
-2016-01-01 13:45:56	NL	modified	Aangepast door	1
-2016-01-01 13:45:56	DE	modified	Angepasst von	1
-2016-01-01 13:45:56	FR	created	Créé par	1
-2016-01-01 13:45:56	EN	created	Created by	1
-2016-01-01 13:45:56	NL	created	Gemaakt door	1
-2016-01-01 13:45:56	DE	created	Erstellt von	1
-2016-01-01 13:45:56	FR	mail	Email	1
-2016-01-01 13:45:56	EN	mail	E-mail	1
-2016-01-01 13:45:56	NL	mail	EMail	1
-2016-01-01 13:45:56	DE	mail	E-Mail	1
-2016-01-01 13:45:56	FR	password	Mot de passe	1
-2016-01-01 13:45:56	EN	password	Password	1
-2016-01-01 13:45:56	NL	password	wachtwoord	1
-2016-01-01 13:45:56	DE	password	Passwort	1
-2016-01-01 13:45:56	FR	lang	Langue	1
-2016-01-01 13:45:56	EN	lang	Language	1
-2016-01-01 13:45:56	NL	lang	Taal	1
-2016-01-01 13:45:56	DE	lang	Sprache	1
-2016-01-01 13:45:56	FR	code	Code Barre	1
-2016-01-01 13:45:56	EN	code	Barcode	1
-2016-01-01 13:45:56	NL	code	Streepjescode	1
-2016-01-01 13:45:56	DE	code	Strichcode	1
-2016-01-01 13:45:56	FR	addgroup	Ajouter dans le groupe :	1
-2016-01-01 13:45:56	EN	addgroup	Add to group :	1
-2016-01-01 13:45:56	NL	addgroup	Toevoegen aan de groep :	1
+2016-01-01 13:45:56	EN	acronym	Acronym	1
+2016-01-01 13:45:56	FR	acronym	Acronyme	1
+2016-01-01 13:45:56	NL	acronym	Acroniem	1
+2016-01-01 13:45:56	EN	acronymrequired	Acronym is required !	1
+2016-01-01 13:45:56	FR	acronymrequired	Acronyme requis	1
+2016-01-01 13:45:56	EN	acronymrules	Acronym can only contain letters, digits and _!	1
+2016-01-01 13:45:56	FR	acronymrules	L'acronyme est composé seulement de lettres, de chiffres et de _ !	1
+2016-01-01 13:45:56	EN	acronymunique	Acronym must be unique within a given object type !	1
+2016-01-01 13:45:56	FR	acronymunique	L'acronyme doit être unique pour un type d'objet !	1
+2016-01-01 13:45:56	DE	active	Aktiv	1
+2016-01-01 13:45:56	EN	active	Active	1
+2016-01-01 13:45:56	FR	active	Actif	1
+2016-01-01 13:45:56	NL	active	Actief	1
+2016-01-01 13:45:56	EN	actualposition	Actual Position 	1
+2016-01-01 13:45:56	FR	actualposition	Position courante 	1
+2016-01-01 13:45:56	EN	add	Add	1
+2016-01-01 13:45:56	FR	add	Ajouter	1
 2016-01-01 13:45:56	DE	addgroup	Zur Gruppe hinzufügen :	1
-2016-01-01 13:45:56	FR	place	Piece	1
-2016-01-01 13:45:56	EN	place	Place	1
-2016-01-01 13:45:56	NL	place	Plaats	1
-2016-01-01 13:45:56	DE	place	Ort	1
-2016-01-01 13:45:56	FR	equipment	Equipement	1
-2016-01-01 13:45:56	EN	equipment	Equipment	1
-2016-01-01 13:45:56	NL	equipment	uitrusting	1
-2016-01-01 13:45:56	DE	equipment	Ausrüstung	1
-2016-01-01 13:45:56	FR	container	Recipient	1
-2016-01-01 13:45:56	EN	container	Container	1
-2016-01-01 13:45:56	NL	container	Houder	1
-2016-01-01 13:45:56	DE	container	Behälter	1
-2016-01-01 13:45:56	FR	measure	Mesure	1
-2016-01-01 13:45:56	EN	measure	Measure	1
-2016-01-01 13:45:56	NL	measure	Maatregel	1
-2016-01-01 13:45:56	DE	measure	Messen	1
-2016-01-01 13:45:56	FR	sensor	Senseur	1
-2016-01-01 13:45:56	EN	sensor	Sensor	1
-2016-01-01 13:45:56	NL	sensor	Sensor	1
-2016-01-01 13:45:56	DE	sensor	Sensor	1
-2016-01-01 13:45:56	FR	alarm	Alarme	1
-2016-01-01 13:45:56	EN	alarm	Alarm	1
-2016-01-01 13:45:56	NL	alarm	Alarm	1
+2016-01-01 13:45:56	EN	addgroup	Add to group :	1
+2016-01-01 13:45:56	FR	addgroup	Ajouter dans le groupe :	1
+2016-01-01 13:45:56	NL	addgroup	Toevoegen aan de groep :	1
 2016-01-01 13:45:56	DE	alarm	Alarm	1
-2016-01-01 13:45:56	FR	batch	Lot	1
+2016-01-01 13:45:56	EN	alarm	Alarm	1
+2016-01-01 13:45:56	FR	alarm	Alarme	1
+2016-01-01 13:45:56	NL	alarm	Alarm	1
+2016-01-01 13:45:56	EN	alarmlog	Alarm Log	1
+2016-01-01 13:45:56	FR	alarmlog	Déclenchements d'Alarme	1
+2016-01-01 13:45:56	EN	alarmmanual	"Observation for {0}
+{1} :
+     Name : ({3}) {2}
+Observation :
+     Value = {4} {5}
+     Remark : {6}
+Time : {7}"	1
+2016-01-01 13:45:56	FR	alarmmanual	"Observation pour {0}
+{1} :
+     Nom : ({3}) {2}
+Observation :
+     Valeur : {4} {5}
+     Remarque : {6}
+Heure : {7}"	1
+2016-01-01 13:45:56		alarmmanualtitle	ManualData : {0} {1} in {2}	1
+2016-01-01 13:45:56		alarmmanualtitle	ManualData : {0} {1} in {2}	1
+2016-01-01 13:45:56	EN	alarmmessage	"Alarm from {0}
+{1} :
+     Name : ({3}) {2}
+Sensor :
+     Name : ({5}) {4}
+     Value = {6}
+     Type of Alarm : {7}
+Time : {8}
+Degree : {9}"	1
+2016-01-01 13:45:56	FR	alarmmessage	"Alarme pour {0}
+{1} :
+     Nom : ({3}) {2}
+Senseur :
+     Nom : ({5}) {4}
+     Value = {6}
+     Type d'Alarme : {7}
+Heure : {8}
+Degré : {9}"	1
+2016-01-01 13:45:56	EN	alarmpouring	"Alarm from {0}
+Pouring from Batch : ({2}) {1}
+into Batch : ({4}) {3}
+Quantity : {5} {6}
+Remark : {7}
+Time : {8}"	1
+2016-01-01 13:45:56	FR	alarmpouring	"Alarme pour {0}
+Versement depuis le Lot : ({2}) {1}
+vers le Lot : ({4}) {3}
+Quantité : {5} {6}
+Remarque : {7}
+Heure : {8}"	1
+2016-01-01 13:45:56	EN	alarmpouringtitle	Pouring from {0} {1} to {2} {3}	1
+2016-01-01 13:45:56	FR	alarmpouringtitle	Versement depuis {0} {1} vers {2} {3}	1
+2016-01-01 13:45:56	EN	alarmtitle	{0}  {1}    {2}    {3} {4} {5} {6}    {7}	1
+2016-01-01 13:45:56	FR	alarmtitle	{0}  {1}    {2}    {3} {4} {5} {6}    {7}	1
+2016-01-01 13:45:56	DE	barcode	Strichcode	1
+2016-01-01 13:45:56	EN	barcode	Barcode	1
+2016-01-01 13:45:56	FR	barcode	Code Barre	1
+2016-01-01 13:45:56	NL	barcode	Streepjescode	1
+2016-01-01 13:45:56	EN	barcoderules	Barcode must comply to EAN 13 and must be unique!	1
+2016-01-01 13:45:56	FR	barcoderules	Le code-barre doit respecter l'EAN 13 et être unique!	1
 2016-01-01 13:45:56	EN	batch	Batch	1
-2016-01-01 13:45:56	FR	removegroup	Retirer du groupe :	1
-2016-01-01 13:45:56	EN	removegroup	Remove from group :	1
-2016-01-01 13:45:56	NL	removegroup	Uit de groep :	1
-2016-01-01 13:45:56	DE	removegroup	Entfernen aus der Gruppe	1
-2016-01-01 13:45:56	FR	createg	Creer un nouveau groupe	1
-2016-01-01 13:45:56	EN	createg	Create a new group	1
-2016-01-01 13:45:56	NL	createg	Maak een nieuwe groep	1
-2016-01-01 13:45:56	DE	createg	Schaffe eine neue groupe	1
-2016-01-01 13:45:56	FR	createu	Creer un nouvel utilisateur	1
-2016-01-01 13:45:56	EN	createu	Create a new user	1
-2016-01-01 13:45:56	NL	createu	Maak een nieuwe gebruiker	1
-2016-01-01 13:45:56	DE	createu	Schaffe eine neue benutzer	1
-2016-01-01 13:45:56	FR	createe	Creer un nouvel equipement	1
-2016-01-01 13:45:56	EN	createe	Create a new equipment	1
-2016-01-01 13:45:56	NL	createe	Maak een nieuwe uitrusting	1
-2016-01-01 13:45:56	DE	createe	Schaffe eine neue ausrüstung	1
-2016-01-01 13:45:56	FR	createp	Creer une nouvelle pièce	1
-2016-01-01 13:45:56	EN	createp	Create a new place	1
-2016-01-01 13:45:56	NL	createp	Maak een nieuwe plaats	1
-2016-01-01 13:45:56	DE	createp	Schaffe eine neue ort	1
-2016-01-01 13:45:56	FR	createc	Creer un nouveau recipient	1
-2016-01-01 13:45:56	EN	createc	Create a new container	1
-2016-01-01 13:45:56	NL	createc	Maak een nieuwe houder	1
-2016-01-01 13:45:56	DE	createc	Schaffe eine neue Behälter	1
-2016-01-01 13:45:56	FR	createm	Creer une nouvelle mesure	1
-2016-01-01 13:45:56	EN	createm	Create a new measure	1
-2016-01-01 13:45:56	NL	createm	Maak een nieuwe maatregel	1
-2016-01-01 13:45:56	DE	createm	Schaffe eine neue messen	1
-2016-01-01 13:45:56	FR	createa	Creer une nouvelle alarme	1
-2016-01-01 13:45:56	EN	createa	Create a new Alarm	1
-2016-01-01 13:45:56	NL	createa	Maak een nieuwe alarm	1
-2016-01-01 13:45:56	DE	createa	Schaffe eine neue Alarm	1
-2016-01-01 13:45:56	FR	createcpehm	Ajouter un nouveau sensor	1
-2016-01-01 13:45:56	EN	createcpehm	Add a new sensor	1
-2016-01-01 13:45:56	NL	createcpehm	Voeg een nieuwe sensor	1
-2016-01-01 13:45:56	DE	createcpehm	Fügen Sie einen neuen Sensor	1
-2016-01-01 13:45:56	FR	color	Couleur :	1
-2016-01-01 13:45:56	EN	color	Color :	1
-2016-01-01 13:45:56	NL	color	Kleur :	1
+2016-01-01 13:45:56	FR	batch	Lot	1
+2016-01-01 13:45:56	EN	batchrules1	A Batch source is required !	1
+2016-01-01 13:45:56	FR	batchrules1	Un lot-source est requis !	1
+2016-01-01 13:45:56	EN	batchrules2	A Batch target is required !	1
+2016-01-01 13:45:56	FR	batchrules2	Un lot-destination est requis !	1
+2016-01-01 13:45:56	EN	batchrules3	The batch target must be different from batch source!	1
+2016-01-01 13:45:56	FR	batchrules3	Le lot-source ne peut être aussi le lot-destination!	1
+2016-01-01 13:45:56	DE	begin	Afang	1
+2016-01-01 13:45:56	EN	begin	Begin	1
+2016-01-01 13:45:56	FR	begin	Début	1
+2016-01-01 13:45:56	NL	begin	Begin	1
+2016-01-01 13:45:56	EN	cancel	Cancel	1
+2016-01-01 13:45:56	FR	cancel	Annuler	1
+2016-01-01 13:45:56	EN	channel	Channel 	1
+2016-01-01 13:45:56	FR	channel	Canal 	1
+2016-01-01 13:45:56	EN	channelrules	A channel is required !	1
+2016-01-01 13:45:56	FR	channelrules	Un canal est requis!	1
+2016-01-01 13:45:56	EN	checkpoint	Checkpoint	1
+2016-01-01 13:45:56	FR	checkpoint	Point de contrôle	1
+2016-01-01 13:45:56	DE	code	Strichcode	1
+2016-01-01 13:45:56	EN	code	Barcode	1
+2016-01-01 13:45:56	FR	code	Code Barre	1
+2016-01-01 13:45:56	NL	code	Streepjescode	1
 2016-01-01 13:45:56	DE	color	Farbe :	1
-2016-01-01 13:45:56	FR	component	Composant 	1
-2016-01-01 13:45:56	EN	component	Component 	1
-2016-01-01 13:45:56	NL	component	Bestanddeel 	1
+2016-01-01 13:45:56	EN	color	Color :	1
+2016-01-01 13:45:56	FR	color	Couleur :	1
+2016-01-01 13:45:56	NL	color	Kleur :	1
 2016-01-01 13:45:56	DE	component	Komponente 	1
-2016-01-01 13:45:56	FR	graphic	Graphique :	1
-2016-01-01 13:45:56	EN	graphic	Graphic :	1
-2016-01-01 13:45:56	NL	graphic	Grafisch :	1
+2016-01-01 13:45:56	EN	component	Component 	1
+2016-01-01 13:45:56	FR	component	Composant 	1
+2016-01-01 13:45:56	NL	component	Bestanddeel 	1
+2016-01-01 13:45:56	EN	component	Component 	1
+2016-01-01 13:45:56	FR	component	Composant 	1
+2016-01-01 13:45:56	EN	componentmove	Component to move	1
+2016-01-01 13:45:56	FR	componentmove	Composant à déplacer	1
+2016-01-01 13:45:56	EN	componentrules	Error with this component	1
+2016-01-01 13:45:56	FR	componentrules	Composant en erreur	1
+2016-01-01 13:45:56	DE	container	Behälter	1
+2016-01-01 13:45:56	EN	container	Container	1
+2016-01-01 13:45:56	FR	container	Récipient	1
+2016-01-01 13:45:56	NL	container	Houder	1
+2016-01-01 13:45:56	EN	cost	Cost	1
+2016-01-01 13:45:56	FR	cost	Coût	1
+2016-01-01 13:45:56	EN	costrules	The cost must be a positive real nomber	1
+2016-01-01 13:45:56	FR	costrules	Le coût doit être un nombre réel positif	1
+2016-01-01 13:45:56	DE	createa	Schaffe eine neue Alarm	1
+2016-01-01 13:45:56	EN	createa	Create a new Alarm	1
+2016-01-01 13:45:56	FR	createa	Créer une nouvelle alarme	1
+2016-01-01 13:45:56	NL	createa	Maak een nieuwe alarm	1
+2016-01-01 13:45:56	DE	createc	Schaffe eine neue Behälter	1
+2016-01-01 13:45:56	EN	createc	Create a new container	1
+2016-01-01 13:45:56	FR	createc	Créer un nouveau récipient	1
+2016-01-01 13:45:56	NL	createc	Maak een nieuwe houder	1
+2016-01-01 13:45:56	EN	createc	Add a new container	1
+2016-01-01 13:45:56	FR	createc	Ajouter un récipient	1
+2016-01-01 13:45:56	DE	createcpehm	Fügen Sie einen neuen Sensor	1
+2016-01-01 13:45:56	EN	createcpehm	Add a new sensor	1
+2016-01-01 13:45:56	FR	createcpehm	Ajouter un nouveau senseur	1
+2016-01-01 13:45:56	NL	createcpehm	Voeg een nieuwe sensor	1
+2016-01-01 13:45:56	DE	createdby	Erstellt von	1
+2016-01-01 13:45:56	EN	createdby	Created by	1
+2016-01-01 13:45:56	FR	createdby	Créé par	1
+2016-01-01 13:45:56	NL	createdby	Gemaakt door	1
+2016-01-01 13:45:56	EN	created	Add an observation	1
+2016-01-01 13:45:56	FR	created	Ajouter une observation	1
+2016-01-01 13:45:56	DE	createe	Schaffe eine neue ausrüstung	1
+2016-01-01 13:45:56	EN	createe	Create a new equipment	1
+2016-01-01 13:45:56	FR	createe	Créer un nouvel équipement	1
+2016-01-01 13:45:56	NL	createe	Maak een nieuwe uitrusting	1
+2016-01-01 13:45:56	DE	createg	Schaffe eine neue groupe	1
+2016-01-01 13:45:56	EN	createg	Create a new group	1
+2016-01-01 13:45:56	FR	createg	Créer un nouveau groupe	1
+2016-01-01 13:45:56	NL	createg	Maak een nieuwe groep	1
+2016-01-01 13:45:56	DE	createm	Schaffe eine neue messen	1
+2016-01-01 13:45:56	EN	createm	Create a new measure	1
+2016-01-01 13:45:56	FR	createm	Créer une nouvelle mesure	1
+2016-01-01 13:45:56	NL	createm	Maak een nieuwe maatregel	1
+2016-01-01 13:45:56	DE	createp	Schaffe eine neue ort	1
+2016-01-01 13:45:56	EN	createp	Create a new place	1
+2016-01-01 13:45:56	FR	createp	Créer une nouvelle pièce	1
+2016-01-01 13:45:56	NL	createp	Maak een nieuwe plaats	1
+2016-01-01 13:45:56	EN	createtm	Add a new Model-Transfer	1
+2016-01-01 13:45:56	FR	createtm	Ajouter un nouveau Transfert-Modèle	1
+2016-01-01 13:45:56	DE	createu	Schaffe eine neue benutzer	1
+2016-01-01 13:45:56	EN	createu	Add a new user	1
+2016-01-01 13:45:56	FR	createu	Ajouter un nouvel utilisateur	1
+2016-01-01 13:45:56	NL	createu	Maak een nieuwe gebruiker	1
+2016-01-01 13:45:56	EN	data	Data 	1
+2016-01-01 13:45:56	FR	data	Données 	1
+2016-01-01 13:45:56	NL	data	Data 	1
+2016-01-01 13:45:56	EN	datarules	If you enter a value, select a measure	1
+2016-01-01 13:45:56	FR	datarules	Si vous indiquez une valeur, indiquez un type de mesure	1
+2016-01-01 13:45:56	EN	datatable	Data Table	1
+2016-01-01 13:45:56	FR	datatable	Tableau des Données	1
+2016-01-01 13:45:56	EN	disconnect	Disconnect	1
+2016-01-01 13:45:56	FR	disconnect	Déconnexion	1
+2016-01-01 13:45:56	EN	duplicate	Duplicate	1
+2016-01-01 13:45:56	FR	duplicate	Dupliquer	1
+2016-01-01 13:45:56	EN	edit	Edit	1
+2016-01-01 13:45:56	FR	edit	Modifier	1
+2016-01-01 13:45:56	DE	equipment	Ausrüstung	1
+2016-01-01 13:45:56	EN	equipment	Equipment	1
+2016-01-01 13:45:56	FR	equipment	Équipement	1
+2016-01-01 13:45:56	NL	equipment	uitrusting	1
+2016-01-01 13:45:56	EN	export	Export	1
+2016-01-01 13:45:56	FR	export	Export	1
+2016-01-01 13:45:56	EN	exportdata	Export Data	1
+2016-01-01 13:45:56	FR	exportdata	Données exportées	1
+2016-01-01 13:45:56	DE	file	Datei	1
+2016-01-01 13:45:56	EN	file	File	1
+2016-01-01 13:45:56	FR	file	Fichier	1
+2016-01-01 13:45:56	NL	file	File	1
+2016-01-01 13:45:56	EN	floatrules	The value must be a number	1
+2016-01-01 13:45:56	FR	floatrules	La valeur doit être un nombre réel	1
+2016-01-01 13:45:56	EN	formula	Formula 	1
+2016-01-01 13:45:56	FR	formula	Formule 	1
+2016-01-01 13:45:56	EN	formularules	The formula is not correct	1
+2016-01-01 13:45:56	FR	formularules	La formule est invalide	1
+2016-01-01 13:45:56	EN	gfunction	Group Function	1
+2016-01-01 13:45:56	FR	gfunction	Fonction	1
 2016-01-01 13:45:56	DE	graphic	Grafik :	1
-2016-01-01 13:45:56	FR	sound	Son 	1
-2016-01-01 13:45:56	EN	sound	Sound 	1
-2016-01-01 13:45:56	NL	sound	Zijn 	1
-2016-01-01 13:45:56	DE	sound	Seine 	1
-2016-01-01 13:45:56	FR	phone	Téléphone 	1
-2016-01-01 13:45:56	EN	phone	Phone 	1
-2016-01-01 13:45:56	NL	phone	Telefoon 	1
+2016-01-01 13:45:56	EN	graphic	Graphic :	1
+2016-01-01 13:45:56	FR	graphic	Graphique :	1
+2016-01-01 13:45:56	NL	graphic	Grafisch :	1
+2016-01-01 13:45:56	EN	grecipe	Recipe/Nature	1
+2016-01-01 13:45:56	FR	grecipe	Recette/Nature	1
+2016-01-01 13:45:56	DE	group	Gruppe	1
+2016-01-01 13:45:56	EN	group	Group	1
+2016-01-01 13:45:56	FR	group	Groupe	1
+2016-01-01 13:45:56	NL	group	Groep	1
+2016-01-01 13:45:56	EN	grouprules	New parent of a group can't be an existing parent, child or sibling	1
+2016-01-01 13:45:56	FR	grouprules	Le nouveau parent d'un groupe ne peut-être parent, enfant ou frère	1
+2016-01-01 13:45:56	EN	guse	Main Use	1
+2016-01-01 13:45:56	FR	guse	Usage principal	1
+2016-01-01 13:45:56	EN	info	Info 	1
+2016-01-01 13:45:56	DE	lang	Sprache	1
+2016-01-01 13:45:56	EN	lang	Language	1
+2016-01-01 13:45:56	FR	lang	Langue	1
+2016-01-01 13:45:56	NL	lang	Taal	1
+2016-01-01 13:45:56	EN	lapse	Lapse	1
+2016-01-01 13:45:56	FR	lapse	Délai	1
+2016-01-01 13:45:56	DE	mail	E-Mail	1
+2016-01-01 13:45:56	EN	mail	E-mail	1
+2016-01-01 13:45:56	FR	mail	Email	1
+2016-01-01 13:45:56	NL	mail	EMail	1
+2016-01-01 13:45:56	EN	manualdata	Observation	1
+2016-01-01 13:45:56	FR	manualdata	Observation	1
+2016-01-01 13:45:56	EN	manualdatamodel	Model Observation	1
+2016-01-01 13:45:56	FR	manualdatamodel	Observation-modèle	1
+2016-01-01 13:45:56	EN	max	Max 	1
+2016-01-01 13:45:56	EN	maxmax	Max +++ 	1
+2016-01-01 13:45:56	EN	mdata	Observation(s)	1
+2016-01-01 13:45:56	FR	mdata	Observation(s)	1
+2016-01-01 13:45:56	DE	measure	Messen	1
+2016-01-01 13:45:56	EN	measure	Measure	1
+2016-01-01 13:45:56	FR	measure	Mesure	1
+2016-01-01 13:45:56	NL	measure	Maatregel	1
+2016-01-01 13:45:56	EN	measurerules	A measure is required !	1
+2016-01-01 13:45:56	FR	measurerules	Type de mesure requis !	1
+2016-01-01 13:45:56	EN	min	Min 	1
+2016-01-01 13:45:56	EN	minmin	Min --- 	1
+2016-01-01 13:45:56	DE	modified	Angepasst von	1
+2016-01-01 13:45:56	EN	modified	Modified by	1
+2016-01-01 13:45:56	FR	modified	Modifié par	1
+2016-01-01 13:45:56	NL	modified	Aangepast door	1
+2016-01-01 13:45:56	EN	monitoring	Monitoring 	1
+2016-01-01 13:45:56	EN	mpouring	Pouring(s) 	1
+2016-01-01 13:45:56	FR	mpouring	Versement(s) 	1
+2016-01-01 13:45:56	EN	mtransfer	Transfer(s) 	1
+2016-01-01 13:45:56	FR	mtransfer	Transfert(s) 	1
+2016-01-01 13:45:56	DE	name	Naam	1
+2016-01-01 13:45:56	EN	name	Name	1
+2016-01-01 13:45:56	FR	name	Nom	1
+2016-01-01 13:45:56	NL	name	Naam	1
+2016-01-01 13:45:56	DE	password	Passwort	1
+2016-01-01 13:45:56	EN	password	Password	1
+2016-01-01 13:45:56	FR	password	Mot de passe	1
+2016-01-01 13:45:56	NL	password	Wachtwoord	1
+2016-01-01 13:45:56	EN	passwordrules	Password must contain at least eight characters!	1
+2016-01-01 13:45:56	FR	passwordrules	Un mot de passe doit avoir au moins 8 caractères!	1
+2016-01-01 13:45:56	FR	people	Personne	1
+2016-01-01 13:45:56	EN	people	People	1
 2016-01-01 13:45:56	DE	phone	Telefon 	1
+2016-01-01 13:45:56	EN	phone	Phone 	1
+2016-01-01 13:45:56	FR	phone	Téléphone 	1
+2016-01-01 13:45:56	NL	phone	Telefoon 	1
+2016-01-01 13:45:56	DE	place	Ort	1
+2016-01-01 13:45:56	EN	place	Place	1
+2016-01-01 13:45:56	FR	place	Pièce	1
+2016-01-01 13:45:56	NL	place	Plaats	1
+2016-01-01 13:45:56	EN	pouring	Pouring	1
+2016-01-01 13:45:56	FR	pouring	Versement	1
+2016-01-01 13:45:56	EN	pouringmodel	Model-Pouring Model	1
+2016-01-01 13:45:56	FR	pouringmodel	Versement-modèle	1
+2016-01-01 13:45:56	EN	production	Production	1
+2016-01-01 13:45:56	FR	production	Production	1
+2016-01-01 13:45:56	EN	quantity	Quantity	1
+2016-01-01 13:45:56	FR	quantity	Quantité	1
+2016-01-01 13:45:56	EN	quantityrules	The quantity must be a positive real number	1
+2016-01-01 13:45:56	FR	quantityrules	Une quantité doit être un nombre réel positif	1
+2016-01-01 13:45:56	EN	rank	Rank	1
+2016-01-01 13:45:56	FR	rank	Rang	1
+2016-01-01 13:45:56	EN	related	Linked definitions	1
+2016-01-01 13:45:56	FR	related	Définitions liées	1
+2016-01-01 13:45:56	EN	relay	Relay 	1
+2016-01-01 13:45:56	FR	relay	Relai 	1
+2016-01-01 13:45:56	DE	remark	Bemerkung	1
+2016-01-01 13:45:56	EN	remark	Remark	1
+2016-01-01 13:45:56	FR	remark	Remarque	1
+2016-01-01 13:45:56	NL	remark	Opmerking	1
+2016-01-01 13:45:56	DE	removegroup	Entfernen aus der Gruppe	1
+2016-01-01 13:45:56	EN	removegroup	Remove from group :	1
+2016-01-01 13:45:56	FR	removegroup	Retirer du groupe :	1
+2016-01-01 13:45:56	NL	removegroup	Uit de groep :	1
+2016-01-01 13:45:56	EN	residualqt	Residual quantity	1
+2016-01-01 13:45:56	FR	residualqt	Quantité résiduelle	1
+2016-01-01 13:45:56	EN	save	Save	1
+2016-01-01 13:45:56	FR	save	Enregistrer	1
+2016-01-01 13:45:56	EN	selecttransfer	Select the object to transfer	1
+2016-01-01 13:45:56	FR	selecttransfer	Choisir l'objet à transférer	1
+2016-01-01 13:45:56	DE	sensor	Sensor	1
+2016-01-01 13:45:56	EN	sensor	Sensor	1
+2016-01-01 13:45:56	FR	sensor	Senseur	1
+2016-01-01 13:45:56	NL	sensor	Sensor	1
+2016-01-01 13:45:56	EN	sensorrules	A sensor is required !	1
+2016-01-01 13:45:56	FR	sensorrules	Un senseur est requis !	1
+2016-01-01 13:45:56	DE	sound	Seine 	1
+2016-01-01 13:45:56	EN	sound	Sound 	1
+2016-01-01 13:45:56	FR	sound	Son 	1
+2016-01-01 13:45:56	NL	sound	Zijn 	1
+2016-01-01 13:45:56	EN	source	Source	1
+2016-01-01 13:45:56	FR	source	Source	1
+2016-01-01 13:45:56	EN	specialvalue	Min Max Average 	1
+2016-01-01 13:45:56	FR	specialvalue	Min Max Moyenne 	1
+2016-01-01 13:45:56	EN	subsensor	Subsensor 	1
+2016-01-01 13:45:56	FR	subsensor	Sous-senseur 	1
+2016-01-01 13:45:56	EN	target	Target	1
+2016-01-01 13:45:56	FR	target	Destination	1
+2016-01-01 13:45:56	EN	time	Time	1
+2016-01-01 13:45:56	FR	time	Heure	1
+2016-01-01 13:45:56	EN	timerules	The time must be in this format %H:%M:%S  -  %d/%m/%y	1
+2016-01-01 13:45:56	FR	timerules	L'heure doit être au format %H:%M:%S  -  %d/%m/%y	1
+2016-01-01 13:45:56	EN	transfer	Transfer	1
+2016-01-01 13:45:56	FR	transfer	Transfert	1
+2016-01-01 13:45:56	EN	transferhierarchy	This object can't be moved to this component	1
+2016-01-01 13:45:56	FR	transferhierarchy	Cet objet ne peut être déplacé vers ce composant	1
+2016-01-01 13:45:56	EN	transfermodel	Model-Transfer	1
+2016-01-01 13:45:56	FR	transfermodel	Transfert-modèle	1
+2016-01-01 13:45:56	EN	transferrules	The batch is already in this component	1
+2016-01-01 13:45:56	FR	transferrules	Ce lot est déjà dans ce composant	1
+2016-01-01 13:45:56	EN	typical	Typical 	1
+2016-01-01 13:45:56	FR	typical	Typique 	1
+2016-01-01 13:45:56	EN	unit	Unit 	1
+2016-01-01 13:45:56	FR	unit	Unité 	1
+2016-01-01 13:45:56	EN	unitrules	An unit is required !	1
+2016-01-01 13:45:56	FR	unitrules	Une unité de mesure est requise !	1
+2016-01-01 13:45:56	EN	update	Update	1
+2016-01-01 13:45:56	FR	update	Mettre à jour	1
+2016-01-01 13:45:56	DE	user	Benutzer	1
+2016-01-01 13:45:56	EN	user	User	1
+2016-01-01 13:45:56	FR	user	Utilisateur	1
+2016-01-01 13:45:56	NL	user	Gebruiker	1
+2016-01-01 13:45:56	EN	value	Value 	1
+2016-01-01 13:45:56	FR	value	Valeur 	1
+2016-01-01 13:45:56	EN	valuesensor	Values from sensor	1
+2016-01-01 13:45:56	FR	valuesensor	Valeurs acquises par le senseur	1
+2016-01-01 13:45:56	EN	valuetype	Value type 	1
+2016-01-01 13:45:56	FR	valuetype	Type de valeur 	1
+2016-01-01 13:45:56	DE	welcome	Willkomen	1
+2016-01-01 13:45:56	EN	welcome	Welcome	1
+2016-01-01 13:45:56	FR	welcome	Bienvenue	1
+2016-01-01 13:45:56	NL	welcome	Welcom	1
