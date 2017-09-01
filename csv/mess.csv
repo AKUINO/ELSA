@@ -1,6 +1,8 @@
 begin	m_id	default	user
 2016-01-01 13:45:56	name	Name	1
 2016-01-01 13:45:56	disconnect	Disconnect	1
+2016-01-01 13:45:56	currentbatch	Current batch	1
+2016-01-01 13:45:56	errorbarcode	the following barcode is not attached to an item	1
 2016-01-01 13:45:56	pouring	Pouring	1
 2016-01-01 13:45:56	pouringmodel	Pouring Model	1
 2016-01-01 13:45:56	transfermodel	Transfer Model	1

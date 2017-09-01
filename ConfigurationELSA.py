@@ -277,6 +277,15 @@ class Configuration():
 
     def get_time_format(self):
         return datetimeformat
+	
+    def create_picture(self,code):
+	EAN = barcode.get_barcode_class('ean13')
+	try :
+	    ean = EAN(code)
+	    ean.save(barcodesDir+str(code))
+	except:
+	    return False
+	return True
 
 class ConfigurationObject():
 
@@ -366,6 +375,8 @@ class ConfigurationObject():
 	    self.names[key] = newName
 	    
     def getName(self,lang):
+	if lang == 'disconnected':
+	    lang = 'EN'
 	if lang in self.names :
 	    return self.names[lang]['name']
 	elif 'EN' in self.names : 
@@ -449,6 +460,10 @@ class ConfigurationObject():
 		fout = open(self.getImageDirectory()+'jpg','w')
 		fout.write(data.placeImg.file.read())
 		fout.close()
+	if 'code' in data:
+	    self.code = int(data['code'])
+	    c.AllBarcodes.create_barcode(self, self.code,user)
+	    
 		
 	self.fields['remark'] = data['remark']
 	
@@ -1280,7 +1295,7 @@ class AllPouringModels(AllObjects):
         self.fileobject = csvDir + "VM.csv"
 	self.filename = csvDir + "VMnames.csv"
         self.keyColumn = "vm_id"
-	self.fieldnames = ["begin","vm_id",'acronym','src','dest','quantity','h_id', 'rank', "remark", 'active', "user"]
+	self.fieldnames = ["begin","vm_id",'acronym','src','dest','quantity','h_id', 'rank', "in", "remark", 'active', "user"]
 	self.fieldtranslate = ['begin', 'lang', 'vm_id', 'name', 'user']
 
     def newObject(self):
@@ -1890,7 +1905,7 @@ class Group(ConfigurationObject):
 	    tmp = ''
 	for k,v in configuration.findAllFromObject(self).elements.items():
 	    if k in data:
-		if self.getID() in v.parents or self.getID() in v.children or self.getID() in v.siblings:
+		if self.getID() in v.parents or self.getID() in v.siblings:
 		    tmp += configuration.AllMessages.elements['grouprules'].getName(lang) + '\n'
 		    return tmp
 	if tmp == '':
@@ -2216,8 +2231,12 @@ class CheckPoint(Group):
 	    tmp['position'] = data['tm_position_'+str(count)]
 	    tmp['remark'] = data['tm_remark_'+str(count)]
 	elif type == 'vm' :
-	    tmp['src'] = data['vm_src_'+str(count)]
-	    tmp['dest'] = data['vm_dest_'+str(count)]
+	    if 'vm_src_'+str(count) in data :
+		tmp['src'] = data['vm_src_'+str(count)]
+		tmp['dest'] = batch.split('_')[1]
+	    else :
+		tmp['dest'] = data['vm_dest_'+str(count)]
+		tmp['src'] = batch.split('_')[1]
 	    tmp['quantity'] = data['vm_quantity_'+str(count)]
 	    tmp['remark'] = data['tm_remark_'+str(count)]
 	return tmp
@@ -3449,8 +3468,16 @@ class PouringModel(ConfigurationObject):
 	    self.config.AllCheckPoints.elements[self.fields['h_id']].remove_vm(self)
 	ConfigurationObject.set_value_from_data(self, data, c,user)
 	self.fields['quantity'] = data['quantity']
-	self.fields['src'] = data['src']
-	self.fields['dest'] = data['dest']
+	if data['src'] != 'current':
+	    self.fields['src'] = data['src']
+	else:
+	    self.fields['src'] = ''
+	    self.fields['in'] = '0'
+	if data['dest'] != 'current':
+	    self.fields['dest'] = data['dest']
+	else:
+	    self.fields['dest'] = '1'
+	    self.fields['in'] = ''
 	self.fields['h_id'] = data['checkpoint']
 	self.fields['rank'] = data['rank']
 	if 'active' in data:
@@ -3637,6 +3664,7 @@ class Barcode(ConfigurationObject):
 	
     def barcode_picture(self):
 	EAN = barcode.get_barcode_class('ean13')
+	self.fields['code'] = str(self.fields['code'])
 	ean = EAN(self.fields['code'])
 	ean.save(barcodesDir+self.fields['code'])
 	

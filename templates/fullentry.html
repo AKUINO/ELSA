@@ -23,7 +23,10 @@ $if 'colorgraph' in elem.fields.keys() :
 	    $else:
 		<span class="glyphicon glyphicon-ok-circle"> </span>
 	</div>	    
-	<div class="col-xs-1 vcenter" ><span class="$c.AllHalflings.elements[elem.get_name()].getHalfling()"></span> </div>
+	<div class="col-xs-1 vcenter" 
+	    $if 'm' in type and type != 'm':
+		style="color : #337ab7"
+	><span class="$c.AllHalflings.elements[elem.get_name()].getHalfling()"></span> </div>
 	<div class="col-xs-3 vcenter">
 	       <div class="row">
 		   $elem.fields['acronym'] 
@@ -168,7 +171,10 @@ $if 'colorgraph' in elem.fields.keys() :
     <div class="modal-dialog">
 	<div class="modal-content">
             <div class="modal-header row ">
-		<div class="col-xs-2" >
+		<div class="col-xs-2" 
+		    $if 'm' in type and type != 'm':
+			style="color : #337ab7"
+		>
 		    <strong><span class="$c.AllHalflings.elements[allElem.get_name_object()].getHalfling()"></span></strong>
 		</div>
                 <h4 class="modal-title col-xs-6 "> $elem.fields['acronym'] - $elem.getName(self.lang)</h4>

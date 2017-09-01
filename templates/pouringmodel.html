@@ -13,6 +13,19 @@ $else:
 $if errormess != '':
     $if 'remark' in data :
 	$var rmq : $data['remark']
+	
+<script>
+    function flip() {
+	$$("#src").appendTo("#divdest");
+	$$("#dest").appendTo("#divsrc");
+	document.getElementsByName("src")[0].setAttribute("id", "test");
+	document.getElementsByName("dest")[0].setAttribute("id", "src");
+	document.getElementsByName("src")[0].setAttribute("id", "dest");
+	document.getElementsByName("src")[0].setAttribute("name", "test");
+	document.getElementsByName("dest")[0].setAttribute("name", "src");
+	document.getElementsByName("test")[0].setAttribute("name", "dest");
+    }
+</script>
 
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
@@ -27,7 +40,7 @@ $if errormess != '':
 		    $for k in c.AllCheckPoints.elements.keys():
 			<option value="$k"
 			    $if id != 'new':
-				$if  k == c.AllManualDataModels.elements[id].fields['h_id'] :
+				$if  k == c.AllPouringModels.elements[id].fields['h_id'] :
 				    selected
 			>$c.AllCheckPoints.elements[k].fields['acronym'] - $c.AllCheckPoints.elements[k].getName(self.lang) </option>
 		</select>
@@ -87,43 +100,53 @@ $if errormess != '':
 	    </div>
 	    
 	<div class="form-group row">
-	    <label for="inputPosition" class="col-sm-3 col-form-label">$c.AllMessages.elements['source'].getName(self.lang)</label>
-	    <div class="col-sm-9">
-		<select name = "src" class="form-control" id="inputPosition">
-		    $for k in c.AllGrRecipe.elements.keys():
-			<option value="$k"
-			    $if errormess != '':
-				$if 'src' in data :
-				    $if k == data['src']:
+	    <label for="src" class="col-sm-3 col-form-label">$c.AllMessages.elements['source'].getName(self.lang)</label>
+	    <div class="col-sm-9" id = "divsrc">
+		<select name = "src" class="form-control" id="src">
+		    $if id == 'new' or c.AllPouringModels.elements[id].fields['in'] == '1' :
+			$for k in c.AllGrRecipe.elements.keys():
+			    <option value="$k"
+				$if errormess != '':
+				    $if 'src' in data :
+					$if k == data['src']:
+					    selected
+				$elif id != 'new':
+				    $if  k == c.AllPouringModels.elements[id].fields['src'] :
 					selected
-			    $elif id != 'new':
-				$if  k == c.AllPouringModels.elements[id].fields['src'] :
-				    selected
-			>$c.AllGrRecipe.elements[k].fields['acronym'] - $c.AllGrRecipe.elements[k].getName(self.lang) </option>
+			    >$c.AllGrRecipe.elements[k].fields['acronym'] - $c.AllGrRecipe.elements[k].getName(self.lang) </option>
+		    $else:
+			<option value="current">$c.AllMessages.elements['currentbatch'].getName(self.lang)</option>
 		</select>
 	    </div>
 	</div>
 	<div class="form-group row">
-	    <label for="inputPosition" class="col-sm-3 col-form-label">$c.AllMessages.elements['target'].getName(self.lang)</label>
-	    <div class="col-sm-9">
-		<select name = "dest" class="form-control" id="inputPosition">
-		    $for k in c.AllGrRecipe.elements.keys():
-			<option value="$k"
-			    $if errormess != '':
-				$if 'dest' in data :
-				    $if k == data['dest']:
+	    <label for="dest" class="col-sm-3 col-form-label">$c.AllMessages.elements['target'].getName(self.lang)</label>
+	    <div class="col-sm-9" id = "divdest">
+		<select name = "dest" class="form-control" id="dest">
+		    $if id != 'new' and c.AllPouringModels.elements[id].fields['in'] != '1' :
+			$for k in c.AllGrRecipe.elements.keys():
+			    <option value="$k"
+				$if errormess != '':
+				    $if 'dest' in data :
+					$if k == data['dest']:
+					    selected
+				$elif id != 'new':
+				    $if  k == c.AllPouringModels.elements[id].fields['dest'] :
 					selected
-			    $elif id != 'new':
-				$if  k == c.AllPouringModels.elements[id].fields['dest'] :
-				    selected
-			>$c.AllGrRecipe.elements[k].fields['acronym'] - $c.AllGrRecipe.elements[k].getName(self.lang) </option>
+			    >$c.AllGrRecipe.elements[k].fields['acronym'] - $c.AllGrRecipe.elements[k].getName(self.lang) </option>
+		    $else:
+			<option value="current">$c.AllMessages.elements['currentbatch'].getName(self.lang)</option>
 		</select>
 	    </div>
 	</div>
 	
 	<div class="form-group row">
+	    <button type ="button" class="btn btn-info col-sm-2 col-md-offset-5" onclick="flip()">invert</button>
+	</div>
+	
+	<div class="form-group row">
 	    <label for="inputValue" class="col-sm-3 col-form-label">$c.AllMessages.elements['quantity'].getName(self.lang)</label>
-	    <div class="col-sm-9">
+	    <div class="col-sm-9" >
 		<input name="quantity" type="text" class="form-control" id="inputValue" placeholder="$c.AllMessages.elements['value'].getName(self.lang)" 
 		$if errormess != '':
 		    $if 'quantity' in data :
@@ -170,7 +193,12 @@ $if errormess != '':
 	    <div class="col-sm-3">
 	    </div>
 	    <div class="col-sm-2">
-		<a href="/list/tm" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		<a 
+		$if id != 'new' :
+		    href="/item/vm_$(id)"
+		$else :
+		    href="/list/vm"
+		class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>

@@ -181,7 +181,12 @@ $if errormess != '':
 	    <div class="col-sm-3">
 	    </div>
 	    <div class="col-sm-2">
-		<a href="/list/b" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		<a 
+		$if id != 'new' :
+		    href="/item/b_$(id)"
+		$else :
+		    href="/list/b"
+		class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>

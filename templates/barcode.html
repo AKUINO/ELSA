@@ -1,8 +1,30 @@
-$def with (mail,barcode)
-$code:
-    elem  = c.AllBarcodes.barcode_to_item(barcode)
+$def with (mail,barcode, errormess)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
-$var location: list/$(elem.get_type())=$(c.findAllFromType(elem.get_type()).get_name_object()) barcode/$(barcode)=barcode
 $var recursive : False
-
-<img src="/static/img/barcodes/$(barcode).svg" width="780" height="405" alt="Image not found">
+$if errormess == '' :
+    $code:
+	elem  = c.AllBarcodes.barcode_to_item(barcode)
+	tmp = True
+    $var location: list/$(elem.get_type())=$(c.findAllFromType(elem.get_type()).get_name_object()) barcode/$(barcode)=barcode
+    
+    <script>
+	$$(function(){
+	    $$("#includedMenu").load("/fullentry/$(elem.get_type())_$(elem.getID())");
+	});
+    </script>
+    <div id="includedMenu" style="min-height:11ex;"></div>
+$else:
+    $var location: barcode/$(barcode)=barcode
+    <div class="form-group row" id="error">
+	    $c.AllMessages.elements['errorbarcode'].getName(self.lang) [$(barcode)]
+    </div>
+    $code:
+	tmp = c.create_picture(barcode)
+$if tmp is True:   
+    <div class="row">
+	<img class="img-responsive" src="/static/img/barcodes/$(barcode).svg"  width="780" height="405" alt="Image not found" >
+    </div>
+$else :
+    <div class="form-group row" id="error">
+	    $c.AllMessages.elements['barcoderules'].getName(self.lang) [$(barcode)]
+    </div>

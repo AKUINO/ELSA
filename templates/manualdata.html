@@ -142,7 +142,12 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <div class="col-sm-3">
 	    </div>
 	    <div class="col-sm-2">
-		<a href="/index" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		<a 
+		$if id != 'new' :
+		    href="/item/$(id)"
+		$else :
+		    href="/index"
+		class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>

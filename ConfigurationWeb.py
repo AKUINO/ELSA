@@ -49,10 +49,14 @@ class WebList():
         self.name = u"WebList"
 	
     def GET(self, type):
+	id = ''
+	data = web.input(nifile={})
+	if 'status' in data:
+	    id = data['status']
         mail = isConnected()
         if mail is not None:
 	    if type in 'abcpehsmugugrgftmdmvm' and type != 't' and type !='f':
-		return self.getRender(type, mail)
+		return self.getRender(type, mail, id)
 	    else:
 		return render.notfound()
         raise web.seeother('/')
@@ -76,8 +80,8 @@ class WebList():
 	    return self.getRender(type,mail)
 	raise web.seeother('/') 
 	
-    def getRender(self, type, mail):
-        return render.listing(mail, type)
+    def getRender(self, type, mail, id=''):
+        return render.listing(mail, type, id)
 	
 class WebItem():        
     def GET(self,type,id):
@@ -114,7 +118,7 @@ class WebEdit():
 		    if len(data['a_id']) >0 :
 			c.AllAlarms.elements[data['a_id']].launch_alarm(currObject,c)
 		if type not in 'tdv':
-		    return self.getListing(mail, type)
+		    raise web.seeother('/item/'+type+'_'+id)
 		else :
 		    if currObject.get_type() == 'v':
 			elemtype = 'b'
@@ -132,8 +136,8 @@ class WebEdit():
                 return self.getRender(type,id, mail, cond,data)
         raise web.seeother('/')
 	
-    def getListing(self,mail, type):
-        return render.listing(mail, type)
+    def getListing(self,mail, type, id=''):
+        return render.listing(mail, type, id)
     
     def getRender(self,type, id, mail, errormess, data):
 	if type in 'hpebcsmagugrgfutmdmvm' and type != 'g' and type !='f' and type != 'd' and type != 'v'and type != 't':
@@ -321,14 +325,20 @@ class WebBarcode():
     def __init__(self):
         self.name=u"WebBarcode"
 	
-    def GET(self,id):
+    def GET(self,id=""):
         mail = isConnected()
         if mail is not None:
-            return self.getRender(id,mail)
+	    try:
+		data = web.input(nifile={})
+		if 'barcode' in data:
+		    id = data['barcode']
+		return self.getRender(id,mail)
+	    except:
+		return self.getRender(id,mail, 'notfound')
         raise web.seeother('/')
         
-    def getRender(self, id, mail):
-        return render.barcode(mail,id)
+    def getRender(self, id, mail, errormess=''):
+        return render.barcode(mail,id, errormess)
 	        
     def getListing(self,mail):
         return render.listing(mail,'places')
@@ -488,8 +498,14 @@ def main():
 
     global c, wsgiapp, render
     try:
-        web.config.debug = True
-        render=web.template.render('templates/', base='layout')
+	web.config.debug = False
+	#Configuration Singleton ELSA
+	c=elsa.Configuration()
+        c.load()
+        web.template.Template.globals['c'] = c
+        web.template.Template.globals['useful'] = useful
+	layout = web.template.frender('templates/layout.html')
+        render=web.template.render('templates/', base=layout)
         urls = (
             '/', 'WebIndex',
             '/index','WebIndex',  
@@ -501,6 +517,7 @@ def main():
             '/list/(.+)', 'WebList',
             '/graphic/(.+)_(.+)', 'WebGraphic',
             '/barcode/(.+)', 'WebBarcode',
+            '/barcode/', 'WebBarcode',
             '/modal/(.+)_(.+)', 'WebModal',  
             '/color/(.+)_(.+)', 'WebColor',  
             '/fullentry/(.+)_(.+)', 'WebFullEntry',  
@@ -510,14 +527,8 @@ def main():
             '/find/(.+)/(.+)_(.+)', 'WebFind',  
             '/permission/(.+)_(.+)', 'WebPermission',  
             '/control/b_(.+)/h_(.+)', 'WebControl',  
-            '/disconnect', 'WebDisconnect',  
+            '/disconnect', 'WebDisconnect', 
         )
-
-        #Configuration Singleton ELSA
-        c=elsa.Configuration()
-        c.load()
-        web.template.Template.globals['c'] = c
-        web.template.Template.globals['useful'] = useful
         app = web.application(urls, globals())
         app.notfound = notfound
         app.run()

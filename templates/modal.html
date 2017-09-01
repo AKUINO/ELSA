@@ -11,7 +11,10 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <!-- Modal content-->
 	    <div class="modal-content">
             <div class="modal-header row ">
-		<div class="col-xs-2" >
+		<div class="col-xs-2" 
+		    $if 'm' in type and type != 'm':
+			style="color : #337ab7"
+		>
 		    <strong><span class="$c.AllHalflings.elements[allElem.get_name_object()].getHalfling()"></span></strong>
 		</div>
                 <h4 class="modal-title col-xs-6 ">$elem.getName(self.lang)</h4>

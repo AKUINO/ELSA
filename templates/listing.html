@@ -1,4 +1,4 @@
-$def with (mail,type)
+$def with (mail,type, id)
 $code :
     if type == 'v' :
 	type = 'b'	
@@ -11,6 +11,12 @@ $code :
     permissionKey = type +'_'
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+<a 
+$if id == '':
+    href="?status=all"
+$else :
+    href="/list/$(type)"
+class="btn btn-default" style="color=red;margin-bottom:5px;"><span class="$c.AllHalflings.elements['active'].getHalfling()"></span>&nbsp;/&nbsp;<span class="$c.AllHalflings.elements['disabled'].getHalfling()"></span></a>
 $if type == 'b' :    
     <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
@@ -33,14 +39,13 @@ $if type == 'b' :
 	</form>
     </div>
 $for a in elements:
-    
-    <script>
-	$$(function(){
-	    $$("#includedMenu$(type)_$(a)").load("/fullentry/$(type)_$(a)");
-	});
-    </script>
-    <div id="includedMenu$(type)_$(a)"
-    ></div>
+    $if c.findAllFromType(type).elements[a].fields['active'] == '1' or id == 'all':
+	<script>
+	    $$(function(){
+		$$("#includedMenu$(type)_$(a)").load("/fullentry/$(type)_$(a)");
+	    });
+	</script>
+	<div id="includedMenu$(type)_$(a)" ></div>
     
 
 
