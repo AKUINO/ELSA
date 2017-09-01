@@ -99,7 +99,7 @@ $if content.recursive == 'False' :
 			</li>
 		    </ul>
 		    $if self.tmp == 'connected':
-			<button type="button" class="btn btn-warning btn-md " data-toggle="modal" data-target="#modal_barcode" style="margin-top:5px;"><span class="$c.AllHalflings.elements['barcode'].getHalfling()"></span></button>
+			<button onclick="test()" type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#modal_barcode" aria-expanded="false" aria-controls="navbar" style="margin-top:5px;"><span class="$c.AllHalflings.elements['barcode'].getHalfling()"></span></button>
 		</div><!--/.navbar-collapse -->
 	    </div>
 	</nav>
@@ -121,15 +121,14 @@ $if content.recursive == 'False' :
 	    <div style="margin-top:25px;">
 		$:content
 	    </div>
-	  
 	</div>
 	<hr>
 	<footer style="margin-top:40px;">
 	    <div class="col-xs-11 text-center"><a href="http://www.akuino.net">AKUINO</a>, &copy;<small><a href="http://www.destin-informatique.com">DESTIN-Informatique</a>, <a href="http://www.glyphicons.com">GlyphIcons</a>, 2017</small></div>
 	</footer> 
-	    
 	</body>
     </html>
+    
     <div class="modal" id="modal_barcode">
 	<div class="modal-dialog">
 	    <div class="modal-content">
@@ -153,7 +152,7 @@ $if content.recursive == 'False' :
 			<div class="form-group row">
 			    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.AllMessages.elements['barcode'].getName(content.lang)</label>
 			    <div class="col-sm-9">
-				<input name="barcode" type="text" class="form-control" id="inputBarcode" placeholder="$c.AllMessages.elements['barcode'].getName(content.lang)" required="true" onsubmit="myFunction()">
+				<input name="barcode" type="text" class="form-control" id="inputBarcode" placeholder="$c.AllMessages.elements['barcode'].getName(content.lang)" required="true" onsubmit="myFunction()" autofocus>
 			    </div>
 			</div>
 			<button type= "submit" onclick="myFunction()" onsubmit="myFunction()" class="btn btn-primary btn-block" href ="/barcode/">Search</button>
@@ -167,5 +166,11 @@ $if content.recursive == 'False' :
 	    </div>
 	</div>
     </div>
+    <script>
+	function test(){
+	    console.log("test")
+	    $$('#navbar').collapse('hide');
+	}
+    </script>
 $else:
     $:content

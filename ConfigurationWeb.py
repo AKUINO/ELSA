@@ -231,27 +231,9 @@ class WebFind():
         raise web.seeother('/')
 	
     def POST(self, type, id1, id2):
-	print 'JE PASSE DANS POST WEB FIND'
         mail = isConnected()
         user  = c.connectedUsers.users[mail].cuser
         if mail is not None:
-	    """
-            currObject = c.getObject(type, 'new')
-            infoCookie = mail + ',' + user.fields['password']
-            update_cookie(infoCookie)
-            if currObject is None:
-                raise web.seeother('/')
-            data = web.input(placeImg={})
-            #method = data.get("method","malformed")
-            cond = currObject.validate_form(data, c, user.fields['language'])
-            if cond is True:
-                currObject.set_value_from_data(data,c,user)
-                return self.getListing(mail, type)
-            else :
-                if id == 'new' :
-                    currObject.delete(c)
-                return self.getRender(type,id, mail, cond)
-	    """
 	    infoCookie = mail + ',' + user.fields['password']
             update_cookie(infoCookie)
 	    data = web.input(placeImg={})
