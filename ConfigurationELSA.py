@@ -460,7 +460,7 @@ class ConfigurationObject():
 		fout = open(self.getImageDirectory()+'jpg','w')
 		fout.write(data.placeImg.file.read())
 		fout.close()
-	if 'code' in data:
+	if 'code' in data and len(data['code']) < 14 and len(data['code'])> 11:
 	    self.code = int(data['code'])
 	    c.AllBarcodes.create_barcode(self, self.code,user)
 	    

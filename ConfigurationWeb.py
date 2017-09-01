@@ -118,7 +118,7 @@ class WebEdit():
 		    if len(data['a_id']) >0 :
 			c.AllAlarms.elements[data['a_id']].launch_alarm(currObject,c)
 		if type not in 'tdv':
-		    raise web.seeother('/item/'+type+'_'+id)
+		    raise web.seeother('/item/'+type+'_'+currObject.getID())
 		else :
 		    if currObject.get_type() == 'v':
 			elemtype = 'b'
@@ -547,4 +547,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-#main()
