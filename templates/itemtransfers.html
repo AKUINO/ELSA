@@ -34,11 +34,13 @@ $for i in elem.position:
 	</div>
 	$code :
 	    cont = c.findAllFromType(transfer.fields['cont_type']).elements[transfer.fields['cont_id']]
-	    
+	<div class="col-xs-1" >
+	    <span class="$c.AllHalflings.elements[cont.get_name()].getHalfling()"></span>
+	</div>    
 	<div class="col-xs-3" >
-	    $cont.fields['acronym'] - $cont.getName(self.lang)
+	    <a href="/item/$(cont.get_type())_$(cont.getID())">$cont.fields['acronym'] - $cont.getName(self.lang)</a>
 	</div>
-	<div class="col-xs-5" >
+	<div class="col-xs-4" >
 	    $transfer.fields['remark']
 	</div>
 	<div class="col-xs-1">

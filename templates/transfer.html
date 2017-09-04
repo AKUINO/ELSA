@@ -1,5 +1,6 @@
-$def with (id, mail, errormess)
+$def with (id, mail, errormess, context='')
 $var recursive : False
+
 $if id == 'new':
     $code :
 	myID = 'new'
@@ -12,10 +13,12 @@ $else :
 	    elem = c.findAllFromType(transfer.fields['object_type']).elements[transfer.fields['object_id']]
 	    myID = 'update'
 	    rmq = transfer.fields['remark']
-	else:
-	    myID = 'component'
-	    elem = c.findAllFromType(id.split('_')[0]).elements[id.split('_')[-1]]
-	    rmq = '' 
+	    
+$if context != '' :
+    $code:
+	myID = 'component'
+	elem = c.findAllFromType(context.split('_')[0]).elements[context.split('_')[-1]]
+	rmq = '' 
 $if myID == 'update':
     $var location: list/$(elem.get_type())=$(elem.get_name()) transfers/$(elem.get_type())_$(elem.getID())=transfer edit/t_$(transfer.getID())=edit
 $elif myID == 'component':
@@ -129,7 +132,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <div class="col-sm-2">
 		<a 
 		$if id != 'new' :
-		    href="/item/$(id)"
+		    href="/item/$(elem.get_type())_$(elem.getID())"
 		$else :
 		    href="/index"
 		class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>

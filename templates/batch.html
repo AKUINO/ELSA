@@ -1,4 +1,4 @@
-$def with (id, mail, errormess, data)
+$def with (id, mail, errormess, data, context='')
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
@@ -6,7 +6,6 @@ $var recursive : False
 $if id == 'new':
     $var location: all/b=batch edit/b_new=add
     $var rmq :
-    
 $else:
     $var location: all/b=batch edit/b_$(id)=edit
     $var rmq :  $c.AllBatches.elements[id].fields['remark']
@@ -22,9 +21,14 @@ $if errormess != '':
 		
 	<div class="form-group row">
 	    <script>
-		$$(function(){
-		    $$("#includedPermission").load("/permission/b_$(id)");
-		});
+		$if context != '':
+		    $$(function(){
+			$$("#includedPermission").load("/permission/b_$(id)/$(context.split('_')[-1])");
+		    });
+		$else :
+		    $$(function(){
+			$$("#includedPermission").load("/permission/b_$(id)");
+		    });
 	    </script>
 	    <div id="includedPermission" class="col-sm-12"></div>
 	</div>
@@ -53,6 +57,8 @@ $if errormess != '':
 			value="$data['acronym']" 
 		$elif id != 'new':
 		    value="$c.AllBatches.elements[id].fields['acronym']"
+		$elif context != '':
+		    value = $(c.AllGrRecipe.elements[context.split('_')[-1]].fields['acronym'])_
 		required="true">
 	    </div>
 	</div>

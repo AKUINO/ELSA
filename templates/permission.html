@@ -1,4 +1,4 @@
-$def with (mail,type,id)
+$def with (mail,type,id, context='')
 $var recursive : True
 $code :
     elements = c.findAllFromType(type)
@@ -83,7 +83,10 @@ $if 'g' not in type and type != 'h':
 				tmp = ((indent-1)*4)*"_"
 			$else :
 			    <option value="$group"
-			    $if id != 'new':
+			    $if context != '':
+				$if context == group :
+				    selected
+			    $elif id != 'new':
 				$if group == elements.elements[id].get_group() :
 				    selected
 			    >$tmp $groups.elements[group].fields['acronym'] - $groups.elements[group].getName(self.lang)</option>

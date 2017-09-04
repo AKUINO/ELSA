@@ -1,4 +1,4 @@
-$def with (id, mail, errormess, data)
+$def with (id, mail, errormess, data, context='')
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
@@ -22,9 +22,14 @@ $if errormess != '':
 	
 	<div class="form-group row">
 	    <script>
-		$$(function(){
-		    $$("#includedPermission").load("/permission/u_$(id)");
-		});
+		$if context != '':
+		    $$(function(){
+			$$("#includedPermission").load("/permission/u_$(id)/$(context.split('_')[-1])");
+		    });
+		$else :
+		    $$(function(){
+			$$("#includedPermission").load("/permission/u_$(id)");
+		    });
 	    </script>
 	    <div id="includedPermission" class="col-sm-12"></div>
 	</div>
@@ -38,6 +43,8 @@ $if errormess != '':
 			value="$data['acronym']" 
 		$elif id != 'new':
 		    value="$c.AllUsers.elements[id].fields['acronym']"
+		$elif context != '':
+		    value = $(c.AllGrFunction.elements[context.split('_')[-1]].fields['acronym'])_
 		required="true">
 	    </div>
 	</div>

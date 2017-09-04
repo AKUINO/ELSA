@@ -27,7 +27,12 @@ class WebPermission():
     def GET(self, type,id):
         mail = isConnected()
         if mail is not None:
-            return render.permission(mail,type,id)
+	    if len(id.split('/'))> 0:
+		context = id.split('/')[-1]
+		id = id.split('/')[0]
+	    else:
+		context = ''
+            return render.permission(mail,type,id, context)
         return ''
 
 class WebModal():
@@ -139,49 +144,45 @@ class WebEdit():
     def getListing(self,mail, type, id=''):
         return render.listing(mail, type, id)
     
-    def getRender(self,type, id, mail, errormess, data):
+    def getRender(self,type, id, mail, errormess, data, context = ''):
+	print 'context :' +context
 	if type in 'hpebcsmagugrgfutmdmvm' and type != 'g' and type !='f' and type != 'd' and type != 'v'and type != 't':
-	    if id in c.findAllFromType(type).elements.keys() or  id == 'new':
-		if type == 'p' :
-		    return render.place(id,mail, errormess, data)
-		elif type == 'e' :
-		    return render.equipment(id,mail, errormess, data) 
-		elif type == 'b' :
-		    return render.batch(id,mail, errormess, data) 
-		elif type == 'c' :
-		    return render.container(id,mail, errormess, data) 
-		elif type == 's' :
-		    return render.sensor(id,mail, errormess, data) 
-		elif type == 'm' :
-		    return render.measure(id,mail, errormess, data) 
-		elif type == 'a' :
-		    return render.alarm(id,mail, errormess, data) 
-		elif type == 'gu' :
-		    return render.group(type,id,mail, errormess, data) 
-		elif type == 'gr' :
-		    return render.group(type,id,mail, errormess, data) 
-		elif type == 'gf' :
-		    return render.group(type,id,mail, errormess, data) 
-		elif type == 'h' :
-		    return render.group(type,id,mail, errormess, data) 
-		elif type == 'u' :
-		    return render.user(id,mail, errormess, data) 
-		elif type == 'tm' :
-		    return render.transfermodel(id,mail, errormess, data) 
-		elif type == 'dm' :
-		    return render.manualdatamodel(id,mail, errormess, data) 
-		elif type == 'vm' :
-		    return render.pouringmodel(id,mail, errormess, data) 
+	    if type == 'p' :
+		return render.place(id,mail, errormess, data, context)
+	    elif type == 'e' :
+		return render.equipment(id,mail, errormess, data, context) 
+	    elif type == 'b' :
+		return render.batch(id,mail, errormess, data, context) 
+	    elif type == 'c' :
+		return render.container(id,mail, errormess, data, context) 
+	    elif type == 's' :
+		return render.sensor(id,mail, errormess, data) 
+	    elif type == 'm' :
+		return render.measure(id,mail, errormess, data) 
+	    elif type == 'a' :
+		return render.alarm(id,mail, errormess, data) 
+	    elif type == 'gu' :
+		return render.group(type,id,mail, errormess, data) 
+	    elif type == 'gr' :
+		return render.group(type,id,mail, errormess, data) 
+	    elif type == 'gf' :
+		return render.group(type,id,mail, errormess, data) 
+	    elif type == 'h' :
+		return render.group(type,id,mail, errormess, data, context) 
+	    elif type == 'u' :
+		return render.user(id,mail, errormess, data, context) 
+	    elif type == 'tm' :
+		return render.transfermodel(id,mail, errormess, data, context) 
+	    elif type == 'dm' :
+		return render.manualdatamodel(id,mail, errormess, data, context) 
+	    elif type == 'vm' :
+		return render.pouringmodel(id,mail, errormess, data, context) 
 	elif type =='t':
-	    if id == 'new' or id in c.findAllFromType(type).elements.keys() or id.split('_')[1] in c.findAllFromType(id.split('_')[0]).elements.keys():
-		return render.transfer(id,mail, errormess) 
+		return render.transfer(id,mail, errormess, context) 
 	elif type =='d':
-	    if id == 'new' or id in c.findAllFromType(type).elements.keys() or id.split('_')[1] in c.findAllFromType(id.split('_')[0]).elements.keys():
-		return render.manualdata(id,mail, errormess) 
+		return render.manualdata(id,mail, errormess, context) 
 	elif type == 'v':
-	    if id == 'new' or id in c.findAllFromType(type).elements.keys() or id.split('_')[1] in c.findAllFromType(id.split('_')[0]).elements.keys():
-		return render.pouring(id,mail, errormess)
-        return render.notfound()
+		return render.pouring(id,mail, errormess, context)
 	
 class WebCreate(WebEdit):
     def GET(self,type):
@@ -190,7 +191,7 @@ class WebCreate(WebEdit):
 	    if len(type.split('/')) == 1 :
 		return self.getRender(type, 'new',mail,'', '')
 	    else:
-		return self.getRender(type.split('/')[0], type.split('/')[-1],mail,'', '')
+		return self.getRender(type.split('/')[0], 'new',mail,'','', type.split('/')[-1])
         raise web.seeother('/')
 	
     def POST(self, type):

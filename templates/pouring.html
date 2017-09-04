@@ -1,10 +1,15 @@
-$def with (id, mail, errormess)
+$def with (id, mail, errormess, context='')
 $var recursive : False
-$if id == 'new':
+$if id == 'new' and context == '':
     $code :
 	myID = 'new'
 	rmq = ''
     $var location: pourings=pouring pourings/new/new=add
+$elif id == 'new':
+    $code:
+	myID = context.split('_')[2]
+	batch = c.findAllFromType(context.split('_')[0]).elements[context.split('_')[1]]
+	rmq = ''
 $else :
     $code:
 	if not id.split('_')[0] == 'b':
@@ -14,10 +19,8 @@ $else :
 	    batch = dest
 	    myID = 'update'
 	    rmq = pouring.fields['remark']
-	else:
-	    myID = id.split('_')[2]
-	    batch = c.findAllFromType(id.split('_')[0]).elements[id.split('_')[1]]
-	    rmq = '' 
+
+
 $if myID == 'update':
     $var location: list/b=batch find/v/b_$(dest.getID())=pouring edit/v_$(dest.getID())=edit
 $elif myID == 'in' or myID == 'out':

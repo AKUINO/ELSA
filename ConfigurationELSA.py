@@ -140,8 +140,8 @@ class Configuration():
 	self.AllManualDataModels.load()
 	self.AllPouringModels.load()
 	self.AllAlarmLogs.load()
-	self.UpdateThread.start()
-	self.RadioThread.start()
+	#self.UpdateThread.start()
+	#self.RadioThread.start()
     
     def findAllFromName(self,className):
         if className == User.__name__:
@@ -3188,9 +3188,9 @@ class Sensor(ConfigurationObject):
 	if self.fields['p_id'] != '':
 	    return config.AllPieces.elements[self.fields['p_id']]
 	elif self.fields['e_id'] != '':
-	    return config.AllPieces.elements[self.fields['e_id']]
+	    return config.AllEquipments.elements[self.fields['e_id']]
 	elif self.fields['c_id'] != '':
-	    return config.AllPieces.elements[self.fields['c_id']]
+	    return config.AllContainers.elements[self.fields['c_id']]
 	
     def get_sensors_in_component(self, config):
 	tmp = []

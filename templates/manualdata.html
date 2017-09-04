@@ -1,10 +1,15 @@
-$def with (id, mail, errormess)
+$def with (id, mail, errormess, context='')
 $var recursive : False
-$if id == 'new':
+$if id == 'new' and context == '':
     $code :
 	myID = 'new'
 	rmq = ''
     $var location: /find/m=manualdata create/m=add
+$elif id == 'new':
+    $code:
+	myID = 'component'
+	elem = c.findAllFromType(context.split('_')[0]).elements[context.split('_')[-1]]
+	rmq = ''
 $else :
     $code:
 	if not id.split('_')[0] in 'bcep':
@@ -12,10 +17,6 @@ $else :
 	    elem = c.findAllFromType(data.fields['object_type']).elements[data.fields['object_id']]
 	    myID = 'update'
 	    rmq = data.fields['remark']
-	else:
-	    myID = 'component'
-	    elem = c.findAllFromType(id.split('_')[0]).elements[id.split('_')[-1]]
-	    rmq = '' 
 $if myID == 'update':
     $var location: list/$(elem.get_type())=$(elem.get_name()) manualdata/$(elem.get_type())_$(elem.getID())=manualdata edit/m_$(data.getID())=edit
 $elif myID == 'component':
@@ -144,7 +145,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <div class="col-sm-2">
 		<a 
 		$if id != 'new' :
-		    href="/item/$(id)"
+		    href="/item/$(elem.get_type())_$(elem.getID())"
 		$else :
 		    href="/index"
 		class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>

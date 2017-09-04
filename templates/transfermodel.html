@@ -1,4 +1,4 @@
-$def with (id, mail, errormess, data)
+$def with (id, mail, errormess, data, context='')
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
@@ -26,7 +26,10 @@ $if errormess != '':
 		<select name = "checkpoint" class="form-control" id="inputPosition">
 		    $for k in c.AllCheckPoints.elements.keys():
 			<option value="$k"
-			    $if id != 'new':
+			    $if context != '':
+				$if  k == context.split('_')[-1] :
+				    selected
+			    $elif id != 'new':
 				$if  k == c.AllManualDataModels.elements[id].fields['h_id'] :
 				    selected
 			>$c.AllCheckPoints.elements[k].fields['acronym'] - $c.AllCheckPoints.elements[k].getName(self.lang) </option>
@@ -40,7 +43,9 @@ $if errormess != '':
 		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.AllMessages.elements['acronym'].getName(self.lang)"
 		$if errormess != '':
 		    $if 'acronym' in data :
-			value="$data['acronym']" 
+			value="$data['acronym']"
+		$elif context != '':
+		    value="$(c.AllCheckPoints.elements[context.split('_')[-1]].fields['acronym'])_"
 		$elif id != 'new':
 		    value="$c.AllTransferModels.elements[id].fields['acronym']"
 		required="true">

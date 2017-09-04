@@ -1,4 +1,4 @@
-$def with (type,id, mail, errormess, data)
+$def with (type,id, mail, errormess, data, context)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
 
@@ -50,7 +50,10 @@ $code:
 					tmp = ((indent-1)*4)*"_"
 				$else :
 				    <option value="$group"
-				    $if id != 'new':
+				    $if context != '':
+					$if context.split('_')[-1] == group :
+					    selected
+				    $elif id != 'new':
 					$if group == elements.elements[id].fields['gr_id'] :
 					    selected
 				    >$tmp $groups.elements[group].fields['acronym'] - $groups.elements[group].getName(self.lang)</option>
@@ -67,6 +70,8 @@ $code:
 			value="$data['acronym']" 
 		$elif id != 'new':
 		    value="$elem.fields['acronym']"
+		$elif context != '':
+		    value="$(c.AllGrRecipe.elements[context.split('_')[-1]].fields['acronym'])_"
 		required="true">
 	    </div>
 	</div>
