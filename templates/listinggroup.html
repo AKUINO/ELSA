@@ -20,20 +20,20 @@ $var location: list/$(type)=$(elem.get_name()) find/related/$(type)_$(id)=relate
 	$for k in elem.parents:
 	    <script>
 		$$(function(){
-		    $$("#includedMenuu_$(k)").load("/fullentry/$(type)_$(k)");
+		    $$("#includedMenuparents_$(k)").load("/fullentry/$(type)_$(k)");
 		});
 	    </script>
-	    <div id="includedMenuu_$(k)"></div>
+	    <div id="includedMenuparents_$(k)"></div>
     </div>
 <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<label class="col-sm-12">$c.AllMessages.elements['child'].getName(self.lang) :</label>    
 	$for k in elem.children:
 	    <script>
 		$$(function(){
-		    $$("#includedMenuu_$(k)").load("/fullentry/$(type)_$(k)");
+		    $$("#includedMenuchildren_$(k)").load("/fullentry/$(type)_$(k)");
 		});
 	    </script>
-	    <div id="includedMenuu_$(k)"></div>
+	    <div id="includedMenuchildren_$(k)"></div>
     </div>
 
 
