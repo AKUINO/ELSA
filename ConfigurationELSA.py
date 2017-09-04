@@ -140,8 +140,8 @@ class Configuration():
 	self.AllManualDataModels.load()
 	self.AllPouringModels.load()
 	self.AllAlarmLogs.load()
-	#self.UpdateThread.start()
-	#self.RadioThread.start()
+	self.UpdateThread.start()
+	self.RadioThread.start()
     
     def findAllFromName(self,className):
         if className == User.__name__:
