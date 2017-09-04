@@ -14,6 +14,40 @@ $var location: list/$(type)=$(elem.get_name()) find/related/$(type)_$(id)=relate
 </script>
 <div id="includedAllMenug_$(id)"></div>
 
+
+<div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+	<label class="col-sm-12">$c.AllMessages.elements['parent'].getName(self.lang) :</label>    
+	$for k in elem.parents:
+	    <script>
+		$$(function(){
+		    $$("#includedMenuu_$(k)").load("/fullentry/$(type)_$(k)");
+		});
+	    </script>
+	    <div id="includedMenuu_$(k)"></div>
+    </div>
+<div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+	<label class="col-sm-12">$c.AllMessages.elements['child'].getName(self.lang) :</label>    
+	$for k in elem.children:
+	    <script>
+		$$(function(){
+		    $$("#includedMenuu_$(k)").load("/fullentry/$(type)_$(k)");
+		});
+	    </script>
+	    <div id="includedMenuu_$(k)"></div>
+    </div>
+    
+<div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+	<label class="col-sm-12">$c.AllMessages.elements['sibling'].getName(self.lang) :</label>    
+	$for k in elem.siblings:
+	    <script>
+		$$(function(){
+		    $$("#includedMenuu_$(k)").load("/fullentry/$(type)_$(k)");
+		});
+	    </script>
+	    <div id="includedMenuu_$(k)"></div>
+    </div>
+
+
 $if type == 'gf':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<label class="col-sm-12">$c.AllMessages.elements['user'].getName(self.lang) :</label>    
