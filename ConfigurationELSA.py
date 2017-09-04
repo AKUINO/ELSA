@@ -506,7 +506,7 @@ class ConfigurationObject():
 		if first is True :
 		    first = False
 		    if count  > 0: 
-			if useful.date_to_timestamp(self.position[count-1].fields['time'],datetimeformat) > begin :
+			if useful.date_to_timestamp(self.config.AllTransfers[self.position[count-1]].fields['time'],datetimeformat) > begin :
 			    tmp.append(self.position[count -1])
 	        tmp.append(t)
 	    count += 1
@@ -2114,6 +2114,28 @@ class CheckPoint(Group):
 		self.vm.append(vm.getID())
     
     def get_model_sorted(self):
+	"""listdm = []
+	lstvm = []
+	listtm = []
+	for e in self.dm:
+	    listdm.append(e)
+	for e in self.dm:
+	    listdm.append(e)
+	for e in self.dm:
+	    listdm.append(e)
+	parents = self.parents
+	while parents != []
+	    for g in parents[]:
+		g = self.config.AllCheckPoints.elements[g]
+		for e in g.dm:
+		    listdm.append(e)
+		for e in g.tm:
+		    listtm.append(e)
+		for e in g.vm:
+		    listvm.append(e)
+	    parents = 
+		
+	"""	
 	sum = len(self.dm) + len(self.vm) + len (self.tm)
 	count = 0
 	sorted = []
