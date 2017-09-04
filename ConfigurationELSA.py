@@ -1182,7 +1182,7 @@ class AllSensors(AllObjects):
         self.fileobject = csvDir + "S.csv"
 	self.filename = csvDir + "Snames.csv"
         self.keyColumn = "s_id"
-	self.fieldnames = ['begin', 's_id', 'c_id', 'e_id', 'h_id', 'm_id', 'active', 'acronym', 'remark', 'channel', 'sensor', 'subsensor', 'valuetype', 'formula', 'minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax', 'lapse1', 'lapse2', 'lapse3', 'user']
+	self.fieldnames = ['begin', 's_id', 'c_id', 'p_id', 'e_id', 'm_id', 'active', 'acronym', 'remark', 'channel', 'sensor', 'subsensor', 'valuetype', 'formula', 'minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax', 'lapse1', 'lapse2', 'lapse3', 'user']
 	self.fieldtranslate = ['begin', 'lang', 's_id', 'name', 'user']
 	self.count = 0
 
@@ -1976,9 +1976,9 @@ class Group(ConfigurationObject):
 	    group = self
 	    self.parents = []
 	for i in self.related:
-	    if i not in self.parents :
-		group.add_parent(self)
-		self.config.findAllFromType(self.get_type()).elements[i].load_parents(group)
+	    if i not in self.parents:
+		self.parents.append(i)
+		self.config.findAllFromType(self.get_type()).elements[i].load_parents()
 	    else :
 		print "Error Group : GROUPE EN RELATION CIRCLAIRE"
 		
