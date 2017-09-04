@@ -482,6 +482,9 @@ class ConfigurationObject():
 		tmp = self.config.AllManualData.elements[self.data[i]]
 		tmptime = useful.date_to_timestamp(tmp.fields['time'],datetimeformat)
 		if time < tmptime:
+		    print time
+		    print '<'
+		    print tmptime
 		    insert = True
 		    self.data.insert(i,manualdata.getID())
 		    break

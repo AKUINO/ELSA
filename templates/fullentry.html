@@ -67,7 +67,7 @@ $if 'colorgraph' in elem.fields.keys() :
 		    </div>
 		    $if elem.get_group() != '' :
 			<div class="col-xs-10 vcenter">
-			       <a href="/item/$(allElem.get_key_group())_$elem.get_group()">$groups.elements[elem.get_group()].fields['acronym']</a>
+			    <a href="/item/$(allElem.get_key_group())_$elem.get_group()">$groups.elements[elem.get_group()].fields['acronym']</a>
 			</div>
 		    $else :
 			<div class="col-xs-10 vcenter">

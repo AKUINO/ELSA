@@ -27,7 +27,7 @@ class WebPermission():
     def GET(self, type,id):
         mail = isConnected()
         if mail is not None:
-	    if len(id.split('/'))> 0:
+	    if len(id.split('/'))> 1:
 		context = id.split('/')[-1]
 		id = id.split('/')[0]
 	    else:
