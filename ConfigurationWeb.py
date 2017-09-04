@@ -71,18 +71,22 @@ class WebList():
         user  = c.connectedUsers.users[mail].cuser
         if mail is not None:
 	    data = web.input(placeImg={})
-	    if type == 'b':
-		count = 1
-		borne  = int(data['quantity'])
-		elem = c.AllBatches.elements[data['batch'].split('_')[1]]
+	    if 'quantity' in data :
 		try:
-		    name = int(elem.fields['acronym'][elem.fields['acronym'].rfind('_')+1:])
+		    if type == 'b':
+			count = 1
+			borne  = int(data['quantity'])
+			elem = c.AllBatches.elements[data['batch'].split('_')[1]]
+			try:
+			    name = int(elem.fields['acronym'][elem.fields['acronym'].rfind('_')+1:])
+			except:
+			    name = 0
+			while count <= borne :
+			    elem.clone(user,(name + count))
+			    count+=1
+		    return self.getRender(type,mail)
 		except:
-		    name = 0
-		while count <= borne :
-		    elem.clone(user,(name + count))
-		    count+=1
-	    return self.getRender(type,mail)
+		    raise render.notfound()
 	raise web.seeother('/') 
 	
     def getRender(self, type, mail, id=''):
