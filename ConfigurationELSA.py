@@ -506,7 +506,7 @@ class ConfigurationObject():
 		if first is True :
 		    first = False
 		    if count  > 0: 
-			if useful.date_to_timestamp(self.config.AllTransfers[self.position[count-1]].fields['time'],datetimeformat) > begin :
+			if useful.date_to_timestamp(self.config.AllTransfers.elements[self.position[count-1]].fields['time'],datetimeformat) > begin :
 			    tmp.append(self.position[count -1])
 	        tmp.append(t)
 	    count += 1
