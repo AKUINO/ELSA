@@ -482,9 +482,6 @@ class ConfigurationObject():
 		tmp = self.config.AllManualData.elements[self.data[i]]
 		tmptime = useful.date_to_timestamp(tmp.fields['time'],datetimeformat)
 		if time < tmptime:
-		    print time
-		    print '<'
-		    print tmptime
 		    insert = True
 		    self.data.insert(i,manualdata.getID())
 		    break
@@ -2075,7 +2072,6 @@ class CheckPoint(Group):
 	    self.dm.remove(model.fields['dm_id'])
 	    
     def add_dm(self,model):
-	print model.fields
 	self.remove_dm(model)
 	if len(self.dm) == 0:
 	    self.dm.append(model.getID())
@@ -2114,45 +2110,26 @@ class CheckPoint(Group):
 		self.vm.append(vm.getID())
     
     def get_model_sorted(self):
-	"""listdm = []
-	lstvm = []
-	listtm = []
-	for e in self.dm:
-	    listdm.append(e)
-	for e in self.dm:
-	    listdm.append(e)
-	for e in self.dm:
-	    listdm.append(e)
-	parents = self.parents
-	while parents != []
-	    for g in parents[]:
-		g = self.config.AllCheckPoints.elements[g]
-		for e in g.dm:
-		    listdm.append(e)
-		for e in g.tm:
-		    listtm.append(e)
-		for e in g.vm:
-		    listvm.append(e)
-	    parents = 
-		
-	"""	
-	sum = len(self.dm) + len(self.vm) + len (self.tm)
+	listdm = self.get_hierarchy_dm()
+	lstvm = self.get_hierarchy_vm()
+	listtm = self.get_hierarchy_tm()
+	sum = len(listdm) + len(listvm) + len (listtm)
 	count = 0
 	sorted = []
 	iddm = 0
 	idtm = 0
 	idvm = 0
 	while count < sum:
-	    if iddm < len(self.dm):
-		tmpdm = self.config.AllManualDataModels.elements[self.dm[iddm]]
+	    if iddm < len(listdm):
+		tmpdm = self.config.AllManualDataModels.elements[listdm[iddm]]
 	    else:
 		tmpdm = None
-	    if idtm < len(self.tm):
-		tmptm = self.config.AllTransferModels.elements[self.tm[idtm]]
+	    if idtm < len(listtm):
+		tmptm = self.config.AllTransferModels.elements[listtm[idtm]]
 	    else:
 		tmptm = None
-	    if idvm < len(self.vm):
-		tmpvm = self.config.AllPouringModels.elements[self.vm[idvm]]
+	    if idvm < len(listvm):
+		tmpvm = self.config.AllPouringModels.elements[listvm[idvm]]
 	    else:
 		tmpvm = None
 	    if tmpdm is not None :
@@ -2276,7 +2253,36 @@ class CheckPoint(Group):
 	    tmpCode["user"] = user.fields['u_id']
 	    writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames = self.config.findAllFromObject(self).fieldcontrols, encoding="utf-8")
 	    writer.writerow(tmpCode)
+	    
+    def get_hierarchy_dm(self, list= None, group = None):
+	if group == None:
+	    list = []
+	    group = self
+	for e in group.dm:
+	    list.append(e)
+	for e in group.parents:
+	    self.get_hierarchy_dm(list,self.config.AllCheckPoints.elements[e])
+	return list
 	
+    def get_hierarchy_tm(self, list= None, group = None):
+	if group == None:
+	    list = []
+	    group = self
+	for e in group.tm:
+	    list.append(e)
+	for e in group.parents:
+	    self.get_hierarchy_tm(list,self.config.AllCheckPoints.elements[e])
+	return list
+	
+    def get_hierarchy_vm(self, list= None, group = None):
+	if group == None:
+	    list = []
+	    group = self
+	for e in group.vm:
+	    list.append(e)
+	for e in group.parents:
+	    self.get_hierarchy_vm(list,self.config.AllCheckPoints.elements[e])
+	return list
 	
 class GrRecipe(Group):
     def __init__(self,config):
