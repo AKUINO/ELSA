@@ -2455,7 +2455,7 @@ class ExportData():
 		    self.elements.append(self.transform_object_to_export_data(self.config.AllManualData.elements[data]))
 	    if self.cond['transfer'] is True:
 		for t in self.elem.position:
-		    self.elements.append(self.transform_object_to_export_data(self.config.AllTransfers.elements[t]))		    
+		    self.elements.append(self.transform_object_to_export_data(self.config.AllTransfers.elements[t]))	    
 	    
 	for self.b in self.batches :
 	    self.load_data()
@@ -2464,7 +2464,7 @@ class ExportData():
 	    
 	    self.load_hierarchy()
 	    
-            bexport = self.transform_object_to_export_data(self.b)
+            bexport = self.transform_object_to_export_data(self.b) 
 	    self.elements.append(bexport)
 	    lastSensor = None
 	    count = 0
@@ -2477,7 +2477,7 @@ class ExportData():
 		    end = int(time.time())
 		else :
 		    end = useful.date_to_timestamp(self.history[count+1].fields['time'], datetimeformat)
-                bexport['duration'] = self.get_duration(bexport['timestamp'],end)
+                bexport['duration'] = self.get_duration(begin, end)
 		if self.cond['manualdata'] is True and e.get_type() == 'd':
 		    self.elements.append(tmp)
 		elif self.cond['transfer'] is True and e.get_type() == 't':
@@ -2485,7 +2485,7 @@ class ExportData():
 		    self.elements.append(tmp)
 		elif self.cond['pouring'] is True and e.get_type() == 'v':
 		    self.elements.append(tmp)
-		if e.get_type() == 'd':
+		if e.get_type() == 'd' or e.get_type() == 'v':
 		    if lastSensor != None:
 			infos = self.get_all_in_component(lastSensor,begin,end)
 		else :
@@ -2610,26 +2610,24 @@ class ExportData():
 		break
 	   
 	    if timet is not None :
-		if timet < tmpk:
+		if timet < tmp:
 		    cond = 't'
 		    tmp = timet
 	    if timev is not None:
 		if timev < tmp:
-		    type = 'v'
+		    cond = 'v'
 		    tmp = timev
 	   
 	    if cond == 'd':
 		self.history.append(self.data[i])
 		i += 1
-		count += 1
 	    elif cond == 't':
 		self.history.append(self.transfers[j])
 		j += 1
-		count += 1
 	    elif cond == 'v':
 		self.history.append(self.pourings[k])
 		k += 1
-		count += 1
+	    count += 1
 		
     def get_all_in_component(self,component,begin,end, infos = None):
 	if infos is None :
@@ -2655,7 +2653,7 @@ class ExportData():
 	    tmp['timestamp'] = useful.date_to_timestamp(elem.created,datetimeformat)		
 	if elem.get_type() in 'bcpem' :
 	    if elem.get_type() == 'b':
-		tmp['timestamp'] = elem.fields['time']
+		tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'],datetimeformat)
 		tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
 		tmp['value'] = elem.fields['basicqt']
 		
@@ -2750,29 +2748,26 @@ class ExportData():
 	    tmp['value'] = elem.fields['quantity']
 	    tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
 	    if elem.fields['src'] == self.b.getID():
+		tmp['type'] += ' OUT'
 		if self.cond['acronym'] is True :
-		    tmp['b_id'] = 'TO : ' + self.config.AllBatches.elements[elem.fields['dest']].fields['acronym']
+		    tmp['b_id'] = self.config.AllBatches.elements[elem.fields['dest']].fields['acronym']
 		    tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['acronym']
 		else:
-		    tmp['b_id'] = 'TO : ' + elem.fields['dest']
+		    tmp['b_id'] = elem.fields['dest']
 		    tmp['m_id'] = elem.fields['m_id']
 	    else :
+		tmp['type'] += ' IN'
 		if self.cond['acronym'] is True :
-		    tmp['b_id'] = 'FROM : ' + self.config.AllBatches.elements[elem.fields['src']].fields['acronym']
+		    tmp['b_id'] = self.config.AllBatches.elements[elem.fields['src']].fields['acronym']
 		    tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['acronym']
 		else:
-		    tmp['b_id'] = 'FROM : ' + elem.fields['src']
+		    tmp['b_id'] = elem.fields['src']
 		    tmp['m_id'] = elem.fields['m_id']
 	return tmp
 
     def get_duration(self, begin, end):
 	timestamp = end - begin
-	string = ''
-	if timestamp > 86400 :
-	    string = str(timestamp/86400) + 'd'
-	    timestamp = timestamp% 86400
-	string += useful.timestamp_to_time(timestamp)
-	return string
+	return useful.timestamp_to_time(timestamp)
     
 
     def get_new_line(self):
