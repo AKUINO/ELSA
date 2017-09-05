@@ -2427,6 +2427,7 @@ class ExportData():
 	self.user = user
 	self.data = []
 	self.transfers = []
+	self.pourings = []
 	self.elements = []
 	self.min = 99999999999
 	self.max = -99999999999
@@ -2440,6 +2441,12 @@ class ExportData():
     def load_transfers(self):
 	for t in self.b.position:
 	    self.transfers.append(self.config.AllTransfers.elements[t])
+	    
+    def load_pourings(self):
+	for t in self.b.destination:
+	    self.pourings.append(self.config.AllPourings.elements[t])
+	for t in self.b.source:
+	    self.pourings.append(self.config.AllPourings.elements[t])
 
     def create_export(self):
 	if self.elem.get_type() != 'b':
@@ -2453,7 +2460,10 @@ class ExportData():
 	for self.b in self.batches :
 	    self.load_data()
 	    self.load_transfers()
+	    self.load_pourings()
+	    
 	    self.load_hierarchy()
+	    
             bexport = self.transform_object_to_export_data(self.b)
 	    self.elements.append(bexport)
 	    lastSensor = None
@@ -2473,6 +2483,8 @@ class ExportData():
 		elif self.cond['transfer'] is True and e.get_type() == 't':
 		    tmp['duration'] = self.get_duration(begin, end) 
 		    self.elements.append(tmp)
+		elif self.cond['pouring'] is True and e.get_type() == 'v':
+		    self.elements.append(tmp)
 		if e.get_type() == 'd':
 		    if lastSensor != None:
 			infos = self.get_all_in_component(lastSensor,begin,end)
@@ -2483,13 +2495,6 @@ class ExportData():
 		if infos is not None:
 		    self.add_value_from_sensors(infos,lastSensor)
 		count += 1
-	    if self.cond['pouring'] is True :
-		for e in self.b.source:
-		    tmp = self.transform_object_to_export_data(self.config.AllPourings.elements[e])
-		    self.elements.append(tmp)
-		for e in self.b.destination:
-		    tmp = self.transform_object_to_export_data(self.config.AllPourings.elements[e])
-		    self.elements.append(tmp)
 		
 
     def write_csv(self):
@@ -2573,15 +2578,28 @@ class ExportData():
         self.history = []
 	i = 0
 	j = 0
-	while i < len(self.data) and j < len(self.transfers):
+	k = 0
+	while i < len(self.data) and j < len(self.transfers) and k < len(self.pourings):
 	    timed = useful.date_to_timestamp(self.data[i].fields['time'], datetimeformat)
 	    timet = useful.date_to_timestamp(self.transfers[j].fields['time'], datetimeformat)
-	    if timed < timet :
+	    timev = useful.date_to_timestamp(self.pourings[j].fields['time'], datetimeformat)
+	    tmp = timed
+	    cond = 'd'
+	    if timet < tmp :
+		tmp = timet
+		cond = 't'
+	    if timev < tmp:
+		tmp = timev
+		cond = 'v'
+	    if cond == 'd':
 		self.history.append(self.data[i])
 		i += 1
-	    else:
+	    elif cond == 't':
 		self.history.append(self.transfers[j])
 		j += 1
+	    elif cond == 'v':
+		self.history.append(self.pourings[k])
+		k += 1
 	if i < len(self.data):
 	    while i< len(self.data):
 		self.history.append(self.data[i])
@@ -2590,6 +2608,10 @@ class ExportData():
 	    while j< len(self.transfers):
 		self.history.append(self.transfers[j])
 		j += 1
+	if k < len(self.pourings):
+	    while k< len(self.pourings):
+		self.history.append(self.pourings[k])
+		k += 1
 		
     def get_all_in_component(self,component,begin,end, infos = None):
 	if infos is None :
@@ -2615,6 +2637,7 @@ class ExportData():
 	    tmp['timestamp'] = useful.date_to_timestamp(elem.created,datetimeformat)		
 	if elem.get_type() in 'bcpem' :
 	    if elem.get_type() == 'b':
+		tmp['timestamp'] = elem.fields['time']
 		tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
 		tmp['value'] = elem.fields['basicqt']
 		
@@ -2718,8 +2741,10 @@ class ExportData():
 	    else :
 		if self.cond['acronym'] is True :
 		    tmp['b_id'] = 'FROM : ' + self.config.AllBatches.elements[elem.fields['src']].fields['acronym']
+		    tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['acronym']
 		else:
 		    tmp['b_id'] = 'FROM : ' + elem.fields['src']
+		    tmp['m_id'] = elem.fields['m_id']
 	return tmp
 
     def get_duration(self, begin, end):
