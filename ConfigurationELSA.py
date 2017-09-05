@@ -2111,7 +2111,7 @@ class CheckPoint(Group):
     
     def get_model_sorted(self):
 	listdm = self.get_hierarchy_dm()
-	lstvm = self.get_hierarchy_vm()
+	listvm = self.get_hierarchy_vm()
 	listtm = self.get_hierarchy_tm()
 	sum = len(listdm) + len(listvm) + len (listtm)
 	count = 0
