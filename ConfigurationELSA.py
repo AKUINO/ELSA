@@ -2455,7 +2455,7 @@ class ExportData():
 		    self.elements.append(self.transform_object_to_export_data(self.config.AllManualData.elements[data]))
 	    if self.cond['transfer'] is True:
 		for t in self.elem.position:
-		    self.elements.append(self.transform_object_to_export_data(self.config.AllTransfers.elements[t]))		    
+		    self.elements.append(self.transform_object_to_export_data(self.config.AllTransfers.elements[t]))	    
 	    
 	for self.b in self.batches :
 	    self.load_data()
@@ -2464,7 +2464,7 @@ class ExportData():
 	    
 	    self.load_hierarchy()
 	    
-            bexport = self.transform_object_to_export_data(self.b)
+            bexport = self.transform_object_to_export_data(self.b) 
 	    self.elements.append(bexport)
 	    lastSensor = None
 	    count = 0
@@ -2477,7 +2477,7 @@ class ExportData():
 		    end = int(time.time())
 		else :
 		    end = useful.date_to_timestamp(self.history[count+1].fields['time'], datetimeformat)
-                bexport['duration'] = self.get_duration(bexport['timestamp'],end)
+                bexport['duration'] = self.get_duration(begin, end)
 		if self.cond['manualdata'] is True and e.get_type() == 'd':
 		    self.elements.append(tmp)
 		elif self.cond['transfer'] is True and e.get_type() == 't':
@@ -2485,7 +2485,7 @@ class ExportData():
 		    self.elements.append(tmp)
 		elif self.cond['pouring'] is True and e.get_type() == 'v':
 		    self.elements.append(tmp)
-		if e.get_type() == 'd':
+		if e.get_type() == 'd' or e.get_type() == 'v':
 		    if lastSensor != None:
 			infos = self.get_all_in_component(lastSensor,begin,end)
 		else :
@@ -2582,7 +2582,7 @@ class ExportData():
 	while i < len(self.data) and j < len(self.transfers) and k < len(self.pourings):
 	    timed = useful.date_to_timestamp(self.data[i].fields['time'], datetimeformat)
 	    timet = useful.date_to_timestamp(self.transfers[j].fields['time'], datetimeformat)
-	    timev = useful.date_to_timestamp(self.pourings[j].fields['time'], datetimeformat)
+	    timev = useful.date_to_timestamp(self.pourings[k].fields['time'], datetimeformat)
 	    tmp = timed
 	    cond = 'd'
 	    if timet < tmp :
@@ -2637,7 +2637,7 @@ class ExportData():
 	    tmp['timestamp'] = useful.date_to_timestamp(elem.created,datetimeformat)		
 	if elem.get_type() in 'bcpem' :
 	    if elem.get_type() == 'b':
-		tmp['timestamp'] = elem.fields['time']
+		tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'],datetimeformat)
 		tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
 		tmp['value'] = elem.fields['basicqt']
 		
