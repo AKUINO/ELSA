@@ -2576,42 +2576,60 @@ class ExportData():
 	
     def load_hierarchy(self):
         self.history = []
+	sum = len(self.data) + len(self.transfers) + len (self.pourings)
 	i = 0
 	j = 0
 	k = 0
-	while i < len(self.data) and j < len(self.transfers) and k < len(self.pourings):
-	    timed = useful.date_to_timestamp(self.data[i].fields['time'], datetimeformat)
-	    timet = useful.date_to_timestamp(self.transfers[j].fields['time'], datetimeformat)
-	    timev = useful.date_to_timestamp(self.pourings[j].fields['time'], datetimeformat)
-	    tmp = timed
-	    cond = 'd'
-	    if timet < tmp :
+	count = 0
+	while count < sum:
+	    if i < len( self.data): 
+		timed = useful.date_to_timestamp(self.data[i].fields['time'], datetimeformat)
+	    else :		
+		timed = None
+		
+	    if j < len(self.transfers):
+		timet = useful.date_to_timestamp(self.transfers[j].fields['time'], datetimeformat)
+	    else :
+		timet = None
+		
+	    if k < len(self.pourings) :
+		timev = useful.date_to_timestamp(self.pourings[k].fields['time'], datetimeformat)
+	    else:
+		timev = None
+		
+	    if timed is not None:
+		tmp = timed
+		cond = 'd'
+	    elif timet is not None:
 		tmp = timet
 		cond = 't'
-	    if timev < tmp:
+	    elif timev is not None:
 		tmp = timev
 		cond = 'v'
+	    else:
+		break
+	   
+	    if timet is not None :
+		if timet < tmpk:
+		    cond = 't'
+		    tmp = timet
+	    if timev is not None:
+		if timev < tmp:
+		    type = 'v'
+		    tmp = timev
+	   
 	    if cond == 'd':
 		self.history.append(self.data[i])
 		i += 1
+		count += 1
 	    elif cond == 't':
 		self.history.append(self.transfers[j])
 		j += 1
+		count += 1
 	    elif cond == 'v':
 		self.history.append(self.pourings[k])
 		k += 1
-	if i < len(self.data):
-	    while i< len(self.data):
-		self.history.append(self.data[i])
-		i += 1
-	if j < len(self.transfers):
-	    while j< len(self.transfers):
-		self.history.append(self.transfers[j])
-		j += 1
-	if k < len(self.pourings):
-	    while k< len(self.pourings):
-		self.history.append(self.pourings[k])
-		k += 1
+		count += 1
 		
     def get_all_in_component(self,component,begin,end, infos = None):
 	if infos is None :
