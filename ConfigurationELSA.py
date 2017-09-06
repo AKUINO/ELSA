@@ -2121,57 +2121,15 @@ class CheckPoint(Group):
 	listdm = self.get_hierarchy_dm()
 	listvm = self.get_hierarchy_vm()
 	listtm = self.get_hierarchy_tm()
-	sum = len(listdm) + len(listvm) + len (listtm)
-	count = 0
-	sorted = []
-	iddm = 0
-	idtm = 0
-	idvm = 0
-	while count < sum:
-	    if iddm < len(listdm):
-		tmpdm = self.config.AllManualDataModels.elements[listdm[iddm]]
-	    else:
-		tmpdm = None
-	    if idtm < len(listtm):
-		tmptm = self.config.AllTransferModels.elements[listtm[idtm]]
-	    else:
-		tmptm = None
-	    if idvm < len(listvm):
-		tmpvm = self.config.AllPouringModels.elements[listvm[idvm]]
-	    else:
-		tmpvm = None
-	    if tmpdm is not None :
-		rank = tmpdm.fields['rank']
-		type = 'dm'
-	    elif tmptm is not None:
-		rank = tmptm.fields['rank']
-		type = 'tm'
-	    elif tmpvm is not None:
-		rank = tmpvm.fields['rank']
-		type = 'vm'
-	    else:
-		break
-	    if tmptm is not None :
-		if tmptm.fields['rank'] < rank:
-		    type = 'tm'
-		    rank = tmptm.fields['rank']
-	    if tmpvm is not None:
-		if tmpvm.fields['rank'] < rank:
-		    type = 'vm'
-		    rank = tmpvm.fields['rank']
-	    if type == 'vm':
-		sorted.append(tmpvm)
-		idvm += 1
-		count += 1
-	    elif type == 'tm':
-		sorted.append(tmptm)
-		idtm += 1
-		count += 1
-	    elif type == 'dm':
-		sorted.append(tmpdm)
-		iddm += 1
-		count += 1
-	return sorted
+        tmp = []
+        for e in listdm:
+            tmp.append(self.config.AllManualDataModels.elements[e])
+        for e in listvm:
+            tmp.append(self.config.AllPouringModels.elements[e])
+        for e in listtm:
+            tmp.append(self.config.AllTransferModels.elements[e])
+	tmp.sort(key=lambda x: x.fields['rank'], reverse=False)
+        return tmp
 	
     def validate_control(self,data, lang):
 	model = self.get_model_sorted()
