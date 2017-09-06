@@ -516,7 +516,6 @@ def main():
             '/control/b_(.+)/h_(.+)', 'WebControl',  
             '/disconnect', 'WebDisconnect', 
         )
-        print c.AllCheckPoints.elements['5'].get_model_sorted()
         app = web.application(urls, globals())
         app.notfound = notfound
         app.run()

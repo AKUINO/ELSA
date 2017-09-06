@@ -662,6 +662,22 @@ class AllObjects():
                         currObject.creator = row['user']
                     else:
                         currObject.creator = None
+		if key in self.elements:
+		    tmp = self.elements[keys]
+		    if type == 't':
+			self.config.findAllFromType(tmp.fields['object_type']).elements[tmp.fields['object_id']].remove_position(tmp)
+		    elif type == 'd' :
+			self.config.findAllFromType(tmp.fields['object_type']).elements[tmp.fields['object_id']].remove_data(tmp)
+		    elif type == 'v' :
+			objects = self.config.AllBatches
+			objects.elements[tmp.fields['src']].remove_source(tmp)		    
+			objects.elements[tmp.fields['dest']].remove_destination(tmp)
+		    elif type == 'tm':
+			self.config.AllCheckPoints.elements[tmp.fields['h_id']].remove_tm(tmp)
+		    elif type == 'vm':
+			self.config.AllCheckPoints.elements[tmp.fields['h_id']].remove_dm(tmp)
+		    elif type == 'dm':
+			self.config.AllCheckPoints.elements[tmp.fields['h_id']].remove_vm(tmp)
 		self.elements[key] = currObject
 		if currObject.get_type() == 't':
 		    objects = self.config.findAllFromType(currObject.fields['object_type'])
@@ -1320,7 +1336,7 @@ class AllManualDataModels(AllObjects):
         self.keyColumn = "dm_id"
 	self.fieldnames = ["begin","dm_id",'acronym','m_id','h_id', 'rank', "remark", 'active', "user"]
 	self.fieldtranslate = ['begin', 'lang', 'dm_id', 'name', 'user']
-
+    
     def newObject(self):
         return ManualDataModel(self.config)
 	
