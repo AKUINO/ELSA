@@ -140,8 +140,8 @@ class Configuration():
 	self.AllManualDataModels.load()
 	self.AllPouringModels.load()
 	self.AllAlarmLogs.load()
-	self.UpdateThread.start()
-	self.RadioThread.start()
+	#self.UpdateThread.start()
+	#self.RadioThread.start()
     
     def findAllFromName(self,className):
         if className == User.__name__:
@@ -2433,6 +2433,7 @@ class ExportData():
 	self.max = -99999999999
 	self.average = 0
 	self.count = 0
+	self.countt = 0
 	
     def load_data(self):
 	for d in self.b.data:
@@ -2461,23 +2462,26 @@ class ExportData():
 	    self.load_data()
 	    self.load_transfers()
 	    self.load_pourings()
-	    
+    
 	    self.load_hierarchy()
+	    self.countt = 1
 	    
             bexport = self.transform_object_to_export_data(self.b) 
 	    self.elements.append(bexport)
 	    lastSensor = None
 	    count = 0
+	    end = useful.date_to_timestamp(self.transfers[1].fields['time'], datetimeformat)
 	    while count < (len(self.history)):
 		e = self.history[count]
-		begin = useful.date_to_timestamp(e.fields['time'], datetimeformat)
+		if e.get_type() == 't' :
+		    begin = useful.date_to_timestamp(e.fields['time'], datetimeformat)
+		    if self.countt > (len(self.transfers)-1) :
+			end = int(time.time())
+		    else :
+			end = useful.date_to_timestamp(self.transfers[self.countt].fields['time'], datetimeformat)
+		    self.countt += 1
 		infos = None
 		tmp = self.transform_object_to_export_data(e)
-		if len(self.history)-1 == count :
-		    end = int(time.time())
-		else :
-		    end = useful.date_to_timestamp(self.history[count+1].fields['time'], datetimeformat)
-                bexport['duration'] = self.get_duration(begin, end)
 		if self.cond['manualdata'] is True and e.get_type() == 'd':
 		    self.elements.append(tmp)
 		elif self.cond['transfer'] is True and e.get_type() == 't':
@@ -2654,6 +2658,7 @@ class ExportData():
 	if elem.get_type() in 'bcpem' :
 	    if elem.get_type() == 'b':
 		tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'],datetimeformat)
+		tmp['duration'] = self.get_duration(useful.date_to_timestamp(elem.fields['time'],datetimeformat),useful.get_timestamp())
 		tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
 		tmp['value'] = elem.fields['basicqt']
 		
@@ -2734,6 +2739,7 @@ class ExportData():
 		tmp[elem.fields['object_type']+'_id'] = elem.fields['object_id']
         elif elem.get_type() == 't':
             tmp['type'] = 'TRF'
+		
             tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'],datetimeformat)
             tmp['remark'] = elem.fields['remark']
             if self.cond['acronym'] is True :
@@ -2742,13 +2748,12 @@ class ExportData():
             else :
                 tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
 	elif elem.get_type() == 'v':
-	    tmp['type'] = 'VERS'
             tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'],datetimeformat)
             tmp['remark'] = elem.fields['remark']
 	    tmp['value'] = elem.fields['quantity']
 	    tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
 	    if elem.fields['src'] == self.b.getID():
-		tmp['type'] += ' OUT'
+		tmp['type'] += 'OUT'
 		if self.cond['acronym'] is True :
 		    tmp['b_id'] = self.config.AllBatches.elements[elem.fields['dest']].fields['acronym']
 		    tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['acronym']
@@ -2756,7 +2761,7 @@ class ExportData():
 		    tmp['b_id'] = elem.fields['dest']
 		    tmp['m_id'] = elem.fields['m_id']
 	    else :
-		tmp['type'] += ' IN'
+		tmp['type'] += 'INP'
 		if self.cond['acronym'] is True :
 		    tmp['b_id'] = self.config.AllBatches.elements[elem.fields['src']].fields['acronym']
 		    tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['acronym']
@@ -2766,7 +2771,7 @@ class ExportData():
 	return tmp
 
     def get_duration(self, begin, end):
-	timestamp = end - begin
+	timestamp = int(end) - int(begin)
 	return useful.timestamp_to_time(timestamp)
     
 
