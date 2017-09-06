@@ -140,8 +140,8 @@ class Configuration():
 	self.AllManualDataModels.load()
 	self.AllPouringModels.load()
 	self.AllAlarmLogs.load()
-	#self.UpdateThread.start()
-	#self.RadioThread.start()
+	self.UpdateThread.start()
+	self.RadioThread.start()
     
     def findAllFromName(self,className):
         if className == User.__name__:
@@ -949,7 +949,7 @@ class AllManualData(AllObjects):
         self.fileobject = csvDir + "D.csv"
 	self.filename = None
         self.keyColumn = "d_id"
-	self.fieldnames = ['begin', 'd_id', 'object_id', 'object_type', 'time', 'remark', 'm_id', 'value', 'active', 'user']
+	self.fieldnames = ['begin', 'd_id', 'object_id', 'object_type', 'time', 'h_id', 'remark', 'm_id', 'value', 'active', 'user']
 	self.fieldtranslate = None
 
     def newObject(self):
@@ -967,7 +967,7 @@ class AllPourings(AllObjects):
         self.fileobject = csvDir + "V.csv"
 	self.filename = None
         self.keyColumn = "v_id"
-	self.fieldnames = ['begin', 'v_id', 'src', 'dest', 'time', 'quantity', 'm_id', 'remark','active', 'user']
+	self.fieldnames = ['begin', 'v_id', 'src', 'dest', 'time', 'h_id', 'quantity', 'm_id', 'remark','active', 'user']
 	self.fieldtranslate = None
 
     def newObject(self):
@@ -1256,7 +1256,7 @@ class AllTransfers(AllObjects):
         self.fileobject = csvDir + "T.csv"
 	self.filename = None
         self.keyColumn = "t_id"
-	self.fieldnames = ["begin","t_id",'time', "cont_id", "cont_type", "object_id", "object_type", "remark", 'active', "user"]
+	self.fieldnames = ["begin","t_id",'time', 'h_id', "cont_id", "cont_type", "object_id", "object_type", "remark", 'active', "user"]
 	self.fieldtranslate = None
 
     def newObject(self):
@@ -1771,7 +1771,11 @@ class ManualData(ConfigurationObject):
 	    self.fields[elem] = data[elem]
 	self.add_component(data['component'])
 	self.add_measure(data['measure'])
-	if 'active' in data :
+	if 'h_id' in data :
+	    self.fields['h_id'] = data['h_id']
+	else :
+	    self.fields['h_id'] = ''
+        if 'active' in data :
 	    self.fields['active'] = '1'
 	else :
 	    self.fields['active'] = '0'
@@ -1848,7 +1852,11 @@ class Pouring(ConfigurationObject):
 	for elem in tmp:
 	    self.fields[elem] = data[elem]
 	self.fields['m_id'] = c.AllBatches.elements[data['src']].fields['m_id']
-	if 'active' in data :
+	if 'h_id' in data :
+	    self.fields['h_id'] = data['h_id']
+	else :
+	    self.fields['h_id'] = ''
+        if 'active' in data :
 	    self.fields['active'] = '1'
 	else :
 	    self.fields['active'] = '0'
@@ -2223,6 +2231,7 @@ class CheckPoint(Group):
 	tmp = {}
 	tmp['time'] = time
 	tmp['active'] = '1'
+	tmp['h_id'] = self.getID()
 	if type == 'dm':
 	    tmp['component'] = batch
 	    tmp['remark'] = data['dm_remark_'+str(count)]
@@ -2413,7 +2422,7 @@ class AlarmLog(ConfigurationObject):
 class ExportData():
     def __init__(self, config, elem,cond, user):
 	self.config = config
-	self.fieldnames = ['timestamp','user','type', 'b_id', 'p_id', 'e_id', 'c_id','m_id','sensor','value','unit', 'category', 'duration', 'remark']
+	self.fieldnames = ['timestamp','user','type', 'b_id', 'p_id', 'e_id', 'c_id','h_id','m_id','sensor','value','unit', 'category', 'duration', 'remark']
 	self.history = []
 	self.filename = csvDir + "exportdata.csv"
 	self.cond = cond
@@ -2470,7 +2479,6 @@ class ExportData():
 	    self.elements.append(bexport)
 	    lastSensor = None
 	    count = 0
-	    end = useful.date_to_timestamp(self.transfers[1].fields['time'], datetimeformat)
 	    while count < (len(self.history)):
 		e = self.history[count]
 		if e.get_type() == 't' :
@@ -2716,6 +2724,10 @@ class ExportData():
 	    tmp['unit'] = self.config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
 	elif elem.get_type() == 'd' :
 	    tmp['type'] = 'MAN'
+            if self.cond['acronym'] is True :
+                tmp['h_id'] = self.config.AllCheckPoints.elements[elem.fields['h_id']].fields['acronym']
+            else:
+                tmp['h_id'] = elem.fields['h_id']
             tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'],datetimeformat)
             if elem.fields['m_id'] != '':
 	        tmp['value'] = elem.fields['value']
@@ -2739,6 +2751,10 @@ class ExportData():
 		tmp[elem.fields['object_type']+'_id'] = elem.fields['object_id']
         elif elem.get_type() == 't':
             tmp['type'] = 'TRF'
+            if self.cond['acronym'] is True :
+                tmp['h_id'] = self.config.AllCheckPoints.elements[elem.fields['h_id']].fields['acronym']
+            else:
+                tmp['h_id'] = elem.fields['h_id']
 		
             tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'],datetimeformat)
             tmp['remark'] = elem.fields['remark']
@@ -2748,6 +2764,10 @@ class ExportData():
             else :
                 tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
 	elif elem.get_type() == 'v':
+            if self.cond['acronym'] is True :
+                tmp['h_id'] = self.config.AllCheckPoints.elements[elem.fields['h_id']].fields['acronym']
+            else:
+                tmp['h_id'] = elem.fields['h_id']
             tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'],datetimeformat)
             tmp['remark'] = elem.fields['remark']
 	    tmp['value'] = elem.fields['quantity']
@@ -2784,6 +2804,7 @@ class ExportData():
 	tmp['p_id'] = ''
 	tmp['e_id'] = ''
 	tmp['c_id'] = ''
+	tmp['h_id'] = ''
 	tmp['m_id'] = ''
 	tmp['sensor'] = ''
 	tmp['value'] = ''
@@ -3703,6 +3724,10 @@ class Transfer(ConfigurationObject):
 	    self.fields['active'] = '1'
 	else :
 	    self.fields['active'] = '0'
+	if 'h_id' in data :
+	    self.fields['h_id'] = data['h_id']
+	else :
+	    self.fields['h_id'] = ''
 	self.set_position(data['position'])
 	self.set_object(data['object'])
 	if self.fields['active'] == '1':

@@ -485,14 +485,14 @@ def main():
 
     global c, wsgiapp, render
     try:
-	web.config.debug = True
+	web.config.debug = False
 	#Configuration Singleton ELSA
 	c=elsa.Configuration()
         c.load()
         web.template.Template.globals['c'] = c
         web.template.Template.globals['useful'] = useful
 	layout = web.template.frender('templates/layout.html')
-        render=web.template.render('templates/', base='layout')
+        render=web.template.render('templates/', base=layout)
         urls = (
             '/', 'WebIndex',
             '/index','WebIndex',  

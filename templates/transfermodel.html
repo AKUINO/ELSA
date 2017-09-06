@@ -30,7 +30,7 @@ $if errormess != '':
 				$if  k == context.split('_')[-1] :
 				    selected
 			    $elif id != 'new':
-				$if  k == c.AllManualDataModels.elements[id].fields['h_id'] :
+				$if  k == c.AllTransferModels.elements[id].fields['h_id'] :
 				    selected
 			>$c.AllCheckPoints.elements[k].fields['acronym'] - $c.AllCheckPoints.elements[k].getName(self.lang) </option>
 		</select>
