@@ -656,14 +656,7 @@ class AllObjects():
 		if key in self.elements :
 		    currObject.created = self.elements[key].created
 		    currObject.creator = self.elements[key].creator
-		else :
-		    currObject.created = currObject.fields['begin']
-		    if 'user' in row:
-                        currObject.creator = row['user']
-                    else:
-                        currObject.creator = None
-		if key in self.elements:
-		    tmp = self.elements[keys]
+		    tmp = self.elements[key]
 		    if type == 't':
 			self.config.findAllFromType(tmp.fields['object_type']).elements[tmp.fields['object_id']].remove_position(tmp)
 		    elif type == 'd' :
@@ -678,6 +671,12 @@ class AllObjects():
 			self.config.AllCheckPoints.elements[tmp.fields['h_id']].remove_dm(tmp)
 		    elif type == 'dm':
 			self.config.AllCheckPoints.elements[tmp.fields['h_id']].remove_vm(tmp)
+		else :
+		    currObject.created = currObject.fields['begin']
+		    if 'user' in row:
+                        currObject.creator = row['user']
+                    else:
+                        currObject.creator = None
 		self.elements[key] = currObject
 		if currObject.get_type() == 't':
 		    objects = self.config.findAllFromType(currObject.fields['object_type'])
