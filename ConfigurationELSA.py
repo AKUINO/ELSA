@@ -657,20 +657,21 @@ class AllObjects():
 		    currObject.created = self.elements[key].created
 		    currObject.creator = self.elements[key].creator
 		    tmp = self.elements[key]
-		    if type == 't':
+		    if tmp.get_type() == 't':
 			self.config.findAllFromType(tmp.fields['object_type']).elements[tmp.fields['object_id']].remove_position(tmp)
-		    elif type == 'd' :
+		    elif tmp.get_type() == 'd' :
 			self.config.findAllFromType(tmp.fields['object_type']).elements[tmp.fields['object_id']].remove_data(tmp)
-		    elif type == 'v' :
+		    elif tmp.get_type() == 'v' :
 			objects = self.config.AllBatches
 			objects.elements[tmp.fields['src']].remove_source(tmp)		    
 			objects.elements[tmp.fields['dest']].remove_destination(tmp)
-		    elif type == 'tm':
+		    elif tmp.get_type() == 'tm':
+			print tmp
 			self.config.AllCheckPoints.elements[tmp.fields['h_id']].remove_tm(tmp)
-		    elif type == 'vm':
-			self.config.AllCheckPoints.elements[tmp.fields['h_id']].remove_dm(tmp)
-		    elif type == 'dm':
+		    elif tmp.get_type() == 'vm':
 			self.config.AllCheckPoints.elements[tmp.fields['h_id']].remove_vm(tmp)
+		    elif tmp.get_type() == 'dm':
+			self.config.AllCheckPoints.elements[tmp.fields['h_id']].remove_dm(tmp)
 		else :
 		    currObject.created = currObject.fields['begin']
 		    if 'user' in row:
