@@ -518,11 +518,10 @@ def main():
         )
 	user = c.AllUsers.elements['1']
 	cond = []
-	elem = c.AllBatches.elements['1']
+	elem = c.AllBatches.elements['19']
 	ed = elsa.ExportData(c, elem, cond, user)
 	test = ed.load_transfers()
-	for e in test:
-	    print e
+        print test
         app = web.application(urls, globals())
         app.notfound = notfound
         app.run()

@@ -2424,9 +2424,11 @@ class ExportData():
 	    
     def load_transfers(self, component = None, begin = None, end = None):
 	if component == None :
+            self.transfers = []
 	    component = self.elem
 	    if len(component.position) >0:
 		begin = useful.date_to_timestamp(self.config.AllTransfers.elements[component.position[0]].fields['time'],datetimeformat)
+                self.transfers.append(self.config.AllTransfers.elements[component.position[0]])
 		if len(component.position) > 1:
 		    end = component.position[1]
 		else:
@@ -2435,8 +2437,8 @@ class ExportData():
 		return []
 	tmpEND = end
 	tmp = component.get_transfers_in_time_interval(begin, end)
-	print tmp
 	count = 0
+        print tmp
 	while count < len(tmp):
 	    begin = useful.date_to_timestamp(tmp[count].fields['time'],datetimeformat)
 	    if count < (len(tmp) -1) :
@@ -2447,6 +2449,7 @@ class ExportData():
 	    self.transfers.append(tmp[count])
 	    count += 1
 	    self.load_transfers(tmpComponent, begin, end)
+        print self.transfers
 	return self.transfers
 	    
     def load_pourings(self):
