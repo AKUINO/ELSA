@@ -28,20 +28,20 @@ $if 'colorgraph' in elem.fields.keys() :
 		style="color : #337ab7"
 	><span class="$c.AllHalflings.elements[elem.get_name()].getHalfling()"></span> </div>
 	<div class="col-xs-3 vcenter">
-	       <div class="row">
-		    $if type in 'cpemgugrgfh' and type not in 'u':
-			<a href="/find/related/$(type)_$(id)"
-		    $elem.fields['acronym'] 
-		    $if type in 'cpemgugrgfh' and type not in 'u':
-			</a>
-	       </div>
-	       <div class="row">
-		    $if type in 'cpemgugrgfh' and type not in 'u':
-			<a href="/find/related/$(type)_$(id)"
-		    <strong>$elem.getName(self.lang)</strong>
-		    $if type in 'cpemgugrgfh' and type not in 'u':
-			</a>
-	       </div>
+	    <div class="row">
+		$if type in 'cpemgugrgfh' and type not in 'u':
+		    <a href="/find/related/$(type)_$(id)">
+		$elem.fields['acronym'] 
+		$if type in 'cpemgugrgfh' and type not in 'u':
+		    </a>
+	    </div>
+	    <div class="row">
+		$if type in 'cpemgugrgfh' and type not in 'u':
+		    <a href="/find/related/$(type)_$(id)">
+		<strong>$elem.getName(self.lang)</strong>
+		$if type in 'cpemgugrgfh' and type not in 'u':
+		    </a>
+	   </div>
 	</div>
 	$if type in 'cpeu' :
 	    $code :

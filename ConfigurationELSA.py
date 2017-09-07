@@ -19,6 +19,7 @@ import barcode
 import re
 import socket
 import collections
+import math
 """
 import SSD1306
 from I2CScreen import *
@@ -506,6 +507,8 @@ class ConfigurationObject():
 			if useful.date_to_timestamp(self.config.AllTransfers.elements[self.position[count-1]].fields['time'],datetimeformat) > begin :
 			    tmp.append(self.position[count -1])
 	        tmp.append(t)
+	    elif time <= begin and count == (len(self.position)-1):
+		tmp.append(t)
 	    count += 1
 	return tmp
 	
@@ -563,6 +566,19 @@ class ConfigurationObject():
 	    if v.is_actual_position(self.get_type(),self.getID()):
 		batches.append(v)
 	return batches
+	
+    def get_position_on_time(self, config, time):
+	time = useful.date_to_timestamp(time, datetimeformat)
+	if self.position == [] :
+	    return None
+	count = 1
+	while count < len(self.position):
+	    tmp = config.AllTransfers.elements[self.position[count]]
+	    tmptime = useful.date_to_timestamp(tmp.fields['time'], datetimeformat)
+	    if time < tmptime:
+		return config.AllTransfers.elements[self.position[count-1]]
+	return config.AllTransfers.elements[self.position[-1]]
+	    
 
 class UpdateThread(threading.Thread):
 
@@ -666,7 +682,6 @@ class AllObjects():
 			objects.elements[tmp.fields['src']].remove_source(tmp)		    
 			objects.elements[tmp.fields['dest']].remove_destination(tmp)
 		    elif tmp.get_type() == 'tm':
-			print tmp
 			self.config.AllCheckPoints.elements[tmp.fields['h_id']].remove_tm(tmp)
 		    elif tmp.get_type() == 'vm':
 			self.config.AllCheckPoints.elements[tmp.fields['h_id']].remove_vm(tmp)
@@ -2428,7 +2443,6 @@ class ExportData():
 	    component = self.elem
 	    if len(component.position) >0:
 		begin = useful.date_to_timestamp(self.config.AllTransfers.elements[component.position[0]].fields['time'],datetimeformat)
-                self.transfers.append(self.config.AllTransfers.elements[component.position[0]])
 		if len(component.position) > 1:
 		    end = component.position[1]
 		else:
@@ -2438,7 +2452,6 @@ class ExportData():
 	tmpEND = end
 	tmp = component.get_transfers_in_time_interval(begin, end)
 	count = 0
-        print tmp
 	while count < len(tmp):
 	    begin = useful.date_to_timestamp(tmp[count].fields['time'],datetimeformat)
 	    if count < (len(tmp) -1) :
@@ -2449,7 +2462,9 @@ class ExportData():
 	    self.transfers.append(tmp[count])
 	    count += 1
 	    self.load_transfers(tmpComponent, begin, end)
-        print self.transfers
+        self.transfers.sort(key=lambda x: int(useful.date_to_timestamp(x.fields['time'],datetimeformat)), reverse=False)
+	while self.transfers[0].fields['object_type'] != 'b' :
+	    self.transfers.pop(0)
 	return self.transfers
 	    
     def load_pourings(self):
@@ -2493,7 +2508,7 @@ class ExportData():
 		if self.cond['manualdata'] is True and e.get_type() == 'd':
 		    self.elements.append(tmp)
 		elif self.cond['transfer'] is True and e.get_type() == 't':
-		    tmp['duration'] = self.get_duration(begin, end) 
+		    tmp['duration'] = self.get_duration(begin, end)
 		    self.elements.append(tmp)
 		elif self.cond['pouring'] is True and e.get_type() == 'v':
 		    self.elements.append(tmp)
@@ -2662,7 +2677,8 @@ class ExportData():
                 if aUser and aUser.fields['acronym']:
                     tmp['user'] = aUser.fields['acronym']
         if elem.created:
-	    tmp['timestamp'] = useful.date_to_timestamp(elem.created,datetimeformat)		
+	    tmp['timestamp'] = useful.date_to_timestamp(elem.created,datetimeformat)	
+	    	
 	if elem.get_type() in 'bcpem' :
 	    if elem.get_type() == 'b':
 		tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'],datetimeformat)
@@ -2682,6 +2698,7 @@ class ExportData():
 	    tmp['type'] = elem.get_type()
 	    if elem.get_type() == 'm':
 		tmp['m_id'] = elem.getID()
+		
 	elif elem.get_type() == 's' :
 	    if self.cond['acronym'] is True :
 		if elem.fields['p_id'] != '' :
@@ -2706,6 +2723,7 @@ class ExportData():
 		tmp['m_id'] = elem.fields['m_id']
 	    tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
 	    tmp['remark'] = elem.fields['remark']
+	    
 	elif elem.get_type() == 'al' :
 	    sensor = self.config.AllSensors.elements[elem.fields['s_id']]
 	    tmp['timestamp'] = elem.fields['begintime']
@@ -2722,6 +2740,7 @@ class ExportData():
 	    tmp['category'] = elem.fields['degree']
 	    tmp['value'] = elem.fields['value']
 	    tmp['unit'] = self.config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
+	    
 	elif elem.get_type() == 'd' :
 	    tmp['type'] = 'MAN'
             if self.cond['acronym'] is True and elem.fields['h_id'] != '' :
@@ -2749,6 +2768,7 @@ class ExportData():
 	    else:
 		tmp['user'] = elem.fields['user']
 		tmp[elem.fields['object_type']+'_id'] = elem.fields['object_id']
+		
         elif elem.get_type() == 't':
             tmp['type'] = 'TRF'
             if self.cond['acronym'] is True and elem.fields['h_id'] != '' :
@@ -2760,9 +2780,21 @@ class ExportData():
             tmp['remark'] = elem.fields['remark']
             if self.cond['acronym'] is True :
                 tmp[elem.fields['cont_type']+'_id'] = self.config.findAllFromType(elem.fields['cont_type']).elements[elem.fields['cont_id']].fields['acronym']
-		print self.config.findAllFromType(elem.fields['cont_type']).elements[elem.fields['cont_id']].fields['acronym']
-            else :
+		if elem.fields['object_type'] != 'b' :
+		    tmp[elem.fields['object_type']+'_id'] = self.config.findAllFromType(elem.fields['object_type']).elements[elem.fields['object_id']].fields['acronym']
+		elemtmp = elem.get_cont().get_position_on_time(self.config ,elem.fields['time'])
+		while elemtmp is not None :
+		    tmp[elemtmp.fields['cont_type']+'_id'] = self.config.findAllFromType(elemtmp.fields['cont_type']).elements[elemtmp.fields['cont_id']].fields['acronym']
+		    elemtmp = elemtmp.get_cont().get_position_on_time(self.config ,elemtmp.fields['time'])
+	    else :
                 tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
+		if elem.fields['object_type'] != 'b' :
+		    tmp[elem.fields['object_type']+'_id'] = elem.fields['object_id']
+		elemtmp = elem.get_cont().get_position_on_time(self.config ,elem.fields['time'])
+		while elemtmp is not None :
+		    tmp[elemtmp.fields['cont_type']+'_id'] = elem.fields['object_id']
+		    elemtmp = elemtmp.get_cont().get_position_on_time(self.config ,elemtmp.fields['time'])
+		
 	elif elem.get_type() == 'v':
             if self.cond['acronym'] is True and elem.fields['h_id'] != '' :
                 tmp['h_id'] = self.config.AllCheckPoints.elements[elem.fields['h_id']].fields['acronym']
