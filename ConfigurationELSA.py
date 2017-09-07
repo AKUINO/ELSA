@@ -2393,7 +2393,7 @@ class AlarmLog(ConfigurationObject):
 	return 'alarmlog'
 
 class ExportData():
-    def __init__(self, config, elem,cond, user):
+    def __init__(self, config, elem, cond, user):
 	self.config = config
 	self.fieldnames = ['timestamp','user','type', 'b_id', 'p_id', 'e_id', 'c_id','h_id','m_id','sensor','value','unit', 'category', 'duration', 'remark']
 	self.history = []
@@ -2420,10 +2420,33 @@ class ExportData():
     def load_data(self):
 	for d in self.b.data:
 	    self.data.append(self.config.AllManualData.elements[d])
-		
-    def load_transfers(self):
-	for t in self.b.position:
-	    self.transfers.append(self.config.AllTransfers.elements[t])
+	    
+    def load_transfers(self, component = None, begin = None, end = None):
+	if component == None :
+	    component = self.elem
+	    if len(component.position) >0:
+		begin = useful.date_to_timestamp(self.config.AllTransfers.elements[component.position[0]].fields['time'],datetimeformat)
+		if len(component.position) > 1:
+		    end = component.position[1]
+		else:
+		    end = useful.get_timestamp()
+	    else:
+		return []
+	tmpEND = end
+	tmp = component.get_transfers_in_time_interval(begin, end)
+	print tmp
+	count = 0
+	while count < len(tmp):
+	    begin = useful.date_to_timestamp(tmp[count].fields['time'],datetimeformat)
+	    if count < (len(tmp) -1) :
+		end = useful.date_to_timestamp(tmp[count+1].fields['time'],datetimeformat)
+	    else :
+		end = tmpEND
+	    tmpComponent = tmp[count].get_cont()
+	    self.transfers.append(tmp[count])
+	    count += 1
+	    self.load_transfers(tmpComponent, begin, end)
+	return self.transfers
 	    
     def load_pourings(self):
 	for t in self.b.destination:
@@ -2618,10 +2641,10 @@ class ExportData():
 	if infos is None :
 	    infos = {}
 	sensors = component.get_sensors_in_component(self.config)
-	tmp = component.get_transfers_in_time_interval(begin,end)
+	"""tmp = component.get_transfers_in_time_interval(begin,end)
 	if len(tmp) > 0 :
 	    for t in tmp :
-		infos = self.get_all_in_component(t.get_cont(),begin,end,infos)
+		infos = self.get_all_in_component(t.get_cont(),begin,end,infos)"""
 	for a in sensors:
 	    infos[a] = self.config.AllSensors.elements[a].fetch(begin,end)
 	return infos
@@ -2697,7 +2720,7 @@ class ExportData():
 	    tmp['unit'] = self.config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
 	elif elem.get_type() == 'd' :
 	    tmp['type'] = 'MAN'
-            if self.cond['acronym'] is True :
+            if self.cond['acronym'] is True and elem.fields['h_id'] != '' :
                 tmp['h_id'] = self.config.AllCheckPoints.elements[elem.fields['h_id']].fields['acronym']
             else:
                 tmp['h_id'] = elem.fields['h_id']
@@ -2724,7 +2747,7 @@ class ExportData():
 		tmp[elem.fields['object_type']+'_id'] = elem.fields['object_id']
         elif elem.get_type() == 't':
             tmp['type'] = 'TRF'
-            if self.cond['acronym'] is True :
+            if self.cond['acronym'] is True and elem.fields['h_id'] != '' :
                 tmp['h_id'] = self.config.AllCheckPoints.elements[elem.fields['h_id']].fields['acronym']
             else:
                 tmp['h_id'] = elem.fields['h_id']
@@ -2737,7 +2760,7 @@ class ExportData():
             else :
                 tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
 	elif elem.get_type() == 'v':
-            if self.cond['acronym'] is True :
+            if self.cond['acronym'] is True and elem.fields['h_id'] != '' :
                 tmp['h_id'] = self.config.AllCheckPoints.elements[elem.fields['h_id']].fields['acronym']
             else:
                 tmp['h_id'] = elem.fields['h_id']

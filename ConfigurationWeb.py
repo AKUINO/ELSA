@@ -516,6 +516,13 @@ def main():
             '/control/b_(.+)/h_(.+)', 'WebControl',  
             '/disconnect', 'WebDisconnect', 
         )
+	user = c.AllUsers.elements['1']
+	cond = []
+	elem = c.AllBatches.elements['1']
+	ed = elsa.ExportData(c, elem, cond, user)
+	test = ed.load_transfers()
+	for e in test:
+	    print e
         app = web.application(urls, globals())
         app.notfound = notfound
         app.run()
