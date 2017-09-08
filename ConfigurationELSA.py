@@ -507,8 +507,9 @@ class ConfigurationObject():
 			if useful.date_to_timestamp(self.config.AllTransfers.elements[self.position[count-1]].fields['time'],datetimeformat) > begin :
 			    tmp.append(self.position[count -1])
 	        tmp.append(t)
-	    elif time <= begin and count == (len(self.position)-1):
+	    elif time <= begin and (first is True or count == len(self.position)-1):
 		tmp.append(t)
+		first = False
 	    count += 1
 	return tmp
 	
@@ -2463,8 +2464,10 @@ class ExportData():
 	    count += 1
 	    self.load_transfers(tmpComponent, begin, end)
         self.transfers.sort(key=lambda x: int(useful.date_to_timestamp(x.fields['time'],datetimeformat)), reverse=False)
+	print self.transfers
 	while self.transfers[0].fields['object_type'] != 'b' :
 	    self.transfers.pop(0)
+	print self.transfers
 	return self.transfers
 	    
     def load_pourings(self):
@@ -2492,7 +2495,6 @@ class ExportData():
 	    
             bexport = self.transform_object_to_export_data(self.b) 
 	    self.elements.append(bexport)
-	    lastSensor = None
 	    count = 0
 	    while count < (len(self.history)):
 		e = self.history[count]
@@ -2512,15 +2514,12 @@ class ExportData():
 		    self.elements.append(tmp)
 		elif self.cond['pouring'] is True and e.get_type() == 'v':
 		    self.elements.append(tmp)
-		if e.get_type() == 'd' or e.get_type() == 'v':
-		    if lastSensor != None:
-			infos = self.get_all_in_component(lastSensor,begin,end)
-		else :
+		if e.get_type() == 't':
 		    e = self.config.getObject(e.fields['cont_id'],e.fields['cont_type'])
 		    infos = self.get_all_in_component(e,begin,end)
 		    lastSensor = e
 		if infos is not None:
-		    self.add_value_from_sensors(infos,lastSensor)
+		    self.add_value_from_sensors(infos)
 		count += 1
 		
 
@@ -2537,8 +2536,8 @@ class ExportData():
                 writer = unicodecsv.DictWriter(csvfile, delimiter = "\t",fieldnames=self.fieldnames,encoding="utf-8")
                 writer.writerow(e)
 	
-    def add_value_from_sensors(self, infos, component):
-	sensors = component.get_sensors_in_component(self.config)
+    def add_value_from_sensors(self, infos):
+	print infos.keys()
 	for a in infos.keys() :
 	    self.min = 99999999999
 	    self.max = -99999999999
@@ -2660,10 +2659,10 @@ class ExportData():
 	if infos is None :
 	    infos = {}
 	sensors = component.get_sensors_in_component(self.config)
-	"""tmp = component.get_transfers_in_time_interval(begin,end)
+	tmp = component.get_transfers_in_time_interval(begin,end)
 	if len(tmp) > 0 :
 	    for t in tmp :
-		infos = self.get_all_in_component(t.get_cont(),begin,end,infos)"""
+		infos = self.get_all_in_component(t.get_cont(),begin,end,infos)
 	for a in sensors:
 	    infos[a] = self.config.AllSensors.elements[a].fetch(begin,end)
 	return infos
@@ -2736,7 +2735,7 @@ class ExportData():
 	        tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
                 tmp['sensor'] = elem.fields['s_id']
 		tmp['m_id'] = elem.fields['m_id']
-	    tmp['duration'] = self.get_duration(useful.date_to_timestamp(elem.fields['begin'],datetimeformat),int(elem.fields['begintime']))
+	    tmp['duration'] = self.get_duration(int(elem.fields['begintime']),useful.date_to_timestamp(elem.fields['begin'],datetimeformat))
 	    tmp['category'] = elem.fields['degree']
 	    tmp['value'] = elem.fields['value']
 	    tmp['unit'] = self.config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
