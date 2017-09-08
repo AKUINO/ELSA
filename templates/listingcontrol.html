@@ -3,6 +3,7 @@ $code:
     allobjects = c.findAllFromType(type)
     elem = allobjects.elements[id]
     keyID = c.findAllFromObject(elem).keyColumn
+    group = c.AllGrRecipe.elements[elem.fields['gr_id']]
     
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var location: list/$(type)=$(c.findAllFromType(type).get_name_object()) find/h/$(type)_$(id)=checkpoint
@@ -40,9 +41,9 @@ $for i in elem.checkpoints:
 	    </div>
 	    <div class="col-sm-4">
 		<select name = "checkpoint" class="form-control" id="inputPosition">
-		$for k,v in c.AllCheckPoints.elements.items():
-		    $if not k in elem.checkpoints:
-			<option value="$k">$v.fields['acronym'] - $v.getName(self.lang) </option>
+		$for v in c.AllCheckPoints.get_checkpoints_for_recipe(group.get_all_parents()):
+		    $if v.getID() not in elem.checkpoints :
+			<option value="$v.getID()">$v.fields['acronym'] - $v.getName(self.lang) </option>
 		</select>
 	    </div>
 	    <div class="col-sm-3">

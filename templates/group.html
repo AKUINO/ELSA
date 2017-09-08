@@ -60,6 +60,21 @@ $code:
 		    </select>
 		</div>
 	    </div>
+    
+	    <div class="form-group row">
+		<label for="rankinput" class="col-sm-3 col-form-label">$c.AllMessages.elements['rank'].getName(self.lang)</label>
+		<div class="col-sm-9">
+		    <input name="rank" type="number" class="form-control" 
+		    $if errormess != '':
+			$if 'rank' in data :
+			    value="$data['rank']" 
+		    $elif id != 'new':
+			value="$c.AllCheckPoints.elements[id].fields['rank']"
+		    $else:
+			value="1"		
+		    id="rankinput">
+		</div>
+	    </div>
 	
 	<div class="form-group row">
 	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].names[self.lang]['name']</label>
@@ -112,6 +127,32 @@ $code:
 		>
 	    </div>
 	</div>
+	
+	$if type == 'h':
+	    <div class="form-group row">
+		<label for="inputactive" class="col-sm-6 col-form-label">$c.AllMessages.elements['abstract'].getName(self.lang)</label>
+		<span class="glyphicon glyphicon-remove-circle"> </span>
+		$code:
+		    cond = (id != 'new')
+		    if cond :
+			cond = (c.AllCheckPoints.elements[id].fields['abstract'] == 1 or c.AllCheckPoints.elements[id].fields['abstract'] == '1')
+		    if errormess != '' :
+			if 'abstract' in data :
+			    cond  = True
+			else:
+			    cond = False
+		$if cond :
+		    <label class="switch">
+			<input id='inputactive' name="abstract" type="checkbox" value="1" checked>
+			<div class="slider round"></div>
+		    </label>
+		$else :
+		    <label class="switch">
+			<input id='inputactive' name="abstract" type="checkbox"  >
+			<div class="slider round"></div>
+		    </label>
+		<span class="glyphicon glyphicon-ok-circle"> </span>
+	    </div>
 	
 	<div class="form-group row">
 	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].names[self.lang]['name']</label>

@@ -1119,13 +1119,14 @@ class AllGrRecipe(AllGroups):
     def get_key_group(self):
 	return 'gr'
 	
+	
 class AllCheckPoints(AllGroups):
     def __init__(self, config):
 	AllGroups.__init__(self, config)
         self.fileobject = csvDir + "H.csv"
 	self.filename = csvDir + "Hnames.csv"
         self.keyColumn = "h_id"
-	self.fieldnames = ["begin", "h_id", "active", "acronym", "remark",'gr_id', "user"]
+	self.fieldnames = ["begin", "h_id", "active", "acronym",'rank','abstract', "remark",'gr_id', "user"]
 	self.fieldtranslate = ['begin', 'lang', 'h_id', 'name', 'user']
 	self.fieldcontrols = ['begin', 'h_id', 'object_type','object_id', 'user']
 	self.csvRelations = csvDir + "Hrelations.csv"
@@ -1166,6 +1167,16 @@ class AllCheckPoints(AllGroups):
 		type = row['object_type']
 		id = row['object_id']
 		currObject = self.config.findAllFromType(type).elements[id].add_checkpoint(row['h_id'])
+	    
+    def get_checkpoints_for_recipe(self,recipes):
+	checkpoints = []
+	for k,e in self.elements.items():
+	    if e.fields['gr_id'] in recipes and e.fields['abstract'] == '0':
+		checkpoints.append(e)
+	checkpoints.sort(key=lambda x:int(x.fields['rank']), reverse=False)
+	return checkpoints
+		
+	
 	
 class AllGrFunction(AllGroups):
     def __init__(self, config):
@@ -2038,6 +2049,14 @@ class Group(ConfigurationObject):
 	    for rel in group.related:
 		if rel in self.related and k != self.getID():
 		    self.siblings.append(k)
+		    
+    def get_all_parents(self,parents = None):
+	if parents == None:
+	    parents = []
+	for e in self.parents:
+	    parents.append(e)
+	    self.config.findAllFromType(self.get_type()).elements[e].get_all_parents(parents)
+	return parents
 	    
 	
 class GrUsage(Group):
@@ -2084,6 +2103,11 @@ class CheckPoint(Group):
     def set_value_from_data(self, data, c,user):
 	Group.set_value_from_data(self, data, c,user)
 	self.fields['gr_id'] = data['recipe']
+	self.fields['rank'] = data['rank']
+	if 'abstract' in data :
+	    self.fields['abstract'] = '1'
+	else :
+	    self.fields['abstract'] = '0'
 	self.save(c,user)
 	
     def remove_tm(self, model):
@@ -2160,7 +2184,7 @@ class CheckPoint(Group):
             tmp.append(self.config.AllPouringModels.elements[e])
         for e in listtm:
             tmp.append(self.config.AllTransferModels.elements[e])
-	tmp.sort(key=lambda x: x.fields['rank'], reverse=False)
+	tmp.sort(key=lambda x: int(x.fields['rank']), reverse=False)
         return tmp
 	
     def validate_control(self,data, lang):
