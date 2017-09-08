@@ -12,7 +12,7 @@ $if 'colorgraph' in elem.fields.keys() :
     border-left-style: solid;border-width: 10px;border-color:$(elem.fields['colorgraph']);
 $elif type == 'h':
     $if elem.fields['abstract'] == '1' or elem.fields['abstract'] == 1 :
-	border-left-style: solid;border-width: 10px;border-color:#00152b;
+	border-left-style: solid;border-width: 10px;border-color:#337ab7;
 ">
     <div class="col-xs-12 " >
 	<div class="col-xs-2 vcenter">
@@ -45,7 +45,7 @@ $elif type == 'h':
 		    </a>
 	   </div>
 	</div>
-	$if type in 'cpeu' :
+	$if type in 'pu' :
 	    $code :
 		groups = c.get_group(allElem.get_key_group())
 	    <div class="col-xs-1 vcenter">
@@ -59,6 +59,44 @@ $elif type == 'h':
 		<div class="col-xs-2 vcenter">
 		    -
 		</div>
+	$elif type in 'ec':
+	    <div class="col-xs-3 vcenter">
+		<div class="row">
+		    $code :
+			groups = c.get_group(allElem.get_key_group())
+		    <div class="col-xs-1 vcenter">
+			<span class="$c.AllHalflings.elements[groups.get_name_object()].getHalfling()"></span>
+		    </div>
+		    $if elem.get_group() != '' :
+			<div class="col-xs-2 vcenter">
+			       <a href="/item/$(allElem.get_key_group())_$elem.get_group()">$groups.elements[elem.get_group()].fields['acronym']</a>
+			</div>
+		    $else :
+			<div class="col-xs-2 vcenter">
+			    -
+			</div>
+		</div>
+		<div class="row">
+		    $code:
+			tmp = elem.get_actual_position()
+			if tmp is not None :
+			    pos = c.AllTransfers.elements[tmp].get_cont()
+			else :
+			    pos = None
+		    $if pos is not None :
+			<div class="col-xs-1 vcenter">
+			    <span class="$c.AllHalflings.elements[pos.get_name()].getHalfling()"></span>
+			</div>
+			<div class="col-xs-10 vcenter">
+			    <a href="/item/$(pos.get_type())_$pos.getID()">$pos.fields['acronym']</a>
+			</div>
+		    $else:
+			<div class="col-xs-1 vcenter">
+			    -
+			</div>
+			<div class="col-xs-10 vcenter"> -</div>
+		</div>
+	    </div>
 	$elif type == 'b':
 	    $code :
 		groups = c.get_group(allElem.get_key_group())
