@@ -3220,7 +3220,7 @@ class Sensor(ConfigurationObject):
 		config.screen.end_line()
 	else :
 	    #TODO : si on ne sait pas se connecter au senseur, rajouter Alarme " Erreur Senseur not working"
-	    print 'Impossible d acceder au senseur TO DO'
+	    print "Impossible d acceder au senseur "+self.fields['acronym']
 	
     def updateRRD(self,now, value):
         value = float(value)
@@ -3279,6 +3279,7 @@ class Sensor(ConfigurationObject):
 	self.time = 0
 	
     def get_value_sensor(self,config):
+	owData = None
 	if self.fields['channel'] == 'wire':
 	    try:
 		sensorAdress = u'/'+unicode(self.fields['sensor'])
