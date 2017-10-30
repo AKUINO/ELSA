@@ -7,7 +7,6 @@ import traceback
 import sys
 
 global c, render
-rrdDir = '../ELSArrd/rrd/'
 
 class WebColor():
     def GET(self, type,id):
@@ -334,7 +333,15 @@ class WebBarcode():
 class getRRD(): 
     def GET(self, filename):
         try: 
-            f = open(rrdDir + filename)
+            f = open(elsa.rrdDir + filename)
+            return f.read()  
+        except IOError: 
+            web.notfound()
+            
+class getCSV(): 
+    def GET(self, filename):
+        try: 
+            f = open(elsa.csvDir + filename)
             return f.read()  
         except IOError: 
             web.notfound()
@@ -485,7 +492,7 @@ def main():
 
     global c, wsgiapp, render
     try:
-	web.config.debug = False
+	#web.config.debug = False
 	#Configuration Singleton ELSA
 	c=elsa.Configuration()
         c.load()
@@ -501,6 +508,7 @@ def main():
             '/create/(.+)', 'WebCreate',
             '/monitoring/', 'WebMonitoring',
             '/rrd/(.+)', 'getRRD',
+            '/csv/(.+)', 'getCSV',
             '/list/(.+)', 'WebList',
             '/graphic/(.+)_(.+)', 'WebGraphic',
             '/barcode/(.+)', 'WebBarcode',

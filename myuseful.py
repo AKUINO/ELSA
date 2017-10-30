@@ -19,6 +19,8 @@ SMTP_SERVER = u'smtp.gmail.com'
 SMTP_PORT = 587
 csvDir = "../ELSAcsv/csv/"
 
+datetimeformat = "%Y-%m-%d %H:%M:%S"
+
 def get_timestamp():
     now = time.time()
     now = math.floor(float(now))
@@ -53,13 +55,13 @@ def send_email(recipient, subject, text):
     smtpserver.sendmail(GMAIL_USER, recipient, msg.as_string())
     smtpserver.close()
 
-def timestamp_to_date(now,datetimeformat):
-    return datetime.datetime.fromtimestamp(int(now)).strftime(datetimeformat)
+def timestamp_to_date(now,format=datetimeformat):
+    return datetime.datetime.fromtimestamp(int(now)).strftime(format)
     
 def timestamp_to_time(now):
     return str(datetime.timedelta(seconds=now))
     
-def get_time(datetimeformat):
+def get_time():
     now = int(time.time())
     return datetime.datetime.fromtimestamp(now).strftime(datetimeformat)
 
@@ -71,14 +73,19 @@ def get_ip_address(ifname):
         struct.pack('256s', ifname[:15])
     )[20:24])
 
-def date_to_timestamp(date, datetimeformat):
-    return int(time.mktime(datetime.datetime.strptime(date, datetimeformat).timetuple()))
+def date_to_timestamp(date):
+    try:
+	tmp = datetime.datetime.strptime(date, datetimeformat)
+    except: #old format ?
+	tmp = datetime.datetime.strptime(date, "%H:%M:%S  -  %d/%m/%y")
+    return (tmp - datetime.datetime(1970,1,1)).total_seconds()
     
 def transform_date( date):
     try:
+	tmp = datetime.datetime.strptime(date, datetimeformat).isoformat()
+    except: #old format ?
 	tmp = datetime.datetime.strptime(date, "%H:%M:%S  -  %d/%m/%y").isoformat()
-    except:
-	tmp = datetime.datetime.strptime(date, "%d/%m/%Y %H:%M:%S").isoformat()
     return tmp
 
-
+def now() :
+    return unicode(datetime.datetime.now().strftime(datetimeformat))

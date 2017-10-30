@@ -31,18 +31,14 @@ $elif type == 'h':
 	><span class="$c.AllHalflings.elements[elem.get_name()].getHalfling()"></span> </div>
 	<div class="col-xs-3 vcenter">
 	    <div class="row">
-		$if type in 'cpemgugrgfh' and type not in 'u':
-		    <a href="/find/related/$(type)_$(id)">
+		<a href="/find/related/$(type)_$(id)">
 		$elem.fields['acronym'] 
-		$if type in 'cpemgugrgfh' and type not in 'u':
-		    </a>
+		</a>
 	    </div>
 	    <div class="row">
-		$if type in 'cpemgugrgfh' and type not in 'u':
-		    <a href="/find/related/$(type)_$(id)">
+		<a href="/find/related/$(type)_$(id)">
 		<strong>$elem.getName(self.lang)</strong>
-		$if type in 'cpemgugrgfh' and type not in 'u':
-		    </a>
+		</a>
 	   </div>
 	</div>
 	$if type in 'pu' :
@@ -160,14 +156,17 @@ $elif type == 'h':
 		    <div class="col-xs-1 vcenter">
 			<span class="$c.AllHalflings.elements['grecipe'].getHalfling()"></span>
 		    </div>
-		    $if elem.get_group() != '' :
-			<div class="col-xs-10 vcenter">
-			       <a href="/item/gr_$elem.fields['gr_id']">$c.AllGrRecipe.elements[elem.fields['gr_id']].fields['acronym']</a>
-			</div>
-		    $else :
-			<div class="col-xs-10 vcenter">
-			    -
-			</div>
+	            <div class="col-xs-4 vcenter">
+		    $if elem.fields['gr_id'] :
+			 <a href="/item/gr_$elem.fields['gr_id']">$c.AllGrRecipe.elements[elem.fields['gr_id']].fields['acronym']</a>
+                    </div>
+		    <div class="col-xs-1 vcenter">
+			<span class="$c.AllHalflings.elements['guse'].getHalfling()"></span>
+		    </div>
+		    $if elem.fields['gu_id'] :
+	                <div class="col-xs-4 vcenter">
+			    <a href="/item/gu_$elem.fields['gu_id']">$c.AllGrUsage.elements[elem.fields['gu_id']].fields['acronym']</a>
+		        </div>
 		</div>
 		<div class="row">
 		    <div class="col-xs-1 vcenter">
@@ -197,7 +196,7 @@ $elif type == 'h':
 			<span class="$c.AllHalflings.elements['measure'].getHalfling()"></span>
 		    </div>
 		    <div class="col-xs-10 vcenter">
-			$(elem.lastvalue) <a href="/item/m_$elem.fields['m_id']">$(c.AllMeasures.elements[elem.fields['m_id']].fields['unit'])</a>
+			<span style="background-color:#$(elem.colorAlarm);color:black">$(elem.lastvalue)</span> <a href="/item/m_$elem.fields['m_id']">$(c.AllMeasures.elements[elem.fields['m_id']].fields['unit'])</a>
 		    </div>
 		</div>
 	    </div>

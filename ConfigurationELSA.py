@@ -18,6 +18,7 @@ import HardConfig as hardconfig
 import barcode
 import re
 import socket
+import urllib2
 import collections
 import math
 """
@@ -26,6 +27,8 @@ from I2CScreen import *
 import pigpio
 PIG = pigpio.pi()
 """
+# if a JSON decoder is needed to read a sensor...
+import json
 
 #import smbus
 
@@ -36,11 +39,12 @@ ttyDir = '/dev/ttyS0'
 imgDir = 'static/img'
 barcodesDir = 'static/img/barcodes/'
 groupWebUsers = '_WEB'
-datetimeformat = "%Y-%m-%d %H:%M:%S"
+
+imagedTypes = [u'u', u'e', u'p', u'g', u'gf', u'gr', u'gu', u'c', u'b', u'h']
 
 _lock_socket = None
 
-queryChannels = ['wire','battery','cputemp','system']
+queryChannels = ['wire','http', 'json', 'battery','cputemp','system']
 
 class Configuration():
 
@@ -269,7 +273,7 @@ class Configuration():
 	return objects.elements[id]
 	
     def get_time(self):
-	return useful.get_time(datetimeformat)
+	return useful.get_time()
 	
     def is_component(self, type):
 	if type == 'c' or type == 'p' or type == 'e' or type == 'b':
@@ -277,7 +281,7 @@ class Configuration():
 	return False
 
     def get_time_format(self):
-        return datetimeformat
+        return useful.datetimeformat
 	
     def create_picture(self,code):
 	EAN = barcode.get_barcode_class('ean13')
@@ -301,7 +305,7 @@ class ConfigurationObject():
 	self.data = []
 	
     def save(self,configuration,anUser=""):
-        self.fields["begin"] = unicode(datetime.datetime.now().strftime(datetimeformat))
+        self.fields["begin"] = useful.now()
 	if anUser != "" :
 	    self.fields["user"] = anUser.fields['u_id']
         allObjects = configuration.findAllFromObject(self)
@@ -329,7 +333,7 @@ class ConfigurationObject():
 	print self.code	
 	with open(configuration.csvCodes,"a") as csvfile:
 	    tmpCode={}
-	    tmpCode['begin'] = unicode(datetime.datetime.now().strftime(datetimeformat))
+	    tmpCode['begin'] = useful.now()
 	    tmpCode['type'] = self.get_type()
 	    tmpCode['idobject'] = self.fields[allObjects.keyColumn]
 	    tmpCode['code'] = self.code
@@ -341,34 +345,24 @@ class ConfigurationObject():
 	for field in fieldsname:
 	    self.fields[field]=''
 	    
-    def getImageDirectory(self):
-	directory='static/img'
-        if self.__class__.__name__ == u"User":
-            return directory + '/u/user_'+self.fields['u_id']+'.'
-        elif self.__class__.__name__  == u"Equipment":
-            return directory + '/e/equipment_'+self.fields['e_id']+'.'
-        elif self.__class__.__name__ == u"Piece":
-            return directory + '/p/place_'+self.fields['p_id']+'.'  
-	elif self.__class__.__name__ == u"Group":
-            return directory + '/g/group_'+self.fields['g_id']+'.' 
-	elif self.__class__.__name__ == u"Container":
-            return directory + '/c/container_'+self.fields['c_id']+'.' 
-	elif self.__class__.__name__ == u"Batch":
-            return directory + '/b/batch_'+self.fields['b_id']+'.' 
-        else:
-            return None
+    def getImagePath(self):
+	directory=u'static/img'
+        thisType = self.get_type()
+	if thisType in imagedTypes:
+            return directory + u'/' + thisType + u'/' + thisType + u'_'+unicode(self.id) + u'.jpg'
+        return None
 
     def isImaged(self):
-        fileName = self.getImageDirectory()
+        fileName = self.getImagePath()
         if fileName is None:
             return False
         else:
-            return os.path.isfile(fileName+"jpg")
+            return os.path.isfile(fileName)
 
     def setName(self,key,value,user,keyColumn):
 	if value != '' and value is not None:
 	    newName={}
-	    newName["begin"] = unicode(datetime.datetime.now().strftime(datetimeformat))
+	    newName["begin"] = useful.now()
 	    newName['user'] = user.fields['u_id']
 	    newName['lang'] = key
 	    newName['name'] = value
@@ -406,7 +400,7 @@ class ConfigurationObject():
 	allObjects = configuration.findAllFromObject(self)
 	with open(configuration.csvRelations,"a") as csvfile:
 	    tmpCode={}
-	    tmpCode['begin'] = unicode(datetime.datetime.now().strftime(datetimeformat))
+	    tmpCode['begin'] = useful.now()
 	    tmpCode['g_id'] = groupid
 	    tmpCode['idobject'] = self.fields[allObjects.keyColumn]
 	    tmpCode['type'] = self.get_type()
@@ -458,7 +452,7 @@ class ConfigurationObject():
 	    if data.placeImg.filename != '': 
 		filepath = data.placeImg.filename.replace('\\','/') 
 		ext = ((filepath.split('/')[-1]).split('.')[-1])
-		fout = open(self.getImageDirectory()+'jpg','w')
+		fout = open(self.getImagePath(),'w')
 		fout.write(data.placeImg.file.read())
 		fout.close()
 	if 'code' in data and len(data['code']) < 14 and len(data['code'])> 11:
@@ -477,11 +471,11 @@ class ConfigurationObject():
 	if len(self.data) == 0:
 	    self.data.append(manualdata.getID())
 	else:
-	    time = useful.date_to_timestamp(manualdata.fields['time'],datetimeformat)
+	    time = useful.date_to_timestamp(manualdata.fields['time'])
 	    insert = False
 	    for i in range(len(self.data)):
 		tmp = self.config.AllManualData.elements[self.data[i]]
-		tmptime = useful.date_to_timestamp(tmp.fields['time'],datetimeformat)
+		tmptime = useful.date_to_timestamp(tmp.fields['time'])
 		if time < tmptime:
 		    insert = True
 		    self.data.insert(i,manualdata.getID())
@@ -499,12 +493,12 @@ class ConfigurationObject():
 	count = 0
 	while count < len(self.position):
 	    t = self.config.AllTransfers.elements[self.position[count]]
-	    time = useful.date_to_timestamp(t.fields['time'],datetimeformat)
+	    time = useful.date_to_timestamp(t.fields['time'])
 	    if begin < time and time < end :
 		if first is True :
 		    first = False
 		    if count  > 0: 
-			if useful.date_to_timestamp(self.config.AllTransfers.elements[self.position[count-1]].fields['time'],datetimeformat) > begin :
+			if useful.date_to_timestamp(self.config.AllTransfers.elements[self.position[count-1]].fields['time']) > begin :
 			    tmp.append(self.position[count -1])
 	        tmp.append(t)
 	    elif time <= begin and (first is True or count == len(self.position)-1):
@@ -526,11 +520,11 @@ class ConfigurationObject():
 	if len(self.position) == 0:
 	    self.position.append(transfer.getID())
 	else:
-	    time = useful.date_to_timestamp(transfer.fields['time'],datetimeformat)
+	    time = useful.date_to_timestamp(transfer.fields['time'])
 	    insert = False
 	    for i in range(len(self.position)):
 		tmp = self.config.AllTransfers.elements[self.position[i]]
-		tmptime = useful.date_to_timestamp(tmp.fields['time'],datetimeformat)
+		tmptime = useful.date_to_timestamp(tmp.fields['time'])
 		if time < tmptime:
 		    insert = True
 		    self.position.insert(i,transfer.getID())
@@ -546,11 +540,22 @@ class ConfigurationObject():
 	if len(self.position) > 0:
 	    return self.position[-1]
 	return None
+
+    def get_actual_position_hierarchy(self,configuration,result=[]):
+        if not (self in result):
+            result.append(self)
+	    tmp = self.get_actual_position()
+	    if tmp is not None :
+	        tmp = configuration.AllTransfers.elements[tmp]
+	        currObj = configuration.get_object(tmp.fields['cont_type'],tmp.fields['cont_id'])
+                if currObj:
+		    return currObj.get_actual_position_hierarchy(configuration,result)
+	return result
 	
-    def is_actual_position(self, type, id):
+    def is_actual_position(self, type, id, configuration):
 	tmp = self.get_actual_position()
 	if tmp is not None :
-	    tmp = self.config.AllTransfers.elements[tmp]
+	    tmp = configuration.AllTransfers.elements[tmp]
 	    if type == tmp.fields['cont_type'] and str(id) == tmp.fields['cont_id']:
 		return True
 	return False
@@ -561,24 +566,26 @@ class ConfigurationObject():
     def get_acronym(self):
         return self.fields['acronym']
 	
-    def get_batch_in_component(self,config):
+    def get_batch_in_component(self,configuration):
 	batches = []
-	for k,v in config.AllBatches.elements.items():
-	    if v.is_actual_position(self.get_type(),self.getID()):
+        type = self.get_type()
+        id = self.getID()
+	for k,v in configuration.AllBatches.elements.items():
+	    if v.is_actual_position(type,id,configuration):
 		batches.append(v)
 	return batches
 	
-    def get_position_on_time(self, config, time):
-	time = useful.date_to_timestamp(time, datetimeformat)
+    def get_position_on_time(self, configuration, time):
+	time = useful.date_to_timestamp(time)
 	if self.position == [] :
 	    return None
 	count = 1
 	while count < len(self.position):
-	    tmp = config.AllTransfers.elements[self.position[count]]
-	    tmptime = useful.date_to_timestamp(tmp.fields['time'], datetimeformat)
+	    tmp = configuration.AllTransfers.elements[self.position[count]]
+	    tmptime = useful.date_to_timestamp(tmp.fields['time'])
 	    if time < tmptime:
-		return config.AllTransfers.elements[self.position[count-1]]
-	return config.AllTransfers.elements[self.position[-1]]
+		return configuration.AllTransfers.elements[self.position[count-1]]
+	return configuration.AllTransfers.elements[self.position[-1]]
 	    
 
 class UpdateThread(threading.Thread):
@@ -650,12 +657,18 @@ class RadioThread(threading.Thread):
 
 class AllObjects():
 
-    def __init__(self):
-	self.fileobject = None
-        self.filename = None
-        self.keyColumn = None
+    def __init__(self,code,config=None):
+        self.code = code
+        self.elements = {}
+        self.fileobject = csvDir + code.upper() + ".csv"
+	self.filename = csvDir  + code.upper() + "names.csv"
+        self.keyColumn = code + "_id"
+        self.config = config
 	self.count = 0
-	
+
+    def get_type(self):
+	return self.code
+
     def load(self):
 	self.check_csv()
 	self.loadFields()
@@ -765,7 +778,7 @@ class AllObjects():
 	currObject.fields[self.keyColumn] = unicode(tmp)
 	currObject.id = str(tmp)
 	self.elements[unicode(tmp)] = currObject
-	currObject.fields["begin"] = unicode(datetime.datetime.now().strftime(datetimeformat))
+	currObject.fields["begin"] = useful.now()
 	return currObject
 	
     def unique_acronym(self, acronym, myID):
@@ -775,10 +788,25 @@ class AllObjects():
 	return True
 	
     def getItem(self,iditem):
-	if iditem == u'new':
-	    return self.createObject()
-	elif iditem in self.elements.keys():
-	    return self.elements[str(iditem)]
+	if iditem:
+            iditem = unicode(iditem)
+	    if iditem == u'new':
+	        return self.createObject()
+            elif (iditem.endswith(u".")):
+                try:	
+	            element = config.AllBarcodes.barcode_to_item(iditem[:len(iditem)-1])
+                    if element.get_type() == self.get_type():
+			return element
+                except:
+	            return None
+            elif (iditem.endswith(u"!")):
+                acronym = iditem[:len(iditem)-1]
+                for k, element in self.elements.items():
+	            if element.fields['acronym'] == acronym :
+		        return element
+                return None
+	    elif iditem in self.elements.keys():
+	        return self.elements[iditem]
 	return None
 	
     def delete(self, anID):
@@ -811,16 +839,23 @@ class AllObjects():
 	
     def get_sorted(self):
 	return collections.OrderedDict(sorted(self.elements.items(),key = lambda t:t[1].fields['acronym'])).keys()
+
+    def findAcronym(self,acronym):
+	for k, element in self.elements.items():
+	    if element.fields['acronym'] == acronym :
+		return element
+	return None
+	
+    def findBarcode(self,barcode):
+        try:
+	    elem = config.AllBarcodes.barcode_to_item(barcode)
+	except:
+	    return None
 	
 class AllUsers(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self)
-        self.elements = {}
-        self.config = config
-        self.fileobject = csvDir + "U.csv"
-	self.filename = csvDir + "Unames.csv"
-        self.keyColumn = "u_id"
+	AllObjects.__init__(self,'u',config)
 	self.fieldnames = ['begin', 'u_id', 'active', 'acronym', 'remark', 'registration', 'phone','mail', 'password', 'language','gf_id', 'user']
 	self.fieldtranslate = ['begin', 'lang', 'u_id', 'name', 'user']
 
@@ -845,12 +880,7 @@ class AllUsers(AllObjects):
 class AllEquipments(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self)
-        self.elements = {}
-        self.config = config
-        self.fileobject = csvDir + "E.csv"
-	self.filename = csvDir + "Enames.csv"
-        self.keyColumn = "e_id"
+	AllObjects.__init__(self,'e',config)
 	self.fieldnames = ["begin", "e_id", "active", "acronym", "remark",'colorgraph','gu_id', "user"]
 	self.fieldtranslate = ['begin', 'lang', 'e_id', 'name', 'user']
 
@@ -866,12 +896,7 @@ class AllEquipments(AllObjects):
 class AllContainers(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self)
-        self.elements = {}
-        self.config = config
-        self.fileobject = csvDir + "C.csv"
-	self.filename = csvDir + "Cnames.csv"
-        self.keyColumn = "c_id"
+	AllObjects.__init__(self,'c',config)
 	self.fieldnames = ["begin", "c_id", "active", "acronym", "remark",'colorgraph','gu_id', "user"]
 	self.fieldtranslate = ['begin', 'lang', 'c_id', 'name', 'user']
 
@@ -887,15 +912,9 @@ class AllContainers(AllObjects):
 class AllPieces(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self)
-        self.elements = {}
-        self.config = config
-        self.fileobject = csvDir + "P.csv"
-	self.filename = csvDir + "Pnames.csv"
-        self.keyColumn = "p_id"
+	AllObjects.__init__(self,'p',config)
 	self.fieldnames = ['begin', 'p_id', 'active', 'acronym', 'remark','colorgraph','gu_id', 'user']
 	self.fieldtranslate = ['begin', 'lang', 'p_id', 'name', 'user']
-	self.count = 0
 
     def newObject(self):
 	return Piece(self.config)
@@ -909,15 +928,11 @@ class AllPieces(AllObjects):
 class AllAlarmLogs(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self)
-        self.elements = {}
-        self.config = config
+	AllObjects.__init__(self,'al',config)
         self.fileobject = csvDir + "alarmlogs.csv"
 	self.filename = None
-        self.keyColumn = "al_id"
 	self.fieldnames = ['begin', 'al_id', 'cont_id', 'cont_type', 's_id','value','typealarm','begintime', 'alarmtime', 'degree']
 	self.fieldtranslate = None
-	self.count = 0
 
     def newObject(self):
 	return AlarmLog()
@@ -926,7 +941,7 @@ class AllAlarmLogs(AllObjects):
 	logs = []
 	for i in range(len(self.elements)):
 	    e = self.elements[str(i+1)]
-	    time = useful.date_to_timestamp(e.fields['begin'],datetimeformat)
+	    time = useful.date_to_timestamp(e.fields['begin'])
 	    if id == e.fields['s_id'] :
 		if time > begin and time < end :
 		    logs.append(e)
@@ -935,15 +950,12 @@ class AllAlarmLogs(AllObjects):
 class AllHalflings(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self)
-        self.elements = {}
-        self.config = config
+	AllObjects.__init__(self,"halfling",config)
         self.fileobject = csvDir + "halflings.csv"
 	self.filename = None
         self.keyColumn = "classname"
 	self.fieldnames = ['begin', 'classname', 'glyphname', 'user']
 	self.fieldtranslate = None
-	self.count = 0
 
     def newObject(self):
 	return Halfling()
@@ -957,12 +969,7 @@ class AllHalflings(AllObjects):
 class AllAlarms(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self)
-        self.elements = {}
-        self.config = config
-        self.fileobject = csvDir + "A.csv"
-	self.filename = csvDir + "Anames.csv"
-        self.keyColumn = "a_id"
+	AllObjects.__init__(self,'a',config)
 	self.fieldnames = ['begin', 'a_id', 'active', 'acronym', 'o_sms1', 'o_sms2', 'o_email1', 'o_email2', 'o_sound1', 'o_sound2', 'relay1', 'relay2', 'remark', 'user']
 	self.fieldtranslate = ['begin', 'lang', 'a_id', 'name', 'user']
 
@@ -975,13 +982,9 @@ class AllAlarms(AllObjects):
 class AllManualData(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self)
-        self.elements = {}
-        self.config = config
-        self.fileobject = csvDir + "D.csv"
+	AllObjects.__init__(self,'d',config)
 	self.filename = None
-        self.keyColumn = "d_id"
-	self.fieldnames = ['begin', 'd_id', 'object_id', 'object_type', 'time', 'h_id', 'remark', 'm_id', 'value', 'active', 'user']
+	self.fieldnames = ['begin', 'd_id', 'dm_id', 'object_id', 'object_type', 'time', 'h_id', 'remark', 'm_id', 'value', 'active', 'user']
 	self.fieldtranslate = None
 
     def newObject(self):
@@ -993,12 +996,8 @@ class AllManualData(AllObjects):
 class AllPourings(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self)
-        self.elements = {}
-        self.config = config
-        self.fileobject = csvDir + "V.csv"
+	AllObjects.__init__(self,'v',config)
 	self.filename = None
-        self.keyColumn = "v_id"
 	self.fieldnames = ['begin', 'v_id', 'src', 'dest', 'time', 'h_id', 'quantity', 'm_id', 'remark','active', 'user']
 	self.fieldtranslate = None
 
@@ -1009,10 +1008,8 @@ class AllPourings(AllObjects):
 	return 'v'
     
 class AllGroups(AllObjects):
-    def __init__(self, config):
-	AllObjects.__init__(self)
-        self.elements = {}
-        self.config = config
+    def __init__(self, code, config):
+	AllObjects.__init__(self,code,config)
 	self.fieldrelations = ['begin', 'parent_id', 'child_id', 'active', 'user']
 	
     def load(self):
@@ -1083,10 +1080,7 @@ class AllGroups(AllObjects):
 	
 class AllGrUsage(AllGroups):
     def __init__(self, config):
-	AllGroups.__init__(self, config)
-        self.fileobject = csvDir + "GU.csv"
-	self.filename = csvDir + "GUnames.csv"
-        self.keyColumn = "gu_id"
+	AllGroups.__init__(self, 'gu', config)
 	self.fieldnames = ["begin", "gu_id", "active", "acronym", "remark", "user"]
 	self.fieldtranslate = ['begin', 'lang', 'gu_id', 'name', 'user']
 	self.csvRelations = csvDir + "GUrelations.csv"
@@ -1102,10 +1096,7 @@ class AllGrUsage(AllGroups):
 	
 class AllGrRecipe(AllGroups):
     def __init__(self, config):
-	AllGroups.__init__(self, config)
-        self.fileobject = csvDir + "GR.csv"
-	self.filename = csvDir + "GRnames.csv"
-        self.keyColumn = "gr_id"
+	AllGroups.__init__(self, 'gr', config)
 	self.fieldnames = ["begin", "gr_id", "active", "acronym", "remark", "user"]
 	self.fieldtranslate = ['begin', 'lang', 'gr_id', 'name', 'user']
 	self.csvRelations = csvDir + "GRrelations.csv"
@@ -1122,11 +1113,8 @@ class AllGrRecipe(AllGroups):
 	
 class AllCheckPoints(AllGroups):
     def __init__(self, config):
-	AllGroups.__init__(self, config)
-        self.fileobject = csvDir + "H.csv"
-	self.filename = csvDir + "Hnames.csv"
-        self.keyColumn = "h_id"
-	self.fieldnames = ["begin", "h_id", "active", "acronym",'rank','abstract', "remark",'gr_id', "user"]
+	AllGroups.__init__(self, 'h', config)
+	self.fieldnames = ["begin", "h_id", "active", "acronym",'rank','abstract', "remark",'gr_id','gu_id', "user"]
 	self.fieldtranslate = ['begin', 'lang', 'h_id', 'name', 'user']
 	self.fieldcontrols = ['begin', 'h_id', 'object_type','object_id', 'user']
 	self.csvRelations = csvDir + "Hrelations.csv"
@@ -1176,14 +1164,29 @@ class AllCheckPoints(AllGroups):
 	checkpoints.sort(key=lambda x:int(x.fields['rank']), reverse=False)
 	return checkpoints
 		
+    def get_checkpoints_for_usage(self,usages):
+	checkpoints = []
+	for k,e in self.elements.items():
+	    if e.fields['gu_id'] in usages and e.fields['abstract'] == '0':
+		checkpoints.append(e)
+	checkpoints.sort(key=lambda x:int(x.fields['rank']), reverse=False)
+	return checkpoints
+		
+    def get_checkpoints_for_recipe_usage(self,recipes,usages):
+	checkpoints = []
+	for k,e in self.elements.items():
+            if e.fields['abstract'] == '0':
+	        if not e.fields['gr_id'] or (e.fields['gr_id'] in recipes):
+                    if not e.fields['gu_id'] or (e.fields['gu_id'] in usages):
+		        checkpoints.append(e)
+	checkpoints.sort(key=lambda x:int(x.fields['rank']), reverse=False)
+	return checkpoints
+		
 	
 	
 class AllGrFunction(AllGroups):
     def __init__(self, config):
-	AllGroups.__init__(self, config)
-        self.fileobject = csvDir + "GF.csv"
-	self.filename = csvDir + "GFnames.csv"
-        self.keyColumn = "gf_id"
+	AllGroups.__init__(self, 'gf', config)
 	self.fieldnames = ["begin", "gf_id", "active", "acronym", "remark", "user"]
 	self.fieldtranslate = ['begin', 'lang', 'gf_id', 'name', 'user']
 	self.csvRelations = csvDir + "GFrelations.csv"
@@ -1200,15 +1203,9 @@ class AllGrFunction(AllGroups):
 class AllMeasures(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self)
-        self.elements = {}
-        self.config = config
-        self.fileobject = csvDir + "M.csv"
-	self.filename = csvDir + "Mnames.csv"
-        self.keyColumn = "m_id"
+	AllObjects.__init__(self,'m',config)
 	self.fieldnames = ['begin', 'm_id', 'active', 'acronym', 'unit', 'remark', 'user']
 	self.fieldtranslate = ['begin', 'lang', 'm_id', 'name', 'user']
-	self.count = 0
 
     def newObject(self):
         return Measure()
@@ -1219,15 +1216,9 @@ class AllMeasures(AllObjects):
 class AllSensors(AllObjects):
 
     def __init__(self, config):
-        AllObjects.__init__(self)
-        self.elements = {}
-        self.config = config
-        self.fileobject = csvDir + "S.csv"
-	self.filename = csvDir + "Snames.csv"
-        self.keyColumn = "s_id"
+        AllObjects.__init__(self,'s',config)
 	self.fieldnames = ['begin', 's_id', 'c_id', 'p_id', 'e_id', 'm_id', 'active', 'acronym', 'remark', 'channel', 'sensor', 'subsensor', 'valuetype', 'formula', 'minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax', 'lapse1', 'lapse2', 'lapse3', 'user']
 	self.fieldtranslate = ['begin', 'lang', 's_id', 'name', 'user']
-	self.count = 0
 
     def newObject(self):
         return Sensor()
@@ -1258,10 +1249,17 @@ class AllSensors(AllObjects):
             sensor.setCorrectAlarmValue()
 	    
     def update(self, now) :
+	webCache = {}
 	for k,sensor in self.elements.items():
 	    if sensor.fields['channel'] in queryChannels and not sensor.fields['active'] == '0' :
-		value = sensor.get_value_sensor(self.config)
-		sensor.update(now, value,self.config)
+              try:
+		value,debugging = sensor.get_value_sensor(self.config,webCache)
+		if value:
+		    sensor.update(now, value,self.config)
+		if debugging:
+		    print debugging
+              except:
+                traceback.print_exc()
 		
     def check_rrd(self):
 	for k, v in self.elements.items():
@@ -1272,12 +1270,7 @@ class AllSensors(AllObjects):
 class AllBatches(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self)
-        self.elements = {}
-        self.config = config
-        self.fileobject = csvDir + "B.csv"
-	self.filename = csvDir + "Bnames.csv"
-        self.keyColumn = "b_id"
+	AllObjects.__init__(self,'b',config)
 	self.fieldnames = ["begin", "b_id", "active", "acronym", "basicqt", "m_id", "time", "cost", "remark", 'gr_id',"user"]
 	self.fieldtranslate = ['begin', 'lang', 'b_id', 'name', 'user']
 
@@ -1293,12 +1286,8 @@ class AllBatches(AllObjects):
 class AllTransfers(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self)
-        self.elements = {}
-        self.config = config
-        self.fileobject = csvDir + "T.csv"
+	AllObjects.__init__(self,'t',config)
 	self.filename = None
-        self.keyColumn = "t_id"
 	self.fieldnames = ["begin","t_id",'time', 'h_id', "cont_id", "cont_type", "object_id", "object_type", "remark", 'active', "user"]
 	self.fieldtranslate = None
 
@@ -1311,12 +1300,7 @@ class AllTransfers(AllObjects):
 class AllTransferModels(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self)
-        self.elements = {}
-        self.config = config
-        self.fileobject = csvDir + "TM.csv"
-	self.filename = csvDir + "TMnames.csv"
-        self.keyColumn = "tm_id"
+	AllObjects.__init__(self,'tm',config)
 	self.fieldnames = ["begin","tm_id",'acronym','gu_id','h_id','rank', "remark", 'active', "user"]
 	self.fieldtranslate = ['begin', 'lang', 'tm_id', 'name', 'user']
 
@@ -1332,12 +1316,7 @@ class AllTransferModels(AllObjects):
 class AllPouringModels(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self)
-        self.elements = {}
-        self.config = config
-        self.fileobject = csvDir + "VM.csv"
-	self.filename = csvDir + "VMnames.csv"
-        self.keyColumn = "vm_id"
+	AllObjects.__init__(self,'vm',config)
 	self.fieldnames = ["begin","vm_id",'acronym','src','dest','quantity','h_id', 'rank', "in", "remark", 'active', "user"]
 	self.fieldtranslate = ['begin', 'lang', 'vm_id', 'name', 'user']
 
@@ -1355,13 +1334,8 @@ class AllPouringModels(AllObjects):
 class AllManualDataModels(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self)
-        self.elements = {}
-        self.config = config
-        self.fileobject = csvDir + "DM.csv"
-	self.filename = csvDir + "DMnames.csv"
-        self.keyColumn = "dm_id"
-	self.fieldnames = ["begin","dm_id",'acronym','m_id','h_id', 'rank', "remark", 'active', "user"]
+	AllObjects.__init__(self,'dm',config)
+	self.fieldnames = ["begin","dm_id",'acronym','m_id','h_id', 'rank', "remark", 'active', 'minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax', "user"]
 	self.fieldtranslate = ['begin', 'lang', 'dm_id', 'name', 'user']
     
     def newObject(self):
@@ -1377,15 +1351,12 @@ class AllManualDataModels(AllObjects):
 class AllBarcodes(AllObjects):
 
     def __init__(self, config):
-        AllObjects.__init__(self)
-        self.elements = {}
-        self.config = config
+        AllObjects.__init__(self,'barcode',config)
         self.fileobject = csvDir + "codes.csv"
 	self.filename = None
         self.keyColumn = "code"
 	self.fieldnames = ['begin', 'type', 'idobject', 'code', 'active', 'user']
 	self.fieldtranslate = None
-	self.count = 0
 	self.EAN = barcode.get_barcode_class('ean13')
 	
     def load(self):
@@ -1447,7 +1418,7 @@ class AllBarcodes(AllObjects):
 	
     def create_fields(self, code,active, user, item = None):
 	fields = {}
-	fields['begin'] = unicode(datetime.datetime.now().strftime(datetimeformat))
+	fields['begin'] = useful.now()
 	if item is None :
 	    fields['type'] = self.elements[code].element.get_type()
 	    fields['idobject'] = self.elements[code].element.id
@@ -1533,11 +1504,9 @@ class AllConnectedUsers():
 class AllLanguages(AllObjects):
 
     def __init__(self, config):
-        self.elements = {}
-        self.config = config
+	AllObjects.__init__(self,'l',config)
         self.fileobject = csvDir + "language.csv"
 	self.filename = None
-        self.keyColumn = "l_id"
 	self.nameColumn = "name"
 
     def newObject(self):
@@ -1549,12 +1518,11 @@ class AllLanguages(AllObjects):
 class AllMessages(AllObjects):
 
     def __init__(self, config):
+	AllObjects.__init__(self,'m',config)
         self.elements = {}
 	self.names = {}
-        self.config = config
 	self.fileobject = csvDir + "mess.csv"
         self.filename = csvDir + "messages.csv"
-        self.keyColumn = "m_id"
 	self.nameColumn = "name"
 
     def newObject(self):
@@ -1781,7 +1749,7 @@ class ManualData(ConfigurationObject):
     def validate_form(self, data, configuration, lang) :
 	tmp = ''
 	try:
-	    value = datetime.datetime.strptime(data['time'],datetimeformat)
+	    value = useful.transform_date(data['time'])
 	except:
 	    traceback.print_exc()
 	    tmp += configuration.AllMessages.elements['timerules'].getName(lang) + '\n'
@@ -1861,7 +1829,7 @@ class Pouring(ConfigurationObject):
     def validate_form(self, data, configuration, lang) :
 	tmp = ''
 	try:
-	    value = datetime.datetime.strptime(data['time'],datetimeformat)
+	    value = useful.transform_date(data['time'])
 	except:
 	    tmp += configuration.AllMessages.elements['timerules'].getName(lang) + '\n'
 	try : 
@@ -1981,7 +1949,7 @@ class Group(ConfigurationObject):
     def write_group(self, parentid, configuration, user, active):
   	with open(configuration.findAllFromObject(self).csvRelations,"a") as csvfile:
   	    tmpCode={}
-	    tmpCode['begin'] = unicode(datetime.datetime.now().strftime(datetimeformat))
+	    tmpCode['begin'] = useful.now()
 	    tmpCode['parent_id'] = parentid
 	    tmpCode['child_id'] = self.getID()
 	    tmpCode["user"] = user.fields['u_id']
@@ -2058,7 +2026,6 @@ class Group(ConfigurationObject):
 	    self.config.findAllFromType(self.get_type()).elements[e].get_all_parents(parents)
 	return parents
 	    
-	
 class GrUsage(Group):
     def __init__(self,config):
 	Group.__init__(self,config)
@@ -2103,6 +2070,7 @@ class CheckPoint(Group):
     def set_value_from_data(self, data, c,user):
 	Group.set_value_from_data(self, data, c,user)
 	self.fields['gr_id'] = data['recipe']
+	self.fields['gu_id'] = data['usage']
 	self.fields['rank'] = data['rank']
 	if 'abstract' in data :
 	    self.fields['abstract'] = '1'
@@ -2194,7 +2162,7 @@ class CheckPoint(Group):
 	counttm = 1
 	tmp = ''
 	try:
-	    value = datetime.datetime.strptime(data['time'],datetimeformat)
+	    value = useful.transform_date(data['time'])
 	except:
 	    traceback.print_exc()
 	    tmp += self.config.AllMessages.elements['timerules'].getName(lang) + '\n'
@@ -2269,7 +2237,7 @@ class CheckPoint(Group):
     def write_control(self, type,id, user):
   	with open(self.config.findAllFromObject(self).csvControls,"a") as csvfile:
   	    tmpCode={}
-	    tmpCode['begin'] = unicode(datetime.datetime.now().strftime(datetimeformat))
+	    tmpCode['begin'] = useful.now()
 	    tmpCode['h_id'] = self.getID()
 	    tmpCode['object_type'] = type
 	    tmpCode['object_id'] = id
@@ -2467,7 +2435,7 @@ class ExportData():
             self.transfers = []
 	    component = self.elem
 	    if len(component.position) >0:
-		begin = useful.date_to_timestamp(self.config.AllTransfers.elements[component.position[0]].fields['time'],datetimeformat)
+		begin = useful.date_to_timestamp(self.config.AllTransfers.elements[component.position[0]].fields['time'])
 		if len(component.position) > 1:
 		    end = component.position[1]
 		else:
@@ -2478,16 +2446,16 @@ class ExportData():
 	tmp = component.get_transfers_in_time_interval(begin, end)
 	count = 0
 	while count < len(tmp):
-	    begin = useful.date_to_timestamp(tmp[count].fields['time'],datetimeformat)
+	    begin = useful.date_to_timestamp(tmp[count].fields['time'])
 	    if count < (len(tmp) -1) :
-		end = useful.date_to_timestamp(tmp[count+1].fields['time'],datetimeformat)
+		end = useful.date_to_timestamp(tmp[count+1].fields['time'])
 	    else :
 		end = tmpEND
 	    tmpComponent = tmp[count].get_cont()
 	    self.transfers.append(tmp[count])
 	    count += 1
 	    self.load_transfers(tmpComponent, begin, end)
-        self.transfers.sort(key=lambda x: int(useful.date_to_timestamp(x.fields['time'],datetimeformat)), reverse=False)
+        self.transfers.sort(key=lambda x: int(useful.date_to_timestamp(x.fields['time'])), reverse=False)
 	print self.transfers
 	while self.transfers[0].fields['object_type'] != 'b' :
 	    self.transfers.pop(0)
@@ -2523,11 +2491,11 @@ class ExportData():
 	    while count < (len(self.history)):
 		e = self.history[count]
 		if e.get_type() == 't' :
-		    begin = useful.date_to_timestamp(e.fields['time'], datetimeformat)
+		    begin = useful.date_to_timestamp(e.fields['time'])
 		    if self.countt > (len(self.transfers)-1) :
 			end = int(time.time())
 		    else :
-			end = useful.date_to_timestamp(self.transfers[self.countt].fields['time'], datetimeformat)
+			end = useful.date_to_timestamp(self.transfers[self.countt].fields['time'])
 		    self.countt += 1
 		infos = None
 		tmp = self.transform_object_to_export_data(e)
@@ -2633,17 +2601,17 @@ class ExportData():
 	count = 0
 	while count < sum:
 	    if i < len( self.data): 
-		timed = useful.date_to_timestamp(self.data[i].fields['time'], datetimeformat)
+		timed = useful.date_to_timestamp(self.data[i].fields['time'])
 	    else :		
 		timed = None
 		
 	    if j < len(self.transfers):
-		timet = useful.date_to_timestamp(self.transfers[j].fields['time'], datetimeformat)
+		timet = useful.date_to_timestamp(self.transfers[j].fields['time'])
 	    else :
 		timet = None
 		
 	    if k < len(self.pourings) :
-		timev = useful.date_to_timestamp(self.pourings[k].fields['time'], datetimeformat)
+		timev = useful.date_to_timestamp(self.pourings[k].fields['time'])
 	    else:
 		timev = None
 		
@@ -2700,12 +2668,12 @@ class ExportData():
                 if aUser and aUser.fields['acronym']:
                     tmp['user'] = aUser.fields['acronym']
         if elem.created:
-	    tmp['timestamp'] = useful.date_to_timestamp(elem.created,datetimeformat)	
+	    tmp['timestamp'] = useful.date_to_timestamp(elem.created)	
 	    	
 	if elem.get_type() in 'bcpem' :
 	    if elem.get_type() == 'b':
-		tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'],datetimeformat)
-		tmp['duration'] = self.get_duration(useful.date_to_timestamp(elem.fields['time'],datetimeformat),useful.get_timestamp())
+		tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'])
+		tmp['duration'] = self.get_duration(useful.date_to_timestamp(elem.fields['time']),useful.get_timestamp())
 		tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
 		tmp['value'] = elem.fields['basicqt']
 		
@@ -2759,7 +2727,7 @@ class ExportData():
 	        tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
                 tmp['sensor'] = elem.fields['s_id']
 		tmp['m_id'] = elem.fields['m_id']
-	    tmp['duration'] = self.get_duration(int(elem.fields['begintime']),useful.date_to_timestamp(elem.fields['begin'],datetimeformat))
+	    tmp['duration'] = self.get_duration(int(elem.fields['begintime']),useful.date_to_timestamp(elem.fields['begin']))
 	    tmp['category'] = elem.fields['degree']
 	    tmp['value'] = elem.fields['value']
 	    tmp['unit'] = self.config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
@@ -2770,7 +2738,7 @@ class ExportData():
                 tmp['h_id'] = self.config.AllCheckPoints.elements[elem.fields['h_id']].fields['acronym']
             else:
                 tmp['h_id'] = elem.fields['h_id']
-            tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'],datetimeformat)
+            tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'])
             if elem.fields['m_id'] != '':
 	        tmp['value'] = elem.fields['value']
 	        tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
@@ -2799,7 +2767,7 @@ class ExportData():
             else:
                 tmp['h_id'] = elem.fields['h_id']
 		
-            tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'],datetimeformat)
+            tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'])
             tmp['remark'] = elem.fields['remark']
             if self.cond['acronym'] is True :
                 tmp[elem.fields['cont_type']+'_id'] = self.config.findAllFromType(elem.fields['cont_type']).elements[elem.fields['cont_id']].fields['acronym']
@@ -2823,7 +2791,7 @@ class ExportData():
                 tmp['h_id'] = self.config.AllCheckPoints.elements[elem.fields['h_id']].fields['acronym']
             else:
                 tmp['h_id'] = elem.fields['h_id']
-            tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'],datetimeformat)
+            tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'])
             tmp['remark'] = elem.fields['remark']
 	    tmp['value'] = elem.fields['quantity']
 	    tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
@@ -2928,6 +2896,7 @@ class Alarm(ConfigurationObject):
     def get_alarm_message(self, sensor,config, lang):
 	if sensor.get_type() == 's' :
 	    mess = config.AllMessages.elements['alarmmessage'].getName(lang)
+	    specmess = self.getName(lang)
 	    cpe = ''
 	    elem = ''
 	    currObject = config.AllAlarmLogs.createObject()
@@ -2951,7 +2920,7 @@ class Alarm(ConfigurationObject):
 	    currObject.fields['alarmtime'] = unicode(int(sensor.time) * sensor.countActual)
 	    currObject.fields['degree'] = unicode(sensor.degreeAlarm)
 	    currObject.save(config)
-	    return unicode.format(mess,config.HardConfig.hostname, cpe, elem.getName(lang), elem.fields['acronym'], sensor.getName(lang), sensor.fields['acronym'], unicode(sensor.lastvalue), sensor.actualAlarm, useful.timestamp_to_date(sensor.time, datetimeformat), unicode(sensor.degreeAlarm))
+	    return unicode.format(mess, config.HardConfig.hostname, specmess, cpe, elem.getName(lang), elem.fields['acronym'], sensor.getName(lang), sensor.fields['acronym'], unicode(sensor.lastvalue), sensor.actualAlarm, useful.timestamp_to_date(sensor.time), unicode(sensor.degreeAlarm))
 	elif sensor.get_type() == 'd' :
 	    mess = config.AllMessages.elements['alarmmanual'].getName(lang)
 	    elem = config.findAllFromType(sensor.fields['object_type']).elements[sensor.fields['object_id']]
@@ -2960,7 +2929,7 @@ class Alarm(ConfigurationObject):
 		measure = config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
 	    else :
 		measure = ''
-	    return unicode.format(mess,config.HardConfig.hostname, name, elem.getName(lang), elem.fields['acronym'],unicode(sensor.fields['value']), measure,sensor.fields['remark'], sensor.fields['time'])
+	    return unicode.format(mess, config.HardConfig.hostname, specmess, name, elem.getName(lang), elem.fields['acronym'],unicode(sensor.fields['value']), measure,sensor.fields['remark'], sensor.fields['time'])
 	elif sensor.get_type() == 'v' :
 	    mess = config.AllMessages.elements['alarmpouring'].getName(lang)
 	    elemin = config.AllBatches.elements[sensor.fields['src']]
@@ -2969,7 +2938,7 @@ class Alarm(ConfigurationObject):
 		measure = config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
 	    else :
 		measure = ''
-	    return unicode.format(mess, config.HardConfig.hostname, elemout.getName(lang), elemout.fields['acronym'], elemin.getName(lang), elemin.fields['acronym'],unicode(sensor.fields['quantity']), measure,sensor.fields['remark'], sensor.fields['time'])
+	    return unicode.format(mess, config.HardConfig.hostname, specmess, elemout.getName(lang), elemout.fields['acronym'], elemin.getName(lang), elemin.fields['acronym'],unicode(sensor.fields['quantity']), measure,sensor.fields['remark'], sensor.fields['time'])
        
 	
     def get_alarm_title(self, sensor, config, lang):
@@ -3110,6 +3079,11 @@ class Measure(ConfigurationObject):
 	    self.fields[elem] = data[elem]
 	self.save(c,user)
 
+color_violet = "FF00FF"
+color_blue = "0000FF"
+color_green = "00FF00"
+color_orange = "FFFF00"
+color_red = "FF0000"
 
 class Sensor(ConfigurationObject):
     def __init__(self):
@@ -3117,6 +3091,7 @@ class Sensor(ConfigurationObject):
 	self.actualAlarm = 'typical'
 	self.countActual = 0
 	self.degreeAlarm = 0
+        self.colorAlarm = color_green
 	self.lastvalue = None
 	self.time = 0
     
@@ -3206,7 +3181,7 @@ class Sensor(ConfigurationObject):
                     measure = config.AllMeasures.elements[id_measure]
                     pos = config.screen.show(pos,measure.fields['unit'])
                 
-	    typeAlarm,symbAlarm = self.getTypeAlarm(value)
+	    typeAlarm,symbAlarm,self.colorAlarm = self.getTypeAlarm(value)
             print (u'Sensor update Channel : '+ self.fields['channel'] + u'    ' + self.fields['sensor'] + u' ==> ' + self.fields['acronym'] + u' = ' + unicode(value))
 	    if typeAlarm == 'typical' :
 		self.setTypicalAlarm()
@@ -3239,15 +3214,15 @@ class Sensor(ConfigurationObject):
     def getTypeAlarm(self,value):
 	value = float(value)
 	if self.fields['minmin'] and value <= float(self.fields['minmin']):
-	    return 'minmin','--'
+	    return 'minmin','--',color_violet
 	elif self.fields['min'] and value <= float(self.fields['min']):
-	    return 'min','-'
+	    return 'min','-',color_blue
 	elif self.fields['maxmax'] and value > float(self.fields['maxmax']):
-	    return 'maxmax','++'
+	    return 'maxmax','++',color_red
 	elif self.fields['max'] and value > float(self.fields['max']):
-	    return 'max','+'
+	    return 'max','+',color_orange
 	else:
-	    return 'typical','='
+	    return 'typical','=',color_green
 	    
     def launchAlarm(self, config, now):
         print 'lancement alarme Sensor : ' + self.getName('EN')
@@ -3278,36 +3253,78 @@ class Sensor(ConfigurationObject):
 	self.degreeAlarm = 0
 	self.time = 0
 	
-    def get_value_sensor(self,config):
+    def get_value_sensor(self,config,webCache=None):
+        if webCache is None:
+            webCache = {}
 	owData = None
+        debugging = u""
 	if self.fields['channel'] == 'wire':
 	    try:
-		sensorAdress = u'/'+unicode(self.fields['sensor'])
-##		try:
-##                    aDevice = ow.Sensor(str(sensorAdress))
-##                except ow.exUnknownSensor:
-##                    aDevice = None
-##		if aDevice:
-##		    owData = aDevice.__getattr__(self.fields['subsensor'])
-                owData = config.owproxy.read(sensorAdress+u'/'+unicode(self.fields['subsensor']))
+		sensorAdress = u'/'+unicode(self.fields['sensor'])+u'/'+unicode(self.fields['subsensor'])
+                owData = config.owproxy.read(sensorAdress)
 	    except:
-		traceback.print_exc()
+                debugging = u"Device="+sensorAdress+u", data="+owData+u", Message="+traceback.format_exc()
 	elif self.fields['channel'] == 'battery':
             owData = config.batteryVoltage
-	elif self.fields['channel'] == 'system':
-	    with open(self.fields['sensor'],'r') as sensorfile:
+	elif self.fields['channel'] == 'cputemp':
+	    with open('/sys/class/thermal/thermal_zone0/temp','r') as sensorfile:
 		info = sensorfile.read()
+		owData = float(info)/1000.0
+	elif self.fields['channel'] == 'http':
+            url = self.fields['sensor']
+            code = 0
+            info = ""
+            if url in webCache:
+                info = webCache[url]
 		owData = eval(self.fields['subsensor'])
-		print owData
-	try:
-            if owData:
-                if self.fields['formula']:
+            else:
+                try:
+                    sensorfile = urllib2.urlopen(self.fields['sensor'],None,20)
+		    info = sensorfile.read(80000)
+                    sensorfile.close()
+                    webCache[url] = info
+		    owData = eval(self.fields['subsensor'])
+                except:
+	            debugging = u"URL="+url+u", code="+unicode(code)+u", Response="+info+u", Message="+traceback.format_exc()
+	elif self.fields['channel'] == 'json':
+            url = self.fields['sensor']
+            code = 0
+            info = ""
+            if url in webCache:
+                info = webCache[url]
+                try:
+		    owData = eval(self.fields['subsensor'])
+                except:
+	            debugging = u"URL="+url+u", code="+unicode(code)+u", Response="+unicode(info)+u", Subsensor="+self.fields['subsensor']+u", Message="+traceback.format_exc()
+                    traceback.print_exc()
+            else:
+                try:
+                    sensorfile = urllib2.urlopen(self.fields['sensor'],None,20)
+                    print sensorfile.getcode()
+                    info = sensorfile.read()
+		    info = json.loads(info)
+                    sensorfile.close()
+                    webCache[url] = info
+		    owData = eval(self.fields['subsensor'])
+                except:
+	            debugging = u"URL="+url+u", code="+unicode(code)+u", Response="+unicode(info)+u", Subsensor="+self.fields['subsensor']+u", Message="+traceback.format_exc()
+	elif self.fields['channel'] == 'system':
+	    try:
+                sensorAdress = self.fields['sensor']
+                with open(sensorAdress,'r') as sensorfile:
+		    info = sensorfile.read()
+		    owData = eval(self.fields['subsensor'])
+	    except:
+                debugging = u"Device="+sensorAdress+u", field="+self.fields['subsensor']+u", data="+info+u", Message="+traceback.format_exc()
+        if owData:
+            if self.fields['formula']:
+	        try:
                     value = float(owData)
                     owData = unicode(eval(self.fields['formula']))
-                return owData
-        except:
-            traceback.print_exc()
-	return None
+                except:
+                    debugging = u"Device="+self.fields['sensor']+u" / "+self.fields['subsensor']+u", Formula="+self.fields['formula']+u", data="+unicode(owData)+u", Message="+traceback.format_exc()
+            return owData, debugging
+	return None, debugging
     
     def get_alarm(self):
 	if self.actualAlarm == 'typical':
@@ -3466,19 +3483,19 @@ class Batch(ConfigurationObject):
 	    qt = self.get_quantity_used()
 	    tmp = float(self.fields['basicqt']) - qt
 	    if tmp < 0 :
-		return useful.date_to_timestamp(self.pourings.fields['time'],datetimeformat) - useful.date_to_timestamp(self.fields['time'],datetimeformat)
-	return useful.get_timestamp() - useful.date_to_timestamp(self.fields['time'],datetimeformat)
+		return useful.date_to_timestamp(self.pourings.fields['time']) - useful.date_to_timestamp(self.fields['time'])
+	return useful.get_timestamp() - useful.date_to_timestamp(self.fields['time'])
 		
     def add_source(self, pouring):
 	self.remove_source(pouring)
 	if len(self.source) == 0:
 	    self.source.append(pouring.getID())
 	else:
-	    time = useful.date_to_timestamp(pouring.fields['time'],datetimeformat)
+	    time = useful.date_to_timestamp(pouring.fields['time'])
 	    insert = False
 	    for i in range(len(self.source)):
 		tmp = self.config.AllPourings.elements[self.source[i]]
-		tmptime = useful.date_to_timestamp(tmp.fields['time'],datetimeformat)
+		tmptime = useful.date_to_timestamp(tmp.fields['time'])
 		if time < tmptime:
 		    insert = True
 		    self.source.insert(i,pouring.getID())
@@ -3495,11 +3512,11 @@ class Batch(ConfigurationObject):
 	if len(self.destination) == 0:
 	    self.destination.append(pouring.getID())
 	else:
-	    time = useful.date_to_timestamp(pouring.fields['time'],datetimeformat)
+	    time = useful.date_to_timestamp(pouring.fields['time'])
 	    insert = False
 	    for i in range(len(self.destination)):
 		tmp = self.config.AllPourings.elements[self.destination [i]]
-		tmptime = useful.date_to_timestamp(tmp.fields['time'],datetimeformat)
+		tmptime = useful.date_to_timestamp(tmp.fields['time'])
 		if int(time) < int(tmptime):
 		    insert = True
 		    self.destination.insert(i,pouring.getID())
@@ -3760,7 +3777,7 @@ class Transfer(ConfigurationObject):
 	    posid = data['position'].split('_')[1]
 	    objet = configuration.get_object(objtype,objid)
 	    print objet.get_actual_position()
-	    if (objet.is_actual_position(postype, posid) is True and objet.get_actual_position() != self.id):
+	    if (objet.is_actual_position(postype, posid,configuration) is True and objet.get_actual_position() != self.id):
 		tmp += configuration.AllMessages.elements['transferrules'].getName(lang) + '\n'
 	    if ( objtype =='e' and postype != 'p') or(objtype =='c' and postype not in 'ep'):
 		tmp += configuration.AllMessages.elements['transferhierarchy'].getName(lang) + '\n'
@@ -3834,3 +3851,7 @@ class Barcode(ConfigurationObject):
 	
     def get_name(self):
 	return 'barcode'
+
+    def get_type(self):
+        return 'barcode'
+

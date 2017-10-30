@@ -116,25 +116,6 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    </div>
 	</div>
 	
-	<div class="form-group row">
-	    <label for="channelSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['channel'].getName(self.lang)</label>
-	    <div class="col-sm-9">
-		<select name = "channel" class="form-control" id="channelSelect">
-		    $code:
-			dicchannel = {'wire':'1-Wire','radio':'ELA Radio','battery':'AKUINO Battery','cputemp':'CPU Temperature','system':'System File'}
-		    $for k,v in dicchannel.items():
-			<option value="$(k)"
-			$if errormess != '' :
-			    $if 'channel' in data:
-				$if k == data['channel']:
-				    selected
-			$elif id != 'new':
-			    $if k == c.AllSensors.elements[id].fields['channel'] :
-				selected
-			>$(v)</option>
-		</select>
-	    </div>
-	</div>
 	$code:
 	    listAlarm = ['minmin', 'min', 'typical', 'max', 'maxmax']
 	$for alarm in listAlarm:
@@ -169,7 +150,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 		</div>
 	    </div>
 	<div class="form-group row">
-	    <label for="inputLapse1" class="col-sm-3 col-form-label">$c.AllMessages.elements['lapse'].getName(self.lang) 1</label>
+	    <label for="inputLapse1" class="col-sm-3 col-form-label">$c.AllMessages.elements['lapse'].getName(self.lang) 1 (")</label>
 	    <div class="col-sm-9">
 		<input name="lapse1" type="text" class="form-control" id="inputLapse1" placeholder="$c.AllMessages.elements['lapse'].getName(self.lang)" 
 		$if errormess != '':
@@ -181,7 +162,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    </div>
 	</div>
 	<div class="form-group row">
-	    <label for="inputLapse2" class="col-sm-3 col-form-label">$c.AllMessages.elements['lapse'].getName(self.lang) 2</label>
+	    <label for="inputLapse2" class="col-sm-3 col-form-label">$c.AllMessages.elements['lapse'].getName(self.lang) 2 (")</label>
 	    <div class="col-sm-9">
 		<input name="lapse2" type="text" class="form-control" id="inputLapse2" placeholder="$c.AllMessages.elements['lapse'].getName(self.lang)" 
 		$if errormess != '':
@@ -193,7 +174,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    </div>
 	</div>
 	<div class="form-group row">
-	    <label for="inputLapse3" class="col-sm-3 col-form-label">$c.AllMessages.elements['lapse'].getName(self.lang) 3</label>
+	    <label for="inputLapse3" class="col-sm-3 col-form-label">$c.AllMessages.elements['lapse'].getName(self.lang) 3 (")</label>
 	    <div class="col-sm-9">
 		<input name="lapse3" type="text" class="form-control" id="inputLapse3" placeholder="$c.AllMessages.elements['lapse'].getName(self.lang)" 
 		$if errormess != '':
@@ -206,18 +187,25 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputFormula" class="col-sm-3 col-form-label">$c.AllMessages.elements['formula'].getName(self.lang)</label>
+	    <label for="channelSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['channel'].getName(self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="formula" type="text" class="form-control" id="inputFormula" placeholder="$c.AllMessages.elements['formula'].getName(self.lang)" 
-		$if errormess != '':
-		    $if 'formula' in data :
-			value="$data['formula']"
-		$elif id !='new':
-		    value="$c.AllSensors.elements[id].fields['formula']"
-		>
+		<select name = "channel" class="form-control" id="channelSelect">
+		    $code:
+			dicchannel = {'wire':'1-Wire','radio':'ELA Radio','http':'HTTP or HTTPS request', 'json' : 'JSON format from HTTP/HTTPS request','battery':'AKUINO Battery','cputemp':'CPU Temperature','system':'System File'}
+		    $for k,v in dicchannel.items():
+			<option value="$(k)"
+			$if errormess != '' :
+			    $if 'channel' in data:
+				$if k == data['channel']:
+				    selected
+			$elif id != 'new':
+			    $if k == c.AllSensors.elements[id].fields['channel'] :
+				selected
+			>$(v)</option>
+		</select>
 	    </div>
 	</div>
-	
+
 	<div class="form-group row">
 	    <label for="inputSensor" class="col-sm-3 col-form-label">$c.AllMessages.elements['sensor'].getName(self.lang)</label>
 	    <div class="col-sm-9">
@@ -263,6 +251,30 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 		</select>
 	    </div>
 	</div>
+	
+	<div class="form-group row">
+	    <label for="inputFormula" class="col-sm-3 col-form-label">$c.AllMessages.elements['formula'].getName(self.lang)</label>
+	    <div class="col-sm-9">
+		<input name="formula" type="text" class="form-control" id="inputFormula" placeholder="$c.AllMessages.elements['formula'].getName(self.lang)" 
+		$if errormess != '':
+		    $if 'formula' in data :
+			value="$data['formula']"
+		$elif id !='new':
+		    value="$c.AllSensors.elements[id].fields['formula']"
+		>
+	    </div>
+	</div>
+	
+        $if id !='new':
+            <div class="form-group row">
+                <label for="inputValidation" class="col-sm-3 col-form-label">TEST</label>
+                <div class="col-sm-9" style="color:black">
+		    $code:
+                        value,debugging = c.AllSensors.elements[id].get_value_sensor(c.AllSensors.config)
+		    Value=<b>$value </b><br/>
+                    $debugging
+	        </div>
+	    </div>
 	
 	<div class="form-group row">
 	    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.AllMessages.elements['code'].getName(self.lang)</label>

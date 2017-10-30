@@ -26,9 +26,9 @@ $code:
 	
 	$if type =='h':
 	    <div class="form-group row">
-		<label for="inputGroup" class="col-sm-3 col-form-label">$c.AllMessages.elements['group'].getName(self.lang) </label>
+		<label for="recipe" class="col-sm-3 col-form-label">$c.AllMessages.elements['grecipe'].getName(self.lang) </label>
 		<div class="col-sm-9" id = "divgroup">
-		    <select name = "recipe" class="form-control" id="recipe" onchange="mySelectChange()">
+		    <select name = "recipe" class="form-control" id="recipe" onchange="myRecipeChange()">
 			<option value=''></option>
 			$code :
 			    groupList = c.AllGrRecipe.get_hierarchy_str()
@@ -55,6 +55,40 @@ $code:
 					    selected
 				    $elif id != 'new':
 					$if group == elements.elements[id].fields['gr_id'] :
+					    selected
+				    >$tmp $groups.elements[group].fields['acronym'] - $groups.elements[group].getName(self.lang)</option>
+		    </select>
+		</div>
+	    <div class="form-group row">
+		<label for="usage" class="col-sm-3 col-form-label">$c.AllMessages.elements['guse'].getName(self.lang) </label>
+		<div class="col-sm-9" id = "divgroup">
+		    <select name = "usage" class="form-control" id="usage">
+			<option value=''></option>
+			$code :
+			    groupList = c.AllGrUsage.get_hierarchy_str()
+			    groups = c.AllGrUsage
+			    tmp = ''
+			    indent = 1
+			    cindent = 9
+			$if len(groupList) > 0:
+			    $for group in groupList:
+				$if group == 'IN' :
+				    $code:
+					indent+=1
+					cindent-=1
+					tmp = ((indent-1)*4)*"_"
+				$elif group == 'OUT':
+				    $code:
+					indent-=1
+					cindent+=1
+					tmp = ((indent-1)*4)*"_"
+				$else :
+				    <option value="$group"
+				    $if context != '':
+					$if context.split('_')[-1] == group :
+					    selected
+				    $elif id != 'new':
+					$if group == elements.elements[id].fields['gu_id'] :
 					    selected
 				    >$tmp $groups.elements[group].fields['acronym'] - $groups.elements[group].getName(self.lang)</option>
 		    </select>
@@ -223,7 +257,7 @@ $code:
 
 $if type == 'h':
     <script>
-    function mySelectChange() {
+    function myRecipeChange() {
 	var select = document.getElementById("recipe");
 	var value = select.options[select.selectedIndex].text.split(" -")[0];
 	value = value.replace(/_/g , "")

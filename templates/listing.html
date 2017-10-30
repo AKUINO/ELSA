@@ -2,24 +2,24 @@ $def with (mail,type, id)
 $code :
     if type == 'v' :
 	type = 'b'	
-$var location: list/$(type)=$(c.findAllFromType(type).get_name_object())
-$var recursive : False
 $code :
     allObjects = c.findAllFromType(type)
     elements = allObjects.get_sorted()
     keyID = allObjects.keyColumn
     permissionKey = type +'_'
+$var location: list/$(type)=$(allObjects.get_name_object())
+$var recursive : False
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 
 $for a in elements:
-    $if c.findAllFromType(type).elements[a].fields['active'] == '1' or id == 'all':
+    $if allObjects.elements[a].fields['active'] == '1' or id == 'all':
 	<script>
 	    $$(function(){
 		$$("#includedMenu$(type)_$(a)").load("/fullentry/$(type)_$(a)");
 	    });
 	</script>
-	<div id="includedMenu$(type)_$(a)" ></div>
+	$a:<div id="includedMenu$(type)_$(a)" ></div>
     
 
 $if type == 'b' :    
@@ -54,6 +54,6 @@ $if type == 'b' :
 	class="btn btn-default" ><span class="$c.AllHalflings.elements['active'].getHalfling()"></span>&nbsp;/&nbsp;<span class="$c.AllHalflings.elements['disabled'].getHalfling()"></span></a>
     </div>
     <div class="col-xs-6 vcenter" id="addItem">
-	<a href="/create/$(type)" class = "vcenter"><span class="halflings halflings-plus"></span>$c.AllMessages.elements[c.findAllFromType(type).get_name_object()].getName(self.lang)</a>
+	<a href="/create/$(type)" class = "vcenter"><span class="halflings halflings-plus"></span>$c.AllMessages.elements[allObjects.get_name_object()].getName(self.lang)</a>
     </div>
 </div>    

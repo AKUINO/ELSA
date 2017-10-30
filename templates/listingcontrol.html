@@ -3,7 +3,20 @@ $code:
     allobjects = c.findAllFromType(type)
     elem = allobjects.elements[id]
     keyID = c.findAllFromObject(elem).keyColumn
-    group = c.AllGrRecipe.elements[elem.fields['gr_id']]
+    recipes = set()
+    recipe_id = elem.fields['gr_id']
+    if recipe_id and recipe_id in c.AllGrRecipe.elements:
+        recipe = c.AllGrRecipe.elements[recipe_id]
+        recipes = set(recipe_id)
+    components = elem.get_actual_position_hierarchy(c)
+    usages = set()
+    for place in components:
+        gr_usage = place.get_group()
+        if gr_usage and gr_usage in c.AllGrUsage.elements:
+            usages.add(gr_usage)
+	    usage = c.AllGrUsage.elements[gr_usage]
+            new_usages = set(usage.get_all_parents())
+	    usages = usages | new_usages
     
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var location: list/$(type)=$(c.findAllFromType(type).get_name_object()) find/h/$(type)_$(id)=checkpoint
@@ -41,7 +54,7 @@ $for i in elem.checkpoints:
 	    </div>
 	    <div class="col-sm-4">
 		<select name = "checkpoint" class="form-control" id="inputPosition">
-		$for v in c.AllCheckPoints.get_checkpoints_for_recipe(group.get_all_parents()):
+		$for v in c.AllCheckPoints.get_checkpoints_for_recipe_usage(recipes,usages):
 		    $if v.getID() not in elem.checkpoints :
 			<option value="$v.getID()">$v.fields['acronym'] - $v.getName(self.lang) </option>
 		</select>

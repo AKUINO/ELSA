@@ -28,7 +28,7 @@ $if elem is not None:
 			    $for e in elem.fieldnames:
                                 $if e == 'timestamp':
                                     $if line['timestamp'] != '' :
-                                        <td>$useful.timestamp_to_date(int(line['timestamp']),c.get_time_format())</td>
+                                        <td>$useful.timestamp_to_date(int(line['timestamp']))</td>
                                 $else :
 				    <td align="center">$line[e]</td>
 			</tr>

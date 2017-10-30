@@ -25,9 +25,9 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
             <div class="modal-body">
                 <div class="container-fluid">
                     <div class="row">
-			$if type in 'pecbgugfgr' and elem.isImaged():
+			$if elem.isImaged():
 			    <div class="col-xs-5">
-				<img src="/$(elem.getImageDirectory())jpg" alt="Image not found" style="width:128px;height:128px;">
+				<img src="/$(elem.getImagePath())" alt="Image not found" style="width:128px;height:128px;">
 			    </div>
 			<div id="modalinfo" class="col-xs-5">
 			    <strong>$elem.fields['acronym']</strong>
