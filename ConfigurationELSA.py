@@ -46,7 +46,26 @@ _lock_socket = None
 
 queryChannels = ['wire','http', 'json', 'battery','cputemp','system']
 
-class Configuration():
+color_violet = "FF00FF"
+color_blue = "0000FF"
+color_green = "00FF00"
+color_orange = "FFFF00"
+color_red = "FF0000"
+
+class valueCategory(object):
+
+   def __init__(self,level,name,acronym,color):
+	self.level = level
+        self.name = name
+        self.acronym = acronym
+        self.color = color
+
+   def triple(self):
+	return self.name,self.acronym,self.color
+
+valueCategs = { -2: valueCategory(-2,'minmin','---',color_violet), -1: valueCategory(-1,'min','--',color_blue), 0: valueCategory( 0,'typical','==',color_green), 1: valueCategory( 1,'max','++',color_orange), 2: valueCategory( 2,'maxmax','++',color_red) }
+
+class Configuration(object):
 
     def __init__(self):
 	
@@ -75,6 +94,8 @@ class Configuration():
             print 'AKUINO-ELSA lock exists'
             sys.exit()
 	
+        self.valueCategs = valueCategs
+	self.sortedCategs = sorted(valueCategs)
 	self.csvCodes = csvDir + 'codes.csv'
 	self.csvRelations = csvDir + 'relations.csv'
 	self.fieldcode = ['begin', 'type', 'idobject', 'code', 'user']
@@ -292,7 +313,7 @@ class Configuration():
 	    return False
 	return True
 
-class ConfigurationObject():
+class ConfigurationObject(object):
 
     def __init__(self):
         self.fields = {}
@@ -655,7 +676,7 @@ class RadioThread(threading.Thread):
 	if elaSerial:
       	    elaSerial.close()	
 
-class AllObjects():
+class AllObjects(object):
 
     def __init__(self,code,config=None):
         self.code = code
@@ -851,7 +872,7 @@ class AllObjects():
 	    elem = config.AllBarcodes.barcode_to_item(barcode)
 	except:
 	    return None
-	
+
 class AllUsers(AllObjects):
 
     def __init__(self, config):
@@ -1596,7 +1617,7 @@ class User(ConfigurationObject):
 	return 'user'
     
     def validate_form(self, data, configuration, lang) :
-	tmp = ConfigurationObject.validate_form(self, data, configuration, lang)
+	tmp = super(User,self).validate_form(data, configuration, lang)
 	if tmp is True:
 	    tmp = ''
 	if tmp is True:
@@ -1609,7 +1630,7 @@ class User(ConfigurationObject):
 	return tmp
 	
     def set_value_from_data(self, data, c,user):
-	ConfigurationObject.set_value_from_data(self, data, c,user)
+	super(User,self).set_value_from_data(data, c,user)
 	tmp = ['phone', 'mail','language']
 	for elem in tmp:
 	    self.fields[elem] = data[elem]
@@ -1657,10 +1678,10 @@ class Equipment(ConfigurationObject):
 	return listSensor
 	
     def validate_form(self, data, configuration, lang):
-	return ConfigurationObject.validate_form(self, data, configuration, lang)	
+	return super(Equipment,self).validate_form(data, configuration, lang)	
 	
     def set_value_from_data(self, data, c,user):
-	ConfigurationObject.set_value_from_data(self, data, c,user)
+	super(Equipment,self).set_value_from_data(data, c,user)
 	self.fields['colorgraph'] = data['colorgraph']
 	self.fields['gu_id'] = data['group']
 	self.save(c,user)
@@ -1701,10 +1722,10 @@ class Container(ConfigurationObject):
 	return listSensor
 	
     def validate_form(self, data, configuration, lang):
-	return ConfigurationObject.validate_form(self, data, configuration, lang)	
+	return super(Container,self).validate_form(data, configuration, lang)	
 	
     def set_value_from_data(self, data, c,user):
-	ConfigurationObject.set_value_from_data(self, data, c,user)
+	super(Container,self).set_value_from_data(data, c,user)
 	self.fields['colorgraph'] = data['colorgraph']
 	self.fields['gu_id'] = data['group']
 	self.save(c,user)
@@ -1919,7 +1940,7 @@ class Group(ConfigurationObject):
 	return 'groups'
 	
     def validate_form(self, data, configuration, lang):
-	tmp = ConfigurationObject.validate_form(self, data, configuration, lang)	
+	tmp = super(Group,self).validate_form(data, configuration, lang)	
 	if tmp is True:
 	    tmp = ''
 	for k,v in configuration.findAllFromObject(self).elements.items():
@@ -1932,7 +1953,7 @@ class Group(ConfigurationObject):
 	return tmp
 	
     def set_value_from_data(self, data, c,user):
-	ConfigurationObject.set_value_from_data(self, data, c,user)
+	super(Group,self).set_value_from_data(data, c,user)
 	self.parents = []
 	self.children = []
 	self.siblings = []
@@ -2044,7 +2065,7 @@ class GrUsage(Group):
 	return tmp
 	
     def set_value_from_data(self, data, c,user):
-	Group.set_value_from_data(self, data, c,user)
+	super(GrUsage,self).set_value_from_data(data, c,user)
 	self.save(c,user)
 	
 class CheckPoint(Group):
@@ -2068,7 +2089,7 @@ class CheckPoint(Group):
 	return tmp
 	
     def set_value_from_data(self, data, c,user):
-	Group.set_value_from_data(self, data, c,user)
+	super(CheckPoint,self).set_value_from_data(data, c,user)
 	self.fields['gr_id'] = data['recipe']
 	self.fields['gu_id'] = data['usage']
 	self.fields['rank'] = data['rank']
@@ -2287,13 +2308,13 @@ class GrRecipe(Group):
 	return 'grecipe'
     
     def validate_form(self, data, configuration, lang):
-	tmp = Group.validate_form(self, data, configuration, lang)	
+	tmp = super(GrRecipe,self).validate_form(data, configuration, lang)	
 	if tmp == '':
 	    return True
 	return tmp
 	
     def set_value_from_data(self, data, c,user):
-	Group.set_value_from_data(self, data, c,user)
+	super(GrRecipe,self).set_value_from_data(data, c,user)
 	self.save(c,user)
 	
 class GrFunction(Group):
@@ -2315,13 +2336,13 @@ class GrFunction(Group):
 	return 'gfunction'
     
     def validate_form(self, data, configuration, lang):
-	tmp = Group.validate_form(self, data, configuration, lang)	
+	tmp = super(GrFunction,self).validate_form(data, configuration, lang)	
 	if tmp == '':
 	    return True
 	return tmp
 	
     def set_value_from_data(self, data, c,user):
-	Group.set_value_from_data(self, data, c,user)
+	super(GrFunction,self).set_value_from_data(data, c,user)
 	self.save(c,user)
 	
 class Piece(ConfigurationObject):
@@ -2365,10 +2386,10 @@ class Piece(ConfigurationObject):
 	return listSensor
 	
     def validate_form(self, data, configuration, lang):
-	return ConfigurationObject.validate_form(self, data, configuration, lang)	
+	return super(Piece,self).validate_form(data, configuration, lang)	
 	
     def set_value_from_data(self, data, c,user):
-	ConfigurationObject.set_value_from_data(self, data, c,user)
+	super(Piece,self).set_value_from_data(data, c,user)
 	self.fields['colorgraph'] = data['colorgraph']
 	self.fields['gu_id'] = data['group']
 	self.save(c,user)
@@ -2882,11 +2903,11 @@ class Alarm(ConfigurationObject):
 	return 'a'
 	
     def validate_form(self, data, configuration, lang):
-	tmp =  ConfigurationObject.validate_form(self, data, configuration, lang)
+	tmp =  super(Alarm,self).validate_form(data, configuration, lang)
 	return tmp	
 	
     def set_value_from_data(self, data, c,user):
-	ConfigurationObject.set_value_from_data(self, data, c,user)
+	super(Alarm,self).set_value_from_data(data, c,user)
 	tmp = ['o_sms1', 'o_sms2', 'o_email1', 'o_email2', 'o_sound1', 'o_sound2', 'relay1', 'relay2']
 	for elem in tmp:
 	    self.fields[elem] = data[elem]
@@ -3050,7 +3071,7 @@ class Measure(ConfigurationObject):
 	return listSensor
 	
     def validate_form(self, data, configuration, lang) :
-	tmp = ConfigurationObject.validate_form(self, data, configuration, lang)
+	tmp = super(Measure,self).validate_form(data, configuration, lang)
 	if tmp is True:
 	    tmp = ''
 	try : 
@@ -3073,17 +3094,11 @@ class Measure(ConfigurationObject):
 	return tmp
 	
     def set_value_from_data(self, data, c,user):
-	ConfigurationObject.set_value_from_data(self, data, c,user)
+	super(Measure,self).set_value_from_data(data, c,user)
 	tmp = ['unit']
 	for elem in tmp:
 	    self.fields[elem] = data[elem]
 	self.save(c,user)
-
-color_violet = "FF00FF"
-color_blue = "0000FF"
-color_green = "00FF00"
-color_orange = "FFFF00"
-color_red = "FF0000"
 
 class Sensor(ConfigurationObject):
     def __init__(self):
@@ -3091,7 +3106,7 @@ class Sensor(ConfigurationObject):
 	self.actualAlarm = 'typical'
 	self.countActual = 0
 	self.degreeAlarm = 0
-        self.colorAlarm = color_green
+        self.colorAlarm = valueCategs[0].color
 	self.lastvalue = None
 	self.time = 0
     
@@ -3214,15 +3229,15 @@ class Sensor(ConfigurationObject):
     def getTypeAlarm(self,value):
 	value = float(value)
 	if self.fields['minmin'] and value <= float(self.fields['minmin']):
-	    return 'minmin','--',color_violet
+	    return valueCategs[-2].triple()
 	elif self.fields['min'] and value <= float(self.fields['min']):
-	    return 'min','-',color_blue
+	    return valueCategs[-1].triple()
 	elif self.fields['maxmax'] and value > float(self.fields['maxmax']):
-	    return 'maxmax','++',color_red
+	    return valueCategs[2].triple()
 	elif self.fields['max'] and value > float(self.fields['max']):
-	    return 'max','+',color_orange
+	    return valueCategs[1].triple()
 	else:
-	    return 'typical','=',color_green
+	    return valueCategs[0].triple()
 	    
     def launchAlarm(self, config, now):
         print 'lancement alarme Sensor : ' + self.getName('EN')
@@ -3263,7 +3278,7 @@ class Sensor(ConfigurationObject):
 		sensorAdress = u'/'+unicode(self.fields['sensor'])+u'/'+unicode(self.fields['subsensor'])
                 owData = config.owproxy.read(sensorAdress)
 	    except:
-                debugging = u"Device="+sensorAdress+u", data="+owData+u", Message="+traceback.format_exc()
+                debugging = u"Device="+sensorAdress+u", Message="+traceback.format_exc()
 	elif self.fields['channel'] == 'battery':
             owData = config.batteryVoltage
 	elif self.fields['channel'] == 'cputemp':
@@ -3315,14 +3330,14 @@ class Sensor(ConfigurationObject):
 		    info = sensorfile.read()
 		    owData = eval(self.fields['subsensor'])
 	    except:
-                debugging = u"Device="+sensorAdress+u", field="+self.fields['subsensor']+u", data="+info+u", Message="+traceback.format_exc()
+                debugging = u"Device="+sensorAdress+u", field="+self.fields['subsensor']+u", data="+unicode(info)+u", Message="+traceback.format_exc()
         if owData:
             if self.fields['formula']:
 	        try:
                     value = float(owData)
                     owData = unicode(eval(self.fields['formula']))
                 except:
-                    debugging = u"Device="+self.fields['sensor']+u" / "+self.fields['subsensor']+u", Formula="+self.fields['formula']+u", data="+unicode(owData)+u", Message="+traceback.format_exc()
+                    debugging = u"Device="+self.fields['sensor']+u" / "+self.fields['subsensor']+u", Formula="+self.fields['formula']+u", Message="+traceback.format_exc()
             return owData, debugging
 	return None, debugging
     
@@ -3387,7 +3402,7 @@ class Sensor(ConfigurationObject):
 	return None
 	
     def validate_form(self, data, configuration, lang) :
-	tmp = ConfigurationObject.validate_form(self, data, configuration, lang)
+	tmp = super(Sensor,self).validate_form(data, configuration, lang)
 	if tmp is True:
 	    tmp = ''
 	try : 
@@ -3426,7 +3441,7 @@ class Sensor(ConfigurationObject):
 	return tmp
 	
     def set_value_from_data(self, data, c,user):
-	ConfigurationObject.set_value_from_data(self, data, c,user)
+	super(Sensor,self).set_value_from_data(data, c,user)
 	tmp = ['channel', 'sensor', 'subsensor', 'valuetype', 'formula', 'minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax', 'lapse1', 'lapse2', 'lapse3']
 	for elem in tmp:
 	    self.fields[elem] = data[elem]
@@ -3563,14 +3578,15 @@ class Batch(ConfigurationObject):
 	b.save(self.config,user)
 	
     def validate_form(self, data, configuration, lang) :
-	tmp = ConfigurationObject.validate_form(self, data, configuration, lang)
+	tmp = super(Batch,self).validate_form(data, configuration, lang)
 	if tmp is True:
 	    tmp = ''
 	try:
-	    value = datetime.datetime.strptime(data['time'],datetimeformat)
+	    value = useful.transform_date(data['time'])
 	except:
+	    traceback.print_exc()
 	    tmp += configuration.AllMessages.elements['timerules'].getName(lang) + '\n'
-	    
+
 	try:
 	    value = float(data['cost'])
 	    if value < 0.0:
@@ -3593,7 +3609,7 @@ class Batch(ConfigurationObject):
 	return tmp
 	
     def set_value_from_data(self, data, c,user):
-	ConfigurationObject.set_value_from_data(self, data, c,user)
+	super(Batch,self).set_value_from_data(data, c,user)
 	tmp = ['basicqt', 'time', 'cost']
 	for elem in tmp:
 	    self.fields[elem] = data[elem]
@@ -3629,12 +3645,12 @@ class PouringModel(ConfigurationObject):
 	return self.fields['h_id']
     
     def validate_form(self, data, configuration, lang):
-	return ConfigurationObject.validate_form(self, data, configuration, lang)	
+	return super(PouringModel,self).validate_form(data, configuration, lang)	
 	
     def set_value_from_data(self, data, c,user):
 	if self.fields['h_id'] != '':
 	    self.config.AllCheckPoints.elements[self.fields['h_id']].remove_vm(self)
-	ConfigurationObject.set_value_from_data(self, data, c,user)
+	super(PouringModel,self).set_value_from_data(data, c,user)
 	self.fields['quantity'] = data['quantity']
 	if data['src'] != 'current':
 	    self.fields['src'] = data['src']
@@ -3677,12 +3693,12 @@ class ManualDataModel(ConfigurationObject):
 	return self.fields['h_id']
     
     def validate_form(self, data, configuration, lang):
-	return ConfigurationObject.validate_form(self, data, configuration, lang)	
+	return super(ManualDataModel,self).validate_form(data, configuration, lang)	
 	
     def set_value_from_data(self, data, c,user):
 	if self.fields['h_id'] != '':
 	    self.config.AllCheckPoints.elements[self.fields['h_id']].remove_dm(self)
-	ConfigurationObject.set_value_from_data(self, data, c,user)
+	super(ManualDataModel,self).set_value_from_data(data, c,user)
 	self.fields['m_id'] = data['measure']
 	self.fields['h_id'] = data['checkpoint']
 	self.fields['rank'] = data['rank']
@@ -3712,12 +3728,12 @@ class TransferModel(ConfigurationObject):
 	return 'transfermodel'
 	
     def validate_form(self, data, configuration, lang):
-	return ConfigurationObject.validate_form(self, data, configuration, lang)	
+	return super(TransferModel,self).validate_form(data, configuration, lang)	
 	
     def set_value_from_data(self, data, c,user):
 	if self.fields['h_id'] != '':
 	    self.config.AllCheckPoints.elements[self.fields['h_id']].remove_tm(self)
-	ConfigurationObject.set_value_from_data(self, data, c,user)
+	super(TransferModel,self).set_value_from_data(data, c,user)
 	self.fields['gu_id'] = data['position']
 	self.fields['h_id'] = data['checkpoint']
 	self.fields['rank'] = data['rank']
