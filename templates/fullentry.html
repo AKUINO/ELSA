@@ -1,5 +1,6 @@
 $def with (mail,type, id)	
 $var recursive : True
+$var title : "ELSA"
 $code :
     allElem = c.findAllFromType(type)
     elem = allElem.elements[id]
@@ -7,6 +8,8 @@ $code :
     permissionKey = type +'_'
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$var title : "ELSA - "+$(elem.get_name())
+
 <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;
 $if 'colorgraph' in elem.fields.keys() :
     border-left-style: solid;border-width: 10px;border-color:$(elem.fields['colorgraph']);
@@ -44,17 +47,11 @@ $elif type == 'h':
 	$if type in 'pu' :
 	    $code :
 		groups = c.get_group(allElem.get_key_group())
-	    <div class="col-xs-1 vcenter">
+	    <div class="col-xs-3 vcenter">
 		<span class="$c.AllHalflings.elements[groups.get_name_object()].getHalfling()"></span>
+	        $if elem.get_group() != '' :
+		    <a href="/item/$(allElem.get_key_group())_$elem.get_group()">$groups.elements[elem.get_group()].fields['acronym']</a>
 	    </div>
-	    $if elem.get_group() != '' :
-		<div class="col-xs-2 vcenter">
-		       <a href="/item/$(allElem.get_key_group())_$elem.get_group()">$groups.elements[elem.get_group()].fields['acronym']</a>
-		</div>
-	    $else :
-		<div class="col-xs-2 vcenter">
-		    -
-		</div>
 	$elif type in 'ec':
 	    <div class="col-xs-3 vcenter">
 		<div class="row">

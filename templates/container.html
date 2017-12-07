@@ -1,6 +1,7 @@
 $def with (id, mail, errormess, data, context='')
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
+$var title : ELSA container
 
 $if id == 'new':
     $var location: all/c=container edit/c_new=add
@@ -8,6 +9,8 @@ $if id == 'new':
 $else:
     $var location: all/c=container edit/c_$(id)=edit
     $var rmq :  $c.AllContainers.elements[id].fields['remark']
+    $var title : ELSA container $c.AllContainers.elements[id].fields['acronym']
+
 $if errormess != '':
     $if 'remark' in data :
 	$var rmq : $data['remark']

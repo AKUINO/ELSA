@@ -38,7 +38,7 @@ $if type in 'p' :
     <div class="row active" style ="margin-top:10px;margin-bottom:10px;background-color:#E5E5E7;padding:15px;" >
 	<label class="col-sm-12">$c.AllMessages.elements['equipment'].getName(self.lang) :</label>
 	$for k,equipment in c.AllEquipments.elements.items():
-	    $if equipment.is_actual_position(toCheck[0][0],id) :
+	    $if equipment.is_actual_position(toCheck[0][0],id,c) :
 		$code
 		    toCheck.append(['e',k])
 		<script>
@@ -52,7 +52,7 @@ $if type in 'pe':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<label class="col-sm-12">$c.AllMessages.elements['container'].getName(self.lang) :</label>    
 	$for k,container in c.AllContainers.elements.items():
-	    $if container.is_actual_position(toCheck[0][0],id) :
+	    $if container.is_actual_position(toCheck[0][0],id,c) :
 		$code
 		    toCheck.append(['c',k])
 		<script>
@@ -80,7 +80,7 @@ $if type not in 'bg':
     <label class="col-sm-12">$c.AllMessages.elements['batch'].getName(self.lang) :</label>
     $for k,batch in c.AllBatches.elements.items():
         $for t, i in toCheck:
-            $if batch.is_actual_position(t, i) is True:
+            $if batch.is_actual_position(t, i, c) is True:
                 <script>
                     $$(function(){
                         $$("#includedMenub_$(k)").load("/fullentry/b_$(k)");

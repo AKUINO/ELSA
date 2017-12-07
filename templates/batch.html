@@ -1,7 +1,8 @@
 $def with (id, mail, errormess, data, context='')
-
+$var title : ELSA
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
+$var title : ELSA batch
 
 $if id == 'new':
     $var location: all/b=batch edit/b_new=add
@@ -9,9 +10,10 @@ $if id == 'new':
 $else:
     $var location: all/b=batch edit/b_$(id)=edit
     $var rmq :  $c.AllBatches.elements[id].fields['remark']
+    $var title :  ELSA batch $c.AllBatches.elements[id].fields['acronym']
+
 $if errormess != '':
-    $if 'remark' in data :
-	$var rmq : $data['remark']
+    $var rmq : $data['remark']
 
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">

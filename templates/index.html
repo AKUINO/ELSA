@@ -1,4 +1,5 @@
 $def with (connected, mail)
+$var title : ELSA
 $var location : index
 $var lang : disconnected
 $var recursive : False
@@ -27,6 +28,7 @@ $if connected is True:
 	    </div>
 	</div>    
 $else :
+    $var title : ELSA login
     <div>
 	<p>This application stores the configuration and the data of the different AKUINO modules installed.</p>
 	<h1>Please log-in</h1>

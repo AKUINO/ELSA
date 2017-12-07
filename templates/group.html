@@ -1,6 +1,7 @@
 $def with (type,id, mail, errormess, data, context='')
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
+$var title : ELSA group
 
 $if id == 'new':
     $var location: list/$(type)=$(c.findAllFromType(type).get_name_object()) edit/$(type)_new=add
@@ -11,6 +12,7 @@ $else:
     $var rmq :  $c.findAllFromType(type).elements[id].fields['remark']
     $code:
 	elem = c.findAllFromType(type).elements[id]
+    $var title : ELSA $(elem.getName(self.lang))
 $if errormess != '':
     $if 'remark' in data :
 	$var rmq : $data['remark']
