@@ -1,8 +1,0 @@
-"begin"	"m_group"	"old_id"	"deny"	"m_id"	"acronym"	"name"	"barcode"	"unit"	"source"	"formula"	"remark"
-"01/01/2016 00:00:00"	"CNSV"	1		"TEMP"	"Tp"	"Temp.Produit"	4100000000010	"°C"	"sensor"		
-"01/01/2016 00:00:00"	"DURE"	2		"MINU"	"Dm"	"Minutes"	4100000000027	"min"	"time"	"step.duration/60000"	
-"01/01/2016 00:00:00"	"DURE"	3		"HEUR"	"Dh"	"Heures"	4100000000034	"H"	"time"	"step.duration/(60*60000)"	
-"01/01/2016 00:00:00"	"DURE"	4		"JOUR"	"Dj"	"Jours"	4100000000041	"J"	"time"	"step.duration/(24*60*60000)"	
-"01/01/2016 00:00:00"	"QTITE"	5		"QTITE"	"Qté"	"Quantite"	4100000000058	"p."	"scan"		"pièces"
-"01/01/2016 00:00:00"	"VOL"	6		"INTR"	"in"	"Intrant"	4100000000065	"mL/100L"	"scan"		"1mL = 1cc"
-"01/01/2016 00:00:00"	"OK"			"OK"	"OK"	"Verification"	4100000000072	"?"	"scan"		"Scan pour NON OK ?"

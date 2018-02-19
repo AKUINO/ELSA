@@ -5,7 +5,7 @@ import traceback
 import os
 import codecs
 
-CONFdirectory = '~/akuino'
+CONFdirectory = '~/akuino/normal'
 HARDdirectory = CONFdirectory + '/hardware'
 
 class HardConfig():    

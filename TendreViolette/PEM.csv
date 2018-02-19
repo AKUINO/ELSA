@@ -1,6 +1,0 @@
-"begin"	"p_id"	"e_id"	"m_id"	"deny"	"acronym"	"name"	"barcode"	"channel"	"sensor"	"subsensor"	"valuetype"	"formula"	"remark"
-"20/12/2015 00:00:00"	"FRM"	"CITE"	"TEMP"		"tC"	"Citerne"		"wire"	"28.FFDD64931504DA"	"temperature"	"float"		
-"21/12/2015 00:00:00"	"FRM"		"TEMP"		"tF"	"Fromagerie"		"wire"	"21.1ABF39000000BD"	"temperature"	"float"		
-"22/12/2015 00:00:00"	"AFF"		"TEMP"		"tA"	"Affinage"		"wire"	"26.8918CE010000D8"		"float"		
-"23/12/2015 00:00:00"	"STK"		"TEMP"		"tS"	"Stock"		"radio"	800		"hexa"	"(value if value < 4096 else value-4096)*60.0/960.0"	
-"22/12/2015 00:00:00"	"FRM"	"CUVE"	"TEMP"		"tM"	"Malaxage"		"radio"	"81F"		"hexa"	"(value if value < 4096 else value-4096)*60.0/960.0"	
