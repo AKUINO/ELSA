@@ -50,7 +50,6 @@ class MCP230xxBase(GPIO.BaseGPIO):
         self.write_iodir()
         self.write_gppu()
 
-
     def setup(self, pin, value):
         """Set the input or output mode for a specified pin.  Mode should be
         either GPIO.OUT or GPIO.IN.
@@ -58,13 +57,12 @@ class MCP230xxBase(GPIO.BaseGPIO):
         self._validate_pin(pin)
         # Set bit to 1 for input or 0 for output.
         if value == GPIO.IN:
-            self.iodir[int(pin/8)] |= 1 << (int(pin%8))
+            self.iodir[int(pin/8)] |= 1 << (int(pin % 8))
         elif value == GPIO.OUT:
-            self.iodir[int(pin/8)] &= ~(1 << (int(pin%8)))
+            self.iodir[int(pin/8)] &= ~(1 << (int(pin % 8)))
         else:
             raise ValueError('Unexpected value.  Must be GPIO.IN or GPIO.OUT.')
         self.write_iodir()
-
 
     def output(self, pin, value):
         """Set the specified pin the provided high/low value.  Value should be
@@ -81,12 +79,11 @@ class MCP230xxBase(GPIO.BaseGPIO):
         # Set each changed pin's bit.
         for pin, value in iter(pins.items()):
             if value:
-                self.gpio[int(pin/8)] |= 1 << (int(pin%8))
+                self.gpio[int(pin/8)] |= 1 << (int(pin % 8))
             else:
-                self.gpio[int(pin/8)] &= ~(1 << (int(pin%8)))
+                self.gpio[int(pin/8)] &= ~(1 << (int(pin % 8)))
         # Write GPIO state.
         self.write_gpio()
-
 
     def input(self, pin):
         """Read the specified pin and return GPIO.HIGH/True if the pin is pulled
@@ -102,8 +99,7 @@ class MCP230xxBase(GPIO.BaseGPIO):
         # Get GPIO state.
         gpio = self._device.readList(self.GPIO, self.gpio_bytes)
         # Return True if pin's bit is set.
-        return [(gpio[int(pin/8)] & 1 << (int(pin%8))) > 0 for pin in pins]
-
+        return [(gpio[int(pin/8)] & 1 << (int(pin % 8))) > 0 for pin in pins]
 
     def pullup(self, pin, enabled):
         """Turn on the pull-up resistor for the specified pin if enabled is True,
@@ -111,9 +107,9 @@ class MCP230xxBase(GPIO.BaseGPIO):
         """
         self._validate_pin(pin)
         if enabled:
-            self.gppu[int(pin/8)] |= 1 << (int(pin%8))
+            self.gppu[int(pin/8)] |= 1 << (int(pin % 8))
         else:
-            self.gppu[int(pin/8)] &= ~(1 << (int(pin%8)))
+            self.gppu[int(pin/8)] &= ~(1 << (int(pin % 8)))
         self.write_gppu()
 
     def write_gpio(self, gpio=None):
@@ -145,9 +141,9 @@ class MCP23017(MCP230xxBase):
     """MCP23017-based GPIO class with 16 GPIO pins."""
     # Define number of pins and registor addresses.
     NUM_GPIO = 16
-    IODIR    = 0x00
-    GPIO     = 0x12
-    GPPU     = 0x0C
+    IODIR = 0x00
+    GPIO = 0x12
+    GPPU = 0x0C
 
     def __init__(self, address=0x20, **kwargs):
         super(MCP23017, self).__init__(address, **kwargs)
@@ -157,9 +153,9 @@ class MCP23008(MCP230xxBase):
     """MCP23008-based GPIO class with 8 GPIO pins."""
     # Define number of pins and registor addresses.
     NUM_GPIO = 8
-    IODIR    = 0x00
-    GPIO     = 0x09
-    GPPU     = 0x06
+    IODIR = 0x00
+    GPIO = 0x09
+    GPPU = 0x06
 
     def __init__(self, address=0x20, **kwargs):
         super(MCP23008, self).__init__(address, **kwargs)

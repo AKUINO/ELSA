@@ -53,7 +53,8 @@ disp.display()
 # Load image based on OLED display height.  Note that image is converted to 1 bit color.
 #image = Image.open('happycat_oled_64.ppm').convert('1')
 # Alternatively load a different format image, resize it, and convert to 1 bit color.
-image = Image.open('happycat.png').resize((disp.width, disp.height), Image.ANTIALIAS).convert('1')
+image = Image.open('happycat.png').resize(
+    (disp.width, disp.height), Image.ANTIALIAS).convert('1')
 
 # Display image.
 disp.image(image)

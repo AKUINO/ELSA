@@ -22,18 +22,19 @@
 import Platform
 
 
-OUT     = 0
-IN      = 1
-HIGH    = True
-LOW     = False
+OUT = 0
+IN = 1
+HIGH = True
+LOW = False
 
-RISING      = 1
-FALLING     = 2
-BOTH        = 3
+RISING = 1
+FALLING = 2
+BOTH = 3
 
-PUD_OFF  = 0
+PUD_OFF = 0
 PUD_DOWN = 1
-PUD_UP   = 2
+PUD_UP = 2
+
 
 class BaseGPIO(object):
     """Base class for implementing simple digital IO for a platform.
@@ -105,19 +106,18 @@ class BaseGPIO(object):
         # General implementation that can be optimized by derived classes.
         return [self.input(pin) for pin in pins]
 
-
     def add_event_detect(self, pin, edge):
         """Enable edge detection events for a particular GPIO channel.  Pin 
         should be type IN.  Edge must be RISING, FALLING or BOTH.
         """
         raise NotImplementedError
-   
+
     def remove_event_detect(self, pin):
         """Remove edge detection for a particular GPIO channel.  Pin should be
         type IN.
         """
         raise NotImplementedError
-  
+
     def add_event_callback(self, pin, callback):
         """Add a callback for an event already defined using add_event_detect().
         Pin should be type IN.
@@ -148,7 +148,8 @@ class BaseGPIO(object):
     def _validate_pin(self, pin):
         # Raise an exception if pin is outside the range of allowed values.
         if pin < 0 or pin >= self.NUM_GPIO:
-            raise ValueError('Invalid GPIO value, must be between 0 and {0}.'.format(self.NUM_GPIO))
+            raise ValueError(
+                'Invalid GPIO value, must be between 0 and {0}.'.format(self.NUM_GPIO))
 
     def _bit2(self, src, bit, val):
         bit = 1 << bit
@@ -166,19 +167,20 @@ class RPiGPIOAdapter(BaseGPIO):
         if mode == rpi_gpio.BOARD or mode == rpi_gpio.BCM:
             rpi_gpio.setmode(mode)
         elif mode is not None:
-            raise ValueError('Unexpected value for mode.  Must be BOARD or BCM.')
+            raise ValueError(
+                'Unexpected value for mode.  Must be BOARD or BCM.')
         else:
             # Default to BCM numbering if not told otherwise.
             rpi_gpio.setmode(rpi_gpio.BCM)
         # Define mapping of Adafruit GPIO library constants to RPi.GPIO constants.
-        self._dir_mapping = { OUT:      rpi_gpio.OUT,
-                              IN:       rpi_gpio.IN }
-        self._pud_mapping = { PUD_OFF:  rpi_gpio.PUD_OFF,
-                              PUD_DOWN: rpi_gpio.PUD_DOWN,
-                              PUD_UP:   rpi_gpio.PUD_UP }
-        self._edge_mapping = { RISING:  rpi_gpio.RISING,
-                               FALLING: rpi_gpio.FALLING,
-                               BOTH:    rpi_gpio.BOTH }
+        self._dir_mapping = {OUT:      rpi_gpio.OUT,
+                             IN:       rpi_gpio.IN}
+        self._pud_mapping = {PUD_OFF:  rpi_gpio.PUD_OFF,
+                             PUD_DOWN: rpi_gpio.PUD_DOWN,
+                             PUD_UP:   rpi_gpio.PUD_UP}
+        self._edge_mapping = {RISING:  rpi_gpio.RISING,
+                              FALLING: rpi_gpio.FALLING,
+                              BOTH:    rpi_gpio.BOTH}
 
     def setup(self, pin, mode, pull_up_down=PUD_OFF):
         """Set the input or output mode for a specified pin.  Mode should be
@@ -214,9 +216,9 @@ class RPiGPIOAdapter(BaseGPIO):
         """
         kwargs = {}
         if callback:
-            kwargs['callback']=callback
+            kwargs['callback'] = callback
         if bouncetime > 0:
-            kwargs['bouncetime']=bouncetime
+            kwargs['bouncetime'] = bouncetime
         self.rpi_gpio.add_event_detect(pin, self._edge_mapping[edge], **kwargs)
 
     def remove_event_detect(self, pin):
@@ -253,6 +255,7 @@ class RPiGPIOAdapter(BaseGPIO):
         else:
             self.rpi_gpio.cleanup(pin)
 
+
 class AdafruitBBIOAdapter(BaseGPIO):
     """GPIO implementation for the Beaglebone Black using the Adafruit_BBIO
     library.
@@ -261,14 +264,14 @@ class AdafruitBBIOAdapter(BaseGPIO):
     def __init__(self, bbio_gpio):
         self.bbio_gpio = bbio_gpio
         # Define mapping of Adafruit GPIO library constants to RPi.GPIO constants.
-        self._dir_mapping = { OUT:      bbio_gpio.OUT,
-                              IN:       bbio_gpio.IN }
-        self._pud_mapping = { PUD_OFF:  bbio_gpio.PUD_OFF,
-                              PUD_DOWN: bbio_gpio.PUD_DOWN,
-                              PUD_UP:   bbio_gpio.PUD_UP }
-        self._edge_mapping = { RISING:  bbio_gpio.RISING,
-                               FALLING: bbio_gpio.FALLING,
-                               BOTH:    bbio_gpio.BOTH }
+        self._dir_mapping = {OUT:      bbio_gpio.OUT,
+                             IN:       bbio_gpio.IN}
+        self._pud_mapping = {PUD_OFF:  bbio_gpio.PUD_OFF,
+                             PUD_DOWN: bbio_gpio.PUD_DOWN,
+                             PUD_UP:   bbio_gpio.PUD_UP}
+        self._edge_mapping = {RISING:  bbio_gpio.RISING,
+                              FALLING: bbio_gpio.FALLING,
+                              BOTH:    bbio_gpio.BOTH}
 
     def setup(self, pin, mode, pull_up_down=PUD_OFF):
         """Set the input or output mode for a specified pin.  Mode should be
@@ -304,10 +307,11 @@ class AdafruitBBIOAdapter(BaseGPIO):
         """
         kwargs = {}
         if callback:
-            kwargs['callback']=callback
+            kwargs['callback'] = callback
         if bouncetime > 0:
-            kwargs['bouncetime']=bouncetime
-        self.bbio_gpio.add_event_detect(pin, self._edge_mapping[edge], **kwargs)
+            kwargs['bouncetime'] = bouncetime
+        self.bbio_gpio.add_event_detect(
+            pin, self._edge_mapping[edge], **kwargs)
 
     def remove_event_detect(self, pin):
         """Remove edge detection for a particular GPIO channel.  Pin should be
@@ -322,7 +326,7 @@ class AdafruitBBIOAdapter(BaseGPIO):
         """
         kwargs = {}
         if bouncetime > 0:
-            kwargs['bouncetime']=bouncetime
+            kwargs['bouncetime'] = bouncetime
         self.bbio_gpio.add_event_callback(pin, callback, **kwargs)
 
     def event_detected(self, pin):
@@ -347,39 +351,41 @@ class AdafruitBBIOAdapter(BaseGPIO):
         else:
             self.bbio_gpio.cleanup(pin)
 
+
 class AdafruitMinnowAdapter(BaseGPIO):
     """GPIO implementation for the Minnowboard + MAX using the mraa library"""
-    
-    def __init__(self,mraa_gpio):
+
+    def __init__(self, mraa_gpio):
         self.mraa_gpio = mraa_gpio
         # Define mapping of Adafruit GPIO library constants to mraa constants
-        self._dir_mapping = { OUT:      self.mraa_gpio.DIR_OUT,
-                              IN:       self.mraa_gpio.DIR_IN }
-        self._pud_mapping = { PUD_OFF:  self.mraa_gpio.MODE_STRONG,
-                              PUD_UP:   self.mraa_gpio.MODE_HIZ,
-                              PUD_DOWN: self.mraa_gpio.MODE_PULLDOWN }
-        self._edge_mapping = { RISING:   self.mraa_gpio.EDGE_RISING,
+        self._dir_mapping = {OUT:      self.mraa_gpio.DIR_OUT,
+                             IN:       self.mraa_gpio.DIR_IN}
+        self._pud_mapping = {PUD_OFF:  self.mraa_gpio.MODE_STRONG,
+                             PUD_UP:   self.mraa_gpio.MODE_HIZ,
+                             PUD_DOWN: self.mraa_gpio.MODE_PULLDOWN}
+        self._edge_mapping = {RISING:   self.mraa_gpio.EDGE_RISING,
                               FALLING:  self.mraa_gpio.EDGE_FALLING,
-                              BOTH:     self.mraa_gpio.EDGE_BOTH }
+                              BOTH:     self.mraa_gpio.EDGE_BOTH}
 
-    def setup(self,pin,mode):
+    def setup(self, pin, mode):
         """Set the input or output mode for a specified pin.  Mode should be
         either DIR_IN or DIR_OUT.
         """
-        self.mraa_gpio.Gpio.dir(self.mraa_gpio.Gpio(pin),self._dir_mapping[mode])   
+        self.mraa_gpio.Gpio.dir(self.mraa_gpio.Gpio(pin),
+                                self._dir_mapping[mode])
 
-    def output(self,pin,value):
+    def output(self, pin, value):
         """Set the specified pin the provided high/low value.  Value should be
         either 1 (ON or HIGH), or 0 (OFF or LOW) or a boolean.
         """
         self.mraa_gpio.Gpio.write(self.mraa_gpio.Gpio(pin), value)
-    
-    def input(self,pin):
+
+    def input(self, pin):
         """Read the specified pin and return HIGH/true if the pin is pulled high,
         or LOW/false if pulled low.
         """
-        return self.mraa_gpio.Gpio.read(self.mraa_gpio.Gpio(pin))    
-    
+        return self.mraa_gpio.Gpio.read(self.mraa_gpio.Gpio(pin))
+
     def add_event_detect(self, pin, edge, callback=None, bouncetime=-1):
         """Enable edge detection events for a particular GPIO channel.  Pin 
         should be type IN.  Edge must be RISING, FALLING or BOTH.  Callback is a
@@ -388,10 +394,11 @@ class AdafruitMinnowAdapter(BaseGPIO):
         """
         kwargs = {}
         if callback:
-            kwargs['callback']=callback
+            kwargs['callback'] = callback
         if bouncetime > 0:
-            kwargs['bouncetime']=bouncetime
-        self.mraa_gpio.Gpio.isr(self.mraa_gpio.Gpio(pin), self._edge_mapping[edge], **kwargs)
+            kwargs['bouncetime'] = bouncetime
+        self.mraa_gpio.Gpio.isr(self.mraa_gpio.Gpio(
+            pin), self._edge_mapping[edge], **kwargs)
 
     def remove_event_detect(self, pin):
         """Remove edge detection for a particular GPIO channel.  Pin should be
@@ -403,7 +410,9 @@ class AdafruitMinnowAdapter(BaseGPIO):
         """Wait for an edge.   Pin should be type IN.  Edge must be RISING, 
         FALLING or BOTH.
         """
-        self.bbio_gpio.wait_for_edge(self.mraa_gpio.Gpio(pin), self._edge_mapping[edge])
+        self.bbio_gpio.wait_for_edge(
+            self.mraa_gpio.Gpio(pin), self._edge_mapping[edge])
+
 
 def get_platform_gpio(**keywords):
     """Attempt to return a GPIO instance for the platform which the code is being

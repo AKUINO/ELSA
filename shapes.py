@@ -86,7 +86,7 @@ image = Image.new('1', (width, height))
 draw = ImageDraw.Draw(image)
 
 # Draw a black filled box to clear the image.
-draw.rectangle((4,0,width-1,height-1), outline=255, fill=0)
+draw.rectangle((4, 0, width-1, height-1), outline=255, fill=0)
 
 # Draw some shapes.
 # First define some constants to allow easy resizing of shapes.
@@ -97,13 +97,14 @@ bottom = height-padding-1
 # Move left to right keeping track of the current x position for drawing shapes.
 x = padding+2
 # Draw an ellipse.
-draw.ellipse((x, top , x+shape_width, bottom), outline=255, fill=0)
+draw.ellipse((x, top, x+shape_width, bottom), outline=255, fill=0)
 x += shape_width+padding
 # Draw a rectangle.
 draw.rectangle((x, top, x+shape_width, bottom), outline=255, fill=0)
 x += shape_width+padding
 # Draw a triangle.
-draw.polygon([(x, bottom), (x+shape_width/2, top), (x+shape_width, bottom)], outline=255, fill=0)
+draw.polygon([(x, bottom), (x+shape_width/2, top),
+              (x+shape_width, bottom)], outline=255, fill=0)
 x += shape_width+padding
 '''
 # Draw an X.
@@ -130,37 +131,49 @@ draw.text((x, top+52), 'lowercase', font=font, fill=255)
 '''
 
 font = ImageFont.truetype('glyphicons-halflings-regular.ttf', 9
-)
+                          )
 draw.text((x, top), u'\ue123 \ue023 \ue008',  font=font, fill=255)
 draw.text((x, top+22), u'\ue118 \ue025 \ue041', font=font, fill=255)
 draw.text((x, top+44), u'\ue012 \ue028 \ue136', font=font, fill=255)
 
-draw.rectangle((30,30,33,33), outline=255, fill=0)
+draw.rectangle((30, 30, 33, 33), outline=255, fill=0)
 
 # Display image.
 disp.image(image)
 state = 0
 while state != 11:
-	disp.display()
-	# Loop while waiting for a keypress
-	digit = None
-	slept = 0
-	while (state != 11) and (digit == None) and (slept < 1):
-		digit = kp.getKey()
-		if digit != None:
-		    print (digit)
-		    chapter = digit
-		    if digit == 10: state = 0
-		    elif digit == 1: state = 1
-		    elif digit == 2: state = 2
-		    elif digit == 3: state = 3
-		    elif digit == 4: state = 4
-		    elif digit == 5: state = 5
-		    elif digit == 6: state = 6
-		    elif digit == 7: state = 7
-		    elif digit == 8: state = 8
-		    elif digit == 9: state = 9
-		    elif digit == 0: state = 10
-		    elif digit == 11: state = 11
-		time.sleep(0.01)
-		slept += 0.01
+    disp.display()
+    # Loop while waiting for a keypress
+    digit = None
+    slept = 0
+    while (state != 11) and (digit == None) and (slept < 1):
+        digit = kp.getKey()
+        if digit != None:
+            print(digit)
+            chapter = digit
+            if digit == 10:
+                state = 0
+            elif digit == 1:
+                state = 1
+            elif digit == 2:
+                state = 2
+            elif digit == 3:
+                state = 3
+            elif digit == 4:
+                state = 4
+            elif digit == 5:
+                state = 5
+            elif digit == 6:
+                state = 6
+            elif digit == 7:
+                state = 7
+            elif digit == 8:
+                state = 8
+            elif digit == 9:
+                state = 9
+            elif digit == 0:
+                state = 10
+            elif digit == 11:
+                state = 11
+        time.sleep(0.01)
+        slept += 0.01

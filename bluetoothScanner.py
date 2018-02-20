@@ -9,6 +9,7 @@ from ConfigurationELSA import AllScanners, Scanner
 
 SCAN_SECONDS = 60
 
+
 class bluetoothScanner():
 
     handle = None
@@ -40,7 +41,7 @@ class bluetoothScanner():
         if self.handle:
             if not self.startScan:
                 self.handle.stdin.write("scan on\n")
-            self.startScan = datetime.datetime.now() + datetime.timedelta(seconds=SCAN_SECONDS);
+            self.startScan = datetime.datetime.now() + datetime.timedelta(seconds=SCAN_SECONDS)
             if self.config:
                 self.pairing = True
                 self.toBePaired = None
@@ -55,26 +56,27 @@ class bluetoothScanner():
                     self.toBePaired = None
                     if currScanner.there and not currScanner.reader and not currScanner.paired:
                         self.toBePaired = currScanner
-                        self.handle.stdin.write("agent on\npair "+currScanner.mac+"\n")
+                        self.handle.stdin.write(
+                            "agent on\npair "+currScanner.mac+"\n")
                         print "Pairing "+str(currScanner)
                         break
                 else:
                     found = self.toBePaired == currScanner
             self.pairing = not (self.toBePaired is None)
 
-    def connect(self,scanner):
+    def connect(self, scanner):
         if self.handle and scanner:
             print "connect "+scanner.mac
             self.handle.stdin.write("connect "+scanner.mac+"\n")
             scanner.last = datetime.datetime.now()
 
-    def connectKey(self,KEY):
+    def connectKey(self, KEY):
         if self.handle:
             if KEY in self.config.AllScanners.elements:
                 currScanner = self.config.AllScanners.elements[KEY]
                 self.connect(currScanner)
 
-    def connectMac(self,MAC):
+    def connectMac(self, MAC):
         if self.handle:
             KEY = self.config.AllScanners.makeKey(MAC)
             self.connectKey(KEY)
@@ -83,12 +85,14 @@ class bluetoothScanner():
         for aScanner in self.config.AllScanners.elements:
             currScanner = self.config.AllScanners.elements[aScanner]
             if currScanner.paired:
-                self.screen.draw.text((4,self.screen.linePos+1), str(currScanner.rank)+u"#"+str(currScanner.id)+u": "+currScanner.mac, font=self.screen.font,fill=255)
+                self.screen.draw.text((4, self.screen.linePos+1), str(currScanner.rank)+u"#"+str(
+                    currScanner.id)+u": "+currScanner.mac, font=self.screen.font, fill=255)
                 self.screen.linePos += self.screen.lineHeight
 
     def control(self):
         try:
-            self.handle = subprocess.Popen(["bluetoothctl"],bufsize=0,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,close_fds=True,cwd=None)
+            self.handle = subprocess.Popen(["bluetoothctl"], bufsize=0, stdin=subprocess.PIPE,
+                                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True, cwd=None)
         except:
             traceback.print_exc()
         remove_escape = re.compile(r'(\x98|\x1B\[)[0-?]*[ -\/]*[@-~]')
@@ -105,10 +109,10 @@ class bluetoothScanner():
                 self.pairing = False
                 self.toBePaired = None
 
-            r,w,e = select.select ([self.handle.stdout], [], [], 0)
+            r, w, e = select.select([self.handle.stdout], [], [], 0)
             if self.handle.stdout in r:
                 lines = self.handle.stdout.readline()
-                lines = remove_escape.sub('',lines)
+                lines = remove_escape.sub('', lines)
                 lines = lines.split('\r')
                 for line in lines:
                     lineP = line.split(' ')
@@ -117,7 +121,8 @@ class bluetoothScanner():
                         pref = lineP[0]
                         if pref == "[agent]":
                             if self.toBePaired and (line.find("PIN") > 0):
-                                self.handle.stdin.write(self.toBePaired.fields['PIN']+"\ntrust "+self.toBePaired.mac+"\n")
+                                self.handle.stdin.write(
+                                    self.toBePaired.fields['PIN']+"\ntrust "+self.toBePaired.mac+"\n")
                                 print "PIN="+self.toBePaired.fields['PIN']
                             self.pairingNextDevice()
                         elif lineP[1] == "Device":

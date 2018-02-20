@@ -21,15 +21,18 @@ csvDir = "../ELSAcsv/csv/"
 
 datetimeformat = "%Y-%m-%d %H:%M:%S"
 
+
 def get_timestamp():
     now = time.time()
     now = math.floor(float(now))
     now = int(now)
     return now
 
-def encrypt(password,salt):
+
+def encrypt(password, salt):
     sha = hashlib.pbkdf2_hmac('sha256', password, salt, 126425)
     return binascii.hexlify(sha)
+
 
 def send_email(recipient, subject, text):
     smtpserver = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
@@ -49,21 +52,25 @@ def send_email(recipient, subject, text):
         'UTF-8'
     ).encode()
 
-    _attach = MIMEText(text.encode('utf-8'), 'plain', 'UTF-8')        
+    _attach = MIMEText(text.encode('utf-8'), 'plain', 'UTF-8')
     msg.attach(_attach)
 
     smtpserver.sendmail(GMAIL_USER, recipient, msg.as_string())
     smtpserver.close()
 
-def timestamp_to_date(now,format=datetimeformat):
+
+def timestamp_to_date(now, format=datetimeformat):
     return datetime.datetime.fromtimestamp(int(now)).strftime(format)
-    
+
+
 def timestamp_to_time(now):
     return str(datetime.timedelta(seconds=now))
-    
+
+
 def get_time():
     now = int(time.time())
     return datetime.datetime.fromtimestamp(now).strftime(datetimeformat)
+
 
 def get_ip_address(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -73,19 +80,23 @@ def get_ip_address(ifname):
         struct.pack('256s', ifname[:15])
     )[20:24])
 
+
 def date_to_timestamp(date):
     try:
-	tmp = datetime.datetime.strptime(date, datetimeformat)
-    except: #old format ?
-	tmp = datetime.datetime.strptime(date, "%H:%M:%S  -  %d/%m/%y")
-    return (tmp - datetime.datetime(1970,1,1)).total_seconds()
-    
-def transform_date( date):
+        tmp = datetime.datetime.strptime(date, datetimeformat)
+    except:  # old format ?
+        tmp = datetime.datetime.strptime(date, "%H:%M:%S  -  %d/%m/%y")
+    return (tmp - datetime.datetime(1970, 1, 1)).total_seconds()
+
+
+def transform_date(date):
     try:
-	tmp = datetime.datetime.strptime(date, datetimeformat).isoformat()
-    except: #old format ?
-	tmp = datetime.datetime.strptime(date, "%H:%M:%S  -  %d/%m/%y").isoformat()
+        tmp = datetime.datetime.strptime(date, datetimeformat).isoformat()
+    except:  # old format ?
+        tmp = datetime.datetime.strptime(
+            date, "%H:%M:%S  -  %d/%m/%y").isoformat()
     return tmp
 
-def now() :
+
+def now():
     return unicode(datetime.datetime.now().strftime(datetimeformat))

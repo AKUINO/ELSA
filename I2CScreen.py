@@ -9,7 +9,7 @@ import threading
 import traceback
 
 
-class I2CScreen:    
+class I2CScreen:
     disp = None
     draw = None
     font = None
@@ -23,9 +23,9 @@ class I2CScreen:
     devConnected = ""
     linePos = 0
 
-    def __init__(self, i2cPresent = True, **kwds):
+    def __init__(self, i2cPresent=True, **kwds):
         self.__dict__.update(kwds)
-        self.lock = threading.Lock() #Synchronize screen accesses
+        self.lock = threading.Lock()  # Synchronize screen accesses
         self.i2cPresent = i2cPresent
         if self.i2cPresent is True:
             # Initialize library.
@@ -44,18 +44,20 @@ class I2CScreen:
         # Get drawing object to draw on image.
         self.draw = ImageDraw.Draw(self.image)
 
-        # Default font = better than 
+        # Default font = better than
         #font = ImageFont.load_default()
 
         # Alternatively load a TTF font.  Make sure the .ttf font file is in the same directory as the python script!
         # Some other nice fonts to try: http://www.dafont.com/bitmap.php
         self.font = ImageFont.truetype('sans.ttf', 9)
         self.fontG8 = ImageFont.truetype('glyphicons-halflings-regular.ttf', 8)
-        self.fontG10 = ImageFont.truetype('glyphicons-halflings-regular.ttf', 10)
+        self.fontG10 = ImageFont.truetype(
+            'glyphicons-halflings-regular.ttf', 10)
 
     def clear(self):
         if self.i2cPresent is True:
-            self.draw.rectangle((self.begScreen,0,self.begScreen+self.width-1,self.height),fill=0)
+            self.draw.rectangle(
+                (self.begScreen, 0, self.begScreen+self.width-1, self.height), fill=0)
         self.linePos = 0
 
     def end_line(self):
@@ -63,33 +65,36 @@ class I2CScreen:
             # Display image.
             self.disp.image(self.image)
             try:
-                    self.disp.display()
+                self.disp.display()
             except:
-                    traceback.print_exc()
+                traceback.print_exc()
             time.sleep(0.1)
         self.linePos += self.lineHeight
         if (self.linePos + self.lineHeight) > self.height:
             self.linePos = 0
-        self.draw.rectangle((self.begScreen,self.linePos,self.begScreen+self.width-1,self.linePos+self.lineHeight-1),fill=0)
+        self.draw.rectangle((self.begScreen, self.linePos, self.begScreen +
+                             self.width-1, self.linePos+self.lineHeight-1), fill=0)
 
-    def show(self,pos,message):
+    def show(self, pos, message):
         if message and (self.i2cPresent is True):
-            lgText = self.draw.textsize(message,font=self.font)[0]
+            lgText = self.draw.textsize(message, font=self.font)[0]
             if pos < 0:
                 pos = self.endScreen - lgText - 1
-            self.draw.text((pos,self.linePos), message, font=self.font,fill=255)
+            self.draw.text((pos, self.linePos), message,
+                           font=self.font, fill=255)
             return pos+lgText+2
         else:
             return pos
 
-    def showBW(self,pos,message):
+    def showBW(self, pos, message):
         if message and (self.i2cPresent is True):
-            lgText = self.draw.textsize(message,font=self.font)[0]
+            lgText = self.draw.textsize(message, font=self.font)[0]
             if pos < 0:
                 pos = self.endScreen - lgText - 1
-            self.draw.rectangle((pos-2,self.linePos, pos+lgText-1,self.linePos+self.lineHeight-2),fill=255)
-            self.draw.text((pos,self.linePos), message, font=self.font,fill=0)
+            self.draw.rectangle(
+                (pos-2, self.linePos, pos+lgText-1, self.linePos+self.lineHeight-2), fill=255)
+            self.draw.text((pos, self.linePos), message,
+                           font=self.font, fill=0)
             return pos+lgText+2
         else:
             return pos
-

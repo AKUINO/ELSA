@@ -32,7 +32,8 @@ class RPi_PWM_Adapter(object):
         if mode == rpi_gpio.BOARD or mode == rpi_gpio.BCM:
             rpi_gpio.setmode(mode)
         elif mode is not None:
-            raise ValueError('Unexpected value for mode.  Must be BOARD or BCM.')
+            raise ValueError(
+                'Unexpected value for mode.  Must be BOARD or BCM.')
         else:
             # Default to BCM numbering if not told otherwise.
             rpi_gpio.setmode(rpi_gpio.BCM)
@@ -44,7 +45,8 @@ class RPi_PWM_Adapter(object):
         value (0.0 to 100.0) and frequency (in Hz).
         """
         if dutycycle < 0.0 or dutycycle > 100.0:
-            raise ValueError('Invalid duty cycle value, must be between 0.0 to 100.0 (inclusive).')
+            raise ValueError(
+                'Invalid duty cycle value, must be between 0.0 to 100.0 (inclusive).')
         # Make pin an output.
         self.rpi_gpio.setup(pin, self.rpi_gpio.OUT)
         # Create PWM instance and save a reference for later access.
@@ -57,21 +59,25 @@ class RPi_PWM_Adapter(object):
         be a value 0.0 to 100.0 (inclusive).
         """
         if dutycycle < 0.0 or dutycycle > 100.0:
-            raise ValueError('Invalid duty cycle value, must be between 0.0 to 100.0 (inclusive).')
+            raise ValueError(
+                'Invalid duty cycle value, must be between 0.0 to 100.0 (inclusive).')
         if pin not in self.pwm:
-            raise ValueError('Pin {0} is not configured as a PWM.  Make sure to first call start for the pin.'.format(pin))
+            raise ValueError(
+                'Pin {0} is not configured as a PWM.  Make sure to first call start for the pin.'.format(pin))
         self.pwm[pin].ChangeDutyCycle(dutycycle)
 
     def set_frequency(self, pin, frequency_hz):
         """Set frequency (in Hz) of PWM output on specified pin."""
         if pin not in self.pwm:
-            raise ValueError('Pin {0} is not configured as a PWM.  Make sure to first call start for the pin.'.format(pin))
+            raise ValueError(
+                'Pin {0} is not configured as a PWM.  Make sure to first call start for the pin.'.format(pin))
         self.pwm[pin].ChangeFrequency(frequency_hz)
 
     def stop(self, pin):
         """Stop PWM output on specified pin."""
         if pin not in self.pwm:
-            raise ValueError('Pin {0} is not configured as a PWM.  Make sure to first call start for the pin.'.format(pin))
+            raise ValueError(
+                'Pin {0} is not configured as a PWM.  Make sure to first call start for the pin.'.format(pin))
         self.pwm[pin].stop()
         del self.pwm[pin]
 
@@ -89,7 +95,8 @@ class BBIO_PWM_Adapter(object):
         value (0.0 to 100.0) and frequency (in Hz).
         """
         if dutycycle < 0.0 or dutycycle > 100.0:
-            raise ValueError('Invalid duty cycle value, must be between 0.0 to 100.0 (inclusive).')
+            raise ValueError(
+                'Invalid duty cycle value, must be between 0.0 to 100.0 (inclusive).')
         self.bbio_pwm.start(pin, dutycycle, frequency_hz)
 
     def set_duty_cycle(self, pin, dutycycle):
@@ -97,7 +104,8 @@ class BBIO_PWM_Adapter(object):
         be a value 0.0 to 100.0 (inclusive).
         """
         if dutycycle < 0.0 or dutycycle > 100.0:
-            raise ValueError('Invalid duty cycle value, must be between 0.0 to 100.0 (inclusive).')
+            raise ValueError(
+                'Invalid duty cycle value, must be between 0.0 to 100.0 (inclusive).')
         self.bbio_pwm.set_duty_cycle(pin, dutycycle)
 
     def set_frequency(self, pin, frequency_hz):

@@ -90,36 +90,36 @@ velocity = -2
 startpos = width
 
 # Animate text moving in sine wave.
-print ('Press Control-C to quit.')
+print('Press Control-C to quit.')
 pos = startpos
 while True:
-	# Clear image buffer by drawing a black filled box.
-	draw.rectangle((0,0,width,height), outline=0, fill=0)
-	# Enumerate characters and draw them offset vertically based on a sine wave.
-	x = pos
-	for i, c in enumerate(text):
-		# Stop drawing if off the right side of screen.
-		if x > width:
-			break
-		# Calculate width but skip drawing if off the left side of screen.
-		if x < -10:
-			char_width, char_height = draw.textsize(c, font=font)
-			x += char_width
-			continue
-		# Calculate offset from sine wave.
-		y = offset+math.floor(amplitude*math.sin(x/float(width)*2.0*math.pi))
-		# Draw text.
-		draw.text((x, y), c, font=font, fill=255)
-		# Increment x position based on chacacter width.
-		char_width, char_height = draw.textsize(c, font=font)
-		x += char_width
-	# Draw the image buffer.
-	disp.image(image)
-	disp.display()
-	# Move position for next frame.
-	pos += velocity
-	# Start over if text has scrolled completely off left side of screen.
-	if pos < -maxwidth:
-		pos = startpos
-	# Pause briefly before drawing next frame.
-	time.sleep(0.1)
+    # Clear image buffer by drawing a black filled box.
+    draw.rectangle((0, 0, width, height), outline=0, fill=0)
+    # Enumerate characters and draw them offset vertically based on a sine wave.
+    x = pos
+    for i, c in enumerate(text):
+        # Stop drawing if off the right side of screen.
+        if x > width:
+            break
+        # Calculate width but skip drawing if off the left side of screen.
+        if x < -10:
+            char_width, char_height = draw.textsize(c, font=font)
+            x += char_width
+            continue
+        # Calculate offset from sine wave.
+        y = offset+math.floor(amplitude*math.sin(x/float(width)*2.0*math.pi))
+        # Draw text.
+        draw.text((x, y), c, font=font, fill=255)
+        # Increment x position based on chacacter width.
+        char_width, char_height = draw.textsize(c, font=font)
+        x += char_width
+    # Draw the image buffer.
+    disp.image(image)
+    disp.display()
+    # Move position for next frame.
+    pos += velocity
+    # Start over if text has scrolled completely off left side of screen.
+    if pos < -maxwidth:
+        pos = startpos
+    # Pause briefly before drawing next frame.
+    time.sleep(0.1)

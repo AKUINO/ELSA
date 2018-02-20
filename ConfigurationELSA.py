@@ -32,7 +32,7 @@ import json
 
 #import smbus
 
-#mise a jour git
+# mise a jour git
 csvDir = "../ELSAcsv/csv/"
 rrdDir = '../ELSArrd/rrd/'
 ttyDir = '/dev/ttyS0'
@@ -44,7 +44,7 @@ imagedTypes = [u'u', u'e', u'p', u'g', u'gf', u'gr', u'gu', u'c', u'b', u'h']
 
 _lock_socket = None
 
-queryChannels = ['wire','http', 'json', 'battery','cputemp','system']
+queryChannels = ['wire', 'http', 'json', 'battery', 'cputemp', 'system']
 
 color_violet = "FF00FF"
 color_blue = "0000FF"
@@ -52,39 +52,43 @@ color_green = "00FF00"
 color_orange = "FFFF00"
 color_red = "FF0000"
 
+
 class valueCategory(object):
 
-   def __init__(self,level,name,acronym,color):
-	self.level = level
+    def __init__(self, level, name, acronym, color):
+        self.level = level
         self.name = name
         self.acronym = acronym
         self.color = color
 
-   def triple(self):
-	return self.name,self.acronym,self.color
+    def triple(self):
+        return self.name, self.acronym, self.color
 
-valueCategs = { -2: valueCategory(-2,'minmin','---',color_violet), -1: valueCategory(-1,'min','--',color_blue), 0: valueCategory( 0,'typical','==',color_green), 1: valueCategory( 1,'max','++',color_orange), 2: valueCategory( 2,'maxmax','++',color_red) }
+
+valueCategs = {-2: valueCategory(-2, 'minmin', '---', color_violet), -1: valueCategory(-1, 'min', '--', color_blue), 0: valueCategory(
+    0, 'typical', '==', color_green), 1: valueCategory(1, 'max', '++', color_orange), 2: valueCategory(2, 'maxmax', '++', color_red)}
+
 
 class Configuration(object):
 
     def __init__(self):
-	
-        self.HardConfig = hardconfig.HardConfig()
-	
 
-##        # Run only OUNCE: Check if /run/akuino/ELSA.pid exists...
+        self.HardConfig = hardconfig.HardConfig()
+
+
+# Run only OUNCE: Check if /run/akuino/ELSA.pid exists...
 ##        pid = str(os.getpid())
 ##        self.pidfile = self.HardConfig.RUNdirectory+"/ELSA.pid"
 ##
-##        if os.path.isfile(self.pidfile):
-##            print "%s already exists, exiting" % self.pidfile
-##            sys.exit()
+# if os.path.isfile(self.pidfile):
+# print "%s already exists, exiting" % self.pidfile
+# sys.exit()
 ##        file(self.pidfile, 'w').write(pid)
-	
+
         # Without holding a reference to our socket somewhere it gets garbage
         # collected when the function exits
         global _lock_socket
-        
+
         _lock_socket = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
 
         try:
@@ -93,283 +97,287 @@ class Configuration(object):
         except socket.error:
             print 'AKUINO-ELSA lock exists'
             sys.exit()
-	
+
         self.valueCategs = valueCategs
-	self.sortedCategs = sorted(valueCategs)
-	self.csvCodes = csvDir + 'codes.csv'
-	self.csvRelations = csvDir + 'relations.csv'
-	self.fieldcode = ['begin', 'type', 'idobject', 'code', 'user']
+        self.sortedCategs = sorted(valueCategs)
+        self.csvCodes = csvDir + 'codes.csv'
+        self.csvRelations = csvDir + 'relations.csv'
+        self.fieldcode = ['begin', 'type', 'idobject', 'code', 'user']
         self.AllUsers = AllUsers(self)
-	self.AllLanguages = AllLanguages(self)
+        self.AllLanguages = AllLanguages(self)
         self.AllPieces = AllPieces(self)
         self.AllContainers = AllContainers(self)
-	self.AllMessages = AllMessages(self)
-	self.AllEquipments = AllEquipments(self)
-	self.AllMeasures = AllMeasures(self)
-	self.AllBatches = AllBatches(self)
-	self.AllSensors = AllSensors(self)
-	self.AllGrFunction = AllGrFunction(self)
-	self.AllGrUsage = AllGrUsage(self)
-	self.AllGrRecipe= AllGrRecipe(self)
-	self.AllCheckPoints= AllCheckPoints(self)
-	self.AllAlarms = AllAlarms(self)
-	self.AllAlarmLogs= AllAlarmLogs(self)
-	self.AllHalflings = AllHalflings(self)
-	self.AllBarcodes = AllBarcodes(self)
-	self.AllManualData = AllManualData(self)
-	self.connectedUsers = AllConnectedUsers()
-	self.AllTransfers = AllTransfers(self)
-	self.AllPourings = AllPourings(self)
-	self.AllTransferModels = AllTransferModels(self)
-	self.AllManualDataModels = AllManualDataModels(self)
-	self.AllPouringModels = AllPouringModels(self)
-	self.isThreading = True
-	self.UpdateThread = UpdateThread(self)
-	self.RadioThread = RadioThread(self)
-	self.RadioThread.daemon = True
-	self.screen = None
-	self.owproxy = None
-	self.batteryVoltage = 0.0
+        self.AllMessages = AllMessages(self)
+        self.AllEquipments = AllEquipments(self)
+        self.AllMeasures = AllMeasures(self)
+        self.AllBatches = AllBatches(self)
+        self.AllSensors = AllSensors(self)
+        self.AllGrFunction = AllGrFunction(self)
+        self.AllGrUsage = AllGrUsage(self)
+        self.AllGrRecipe = AllGrRecipe(self)
+        self.AllCheckPoints = AllCheckPoints(self)
+        self.AllAlarms = AllAlarms(self)
+        self.AllAlarmLogs = AllAlarmLogs(self)
+        self.AllHalflings = AllHalflings(self)
+        self.AllBarcodes = AllBarcodes(self)
+        self.AllManualData = AllManualData(self)
+        self.connectedUsers = AllConnectedUsers()
+        self.AllTransfers = AllTransfers(self)
+        self.AllPourings = AllPourings(self)
+        self.AllTransferModels = AllTransferModels(self)
+        self.AllManualDataModels = AllManualDataModels(self)
+        self.AllPouringModels = AllPouringModels(self)
+        self.isThreading = True
+        self.UpdateThread = UpdateThread(self)
+        self.RadioThread = RadioThread(self)
+        self.RadioThread.daemon = True
+        self.screen = None
+        self.owproxy = None
+        self.batteryVoltage = 0.0
 
     def load(self):
-	"""
+        """
         if not self.HardConfig.oled is None:
             # 128x64 display with hardware I2C:
             self.screen = I2CScreen(True, disp = SSD1306.SSD1305_132_64(rst=self.HardConfig.oled_reset,gpio=PIG))
             self.screen.clear()
         else:
             self.screen = I2CScreen(False, disp = None)	
-	"""
-	self.AllLanguages.load()
+        """
+        self.AllLanguages.load()
         self.AllUsers.load()
         self.AllPieces.load()
-	self.AllEquipments.load()
-	self.AllContainers.load()	
-	self.AllMessages.load()
-	self.AllMeasures.load()
-	self.AllSensors.load()
-	self.AllSensors.check_rrd()
-	self.AllSensors.correctValueAlarm()
-	self.AllAlarms.load()
-	self.AllHalflings.load()
-	self.AllBatches.load()
-	#doit toujours être appelé à la fin
-	self.AllGrFunction.load()
-	self.AllGrUsage.load()
-	self.AllGrRecipe.load()
-	self.AllCheckPoints.load()
-	self.AllBarcodes.load()
-	self.AllTransfers.load()
-	self.AllManualData.load()
-	self.AllPourings.load()
-	self.AllTransferModels.load()
-	self.AllManualDataModels.load()
-	self.AllPouringModels.load()
-	self.AllAlarmLogs.load()
-	self.UpdateThread.start()
-	self.RadioThread.start()
-    
-    def findAllFromName(self,className):
+        self.AllEquipments.load()
+        self.AllContainers.load()
+        self.AllMessages.load()
+        self.AllMeasures.load()
+        self.AllSensors.load()
+        self.AllSensors.check_rrd()
+        self.AllSensors.correctValueAlarm()
+        self.AllAlarms.load()
+        self.AllHalflings.load()
+        self.AllBatches.load()
+        # doit toujours être appelé à la fin
+        self.AllGrFunction.load()
+        self.AllGrUsage.load()
+        self.AllGrRecipe.load()
+        self.AllCheckPoints.load()
+        self.AllBarcodes.load()
+        self.AllTransfers.load()
+        self.AllManualData.load()
+        self.AllPourings.load()
+        self.AllTransferModels.load()
+        self.AllManualDataModels.load()
+        self.AllPouringModels.load()
+        self.AllAlarmLogs.load()
+        self.UpdateThread.start()
+        self.RadioThread.start()
+
+    def findAllFromName(self, className):
         if className == User.__name__:
             return self.AllUsers
         elif className == Equipment.__name__:
             return self.AllEquipments
         elif className == Language.__name__:
             return self.AllLanguages
-	elif className == Piece.__name__:
-	    return self.AllPieces 
-	elif className == GrUsage.__name__:
-	    return self.AllGrUsage
-	elif className == GrRecipe.__name__:
-	    return self.AllGrRecipe
-	elif className == CheckPoint.__name__:
-	    return self.AllCheckPoints
-	elif className == GrFunction.__name__:
-	    return self.AllGrFunction 
-	elif className == Container.__name__:
-	    return self.AllContainers 
-	elif className == Measure.__name__:
-	    return self.AllMeasures 
-	elif className == Sensor.__name__:
-	    return self.AllSensors 
-	elif className == Alarm.__name__:
-	    return self.AllAlarms 
-	elif className == Batch.__name__:
-	    return self.AllBatches 
-	elif className == Transfer.__name__:
-	    return self.AllTransfers 
-	elif className == ManualData.__name__:
-	    return self.AllManualData 
-	elif className == Pouring.__name__:
-	    return self.AllPourings 
-	elif className == AlarmLog.__name__:
-	    return self.AllAlarmLogs 
-	elif className == TransferModel.__name__:
-	    return self.AllTransferModels 
-	elif className == ManualDataModel.__name__:
-	    return self.AllManualDataModels 
-	elif className == PouringModel.__name__:
-	    return self.AllPouringModels 
-	elif className == u"u":
+        elif className == Piece.__name__:
+            return self.AllPieces
+        elif className == GrUsage.__name__:
+            return self.AllGrUsage
+        elif className == GrRecipe.__name__:
+            return self.AllGrRecipe
+        elif className == CheckPoint.__name__:
+            return self.AllCheckPoints
+        elif className == GrFunction.__name__:
+            return self.AllGrFunction
+        elif className == Container.__name__:
+            return self.AllContainers
+        elif className == Measure.__name__:
+            return self.AllMeasures
+        elif className == Sensor.__name__:
+            return self.AllSensors
+        elif className == Alarm.__name__:
+            return self.AllAlarms
+        elif className == Batch.__name__:
+            return self.AllBatches
+        elif className == Transfer.__name__:
+            return self.AllTransfers
+        elif className == ManualData.__name__:
+            return self.AllManualData
+        elif className == Pouring.__name__:
+            return self.AllPourings
+        elif className == AlarmLog.__name__:
+            return self.AllAlarmLogs
+        elif className == TransferModel.__name__:
+            return self.AllTransferModels
+        elif className == ManualDataModel.__name__:
+            return self.AllManualDataModels
+        elif className == PouringModel.__name__:
+            return self.AllPouringModels
+        elif className == u"u":
             return self.AllUsers
         elif className == u"e":
             return self.AllEquipments
         elif className == u"l":
             return self.AllLanguages
-	elif className == u"p":
-	    return self.AllPieces
-	elif className == u"gu":
-	    return self.AllGrUsage
-	elif className == u"gr":
-	    return self.AllGrRecipe
-	elif className == u"gf":
-	    return self.AllGrFunction
-	elif className == u"h":
-	    return self.AllCheckPoints
-	elif className == u"c":
-	    return self.AllContainers
-	elif className == u"m":
-	    return self.AllMeasures
-	elif className == u"s":
-	    return self.AllSensors
-	elif className == u"a":
-	    return self.AllAlarms
-	elif className == u"b":
-	    return self.AllBatches
-	elif className == u"t":
-	    return self.AllTransfers
-	elif className == u"tm":
-	    return self.AllTransferModels
-	elif className == u"dm":
-	    return self.AllManualDataModels
-	elif className == u"d":
-	    return self.AllManualData
-	elif className == u"v":
-	    return self.AllPourings
-	elif className == u"al":
-	    return self.AllAlarmLogs
-	elif className == u"v":
-	    return self.AllPourings
-	elif className == u"vm":
-	    return self.AllPouringModels
+        elif className == u"p":
+            return self.AllPieces
+        elif className == u"gu":
+            return self.AllGrUsage
+        elif className == u"gr":
+            return self.AllGrRecipe
+        elif className == u"gf":
+            return self.AllGrFunction
+        elif className == u"h":
+            return self.AllCheckPoints
+        elif className == u"c":
+            return self.AllContainers
+        elif className == u"m":
+            return self.AllMeasures
+        elif className == u"s":
+            return self.AllSensors
+        elif className == u"a":
+            return self.AllAlarms
+        elif className == u"b":
+            return self.AllBatches
+        elif className == u"t":
+            return self.AllTransfers
+        elif className == u"tm":
+            return self.AllTransferModels
+        elif className == u"dm":
+            return self.AllManualDataModels
+        elif className == u"d":
+            return self.AllManualData
+        elif className == u"v":
+            return self.AllPourings
+        elif className == u"al":
+            return self.AllAlarmLogs
+        elif className == u"v":
+            return self.AllPourings
+        elif className == u"vm":
+            return self.AllPouringModels
         else:
             return None
-	    
-    def findAllFromObject(self,anObject):
+
+    def findAllFromObject(self, anObject):
         return self.findAllFromName(anObject.__class__.__name__)
 
-    def getObject(self, idObject,className):
+    def getObject(self, idObject, className):
         allObjects = self.findAllFromName(className)
         if allObjects is not None:
             return allObjects.getItem(idObject)
         else:
             return None
-    
-    def getFieldsname(self,className):
+
+    def getFieldsname(self, className):
         allObjects = self.findAllFromName(className)
         if allObjects is not None:
             return allObjects.fieldnames
         else:
             return None
-	    
+
     def getKeyColumn(self, anObject):
-	obj = self.findAllFromObject(anObject)
-	return obj.keyColumn
-	
+        obj = self.findAllFromObject(anObject)
+        return obj.keyColumn
+
     def findAllFromType(self, aType):
-	return self.findAllFromName(aType)
+        return self.findAllFromName(aType)
 
     def get_group(self, key):
-	if key == 'gu':
-	    return self.AllGrUsage
-	elif key == 'gr':
-	    return self.AllGrRecipe
-	elif key == 'gf':
-	    return self.AllGrFunction
-	elif key == 'h':
-	    return self.AllCheckPoints
-	
+        if key == 'gu':
+            return self.AllGrUsage
+        elif key == 'gr':
+            return self.AllGrRecipe
+        elif key == 'gf':
+            return self.AllGrFunction
+        elif key == 'h':
+            return self.AllCheckPoints
+
     def get_object(self, type, id):
-	objects = self.findAllFromType(type)
-	return objects.elements[id]
-	
+        objects = self.findAllFromType(type)
+        return objects.elements[id]
+
     def get_time(self):
-	return useful.get_time()
-	
+        return useful.get_time()
+
     def is_component(self, type):
-	if type == 'c' or type == 'p' or type == 'e' or type == 'b':
-	    return True
-	return False
+        if type == 'c' or type == 'p' or type == 'e' or type == 'b':
+            return True
+        return False
 
     def get_time_format(self):
         return useful.datetimeformat
-	
-    def create_picture(self,code):
-	EAN = barcode.get_barcode_class('ean13')
-	try :
-	    ean = EAN(code)
-	    ean.save(barcodesDir+str(code))
-	except:
-	    return False
-	return True
+
+    def create_picture(self, code):
+        EAN = barcode.get_barcode_class('ean13')
+        try:
+            ean = EAN(code)
+            ean.save(barcodesDir+str(code))
+        except:
+            return False
+        return True
+
 
 class ConfigurationObject(object):
 
     def __init__(self):
         self.fields = {}
-	self.names = {}
-	self.groups = {}
+        self.names = {}
+        self.groups = {}
         self.id = None
-	self.created = None
-	self.creator = None
-	self.position = []
-	self.data = []
-	
-    def save(self,configuration,anUser=""):
+        self.created = None
+        self.creator = None
+        self.position = []
+        self.data = []
+
+    def save(self, configuration, anUser=""):
         self.fields["begin"] = useful.now()
-	if anUser != "" :
-	    self.fields["user"] = anUser.fields['u_id']
+        if anUser != "":
+            self.fields["user"] = anUser.fields['u_id']
         allObjects = configuration.findAllFromObject(self)
-	print allObjects.fileobject
+        print allObjects.fileobject
         print allObjects.fieldnames
-        with open(allObjects.fileobject,"a") as csvfile:
-            writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames=allObjects.fieldnames, encoding="utf-8")
+        with open(allObjects.fileobject, "a") as csvfile:
+            writer = unicodecsv.DictWriter(
+                csvfile, delimiter='\t', fieldnames=allObjects.fieldnames, encoding="utf-8")
             writer.writerow(self.fields)
-	self.saveName(configuration, anUser)
+        self.saveName(configuration, anUser)
         return self
-	
+
     def saveName(self, configuration, anUser):
-	allObjects = configuration.findAllFromObject(self)
-	print self.fields
-	print self.names    
-	for key in self.names :
-	    print key
-	    print allObjects.fieldtranslate
-	    with open(allObjects.filename,"a") as csvfile:
-		writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames=allObjects.fieldtranslate, encoding="utf-8")
-		writer.writerow(self.names[key])
-	
-    def saveCode(self, configuration,anUser):
-	allObjects = configuration.findAllFromObject(self)
-	print self.code	
-	with open(configuration.csvCodes,"a") as csvfile:
-	    tmpCode={}
-	    tmpCode['begin'] = useful.now()
-	    tmpCode['type'] = self.get_type()
-	    tmpCode['idobject'] = self.fields[allObjects.keyColumn]
-	    tmpCode['code'] = self.code
-	    tmpCode["user"] = anUser.fields['u_id']
-            writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames = configuration.fieldcode, encoding="utf-8")
+        allObjects = configuration.findAllFromObject(self)
+        print self.fields
+        print self.names
+        for key in self.names:
+            print key
+            print allObjects.fieldtranslate
+            with open(allObjects.filename, "a") as csvfile:
+                writer = unicodecsv.DictWriter(
+                    csvfile, delimiter='\t', fieldnames=allObjects.fieldtranslate, encoding="utf-8")
+                writer.writerow(self.names[key])
+
+    def saveCode(self, configuration, anUser):
+        allObjects = configuration.findAllFromObject(self)
+        print self.code
+        with open(configuration.csvCodes, "a") as csvfile:
+            tmpCode = {}
+            tmpCode['begin'] = useful.now()
+            tmpCode['type'] = self.get_type()
+            tmpCode['idobject'] = self.fields[allObjects.keyColumn]
+            tmpCode['code'] = self.code
+            tmpCode["user"] = anUser.fields['u_id']
+            writer = unicodecsv.DictWriter(
+                csvfile, delimiter='\t', fieldnames=configuration.fieldcode, encoding="utf-8")
             writer.writerow(tmpCode)
-	
+
     def initialise(self, fieldsname):
-	for field in fieldsname:
-	    self.fields[field]=''
-	    
+        for field in fieldsname:
+            self.fields[field] = ''
+
     def getImagePath(self):
-	directory=u'static/img'
+        directory = u'static/img'
         thisType = self.get_type()
-	if thisType in imagedTypes:
+        if thisType in imagedTypes:
             return directory + u'/' + thisType + u'/' + thisType + u'_'+unicode(self.id) + u'.jpg'
         return None
 
@@ -380,1184 +388,1268 @@ class ConfigurationObject(object):
         else:
             return os.path.isfile(fileName)
 
-    def setName(self,key,value,user,keyColumn):
-	if value != '' and value is not None:
-	    newName={}
-	    newName["begin"] = useful.now()
-	    newName['user'] = user.fields['u_id']
-	    newName['lang'] = key
-	    newName['name'] = value
-	    newName[keyColumn] = self.fields[keyColumn]
-	    self.names[key] = newName
-	    
-    def getName(self,lang):
-	if lang == 'disconnected':
-	    lang = 'EN'
-	if lang in self.names :
-	    return self.names[lang]['name']
-	elif 'EN' in self.names : 
-	    return self.names['EN']['name']
-	elif 'FR' in self.names:
-	    return self.names['FR']['name']
-	elif 'DE' in self.names:
-	    return self.names['DE']['name']
-	elif len(self.names) > 0:
-	    return self.names.values()[0]['name']
-	elif 'default' in self.fields:
-	    return self.fields['default']
-	else:
-	    print "Error Le nom n'existe pas pour cet objet"
-	    return "Error"
-	    
-    def get_real_name(self, lang):
-	if lang in self.names:
-	    return self.names[lang]['name']
-	return ''
-	    
-    def getID(self):
-	return self.id
-	
-    def write_group(self, groupid, configuration, user, active):
-	allObjects = configuration.findAllFromObject(self)
-	with open(configuration.csvRelations,"a") as csvfile:
-	    tmpCode={}
-	    tmpCode['begin'] = useful.now()
-	    tmpCode['g_id'] = groupid
-	    tmpCode['idobject'] = self.fields[allObjects.keyColumn]
-	    tmpCode['type'] = self.get_type()
-	    tmpCode["user"] = user.fields['u_id']
-	    tmpCode['active'] = active
-	    writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames = configuration.fieldrelations, encoding="utf-8")
-	    writer.writerow(tmpCode)
-	    
-    def validate_form(self, data, configuration, lang) :
-	tmp = ''
-	if 'acronym' not in data :
-	    tmp = configuration.AllMessages.elements['acronymrequired'].getName(lang) + '\n'
-	try :
-	    cond = data['acronym'] == re.sub('[^\w]+', '', data['acronym'])
-	    if not cond :
-		tmp += configuration.AllMessages.elements['acronymrules'].getName(lang) + '\n'
-	except : 
-	    tmp += configuration.AllMessages.elements['acronymrules'].getName(lang) + '\n'
-	
-	allObjects = configuration.findAllFromObject(self)    
-	cond = allObjects.unique_acronym( data['acronym'], self.id)
-	if not cond :
-	    tmp += configuration.AllMessages.elements['acronymunique'].getName(lang) + '\n'
-	try :
-	    if 'code' in data and len(data['code']) >0 :
-		code = int(data['code'])
-		cond = configuration.AllBarcodes.validate_barcode(code, self.id, self.get_type())
-		if cond == False :
-		    tmp += configuration.AllMessages.elements['barcoderules'].getName(lang) + '\n'
-	except:
-	    tmp += configuration.AllMessages.elements['barcoderules'].getName(lang) + '\n'	    
-	if tmp == '':
-	    return True
-	return tmp
-	
-    def set_value_from_data(self, data, c,user):
-	self.fields['acronym'] = data['acronym']
-	
-	for key in c.AllLanguages.elements:
-	    if key in data:
-		self.setName(key, data[key],user, c.getKeyColumn(self))
-		
-	if 'active'in data:
-	    self.set_active('1')
-	else:
-	    self.set_active('0')
-	    
-	if data['placeImg'] != {}: 
-	    if data.placeImg.filename != '': 
-		filepath = data.placeImg.filename.replace('\\','/') 
-		ext = ((filepath.split('/')[-1]).split('.')[-1])
-		fout = open(self.getImagePath(),'w')
-		fout.write(data.placeImg.file.read())
-		fout.close()
-	if 'code' in data and len(data['code']) < 14 and len(data['code'])> 11:
-	    self.code = int(data['code'])
-	    c.AllBarcodes.create_barcode(self, self.code,user)
-	    
-		
-	self.fields['remark'] = data['remark']
-	
-	if self.creator is None:
-	    self.creator = user.fields['u_id']
-	    self.created = self.fields['begin']
-	    
-    def add_data(self,manualdata):
-	self.remove_data(manualdata)
-	if len(self.data) == 0:
-	    self.data.append(manualdata.getID())
-	else:
-	    time = useful.date_to_timestamp(manualdata.fields['time'])
-	    insert = False
-	    for i in range(len(self.data)):
-		tmp = self.config.AllManualData.elements[self.data[i]]
-		tmptime = useful.date_to_timestamp(tmp.fields['time'])
-		if time < tmptime:
-		    insert = True
-		    self.data.insert(i,manualdata.getID())
-		    break
-	    if insert is False:
-		self.data.append(manualdata.getID())
-		
-    def remove_data(self, manualdata):
-	if manualdata.getID() in self.data:
-	    self.data.remove(manualdata.getID())			
-	
-    def get_transfers_in_time_interval(self, begin, end):
-	tmp = []
-	first = True
-	count = 0
-	while count < len(self.position):
-	    t = self.config.AllTransfers.elements[self.position[count]]
-	    time = useful.date_to_timestamp(t.fields['time'])
-	    if begin < time and time < end :
-		if first is True :
-		    first = False
-		    if count  > 0: 
-			if useful.date_to_timestamp(self.config.AllTransfers.elements[self.position[count-1]].fields['time']) > begin :
-			    tmp.append(self.position[count -1])
-	        tmp.append(t)
-	    elif time <= begin and (first is True or count == len(self.position)-1):
-		tmp.append(t)
-		first = False
-	    count += 1
-	return tmp
-	
-    def delete(self, configuration):
-	allObjects = configuration.findAllFromObject(self)
-	allObjects.delete(self.id)
-	
-    def set_active(self, active):
-	if 'active' in self.fields :
-	    self.fields['active'] = active
-	    
-    def add_position(self, transfer):
-	self.remove_position(transfer)
-	if len(self.position) == 0:
-	    self.position.append(transfer.getID())
-	else:
-	    time = useful.date_to_timestamp(transfer.fields['time'])
-	    insert = False
-	    for i in range(len(self.position)):
-		tmp = self.config.AllTransfers.elements[self.position[i]]
-		tmptime = useful.date_to_timestamp(tmp.fields['time'])
-		if time < tmptime:
-		    insert = True
-		    self.position.insert(i,transfer.getID())
-		    break
-	    if insert is False:
-		self.position.append(transfer.getID())
-    
-    def remove_position(self, transfer):
-	if transfer.getID() in self.position:
-	    self.position.remove(transfer.getID())
-	
-    def get_actual_position(self):
-	if len(self.position) > 0:
-	    return self.position[-1]
-	return None
+    def setName(self, key, value, user, keyColumn):
+        if value != '' and value is not None:
+            newName = {}
+            newName["begin"] = useful.now()
+            newName['user'] = user.fields['u_id']
+            newName['lang'] = key
+            newName['name'] = value
+            newName[keyColumn] = self.fields[keyColumn]
+            self.names[key] = newName
 
-    def get_actual_position_hierarchy(self,configuration,result=[]):
+    def getName(self, lang):
+        if lang == 'disconnected':
+            lang = 'EN'
+        if lang in self.names:
+            return self.names[lang]['name']
+        elif 'EN' in self.names:
+            return self.names['EN']['name']
+        elif 'FR' in self.names:
+            return self.names['FR']['name']
+        elif 'DE' in self.names:
+            return self.names['DE']['name']
+        elif len(self.names) > 0:
+            return self.names.values()[0]['name']
+        elif 'default' in self.fields:
+            return self.fields['default']
+        else:
+            print "Error Le nom n'existe pas pour cet objet"
+            return "Error"
+
+    def get_real_name(self, lang):
+        if lang in self.names:
+            return self.names[lang]['name']
+        return ''
+
+    def getID(self):
+        return self.id
+
+    def write_group(self, groupid, configuration, user, active):
+        allObjects = configuration.findAllFromObject(self)
+        with open(configuration.csvRelations, "a") as csvfile:
+            tmpCode = {}
+            tmpCode['begin'] = useful.now()
+            tmpCode['g_id'] = groupid
+            tmpCode['idobject'] = self.fields[allObjects.keyColumn]
+            tmpCode['type'] = self.get_type()
+            tmpCode["user"] = user.fields['u_id']
+            tmpCode['active'] = active
+            writer = unicodecsv.DictWriter(
+                csvfile, delimiter='\t', fieldnames=configuration.fieldrelations, encoding="utf-8")
+            writer.writerow(tmpCode)
+
+    def validate_form(self, data, configuration, lang):
+        tmp = ''
+        if 'acronym' not in data:
+            tmp = configuration.AllMessages.elements['acronymrequired'].getName(
+                lang) + '\n'
+        try:
+            cond = data['acronym'] == re.sub('[^\w]+', '', data['acronym'])
+            if not cond:
+                tmp += configuration.AllMessages.elements['acronymrules'].getName(
+                    lang) + '\n'
+        except:
+            tmp += configuration.AllMessages.elements['acronymrules'].getName(
+                lang) + '\n'
+
+        allObjects = configuration.findAllFromObject(self)
+        cond = allObjects.unique_acronym(data['acronym'], self.id)
+        if not cond:
+            tmp += configuration.AllMessages.elements['acronymunique'].getName(
+                lang) + '\n'
+        try:
+            if 'code' in data and len(data['code']) > 0:
+                code = int(data['code'])
+                cond = configuration.AllBarcodes.validate_barcode(
+                    code, self.id, self.get_type())
+                if cond == False:
+                    tmp += configuration.AllMessages.elements['barcoderules'].getName(
+                        lang) + '\n'
+        except:
+            tmp += configuration.AllMessages.elements['barcoderules'].getName(
+                lang) + '\n'
+        if tmp == '':
+            return True
+        return tmp
+
+    def set_value_from_data(self, data, c, user):
+        self.fields['acronym'] = data['acronym']
+
+        for key in c.AllLanguages.elements:
+            if key in data:
+                self.setName(key, data[key], user, c.getKeyColumn(self))
+
+        if 'active'in data:
+            self.set_active('1')
+        else:
+            self.set_active('0')
+
+        if data['placeImg'] != {}:
+            if data.placeImg.filename != '':
+                filepath = data.placeImg.filename.replace('\\', '/')
+                ext = ((filepath.split('/')[-1]).split('.')[-1])
+                fout = open(self.getImagePath(), 'w')
+                fout.write(data.placeImg.file.read())
+                fout.close()
+        if 'code' in data and len(data['code']) < 14 and len(data['code']) > 11:
+            self.code = int(data['code'])
+            c.AllBarcodes.create_barcode(self, self.code, user)
+
+        self.fields['remark'] = data['remark']
+
+        if self.creator is None:
+            self.creator = user.fields['u_id']
+            self.created = self.fields['begin']
+
+    def add_data(self, manualdata):
+        self.remove_data(manualdata)
+        if len(self.data) == 0:
+            self.data.append(manualdata.getID())
+        else:
+            time = useful.date_to_timestamp(manualdata.fields['time'])
+            insert = False
+            for i in range(len(self.data)):
+                tmp = self.config.AllManualData.elements[self.data[i]]
+                tmptime = useful.date_to_timestamp(tmp.fields['time'])
+                if time < tmptime:
+                    insert = True
+                    self.data.insert(i, manualdata.getID())
+                    break
+            if insert is False:
+                self.data.append(manualdata.getID())
+
+    def remove_data(self, manualdata):
+        if manualdata.getID() in self.data:
+            self.data.remove(manualdata.getID())
+
+    def get_transfers_in_time_interval(self, begin, end):
+        tmp = []
+        first = True
+        count = 0
+        while count < len(self.position):
+            t = self.config.AllTransfers.elements[self.position[count]]
+            time = useful.date_to_timestamp(t.fields['time'])
+            if begin < time and time < end:
+                if first is True:
+                    first = False
+                    if count > 0:
+                        if useful.date_to_timestamp(self.config.AllTransfers.elements[self.position[count-1]].fields['time']) > begin:
+                            tmp.append(self.position[count - 1])
+                tmp.append(t)
+            elif time <= begin and (first is True or count == len(self.position)-1):
+                tmp.append(t)
+                first = False
+            count += 1
+        return tmp
+
+    def delete(self, configuration):
+        allObjects = configuration.findAllFromObject(self)
+        allObjects.delete(self.id)
+
+    def set_active(self, active):
+        if 'active' in self.fields:
+            self.fields['active'] = active
+
+    def add_position(self, transfer):
+        self.remove_position(transfer)
+        if len(self.position) == 0:
+            self.position.append(transfer.getID())
+        else:
+            time = useful.date_to_timestamp(transfer.fields['time'])
+            insert = False
+            for i in range(len(self.position)):
+                tmp = self.config.AllTransfers.elements[self.position[i]]
+                tmptime = useful.date_to_timestamp(tmp.fields['time'])
+                if time < tmptime:
+                    insert = True
+                    self.position.insert(i, transfer.getID())
+                    break
+            if insert is False:
+                self.position.append(transfer.getID())
+
+    def remove_position(self, transfer):
+        if transfer.getID() in self.position:
+            self.position.remove(transfer.getID())
+
+    def get_actual_position(self):
+        if len(self.position) > 0:
+            return self.position[-1]
+        return None
+
+    def get_actual_position_hierarchy(self, configuration, result=[]):
         if not (self in result):
             result.append(self)
-	    tmp = self.get_actual_position()
-	    if tmp is not None :
-	        tmp = configuration.AllTransfers.elements[tmp]
-	        currObj = configuration.get_object(tmp.fields['cont_type'],tmp.fields['cont_id'])
+            tmp = self.get_actual_position()
+            if tmp is not None:
+                tmp = configuration.AllTransfers.elements[tmp]
+                currObj = configuration.get_object(
+                    tmp.fields['cont_type'], tmp.fields['cont_id'])
                 if currObj:
-		    return currObj.get_actual_position_hierarchy(configuration,result)
-	return result
-	
+                    return currObj.get_actual_position_hierarchy(configuration, result)
+        return result
+
     def is_actual_position(self, type, id, configuration):
-	tmp = self.get_actual_position()
-	if tmp is not None :
-	    tmp = configuration.AllTransfers.elements[tmp]
-	    if type == tmp.fields['cont_type'] and str(id) == tmp.fields['cont_id']:
-		return True
-	return False
-	
+        tmp = self.get_actual_position()
+        if tmp is not None:
+            tmp = configuration.AllTransfers.elements[tmp]
+            if type == tmp.fields['cont_type'] and str(id) == tmp.fields['cont_id']:
+                return True
+        return False
+
     def get_name_listing(self):
-	return 'index'
+        return 'index'
 
     def get_acronym(self):
         return self.fields['acronym']
-	
-    def get_batch_in_component(self,configuration):
-	batches = []
+
+    def get_batch_in_component(self, configuration):
+        batches = []
         type = self.get_type()
         id = self.getID()
-	for k,v in configuration.AllBatches.elements.items():
-	    if v.is_actual_position(type,id,configuration):
-		batches.append(v)
-	return batches
-	
+        for k, v in configuration.AllBatches.elements.items():
+            if v.is_actual_position(type, id, configuration):
+                batches.append(v)
+        return batches
+
     def get_position_on_time(self, configuration, time):
-	time = useful.date_to_timestamp(time)
-	if self.position == [] :
-	    return None
-	count = 1
-	while count < len(self.position):
-	    tmp = configuration.AllTransfers.elements[self.position[count]]
-	    tmptime = useful.date_to_timestamp(tmp.fields['time'])
-	    if time < tmptime:
-		return configuration.AllTransfers.elements[self.position[count-1]]
-	return configuration.AllTransfers.elements[self.position[-1]]
-	    
+        time = useful.date_to_timestamp(time)
+        if self.position == []:
+            return None
+        count = 1
+        while count < len(self.position):
+            tmp = configuration.AllTransfers.elements[self.position[count]]
+            tmptime = useful.date_to_timestamp(tmp.fields['time'])
+            if time < tmptime:
+                return configuration.AllTransfers.elements[self.position[count-1]]
+        return configuration.AllTransfers.elements[self.position[-1]]
+
 
 class UpdateThread(threading.Thread):
 
-    def __init__(self,config):
+    def __init__(self, config):
         threading.Thread.__init__(self)
         self.config = config
 
     def run(self):
-	time.sleep(60)
-	self.config.owproxy = pyownet.protocol.proxy(host="localhost", port=4304)
-	while self.config.isThreading is True:
-	    now = useful.get_timestamp()
-	    if not len(self.config.AllSensors.elements) == 0 :
-		self.config.AllSensors.update(now)
-	    time.sleep(60)
-	    
+        time.sleep(60)
+        self.config.owproxy = pyownet.protocol.proxy(
+            host="localhost", port=4304)
+        while self.config.isThreading is True:
+            now = useful.get_timestamp()
+            if not len(self.config.AllSensors.elements) == 0:
+                self.config.AllSensors.update(now)
+            time.sleep(60)
+
+
 class RadioThread(threading.Thread):
 
-    def __init__(self,config):
+    def __init__(self, config):
         threading.Thread.__init__(self)
         self.config = config
 
     def run(self):
-        noDots = { ord(' '): None, ord('.'): None }
+        noDots = {ord(' '): None, ord('.'): None}
         try:
-	    elaSerial = serial.Serial(ttyDir, self.config.HardConfig.ela_bauds, timeout=0.1)
-	    time.sleep(0.1)
-	    elaSerial.write(self.config.HardConfig.ela_reset)
-	    line = None
-	    while self.config.isThreading is True:
-		try:
-		    data = elaSerial.read()
-		    if data == '[' :
-			line = []
-		    elif line is not None:
-			if data == ']' :
-			    if len(line) == 10:
+            elaSerial = serial.Serial(
+                ttyDir, self.config.HardConfig.ela_bauds, timeout=0.1)
+            time.sleep(0.1)
+            elaSerial.write(self.config.HardConfig.ela_reset)
+            line = None
+            while self.config.isThreading is True:
+                try:
+                    data = elaSerial.read()
+                    if data == '[':
+                        line = []
+                    elif line is not None:
+                        if data == ']':
+                            if len(line) == 10:
                                 now = useful.get_timestamp()
-				RSS = int(line[0]+line[1],16)
-				HEX = line[2]+line[3]+line[4]
-				#ADDRESS = int(HEX,16)
-				VAL = int(line[5]+line[6]+line[7],16)
-				#READER = int(line[8]+line[9],16)
-				print "ELA="+HEX+", RSS="+unicode(RSS)+", val="+unicode(VAL)
-				currSensor = None
-				value = VAL
-				for sensor in self.config.AllSensors.elements:
-				    currSensor = self.config.AllSensors.elements[sensor]
-				    try :
-					if (unicode(currSensor.fields['sensor']).translate(noDots) == unicode(HEX).translate(noDots)):
-					    if not  currSensor.fields['formula'] == '' :
-						value = unicode(eval(currSensor.fields['formula']))
-					    print (u"Sensor ELA-" + currSensor.fields['sensor']+ u": " + currSensor.fields['acronym'] +u" = "+unicode(value))
-					    currSensor.update(now, value, self.config)
-				    except :
-                                	    traceback.print_exc()
-					    print "Erreur dans la formule"					
-			    line = None
-			else:
-			    line.append(data)
-		except:
-		    traceback.print_exc()
+                                RSS = int(line[0]+line[1], 16)
+                                HEX = line[2]+line[3]+line[4]
+                                #ADDRESS = int(HEX,16)
+                                VAL = int(line[5]+line[6]+line[7], 16)
+                                #READER = int(line[8]+line[9],16)
+                                print "ELA="+HEX+", RSS="+unicode(RSS)+", val="+unicode(VAL)
+                                currSensor = None
+                                value = VAL
+                                for sensor in self.config.AllSensors.elements:
+                                    currSensor = self.config.AllSensors.elements[sensor]
+                                    try:
+                                        if (unicode(currSensor.fields['sensor']).translate(noDots) == unicode(HEX).translate(noDots)):
+                                            if not currSensor.fields['formula'] == '':
+                                                value = unicode(
+                                                    eval(currSensor.fields['formula']))
+                                            print(
+                                                u"Sensor ELA-" + currSensor.fields['sensor'] + u": " + currSensor.fields['acronym'] + u" = "+unicode(value))
+                                            currSensor.update(
+                                                now, value, self.config)
+                                    except:
+                                        traceback.print_exc()
+                                        print "Erreur dans la formule"
+                            line = None
+                        else:
+                            line.append(data)
+                except:
+                    traceback.print_exc()
         except:
-	    traceback.print_exc()
+            traceback.print_exc()
 
-	if elaSerial:
-      	    elaSerial.close()	
+        if elaSerial:
+            elaSerial.close()
+
 
 class AllObjects(object):
 
-    def __init__(self,code,config=None):
+    def __init__(self, code, config=None):
         self.code = code
         self.elements = {}
         self.fileobject = csvDir + code.upper() + ".csv"
-	self.filename = csvDir  + code.upper() + "names.csv"
+        self.filename = csvDir + code.upper() + "names.csv"
         self.keyColumn = code + "_id"
         self.config = config
-	self.count = 0
+        self.count = 0
 
     def get_type(self):
-	return self.code
+        return self.code
 
     def load(self):
-	self.check_csv()
-	self.loadFields()
-	if self.filename is not None :
-	    self.loadNames()
+        self.check_csv()
+        self.loadFields()
+        if self.filename is not None:
+            self.loadNames()
 
     def loadFields(self):
         with open(self.fileobject) as csvfile:
-            reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
+            reader = unicodecsv.DictReader(csvfile, delimiter="\t")
             for row in reader:
-		key = row[self.keyColumn]
-		currObject = self.newObject()
-		currObject.fields = row
-		currObject.id = key
-		if key in self.elements :
-		    currObject.created = self.elements[key].created
-		    currObject.creator = self.elements[key].creator
-		    tmp = self.elements[key]
-		    if tmp.get_type() == 't':
-			self.config.findAllFromType(tmp.fields['object_type']).elements[tmp.fields['object_id']].remove_position(tmp)
-		    elif tmp.get_type() == 'd' :
-			self.config.findAllFromType(tmp.fields['object_type']).elements[tmp.fields['object_id']].remove_data(tmp)
-		    elif tmp.get_type() == 'v' :
-			objects = self.config.AllBatches
-			objects.elements[tmp.fields['src']].remove_source(tmp)		    
-			objects.elements[tmp.fields['dest']].remove_destination(tmp)
-		    elif tmp.get_type() == 'tm':
-			self.config.AllCheckPoints.elements[tmp.fields['h_id']].remove_tm(tmp)
-		    elif tmp.get_type() == 'vm':
-			self.config.AllCheckPoints.elements[tmp.fields['h_id']].remove_vm(tmp)
-		    elif tmp.get_type() == 'dm':
-			self.config.AllCheckPoints.elements[tmp.fields['h_id']].remove_dm(tmp)
-		else :
-		    currObject.created = currObject.fields['begin']
-		    if 'user' in row:
+                key = row[self.keyColumn]
+                currObject = self.newObject()
+                currObject.fields = row
+                currObject.id = key
+                if key in self.elements:
+                    currObject.created = self.elements[key].created
+                    currObject.creator = self.elements[key].creator
+                    tmp = self.elements[key]
+                    if tmp.get_type() == 't':
+                        self.config.findAllFromType(
+                            tmp.fields['object_type']).elements[tmp.fields['object_id']].remove_position(tmp)
+                    elif tmp.get_type() == 'd':
+                        self.config.findAllFromType(
+                            tmp.fields['object_type']).elements[tmp.fields['object_id']].remove_data(tmp)
+                    elif tmp.get_type() == 'v':
+                        objects = self.config.AllBatches
+                        objects.elements[tmp.fields['src']].remove_source(tmp)
+                        objects.elements[tmp.fields['dest']
+                                         ].remove_destination(tmp)
+                    elif tmp.get_type() == 'tm':
+                        self.config.AllCheckPoints.elements[tmp.fields['h_id']].remove_tm(
+                            tmp)
+                    elif tmp.get_type() == 'vm':
+                        self.config.AllCheckPoints.elements[tmp.fields['h_id']].remove_vm(
+                            tmp)
+                    elif tmp.get_type() == 'dm':
+                        self.config.AllCheckPoints.elements[tmp.fields['h_id']].remove_dm(
+                            tmp)
+                else:
+                    currObject.created = currObject.fields['begin']
+                    if 'user' in row:
                         currObject.creator = row['user']
                     else:
                         currObject.creator = None
-		self.elements[key] = currObject
-		if currObject.get_type() == 't':
-		    objects = self.config.findAllFromType(currObject.fields['object_type'])
-		    if currObject.fields['active'] == '1' :
-			objects.elements[currObject.fields['object_id']].add_position(currObject)
-		    else:
-			objects.elements[currObject.fields['object_id']].remove_position(currObject)
-		elif currObject.get_type() == 'd':
-		    objects = self.config.findAllFromType(currObject.fields['object_type'])
-		    if currObject.fields['active'] == '1' :
-			objects.elements[currObject.fields['object_id']].add_data(currObject)
-		    else:
-			objects.elements[currObject.fields['object_id']].remove_data(currObject)		    
-		elif currObject.get_type() == 'dm':
-		    objects = self.config.AllCheckPoints
-		    if currObject.fields['active'] == '1' :
-			objects.elements[currObject.fields['h_id']].add_dm(currObject)
-		    else:
-			objects.elements[currObject.fields['h_id']].remove_dm(currObject)		    
-		elif currObject.get_type() == 'tm':
-		    objects = self.config.AllCheckPoints
-		    if currObject.fields['active'] == '1' :
-			objects.elements[currObject.fields['h_id']].add_tm(currObject)
-		    else:
-			objects.elements[currObject.fields['h_id']].remove_tm(currObject)		    
-		elif currObject.get_type() == 'vm':
-		    objects = self.config.AllCheckPoints
-		    if currObject.fields['active'] == '1' :
-			objects.elements[currObject.fields['h_id']].add_vm(currObject)
-		    else:
-			objects.elements[currObject.fields['h_id']].remove_vm(currObject)		    
-		elif currObject.get_type() == 'v':
-		    objects = self.config.AllBatches
-		    if currObject.fields['active'] == '1' :
-			objects.elements[currObject.fields['src']].add_source(currObject)		    
-			objects.elements[currObject.fields['dest']].add_destination(currObject)
-		    else:
-			objects.elements[currObject.fields['src']].remove_source(currObject)		    
-			objects.elements[currObject.fields['dest']].remove_destination(currObject)
+                self.elements[key] = currObject
+                if currObject.get_type() == 't':
+                    objects = self.config.findAllFromType(
+                        currObject.fields['object_type'])
+                    if currObject.fields['active'] == '1':
+                        objects.elements[currObject.fields['object_id']].add_position(
+                            currObject)
+                    else:
+                        objects.elements[currObject.fields['object_id']].remove_position(
+                            currObject)
+                elif currObject.get_type() == 'd':
+                    objects = self.config.findAllFromType(
+                        currObject.fields['object_type'])
+                    if currObject.fields['active'] == '1':
+                        objects.elements[currObject.fields['object_id']].add_data(
+                            currObject)
+                    else:
+                        objects.elements[currObject.fields['object_id']].remove_data(
+                            currObject)
+                elif currObject.get_type() == 'dm':
+                    objects = self.config.AllCheckPoints
+                    if currObject.fields['active'] == '1':
+                        objects.elements[currObject.fields['h_id']].add_dm(
+                            currObject)
+                    else:
+                        objects.elements[currObject.fields['h_id']].remove_dm(
+                            currObject)
+                elif currObject.get_type() == 'tm':
+                    objects = self.config.AllCheckPoints
+                    if currObject.fields['active'] == '1':
+                        objects.elements[currObject.fields['h_id']].add_tm(
+                            currObject)
+                    else:
+                        objects.elements[currObject.fields['h_id']].remove_tm(
+                            currObject)
+                elif currObject.get_type() == 'vm':
+                    objects = self.config.AllCheckPoints
+                    if currObject.fields['active'] == '1':
+                        objects.elements[currObject.fields['h_id']].add_vm(
+                            currObject)
+                    else:
+                        objects.elements[currObject.fields['h_id']].remove_vm(
+                            currObject)
+                elif currObject.get_type() == 'v':
+                    objects = self.config.AllBatches
+                    if currObject.fields['active'] == '1':
+                        objects.elements[currObject.fields['src']].add_source(
+                            currObject)
+                        objects.elements[currObject.fields['dest']
+                                         ].add_destination(currObject)
+                    else:
+                        objects.elements[currObject.fields['src']
+                                         ].remove_source(currObject)
+                        objects.elements[currObject.fields['dest']
+                                         ].remove_destination(currObject)
+
     def loadNames(self):
-	with open(self.filename) as csvfile:
-	    reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
+        with open(self.filename) as csvfile:
+            reader = unicodecsv.DictReader(csvfile, delimiter="\t")
             for row in reader:
-		keyObj = row[self.keyColumn]
-		keyLang = row['lang']
-		currObject = self.elements[keyObj]
-		currObject.names[keyLang] = row
-		
+                keyObj = row[self.keyColumn]
+                keyLang = row['lang']
+                currObject = self.elements[keyObj]
+                currObject.names[keyLang] = row
 
     def newObject(self):
         return None
-	
+
     def initCount(self):
-	for k,v in self.elements.items():
-	    if self.count < int(v.fields[self.keyColumn]):
-		self.count = int(v.fields[self.keyColumn])
-		
+        for k, v in self.elements.items():
+            if self.count < int(v.fields[self.keyColumn]):
+                self.count = int(v.fields[self.keyColumn])
+
     def getNewId(self):
-	if self.count == 0 :
-	    self.initCount()
-	self.count +=1
-	return self.count
-	
+        if self.count == 0:
+            self.initCount()
+        self.count += 1
+        return self.count
+
     def createObject(self):
-	currObject = self.newObject()
-	currObject.initialise(self.fieldnames)
-	self.initCount()
-	tmp = self.getNewId()
-	currObject.fields[self.keyColumn] = unicode(tmp)
-	currObject.id = str(tmp)
-	self.elements[unicode(tmp)] = currObject
-	currObject.fields["begin"] = useful.now()
-	return currObject
-	
+        currObject = self.newObject()
+        currObject.initialise(self.fieldnames)
+        self.initCount()
+        tmp = self.getNewId()
+        currObject.fields[self.keyColumn] = unicode(tmp)
+        currObject.id = str(tmp)
+        self.elements[unicode(tmp)] = currObject
+        currObject.fields["begin"] = useful.now()
+        return currObject
+
     def unique_acronym(self, acronym, myID):
-	for k, element in self.elements.items():
-	    if element.fields['acronym'] == acronym and unicode(myID) != unicode(element.fields[self.keyColumn]) :
-		return False
-	return True
-	
-    def getItem(self,iditem):
-	if iditem:
+        for k, element in self.elements.items():
+            if element.fields['acronym'] == acronym and unicode(myID) != unicode(element.fields[self.keyColumn]):
+                return False
+        return True
+
+    def getItem(self, iditem):
+        if iditem:
             iditem = unicode(iditem)
-	    if iditem == u'new':
-	        return self.createObject()
+            if iditem == u'new':
+                return self.createObject()
             elif (iditem.endswith(u".")):
-                try:	
-	            element = config.AllBarcodes.barcode_to_item(iditem[:len(iditem)-1])
+                try:
+                    element = config.AllBarcodes.barcode_to_item(
+                        iditem[:len(iditem)-1])
                     if element.get_type() == self.get_type():
-			return element
+                        return element
                 except:
-	            return None
+                    return None
             elif (iditem.endswith(u"!")):
                 acronym = iditem[:len(iditem)-1]
                 for k, element in self.elements.items():
-	            if element.fields['acronym'] == acronym :
-		        return element
+                    if element.fields['acronym'] == acronym:
+                        return element
                 return None
-	    elif iditem in self.elements.keys():
-	        return self.elements[iditem]
-	return None
-	
-    def delete(self, anID):
-	del self.elements[unicode(anID)]
-	
-    def check_csv(self):
-	filename = self.fileobject
-	if not os.path.exists(filename):
-	    self.create_csv(filename)
-    
-    def create_csv(self, fname):
-	with open(fname,'w') as csvfile:
-	    csvfile.write(self.fieldnames[0])
-	    tmp = 1
-	    while tmp < len(self.fieldnames):
-		csvfile.write('\t'+self.fieldnames[tmp])
-		tmp = tmp + 1
-            csvfile.write('\n')
-	if self.filename is not None :
-	    with open(self.filename,'w') as csvfile:
-		csvfile.write(self.fieldtranslate[0])
-		tmp = 1
-		while tmp < len(self.fieldtranslate):
-		    csvfile.write('\t'+self.fieldtranslate[tmp])
-		    tmp = tmp + 1
-		csvfile.write('\n')
-		    
-    def get_name_object(self ):
-	return 'component'
-	
-    def get_sorted(self):
-	return collections.OrderedDict(sorted(self.elements.items(),key = lambda t:t[1].fields['acronym'])).keys()
+            elif iditem in self.elements.keys():
+                return self.elements[iditem]
+        return None
 
-    def findAcronym(self,acronym):
-	for k, element in self.elements.items():
-	    if element.fields['acronym'] == acronym :
-		return element
-	return None
-	
-    def findBarcode(self,barcode):
+    def delete(self, anID):
+        del self.elements[unicode(anID)]
+
+    def check_csv(self):
+        filename = self.fileobject
+        if not os.path.exists(filename):
+            self.create_csv(filename)
+
+    def create_csv(self, fname):
+        with open(fname, 'w') as csvfile:
+            csvfile.write(self.fieldnames[0])
+            tmp = 1
+            while tmp < len(self.fieldnames):
+                csvfile.write('\t'+self.fieldnames[tmp])
+                tmp = tmp + 1
+            csvfile.write('\n')
+        if self.filename is not None:
+            with open(self.filename, 'w') as csvfile:
+                csvfile.write(self.fieldtranslate[0])
+                tmp = 1
+                while tmp < len(self.fieldtranslate):
+                    csvfile.write('\t'+self.fieldtranslate[tmp])
+                    tmp = tmp + 1
+                csvfile.write('\n')
+
+    def get_name_object(self):
+        return 'component'
+
+    def get_sorted(self):
+        return collections.OrderedDict(sorted(self.elements.items(), key=lambda t: t[1].fields['acronym'])).keys()
+
+    def findAcronym(self, acronym):
+        for k, element in self.elements.items():
+            if element.fields['acronym'] == acronym:
+                return element
+        return None
+
+    def findBarcode(self, barcode):
         try:
-	    elem = config.AllBarcodes.barcode_to_item(barcode)
-	except:
-	    return None
+            elem = config.AllBarcodes.barcode_to_item(barcode)
+        except:
+            return None
+
 
 class AllUsers(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self,'u',config)
-	self.fieldnames = ['begin', 'u_id', 'active', 'acronym', 'remark', 'registration', 'phone','mail', 'password', 'language','gf_id', 'user']
-	self.fieldtranslate = ['begin', 'lang', 'u_id', 'name', 'user']
+        AllObjects.__init__(self, 'u', config)
+        self.fieldnames = ['begin', 'u_id', 'active', 'acronym', 'remark',
+                           'registration', 'phone', 'mail', 'password', 'language', 'gf_id', 'user']
+        self.fieldtranslate = ['begin', 'lang', 'u_id', 'name', 'user']
 
     def newObject(self):
         return User()
-	
-    def checkUser(self,mail, password):
-	for user in self.elements.value():
-	    if user.fields['mail'] == mail:
-		return user.checkPassword(password)
-    def getUser(self,mail):
-	for myId,user in self.elements.items():
-	    if user.fields['mail']==mail:
-		return user
-		
-    def get_name_object(self ):
-	return 'user'
-	
+
+    def checkUser(self, mail, password):
+        for user in self.elements.value():
+            if user.fields['mail'] == mail:
+                return user.checkPassword(password)
+
+    def getUser(self, mail):
+        for myId, user in self.elements.items():
+            if user.fields['mail'] == mail:
+                return user
+
+    def get_name_object(self):
+        return 'user'
+
     def get_key_group(self):
-	return 'gf'
-    
+        return 'gf'
+
+
 class AllEquipments(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self,'e',config)
-	self.fieldnames = ["begin", "e_id", "active", "acronym", "remark",'colorgraph','gu_id', "user"]
-	self.fieldtranslate = ['begin', 'lang', 'e_id', 'name', 'user']
+        AllObjects.__init__(self, 'e', config)
+        self.fieldnames = ["begin", "e_id", "active",
+                           "acronym", "remark", 'colorgraph', 'gu_id', "user"]
+        self.fieldtranslate = ['begin', 'lang', 'e_id', 'name', 'user']
 
     def newObject(self):
         return Equipment(self.config)
-	
-    def get_name_object(self ):
-	return 'equipment'
-	
+
+    def get_name_object(self):
+        return 'equipment'
+
     def get_key_group(self):
-	return 'gu'
+        return 'gu'
+
 
 class AllContainers(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self,'c',config)
-	self.fieldnames = ["begin", "c_id", "active", "acronym", "remark",'colorgraph','gu_id', "user"]
-	self.fieldtranslate = ['begin', 'lang', 'c_id', 'name', 'user']
+        AllObjects.__init__(self, 'c', config)
+        self.fieldnames = ["begin", "c_id", "active",
+                           "acronym", "remark", 'colorgraph', 'gu_id', "user"]
+        self.fieldtranslate = ['begin', 'lang', 'c_id', 'name', 'user']
 
     def newObject(self):
         return Container(self.config)
-	
-    def get_name_object(self ):
-	return 'container'
-	
+
+    def get_name_object(self):
+        return 'container'
+
     def get_key_group(self):
-	return 'gu'
+        return 'gu'
+
 
 class AllPieces(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self,'p',config)
-	self.fieldnames = ['begin', 'p_id', 'active', 'acronym', 'remark','colorgraph','gu_id', 'user']
-	self.fieldtranslate = ['begin', 'lang', 'p_id', 'name', 'user']
+        AllObjects.__init__(self, 'p', config)
+        self.fieldnames = ['begin', 'p_id', 'active',
+                           'acronym', 'remark', 'colorgraph', 'gu_id', 'user']
+        self.fieldtranslate = ['begin', 'lang', 'p_id', 'name', 'user']
 
     def newObject(self):
-	return Piece(self.config)
-	
+        return Piece(self.config)
+
     def get_name_object(self):
-	return 'place'
-	
+        return 'place'
+
     def get_key_group(self):
-	return 'gu'
-	
+        return 'gu'
+
+
 class AllAlarmLogs(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self,'al',config)
+        AllObjects.__init__(self, 'al', config)
         self.fileobject = csvDir + "alarmlogs.csv"
-	self.filename = None
-	self.fieldnames = ['begin', 'al_id', 'cont_id', 'cont_type', 's_id','value','typealarm','begintime', 'alarmtime', 'degree']
-	self.fieldtranslate = None
+        self.filename = None
+        self.fieldnames = ['begin', 'al_id', 'cont_id', 'cont_type',
+                           's_id', 'value', 'typealarm', 'begintime', 'alarmtime', 'degree']
+        self.fieldtranslate = None
 
     def newObject(self):
-	return AlarmLog()
-	
-    def get_alarmlog_component(self, id,begin,end):
-	logs = []
-	for i in range(len(self.elements)):
-	    e = self.elements[str(i+1)]
-	    time = useful.date_to_timestamp(e.fields['begin'])
-	    if id == e.fields['s_id'] :
-		if time > begin and time < end :
-		    logs.append(e)
-	return logs
-	
+        return AlarmLog()
+
+    def get_alarmlog_component(self, id, begin, end):
+        logs = []
+        for i in range(len(self.elements)):
+            e = self.elements[str(i+1)]
+            time = useful.date_to_timestamp(e.fields['begin'])
+            if id == e.fields['s_id']:
+                if time > begin and time < end:
+                    logs.append(e)
+        return logs
+
+
 class AllHalflings(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self,"halfling",config)
+        AllObjects.__init__(self, "halfling", config)
         self.fileobject = csvDir + "halflings.csv"
-	self.filename = None
+        self.filename = None
         self.keyColumn = "classname"
-	self.fieldnames = ['begin', 'classname', 'glyphname', 'user']
-	self.fieldtranslate = None
+        self.fieldnames = ['begin', 'classname', 'glyphname', 'user']
+        self.fieldtranslate = None
 
     def newObject(self):
-	return Halfling()
-	
+        return Halfling()
+
     def getString(self):
-	tmp=''
-	for k,v in self.elements.items():
-	    tmp = tmp + k + '/' + v.fields['glyphname'] + ' '
-	return tmp[0:-1]
-	
+        tmp = ''
+        for k, v in self.elements.items():
+            tmp = tmp + k + '/' + v.fields['glyphname'] + ' '
+        return tmp[0:-1]
+
+
 class AllAlarms(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self,'a',config)
-	self.fieldnames = ['begin', 'a_id', 'active', 'acronym', 'o_sms1', 'o_sms2', 'o_email1', 'o_email2', 'o_sound1', 'o_sound2', 'relay1', 'relay2', 'remark', 'user']
-	self.fieldtranslate = ['begin', 'lang', 'a_id', 'name', 'user']
+        AllObjects.__init__(self, 'a', config)
+        self.fieldnames = ['begin', 'a_id', 'active', 'acronym', 'o_sms1', 'o_sms2',
+                           'o_email1', 'o_email2', 'o_sound1', 'o_sound2', 'relay1', 'relay2', 'remark', 'user']
+        self.fieldtranslate = ['begin', 'lang', 'a_id', 'name', 'user']
 
     def newObject(self):
-	return Alarm()	
-	
-    def get_name_object(self ):
-	return 'alarm'
-	
+        return Alarm()
+
+    def get_name_object(self):
+        return 'alarm'
+
+
 class AllManualData(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self,'d',config)
-	self.filename = None
-	self.fieldnames = ['begin', 'd_id', 'dm_id', 'object_id', 'object_type', 'time', 'h_id', 'remark', 'm_id', 'value', 'active', 'user']
-	self.fieldtranslate = None
+        AllObjects.__init__(self, 'd', config)
+        self.filename = None
+        self.fieldnames = ['begin', 'd_id', 'dm_id', 'object_id', 'object_type',
+                           'time', 'h_id', 'remark', 'm_id', 'value', 'active', 'user']
+        self.fieldtranslate = None
 
     def newObject(self):
-	return ManualData()
-	
-    def get_name_object(self ):
-	return 'manualdata'
-    
+        return ManualData()
+
+    def get_name_object(self):
+        return 'manualdata'
+
+
 class AllPourings(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self,'v',config)
-	self.filename = None
-	self.fieldnames = ['begin', 'v_id', 'src', 'dest', 'time', 'h_id', 'quantity', 'm_id', 'remark','active', 'user']
-	self.fieldtranslate = None
+        AllObjects.__init__(self, 'v', config)
+        self.filename = None
+        self.fieldnames = ['begin', 'v_id', 'src', 'dest', 'time',
+                           'h_id', 'quantity', 'm_id', 'remark', 'active', 'user']
+        self.fieldtranslate = None
 
     def newObject(self):
-	return Pouring()
-	
-    def get_name_object(self ):
-	return 'v'
-    
+        return Pouring()
+
+    def get_name_object(self):
+        return 'v'
+
+
 class AllGroups(AllObjects):
     def __init__(self, code, config):
-	AllObjects.__init__(self,code,config)
-	self.fieldrelations = ['begin', 'parent_id', 'child_id', 'active', 'user']
-	
+        AllObjects.__init__(self, code, config)
+        self.fieldrelations = ['begin', 'parent_id',
+                               'child_id', 'active', 'user']
+
     def load(self):
-	AllObjects.load(self)
-	self.check_relation()
-	self.load_relation()
-	
+        AllObjects.load(self)
+        self.check_relation()
+        self.load_relation()
+
     def check_relation(self):
-	filename = self.csvRelations
-	if not os.path.exists(filename):
-	    self.create_relation(filename)
-	    
+        filename = self.csvRelations
+        if not os.path.exists(filename):
+            self.create_relation(filename)
+
     def create_relation(self, fname):
-	with open(fname,'w') as csvfile:
-	    csvfile.write(self.fieldrelations[0])
-	    tmp = 1
-	    while tmp < len(self.fieldrelations):
-		csvfile.write('\t'+self.fieldrelations[tmp])
-		tmp = tmp + 1
+        with open(fname, 'w') as csvfile:
+            csvfile.write(self.fieldrelations[0])
+            tmp = 1
+            while tmp < len(self.fieldrelations):
+                csvfile.write('\t'+self.fieldrelations[tmp])
+                tmp = tmp + 1
             csvfile.write('\n')
-	
+
     def get_master_groups(self):
-	children = {}
-	for k,group in self.elements.items():
-	    if group.fields['g_parent'] == '':
-		children[k] = group
-	return children
-	
+        children = {}
+        for k, group in self.elements.items():
+            if group.fields['g_parent'] == '':
+                children[k] = group
+        return children
+
     def load_relation(self):
-	with open(self.csvRelations) as csvfile:
-	    reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
-	    for row in reader:
-		parent = row['parent_id']
-		child = row['child_id']
-		currObject = self.elements[child]
-		if row['active'] =='0':		    
-		    currObject.add_relation(self.elements[parent])
-		elif row['active'] == '1' :
-		    currObject.remove_relation(self.elements[parent])
-	self.load_family()
-	
+        with open(self.csvRelations) as csvfile:
+            reader = unicodecsv.DictReader(csvfile, delimiter="\t")
+            for row in reader:
+                parent = row['parent_id']
+                child = row['child_id']
+                currObject = self.elements[child]
+                if row['active'] == '0':
+                    currObject.add_relation(self.elements[parent])
+                elif row['active'] == '1':
+                    currObject.remove_relation(self.elements[parent])
+        self.load_family()
+
     def load_family(self):
-	for k,g in self.elements.items():
-	    g.parents = []
-	    g.children = []
-	    g.siblings = []
-	    g.load_parents()
-	    g.load_children()
-	    g.load_siblings()
-    
-    def get_hierarchy_str(self, g = None, myString = None):
-	if myString is None:
-	    myString = []
-	for k,group in self.elements.items():
-	    cond1 = ( g == None and len(group.related) == 0 )
-	    cond2 = ( g is not None and g.getID() in group.related )
-	    if cond1 or cond2:
-		myString.append(k)
-		myString.append('IN')
-		self.get_hierarchy_str(group,myString)
-		myString.append('OUT')
-	return myString
-	
+        for k, g in self.elements.items():
+            g.parents = []
+            g.children = []
+            g.siblings = []
+            g.load_parents()
+            g.load_children()
+            g.load_siblings()
+
+    def get_hierarchy_str(self, g=None, myString=None):
+        if myString is None:
+            myString = []
+        for k, group in self.elements.items():
+            cond1 = (g == None and len(group.related) == 0)
+            cond2 = (g is not None and g.getID() in group.related)
+            if cond1 or cond2:
+                myString.append(k)
+                myString.append('IN')
+                self.get_hierarchy_str(group, myString)
+                myString.append('OUT')
+        return myString
+
     def get_group(self, acro):
-	for k,g in self.elements.items():
-	    if g.fields['acronym'] == groupWebUsers:
-		return k	    
-	
+        for k, g in self.elements.items():
+            if g.fields['acronym'] == groupWebUsers:
+                return k
+
+
 class AllGrUsage(AllGroups):
     def __init__(self, config):
-	AllGroups.__init__(self, 'gu', config)
-	self.fieldnames = ["begin", "gu_id", "active", "acronym", "remark", "user"]
-	self.fieldtranslate = ['begin', 'lang', 'gu_id', 'name', 'user']
-	self.csvRelations = csvDir + "GUrelations.csv"
+        AllGroups.__init__(self, 'gu', config)
+        self.fieldnames = ["begin", "gu_id",
+                           "active", "acronym", "remark", "user"]
+        self.fieldtranslate = ['begin', 'lang', 'gu_id', 'name', 'user']
+        self.csvRelations = csvDir + "GUrelations.csv"
 
     def newObject(self):
         return GrUsage(self.config)
-	
+
     def get_name_object(self):
-	return 'guse'
-	
+        return 'guse'
+
     def get_key_group(self):
-	return 'gu'
-	
+        return 'gu'
+
+
 class AllGrRecipe(AllGroups):
     def __init__(self, config):
-	AllGroups.__init__(self, 'gr', config)
-	self.fieldnames = ["begin", "gr_id", "active", "acronym", "remark", "user"]
-	self.fieldtranslate = ['begin', 'lang', 'gr_id', 'name', 'user']
-	self.csvRelations = csvDir + "GRrelations.csv"
+        AllGroups.__init__(self, 'gr', config)
+        self.fieldnames = ["begin", "gr_id",
+                           "active", "acronym", "remark", "user"]
+        self.fieldtranslate = ['begin', 'lang', 'gr_id', 'name', 'user']
+        self.csvRelations = csvDir + "GRrelations.csv"
 
     def newObject(self):
         return GrRecipe(self.config)
-	
+
     def get_name_object(self):
-	return 'grecipe'
-	
+        return 'grecipe'
+
     def get_key_group(self):
-	return 'gr'
-	
-	
+        return 'gr'
+
+
 class AllCheckPoints(AllGroups):
     def __init__(self, config):
-	AllGroups.__init__(self, 'h', config)
-	self.fieldnames = ["begin", "h_id", "active", "acronym",'rank','abstract', "remark",'gr_id','gu_id', "user"]
-	self.fieldtranslate = ['begin', 'lang', 'h_id', 'name', 'user']
-	self.fieldcontrols = ['begin', 'h_id', 'object_type','object_id', 'user']
-	self.csvRelations = csvDir + "Hrelations.csv"
-	self.csvControls = csvDir + "Hcontrols.csv"
+        AllGroups.__init__(self, 'h', config)
+        self.fieldnames = ["begin", "h_id", "active", "acronym",
+                           'rank', 'abstract', "remark", 'gr_id', 'gu_id', "user"]
+        self.fieldtranslate = ['begin', 'lang', 'h_id', 'name', 'user']
+        self.fieldcontrols = ['begin', 'h_id',
+                              'object_type', 'object_id', 'user']
+        self.csvRelations = csvDir + "Hrelations.csv"
+        self.csvControls = csvDir + "Hcontrols.csv"
 
     def newObject(self):
         return CheckPoint(self.config)
-	
+
     def get_name_object(self):
-	return 'checkpoint'
-	
+        return 'checkpoint'
+
     def get_key_group(self):
-	return 'h'
-	
+        return 'h'
+
     def load(self):
-	AllGroups.load(self)
-	self.check_controls()
-	self.load_controls()
-    
+        AllGroups.load(self)
+        self.check_controls()
+        self.load_controls()
+
     def check_controls(self):
-	filename = self.csvControls
-	if not os.path.exists(filename):
-	    self.create_control(filename)
-	    
+        filename = self.csvControls
+        if not os.path.exists(filename):
+            self.create_control(filename)
+
     def create_control(self, fname):
-	with open(fname,'w') as csvfile:
-	    csvfile.write(self.fieldcontrols[0])
-	    tmp = 1
-	    while tmp < len(self.fieldcontrols):
-		csvfile.write('\t'+self.fieldcontrols[tmp])
-		tmp = tmp + 1
+        with open(fname, 'w') as csvfile:
+            csvfile.write(self.fieldcontrols[0])
+            tmp = 1
+            while tmp < len(self.fieldcontrols):
+                csvfile.write('\t'+self.fieldcontrols[tmp])
+                tmp = tmp + 1
             csvfile.write('\n')
-    
+
     def load_controls(self):
-	with open(self.csvControls) as csvfile:
-	    reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
-	    for row in reader:
-		type = row['object_type']
-		id = row['object_id']
-		currObject = self.config.findAllFromType(type).elements[id].add_checkpoint(row['h_id'])
-	    
-    def get_checkpoints_for_recipe(self,recipes):
-	checkpoints = []
-	for k,e in self.elements.items():
-	    if e.fields['gr_id'] in recipes and e.fields['abstract'] == '0':
-		checkpoints.append(e)
-	checkpoints.sort(key=lambda x:int(x.fields['rank']), reverse=False)
-	return checkpoints
-		
-    def get_checkpoints_for_usage(self,usages):
-	checkpoints = []
-	for k,e in self.elements.items():
-	    if e.fields['gu_id'] in usages and e.fields['abstract'] == '0':
-		checkpoints.append(e)
-	checkpoints.sort(key=lambda x:int(x.fields['rank']), reverse=False)
-	return checkpoints
-		
-    def get_checkpoints_for_recipe_usage(self,recipes,usages):
-	checkpoints = []
-	for k,e in self.elements.items():
+        with open(self.csvControls) as csvfile:
+            reader = unicodecsv.DictReader(csvfile, delimiter="\t")
+            for row in reader:
+                type = row['object_type']
+                id = row['object_id']
+                currObject = self.config.findAllFromType(
+                    type).elements[id].add_checkpoint(row['h_id'])
+
+    def get_checkpoints_for_recipe(self, recipes):
+        checkpoints = []
+        for k, e in self.elements.items():
+            if e.fields['gr_id'] in recipes and e.fields['abstract'] == '0':
+                checkpoints.append(e)
+        checkpoints.sort(key=lambda x: int(x.fields['rank']), reverse=False)
+        return checkpoints
+
+    def get_checkpoints_for_usage(self, usages):
+        checkpoints = []
+        for k, e in self.elements.items():
+            if e.fields['gu_id'] in usages and e.fields['abstract'] == '0':
+                checkpoints.append(e)
+        checkpoints.sort(key=lambda x: int(x.fields['rank']), reverse=False)
+        return checkpoints
+
+    def get_checkpoints_for_recipe_usage(self, recipes, usages):
+        checkpoints = []
+        for k, e in self.elements.items():
             if e.fields['abstract'] == '0':
-	        if not e.fields['gr_id'] or (e.fields['gr_id'] in recipes):
+                if not e.fields['gr_id'] or (e.fields['gr_id'] in recipes):
                     if not e.fields['gu_id'] or (e.fields['gu_id'] in usages):
-		        checkpoints.append(e)
-	checkpoints.sort(key=lambda x:int(x.fields['rank']), reverse=False)
-	return checkpoints
-		
-	
-	
+                        checkpoints.append(e)
+        checkpoints.sort(key=lambda x: int(x.fields['rank']), reverse=False)
+        return checkpoints
+
+
 class AllGrFunction(AllGroups):
     def __init__(self, config):
-	AllGroups.__init__(self, 'gf', config)
-	self.fieldnames = ["begin", "gf_id", "active", "acronym", "remark", "user"]
-	self.fieldtranslate = ['begin', 'lang', 'gf_id', 'name', 'user']
-	self.csvRelations = csvDir + "GFrelations.csv"
+        AllGroups.__init__(self, 'gf', config)
+        self.fieldnames = ["begin", "gf_id",
+                           "active", "acronym", "remark", "user"]
+        self.fieldtranslate = ['begin', 'lang', 'gf_id', 'name', 'user']
+        self.csvRelations = csvDir + "GFrelations.csv"
 
     def newObject(self):
         return GrFunction(self.config)
-	
+
     def get_name_object(self):
-	return 'gfunction'
-	
+        return 'gfunction'
+
     def get_key_group(self):
-	return 'gf'
+        return 'gf'
+
 
 class AllMeasures(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self,'m',config)
-	self.fieldnames = ['begin', 'm_id', 'active', 'acronym', 'unit', 'remark', 'user']
-	self.fieldtranslate = ['begin', 'lang', 'm_id', 'name', 'user']
+        AllObjects.__init__(self, 'm', config)
+        self.fieldnames = ['begin', 'm_id', 'active',
+                           'acronym', 'unit', 'remark', 'user']
+        self.fieldtranslate = ['begin', 'lang', 'm_id', 'name', 'user']
 
     def newObject(self):
         return Measure()
-	
-    def get_name_object(self ):
-	return 'measure'
+
+    def get_name_object(self):
+        return 'measure'
+
 
 class AllSensors(AllObjects):
 
     def __init__(self, config):
-        AllObjects.__init__(self,'s',config)
-	self.fieldnames = ['begin', 's_id', 'c_id', 'p_id', 'e_id', 'm_id', 'active', 'acronym', 'remark', 'channel', 'sensor', 'subsensor', 'valuetype', 'formula', 'minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax', 'lapse1', 'lapse2', 'lapse3', 'user']
-	self.fieldtranslate = ['begin', 'lang', 's_id', 'name', 'user']
+        AllObjects.__init__(self, 's', config)
+        self.fieldnames = ['begin', 's_id', 'c_id', 'p_id', 'e_id', 'm_id', 'active', 'acronym', 'remark', 'channel', 'sensor', 'subsensor', 'valuetype',
+                           'formula', 'minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax', 'lapse1', 'lapse2', 'lapse3', 'user']
+        self.fieldtranslate = ['begin', 'lang', 's_id', 'name', 'user']
 
     def newObject(self):
         return Sensor()
-	
-    def get_name_object(self ):
-	return 'sensor'
-	
+
+    def get_name_object(self):
+        return 'sensor'
+
     def getColor(self, ids):
-	color = "#006600"
-	if ids in self.elements:
-	    sensor = self.elements[ids]
-	    if not sensor.fields['p_id'] == '':
-		pid = sensor.fields['p_id']
-		if not self.config.AllPieces.elements[pid].fields['colorgraph'] == '':
-		    color = self.config.AllPieces.elements[pid].fields['colorgraph']
-	    elif not sensor.fields['c_id'] == '':
-		cid = sensor.fields['c_id']
-		if not self.config.AllContainers.elements[cid].fields['colorgraph'] == '':
-		    color = self.config.AllContainers.elements[cid].fields['colorgraph'] 
-	    elif not sensor.fields['e_id'] == '':
-		eid = sensor.fields['e_id']
-		if not self.config.AllEquipments.elements[eid].fields['colorgraph'] == '':
-		    color = self.config.AllEquipments.elements[eid].fields['colorgraph'] 
-	return color
+        color = "#006600"
+        if ids in self.elements:
+            sensor = self.elements[ids]
+            if not sensor.fields['p_id'] == '':
+                pid = sensor.fields['p_id']
+                if not self.config.AllPieces.elements[pid].fields['colorgraph'] == '':
+                    color = self.config.AllPieces.elements[pid].fields['colorgraph']
+            elif not sensor.fields['c_id'] == '':
+                cid = sensor.fields['c_id']
+                if not self.config.AllContainers.elements[cid].fields['colorgraph'] == '':
+                    color = self.config.AllContainers.elements[cid].fields['colorgraph']
+            elif not sensor.fields['e_id'] == '':
+                eid = sensor.fields['e_id']
+                if not self.config.AllEquipments.elements[eid].fields['colorgraph'] == '':
+                    color = self.config.AllEquipments.elements[eid].fields['colorgraph']
+        return color
 
     def correctValueAlarm(self):
-        for k,sensor in self.elements.items():
+        for k, sensor in self.elements.items():
             sensor.setCorrectAlarmValue()
-	    
-    def update(self, now) :
-	webCache = {}
-	for k,sensor in self.elements.items():
-	    if sensor.fields['channel'] in queryChannels and not sensor.fields['active'] == '0' :
-              try:
-		value,debugging = sensor.get_value_sensor(self.config,webCache)
-		if value:
-		    sensor.update(now, value,self.config)
-		if debugging:
-		    print debugging
-              except:
-                traceback.print_exc()
-		
+
+    def update(self, now):
+        webCache = {}
+        for k, sensor in self.elements.items():
+            if sensor.fields['channel'] in queryChannels and not sensor.fields['active'] == '0':
+                try:
+                    value, debugging = sensor.get_value_sensor(
+                        self.config, webCache)
+                    if value:
+                        sensor.update(now, value, self.config)
+                    if debugging:
+                        print debugging
+                except:
+                    traceback.print_exc()
+
     def check_rrd(self):
-	for k, v in self.elements.items():
-	    filename = rrdDir + v.getRRDName()
-	    if not os.path.exists(filename):
-		v.createRRD()
+        for k, v in self.elements.items():
+            filename = rrdDir + v.getRRDName()
+            if not os.path.exists(filename):
+                v.createRRD()
+
 
 class AllBatches(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self,'b',config)
-	self.fieldnames = ["begin", "b_id", "active", "acronym", "basicqt", "m_id", "time", "cost", "remark", 'gr_id',"user"]
-	self.fieldtranslate = ['begin', 'lang', 'b_id', 'name', 'user']
+        AllObjects.__init__(self, 'b', config)
+        self.fieldnames = ["begin", "b_id", "active", "acronym",
+                           "basicqt", "m_id", "time", "cost", "remark", 'gr_id', "user"]
+        self.fieldtranslate = ['begin', 'lang', 'b_id', 'name', 'user']
 
     def newObject(self):
         return Batch(self.config)
-	
-    def get_name_object(self ):
-	return 'batch'
-	
+
+    def get_name_object(self):
+        return 'batch'
+
     def get_key_group(self):
-	return 'gr'
-	
+        return 'gr'
+
+
 class AllTransfers(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self,'t',config)
-	self.filename = None
-	self.fieldnames = ["begin","t_id",'time', 'h_id', "cont_id", "cont_type", "object_id", "object_type", "remark", 'active', "user"]
-	self.fieldtranslate = None
+        AllObjects.__init__(self, 't', config)
+        self.filename = None
+        self.fieldnames = ["begin", "t_id", 'time', 'h_id', "cont_id",
+                           "cont_type", "object_id", "object_type", "remark", 'active', "user"]
+        self.fieldtranslate = None
 
     def newObject(self):
         return Transfer(self.config)
-	
-    def get_name_object(self ):
-	return 'transfer'
-	
+
+    def get_name_object(self):
+        return 'transfer'
+
+
 class AllTransferModels(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self,'tm',config)
-	self.fieldnames = ["begin","tm_id",'acronym','gu_id','h_id','rank', "remark", 'active', "user"]
-	self.fieldtranslate = ['begin', 'lang', 'tm_id', 'name', 'user']
+        AllObjects.__init__(self, 'tm', config)
+        self.fieldnames = ["begin", "tm_id", 'acronym',
+                           'gu_id', 'h_id', 'rank', "remark", 'active', "user"]
+        self.fieldtranslate = ['begin', 'lang', 'tm_id', 'name', 'user']
 
     def newObject(self):
         return TransferModel(self.config)
-	
-    def get_name_object(self ):
-	return 'transfermodel'
-    
+
+    def get_name_object(self):
+        return 'transfermodel'
+
     def get_key_group(self):
-	return 'h'
-	
+        return 'h'
+
+
 class AllPouringModels(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self,'vm',config)
-	self.fieldnames = ["begin","vm_id",'acronym','src','dest','quantity','h_id', 'rank', "in", "remark", 'active', "user"]
-	self.fieldtranslate = ['begin', 'lang', 'vm_id', 'name', 'user']
+        AllObjects.__init__(self, 'vm', config)
+        self.fieldnames = ["begin", "vm_id", 'acronym', 'src', 'dest',
+                           'quantity', 'h_id', 'rank', "in", "remark", 'active', "user"]
+        self.fieldtranslate = ['begin', 'lang', 'vm_id', 'name', 'user']
 
     def newObject(self):
         return PouringModel(self.config)
-	
-    def get_name_object(self ):
-	return 'pouringmodel'
-    
-    def get_key_group(self):
-	return 'h'
-	
 
-	
+    def get_name_object(self):
+        return 'pouringmodel'
+
+    def get_key_group(self):
+        return 'h'
+
+
 class AllManualDataModels(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self,'dm',config)
-	self.fieldnames = ["begin","dm_id",'acronym','m_id','h_id', 'rank', "remark", 'active', 'minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax', "user"]
-	self.fieldtranslate = ['begin', 'lang', 'dm_id', 'name', 'user']
-    
+        AllObjects.__init__(self, 'dm', config)
+        self.fieldnames = ["begin", "dm_id", 'acronym', 'm_id', 'h_id', 'rank', "remark", 'active', 'minmin',
+                           'min', 'typical', 'max', 'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax', "user"]
+        self.fieldtranslate = ['begin', 'lang', 'dm_id', 'name', 'user']
+
     def newObject(self):
         return ManualDataModel(self.config)
-	
-    def get_name_object(self ):
-	return 'manualdatamodel'
-	
+
+    def get_name_object(self):
+        return 'manualdatamodel'
+
     def get_key_group(self):
-	return 'h'
-	
+        return 'h'
+
 
 class AllBarcodes(AllObjects):
 
     def __init__(self, config):
-        AllObjects.__init__(self,'barcode',config)
+        AllObjects.__init__(self, 'barcode', config)
         self.fileobject = csvDir + "codes.csv"
-	self.filename = None
+        self.filename = None
         self.keyColumn = "code"
-	self.fieldnames = ['begin', 'type', 'idobject', 'code', 'active', 'user']
-	self.fieldtranslate = None
-	self.EAN = barcode.get_barcode_class('ean13')
-	
+        self.fieldnames = ['begin', 'type',
+                           'idobject', 'code', 'active', 'user']
+        self.fieldtranslate = None
+        self.EAN = barcode.get_barcode_class('ean13')
+
     def load(self):
-	with open(self.fileobject) as csvfile:
-            reader = unicodecsv.DictReader(csvfile, delimiter = "\t")
+        with open(self.fileobject) as csvfile:
+            reader = unicodecsv.DictReader(csvfile, delimiter="\t")
             for row in reader:
-		key = row[self.keyColumn]
-		if row['active'] == '0' :
-		    del self.elements[key]
-		elif len(row['code']) > 0:
-		    currObject = self.newObject( self.config.getObject(row['idobject'], row['type']))
-		    currObject.fields = row
-		    currObject.id = key
-		    self.elements[key] = currObject
-	self.to_pictures()
+                key = row[self.keyColumn]
+                if row['active'] == '0':
+                    del self.elements[key]
+                elif len(row['code']) > 0:
+                    currObject = self.newObject(
+                        self.config.getObject(row['idobject'], row['type']))
+                    currObject.fields = row
+                    currObject.id = key
+                    self.elements[key] = currObject
+        self.to_pictures()
 
     def newObject(self, item):
         return Barcode(item)
-	
+
     def get_barcode(self, myType, myID):
-	for k  in self.elements.keys():
+        for k in self.elements.keys():
             if self.elements[k].element:
                 if self.elements[k].element.get_type() == myType and unicode(self.elements[k].element.getID()) == myID:
-		    self.elements[k].barcode_picture()
+                    self.elements[k].barcode_picture()
                     return k
-	return ''
-	
-    def unique_barcode(self,code, myID, myType):
-	for k,v in self.elements.items():
-	    if int(code) == int(k) and not myID == v.getID() and not myType == v.fields['type']:
-		return False
-	return True
-    
+        return ''
+
+    def unique_barcode(self, code, myID, myType):
+        for k, v in self.elements.items():
+            if int(code) == int(k) and not myID == v.getID() and not myType == v.fields['type']:
+                return False
+        return True
+
     def add_barcode(self, item, code, user):
-	if self.unique_barcode(code, item.getID(), item.get_type()) :
-	    oldBarcode = self.get_barcode( item.get_type(), item.getID())
-	    if not oldBarcode == code and not oldBarcode == '' :
-		self.delete_barcode(oldBarcode, user)
-	    self.elements[code] = self.create_barcode(item, code, user)
-	
+        if self.unique_barcode(code, item.getID(), item.get_type()):
+            oldBarcode = self.get_barcode(item.get_type(), item.getID())
+            if not oldBarcode == code and not oldBarcode == '':
+                self.delete_barcode(oldBarcode, user)
+            self.elements[code] = self.create_barcode(item, code, user)
+
     def delete_barcode(self, oldBarcode, user):
-	self.write_csv( oldBarcode, 0, user)
-	del self.elements[oldBarcode]
-	
+        self.write_csv(oldBarcode, 0, user)
+        del self.elements[oldBarcode]
+
     def write_csv(self, code, active, user):
-	with open(self.fileobject,"a") as csvfile:
-	    tmpCode=self.create_fields(code, active, user)
-            writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames = self.fieldnames, encoding="utf-8")
+        with open(self.fileobject, "a") as csvfile:
+            tmpCode = self.create_fields(code, active, user)
+            writer = unicodecsv.DictWriter(
+                csvfile, delimiter='\t', fieldnames=self.fieldnames, encoding="utf-8")
             writer.writerow(tmpCode)
-	    
+
     def create_barcode(self, item, code, user):
-	tmp = self.newObject(item)
-	fields = self.create_fields( code, 1, user, item)
-	tmp.fields = fields
-	self.elements[code] = tmp
-	tmp.element = item
-	self.write_csv(code, 1, user)
-	return tmp
-	
-    def create_fields(self, code,active, user, item = None):
-	fields = {}
-	fields['begin'] = useful.now()
-	if item is None :
-	    fields['type'] = self.elements[code].element.get_type()
-	    fields['idobject'] = self.elements[code].element.id
-	else :
-	    fields['type'] = item.get_type()
-	    fields['idobject'] = item.id
-	fields['code'] = code
-	fields['active'] = active
-	fields["user"] = user.fields['u_id']
-	return fields
-	
+        tmp = self.newObject(item)
+        fields = self.create_fields(code, 1, user, item)
+        tmp.fields = fields
+        self.elements[code] = tmp
+        tmp.element = item
+        self.write_csv(code, 1, user)
+        return tmp
+
+    def create_fields(self, code, active, user, item=None):
+        fields = {}
+        fields['begin'] = useful.now()
+        if item is None:
+            fields['type'] = self.elements[code].element.get_type()
+            fields['idobject'] = self.elements[code].element.id
+        else:
+            fields['type'] = item.get_type()
+            fields['idobject'] = item.id
+        fields['code'] = code
+        fields['active'] = active
+        fields["user"] = user.fields['u_id']
+        return fields
+
     def validate_barcode(self, code, anID, aType):
-	if len(unicode(code)) < 12 or len(unicode(code)) >13 :
-	    return False
-	try:
-	    EAN = barcode.get_barcode_class('ean13')
-	    ean = EAN(unicode(code))
-	except :
-	    traceback.print_exc() 
-	    return False
-	if self.unique_barcode(code, anID, aType) is not True :
-	    return False
-	return True
-	    
+        if len(unicode(code)) < 12 or len(unicode(code)) > 13:
+            return False
+        try:
+            EAN = barcode.get_barcode_class('ean13')
+            ean = EAN(unicode(code))
+        except:
+            traceback.print_exc()
+            return False
+        if self.unique_barcode(code, anID, aType) is not True:
+            return False
+        return True
+
     def to_pictures(self):
-	for k, v in self.elements.items():
-	    v.barcode_picture()
-	    
+        for k, v in self.elements.items():
+            v.barcode_picture()
+
     def barcode_to_item(self, code):
-	for k,barcode in self.elements.items():
-	    if barcode.fields['code'] == code :
-		return self.config.findAllFromType(barcode.fields['type']).elements[barcode.fields['idobject']]
+        for k, barcode in self.elements.items():
+            if barcode.fields['code'] == code:
+                return self.config.findAllFromType(barcode.fields['type']).elements[barcode.fields['idobject']]
+
 
 class ConnectedUser():
-    
+
     def __init__(self, user):
-	self.cuser = user
-	self.datetime = time.time()
-	
+        self.cuser = user
+        self.datetime = time.time()
+
     def update(self):
-	self.datetime = time.time()
-    
+        self.datetime = time.time()
+
+
 class AllConnectedUsers():
-    
+
     def __init__(self):
-	self.users = {}
-    
-    def __getitem__(self,key):
-	return self.users[key]
-    
-    def addUser(self,user):
-	self.update()
-	mail = user.fields['mail']
-	if mail not in self.users :
-	    self.users[mail] = ConnectedUser(user)
-	else :
-	    self.users[mail].update()
-	
+        self.users = {}
+
+    def __getitem__(self, key):
+        return self.users[key]
+
+    def addUser(self, user):
+        self.update()
+        mail = user.fields['mail']
+        if mail not in self.users:
+            self.users[mail] = ConnectedUser(user)
+        else:
+            self.users[mail].update()
+
     def update(self):
-	updatetime = time.time()
-	for mail,connecteduser in self.users.items():
-	    if (updatetime - connecteduser.datetime) > 900:
-		del self.users[mail]
-		
-    def isConnected(self,mail,password):
-	self.update()
-	if mail in self.users :
-	    user = self.users[mail].cuser
-	    if user.fields['password'] == password :
-		self.users[mail].update()
-		return True
-	return False
-    
+        updatetime = time.time()
+        for mail, connecteduser in self.users.items():
+            if (updatetime - connecteduser.datetime) > 900:
+                del self.users[mail]
+
+    def isConnected(self, mail, password):
+        self.update()
+        if mail in self.users:
+            user = self.users[mail].cuser
+            if user.fields['password'] == password:
+                self.users[mail].update()
+                return True
+        return False
+
     def getLanguage(self, mail):
-	if mail in self.users:
-	    return self.users[mail].cuser.fields['language']
-	return 'english'
-    
+        if mail in self.users:
+            return self.users[mail].cuser.fields['language']
+        return 'english'
+
     def disconnect(self, mail):
-	if mail in self.users:
-	    del self.users[mail]
-			
+        if mail in self.users:
+            del self.users[mail]
+
+
 class AllLanguages(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self,'l',config)
+        AllObjects.__init__(self, 'l', config)
         self.fileobject = csvDir + "language.csv"
-	self.filename = None
-	self.nameColumn = "name"
+        self.filename = None
+        self.nameColumn = "name"
 
     def newObject(self):
         return Language()
-	
-    def __getitem__(self,key):
-	return self.elements[key]
-	
+
+    def __getitem__(self, key):
+        return self.elements[key]
+
+
 class AllMessages(AllObjects):
 
     def __init__(self, config):
-	AllObjects.__init__(self,'m',config)
+        AllObjects.__init__(self, 'm', config)
         self.elements = {}
-	self.names = {}
-	self.fileobject = csvDir + "mess.csv"
+        self.names = {}
+        self.fileobject = csvDir + "mess.csv"
         self.filename = csvDir + "messages.csv"
-	self.nameColumn = "name"
+        self.nameColumn = "name"
 
     def newObject(self):
         return Message()
-	
-    def __getitem__(self,key):
-	return self.elements[key]
 
-  
+    def __getitem__(self, key):
+        return self.elements[key]
+
 
 class Language(ConfigurationObject):
-    
+
     def __init__(self):
-	ConfigurationObject.__init__(self)
+        ConfigurationObject.__init__(self)
 
     def __repr__(self):
         string = unicode(self.id) + " " + self.fields['name']
@@ -1568,12 +1660,13 @@ class Language(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
-	
+
     def get_type(self):
-	return 'language'
+        return 'language'
+
 
 class Message(ConfigurationObject):
-    
+
     def __repr__(self):
         string = unicode(self.id) + " " + self.fields['default']
         return string
@@ -1582,17 +1675,17 @@ class Message(ConfigurationObject):
         string = "\nMessage :"
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
-        return string + "\n"	
-	
+        return string + "\n"
+
     def get_type(self):
-	return 'message'
-	
+        return 'message'
+
 
 class User(ConfigurationObject):
 
     def __init__(self):
-	ConfigurationObject.__init__(self)
-	self.exportdata = None
+        ConfigurationObject.__init__(self)
+        self.exportdata = None
 
     def __repr__(self):
         string = unicode(self.id) + " " + self.fields['acronym']
@@ -1601,52 +1694,56 @@ class User(ConfigurationObject):
     def __str__(self):
         string = "\nUtilisateur :"
         for field in self.fields:
-            string = string + "\n" + field + " : " + unicode(self.fields[field])
+            string = string + "\n" + field + \
+                " : " + unicode(self.fields[field])
         return string + "\n"
-	
-    def checkPassword(self,password):
-	return self.fields['password']==password
-	
+
+    def checkPassword(self, password):
+        return self.fields['password'] == password
+
     def get_type(self):
-	return 'u'
+        return 'u'
 
     def get_name_listing(self):
-	return 'users'
-	
+        return 'users'
+
     def get_name(self):
-	return 'user'
-    
-    def validate_form(self, data, configuration, lang) :
-	tmp = super(User,self).validate_form(data, configuration, lang)
-	if tmp is True:
-	    tmp = ''
-	if tmp is True:
-	    tmp = ''
-	if data['password'] == '' or len(data['password'])<8:
-	    tmp += configuration.AllMessages.elements['passwordrules'].getName(lang) + '\n'	    
-	
-	if tmp == '':
-	    return True
-	return tmp
-	
-    def set_value_from_data(self, data, c,user):
-	super(User,self).set_value_from_data(data, c,user)
-	tmp = ['phone', 'mail','language']
-	for elem in tmp:
-	    self.fields[elem] = data[elem]
-	self.fields['registration'] = self.created
-	self.fields['password'] = useful.encrypt(data['password'],self.fields['registration'])
-	self.fields['gf_id'] = data['group']
-	self.save(c,user)
-	
+        return 'user'
+
+    def validate_form(self, data, configuration, lang):
+        tmp = super(User, self).validate_form(data, configuration, lang)
+        if tmp is True:
+            tmp = ''
+        if tmp is True:
+            tmp = ''
+        if data['password'] == '' or len(data['password']) < 8:
+            tmp += configuration.AllMessages.elements['passwordrules'].getName(
+                lang) + '\n'
+
+        if tmp == '':
+            return True
+        return tmp
+
+    def set_value_from_data(self, data, c, user):
+        super(User, self).set_value_from_data(data, c, user)
+        tmp = ['phone', 'mail', 'language']
+        for elem in tmp:
+            self.fields[elem] = data[elem]
+        self.fields['registration'] = self.created
+        self.fields['password'] = useful.encrypt(
+            data['password'], self.fields['registration'])
+        self.fields['gf_id'] = data['group']
+        self.save(c, user)
+
     def get_group(self):
-	return self.fields['gf_id']
+        return self.fields['gf_id']
+
 
 class Equipment(ConfigurationObject):
 
-    def __init__(self,config):
-	ConfigurationObject.__init__(self)
-	self.config = config
+    def __init__(self, config):
+        ConfigurationObject.__init__(self)
+        self.config = config
 
     def __repr__(self):
         string = unicode(self.id) + " " + self.fields['acronym']
@@ -1657,43 +1754,44 @@ class Equipment(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
-	
+
     def get_type(self):
-	return 'e'
-	
+        return 'e'
+
     def getID(self):
-	return self.fields['e_id']
-	
+        return self.fields['e_id']
+
     def get_name_listing(self):
-	return 'equipments'
-	
+        return 'equipments'
+
     def get_name(self):
-	return 'equipment'
-	
+        return 'equipment'
+
     def get_sensors_in_component(self, config):
-	listSensor = []
-	for k, sensor in config.AllSensors.elements.items():
-	    if sensor.is_in_component('e',self.id):
-		listSensor.append(k)
-	return listSensor
-	
+        listSensor = []
+        for k, sensor in config.AllSensors.elements.items():
+            if sensor.is_in_component('e', self.id):
+                listSensor.append(k)
+        return listSensor
+
     def validate_form(self, data, configuration, lang):
-	return super(Equipment,self).validate_form(data, configuration, lang)	
-	
-    def set_value_from_data(self, data, c,user):
-	super(Equipment,self).set_value_from_data(data, c,user)
-	self.fields['colorgraph'] = data['colorgraph']
-	self.fields['gu_id'] = data['group']
-	self.save(c,user)
-	
+        return super(Equipment, self).validate_form(data, configuration, lang)
+
+    def set_value_from_data(self, data, c, user):
+        super(Equipment, self).set_value_from_data(data, c, user)
+        self.fields['colorgraph'] = data['colorgraph']
+        self.fields['gu_id'] = data['group']
+        self.save(c, user)
+
     def get_group(self):
-	return self.fields['gu_id']
+        return self.fields['gu_id']
+
 
 class Container(ConfigurationObject):
 
     def __init__(self, config):
-	ConfigurationObject.__init__(self)
-	self.config = config
+        ConfigurationObject.__init__(self)
+        self.config = config
 
     def __repr__(self):
         string = unicode(self.id) + " " + self.fields['acronym']
@@ -1704,40 +1802,41 @@ class Container(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
-	
+
     def get_type(self):
-	return 'c'
-	
+        return 'c'
+
     def get_name_listing(self):
-	return 'containers'
-	
+        return 'containers'
+
     def get_name(self):
-	return 'container'
-	
+        return 'container'
+
     def get_sensors_in_component(self, config):
-	listSensor = []
-	for k, sensor in config.AllSensors.elements.items():
-	    if sensor.is_in_component('c',self.id):
-		listSensor.append(k)
-	return listSensor
-	
+        listSensor = []
+        for k, sensor in config.AllSensors.elements.items():
+            if sensor.is_in_component('c', self.id):
+                listSensor.append(k)
+        return listSensor
+
     def validate_form(self, data, configuration, lang):
-	return super(Container,self).validate_form(data, configuration, lang)	
-	
-    def set_value_from_data(self, data, c,user):
-	super(Container,self).set_value_from_data(data, c,user)
-	self.fields['colorgraph'] = data['colorgraph']
-	self.fields['gu_id'] = data['group']
-	self.save(c,user)
-	
+        return super(Container, self).validate_form(data, configuration, lang)
+
+    def set_value_from_data(self, data, c, user):
+        super(Container, self).set_value_from_data(data, c, user)
+        self.fields['colorgraph'] = data['colorgraph']
+        self.fields['gu_id'] = data['group']
+        self.save(c, user)
+
     def get_group(self):
-	return self.fields['gu_id']
-	
+        return self.fields['gu_id']
+
+
 class ManualData(ConfigurationObject):
 
     def __init__(self):
-	ConfigurationObject.__init__(self)
-	self.id = str(self.id)
+        ConfigurationObject.__init__(self)
+        self.id = str(self.id)
 
     def __repr__(self):
         string = unicode(self.id)
@@ -1748,83 +1847,91 @@ class ManualData(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
-	
+
     def get_type(self):
-	return 'd'
-	
+        return 'd'
+
     def get_name_listing(self):
-	return 'manualdata'
-	
+        return 'manualdata'
+
     def add_component(self, component):
-	type = component.split('_')[0]
-	id = component.split('_')[1]
-	self.fields['object_id'] = id
-	self.fields['object_type'] = type
-	
+        type = component.split('_')[0]
+        id = component.split('_')[1]
+        self.fields['object_id'] = id
+        self.fields['object_type'] = type
+
     def add_measure(self, measure):
-	if not measure =='None':
-	    self.fields['m_id'] = str(measure)
-	else:
-	    self.fields['m_id'] = ''
-	
-    def validate_form(self, data, configuration, lang) :
-	tmp = ''
-	try:
-	    value = useful.transform_date(data['time'])
-	except:
-	    traceback.print_exc()
-	    tmp += configuration.AllMessages.elements['timerules'].getName(lang) + '\n'
-	
-	if 'value' in data and data['measure'] == u'None':
-	    if not data['value'] == '' :
-		tmp += configuration.AllMessages.elements['datarules'].getName(lang) + '\n'
-	elif 'value' in data:
-	    try : 
-		value = float(data['value'])
-	    except:
-		tmp += configuration.AllMessages.elements['floatrules'].getName(lang) + ' '+data['value']+'\n'
-	try:
-	    aType = data['component'].split('_')[0]
-	    anId = data['component'].split('_')[1]
-	    if not configuration.is_component(aType):
-		tmp += configuration.AllMessages.elements['componentrules'].getName(lang) + ' '+data['component']+'\n'
-	except:
-	    tmp += configuration.AllMessages.elements['componentrules'].getName(lang) + '\n'
-		    
-	if tmp == '':
-	    return True
-	return tmp
-	
-    def set_value_from_data(self, data, c,user):
-	if self.fields['object_type'] != '' and self.fields['object_id'] != '' :
-	    c.findAllFromType(self.fields['object_type']).elements[self.fields['object_id']].remove_data(self)
-	tmp = ['time', 'value', 'remark']
-	for elem in tmp:
-	    self.fields[elem] = data[elem]
-	self.add_component(data['component'])
-	self.add_measure(data['measure'])
-	if 'h_id' in data :
-	    self.fields['h_id'] = data['h_id']
-	else :
-	    self.fields['h_id'] = ''
-        if 'active' in data :
-	    self.fields['active'] = '1'
-	else :
-	    self.fields['active'] = '0'
-	if self.fields['active'] == '1' :
-	    c.findAllFromType(self.fields['object_type']).elements[self.fields['object_id']].add_data(self)
-	else:
-	    c.findAllFromType(self.fields['object_type']).elements[self.fields['object_id']].remove_data(self)
-	self.save(c,user)
-	
-	
+        if not measure == 'None':
+            self.fields['m_id'] = str(measure)
+        else:
+            self.fields['m_id'] = ''
+
+    def validate_form(self, data, configuration, lang):
+        tmp = ''
+        try:
+            value = useful.transform_date(data['time'])
+        except:
+            traceback.print_exc()
+            tmp += configuration.AllMessages.elements['timerules'].getName(
+                lang) + '\n'
+
+        if 'value' in data and data['measure'] == u'None':
+            if not data['value'] == '':
+                tmp += configuration.AllMessages.elements['datarules'].getName(
+                    lang) + '\n'
+        elif 'value' in data:
+            try:
+                value = float(data['value'])
+            except:
+                tmp += configuration.AllMessages.elements['floatrules'].getName(
+                    lang) + ' '+data['value']+'\n'
+        try:
+            aType = data['component'].split('_')[0]
+            anId = data['component'].split('_')[1]
+            if not configuration.is_component(aType):
+                tmp += configuration.AllMessages.elements['componentrules'].getName(
+                    lang) + ' '+data['component']+'\n'
+        except:
+            tmp += configuration.AllMessages.elements['componentrules'].getName(
+                lang) + '\n'
+
+        if tmp == '':
+            return True
+        return tmp
+
+    def set_value_from_data(self, data, c, user):
+        if self.fields['object_type'] != '' and self.fields['object_id'] != '':
+            c.findAllFromType(
+                self.fields['object_type']).elements[self.fields['object_id']].remove_data(self)
+        tmp = ['time', 'value', 'remark']
+        for elem in tmp:
+            self.fields[elem] = data[elem]
+        self.add_component(data['component'])
+        self.add_measure(data['measure'])
+        if 'h_id' in data:
+            self.fields['h_id'] = data['h_id']
+        else:
+            self.fields['h_id'] = ''
+        if 'active' in data:
+            self.fields['active'] = '1'
+        else:
+            self.fields['active'] = '0'
+        if self.fields['active'] == '1':
+            c.findAllFromType(
+                self.fields['object_type']).elements[self.fields['object_id']].add_data(self)
+        else:
+            c.findAllFromType(
+                self.fields['object_type']).elements[self.fields['object_id']].remove_data(self)
+        self.save(c, user)
+
     def get_name(self):
-	return 'manualdata'
-	
+        return 'manualdata'
+
+
 class Pouring(ConfigurationObject):
     def __init__(self):
-	ConfigurationObject.__init__(self)
-	self.id = str(self.id)
+        ConfigurationObject.__init__(self)
+        self.id = str(self.id)
 
     def __repr__(self):
         string = unicode(self.id)
@@ -1835,83 +1942,90 @@ class Pouring(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
-	
+
     def get_type(self):
-	return 'v'
-	
+        return 'v'
+
     def get_name_listing(self):
-	return 'pouring'
-	
+        return 'pouring'
+
     def add_measure(self, measure):
-	tmp = measure.split('_')
-	self.fields['m_id']= tmp[-1]
-	
-	
-    def validate_form(self, data, configuration, lang) :
-	tmp = ''
-	try:
-	    value = useful.transform_date(data['time'])
-	except:
-	    tmp += configuration.AllMessages.elements['timerules'].getName(lang) + '\n'
-	try : 
-	    value = float(data['quantity'])
-	except:
-	    tmp += configuration.AllMessages.elements['floatrules'].getName(lang) + '\n'
-	try:
-	    b_id = data['src']
-	    if not b_id in configuration.AllBatches.elements.keys():
-		tmp += configuration.AllMessages.elements['batchrules1'].getName(lang) + '\n'
-	except:
-	    tmp += configuration.AllMessages.elements['batchrules1'].getName(lang) + '\n'
-	try:
-	    b_id = data['dest']
-	    if not b_id in configuration.AllBatches.elements.keys():
-		tmp += configuration.AllMessages.elements['batchrules2'].getName(lang) + '\n'
-	except:
-	    tmp += configuration.AllMessages.elements['batchrules2'].getName(lang) + '\n'
-	if data['src'] == data['dest']:
-	    tmp += configuration.AllMessages.elements['batchrules3'].getName(lang) + '\n'
-	
-	if tmp == '':
-	    return True
-	return tmp
-	
-    def set_value_from_data(self, data, c,user):
-	if self.fields['src'] != '' and self.fields['dest'] != '' :
-	    c.AllBatches.elements[self.fields['src']].remove_source(self)
-	    c.AllBatches.elements[self.fields['dest']].remove_destination(self)
-	tmp = ['time', 'remark', 'src', 'dest', 'quantity' ]
-	for elem in tmp:
-	    self.fields[elem] = data[elem]
-	self.fields['m_id'] = c.AllBatches.elements[data['src']].fields['m_id']
-	if 'h_id' in data :
-	    self.fields['h_id'] = data['h_id']
-	else :
-	    self.fields['h_id'] = ''
-        if 'active' in data :
-	    self.fields['active'] = '1'
-	else :
-	    self.fields['active'] = '0'
-	if self.fields['active'] == '1' :
-	    c.AllBatches.elements[data['src']].add_source(self)
-	    c.AllBatches.elements[data['dest']].add_destination(self)
-	else:
-	    c.AllBatches.elements[data['src']].remove_source(self)
-	    c.AllBatches.elements[data['dest']].remove_destination(self)
-	self.save(c,user)
-	
+        tmp = measure.split('_')
+        self.fields['m_id'] = tmp[-1]
+
+    def validate_form(self, data, configuration, lang):
+        tmp = ''
+        try:
+            value = useful.transform_date(data['time'])
+        except:
+            tmp += configuration.AllMessages.elements['timerules'].getName(
+                lang) + '\n'
+        try:
+            value = float(data['quantity'])
+        except:
+            tmp += configuration.AllMessages.elements['floatrules'].getName(
+                lang) + '\n'
+        try:
+            b_id = data['src']
+            if not b_id in configuration.AllBatches.elements.keys():
+                tmp += configuration.AllMessages.elements['batchrules1'].getName(
+                    lang) + '\n'
+        except:
+            tmp += configuration.AllMessages.elements['batchrules1'].getName(
+                lang) + '\n'
+        try:
+            b_id = data['dest']
+            if not b_id in configuration.AllBatches.elements.keys():
+                tmp += configuration.AllMessages.elements['batchrules2'].getName(
+                    lang) + '\n'
+        except:
+            tmp += configuration.AllMessages.elements['batchrules2'].getName(
+                lang) + '\n'
+        if data['src'] == data['dest']:
+            tmp += configuration.AllMessages.elements['batchrules3'].getName(
+                lang) + '\n'
+
+        if tmp == '':
+            return True
+        return tmp
+
+    def set_value_from_data(self, data, c, user):
+        if self.fields['src'] != '' and self.fields['dest'] != '':
+            c.AllBatches.elements[self.fields['src']].remove_source(self)
+            c.AllBatches.elements[self.fields['dest']].remove_destination(self)
+        tmp = ['time', 'remark', 'src', 'dest', 'quantity']
+        for elem in tmp:
+            self.fields[elem] = data[elem]
+        self.fields['m_id'] = c.AllBatches.elements[data['src']].fields['m_id']
+        if 'h_id' in data:
+            self.fields['h_id'] = data['h_id']
+        else:
+            self.fields['h_id'] = ''
+        if 'active' in data:
+            self.fields['active'] = '1'
+        else:
+            self.fields['active'] = '0'
+        if self.fields['active'] == '1':
+            c.AllBatches.elements[data['src']].add_source(self)
+            c.AllBatches.elements[data['dest']].add_destination(self)
+        else:
+            c.AllBatches.elements[data['src']].remove_source(self)
+            c.AllBatches.elements[data['dest']].remove_destination(self)
+        self.save(c, user)
+
     def get_name(self):
-	return 'pouring'
-	
+        return 'pouring'
+
+
 class Group(ConfigurationObject):
     def __init__(self, config):
-	ConfigurationObject.__init__(self)
-	self.classes = {}
-	self.groups = {}
-	self.config = config
-	self.parents = []
-	self.children = []
-	self.related = []
+        ConfigurationObject.__init__(self)
+        self.classes = {}
+        self.groups = {}
+        self.config = config
+        self.parents = []
+        self.children = []
+        self.related = []
 
     def __repr__(self):
         string = unicode(self.id) + " " + self.fields['acronym']
@@ -1922,250 +2036,256 @@ class Group(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
-	
+
     def get_type(self):
-	return 'g'
-	
+        return 'g'
+
     def containsGroup(self, oGroup):
-	if len(self.groups) >0:
-	    for k,v in self.groups.items():
-		if self.keyColumn in oGroup.fields.keys():
-		    if k == oGroup.fields[self.keyColumn] :
-			return True
-		elif v.containsGroup(oGroup):
-		    return True
-	return False
-	    
+        if len(self.groups) > 0:
+            for k, v in self.groups.items():
+                if self.keyColumn in oGroup.fields.keys():
+                    if k == oGroup.fields[self.keyColumn]:
+                        return True
+                elif v.containsGroup(oGroup):
+                    return True
+        return False
+
     def get_name_listing(self):
-	return 'groups'
-	
+        return 'groups'
+
     def validate_form(self, data, configuration, lang):
-	tmp = super(Group,self).validate_form(data, configuration, lang)	
-	if tmp is True:
-	    tmp = ''
-	for k,v in configuration.findAllFromObject(self).elements.items():
-	    if k in data:
-		if self.getID() in v.parents or self.getID() in v.siblings:
-		    tmp += configuration.AllMessages.elements['grouprules'].getName(lang) + '\n'
-		    return tmp
-	if tmp == '':
-	    return True
-	return tmp
-	
-    def set_value_from_data(self, data, c,user):
-	super(Group,self).set_value_from_data(data, c,user)
-	self.parents = []
-	self.children = []
-	self.siblings = []
-	for a in self.related:
-	    if a not in data:
-		self.write_group(a,c,user,'1')
-		self.related.remove(a)
-	for k in c.findAllFromObject(self).elements.keys():
-	    if k in data and k not in self.related:
-		self.related.append(k)
-		self.write_group(k,c,user,'0')
-	c.findAllFromObject(self).load_family()
-	
+        tmp = super(Group, self).validate_form(data, configuration, lang)
+        if tmp is True:
+            tmp = ''
+        for k, v in configuration.findAllFromObject(self).elements.items():
+            if k in data:
+                if self.getID() in v.parents or self.getID() in v.siblings:
+                    tmp += configuration.AllMessages.elements['grouprules'].getName(
+                        lang) + '\n'
+                    return tmp
+        if tmp == '':
+            return True
+        return tmp
+
+    def set_value_from_data(self, data, c, user):
+        super(Group, self).set_value_from_data(data, c, user)
+        self.parents = []
+        self.children = []
+        self.siblings = []
+        for a in self.related:
+            if a not in data:
+                self.write_group(a, c, user, '1')
+                self.related.remove(a)
+        for k in c.findAllFromObject(self).elements.keys():
+            if k in data and k not in self.related:
+                self.related.append(k)
+                self.write_group(k, c, user, '0')
+        c.findAllFromObject(self).load_family()
+
     def write_group(self, parentid, configuration, user, active):
-  	with open(configuration.findAllFromObject(self).csvRelations,"a") as csvfile:
-  	    tmpCode={}
-	    tmpCode['begin'] = useful.now()
-	    tmpCode['parent_id'] = parentid
-	    tmpCode['child_id'] = self.getID()
-	    tmpCode["user"] = user.fields['u_id']
-	    tmpCode['active'] = active
-	    writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames = configuration.findAllFromObject(self).fieldrelations, encoding="utf-8")
-	    writer.writerow(tmpCode)
-	
+        with open(configuration.findAllFromObject(self).csvRelations, "a") as csvfile:
+            tmpCode = {}
+            tmpCode['begin'] = useful.now()
+            tmpCode['parent_id'] = parentid
+            tmpCode['child_id'] = self.getID()
+            tmpCode["user"] = user.fields['u_id']
+            tmpCode['active'] = active
+            writer = unicodecsv.DictWriter(csvfile, delimiter='\t', fieldnames=configuration.findAllFromObject(
+                self).fieldrelations, encoding="utf-8")
+            writer.writerow(tmpCode)
+
     def get_group(self):
-	return self.related
-	
+        return self.related
+
     def get_parents(self):
-	return self.parents
-	
+        return self.parents
+
     def get_children(self):
-	return self.children
-	
+        return self.children
+
     def get_siblings(self):
-	return self.siblings
-    
+        return self.siblings
+
     def add_parent(self, parent):
-	if not parent.getID() in self.parents:
-	    self.parents.append(parent.getID())
-	    
+        if not parent.getID() in self.parents:
+            self.parents.append(parent.getID())
+
     def remove_parent(self, exparent):
-	self.parents.remove(exparent.getID())
-	    
+        self.parents.remove(exparent.getID())
+
     def add_child(self, child):
-	if not child.getID() in self.children:
-	    self.children.append(child.getID())
-	    
+        if not child.getID() in self.children:
+            self.children.append(child.getID())
+
     def remove_child(self, exchild):
-	self.children.remove(exchild.getID())
-    
+        self.children.remove(exchild.getID())
+
     def add_relation(self, group):
-	if not group.getID() in self.related:
-	    self.related.append(group.getID())
-    
+        if not group.getID() in self.related:
+            self.related.append(group.getID())
+
     def remove_relation(self, group):
-	self.related.remove(group.getID())
-	
-    def load_parents(self, group = None):
-	if group == None:
-	    group = self
-	    self.parents = []
-	for i in self.related:
-	    if i not in self.parents:
-		self.parents.append(i)
-		self.config.findAllFromType(self.get_type()).elements[i].load_parents()
-	    else :
-		print "Error Group : GROUPE EN RELATION CIRCLAIRE"
-		
-    def load_children(self, g = None):
-	if g == None:
-	    g = self
-	for k, group in self.config.findAllFromType(self.get_type()).elements.items():
-	    if self.getID() in group.related:
-		if group.getID() not in g.children:
-		    g.add_child(group)
-		    group.load_children(g)
-		else:
-		    print "Error Group : GROUPE EN RELATION CIRCLAIRE"
-		    
+        self.related.remove(group.getID())
+
+    def load_parents(self, group=None):
+        if group == None:
+            group = self
+            self.parents = []
+        for i in self.related:
+            if i not in self.parents:
+                self.parents.append(i)
+                self.config.findAllFromType(
+                    self.get_type()).elements[i].load_parents()
+            else:
+                print "Error Group : GROUPE EN RELATION CIRCLAIRE"
+
+    def load_children(self, g=None):
+        if g == None:
+            g = self
+        for k, group in self.config.findAllFromType(self.get_type()).elements.items():
+            if self.getID() in group.related:
+                if group.getID() not in g.children:
+                    g.add_child(group)
+                    group.load_children(g)
+                else:
+                    print "Error Group : GROUPE EN RELATION CIRCLAIRE"
+
     def load_siblings(self):
-	for k,group in self.config.findAllFromType(self.get_type()).elements.items():
-	    for rel in group.related:
-		if rel in self.related and k != self.getID():
-		    self.siblings.append(k)
-		    
-    def get_all_parents(self,parents = None):
-	if parents == None:
-	    parents = []
-	for e in self.parents:
-	    parents.append(e)
-	    self.config.findAllFromType(self.get_type()).elements[e].get_all_parents(parents)
-	return parents
-	    
+        for k, group in self.config.findAllFromType(self.get_type()).elements.items():
+            for rel in group.related:
+                if rel in self.related and k != self.getID():
+                    self.siblings.append(k)
+
+    def get_all_parents(self, parents=None):
+        if parents == None:
+            parents = []
+        for e in self.parents:
+            parents.append(e)
+            self.config.findAllFromType(
+                self.get_type()).elements[e].get_all_parents(parents)
+        return parents
+
+
 class GrUsage(Group):
-    def __init__(self,config):
-	Group.__init__(self,config)
-	self.keyColumn = 'gu_id'
-	
+    def __init__(self, config):
+        Group.__init__(self, config)
+        self.keyColumn = 'gu_id'
+
     def get_type(self):
-	return 'gu'
-		
+        return 'gu'
+
     def get_name(self):
-	return 'guse'
-	
+        return 'guse'
+
     def validate_form(self, data, configuration, lang):
-	tmp = Group.validate_form(self, data, configuration, lang)	
-	if tmp == '':
-	    return True
-	return tmp
-	
-    def set_value_from_data(self, data, c,user):
-	super(GrUsage,self).set_value_from_data(data, c,user)
-	self.save(c,user)
-	
+        tmp = Group.validate_form(self, data, configuration, lang)
+        if tmp == '':
+            return True
+        return tmp
+
+    def set_value_from_data(self, data, c, user):
+        super(GrUsage, self).set_value_from_data(data, c, user)
+        self.save(c, user)
+
+
 class CheckPoint(Group):
-    def __init__(self,config):
-	Group.__init__(self,config)
-	self.keyColumn = 'h_id'
-	self.tm = []
-	self.vm = []
-	self.dm = []
-	
+    def __init__(self, config):
+        Group.__init__(self, config)
+        self.keyColumn = 'h_id'
+        self.tm = []
+        self.vm = []
+        self.dm = []
+
     def get_type(self):
-	return 'h'
-		
+        return 'h'
+
     def get_name(self):
-	return 'checkpoint'
-	
+        return 'checkpoint'
+
     def validate_form(self, data, configuration, lang):
-	tmp = Group.validate_form(self, data, configuration, lang)	
-	if tmp == '':
-	    return True
-	return tmp
-	
-    def set_value_from_data(self, data, c,user):
-	super(CheckPoint,self).set_value_from_data(data, c,user)
-	self.fields['gr_id'] = data['recipe']
-	self.fields['gu_id'] = data['usage']
-	self.fields['rank'] = data['rank']
-	if 'abstract' in data :
-	    self.fields['abstract'] = '1'
-	else :
-	    self.fields['abstract'] = '0'
-	self.save(c,user)
-	
+        tmp = Group.validate_form(self, data, configuration, lang)
+        if tmp == '':
+            return True
+        return tmp
+
+    def set_value_from_data(self, data, c, user):
+        super(CheckPoint, self).set_value_from_data(data, c, user)
+        self.fields['gr_id'] = data['recipe']
+        self.fields['gu_id'] = data['usage']
+        self.fields['rank'] = data['rank']
+        if 'abstract' in data:
+            self.fields['abstract'] = '1'
+        else:
+            self.fields['abstract'] = '0'
+        self.save(c, user)
+
     def remove_tm(self, model):
-	if model.fields['tm_id'] in self.tm:
-	    self.tm.remove(model.fields['tm_id'])
-	    
-    def add_tm(self,model):
-	self.remove_tm(model)
-	if len(self.tm) == 0:
-	    self.tm.append(model.getID())
-	else:
-	    rank = int(model.fields['rank'])
-	    insert = False
-	    for i in range(len(self.tm)):
-		tmp = self.config.AllTransferModels.elements[self.tm[i]]
-		tmprank = int(tmp.fields['rank'])
-		if rank < tmprank:
-		    insert = True
-		    self.tm.insert(i,model.getID())
-		    break
-	    if insert is False:
-		self.tm.append(tm.getID())	    
-    
+        if model.fields['tm_id'] in self.tm:
+            self.tm.remove(model.fields['tm_id'])
+
+    def add_tm(self, model):
+        self.remove_tm(model)
+        if len(self.tm) == 0:
+            self.tm.append(model.getID())
+        else:
+            rank = int(model.fields['rank'])
+            insert = False
+            for i in range(len(self.tm)):
+                tmp = self.config.AllTransferModels.elements[self.tm[i]]
+                tmprank = int(tmp.fields['rank'])
+                if rank < tmprank:
+                    insert = True
+                    self.tm.insert(i, model.getID())
+                    break
+            if insert is False:
+                self.tm.append(tm.getID())
+
     def remove_dm(self, model):
-	if model.fields['dm_id'] in self.dm:
-	    self.dm.remove(model.fields['dm_id'])
-	    
-    def add_dm(self,model):
-	self.remove_dm(model)
-	if len(self.dm) == 0:
-	    self.dm.append(model.getID())
-	else:
-	    rank = int(model.fields['rank'])
-	    insert = False
-	    for i in range(len(self.dm)):
-		dmp = self.config.AllManualDataModels.elements[self.dm[i]]
-		dmprank = int(dmp.fields['rank'])
-		if rank < dmprank:
-		    insert = True
-		    self.dm.insert(i,model.getID())
-		    break
-	    if insert is False:
-		self.dm.append(dm.getID())
-    
+        if model.fields['dm_id'] in self.dm:
+            self.dm.remove(model.fields['dm_id'])
+
+    def add_dm(self, model):
+        self.remove_dm(model)
+        if len(self.dm) == 0:
+            self.dm.append(model.getID())
+        else:
+            rank = int(model.fields['rank'])
+            insert = False
+            for i in range(len(self.dm)):
+                dmp = self.config.AllManualDataModels.elements[self.dm[i]]
+                dmprank = int(dmp.fields['rank'])
+                if rank < dmprank:
+                    insert = True
+                    self.dm.insert(i, model.getID())
+                    break
+            if insert is False:
+                self.dm.append(dm.getID())
+
     def remove_vm(self, model):
-	if model.fields['vm_id'] in self.vm:
-	    self.vm.remove(model.fields['vm_id'])
-	    
-    def add_vm(self,model):
-	self.remove_vm(model)
-	if len(self.vm) == 0:
-	    self.vm.append(model.getID())
-	else:
-	    rank = int(model.fields['rank'])
-	    insert = False
-	    for i in range(len(self.vm)):
-		vmp = self.config.AllPouringModels.elements[self.vm[i]]
-		vmprank = int(vmp.fields['rank'])
-		if rank < vmprank:
-		    insert = True
-		    self.vm.insert(i,model.getID())
-		    break
-	    if insert is False:
-		self.vm.append(vm.getID())
-    
+        if model.fields['vm_id'] in self.vm:
+            self.vm.remove(model.fields['vm_id'])
+
+    def add_vm(self, model):
+        self.remove_vm(model)
+        if len(self.vm) == 0:
+            self.vm.append(model.getID())
+        else:
+            rank = int(model.fields['rank'])
+            insert = False
+            for i in range(len(self.vm)):
+                vmp = self.config.AllPouringModels.elements[self.vm[i]]
+                vmprank = int(vmp.fields['rank'])
+                if rank < vmprank:
+                    insert = True
+                    self.vm.insert(i, model.getID())
+                    break
+            if insert is False:
+                self.vm.append(vm.getID())
+
     def get_model_sorted(self):
-	listdm = self.get_hierarchy_dm()
-	listvm = self.get_hierarchy_vm()
-	listtm = self.get_hierarchy_tm()
+        listdm = self.get_hierarchy_dm()
+        listvm = self.get_hierarchy_vm()
+        listtm = self.get_hierarchy_tm()
         tmp = []
         for e in listdm:
             tmp.append(self.config.AllManualDataModels.elements[e])
@@ -2173,182 +2293,190 @@ class CheckPoint(Group):
             tmp.append(self.config.AllPouringModels.elements[e])
         for e in listtm:
             tmp.append(self.config.AllTransferModels.elements[e])
-	tmp.sort(key=lambda x: int(x.fields['rank']), reverse=False)
+        tmp.sort(key=lambda x: int(x.fields['rank']), reverse=False)
         return tmp
-	
-    def validate_control(self,data, lang):
-	model = self.get_model_sorted()
-	countdm = 1
-	countvm = 1
-	counttm = 1
-	tmp = ''
-	try:
-	    value = useful.transform_date(data['time'])
-	except:
-	    traceback.print_exc()
-	    tmp += self.config.AllMessages.elements['timerules'].getName(lang) + '\n'
-	for m in model:
-	    type = m.get_type()
-	    if type == 'dm':
-		try:
-		    value = float(data['dm_value_'+str(countdm)])
-		except:
-		    tmp += self.config.AllMessages.elements['floatrules'].getName(lang) + ' '+data['dm_value_'+str(countdm)]+'\n'
-		countdm += 1
-	    elif type == 'vm' :
-		try:
-		    value = float(data['vm_quantity_'+str(countvm)])
-		except:
-		    tmp += self.config.AllMessages.elements['floatrules'].getName(lang) + ' '+data['vm_quantity_'+str(countvm)]+'\n'
-		countvm += 1
-	if tmp == '' :
-	    return True
-	return tmp
-    
+
+    def validate_control(self, data, lang):
+        model = self.get_model_sorted()
+        countdm = 1
+        countvm = 1
+        counttm = 1
+        tmp = ''
+        try:
+            value = useful.transform_date(data['time'])
+        except:
+            traceback.print_exc()
+            tmp += self.config.AllMessages.elements['timerules'].getName(
+                lang) + '\n'
+        for m in model:
+            type = m.get_type()
+            if type == 'dm':
+                try:
+                    value = float(data['dm_value_'+str(countdm)])
+                except:
+                    tmp += self.config.AllMessages.elements['floatrules'].getName(
+                        lang) + ' '+data['dm_value_'+str(countdm)]+'\n'
+                countdm += 1
+            elif type == 'vm':
+                try:
+                    value = float(data['vm_quantity_'+str(countvm)])
+                except:
+                    tmp += self.config.AllMessages.elements['floatrules'].getName(
+                        lang) + ' '+data['vm_quantity_'+str(countvm)]+'\n'
+                countvm += 1
+        if tmp == '':
+            return True
+        return tmp
+
     def create_control(self, data, user):
-	model = self.get_model_sorted()
-	countdm = 1
-	countvm = 1
-	counttm = 1
-	for m in model:
-	    type = m.get_type()
-	    currObject = self.config.getObject('new', type[0])
-	    if type == 'dm':
-		tmp = self.create_data(data,type, countdm)
-		countdm += 1
-	    elif type == 'tm' :
-		tmp = self.create_data(data,type, counttm)
-		counttm += 1
-	    elif type == 'vm' :
-		tmp = self.create_data(data,type, countvm)
-		countvm += 1
-	    currObject.set_value_from_data(tmp,self.config,user)
-	type = data['batch'].split('_')[0]
-	id = data['batch'].split('_')[1]
-	self.write_control( type, id, user)
-	self.config.findAllFromType(type).elements[id].add_checkpoint(self.getID())
-		
+        model = self.get_model_sorted()
+        countdm = 1
+        countvm = 1
+        counttm = 1
+        for m in model:
+            type = m.get_type()
+            currObject = self.config.getObject('new', type[0])
+            if type == 'dm':
+                tmp = self.create_data(data, type, countdm)
+                countdm += 1
+            elif type == 'tm':
+                tmp = self.create_data(data, type, counttm)
+                counttm += 1
+            elif type == 'vm':
+                tmp = self.create_data(data, type, countvm)
+                countvm += 1
+            currObject.set_value_from_data(tmp, self.config, user)
+        type = data['batch'].split('_')[0]
+        id = data['batch'].split('_')[1]
+        self.write_control(type, id, user)
+        self.config.findAllFromType(
+            type).elements[id].add_checkpoint(self.getID())
+
     def create_data(self, data, type, count):
-	batch = data['batch']
-	time = data['time']
-	tmp = {}
-	tmp['time'] = time
-	tmp['active'] = '1'
-	tmp['h_id'] = self.getID()
-	if type == 'dm':
-	    tmp['component'] = batch
-	    tmp['remark'] = data['dm_remark_'+str(count)]
-	    tmp['measure'] = data['dm_measure_'+str(count)]
-	    tmp['value'] = data['dm_value_'+str(count)]
-	elif type == 'tm' :
-	    tmp['object'] = batch
-	    tmp['position'] = data['tm_position_'+str(count)]
-	    tmp['remark'] = data['tm_remark_'+str(count)]
-	elif type == 'vm' :
-	    if 'vm_src_'+str(count) in data :
-		tmp['src'] = data['vm_src_'+str(count)]
-		tmp['dest'] = batch.split('_')[1]
-	    else :
-		tmp['dest'] = data['vm_dest_'+str(count)]
-		tmp['src'] = batch.split('_')[1]
-	    tmp['quantity'] = data['vm_quantity_'+str(count)]
-	    tmp['remark'] = data['tm_remark_'+str(count)]
-	return tmp
-    
-    def write_control(self, type,id, user):
-  	with open(self.config.findAllFromObject(self).csvControls,"a") as csvfile:
-  	    tmpCode={}
-	    tmpCode['begin'] = useful.now()
-	    tmpCode['h_id'] = self.getID()
-	    tmpCode['object_type'] = type
-	    tmpCode['object_id'] = id
-	    tmpCode["user"] = user.fields['u_id']
-	    writer = unicodecsv.DictWriter(csvfile, delimiter = '\t', fieldnames = self.config.findAllFromObject(self).fieldcontrols, encoding="utf-8")
-	    writer.writerow(tmpCode)
-	    
-    def get_hierarchy_dm(self, list= None, group = None):
-	if group == None:
-	    list = []
-	    group = self
-	for e in group.dm:
-	    list.append(e)
-	for e in group.parents:
-	    self.get_hierarchy_dm(list,self.config.AllCheckPoints.elements[e])
-	return list
-	
-    def get_hierarchy_tm(self, list= None, group = None):
-	if group == None:
-	    list = []
-	    group = self
-	for e in group.tm:
-	    list.append(e)
-	for e in group.parents:
-	    self.get_hierarchy_tm(list,self.config.AllCheckPoints.elements[e])
-	return list
-	
-    def get_hierarchy_vm(self, list= None, group = None):
-	if group == None:
-	    list = []
-	    group = self
-	for e in group.vm:
-	    list.append(e)
-	for e in group.parents:
-	    self.get_hierarchy_vm(list,self.config.AllCheckPoints.elements[e])
-	return list
-	
+        batch = data['batch']
+        time = data['time']
+        tmp = {}
+        tmp['time'] = time
+        tmp['active'] = '1'
+        tmp['h_id'] = self.getID()
+        if type == 'dm':
+            tmp['component'] = batch
+            tmp['remark'] = data['dm_remark_'+str(count)]
+            tmp['measure'] = data['dm_measure_'+str(count)]
+            tmp['value'] = data['dm_value_'+str(count)]
+        elif type == 'tm':
+            tmp['object'] = batch
+            tmp['position'] = data['tm_position_'+str(count)]
+            tmp['remark'] = data['tm_remark_'+str(count)]
+        elif type == 'vm':
+            if 'vm_src_'+str(count) in data:
+                tmp['src'] = data['vm_src_'+str(count)]
+                tmp['dest'] = batch.split('_')[1]
+            else:
+                tmp['dest'] = data['vm_dest_'+str(count)]
+                tmp['src'] = batch.split('_')[1]
+            tmp['quantity'] = data['vm_quantity_'+str(count)]
+            tmp['remark'] = data['tm_remark_'+str(count)]
+        return tmp
+
+    def write_control(self, type, id, user):
+        with open(self.config.findAllFromObject(self).csvControls, "a") as csvfile:
+            tmpCode = {}
+            tmpCode['begin'] = useful.now()
+            tmpCode['h_id'] = self.getID()
+            tmpCode['object_type'] = type
+            tmpCode['object_id'] = id
+            tmpCode["user"] = user.fields['u_id']
+            writer = unicodecsv.DictWriter(csvfile, delimiter='\t', fieldnames=self.config.findAllFromObject(
+                self).fieldcontrols, encoding="utf-8")
+            writer.writerow(tmpCode)
+
+    def get_hierarchy_dm(self, list=None, group=None):
+        if group == None:
+            list = []
+            group = self
+        for e in group.dm:
+            list.append(e)
+        for e in group.parents:
+            self.get_hierarchy_dm(list, self.config.AllCheckPoints.elements[e])
+        return list
+
+    def get_hierarchy_tm(self, list=None, group=None):
+        if group == None:
+            list = []
+            group = self
+        for e in group.tm:
+            list.append(e)
+        for e in group.parents:
+            self.get_hierarchy_tm(list, self.config.AllCheckPoints.elements[e])
+        return list
+
+    def get_hierarchy_vm(self, list=None, group=None):
+        if group == None:
+            list = []
+            group = self
+        for e in group.vm:
+            list.append(e)
+        for e in group.parents:
+            self.get_hierarchy_vm(list, self.config.AllCheckPoints.elements[e])
+        return list
+
+
 class GrRecipe(Group):
-    def __init__(self,config):
-	Group.__init__(self,config)
-	self.keyColumn = 'gr_id'
-	
+    def __init__(self, config):
+        Group.__init__(self, config)
+        self.keyColumn = 'gr_id'
+
     def get_type(self):
-	return 'gr'
-		
+        return 'gr'
+
     def get_name(self):
-	return 'grecipe'
-    
+        return 'grecipe'
+
     def validate_form(self, data, configuration, lang):
-	tmp = super(GrRecipe,self).validate_form(data, configuration, lang)	
-	if tmp == '':
-	    return True
-	return tmp
-	
-    def set_value_from_data(self, data, c,user):
-	super(GrRecipe,self).set_value_from_data(data, c,user)
-	self.save(c,user)
-	
+        tmp = super(GrRecipe, self).validate_form(data, configuration, lang)
+        if tmp == '':
+            return True
+        return tmp
+
+    def set_value_from_data(self, data, c, user):
+        super(GrRecipe, self).set_value_from_data(data, c, user)
+        self.save(c, user)
+
+
 class GrFunction(Group):
-    def __init__(self,config):
-	Group.__init__(self,config)
-	self.keyColumn = 'gf_id'
-	
+    def __init__(self, config):
+        Group.__init__(self, config)
+        self.keyColumn = 'gf_id'
+
     def get_type(self):
-	return 'gf'
-	
+        return 'gf'
+
     def get_user_group(self):
-	listusers=[]
-	for k,user in self.config.AllUsers.elements.items():
-	    if user.fields['gf_id'] in self.children or user.fields['gf_id'] == self.fields['gf_id']:
-		listusers.append(k)
-	return listusers
-		
+        listusers = []
+        for k, user in self.config.AllUsers.elements.items():
+            if user.fields['gf_id'] in self.children or user.fields['gf_id'] == self.fields['gf_id']:
+                listusers.append(k)
+        return listusers
+
     def get_name(self):
-	return 'gfunction'
-    
+        return 'gfunction'
+
     def validate_form(self, data, configuration, lang):
-	tmp = super(GrFunction,self).validate_form(data, configuration, lang)	
-	if tmp == '':
-	    return True
-	return tmp
-	
-    def set_value_from_data(self, data, c,user):
-	super(GrFunction,self).set_value_from_data(data, c,user)
-	self.save(c,user)
-	
+        tmp = super(GrFunction, self).validate_form(data, configuration, lang)
+        if tmp == '':
+            return True
+        return tmp
+
+    def set_value_from_data(self, data, c, user):
+        super(GrFunction, self).set_value_from_data(data, c, user)
+        self.save(c, user)
+
+
 class Piece(ConfigurationObject):
     def __init__(self, config):
-	ConfigurationObject.__init__(self)
-	self.config = config	
+        ConfigurationObject.__init__(self)
+        self.config = config
 
     def __repr__(self):
         string = unicode(self.id) + " " + self.fields['acronym']
@@ -2359,52 +2487,52 @@ class Piece(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
-	
+
     def get_type(self):
-	return 'p'
-	
+        return 'p'
+
     def get_name_listing(self):
-	return 'places'
-	
+        return 'places'
+
     def get_name(self):
-	return 'place'
-	
+        return 'place'
+
     def get_sensors_in_component(self, config):
-	listSensor = []
-	checklist = []
-	checklist.append(['p',self.id])
-	for k,v in config.AllEquipments.elements.items():
-	    transfer = v.get_actual_position()
-	    if transfer is not None: 
-		transfer = config.AllTransfers.elements[transfer]
-		if transfer.fields['cont_type'] == 'e'and  transfer.fields['cont_id'] == self.id:
-		    checklist.append(['e',k])
-	for k, sensor in config.AllSensors.elements.items():
-	    for comp,id in checklist:
-		if sensor.is_in_component(comp,id):
-		    listSensor.append(k)
-	return listSensor
-	
+        listSensor = []
+        checklist = []
+        checklist.append(['p', self.id])
+        for k, v in config.AllEquipments.elements.items():
+            transfer = v.get_actual_position()
+            if transfer is not None:
+                transfer = config.AllTransfers.elements[transfer]
+                if transfer.fields['cont_type'] == 'e'and transfer.fields['cont_id'] == self.id:
+                    checklist.append(['e', k])
+        for k, sensor in config.AllSensors.elements.items():
+            for comp, id in checklist:
+                if sensor.is_in_component(comp, id):
+                    listSensor.append(k)
+        return listSensor
+
     def validate_form(self, data, configuration, lang):
-	return super(Piece,self).validate_form(data, configuration, lang)	
-	
-    def set_value_from_data(self, data, c,user):
-	super(Piece,self).set_value_from_data(data, c,user)
-	self.fields['colorgraph'] = data['colorgraph']
-	self.fields['gu_id'] = data['group']
-	self.save(c,user)
-	
+        return super(Piece, self).validate_form(data, configuration, lang)
+
+    def set_value_from_data(self, data, c, user):
+        super(Piece, self).set_value_from_data(data, c, user)
+        self.fields['colorgraph'] = data['colorgraph']
+        self.fields['gu_id'] = data['group']
+        self.save(c, user)
+
     def get_group(self):
-	return self.fields['gu_id']
-	
-	
+        return self.fields['gu_id']
+
+
 class AlarmLog(ConfigurationObject):
 
     def __init__(self):
-	ConfigurationObject.__init__(self)	
+        ConfigurationObject.__init__(self)
 
     def __repr__(self):
-        string = unicode(self.id) 
+        string = unicode(self.id)
         return string
 
     def __str__(self):
@@ -2412,457 +2540,503 @@ class AlarmLog(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
-	
+
     def get_type(self):
-	return 'al'
-	
+        return 'al'
+
     def get_name_listing(self):
-	return ''
-	
+        return ''
+
     def get_name(self):
-	return 'alarmlog'
+        return 'alarmlog'
+
 
 class ExportData():
     def __init__(self, config, elem, cond, user):
-	self.config = config
-	self.fieldnames = ['timestamp','user','type', 'b_id', 'p_id', 'e_id', 'c_id','h_id','m_id','sensor','value','unit', 'category', 'duration', 'remark']
-	self.history = []
-	self.filename = csvDir + "exportdata.csv"
-	self.cond = cond
-	self.elem = elem
-	if elem.get_type() != 'b' :
-	    self.batches = elem.get_batch_in_component(self.config)
-	else :
-	    self.batches = []
-	    self.batches.append(self.elem)
-	self.b = None
-	self.user = user
-	self.data = []
-	self.transfers = []
-	self.pourings = []
-	self.elements = []
-	self.min = 99999999999
-	self.max = -99999999999
-	self.average = 0
-	self.count = 0
-	self.countt = 0
-	
+        self.config = config
+        self.fieldnames = ['timestamp', 'user', 'type', 'b_id', 'p_id', 'e_id', 'c_id',
+                           'h_id', 'm_id', 'sensor', 'value', 'unit', 'category', 'duration', 'remark']
+        self.history = []
+        self.filename = csvDir + "exportdata.csv"
+        self.cond = cond
+        self.elem = elem
+        if elem.get_type() != 'b':
+            self.batches = elem.get_batch_in_component(self.config)
+        else:
+            self.batches = []
+            self.batches.append(self.elem)
+        self.b = None
+        self.user = user
+        self.data = []
+        self.transfers = []
+        self.pourings = []
+        self.elements = []
+        self.min = 99999999999
+        self.max = -99999999999
+        self.average = 0
+        self.count = 0
+        self.countt = 0
+
     def load_data(self):
-	for d in self.b.data:
-	    self.data.append(self.config.AllManualData.elements[d])
-	    
-    def load_transfers(self, component = None, begin = None, end = None):
-	if component == None :
+        for d in self.b.data:
+            self.data.append(self.config.AllManualData.elements[d])
+
+    def load_transfers(self, component=None, begin=None, end=None):
+        if component == None:
             self.transfers = []
-	    component = self.elem
-	    if len(component.position) >0:
-		begin = useful.date_to_timestamp(self.config.AllTransfers.elements[component.position[0]].fields['time'])
-		if len(component.position) > 1:
-		    end = component.position[1]
-		else:
-		    end = useful.get_timestamp()
-	    else:
-		return []
-	tmpEND = end
-	tmp = component.get_transfers_in_time_interval(begin, end)
-	count = 0
-	while count < len(tmp):
-	    begin = useful.date_to_timestamp(tmp[count].fields['time'])
-	    if count < (len(tmp) -1) :
-		end = useful.date_to_timestamp(tmp[count+1].fields['time'])
-	    else :
-		end = tmpEND
-	    tmpComponent = tmp[count].get_cont()
-	    self.transfers.append(tmp[count])
-	    count += 1
-	    self.load_transfers(tmpComponent, begin, end)
-        self.transfers.sort(key=lambda x: int(useful.date_to_timestamp(x.fields['time'])), reverse=False)
-	print self.transfers
-	while self.transfers[0].fields['object_type'] != 'b' :
-	    self.transfers.pop(0)
-	print self.transfers
-	return self.transfers
-	    
+            component = self.elem
+            if len(component.position) > 0:
+                begin = useful.date_to_timestamp(
+                    self.config.AllTransfers.elements[component.position[0]].fields['time'])
+                if len(component.position) > 1:
+                    end = component.position[1]
+                else:
+                    end = useful.get_timestamp()
+            else:
+                return []
+        tmpEND = end
+        tmp = component.get_transfers_in_time_interval(begin, end)
+        count = 0
+        while count < len(tmp):
+            begin = useful.date_to_timestamp(tmp[count].fields['time'])
+            if count < (len(tmp) - 1):
+                end = useful.date_to_timestamp(tmp[count+1].fields['time'])
+            else:
+                end = tmpEND
+            tmpComponent = tmp[count].get_cont()
+            self.transfers.append(tmp[count])
+            count += 1
+            self.load_transfers(tmpComponent, begin, end)
+        self.transfers.sort(key=lambda x: int(
+            useful.date_to_timestamp(x.fields['time'])), reverse=False)
+        print self.transfers
+        while self.transfers[0].fields['object_type'] != 'b':
+            self.transfers.pop(0)
+        print self.transfers
+        return self.transfers
+
     def load_pourings(self):
-	for t in self.b.destination:
-	    self.pourings.append(self.config.AllPourings.elements[t])
-	for t in self.b.source:
-	    self.pourings.append(self.config.AllPourings.elements[t])
+        for t in self.b.destination:
+            self.pourings.append(self.config.AllPourings.elements[t])
+        for t in self.b.source:
+            self.pourings.append(self.config.AllPourings.elements[t])
 
     def create_export(self):
-	if self.elem.get_type() != 'b':
-	    if self.cond['manualdata'] is True:
-		for data in self.elem.data:
-		    self.elements.append(self.transform_object_to_export_data(self.config.AllManualData.elements[data]))
-	    if self.cond['transfer'] is True:
-		for t in self.elem.position:
-		    self.elements.append(self.transform_object_to_export_data(self.config.AllTransfers.elements[t]))	    
-	    
-	for self.b in self.batches :
-	    self.load_data()
-	    self.load_transfers()
-	    self.load_pourings()
-    
-	    self.load_hierarchy()
-	    self.countt = 1
-	    
-            bexport = self.transform_object_to_export_data(self.b) 
-	    self.elements.append(bexport)
-	    count = 0
-	    while count < (len(self.history)):
-		e = self.history[count]
-		if e.get_type() == 't' :
-		    begin = useful.date_to_timestamp(e.fields['time'])
-		    if self.countt > (len(self.transfers)-1) :
-			end = int(time.time())
-		    else :
-			end = useful.date_to_timestamp(self.transfers[self.countt].fields['time'])
-		    self.countt += 1
-		infos = None
-		tmp = self.transform_object_to_export_data(e)
-		if self.cond['manualdata'] is True and e.get_type() == 'd':
-		    self.elements.append(tmp)
-		elif self.cond['transfer'] is True and e.get_type() == 't':
-		    tmp['duration'] = self.get_duration(begin, end)
-		    self.elements.append(tmp)
-		elif self.cond['pouring'] is True and e.get_type() == 'v':
-		    self.elements.append(tmp)
-		if e.get_type() == 't':
-		    e = self.config.getObject(e.fields['cont_id'],e.fields['cont_type'])
-		    infos = self.get_all_in_component(e,begin,end)
-		    lastSensor = e
-		if infos is not None:
-		    self.add_value_from_sensors(infos)
-		count += 1
-		
+        if self.elem.get_type() != 'b':
+            if self.cond['manualdata'] is True:
+                for data in self.elem.data:
+                    self.elements.append(self.transform_object_to_export_data(
+                        self.config.AllManualData.elements[data]))
+            if self.cond['transfer'] is True:
+                for t in self.elem.position:
+                    self.elements.append(self.transform_object_to_export_data(
+                        self.config.AllTransfers.elements[t]))
+
+        for self.b in self.batches:
+            self.load_data()
+            self.load_transfers()
+            self.load_pourings()
+
+            self.load_hierarchy()
+            self.countt = 1
+
+            bexport = self.transform_object_to_export_data(self.b)
+            self.elements.append(bexport)
+            count = 0
+            while count < (len(self.history)):
+                e = self.history[count]
+                if e.get_type() == 't':
+                    begin = useful.date_to_timestamp(e.fields['time'])
+                    if self.countt > (len(self.transfers)-1):
+                        end = int(time.time())
+                    else:
+                        end = useful.date_to_timestamp(
+                            self.transfers[self.countt].fields['time'])
+                    self.countt += 1
+                infos = None
+                tmp = self.transform_object_to_export_data(e)
+                if self.cond['manualdata'] is True and e.get_type() == 'd':
+                    self.elements.append(tmp)
+                elif self.cond['transfer'] is True and e.get_type() == 't':
+                    tmp['duration'] = self.get_duration(begin, end)
+                    self.elements.append(tmp)
+                elif self.cond['pouring'] is True and e.get_type() == 'v':
+                    self.elements.append(tmp)
+                if e.get_type() == 't':
+                    e = self.config.getObject(
+                        e.fields['cont_id'], e.fields['cont_type'])
+                    infos = self.get_all_in_component(e, begin, end)
+                    lastSensor = e
+                if infos is not None:
+                    self.add_value_from_sensors(infos)
+                count += 1
 
     def write_csv(self):
-	with open(self.filename,'w') as csvfile:
-	    csvfile.write(self.fieldnames[0])
-	    tmp = 1
-	    while tmp < len(self.fieldnames):
-		csvfile.write('\t'+self.fieldnames[tmp])
-		tmp = tmp + 1
+        with open(self.filename, 'w') as csvfile:
+            csvfile.write(self.fieldnames[0])
+            tmp = 1
+            while tmp < len(self.fieldnames):
+                csvfile.write('\t'+self.fieldnames[tmp])
+                tmp = tmp + 1
             csvfile.write('\n')
-        for e in self.elements :
-            with open(self.filename,'a') as csvfile:
-                writer = unicodecsv.DictWriter(csvfile, delimiter = "\t",fieldnames=self.fieldnames,encoding="utf-8")
+        for e in self.elements:
+            with open(self.filename, 'a') as csvfile:
+                writer = unicodecsv.DictWriter(
+                    csvfile, delimiter="\t", fieldnames=self.fieldnames, encoding="utf-8")
                 writer.writerow(e)
-	
+
     def add_value_from_sensors(self, infos):
-	print infos.keys()
-	for a in infos.keys() :
-	    self.min = 99999999999
-	    self.max = -99999999999
-	    self.average = 0.0
-	    timemin = ''
-	    timemax = ''
-	    self.count = 0
-            if infos[a] is not None :
+        print infos.keys()
+        for a in infos.keys():
+            self.min = 99999999999
+            self.max = -99999999999
+            self.average = 0.0
+            timemin = ''
+            timemax = ''
+            self.count = 0
+            if infos[a] is not None:
                 begin = infos[a][0][0]
-	        for value in infos[a]:
-		    tmp = value[1][0]
-                    sensor = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
+                for value in infos[a]:
+                    tmp = value[1][0]
+                    sensor = self.transform_object_to_export_data(
+                        self.config.AllSensors.elements[a])
                     sensor['remark'] = ''
-		    sensor['timestamp'] = value[0]
+                    sensor['timestamp'] = value[0]
                     end = sensor['timestamp']
-		    sensor['value'] = str(tmp)
-		    sensor['type'] = 'MES'
-		    if tmp is not None:
-			tmp = float(value[1][0])
-			self.count += 1
-			self.average += tmp
-			if tmp < self.min :
-			    self.min = tmp
-			    timemin = sensor['timestamp']
-			if tmp > self.max :
-			    self.max = tmp
-			    timemax = sensor['timestamp']
+                    sensor['value'] = str(tmp)
+                    sensor['type'] = 'MES'
+                    if tmp is not None:
+                        tmp = float(value[1][0])
+                        self.count += 1
+                        self.average += tmp
+                        if tmp < self.min:
+                            self.min = tmp
+                            timemin = sensor['timestamp']
+                        if tmp > self.max:
+                            self.max = tmp
+                            timemax = sensor['timestamp']
                     #sensor['typevalue'] = 'DAT'
-                    if self.cond['valuesensor'] is True :
-		        self.elements.append(sensor)
-		if self.count >0 :
-		    self.average /= self.count
-		if self.cond['specialvalue'] is True and self.count >0:
-		    sensor1 = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
-		    sensor1['value'] = self.min
-		    #sensor1['typevalue'] = 'MIN'
-		    sensor1['type'] = 'MIN'
-		    sensor1['timestamp'] = timemin
+                    if self.cond['valuesensor'] is True:
+                        self.elements.append(sensor)
+                if self.count > 0:
+                    self.average /= self.count
+                if self.cond['specialvalue'] is True and self.count > 0:
+                    sensor1 = self.transform_object_to_export_data(
+                        self.config.AllSensors.elements[a])
+                    sensor1['value'] = self.min
+                    #sensor1['typevalue'] = 'MIN'
+                    sensor1['type'] = 'MIN'
+                    sensor1['timestamp'] = timemin
                     sensor1['remark'] = ''
-		    self.elements.append(sensor1)
-		    sensor2 = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
-		    sensor2['value'] = self.max
-		    #sensor2['typevalue'] = 'MAX'
-		    sensor2['type'] = 'MAX'
-		    sensor2['timestamp'] = timemax
+                    self.elements.append(sensor1)
+                    sensor2 = self.transform_object_to_export_data(
+                        self.config.AllSensors.elements[a])
+                    sensor2['value'] = self.max
+                    #sensor2['typevalue'] = 'MAX'
+                    sensor2['type'] = 'MAX'
+                    sensor2['timestamp'] = timemax
                     sensor2['remark'] = ''
-		    self.elements.append(sensor2)
-		    sensor3 = self.transform_object_to_export_data(self.config.AllSensors.elements[a])
-		    sensor3['value'] = self.average
-		    #sensor3['typevalue'] = 'AVG'
-		    sensor3['type'] = 'AVG'
-		    sensor3['timestamp'] = end
-                    sensor3['duration'] = self.get_duration(begin,end)
+                    self.elements.append(sensor2)
+                    sensor3 = self.transform_object_to_export_data(
+                        self.config.AllSensors.elements[a])
+                    sensor3['value'] = self.average
+                    #sensor3['typevalue'] = 'AVG'
+                    sensor3['type'] = 'AVG'
+                    sensor3['timestamp'] = end
+                    sensor3['duration'] = self.get_duration(begin, end)
                     sensor3['remark'] = ''
-		    self.elements.append(sensor3)
-		if self.cond['alarm'] is True :
-		    logs = self.config.AllAlarmLogs.get_alarmlog_component(a,begin,end)
-		    for log in logs :
-			tmp = self.transform_object_to_export_data(log)
-			self.elements.append(tmp)	    
-	
-	
+                    self.elements.append(sensor3)
+                if self.cond['alarm'] is True:
+                    logs = self.config.AllAlarmLogs.get_alarmlog_component(
+                        a, begin, end)
+                    for log in logs:
+                        tmp = self.transform_object_to_export_data(log)
+                        self.elements.append(tmp)
+
     def load_hierarchy(self):
         self.history = []
-	sum = len(self.data) + len(self.transfers) + len (self.pourings)
-	i = 0
-	j = 0
-	k = 0
-	count = 0
-	while count < sum:
-	    if i < len( self.data): 
-		timed = useful.date_to_timestamp(self.data[i].fields['time'])
-	    else :		
-		timed = None
-		
-	    if j < len(self.transfers):
-		timet = useful.date_to_timestamp(self.transfers[j].fields['time'])
-	    else :
-		timet = None
-		
-	    if k < len(self.pourings) :
-		timev = useful.date_to_timestamp(self.pourings[k].fields['time'])
-	    else:
-		timev = None
-		
-	    if timed is not None:
-		tmp = timed
-		cond = 'd'
-	    elif timet is not None:
-		tmp = timet
-		cond = 't'
-	    elif timev is not None:
-		tmp = timev
-		cond = 'v'
-	    else:
-		break
-	   
-	    if timet is not None :
-		if timet < tmp:
-		    cond = 't'
-		    tmp = timet
-	    if timev is not None:
-		if timev < tmp:
-		    cond = 'v'
-		    tmp = timev
-	   
-	    if cond == 'd':
-		self.history.append(self.data[i])
-		i += 1
-	    elif cond == 't':
-		self.history.append(self.transfers[j])
-		j += 1
-	    elif cond == 'v':
-		self.history.append(self.pourings[k])
-		k += 1
-	    count += 1
-		
-    def get_all_in_component(self,component,begin,end, infos = None):
-	if infos is None :
-	    infos = {}
-	sensors = component.get_sensors_in_component(self.config)
-	tmp = component.get_transfers_in_time_interval(begin,end)
-	if len(tmp) > 0 :
-	    for t in tmp :
-		infos = self.get_all_in_component(t.get_cont(),begin,end,infos)
-	for a in sensors:
-	    infos[a] = self.config.AllSensors.elements[a].fetch(begin,end)
-	return infos
-	
+        sum = len(self.data) + len(self.transfers) + len(self.pourings)
+        i = 0
+        j = 0
+        k = 0
+        count = 0
+        while count < sum:
+            if i < len(self.data):
+                timed = useful.date_to_timestamp(self.data[i].fields['time'])
+            else:
+                timed = None
+
+            if j < len(self.transfers):
+                timet = useful.date_to_timestamp(
+                    self.transfers[j].fields['time'])
+            else:
+                timet = None
+
+            if k < len(self.pourings):
+                timev = useful.date_to_timestamp(
+                    self.pourings[k].fields['time'])
+            else:
+                timev = None
+
+            if timed is not None:
+                tmp = timed
+                cond = 'd'
+            elif timet is not None:
+                tmp = timet
+                cond = 't'
+            elif timev is not None:
+                tmp = timev
+                cond = 'v'
+            else:
+                break
+
+            if timet is not None:
+                if timet < tmp:
+                    cond = 't'
+                    tmp = timet
+            if timev is not None:
+                if timev < tmp:
+                    cond = 'v'
+                    tmp = timev
+
+            if cond == 'd':
+                self.history.append(self.data[i])
+                i += 1
+            elif cond == 't':
+                self.history.append(self.transfers[j])
+                j += 1
+            elif cond == 'v':
+                self.history.append(self.pourings[k])
+                k += 1
+            count += 1
+
+    def get_all_in_component(self, component, begin, end, infos=None):
+        if infos is None:
+            infos = {}
+        sensors = component.get_sensors_in_component(self.config)
+        tmp = component.get_transfers_in_time_interval(begin, end)
+        if len(tmp) > 0:
+            for t in tmp:
+                infos = self.get_all_in_component(
+                    t.get_cont(), begin, end, infos)
+        for a in sensors:
+            infos[a] = self.config.AllSensors.elements[a].fetch(begin, end)
+        return infos
+
     def transform_object_to_export_data(self, elem):
-	tmp = self.get_new_line()
-	if elem.creator:
-	    tmp['user'] = elem.creator
+        tmp = self.get_new_line()
+        if elem.creator:
+            tmp['user'] = elem.creator
             if self.cond['acronym'] is True and elem.creator:
                 aUser = self.config.AllUsers.elements[elem.creator]
                 if aUser and aUser.fields['acronym']:
                     tmp['user'] = aUser.fields['acronym']
         if elem.created:
-	    tmp['timestamp'] = useful.date_to_timestamp(elem.created)	
-	    	
-	if elem.get_type() in 'bcpem' :
-	    if elem.get_type() == 'b':
-		tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'])
-		tmp['duration'] = self.get_duration(useful.date_to_timestamp(elem.fields['time']),useful.get_timestamp())
-		tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
-		tmp['value'] = elem.fields['basicqt']
-		
-	    if self.cond['acronym'] is True :
-		tmp[elem.get_type()+'_id'] = elem.fields['acronym']
-		if elem.get_type() == 'b':
-		    tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['acronym']
-	    else :
-	        tmp[elem.get_type()+'_id'] = elem.getID()
-		if elem.get_type() == 'b':
-		    tmp['m_id'] = elem.fields['m_id']
-	    tmp['remark'] = elem.fields['remark']
-	    tmp['type'] = elem.get_type()
-	    if elem.get_type() == 'm':
-		tmp['m_id'] = elem.getID()
-		
-	elif elem.get_type() == 's' :
-	    if self.cond['acronym'] is True :
-		if elem.fields['p_id'] != '' :
-		    tmp['p_id'] = self.config.AllPieces.elements[elem.fields['p_id']].fields['acronym']
-		else :
-		    tmp['p_id'] = ''
-		if elem.fields['e_id'] != '' :
-		    tmp['e_id'] = self.config.AllEquipments.elements[elem.fields['e_id']].fields['acronym']
-		else :
-		    tmp['e_id'] = ''
-		if elem.fields['c_id'] != '' :
-		    tmp['c_id'] = self.config.AllContainers.elements[elem.fields['c_id']].fields['acronym']
-		else :
-		    tmp['c_id'] = ''
-		tmp['sensor'] = elem.fields['acronym']
-		tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['acronym']
-	    else :
-		tmp['p_id'] = elem.fields['p_id']
-		tmp['e_id'] = elem.fields['e_id']
-		tmp['c_id'] = elem.fields['c_id']
-		tmp['sensor'] = elem.fields['s_id']
-		tmp['m_id'] = elem.fields['m_id']
-	    tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
-	    tmp['remark'] = elem.fields['remark']
-	    
-	elif elem.get_type() == 'al' :
-	    sensor = self.config.AllSensors.elements[elem.fields['s_id']]
-	    tmp['timestamp'] = elem.fields['begintime']
-            tmp['type'] = 'ALR'
-            if self.cond['acronym'] is True :
-                tmp[elem.fields['cont_type']+'_id'] = self.config.findAllFromType(elem.fields['cont_type']).elements[elem.fields['cont_id']].fields['acronym']
-                tmp['sensor'] = self.config.AllSensors.elements[elem.fields['s_id']].fields['acronym']
-		tmp['m_id'] = self.config.AllMeasures.elements[self.config.AllSensors.elements[elem.fields['s_id']].fields['m_id']].fields['acronym']
+            tmp['timestamp'] = useful.date_to_timestamp(elem.created)
+
+        if elem.get_type() in 'bcpem':
+            if elem.get_type() == 'b':
+                tmp['timestamp'] = useful.date_to_timestamp(
+                    elem.fields['time'])
+                tmp['duration'] = self.get_duration(useful.date_to_timestamp(
+                    elem.fields['time']), useful.get_timestamp())
+                tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
+                tmp['value'] = elem.fields['basicqt']
+
+            if self.cond['acronym'] is True:
+                tmp[elem.get_type()+'_id'] = elem.fields['acronym']
+                if elem.get_type() == 'b':
+                    tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']
+                                                                   ].fields['acronym']
             else:
-	        tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
+                tmp[elem.get_type()+'_id'] = elem.getID()
+                if elem.get_type() == 'b':
+                    tmp['m_id'] = elem.fields['m_id']
+            tmp['remark'] = elem.fields['remark']
+            tmp['type'] = elem.get_type()
+            if elem.get_type() == 'm':
+                tmp['m_id'] = elem.getID()
+
+        elif elem.get_type() == 's':
+            if self.cond['acronym'] is True:
+                if elem.fields['p_id'] != '':
+                    tmp['p_id'] = self.config.AllPieces.elements[elem.fields['p_id']
+                                                                 ].fields['acronym']
+                else:
+                    tmp['p_id'] = ''
+                if elem.fields['e_id'] != '':
+                    tmp['e_id'] = self.config.AllEquipments.elements[elem.fields['e_id']
+                                                                     ].fields['acronym']
+                else:
+                    tmp['e_id'] = ''
+                if elem.fields['c_id'] != '':
+                    tmp['c_id'] = self.config.AllContainers.elements[elem.fields['c_id']
+                                                                     ].fields['acronym']
+                else:
+                    tmp['c_id'] = ''
+                tmp['sensor'] = elem.fields['acronym']
+                tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']
+                                                               ].fields['acronym']
+            else:
+                tmp['p_id'] = elem.fields['p_id']
+                tmp['e_id'] = elem.fields['e_id']
+                tmp['c_id'] = elem.fields['c_id']
                 tmp['sensor'] = elem.fields['s_id']
-		tmp['m_id'] = elem.fields['m_id']
-	    tmp['duration'] = self.get_duration(int(elem.fields['begintime']),useful.date_to_timestamp(elem.fields['begin']))
-	    tmp['category'] = elem.fields['degree']
-	    tmp['value'] = elem.fields['value']
-	    tmp['unit'] = self.config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
-	    
-	elif elem.get_type() == 'd' :
-	    tmp['type'] = 'MAN'
-            if self.cond['acronym'] is True and elem.fields['h_id'] != '' :
-                tmp['h_id'] = self.config.AllCheckPoints.elements[elem.fields['h_id']].fields['acronym']
+                tmp['m_id'] = elem.fields['m_id']
+            tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
+            tmp['remark'] = elem.fields['remark']
+
+        elif elem.get_type() == 'al':
+            sensor = self.config.AllSensors.elements[elem.fields['s_id']]
+            tmp['timestamp'] = elem.fields['begintime']
+            tmp['type'] = 'ALR'
+            if self.cond['acronym'] is True:
+                tmp[elem.fields['cont_type']+'_id'] = self.config.findAllFromType(
+                    elem.fields['cont_type']).elements[elem.fields['cont_id']].fields['acronym']
+                tmp['sensor'] = self.config.AllSensors.elements[elem.fields['s_id']
+                                                                ].fields['acronym']
+                tmp['m_id'] = self.config.AllMeasures.elements[self.config.AllSensors.elements[elem.fields['s_id']
+                                                                                               ].fields['m_id']].fields['acronym']
+            else:
+                tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
+                tmp['sensor'] = elem.fields['s_id']
+                tmp['m_id'] = elem.fields['m_id']
+            tmp['duration'] = self.get_duration(
+                int(elem.fields['begintime']), useful.date_to_timestamp(elem.fields['begin']))
+            tmp['category'] = elem.fields['degree']
+            tmp['value'] = elem.fields['value']
+            tmp['unit'] = self.config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
+
+        elif elem.get_type() == 'd':
+            tmp['type'] = 'MAN'
+            if self.cond['acronym'] is True and elem.fields['h_id'] != '':
+                tmp['h_id'] = self.config.AllCheckPoints.elements[elem.fields['h_id']
+                                                                  ].fields['acronym']
             else:
                 tmp['h_id'] = elem.fields['h_id']
             tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'])
             if elem.fields['m_id'] != '':
-	        tmp['value'] = elem.fields['value']
-	        tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
-		if self.cond['acronym'] is True :
-		    tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['acronym']
-		else :
-		    tmp['m_id'] = elem.fields['m_id']
-	    if self.cond['acronym'] is True and elem.fields['m_id'] != '':
-	        tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['acronym']
-                tmp[elem.fields['object_type']+'_id'] = self.config.findAllFromType(elem.fields['object_type']).elements[elem.fields['object_id']].fields['acronym']
-	    else:
-		tmp['m_id'] = elem.fields['m_id']
+                tmp['value'] = elem.fields['value']
+                tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
+                if self.cond['acronym'] is True:
+                    tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']
+                                                                   ].fields['acronym']
+                else:
+                    tmp['m_id'] = elem.fields['m_id']
+            if self.cond['acronym'] is True and elem.fields['m_id'] != '':
+                tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']
+                                                               ].fields['acronym']
+                tmp[elem.fields['object_type']+'_id'] = self.config.findAllFromType(
+                    elem.fields['object_type']).elements[elem.fields['object_id']].fields['acronym']
+            else:
+                tmp['m_id'] = elem.fields['m_id']
                 tmp[elem.fields['object_type']+'_id'] = elem.fields['object_id']
-	    tmp['remark'] = elem.fields['remark']
-	    if self.cond['acronym'] is True :
-		tmp['user'] = self.config.AllUsers.elements[elem.fields['user']].fields['acronym']
-		tmp[elem.fields['object_type']+'_id'] = self.config.findAllFromType(elem.fields['object_type']).elements[elem.fields['object_id']].fields['acronym']
-	    else:
-		tmp['user'] = elem.fields['user']
-		tmp[elem.fields['object_type']+'_id'] = elem.fields['object_id']
-		
+            tmp['remark'] = elem.fields['remark']
+            if self.cond['acronym'] is True:
+                tmp['user'] = self.config.AllUsers.elements[elem.fields['user']
+                                                            ].fields['acronym']
+                tmp[elem.fields['object_type']+'_id'] = self.config.findAllFromType(
+                    elem.fields['object_type']).elements[elem.fields['object_id']].fields['acronym']
+            else:
+                tmp['user'] = elem.fields['user']
+                tmp[elem.fields['object_type']+'_id'] = elem.fields['object_id']
+
         elif elem.get_type() == 't':
             tmp['type'] = 'TRF'
-            if self.cond['acronym'] is True and elem.fields['h_id'] != '' :
-                tmp['h_id'] = self.config.AllCheckPoints.elements[elem.fields['h_id']].fields['acronym']
+            if self.cond['acronym'] is True and elem.fields['h_id'] != '':
+                tmp['h_id'] = self.config.AllCheckPoints.elements[elem.fields['h_id']
+                                                                  ].fields['acronym']
             else:
                 tmp['h_id'] = elem.fields['h_id']
-		
+
             tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'])
             tmp['remark'] = elem.fields['remark']
-            if self.cond['acronym'] is True :
-                tmp[elem.fields['cont_type']+'_id'] = self.config.findAllFromType(elem.fields['cont_type']).elements[elem.fields['cont_id']].fields['acronym']
-		if elem.fields['object_type'] != 'b' :
-		    tmp[elem.fields['object_type']+'_id'] = self.config.findAllFromType(elem.fields['object_type']).elements[elem.fields['object_id']].fields['acronym']
-		elemtmp = elem.get_cont().get_position_on_time(self.config ,elem.fields['time'])
-		while elemtmp is not None :
-		    tmp[elemtmp.fields['cont_type']+'_id'] = self.config.findAllFromType(elemtmp.fields['cont_type']).elements[elemtmp.fields['cont_id']].fields['acronym']
-		    elemtmp = elemtmp.get_cont().get_position_on_time(self.config ,elemtmp.fields['time'])
-	    else :
+            if self.cond['acronym'] is True:
+                tmp[elem.fields['cont_type']+'_id'] = self.config.findAllFromType(
+                    elem.fields['cont_type']).elements[elem.fields['cont_id']].fields['acronym']
+                if elem.fields['object_type'] != 'b':
+                    tmp[elem.fields['object_type']+'_id'] = self.config.findAllFromType(
+                        elem.fields['object_type']).elements[elem.fields['object_id']].fields['acronym']
+                elemtmp = elem.get_cont().get_position_on_time(
+                    self.config, elem.fields['time'])
+                while elemtmp is not None:
+                    tmp[elemtmp.fields['cont_type']+'_id'] = self.config.findAllFromType(
+                        elemtmp.fields['cont_type']).elements[elemtmp.fields['cont_id']].fields['acronym']
+                    elemtmp = elemtmp.get_cont().get_position_on_time(
+                        self.config, elemtmp.fields['time'])
+            else:
                 tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
-		if elem.fields['object_type'] != 'b' :
-		    tmp[elem.fields['object_type']+'_id'] = elem.fields['object_id']
-		elemtmp = elem.get_cont().get_position_on_time(self.config ,elem.fields['time'])
-		while elemtmp is not None :
-		    tmp[elemtmp.fields['cont_type']+'_id'] = elem.fields['object_id']
-		    elemtmp = elemtmp.get_cont().get_position_on_time(self.config ,elemtmp.fields['time'])
-		
-	elif elem.get_type() == 'v':
-            if self.cond['acronym'] is True and elem.fields['h_id'] != '' :
-                tmp['h_id'] = self.config.AllCheckPoints.elements[elem.fields['h_id']].fields['acronym']
+                if elem.fields['object_type'] != 'b':
+                    tmp[elem.fields['object_type'] +
+                        '_id'] = elem.fields['object_id']
+                elemtmp = elem.get_cont().get_position_on_time(
+                    self.config, elem.fields['time'])
+                while elemtmp is not None:
+                    tmp[elemtmp.fields['cont_type'] +
+                        '_id'] = elem.fields['object_id']
+                    elemtmp = elemtmp.get_cont().get_position_on_time(
+                        self.config, elemtmp.fields['time'])
+
+        elif elem.get_type() == 'v':
+            if self.cond['acronym'] is True and elem.fields['h_id'] != '':
+                tmp['h_id'] = self.config.AllCheckPoints.elements[elem.fields['h_id']
+                                                                  ].fields['acronym']
             else:
                 tmp['h_id'] = elem.fields['h_id']
             tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'])
             tmp['remark'] = elem.fields['remark']
-	    tmp['value'] = elem.fields['quantity']
-	    tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
-	    if elem.fields['src'] == self.b.getID():
-		tmp['type'] += 'OUT'
-		if self.cond['acronym'] is True :
-		    tmp['b_id'] = self.config.AllBatches.elements[elem.fields['dest']].fields['acronym']
-		    tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['acronym']
-		else:
-		    tmp['b_id'] = elem.fields['dest']
-		    tmp['m_id'] = elem.fields['m_id']
-	    else :
-		tmp['type'] += 'INP'
-		if self.cond['acronym'] is True :
-		    tmp['b_id'] = self.config.AllBatches.elements[elem.fields['src']].fields['acronym']
-		    tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['acronym']
-		else:
-		    tmp['b_id'] = elem.fields['src']
-		    tmp['m_id'] = elem.fields['m_id']
-	return tmp
+            tmp['value'] = elem.fields['quantity']
+            tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
+            if elem.fields['src'] == self.b.getID():
+                tmp['type'] += 'OUT'
+                if self.cond['acronym'] is True:
+                    tmp['b_id'] = self.config.AllBatches.elements[elem.fields['dest']
+                                                                  ].fields['acronym']
+                    tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']
+                                                                   ].fields['acronym']
+                else:
+                    tmp['b_id'] = elem.fields['dest']
+                    tmp['m_id'] = elem.fields['m_id']
+            else:
+                tmp['type'] += 'INP'
+                if self.cond['acronym'] is True:
+                    tmp['b_id'] = self.config.AllBatches.elements[elem.fields['src']
+                                                                  ].fields['acronym']
+                    tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']
+                                                                   ].fields['acronym']
+                else:
+                    tmp['b_id'] = elem.fields['src']
+                    tmp['m_id'] = elem.fields['m_id']
+        return tmp
 
     def get_duration(self, begin, end):
-	timestamp = int(end) - int(begin)
-	return useful.timestamp_to_time(timestamp)
-    
+        timestamp = int(end) - int(begin)
+        return useful.timestamp_to_time(timestamp)
 
     def get_new_line(self):
-	tmp = {}	
-	tmp['timestamp'] = ''
-	tmp['user'] = ''
-	tmp['type'] = ''
-	tmp['b_id'] = ''
-	tmp['p_id'] = ''
-	tmp['e_id'] = ''
-	tmp['c_id'] = ''
-	tmp['h_id'] = ''
-	tmp['m_id'] = ''
-	tmp['sensor'] = ''
-	tmp['value'] = ''
-	tmp['unit'] = ''
-	tmp['category'] = ''
-	tmp['duration'] = ''
-	tmp['remark'] = ''
-	return tmp
+        tmp = {}
+        tmp['timestamp'] = ''
+        tmp['user'] = ''
+        tmp['type'] = ''
+        tmp['b_id'] = ''
+        tmp['p_id'] = ''
+        tmp['e_id'] = ''
+        tmp['c_id'] = ''
+        tmp['h_id'] = ''
+        tmp['m_id'] = ''
+        tmp['sensor'] = ''
+        tmp['value'] = ''
+        tmp['unit'] = ''
+        tmp['category'] = ''
+        tmp['duration'] = ''
+        tmp['remark'] = ''
+        return tmp
+
 
 class Halfling(ConfigurationObject):
 
     def __init__(self):
-	ConfigurationObject.__init__(self)
-	
+        ConfigurationObject.__init__(self)
 
     def __repr__(self):
         string = unicode(self.id) + " " + self.fields['classname']
@@ -2873,21 +3047,21 @@ class Halfling(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
-	
+
     def get_type(self):
-	return 'halfling'
-	
+        return 'halfling'
+
     def getHalfling(self):
-	return 'halflings halflings-'+self.fields['glyphname']
-	
+        return 'halflings halflings-'+self.fields['glyphname']
+
     def get_name(self):
-	return 'halfling'
+        return 'halfling'
+
 
 class Alarm(ConfigurationObject):
 
     def __init__(self):
-	ConfigurationObject.__init__(self)
-	
+        ConfigurationObject.__init__(self)
 
     def __repr__(self):
         string = unicode(self.id) + " " + self.fields['acronym']
@@ -2898,154 +3072,168 @@ class Alarm(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
-	
+
     def get_type(self):
-	return 'a'
-	
+        return 'a'
+
     def validate_form(self, data, configuration, lang):
-	tmp =  super(Alarm,self).validate_form(data, configuration, lang)
-	return tmp	
-	
-    def set_value_from_data(self, data, c,user):
-	super(Alarm,self).set_value_from_data(data, c,user)
-	tmp = ['o_sms1', 'o_sms2', 'o_email1', 'o_email2', 'o_sound1', 'o_sound2', 'relay1', 'relay2']
-	for elem in tmp:
-	    self.fields[elem] = data[elem]
-	self.save(c,user)
-	
-	
-    def get_alarm_message(self, sensor,config, lang):
-	if sensor.get_type() == 's' :
-	    mess = config.AllMessages.elements['alarmmessage'].getName(lang)
-	    specmess = self.getName(lang)
-	    cpe = ''
-	    elem = ''
-	    currObject = config.AllAlarmLogs.createObject()
-	    if not sensor.fields['p_id'] == '':
-		cpe = config.AllMessages.elements['place'].getName(lang)
-		elem = config.AllPieces.elements[sensor.fields['p_id']]
-		currObject.fields['cont_type'] = 'p'
-	    elif not sensor.fields['e_id'] == '':
-		cpe = config.AllMessages.elements['equipment'].getName(lang)
-		elem = config.AllPieces.elements[sensor.fields['e_id']]
-		currObject.fields['cont_type'] = 'e'
-	    elif not sensor.fields['c_id'] == '':
-		cpe = config.AllMessages.elements['container'].getName(lang)
-		elem = config.AllPieces.elements[sensor.fields['c_id']]
-		currObject.fields['cont_type'] = 'c'
-	    currObject.fields['cont_id'] = elem.getID()
-	    currObject.fields['s_id'] = sensor.getID()
-	    currObject.fields['value'] = unicode(sensor.lastvalue)
-	    currObject.fields['typealarm'] = unicode(sensor.actualAlarm)
-	    currObject.fields['begintime'] = unicode(sensor.time)
-	    currObject.fields['alarmtime'] = unicode(int(sensor.time) * sensor.countActual)
-	    currObject.fields['degree'] = unicode(sensor.degreeAlarm)
-	    currObject.save(config)
-	    return unicode.format(mess, config.HardConfig.hostname, specmess, cpe, elem.getName(lang), elem.fields['acronym'], sensor.getName(lang), sensor.fields['acronym'], unicode(sensor.lastvalue), sensor.actualAlarm, useful.timestamp_to_date(sensor.time), unicode(sensor.degreeAlarm))
-	elif sensor.get_type() == 'd' :
-	    mess = config.AllMessages.elements['alarmmanual'].getName(lang)
-	    elem = config.findAllFromType(sensor.fields['object_type']).elements[sensor.fields['object_id']]
-	    name = config.AllMessages.elements[elem.get_name()].getName(lang)
-	    if sensor.fields['m_id'] != '' :
-		measure = config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
-	    else :
-		measure = ''
-	    return unicode.format(mess, config.HardConfig.hostname, specmess, name, elem.getName(lang), elem.fields['acronym'],unicode(sensor.fields['value']), measure,sensor.fields['remark'], sensor.fields['time'])
-	elif sensor.get_type() == 'v' :
-	    mess = config.AllMessages.elements['alarmpouring'].getName(lang)
-	    elemin = config.AllBatches.elements[sensor.fields['src']]
-	    elemout = config.AllBatches.elements[sensor.fields['dest']]
-	    if sensor.fields['m_id'] != '' :
-		measure = config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
-	    else :
-		measure = ''
-	    return unicode.format(mess, config.HardConfig.hostname, specmess, elemout.getName(lang), elemout.fields['acronym'], elemin.getName(lang), elemin.fields['acronym'],unicode(sensor.fields['quantity']), measure,sensor.fields['remark'], sensor.fields['time'])
-       
-	
+        tmp = super(Alarm, self).validate_form(data, configuration, lang)
+        return tmp
+
+    def set_value_from_data(self, data, c, user):
+        super(Alarm, self).set_value_from_data(data, c, user)
+        tmp = ['o_sms1', 'o_sms2', 'o_email1', 'o_email2',
+               'o_sound1', 'o_sound2', 'relay1', 'relay2']
+        for elem in tmp:
+            self.fields[elem] = data[elem]
+        self.save(c, user)
+
+    def get_alarm_message(self, sensor, config, lang):
+        if sensor.get_type() == 's':
+            mess = config.AllMessages.elements['alarmmessage'].getName(lang)
+            specmess = self.getName(lang)
+            cpe = ''
+            elem = ''
+            currObject = config.AllAlarmLogs.createObject()
+            if not sensor.fields['p_id'] == '':
+                cpe = config.AllMessages.elements['place'].getName(lang)
+                elem = config.AllPieces.elements[sensor.fields['p_id']]
+                currObject.fields['cont_type'] = 'p'
+            elif not sensor.fields['e_id'] == '':
+                cpe = config.AllMessages.elements['equipment'].getName(lang)
+                elem = config.AllPieces.elements[sensor.fields['e_id']]
+                currObject.fields['cont_type'] = 'e'
+            elif not sensor.fields['c_id'] == '':
+                cpe = config.AllMessages.elements['container'].getName(lang)
+                elem = config.AllPieces.elements[sensor.fields['c_id']]
+                currObject.fields['cont_type'] = 'c'
+            currObject.fields['cont_id'] = elem.getID()
+            currObject.fields['s_id'] = sensor.getID()
+            currObject.fields['value'] = unicode(sensor.lastvalue)
+            currObject.fields['typealarm'] = unicode(sensor.actualAlarm)
+            currObject.fields['begintime'] = unicode(sensor.time)
+            currObject.fields['alarmtime'] = unicode(
+                int(sensor.time) * sensor.countActual)
+            currObject.fields['degree'] = unicode(sensor.degreeAlarm)
+            currObject.save(config)
+            return unicode.format(mess, config.HardConfig.hostname, specmess, cpe, elem.getName(lang), elem.fields['acronym'], sensor.getName(lang), sensor.fields['acronym'], unicode(sensor.lastvalue), sensor.actualAlarm, useful.timestamp_to_date(sensor.time), unicode(sensor.degreeAlarm))
+        elif sensor.get_type() == 'd':
+            mess = config.AllMessages.elements['alarmmanual'].getName(lang)
+            elem = config.findAllFromType(
+                sensor.fields['object_type']).elements[sensor.fields['object_id']]
+            name = config.AllMessages.elements[elem.get_name()].getName(lang)
+            if sensor.fields['m_id'] != '':
+                measure = config.AllMeasures.elements[sensor.fields['m_id']
+                                                      ].fields['unit']
+            else:
+                measure = ''
+            return unicode.format(mess, config.HardConfig.hostname, specmess, name, elem.getName(lang), elem.fields['acronym'], unicode(sensor.fields['value']), measure, sensor.fields['remark'], sensor.fields['time'])
+        elif sensor.get_type() == 'v':
+            mess = config.AllMessages.elements['alarmpouring'].getName(lang)
+            elemin = config.AllBatches.elements[sensor.fields['src']]
+            elemout = config.AllBatches.elements[sensor.fields['dest']]
+            if sensor.fields['m_id'] != '':
+                measure = config.AllMeasures.elements[sensor.fields['m_id']
+                                                      ].fields['unit']
+            else:
+                measure = ''
+            return unicode.format(mess, config.HardConfig.hostname, specmess, elemout.getName(lang), elemout.fields['acronym'], elemin.getName(lang), elemin.fields['acronym'], unicode(sensor.fields['quantity']), measure, sensor.fields['remark'], sensor.fields['time'])
+
     def get_alarm_title(self, sensor, config, lang):
-	if sensor.get_type() == 's' :
-	    title = config.AllMessages.elements['alarmtitle'].getName(lang)
-	    code = ''
-	    equal = ''
-	    if sensor.actualAlarm == 'minmin':
-		code = '---'
-		equal = '<'
-	    elif sensor.actualAlarm == 'min':
-		code = '-'
-		equal = '<'
-	    elif sensor.actualAlarm == 'max':
-		code = '+'
-		equal = '>'
-	    elif sensor.actualAlarm == 'maxmax':
-		code = '+++'
-		equal = '>'
-	    return unicode.format(title, code, unicode(sensor.degreeAlarm), sensor.fields['acronym'], unicode(sensor.lastvalue), equal, sensor.fields[sensor.actualAlarm], config.AllMeasures.elements[sensor.fields['m_id']].fields['unit'], sensor.getName(lang))
-	elif sensor.get_type() == 'd' :
-	    title = config.AllMessages.elements['alarmmanualtitle'].getName(lang)
-	    elem = config.findAllFromType(sensor.fields['object_type']).elements[sensor.fields['object_id']]
-	    if sensor.fields['m_id'] != ''  :
-		measure = config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
-	    else :
-		measure = ''
-	    return unicode.format(title,sensor.fields['value'],measure,elem.getName(lang))
-	elif sensor.get_type() == 'v' :
-	    title = config.AllMessages.elements['alarmpouringtitle'].getName(lang)
-	    elemin = config.AllBatches.elements[sensor.fields['src']]
-	    elemout = config.AllBatches.elements[sensor.fields['dest']]
-	    return unicode.format(title,elemout.fields['acronym'],elemout.getName(lang),elemin.fields['acronym'],elemin.getName(lang))
-	
+        if sensor.get_type() == 's':
+            title = config.AllMessages.elements['alarmtitle'].getName(lang)
+            code = ''
+            equal = ''
+            if sensor.actualAlarm == 'minmin':
+                code = '---'
+                equal = '<'
+            elif sensor.actualAlarm == 'min':
+                code = '-'
+                equal = '<'
+            elif sensor.actualAlarm == 'max':
+                code = '+'
+                equal = '>'
+            elif sensor.actualAlarm == 'maxmax':
+                code = '+++'
+                equal = '>'
+            return unicode.format(title, code, unicode(sensor.degreeAlarm), sensor.fields['acronym'], unicode(sensor.lastvalue), equal, sensor.fields[sensor.actualAlarm], config.AllMeasures.elements[sensor.fields['m_id']].fields['unit'], sensor.getName(lang))
+        elif sensor.get_type() == 'd':
+            title = config.AllMessages.elements['alarmmanualtitle'].getName(
+                lang)
+            elem = config.findAllFromType(
+                sensor.fields['object_type']).elements[sensor.fields['object_id']]
+            if sensor.fields['m_id'] != '':
+                measure = config.AllMeasures.elements[sensor.fields['m_id']
+                                                      ].fields['unit']
+            else:
+                measure = ''
+            return unicode.format(title, sensor.fields['value'], measure, elem.getName(lang))
+        elif sensor.get_type() == 'v':
+            title = config.AllMessages.elements['alarmpouringtitle'].getName(
+                lang)
+            elemin = config.AllBatches.elements[sensor.fields['src']]
+            elemout = config.AllBatches.elements[sensor.fields['dest']]
+            return unicode.format(title, elemout.fields['acronym'], elemout.getName(lang), elemin.fields['acronym'], elemin.getName(lang))
+
     def launch_alarm(self, sensor, config):
-	if sensor.get_type() == 's' :
-	    level = sensor.degreeAlarm
-	    if level == 1 :
-		print 'Send mails, level 1'
-		userlist = config.AllGrFunction.elements[self.fields['o_email1']].get_user_group()
-		for user in userlist:
-		    lang = config.AllUsers.elements[user].fields['language']
-		    mess = self.get_alarm_message(sensor,config, lang)
-		    title = self.get_alarm_title( sensor, config, lang)
-		    useful.send_email(config.AllUsers.elements[user].fields['mail'], title, mess)
-	    elif level == 2:
-		print 'Send mails, level 2'
-		userlist = config.AllGrFunction.elements[self.fields['o_email2']].get_user_group()
-		for user in userlist:
-		    lang = config.AllUsers.elements[user].fields['language']
-		    mess = self.get_alarm_message(sensor,config, lang)
-		    title = self.get_alarm_title( sensor, config, lang)
-		    useful.send_email(config.AllUsers.elements[user].fields['mail'], title, mess)
-	elif sensor.get_type() == 'd' :
-	    userlist = config.AllGrFunction.elements[self.fields['o_email2']].get_user_group()
-	    for user in userlist:
-		lang = config.AllUsers.elements[user].fields['language']
-		mess = self.get_alarm_message(sensor,config, lang)
-		title = self.get_alarm_title( sensor, config, lang)
-		print 'Send mail depuis manuel data'
-		useful.send_email(config.AllUsers.elements[user].fields['mail'], title, mess)
-	elif sensor.get_type() == 'v' :
-	    userlist = config.AllGrFunction.elements[self.fields['o_email2']].get_user_group()
-	    for user in userlist:
-		lang = config.AllUsers.elements[user].fields['language']
-		mess = self.get_alarm_message(sensor,config, lang)
-		title = self.get_alarm_title( sensor, config, lang)
-		print 'Send mail depuis versement'
-		useful.send_email(config.AllUsers.elements[user].fields['mail'], title, mess)
-	
-		
+        if sensor.get_type() == 's':
+            level = sensor.degreeAlarm
+            if level == 1:
+                print 'Send mails, level 1'
+                userlist = config.AllGrFunction.elements[self.fields['o_email1']].get_user_group(
+                )
+                for user in userlist:
+                    lang = config.AllUsers.elements[user].fields['language']
+                    mess = self.get_alarm_message(sensor, config, lang)
+                    title = self.get_alarm_title(sensor, config, lang)
+                    useful.send_email(
+                        config.AllUsers.elements[user].fields['mail'], title, mess)
+            elif level == 2:
+                print 'Send mails, level 2'
+                userlist = config.AllGrFunction.elements[self.fields['o_email2']].get_user_group(
+                )
+                for user in userlist:
+                    lang = config.AllUsers.elements[user].fields['language']
+                    mess = self.get_alarm_message(sensor, config, lang)
+                    title = self.get_alarm_title(sensor, config, lang)
+                    useful.send_email(
+                        config.AllUsers.elements[user].fields['mail'], title, mess)
+        elif sensor.get_type() == 'd':
+            userlist = config.AllGrFunction.elements[self.fields['o_email2']].get_user_group(
+            )
+            for user in userlist:
+                lang = config.AllUsers.elements[user].fields['language']
+                mess = self.get_alarm_message(sensor, config, lang)
+                title = self.get_alarm_title(sensor, config, lang)
+                print 'Send mail depuis manuel data'
+                useful.send_email(
+                    config.AllUsers.elements[user].fields['mail'], title, mess)
+        elif sensor.get_type() == 'v':
+            userlist = config.AllGrFunction.elements[self.fields['o_email2']].get_user_group(
+            )
+            for user in userlist:
+                lang = config.AllUsers.elements[user].fields['language']
+                mess = self.get_alarm_message(sensor, config, lang)
+                title = self.get_alarm_title(sensor, config, lang)
+                print 'Send mail depuis versement'
+                useful.send_email(
+                    config.AllUsers.elements[user].fields['mail'], title, mess)
+
     def get_name_listing(self):
-	return 'alarms'
-	
+        return 'alarms'
+
     def get_name(self):
-	return 'alarm'
-	    
-	
+        return 'alarm'
+
+
 class Measure(ConfigurationObject):
 
     def __init__(self):
-	ConfigurationObject.__init__(self)
+        ConfigurationObject.__init__(self)
         self.sensors = sets.Set()
 
     def __repr__(self):
-        string = self.id 
+        string = self.id
         return string
 
     def __str__(self):
@@ -3053,333 +3241,358 @@ class Measure(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
-	    
+
     def get_type(self):
-	return 'm'
-	
+        return 'm'
+
     def get_name_listing(self):
-	return 'measures'
-	
+        return 'measures'
+
     def get_name(self):
-	return 'measure'
+        return 'measure'
 
     def get_sensors_in_component(self, config):
-	listSensor = []
-	for k, sensor in config.AllSensors.elements.items():
-	    if sensor.is_in_component('m',self.id):
-		listSensor.append(k)
-	return listSensor
-	
-    def validate_form(self, data, configuration, lang) :
-	tmp = super(Measure,self).validate_form(data, configuration, lang)
-	if tmp is True:
-	    tmp = ''
-	try : 
-	    if 'formula' in data  and len(data['formula']) >0:
-		value = 1
-		owData = unicode(eval(data['formula']))
-		value = 0
-		owData = unicode(eval(data['formula']))
-	except:
-	    tmp += configuration.AllMessages.elements['formularules'].getName(lang) + '\n'
-	    
-	try:
-	    if not len(data['unit']) > 0:
-		tmp += configuration.AllMessages.elements['unitrules'].getName(lang) + '\n'
-	except:
-	    tmp += configuration.AllMessages.elements['unitrules'].getName(lang) + '\n'
-	
-	if tmp == '':
-	    return True
-	return tmp
-	
-    def set_value_from_data(self, data, c,user):
-	super(Measure,self).set_value_from_data(data, c,user)
-	tmp = ['unit']
-	for elem in tmp:
-	    self.fields[elem] = data[elem]
-	self.save(c,user)
+        listSensor = []
+        for k, sensor in config.AllSensors.elements.items():
+            if sensor.is_in_component('m', self.id):
+                listSensor.append(k)
+        return listSensor
+
+    def validate_form(self, data, configuration, lang):
+        tmp = super(Measure, self).validate_form(data, configuration, lang)
+        if tmp is True:
+            tmp = ''
+        try:
+            if 'formula' in data and len(data['formula']) > 0:
+                value = 1
+                owData = unicode(eval(data['formula']))
+                value = 0
+                owData = unicode(eval(data['formula']))
+        except:
+            tmp += configuration.AllMessages.elements['formularules'].getName(
+                lang) + '\n'
+
+        try:
+            if not len(data['unit']) > 0:
+                tmp += configuration.AllMessages.elements['unitrules'].getName(
+                    lang) + '\n'
+        except:
+            tmp += configuration.AllMessages.elements['unitrules'].getName(
+                lang) + '\n'
+
+        if tmp == '':
+            return True
+        return tmp
+
+    def set_value_from_data(self, data, c, user):
+        super(Measure, self).set_value_from_data(data, c, user)
+        tmp = ['unit']
+        for elem in tmp:
+            self.fields[elem] = data[elem]
+        self.save(c, user)
+
 
 class Sensor(ConfigurationObject):
     def __init__(self):
-	ConfigurationObject.__init__(self)
-	self.actualAlarm = 'typical'
-	self.countActual = 0
-	self.degreeAlarm = 0
+        ConfigurationObject.__init__(self)
+        self.actualAlarm = 'typical'
+        self.countActual = 0
+        self.degreeAlarm = 0
         self.colorAlarm = valueCategs[0].color
-	self.lastvalue = None
-	self.time = 0
-    
+        self.lastvalue = None
+        self.time = 0
+
     def __repr__(self):
-        string = self.id + " " + self.fields['channel'] + " " + self.fields['acronym']
+        string = self.id + " " + \
+            self.fields['channel'] + " " + self.fields['acronym']
         return string
 
     def __str__(self):
         string = "\nSensor :"
         for field in self.fields:
-            string = string + "\n" + field + " : " + unicode(self.fields[field])
-        string  = string + ' Actual Alarm : ' + self.actualAlarm
-        string  = string + ' Count Actual : ' + unicode(self.countActual)
-        string  = string + ' Degree Alarm : ' + unicode(self.degreeAlarm)
+            string = string + "\n" + field + \
+                " : " + unicode(self.fields[field])
+        string = string + ' Actual Alarm : ' + self.actualAlarm
+        string = string + ' Count Actual : ' + unicode(self.countActual)
+        string = string + ' Degree Alarm : ' + unicode(self.degreeAlarm)
         return string + "\n"
 
     def setCorrectAlarmValue(self):
-        if self.fields['minmin'] == '' :
+        if self.fields['minmin'] == '':
             self.fields['minmin'] = -99999999
-        if self.fields['min'] == '' :
+        if self.fields['min'] == '':
             self.fields['min'] = -99999999
-        if self.fields['max'] == '' :
+        if self.fields['max'] == '':
             self.fields['max'] = 99999999
-        if self.fields['maxmax'] == '' :
+        if self.fields['maxmax'] == '':
             self.fields['maxmax'] = 99999999
-	if self.fields['lapse1'] =='':
-	    self.fields['lapse1'] = 99999999
-	if self.fields['lapse2'] =='':
-	    self.fields['lapse2'] = 99999999
-	if self.fields['lapse3'] =='':
-	    self.fields['lapse3'] = 99999999
-	
+        if self.fields['lapse1'] == '':
+            self.fields['lapse1'] = 99999999
+        if self.fields['lapse2'] == '':
+            self.fields['lapse2'] = 99999999
+        if self.fields['lapse3'] == '':
+            self.fields['lapse3'] = 99999999
+
     def get_type(self):
-	return 's'
-	
+        return 's'
+
     def get_name(self):
-	return 'sensor'
-	
+        return 'sensor'
+
     def getRRDName(self):
-	name = 's_' + unicode(self.id)
-	name += '.rrd'
-	return name
+        name = 's_' + unicode(self.id)
+        name += '.rrd'
+        return name
 
     def add_component(self, data):
-	tmp = data.split('_')
-	typeComponent = tmp[-2][-1]
-	if typeComponent == 'p' :
-	    self.fields['p_id'] = tmp[-1]
-	    self.fields['e_id'] = ''
-	    self.fields['c_id'] = ''
-	elif typeComponent == 'c' :
-	    self.fields['c_id'] = tmp[-1]
-	    self.fields['e_id'] = ''
-	    self.fields['p_id'] = ''
-	elif typeComponent == 'e' :
-	    self.fields['e_id'] = tmp[-1]
-	    self.fields['p_id'] = ''
-	    self.fields['c_id'] = ''
-	elif typeComponent == 'm' :
+        tmp = data.split('_')
+        typeComponent = tmp[-2][-1]
+        if typeComponent == 'p':
+            self.fields['p_id'] = tmp[-1]
+            self.fields['e_id'] = ''
+            self.fields['c_id'] = ''
+        elif typeComponent == 'c':
+            self.fields['c_id'] = tmp[-1]
+            self.fields['e_id'] = ''
+            self.fields['p_id'] = ''
+        elif typeComponent == 'e':
+            self.fields['e_id'] = tmp[-1]
+            self.fields['p_id'] = ''
+            self.fields['c_id'] = ''
+        elif typeComponent == 'm':
             self.fields['m_id'] = tmp[-1]
-	    
-    def add_measure(self, data):
-	tmp = data.split('_')
-	self.fields['m_id']= tmp[-1]
-	    
-	    
-    def add_phase(self, data):
-	self.fields['h_id'] = data
 
-    def update(self, now, value ,config):
-	if value is not None :
-	    self.lastvalue = value
-	    self.updateRRD(now, value)
+    def add_measure(self, data):
+        tmp = data.split('_')
+        self.fields['m_id'] = tmp[-1]
+
+    def add_phase(self, data):
+        self.fields['h_id'] = data
+
+    def update(self, now, value, config):
+        if value is not None:
+            self.lastvalue = value
+            self.updateRRD(now, value)
 
             minutes = int(now / 60)
             #GMT + DST
             hours = (int(minutes / 60) % 24)+100 + 2
             minutes = (minutes % 60)+100
             strnow = unicode(hours)[1:3]+":"+unicode(minutes)[1:3]
-	    if config.screen is not None :
-		pos = config.screen.show(config.screen.begScreen,strnow)
-		pos = config.screen.showBW(pos+2,self.get_acronym())
-		pos = config.screen.show(pos+2,unicode(round(float(value),1)))
+            if config.screen is not None:
+                pos = config.screen.show(config.screen.begScreen, strnow)
+                pos = config.screen.showBW(pos+2, self.get_acronym())
+                pos = config.screen.show(
+                    pos+2, unicode(round(float(value), 1)))
             if self.fields['m_id']:
                 id_measure = unicode(self.fields['m_id'])
                 if id_measure in config.AllMeasures.elements and config.screen is not None:
                     measure = config.AllMeasures.elements[id_measure]
-                    pos = config.screen.show(pos,measure.fields['unit'])
-                
-	    typeAlarm,symbAlarm,self.colorAlarm = self.getTypeAlarm(value)
-            print (u'Sensor update Channel : '+ self.fields['channel'] + u'    ' + self.fields['sensor'] + u' ==> ' + self.fields['acronym'] + u' = ' + unicode(value))
-	    if typeAlarm == 'typical' :
-		self.setTypicalAlarm()
-	    else:
-		if not (( typeAlarm == 'min' and self.actualAlarm == 'minmin' ) or ( typeAlarm == 'max' and self.actualAlarm == 'maxmax')) :
-		    self.actualAlarm = typeAlarm
-		if config.screen is not None :
-		    config.screen.showBW(-1,symbAlarm)
-		self.launchAlarm(config, now)
-	    if config.screen is not None :
-		config.screen.end_line()
-	else :
-	    #TODO : si on ne sait pas se connecter au senseur, rajouter Alarme " Erreur Senseur not working"
-	    print "Impossible d acceder au senseur "+self.fields['acronym']
-	
-    def updateRRD(self,now, value):
+                    pos = config.screen.show(pos, measure.fields['unit'])
+
+            typeAlarm, symbAlarm, self.colorAlarm = self.getTypeAlarm(value)
+            print(u'Sensor update Channel : ' + self.fields['channel'] + u'    ' +
+                  self.fields['sensor'] + u' ==> ' + self.fields['acronym'] + u' = ' + unicode(value))
+            if typeAlarm == 'typical':
+                self.setTypicalAlarm()
+            else:
+                if not ((typeAlarm == 'min' and self.actualAlarm == 'minmin') or (typeAlarm == 'max' and self.actualAlarm == 'maxmax')):
+                    self.actualAlarm = typeAlarm
+                if config.screen is not None:
+                    config.screen.showBW(-1, symbAlarm)
+                self.launchAlarm(config, now)
+            if config.screen is not None:
+                config.screen.end_line()
+        else:
+            # TODO : si on ne sait pas se connecter au senseur, rajouter Alarme " Erreur Senseur not working"
+            print "Impossible d acceder au senseur "+self.fields['acronym']
+
+    def updateRRD(self, now, value):
         value = float(value)
-	rrdtool.update(str(rrdDir +self.getRRDName()) , '%d:%f' % (now ,value))
-	
+        rrdtool.update(str(rrdDir + self.getRRDName()), '%d:%f' % (now, value))
+
     def createRRD(self):
-	name = re.sub('[^\w]+', '', self.fields['acronym'])
-	now = str( int(time.time())-60)
-	if self.fields['channel'] in queryChannels :
-	    data_sources = str('DS:'+name+':GAUGE:120:U:U')
-	    rrdtool.create( str(rrdDir+self.getRRDName()), "--step", "60", '--start', now, data_sources, 'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
-	elif self.fields['channel'] == 'radio' :
-	    data_sources = str('DS:'+name+':GAUGE:360:U:U')
-	    rrdtool.create( str(rrdDir+self.getRRDName()), "--step", "180", '--start', now, data_sources, 'RRA:LAST:0.5:1:14400', 'RRA:AVERAGE:0.5:5:34560', 'RRA:AVERAGE:0.5:30:28800')	    
-	
-    def getTypeAlarm(self,value):
-	value = float(value)
-	if self.fields['minmin'] and value <= float(self.fields['minmin']):
-	    return valueCategs[-2].triple()
-	elif self.fields['min'] and value <= float(self.fields['min']):
-	    return valueCategs[-1].triple()
-	elif self.fields['maxmax'] and value > float(self.fields['maxmax']):
-	    return valueCategs[2].triple()
-	elif self.fields['max'] and value > float(self.fields['max']):
-	    return valueCategs[1].triple()
-	else:
-	    return valueCategs[0].triple()
-	    
+        name = re.sub('[^\w]+', '', self.fields['acronym'])
+        now = str(int(time.time())-60)
+        if self.fields['channel'] in queryChannels:
+            data_sources = str('DS:'+name+':GAUGE:120:U:U')
+            rrdtool.create(str(rrdDir+self.getRRDName()), "--step", "60", '--start', now, data_sources,
+                           'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+        elif self.fields['channel'] == 'radio':
+            data_sources = str('DS:'+name+':GAUGE:360:U:U')
+            rrdtool.create(str(rrdDir+self.getRRDName()), "--step", "180", '--start', now, data_sources,
+                           'RRA:LAST:0.5:1:14400', 'RRA:AVERAGE:0.5:5:34560', 'RRA:AVERAGE:0.5:30:28800')
+
+    def getTypeAlarm(self, value):
+        value = float(value)
+        if self.fields['minmin'] and value <= float(self.fields['minmin']):
+            return valueCategs[-2].triple()
+        elif self.fields['min'] and value <= float(self.fields['min']):
+            return valueCategs[-1].triple()
+        elif self.fields['maxmax'] and value > float(self.fields['maxmax']):
+            return valueCategs[2].triple()
+        elif self.fields['max'] and value > float(self.fields['max']):
+            return valueCategs[1].triple()
+        else:
+            return valueCategs[0].triple()
+
     def launchAlarm(self, config, now):
         print 'lancement alarme Sensor : ' + self.getName('EN')
-	if self.degreeAlarm == 0 :
-	    self.degreeAlarm = 1
-	    self.countAlarm = 0
-	    self.time = now
-	    if int(float(self.fields['lapse1'])) == 0 :
-		config.AllAlarms.elements[self.get_alarm()].launch_alarm(self, config)
-		self.degreeAlarm = 2
-	else:
-	    self.countAlarm = self.countAlarm + 1
-	    if self.degreeAlarm == 1 and self.countAlarm >= int(self.fields['lapse1']) :
-		config.AllAlarms.elements[self.get_alarm()].launch_alarm(self, config)
-		self.degreeAlarm = 2
+        if self.degreeAlarm == 0:
+            self.degreeAlarm = 1
+            self.countAlarm = 0
+            self.time = now
+            if int(float(self.fields['lapse1'])) == 0:
+                config.AllAlarms.elements[self.get_alarm()].launch_alarm(
+                    self, config)
+                self.degreeAlarm = 2
+        else:
+            self.countAlarm = self.countAlarm + 1
+            if self.degreeAlarm == 1 and self.countAlarm >= int(self.fields['lapse1']):
+                config.AllAlarms.elements[self.get_alarm()].launch_alarm(
+                    self, config)
+                self.degreeAlarm = 2
                 self.countAlarm = 0
-	    elif self.degreeAlarm == 2 and self.countAlarm >= int(self.fields['lapse2']) :
-		config.AllAlarms.elements[self.get_alarm()].launch_alarm(self, config)
-		self.degreeAlarm = 3
+            elif self.degreeAlarm == 2 and self.countAlarm >= int(self.fields['lapse2']):
+                config.AllAlarms.elements[self.get_alarm()].launch_alarm(
+                    self, config)
+                self.degreeAlarm = 3
                 self.countAlarm = 0
-	    elif self.degreeAlarm == 3 and self.countAlarm >= int(self.fields['lapse3']) :
-		config.AllAlarms.elements[self.get_alarm()].launch_alarm(self, config)
-		self.setTypicalAlarm()
-		
+            elif self.degreeAlarm == 3 and self.countAlarm >= int(self.fields['lapse3']):
+                config.AllAlarms.elements[self.get_alarm()].launch_alarm(
+                    self, config)
+                self.setTypicalAlarm()
+
     def setTypicalAlarm(self):
-	self.countActual = 0
-	self.actualAlarm = 'typical'
-	self.degreeAlarm = 0
-	self.time = 0
-	
-    def get_value_sensor(self,config,webCache=None):
+        self.countActual = 0
+        self.actualAlarm = 'typical'
+        self.degreeAlarm = 0
+        self.time = 0
+
+    def get_value_sensor(self, config, webCache=None):
         if webCache is None:
             webCache = {}
-	owData = None
+        owData = None
         debugging = u""
-	if self.fields['channel'] == 'wire':
-	    try:
-		sensorAdress = u'/'+unicode(self.fields['sensor'])+u'/'+unicode(self.fields['subsensor'])
+        if self.fields['channel'] == 'wire':
+            try:
+                sensorAdress = u'/' + \
+                    unicode(self.fields['sensor'])+u'/' + \
+                    unicode(self.fields['subsensor'])
                 owData = config.owproxy.read(sensorAdress)
-	    except:
+            except:
                 debugging = u"Device="+sensorAdress+u", Message="+traceback.format_exc()
-	elif self.fields['channel'] == 'battery':
+        elif self.fields['channel'] == 'battery':
             owData = config.batteryVoltage
-	elif self.fields['channel'] == 'cputemp':
-	    with open('/sys/class/thermal/thermal_zone0/temp','r') as sensorfile:
-		info = sensorfile.read()
-		owData = float(info)/1000.0
-	elif self.fields['channel'] == 'http':
+        elif self.fields['channel'] == 'cputemp':
+            with open('/sys/class/thermal/thermal_zone0/temp', 'r') as sensorfile:
+                info = sensorfile.read()
+                owData = float(info)/1000.0
+        elif self.fields['channel'] == 'http':
             url = self.fields['sensor']
             code = 0
             info = ""
             if url in webCache:
                 info = webCache[url]
-		owData = eval(self.fields['subsensor'])
+                owData = eval(self.fields['subsensor'])
             else:
                 try:
-                    sensorfile = urllib2.urlopen(self.fields['sensor'],None,20)
-		    info = sensorfile.read(80000)
+                    sensorfile = urllib2.urlopen(
+                        self.fields['sensor'], None, 20)
+                    info = sensorfile.read(80000)
                     sensorfile.close()
                     webCache[url] = info
-		    owData = eval(self.fields['subsensor'])
+                    owData = eval(self.fields['subsensor'])
                 except:
-	            debugging = u"URL="+url+u", code="+unicode(code)+u", Response="+info+u", Message="+traceback.format_exc()
-	elif self.fields['channel'] == 'json':
+                    debugging = u"URL="+url+u", code=" + \
+                        unicode(code)+u", Response="+info + \
+                        u", Message="+traceback.format_exc()
+        elif self.fields['channel'] == 'json':
             url = self.fields['sensor']
             code = 0
             info = ""
             if url in webCache:
                 info = webCache[url]
                 try:
-		    owData = eval(self.fields['subsensor'])
+                    owData = eval(self.fields['subsensor'])
                 except:
-	            debugging = u"URL="+url+u", code="+unicode(code)+u", Response="+unicode(info)+u", Subsensor="+self.fields['subsensor']+u", Message="+traceback.format_exc()
+                    debugging = u"URL="+url+u", code="+unicode(code)+u", Response="+unicode(
+                        info)+u", Subsensor="+self.fields['subsensor']+u", Message="+traceback.format_exc()
                     traceback.print_exc()
             else:
                 try:
-                    sensorfile = urllib2.urlopen(self.fields['sensor'],None,20)
+                    sensorfile = urllib2.urlopen(
+                        self.fields['sensor'], None, 20)
                     print sensorfile.getcode()
                     info = sensorfile.read()
-		    info = json.loads(info)
+                    info = json.loads(info)
                     sensorfile.close()
                     webCache[url] = info
-		    owData = eval(self.fields['subsensor'])
+                    owData = eval(self.fields['subsensor'])
                 except:
-	            debugging = u"URL="+url+u", code="+unicode(code)+u", Response="+unicode(info)+u", Subsensor="+self.fields['subsensor']+u", Message="+traceback.format_exc()
-	elif self.fields['channel'] == 'system':
-	    try:
+                    debugging = u"URL="+url+u", code="+unicode(code)+u", Response="+unicode(
+                        info)+u", Subsensor="+self.fields['subsensor']+u", Message="+traceback.format_exc()
+        elif self.fields['channel'] == 'system':
+            try:
                 sensorAdress = self.fields['sensor']
-                with open(sensorAdress,'r') as sensorfile:
-		    info = sensorfile.read()
-		    owData = eval(self.fields['subsensor'])
-	    except:
-                debugging = u"Device="+sensorAdress+u", field="+self.fields['subsensor']+u", data="+unicode(info)+u", Message="+traceback.format_exc()
+                with open(sensorAdress, 'r') as sensorfile:
+                    info = sensorfile.read()
+                    owData = eval(self.fields['subsensor'])
+            except:
+                debugging = u"Device="+sensorAdress+u", field=" + \
+                    self.fields['subsensor']+u", data=" + \
+                    unicode(info)+u", Message="+traceback.format_exc()
         if owData:
             if self.fields['formula']:
-	        try:
+                try:
                     value = float(owData)
                     owData = unicode(eval(self.fields['formula']))
                 except:
-                    debugging = u"Device="+self.fields['sensor']+u" / "+self.fields['subsensor']+u", Formula="+self.fields['formula']+u", Message="+traceback.format_exc()
+                    debugging = u"Device="+self.fields['sensor']+u" / "+self.fields['subsensor'] + \
+                        u", Formula="+self.fields['formula'] + \
+                        u", Message="+traceback.format_exc()
             return owData, debugging
-	return None, debugging
-    
+        return None, debugging
+
     def get_alarm(self):
-	if self.actualAlarm == 'typical':
-	    return self.fields['a_typical']
-	elif self.actualAlarm == 'minmin':
-	    return self.fields['a_minmin']
-	elif self.actualAlarm == 'min':
-	    return self.fields['a_min']
-	elif self.actualAlarm == 'max':
-	    return self.fields['a_max']
-	elif self.actualAlarm == 'maxmax':
-	    return self.fields['a_maxmax']
-	    
+        if self.actualAlarm == 'typical':
+            return self.fields['a_typical']
+        elif self.actualAlarm == 'minmin':
+            return self.fields['a_minmin']
+        elif self.actualAlarm == 'min':
+            return self.fields['a_min']
+        elif self.actualAlarm == 'max':
+            return self.fields['a_max']
+        elif self.actualAlarm == 'maxmax':
+            return self.fields['a_maxmax']
+
     def get_name_listing(self):
-	return 'sensors'
-	
-    def is_in_component(self,type,id):
-	if type == 'e':
-	    return id == self.fields['e_id']
-	elif type == 'p':
-	    return id == self.fields['p_id']
-	elif type == 'c':
-	    return id == self.fields['c_id']
-	elif type == 'm':
-	    return id == self.fields['m_id']
-	return False
-	
+        return 'sensors'
+
+    def is_in_component(self, type, id):
+        if type == 'e':
+            return id == self.fields['e_id']
+        elif type == 'p':
+            return id == self.fields['p_id']
+        elif type == 'c':
+            return id == self.fields['c_id']
+        elif type == 'm':
+            return id == self.fields['m_id']
+        return False
+
     def get_component(self, config):
-	if self.fields['p_id'] != '':
-	    return config.AllPieces.elements[self.fields['p_id']]
-	elif self.fields['e_id'] != '':
-	    return config.AllEquipments.elements[self.fields['e_id']]
-	elif self.fields['c_id'] != '':
-	    return config.AllContainers.elements[self.fields['c_id']]
-	
+        if self.fields['p_id'] != '':
+            return config.AllPieces.elements[self.fields['p_id']]
+        elif self.fields['e_id'] != '':
+            return config.AllEquipments.elements[self.fields['e_id']]
+        elif self.fields['c_id'] != '':
+            return config.AllContainers.elements[self.fields['c_id']]
+
     def get_sensors_in_component(self, config):
-	tmp = []
-	tmp.append(self.id)
-	return tmp
-	  
+        tmp = []
+        tmp.append(self.id)
+        return tmp
+
     def fetch(self, start, end=None, resolution=60):
         """Fetch data from the RRD.
 
@@ -3392,71 +3605,82 @@ class Sensor(ConfigurationObject):
             end = int(time.time())
         if start < 0:
             start += end
-        if end - start > resolution :
+        if end - start > resolution:
             end -= end % resolution
             start -= start % resolution
-            time_span, _, values = rrdtool.fetch(str(rrdDir+self.getRRDName()), 'AVERAGE','-s', str(int(start)),'-e', str(int(end)),'-r', str(resolution))
+            time_span, _, values = rrdtool.fetch(str(rrdDir+self.getRRDName(
+            )), 'AVERAGE', '-s', str(int(start)), '-e', str(int(end)), '-r', str(resolution))
             ts_start, ts_end, ts_res = time_span
             times = range(ts_start, ts_end, ts_res)
             return zip(times, values)
-	return None
-	
-    def validate_form(self, data, configuration, lang) :
-	tmp = super(Sensor,self).validate_form(data, configuration, lang)
-	if tmp is True:
-	    tmp = ''
-	try : 
-	    if 'formula' in data  and len(data['formula']) >0:
-		value = 1
-		owData = unicode(eval(data['formula']))
-		value = 0
-		owData = unicode(eval(data['formula']))
-	except:
-	    tmp += configuration.AllMessages.elements['formularules'].getName(lang) + '\n'
-	    
-	try:
-	    if not len(data['component']) > 0:
-		tmp += configuration.AllMessages.elements['componentrules'].getName(lang) + '\n'
-	except:
-	    tmp += configuration.AllMessages.elements['componentrules'].getName(lang) + '\n'
-	try:
-	    if not len(data['measure']) > 0:
-		tmp += configuration.AllMessages.elements['measurerules'].getName(lang) + '\n'
-	except:
-	    tmp += configuration.AllMessages.elements['measurerules'].getName(lang) + '\n'
-	try:
-	    if not len(data['channel']) > 0:
-		tmp += configuration.AllMessages.elements['channelrules'].getName(lang) + '\n'
-	except:
-	    tmp += configuration.AllMessages.elements['channelrules'].getName(lang) + '\n'
-	try:
-	    if not len(data['sensor']) > 0:
-		tmp += configuration.AllMessages.elements['sensorrules'].getName(lang) + '\n'
-	except:
-	    tmp += configuration.AllMessages.elements['sensorrules'].getName(lang) + '\n'
-		
-	    
-	if tmp == '':
-	    return True
-	return tmp
-	
-    def set_value_from_data(self, data, c,user):
-	super(Sensor,self).set_value_from_data(data, c,user)
-	tmp = ['channel', 'sensor', 'subsensor', 'valuetype', 'formula', 'minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax', 'lapse1', 'lapse2', 'lapse3']
-	for elem in tmp:
-	    self.fields[elem] = data[elem]
-	self.add_component(data['component'])
-	self.add_measure(data['measure'])
-	self.createRRD()
-	self.save(c,user)
-    
+        return None
+
+    def validate_form(self, data, configuration, lang):
+        tmp = super(Sensor, self).validate_form(data, configuration, lang)
+        if tmp is True:
+            tmp = ''
+        try:
+            if 'formula' in data and len(data['formula']) > 0:
+                value = 1
+                owData = unicode(eval(data['formula']))
+                value = 0
+                owData = unicode(eval(data['formula']))
+        except:
+            tmp += configuration.AllMessages.elements['formularules'].getName(
+                lang) + '\n'
+
+        try:
+            if not len(data['component']) > 0:
+                tmp += configuration.AllMessages.elements['componentrules'].getName(
+                    lang) + '\n'
+        except:
+            tmp += configuration.AllMessages.elements['componentrules'].getName(
+                lang) + '\n'
+        try:
+            if not len(data['measure']) > 0:
+                tmp += configuration.AllMessages.elements['measurerules'].getName(
+                    lang) + '\n'
+        except:
+            tmp += configuration.AllMessages.elements['measurerules'].getName(
+                lang) + '\n'
+        try:
+            if not len(data['channel']) > 0:
+                tmp += configuration.AllMessages.elements['channelrules'].getName(
+                    lang) + '\n'
+        except:
+            tmp += configuration.AllMessages.elements['channelrules'].getName(
+                lang) + '\n'
+        try:
+            if not len(data['sensor']) > 0:
+                tmp += configuration.AllMessages.elements['sensorrules'].getName(
+                    lang) + '\n'
+        except:
+            tmp += configuration.AllMessages.elements['sensorrules'].getName(
+                lang) + '\n'
+
+        if tmp == '':
+            return True
+        return tmp
+
+    def set_value_from_data(self, data, c, user):
+        super(Sensor, self).set_value_from_data(data, c, user)
+        tmp = ['channel', 'sensor', 'subsensor', 'valuetype', 'formula', 'minmin', 'min', 'typical', 'max',
+               'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax', 'lapse1', 'lapse2', 'lapse3']
+        for elem in tmp:
+            self.fields[elem] = data[elem]
+        self.add_component(data['component'])
+        self.add_measure(data['measure'])
+        self.createRRD()
+        self.save(c, user)
+
+
 class Batch(ConfigurationObject):
     def __init__(self, config):
-	ConfigurationObject.__init__(self)
-	self.config = config
-	self.source = []
-	self.destination = []
-	self.checkpoints = []
+        ConfigurationObject.__init__(self)
+        self.config = config
+        self.source = []
+        self.destination = []
+        self.checkpoints = []
 
     def __repr__(self):
         string = unicode(self.id) + " " + self.fields['acronym']
@@ -3467,164 +3691,176 @@ class Batch(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
-	
-    def get_type(self):
-	return 'b'
-	
-    def get_name_listing(self):
-	return 'batches'
-    
-    def get_name(self):
-	return 'batch'
-	
-    def add_measure(self, data):
-	tmp = data.split('_')
-	self.fields['m_id']= tmp[-1]
-	
-    def get_cost(self, quantity):
-	value = float(self.fields['cost'])/float(self.fields['basicqt'])
-	return value * float(quantity)
-	
-    def get_quantity_used(self):
-	qt = 0
-	for e in self.source:
-	    qt += float(self.config.AllPourings.elements[e].fields['quantity'])
-	return qt
-	
-    def get_lifetime(self):
-	if self.fields['basicqt'] == '' or self.fields['basicqt'] == 0:
-	    self.fields['basicqt'] = 0
-	else:
-	    qt = self.get_quantity_used()
-	    tmp = float(self.fields['basicqt']) - qt
-	    if tmp < 0 :
-		return useful.date_to_timestamp(self.pourings.fields['time']) - useful.date_to_timestamp(self.fields['time'])
-	return useful.get_timestamp() - useful.date_to_timestamp(self.fields['time'])
-		
-    def add_source(self, pouring):
-	self.remove_source(pouring)
-	if len(self.source) == 0:
-	    self.source.append(pouring.getID())
-	else:
-	    time = useful.date_to_timestamp(pouring.fields['time'])
-	    insert = False
-	    for i in range(len(self.source)):
-		tmp = self.config.AllPourings.elements[self.source[i]]
-		tmptime = useful.date_to_timestamp(tmp.fields['time'])
-		if time < tmptime:
-		    insert = True
-		    self.source.insert(i,pouring.getID())
-		    break
-	    if insert is False:
-		self.source.append(pouring.getID())
-    
-    def remove_source(self, pouring):
-	if pouring.getID() in self.source:
-	    self.source.remove(pouring.getID())
-	    
-    def add_destination(self, pouring):
-	self.remove_destination(pouring)
-	if len(self.destination) == 0:
-	    self.destination.append(pouring.getID())
-	else:
-	    time = useful.date_to_timestamp(pouring.fields['time'])
-	    insert = False
-	    for i in range(len(self.destination)):
-		tmp = self.config.AllPourings.elements[self.destination [i]]
-		tmptime = useful.date_to_timestamp(tmp.fields['time'])
-		if int(time) < int(tmptime):
-		    insert = True
-		    self.destination.insert(i,pouring.getID())
-		    break
-	    if insert is False:
-		self.destination.append(pouring.getID())
-    
-    def remove_destination(self, pouring):
-	if pouring.getID() in self.destination:
-	    self.destination.remove(pouring.getID())
-	    
-    def add_checkpoint(self, cp):
-	self.checkpoints.append(cp)
-		
-    def get_residual_quantity(self):
-	val = self.get_quantity_used()
-	if self.fields['basicqt'] == '' or self.fields['basicqt'] == 0:
-	    self.fields['basicqt'] = 0
-	return float(self.fields['basicqt']) - val
-	
-    def clone(self, user, name = 1 ):
-	b = self.config.getObject('new','b')
-	b.fields['active'] = self.fields['active']
-	tmp = len(self.fields['acronym'])-self.fields['acronym'].rfind('_')-1-len(str(name))
-	tmpname = self.fields['acronym'][0:self.fields['acronym'].rfind('_')+1] + '0' * tmp + str(name)
-	allObjects = self.config.findAllFromObject(self)    
-	cond = allObjects.unique_acronym( tmpname, self.id)
-	while not cond:
-	    name += 1
-	    tmp = len(self.fields['acronym'])-self.fields['acronym'].rfind('_')-1-len(str(name))
-	    tmpname = self.fields['acronym'][0:self.fields['acronym'].rfind('_')+1] + '0' * tmp + str(name)
-	    cond = allObjects.unique_acronym( tmpname, self.id)
-	b.fields['acronym'] = tmpname
-	b.fields['basicqt'] = self.fields['basicqt']
-	b.fields['m_id'] = self.fields['m_id']
-	b.fields['time'] = self.fields['time']
-	b.fields['cost'] = self.fields['cost']
-	b.fields['remark'] = self.fields['remark']
-	b.fields['gr_id'] = self.fields['gr_id']
-	for lang in self.config.AllLanguages.elements:
-	    b.setName(lang, self.get_real_name(lang),user, self.config.getKeyColumn(b))
-	b.creator = user.fields['u_id']
-	b.created = b.fields['begin']
-	b.save(self.config,user)
-	
-    def validate_form(self, data, configuration, lang) :
-	tmp = super(Batch,self).validate_form(data, configuration, lang)
-	if tmp is True:
-	    tmp = ''
-	try:
-	    value = useful.transform_date(data['time'])
-	except:
-	    traceback.print_exc()
-	    tmp += configuration.AllMessages.elements['timerules'].getName(lang) + '\n'
 
-	try:
-	    value = float(data['cost'])
-	    if value < 0.0:
-		tmp += configuration.AllMessages.elements['costrules'].getName(lang) + '\n'
-	except:
-	    tmp += configuration.AllMessages.elements['costrules'].getName(lang) + '\n'
-	    
-	try:
-	    value = float(data['basicqt'])
-	    if value < 0.0:
-		tmp += configuration.AllMessages.elements['quantityrules'].getName(lang) + '\n'
-	except:
-	    tmp += configuration.AllMessages.elements['quantityrules'].getName(lang) + '\n'
-	    
-	if data['measure'] == '':
-	    tmp += configuration.AllMessages.elements['measurerules'].getName(lang) + '\n'
-	
-	if tmp == '':
-	    return True
-	return tmp
-	
-    def set_value_from_data(self, data, c,user):
-	super(Batch,self).set_value_from_data(data, c,user)
-	tmp = ['basicqt', 'time', 'cost']
-	for elem in tmp:
-	    self.fields[elem] = data[elem]
-	self.add_measure(data['measure'])
-	self.fields['gr_id'] = data['group']
-	self.save(c,user)	
-	    
+    def get_type(self):
+        return 'b'
+
+    def get_name_listing(self):
+        return 'batches'
+
+    def get_name(self):
+        return 'batch'
+
+    def add_measure(self, data):
+        tmp = data.split('_')
+        self.fields['m_id'] = tmp[-1]
+
+    def get_cost(self, quantity):
+        value = float(self.fields['cost'])/float(self.fields['basicqt'])
+        return value * float(quantity)
+
+    def get_quantity_used(self):
+        qt = 0
+        for e in self.source:
+            qt += float(self.config.AllPourings.elements[e].fields['quantity'])
+        return qt
+
+    def get_lifetime(self):
+        if self.fields['basicqt'] == '' or self.fields['basicqt'] == 0:
+            self.fields['basicqt'] = 0
+        else:
+            qt = self.get_quantity_used()
+            tmp = float(self.fields['basicqt']) - qt
+            if tmp < 0:
+                return useful.date_to_timestamp(self.pourings.fields['time']) - useful.date_to_timestamp(self.fields['time'])
+        return useful.get_timestamp() - useful.date_to_timestamp(self.fields['time'])
+
+    def add_source(self, pouring):
+        self.remove_source(pouring)
+        if len(self.source) == 0:
+            self.source.append(pouring.getID())
+        else:
+            time = useful.date_to_timestamp(pouring.fields['time'])
+            insert = False
+            for i in range(len(self.source)):
+                tmp = self.config.AllPourings.elements[self.source[i]]
+                tmptime = useful.date_to_timestamp(tmp.fields['time'])
+                if time < tmptime:
+                    insert = True
+                    self.source.insert(i, pouring.getID())
+                    break
+            if insert is False:
+                self.source.append(pouring.getID())
+
+    def remove_source(self, pouring):
+        if pouring.getID() in self.source:
+            self.source.remove(pouring.getID())
+
+    def add_destination(self, pouring):
+        self.remove_destination(pouring)
+        if len(self.destination) == 0:
+            self.destination.append(pouring.getID())
+        else:
+            time = useful.date_to_timestamp(pouring.fields['time'])
+            insert = False
+            for i in range(len(self.destination)):
+                tmp = self.config.AllPourings.elements[self.destination[i]]
+                tmptime = useful.date_to_timestamp(tmp.fields['time'])
+                if int(time) < int(tmptime):
+                    insert = True
+                    self.destination.insert(i, pouring.getID())
+                    break
+            if insert is False:
+                self.destination.append(pouring.getID())
+
+    def remove_destination(self, pouring):
+        if pouring.getID() in self.destination:
+            self.destination.remove(pouring.getID())
+
+    def add_checkpoint(self, cp):
+        self.checkpoints.append(cp)
+
+    def get_residual_quantity(self):
+        val = self.get_quantity_used()
+        if self.fields['basicqt'] == '' or self.fields['basicqt'] == 0:
+            self.fields['basicqt'] = 0
+        return float(self.fields['basicqt']) - val
+
+    def clone(self, user, name=1):
+        b = self.config.getObject('new', 'b')
+        b.fields['active'] = self.fields['active']
+        tmp = len(self.fields['acronym']) - \
+            self.fields['acronym'].rfind('_')-1-len(str(name))
+        tmpname = self.fields['acronym'][0:self.fields['acronym'].rfind(
+            '_')+1] + '0' * tmp + str(name)
+        allObjects = self.config.findAllFromObject(self)
+        cond = allObjects.unique_acronym(tmpname, self.id)
+        while not cond:
+            name += 1
+            tmp = len(self.fields['acronym']) - \
+                self.fields['acronym'].rfind('_')-1-len(str(name))
+            tmpname = self.fields['acronym'][0:self.fields['acronym'].rfind(
+                '_')+1] + '0' * tmp + str(name)
+            cond = allObjects.unique_acronym(tmpname, self.id)
+        b.fields['acronym'] = tmpname
+        b.fields['basicqt'] = self.fields['basicqt']
+        b.fields['m_id'] = self.fields['m_id']
+        b.fields['time'] = self.fields['time']
+        b.fields['cost'] = self.fields['cost']
+        b.fields['remark'] = self.fields['remark']
+        b.fields['gr_id'] = self.fields['gr_id']
+        for lang in self.config.AllLanguages.elements:
+            b.setName(lang, self.get_real_name(lang),
+                      user, self.config.getKeyColumn(b))
+        b.creator = user.fields['u_id']
+        b.created = b.fields['begin']
+        b.save(self.config, user)
+
+    def validate_form(self, data, configuration, lang):
+        tmp = super(Batch, self).validate_form(data, configuration, lang)
+        if tmp is True:
+            tmp = ''
+        try:
+            value = useful.transform_date(data['time'])
+        except:
+            traceback.print_exc()
+            tmp += configuration.AllMessages.elements['timerules'].getName(
+                lang) + '\n'
+
+        try:
+            value = float(data['cost'])
+            if value < 0.0:
+                tmp += configuration.AllMessages.elements['costrules'].getName(
+                    lang) + '\n'
+        except:
+            tmp += configuration.AllMessages.elements['costrules'].getName(
+                lang) + '\n'
+
+        try:
+            value = float(data['basicqt'])
+            if value < 0.0:
+                tmp += configuration.AllMessages.elements['quantityrules'].getName(
+                    lang) + '\n'
+        except:
+            tmp += configuration.AllMessages.elements['quantityrules'].getName(
+                lang) + '\n'
+
+        if data['measure'] == '':
+            tmp += configuration.AllMessages.elements['measurerules'].getName(
+                lang) + '\n'
+
+        if tmp == '':
+            return True
+        return tmp
+
+    def set_value_from_data(self, data, c, user):
+        super(Batch, self).set_value_from_data(data, c, user)
+        tmp = ['basicqt', 'time', 'cost']
+        for elem in tmp:
+            self.fields[elem] = data[elem]
+        self.add_measure(data['measure'])
+        self.fields['gr_id'] = data['group']
+        self.save(c, user)
+
     def get_group(self):
-	return self.fields['gr_id']
+        return self.fields['gr_id']
+
 
 class PouringModel(ConfigurationObject):
     def __init__(self, config):
-	ConfigurationObject.__init__(self)
+        ConfigurationObject.__init__(self)
         self.config = config
-            
+
     def __repr__(self):
         string = unicode(self.id)
         return string
@@ -3634,45 +3870,48 @@ class PouringModel(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
-    
+
     def get_type(self):
-	return 'vm'
-	
+        return 'vm'
+
     def get_name(self):
-	return 'pouringmodel'
-	
+        return 'pouringmodel'
+
     def get_group(self):
-	return self.fields['h_id']
-    
+        return self.fields['h_id']
+
     def validate_form(self, data, configuration, lang):
-	return super(PouringModel,self).validate_form(data, configuration, lang)	
-	
-    def set_value_from_data(self, data, c,user):
-	if self.fields['h_id'] != '':
-	    self.config.AllCheckPoints.elements[self.fields['h_id']].remove_vm(self)
-	super(PouringModel,self).set_value_from_data(data, c,user)
-	self.fields['quantity'] = data['quantity']
-	if data['src'] != 'current':
-	    self.fields['src'] = data['src']
-	else:
-	    self.fields['src'] = ''
-	    self.fields['in'] = '0'
-	if data['dest'] != 'current':
-	    self.fields['dest'] = data['dest']
-	else:
-	    self.fields['dest'] = '1'
-	    self.fields['in'] = ''
-	self.fields['h_id'] = data['checkpoint']
-	self.fields['rank'] = data['rank']
-	if 'active' in data:
-	    self.config.AllCheckPoints.elements[self.fields['h_id']].add_vm(self)
-	self.save(c,user)
-	
+        return super(PouringModel, self).validate_form(data, configuration, lang)
+
+    def set_value_from_data(self, data, c, user):
+        if self.fields['h_id'] != '':
+            self.config.AllCheckPoints.elements[self.fields['h_id']].remove_vm(
+                self)
+        super(PouringModel, self).set_value_from_data(data, c, user)
+        self.fields['quantity'] = data['quantity']
+        if data['src'] != 'current':
+            self.fields['src'] = data['src']
+        else:
+            self.fields['src'] = ''
+            self.fields['in'] = '0'
+        if data['dest'] != 'current':
+            self.fields['dest'] = data['dest']
+        else:
+            self.fields['dest'] = '1'
+            self.fields['in'] = ''
+        self.fields['h_id'] = data['checkpoint']
+        self.fields['rank'] = data['rank']
+        if 'active' in data:
+            self.config.AllCheckPoints.elements[self.fields['h_id']].add_vm(
+                self)
+        self.save(c, user)
+
+
 class ManualDataModel(ConfigurationObject):
     def __init__(self, config):
-	ConfigurationObject.__init__(self)
+        ConfigurationObject.__init__(self)
         self.config = config
-            
+
     def __repr__(self):
         string = unicode(self.id)
         return string
@@ -3682,35 +3921,38 @@ class ManualDataModel(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
-    
+
     def get_type(self):
-	return 'dm'
-	
+        return 'dm'
+
     def get_name(self):
-	return 'manualdatamodel'
-	
+        return 'manualdatamodel'
+
     def get_group(self):
-	return self.fields['h_id']
-    
+        return self.fields['h_id']
+
     def validate_form(self, data, configuration, lang):
-	return super(ManualDataModel,self).validate_form(data, configuration, lang)	
-	
-    def set_value_from_data(self, data, c,user):
-	if self.fields['h_id'] != '':
-	    self.config.AllCheckPoints.elements[self.fields['h_id']].remove_dm(self)
-	super(ManualDataModel,self).set_value_from_data(data, c,user)
-	self.fields['m_id'] = data['measure']
-	self.fields['h_id'] = data['checkpoint']
-	self.fields['rank'] = data['rank']
-	if 'active' in data:
-	    self.config.AllCheckPoints.elements[self.fields['h_id']].add_dm(self)
-	self.save(c,user)
-	
+        return super(ManualDataModel, self).validate_form(data, configuration, lang)
+
+    def set_value_from_data(self, data, c, user):
+        if self.fields['h_id'] != '':
+            self.config.AllCheckPoints.elements[self.fields['h_id']].remove_dm(
+                self)
+        super(ManualDataModel, self).set_value_from_data(data, c, user)
+        self.fields['m_id'] = data['measure']
+        self.fields['h_id'] = data['checkpoint']
+        self.fields['rank'] = data['rank']
+        if 'active' in data:
+            self.config.AllCheckPoints.elements[self.fields['h_id']].add_dm(
+                self)
+        self.save(c, user)
+
+
 class TransferModel(ConfigurationObject):
     def __init__(self, config):
-	ConfigurationObject.__init__(self)
+        ConfigurationObject.__init__(self)
         self.config = config
-            
+
     def __repr__(self):
         string = unicode(self.id)
         return string
@@ -3720,35 +3962,38 @@ class TransferModel(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
-    
+
     def get_type(self):
-	return 'tm'
-	
+        return 'tm'
+
     def get_name(self):
-	return 'transfermodel'
-	
+        return 'transfermodel'
+
     def validate_form(self, data, configuration, lang):
-	return super(TransferModel,self).validate_form(data, configuration, lang)	
-	
-    def set_value_from_data(self, data, c,user):
-	if self.fields['h_id'] != '':
-	    self.config.AllCheckPoints.elements[self.fields['h_id']].remove_tm(self)
-	super(TransferModel,self).set_value_from_data(data, c,user)
-	self.fields['gu_id'] = data['position']
-	self.fields['h_id'] = data['checkpoint']
-	self.fields['rank'] = data['rank']
-	if 'active' in data:
-	    self.config.AllCheckPoints.elements[self.fields['h_id']].add_tm(self)
-	self.save(c,user)
-	
+        return super(TransferModel, self).validate_form(data, configuration, lang)
+
+    def set_value_from_data(self, data, c, user):
+        if self.fields['h_id'] != '':
+            self.config.AllCheckPoints.elements[self.fields['h_id']].remove_tm(
+                self)
+        super(TransferModel, self).set_value_from_data(data, c, user)
+        self.fields['gu_id'] = data['position']
+        self.fields['h_id'] = data['checkpoint']
+        self.fields['rank'] = data['rank']
+        if 'active' in data:
+            self.config.AllCheckPoints.elements[self.fields['h_id']].add_tm(
+                self)
+        self.save(c, user)
+
     def get_group(self):
-	return self.fields['h_id']
-	
+        return self.fields['h_id']
+
+
 class Transfer(ConfigurationObject):
     def __init__(self, config):
-	ConfigurationObject.__init__(self)
+        ConfigurationObject.__init__(self)
         self.config = config
-            
+
     def __repr__(self):
         string = unicode(self.id)
         return string
@@ -3758,86 +4003,90 @@ class Transfer(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
-    
+
     def get_type(self):
-	return 't'
-	
+        return 't'
+
     def get_type_container(self):
-	return self.fields['cont_type']
-	
+        return self.fields['cont_type']
+
     def get_id_container(self):
-	return self.fields['cont_id']
-	
+        return self.fields['cont_id']
+
     def get_type_object(self):
-	return self.fields['object_type']
-	
+        return self.fields['object_type']
+
     def get_id_object(self):
-	return self.fields['object_id']
-	
+        return self.fields['object_id']
+
     def set_position(self, pos):
-	self.fields['cont_type'] = pos.split('_')[0]
-	self.fields['cont_id'] = pos.split('_')[1]
-	
+        self.fields['cont_type'] = pos.split('_')[0]
+        self.fields['cont_id'] = pos.split('_')[1]
+
     def set_object(self, obj):
-	self.fields['object_type'] = obj.split('_')[0]
-	self.fields['object_id'] = obj.split('_')[1]
-	objects = self.config.findAllFromType(self.fields['object_type'])
-	objects.elements[self.fields['object_id']].add_position(self)
-	
-    def validate_form(self, data, configuration, lang) :
-	tmp = ''
-	if 'position' in data :
-	    objtype = data['object'].split('_')[0]
-	    objid = data['object'].split('_')[1]
-	    postype = data['position'].split('_')[0]
-	    posid = data['position'].split('_')[1]
-	    objet = configuration.get_object(objtype,objid)
-	    print objet.get_actual_position()
-	    if (objet.is_actual_position(postype, posid,configuration) is True and objet.get_actual_position() != self.id):
-		tmp += configuration.AllMessages.elements['transferrules'].getName(lang) + '\n'
-	    if ( objtype =='e' and postype != 'p') or(objtype =='c' and postype not in 'ep'):
-		tmp += configuration.AllMessages.elements['transferhierarchy'].getName(lang) + '\n'
-	else :
-	    tmp += configuration.AllMessages.elements['transferrules'].getName(lang) + '\n'
-	if tmp == '':
-	    return True
-	return tmp
-	
-    def set_value_from_data(self, data, c,user):
-	if self.fields['object_type'] != '' and self.fields['object_id'] != '':
-	    self.get_source().remove_position(self)
-	tmp = ['time', 'remark']
-	for elem in tmp:
-	    self.fields[elem] = data[elem]
-	if 'active' in data :
-	    self.fields['active'] = '1'
-	else :
-	    self.fields['active'] = '0'
-	if 'h_id' in data :
-	    self.fields['h_id'] = data['h_id']
-	else :
-	    self.fields['h_id'] = ''
-	self.set_position(data['position'])
-	self.set_object(data['object'])
-	if self.fields['active'] == '1':
-	    self.get_source().add_position(self)
-	else :
-	    self.get_source().remove_position(self)
-	self.save(c,user)
-	
+        self.fields['object_type'] = obj.split('_')[0]
+        self.fields['object_id'] = obj.split('_')[1]
+        objects = self.config.findAllFromType(self.fields['object_type'])
+        objects.elements[self.fields['object_id']].add_position(self)
+
+    def validate_form(self, data, configuration, lang):
+        tmp = ''
+        if 'position' in data:
+            objtype = data['object'].split('_')[0]
+            objid = data['object'].split('_')[1]
+            postype = data['position'].split('_')[0]
+            posid = data['position'].split('_')[1]
+            objet = configuration.get_object(objtype, objid)
+            print objet.get_actual_position()
+            if (objet.is_actual_position(postype, posid, configuration) is True and objet.get_actual_position() != self.id):
+                tmp += configuration.AllMessages.elements['transferrules'].getName(
+                    lang) + '\n'
+            if (objtype == 'e' and postype != 'p') or(objtype == 'c' and postype not in 'ep'):
+                tmp += configuration.AllMessages.elements['transferhierarchy'].getName(
+                    lang) + '\n'
+        else:
+            tmp += configuration.AllMessages.elements['transferrules'].getName(
+                lang) + '\n'
+        if tmp == '':
+            return True
+        return tmp
+
+    def set_value_from_data(self, data, c, user):
+        if self.fields['object_type'] != '' and self.fields['object_id'] != '':
+            self.get_source().remove_position(self)
+        tmp = ['time', 'remark']
+        for elem in tmp:
+            self.fields[elem] = data[elem]
+        if 'active' in data:
+            self.fields['active'] = '1'
+        else:
+            self.fields['active'] = '0'
+        if 'h_id' in data:
+            self.fields['h_id'] = data['h_id']
+        else:
+            self.fields['h_id'] = ''
+        self.set_position(data['position'])
+        self.set_object(data['object'])
+        if self.fields['active'] == '1':
+            self.get_source().add_position(self)
+        else:
+            self.get_source().remove_position(self)
+        self.save(c, user)
+
     def get_source(self):
-	return self.config.findAllFromType(self.fields['object_type']).elements[self.fields['object_id']]
-	
+        return self.config.findAllFromType(self.fields['object_type']).elements[self.fields['object_id']]
+
     def get_cont(self):
-	return self.config.findAllFromType(self.fields['cont_type']).elements[self.fields['cont_id']]
-		
+        return self.config.findAllFromType(self.fields['cont_type']).elements[self.fields['cont_id']]
+
     def get_name(self):
-	return 'transfer'
+        return 'transfer'
+
 
 class Barcode(ConfigurationObject):
     def __init__(self, item):
-	ConfigurationObject.__init__(self)
-	self.element = item
+        ConfigurationObject.__init__(self)
+        self.element = item
 
     def __repr__(self):
         string = ""
@@ -3849,25 +4098,24 @@ class Barcode(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
-	
+
     def barcode_picture(self):
-	EAN = barcode.get_barcode_class('ean13')
-	self.fields['code'] = str(self.fields['code'])
-	ean = EAN(self.fields['code'])
-	ean.save(barcodesDir+self.fields['code'])
-	
-    def get_picture_name(self) :
-	return self.fields['code']+'.png'
-	
+        EAN = barcode.get_barcode_class('ean13')
+        self.fields['code'] = str(self.fields['code'])
+        ean = EAN(self.fields['code'])
+        ean.save(barcodesDir+self.fields['code'])
+
+    def get_picture_name(self):
+        return self.fields['code']+'.png'
+
     def get_picture(self):
-	location = barcodesDir + self.fields['code']
-	if not os.path.exists(location) :
-	    self.barcode_picture()
-	return location
-	
+        location = barcodesDir + self.fields['code']
+        if not os.path.exists(location):
+            self.barcode_picture()
+        return location
+
     def get_name(self):
-	return 'barcode'
+        return 'barcode'
 
     def get_type(self):
         return 'barcode'
-
