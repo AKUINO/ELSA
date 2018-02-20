@@ -6,7 +6,7 @@ import os
 import codecs
 import sys
 
-CONFdirectory = '~/akuino/normal'
+CONFdirectory = '~/akuino/'
 HARDdirectory = CONFdirectory + '/hardware'
 
 

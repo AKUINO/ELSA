@@ -1,3 +1,4 @@
 *.pyc
 static/img/barcodes
 ELSA/static/img/barcodes/
+data/*
