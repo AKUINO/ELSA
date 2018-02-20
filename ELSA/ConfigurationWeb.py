@@ -531,8 +531,8 @@ def main():
         c.load()
         web.template.Template.globals['c'] = c
         web.template.Template.globals['useful'] = useful
-        layout = web.template.frender('templates/layout.html')
-        render = web.template.render('templates/', base=layout)
+        layout = web.template.frender(elsa.TEMPLATES_DIR+'/layout.html')
+        render = web.template.render(elsa.TEMPLATES_DIR, base=layout)
         urls = (
             '/', 'WebIndex',
             '/index', 'WebIndex',

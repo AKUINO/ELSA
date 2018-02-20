@@ -33,12 +33,13 @@ import json
 #import smbus
 
 # mise a jour git
-csvDir = "../ELSAcsv/csv/"
-rrdDir = '../ELSArrd/rrd/'
-ttyDir = '/dev/ttyS0'
-imgDir = 'static/img'
-barcodesDir = 'static/img/barcodes/'
-groupWebUsers = '_WEB'
+DIR_CSV = "../../ELSAcsv/csv/"
+DIR_RRD = '../../ELSArrd/rrd/'
+DIR_TTY = '/dev/ttyS0'
+DIR_IMG = 'static/img'
+TEMPLATES_DIR = '../templates'
+DIR_BARCODES = '../static/img/barcodes/'
+GROUPWEBUSERS = '_WEB'
 
 imagedTypes = [u'u', u'e', u'p', u'g', u'gf', u'gr', u'gu', u'c', u'b', u'h']
 
@@ -100,8 +101,8 @@ class Configuration(object):
 
         self.valueCategs = valueCategs
         self.sortedCategs = sorted(valueCategs)
-        self.csvCodes = csvDir + 'codes.csv'
-        self.csvRelations = csvDir + 'relations.csv'
+        self.csvCodes = DIR_CSV + 'codes.csv'
+        self.csvRelations = DIR_CSV + 'relations.csv'
         self.fieldcode = ['begin', 'type', 'idobject', 'code', 'user']
         self.AllUsers = AllUsers(self)
         self.AllLanguages = AllLanguages(self)
@@ -312,7 +313,7 @@ class Configuration(object):
         EAN = barcode.get_barcode_class('ean13')
         try:
             ean = EAN(code)
-            ean.save(barcodesDir+str(code))
+            ean.save(DIR_BARCODES+str(code))
         except:
             return False
         return True
@@ -652,7 +653,7 @@ class RadioThread(threading.Thread):
         noDots = {ord(' '): None, ord('.'): None}
         try:
             elaSerial = serial.Serial(
-                ttyDir, self.config.HardConfig.ela_bauds, timeout=0.1)
+                DIR_TTY, self.config.HardConfig.ela_bauds, timeout=0.1)
             time.sleep(0.1)
             elaSerial.write(self.config.HardConfig.ela_reset)
             line = None
@@ -704,8 +705,8 @@ class AllObjects(object):
     def __init__(self, code, config=None):
         self.code = code
         self.elements = {}
-        self.fileobject = csvDir + code.upper() + ".csv"
-        self.filename = csvDir + code.upper() + "names.csv"
+        self.fileobject = DIR_CSV + code.upper() + ".csv"
+        self.filename = DIR_CSV + code.upper() + "names.csv"
         self.keyColumn = code + "_id"
         self.config = config
         self.count = 0
@@ -1006,7 +1007,7 @@ class AllAlarmLogs(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'al', config)
-        self.fileobject = csvDir + "alarmlogs.csv"
+        self.fileobject = DIR_CSV + "alarmlogs.csv"
         self.filename = None
         self.fieldnames = ['begin', 'al_id', 'cont_id', 'cont_type',
                            's_id', 'value', 'typealarm', 'begintime', 'alarmtime', 'degree']
@@ -1030,7 +1031,7 @@ class AllHalflings(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, "halfling", config)
-        self.fileobject = csvDir + "halflings.csv"
+        self.fileobject = DIR_CSV + "halflings.csv"
         self.filename = None
         self.keyColumn = "classname"
         self.fieldnames = ['begin', 'classname', 'glyphname', 'user']
@@ -1162,7 +1163,7 @@ class AllGroups(AllObjects):
 
     def get_group(self, acro):
         for k, g in self.elements.items():
-            if g.fields['acronym'] == groupWebUsers:
+            if g.fields['acronym'] == GROUPWEBUSERS:
                 return k
 
 
@@ -1172,7 +1173,7 @@ class AllGrUsage(AllGroups):
         self.fieldnames = ["begin", "gu_id",
                            "active", "acronym", "remark", "user"]
         self.fieldtranslate = ['begin', 'lang', 'gu_id', 'name', 'user']
-        self.csvRelations = csvDir + "GUrelations.csv"
+        self.csvRelations = DIR_CSV + "GUrelations.csv"
 
     def newObject(self):
         return GrUsage(self.config)
@@ -1190,7 +1191,7 @@ class AllGrRecipe(AllGroups):
         self.fieldnames = ["begin", "gr_id",
                            "active", "acronym", "remark", "user"]
         self.fieldtranslate = ['begin', 'lang', 'gr_id', 'name', 'user']
-        self.csvRelations = csvDir + "GRrelations.csv"
+        self.csvRelations = DIR_CSV + "GRrelations.csv"
 
     def newObject(self):
         return GrRecipe(self.config)
@@ -1210,8 +1211,8 @@ class AllCheckPoints(AllGroups):
         self.fieldtranslate = ['begin', 'lang', 'h_id', 'name', 'user']
         self.fieldcontrols = ['begin', 'h_id',
                               'object_type', 'object_id', 'user']
-        self.csvRelations = csvDir + "Hrelations.csv"
-        self.csvControls = csvDir + "Hcontrols.csv"
+        self.csvRelations = DIR_CSV + "Hrelations.csv"
+        self.csvControls = DIR_CSV + "Hcontrols.csv"
 
     def newObject(self):
         return CheckPoint(self.config)
@@ -1283,7 +1284,7 @@ class AllGrFunction(AllGroups):
         self.fieldnames = ["begin", "gf_id",
                            "active", "acronym", "remark", "user"]
         self.fieldtranslate = ['begin', 'lang', 'gf_id', 'name', 'user']
-        self.csvRelations = csvDir + "GFrelations.csv"
+        self.csvRelations = DIR_CSV + "GFrelations.csv"
 
     def newObject(self):
         return GrFunction(self.config)
@@ -1362,7 +1363,7 @@ class AllSensors(AllObjects):
 
     def check_rrd(self):
         for k, v in self.elements.items():
-            filename = rrdDir + v.getRRDName()
+            filename = DIR_RRD + v.getRRDName()
             if not os.path.exists(filename):
                 v.createRRD()
 
@@ -1459,7 +1460,7 @@ class AllBarcodes(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'barcode', config)
-        self.fileobject = csvDir + "codes.csv"
+        self.fileobject = DIR_CSV + "codes.csv"
         self.filename = None
         self.keyColumn = "code"
         self.fieldnames = ['begin', 'type',
@@ -1618,7 +1619,7 @@ class AllLanguages(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'l', config)
-        self.fileobject = csvDir + "language.csv"
+        self.fileobject = DIR_CSV + "language.csv"
         self.filename = None
         self.nameColumn = "name"
 
@@ -1635,8 +1636,8 @@ class AllMessages(AllObjects):
         AllObjects.__init__(self, 'm', config)
         self.elements = {}
         self.names = {}
-        self.fileobject = csvDir + "mess.csv"
-        self.filename = csvDir + "messages.csv"
+        self.fileobject = DIR_CSV + "mess.csv"
+        self.filename = DIR_CSV + "messages.csv"
         self.nameColumn = "name"
 
     def newObject(self):
@@ -2557,7 +2558,7 @@ class ExportData():
         self.fieldnames = ['timestamp', 'user', 'type', 'b_id', 'p_id', 'e_id', 'c_id',
                            'h_id', 'm_id', 'sensor', 'value', 'unit', 'category', 'duration', 'remark']
         self.history = []
-        self.filename = csvDir + "exportdata.csv"
+        self.filename = DIR_CSV + "exportdata.csv"
         self.cond = cond
         self.elem = elem
         if elem.get_type() != 'b':
@@ -3409,18 +3410,18 @@ class Sensor(ConfigurationObject):
 
     def updateRRD(self, now, value):
         value = float(value)
-        rrdtool.update(str(rrdDir + self.getRRDName()), '%d:%f' % (now, value))
+        rrdtool.update(str(DIR_RRD + self.getRRDName()), '%d:%f' % (now, value))
 
     def createRRD(self):
         name = re.sub('[^\w]+', '', self.fields['acronym'])
         now = str(int(time.time())-60)
         if self.fields['channel'] in queryChannels:
             data_sources = str('DS:'+name+':GAUGE:120:U:U')
-            rrdtool.create(str(rrdDir+self.getRRDName()), "--step", "60", '--start', now, data_sources,
+            rrdtool.create(str(DIR_RRD+self.getRRDName()), "--step", "60", '--start', now, data_sources,
                            'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
         elif self.fields['channel'] == 'radio':
             data_sources = str('DS:'+name+':GAUGE:360:U:U')
-            rrdtool.create(str(rrdDir+self.getRRDName()), "--step", "180", '--start', now, data_sources,
+            rrdtool.create(str(DIR_RRD+self.getRRDName()), "--step", "180", '--start', now, data_sources,
                            'RRA:LAST:0.5:1:14400', 'RRA:AVERAGE:0.5:5:34560', 'RRA:AVERAGE:0.5:30:28800')
 
     def getTypeAlarm(self, value):
@@ -3608,7 +3609,7 @@ class Sensor(ConfigurationObject):
         if end - start > resolution:
             end -= end % resolution
             start -= start % resolution
-            time_span, _, values = rrdtool.fetch(str(rrdDir+self.getRRDName(
+            time_span, _, values = rrdtool.fetch(str(DIR_RRD+self.getRRDName(
             )), 'AVERAGE', '-s', str(int(start)), '-e', str(int(end)), '-r', str(resolution))
             ts_start, ts_end, ts_res = time_span
             times = range(ts_start, ts_end, ts_res)
@@ -4103,13 +4104,13 @@ class Barcode(ConfigurationObject):
         EAN = barcode.get_barcode_class('ean13')
         self.fields['code'] = str(self.fields['code'])
         ean = EAN(self.fields['code'])
-        ean.save(barcodesDir+self.fields['code'])
+        ean.save(DIR_BARCODES+self.fields['code'])
 
     def get_picture_name(self):
         return self.fields['code']+'.png'
 
     def get_picture(self):
-        location = barcodesDir + self.fields['code']
+        location = DIR_BARCODES + self.fields['code']
         if not os.path.exists(location):
             self.barcode_picture()
         return location
