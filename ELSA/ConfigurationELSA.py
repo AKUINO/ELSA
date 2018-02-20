@@ -38,7 +38,7 @@ DIR_RRD = '../../ELSArrd/rrd/'
 DIR_TTY = '/dev/ttyS0'
 DIR_IMG = 'static/img'
 TEMPLATES_DIR = '../templates'
-DIR_BARCODES = '../static/img/barcodes/'
+DIR_BARCODES = 'static/img/barcodes/'
 GROUPWEBUSERS = '_WEB'
 
 imagedTypes = [u'u', u'e', u'p', u'g', u'gf', u'gr', u'gu', u'c', u'b', u'h']
