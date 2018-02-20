@@ -33,12 +33,13 @@ import json
 #import smbus
 
 # mise a jour git
-DIR_CSV = "../../ELSAcsv/csv/"
-DIR_RRD = '../../ELSArrd/rrd/'
+DIR_BASE = os.path.dirname(os.path.abspath(__file__)) + '/'
+DIR_CSV = DIR_BASE + "../../ELSAcsv/csv/"
+DIR_RRD = DIR_BASE + '../../ELSArrd/rrd/'
 DIR_TTY = '/dev/ttyS0'
-DIR_IMG = 'static/img'
-TEMPLATES_DIR = '../templates'
-DIR_BARCODES = 'static/img/barcodes/'
+DIR_IMG = DIR_BASE + '/static/img'
+TEMPLATES_DIR = DIR_BASE + '../templates'
+DIR_BARCODES = DIR_BASE + '/static/img/barcodes/'
 GROUPWEBUSERS = '_WEB'
 
 imagedTypes = [u'u', u'e', u'p', u'g', u'gf', u'gr', u'gu', u'c', u'b', u'h']
