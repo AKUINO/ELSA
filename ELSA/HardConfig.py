@@ -4,13 +4,13 @@ import socket
 import traceback
 import os
 import codecs
+import sys
 
 CONFdirectory = '~/akuino/normal'
 HARDdirectory = CONFdirectory + '/hardware'
 
 
 class HardConfig():
-    loaded = False
     config = None
     idDefinitions = {}
     hostname = "UNKNOWN"
@@ -54,19 +54,17 @@ class HardConfig():
             configFile = os.path.expanduser(
                 HARDdirectory+'/'+self.hostname+'.ini')
             self.config.readfp(codecs.open(configFile, 'r', 'utf8'))
-            self.loaded = True
         except:
-            traceback.print_exc()
             try:
                 print(configFile+" not found. Using " +
                       HARDdirectory+"/DEFAULT.ini")
                 self.config.readfp(codecs.open(os.path.expanduser(
                     HARDdirectory+'/DEFAULT.ini'), 'r', 'utf8'))
-                self.loaded = True
             except:
                 traceback.print_exc()
-        if self.loaded:
-            print(self.config.sections())
+        
+        if self.config.has_section('system'):
+#            print(self.config.sections())
 
             if u'system' in self.config.sections():
                 for anItem in self.config.items(u'system'):
@@ -262,3 +260,8 @@ class HardConfig():
                             self.keypad_c[x] = int(anItem[1])
                         except:
                             pass
+
+        else:
+            print('Unable to load configuration. Exiting.');
+            sys.exit();
+
