@@ -351,7 +351,7 @@ class WebBarcode():
 class getRRD():
     def GET(self, filename):
         try:
-            f = open(elsa.rrdDir + filename)
+            f = open(elsa.DIR_RRD + filename)
             return f.read()
         except IOError:
             web.notfound()
@@ -360,7 +360,7 @@ class getRRD():
 class getCSV():
     def GET(self, filename):
         try:
-            f = open(elsa.csvDir + filename)
+            f = open(elsa.DIR_CSV + filename)
             return f.read()
         except IOError:
             web.notfound()
@@ -485,7 +485,7 @@ class WebDownloadData():
                        'attachment; filename="'+str(filename)+'"')
             web.header('Content-type', 'text/tab-separated-values')
             web.header('Content-transfer-encoding', 'binary')
-            f = open(elsa.csvDir + filename)
+            f = open(elsa.DIR_CSV + filename)
             return f.read()
         except IOError:
             web.notfound()
