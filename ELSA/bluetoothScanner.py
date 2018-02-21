@@ -41,7 +41,8 @@ class bluetoothScanner():
         if self.handle:
             if not self.startScan:
                 self.handle.stdin.write("scan on\n")
-            self.startScan = datetime.datetime.now() + datetime.timedelta(seconds=SCAN_SECONDS)
+            self.startScan = (datetime.datetime.now()
+                             + datetime.timedelta(seconds=SCAN_SECONDS))
             if self.config:
                 self.pairing = True
                 self.toBePaired = None
@@ -54,7 +55,8 @@ class bluetoothScanner():
                 currScanner = self.config.AllScanners.elements[aScanner]
                 if found:
                     self.toBePaired = None
-                    if currScanner.there and not currScanner.reader and not currScanner.paired:
+                    if (currScanner.there and not currScanner.reader
+                            and not currScanner.paired):
                         self.toBePaired = currScanner
                         self.handle.stdin.write(
                             "agent on\npair "+currScanner.mac+"\n")
@@ -85,14 +87,20 @@ class bluetoothScanner():
         for aScanner in self.config.AllScanners.elements:
             currScanner = self.config.AllScanners.elements[aScanner]
             if currScanner.paired:
-                self.screen.draw.text((4, self.screen.linePos+1), str(currScanner.rank)+u"#"+str(
-                    currScanner.id)+u": "+currScanner.mac, font=self.screen.font, fill=255)
+                self.screen.draw.text((4, self.screen.linePos+1),
+                                      str(currScanner.rank)+u"#"
+                                      + str(currScanner.id)+u": "
+                                      + currScanner.mac, font=self.screen.font,
+                                      fill=255)
                 self.screen.linePos += self.screen.lineHeight
 
     def control(self):
         try:
-            self.handle = subprocess.Popen(["bluetoothctl"], bufsize=0, stdin=subprocess.PIPE,
-                                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True, cwd=None)
+            self.handle = subprocess.Popen(["bluetoothctl"], bufsize=0,
+                                           stdin=subprocess.PIPE,
+                                           stdout=subprocess.PIPE,
+                                           stderr=subprocess.STDOUT,
+                                           close_fds=True, cwd=None)
         except:
             traceback.print_exc()
         remove_escape = re.compile(r'(\x98|\x1B\[)[0-?]*[ -\/]*[@-~]')

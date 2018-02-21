@@ -311,7 +311,7 @@ class WebIndex():
 
     def POST(self):
         data = web.input(nifile={})
-        #method = data.get("method","malformed")
+        # method = data.get("method","malformed")
         connectedUser = connexion(data._username_, data._password_)
         if connectedUser is not None:
             infoCookie = data._username_ + ',' + \
@@ -378,7 +378,7 @@ class WebMonitoring():
 
     def POST(self):
         data = web.input(nifile={})
-        #method = data.get("method","malformed")
+        # method = data.get("method","malformed")
         connectedUser = connexion(data._username_, data._password_)
         if connectedUser is not None:
             infoCookie = data._username_ + ',' + \
@@ -560,7 +560,7 @@ def main():
         app = web.application(urls, globals())
         app.notfound = notfound
         app.run()
-        #wsgiapp = app.wsgifunc()
+        # wsgiapp = app.wsgifunc()
     except:
         traceback.print_exc(file=sys.stdout)
     finally:

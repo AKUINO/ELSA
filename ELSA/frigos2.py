@@ -17,9 +17,7 @@ from PIL import ImageDraw
 from PIL import ImageFont
 import datetime
 import time
-#import RPi.GPIO as GPIO
 import pigpio
-#from wiringpi2 import GPIO
 import os
 import functools
 import pyudev
@@ -39,10 +37,10 @@ ALIVE = True
 # Raspberry Pi pin configuration:
 RST = 5
 # GPIO.setmode(GPIO.BCM)
-#GPIO.setup(5, GPIO.OUT)
-#GPIO.output(5, GPIO.LOW)
+# GPIO.setup(5, GPIO.OUT)
+# GPIO.output(5, GPIO.LOW)
 # time.sleep(0.05)
-#GPIO.output(5, GPIO.HIGH)
+# GPIO.output(5, GPIO.HIGH)
 # time.sleep(0.05)
 
 PIG = pigpio.pi()
@@ -66,7 +64,7 @@ refreshDisplay = True
 draw = ImageDraw.Draw(image)
 
 # Default font = better than
-#font = ImageFont.load_default()
+# font = ImageFont.load_default()
 
 # Alternatively load a TTF font.  Make sure the .ttf font file is in the same directory as the python script!
 # Some other nice fonts to try: http://www.dafont.com/bitmap.php
@@ -99,7 +97,7 @@ aBatch = 7
 typeNames = ["?", "Alerte", "?", "?", "Lieu", "Mesure", "Personne", "Lot"]
 telOwner = "0032475776211"
 
-#sm = gammu.StateMachine()
+# sm = gammu.StateMachine()
 # sm.ReadConfig()
 # sm.Init()
 
@@ -129,7 +127,7 @@ def alertOwner(HEX):
                 else:
                     message = message + nBadge
         print message
-        #gammuMessage = { 'Text':message, 'SMSC':{'Location':1}, 'Number':telOwner }
+        # gammuMessage = { 'Text':message, 'SMSC':{'Location':1}, 'Number':telOwner }
         result = subprocess.check_output(['gammu-smsd-inject', 'TEXT', telOwner, '-len', str(len(
             message)), '-unicode', '-text', message], stdin=None, stderr=None, shell=False, universal_newlines=True)
         print result
@@ -196,7 +194,7 @@ def elaRead():
                             storeSensor(HEX, temperature)
                         line = ''.join(line)
                         print(line)
-                        #syslog.syslog(syslog.LOG_ERR, line)
+                        # syslog.syslog(syslog.LOG_ERR, line)
                         line = None
                     else:
                         line.append(data)
@@ -237,7 +235,7 @@ def owRead():
                     owtemperature = subprocess.check_output(
                         ['owget', aDevice+'/temperature'], stdin=None, stderr=None, shell=False, universal_newlines=False).strip()
                     print(aDevice+"="+str(owtemperature)+"°C")
-                    #syslog.syslog(syslog.LOG_ERR, owtemperature)
+                    # syslog.syslog(syslog.LOG_ERR, owtemperature)
                     HEX = aDevice[7:10]
                     storeSensor(HEX, owtemperature)
                 except:
@@ -308,7 +306,7 @@ def rfidRead():
                                     res = res[:3].lower()
                                     if valid.match(res):
                                         try:
-                                            if not res in badging.keys():
+                                            if res not in badging.keys():
                                                 badging[res] = {'timestamp': datetime.datetime.now(
                                                 ), 'incoming': True, 'timespan': None}
                                             else:
@@ -364,7 +362,7 @@ kp = keypad()
 
 keys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '#', '#']
 # symbols = [ u'\ue259',
-#	    u'\ue021', u'\ue010', u'\ue008',
+#            u'\ue021', u'\ue010', u'\ue008',
 #            u'\ue166', u'\ue123', u'\ue072',
 #            u'\ue073', u'\ue260', u'\ue136',
 #            u'\ue093', u'\ue013', u'\ue185' ]
