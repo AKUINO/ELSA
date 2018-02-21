@@ -62,9 +62,9 @@ class HardConfig():
                     HARDdirectory+'/DEFAULT.ini'), 'r', 'utf8'))
             except:
                 traceback.print_exc()
-        
+
         if self.config.has_section('system'):
-#            print(self.config.sections())
+            #            print(self.config.sections())
 
             if u'system' in self.config.sections():
                 for anItem in self.config.items(u'system'):
@@ -262,6 +262,5 @@ class HardConfig():
                             pass
 
         else:
-            print('Unable to load configuration. Exiting.');
-            sys.exit();
-
+            print('Unable to load configuration. Exiting.')
+            sys.exit()
