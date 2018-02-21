@@ -2,3 +2,6 @@
 static/img/barcodes
 ELSA/static/img/barcodes/
 data/*
+ELSA.egg-info/
+dist/
+
