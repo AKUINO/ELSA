@@ -1,0 +1,19 @@
+# -*- coding: utf-8 -*-
+
+Tout d'abord, merci de considérer participer à notre projet !
+
+ELSA est un projet open source et nous aimons recevoir des contributions de notre communité ! Il y a plusieurs manières de contribuer; que ce soit en soumettant des bug reports, en contribuant du code directement ou simplement en nous disant comment vous utilisez ELSA.
+
+L'"issue tracker" de Github n'est pas supposé être utilisé pour du support; n'hésitez pas à nous contacter directement à destin-informatique.com csi vous en avez besoin.
+
+Merci de créer une issue par bug ou changement.
+
+Si vous n'avez jamais contribué, voici quelques liens utiles : http://makeapullrequest.com/ et http://www.firsttimersonly.com/.
+
+Vous êtes fins prêt à faire des changements ! N'hésitez pas à demander l de'aide, on a tous été débutants à un moment !
+
+
+Comment signaler un bug
+
+Merci d'intégrer un maximum d'informations afin de simplifier la vie de tout le monde et de résoudre les problèmes plus rapidement.
+Exemples d'informations utiles : log d'ELSA, matériel (RPi 2 ou 3, éventuels boards et capteurs supplémentaires), comportement remarqué, comportement attendu, étapes pour reproduire le problème, etc
