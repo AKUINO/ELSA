@@ -7,7 +7,7 @@ import traceback
 import sys
 import shutil
 import os
-from backup import create_backup_zip
+import backup
 
 global c, render
 
@@ -15,6 +15,18 @@ global c, render
 def web_link_from_abs_path(path):
     """Will strip DIR_BASE from path. Intended to be used in href"""
     return path[len(elsa.DIR_BASE):]
+
+def getLinkForLatestBackupArchive():
+    """Returns the web path (as in web_link_from_abs_path of the lastest backup archive in the temporary web folder"""
+    list = os.listdir(elsa.DIR_WEB_TEMP)
+    lastFile = None
+    for f in sorted(list):
+        if f.find(backup.ARCHIVE_FILE_NAME_PREFIX) >= 0:
+            lastFile = f
+    if lastFile is not None:
+        return web_link_from_abs_path(os.path.join(elsa.DIR_WEB_TEMP, lastFile))
+    else:
+        return None
 
 class WebColor():
     def GET(self, type, id):
@@ -30,7 +42,7 @@ class WebBackup():
     def GET(self):
         mail = isConnected()
         if mail is not None:
-            return render.backup(mail, None)
+            return render.backup(mail, getLinkForLatestBackupArchive())
         raise web.seeother('/')
     
     def POST(self):
@@ -39,9 +51,8 @@ class WebBackup():
         if mail is None:
             raise web.seeother('/')
         elif data.create_backup is not None:
-            link = web_link_from_abs_path(create_backup_zip())
-            print(link)
-            return render.backup(mail, link)
+            backup.create_backup_zip()
+            return render.backup(mail, getLinkForLatestBackupArchive())
         else:
             raise web.seeother('/')
  # We should put a real error message on the normal backup page
