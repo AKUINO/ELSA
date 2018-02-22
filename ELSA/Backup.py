@@ -16,15 +16,17 @@ def cd(newdir):
         os.chdir(prevdir)
 
 
-today = datetime.datetime.today()
+def create_backup_zip():
+    "Creates an archive of the DIR_USER_DATA and saves it to DIR_WEB_TEMP"
+    today = datetime.datetime.today()
+    
+    archive_output_file_name = today.strftime("backup-%Yy%mm%dd-%Hh%Mm%Ss")
+    archive_type = "zip"  # Can be tar, bztar, gztar
+    archive_output_dir = os.path.abspath(elsa.DIR_WEB_TEMP)
+    archive_input_dir = os.path.abspath(elsa.DIR_USER_DATA)
 
-archive_output_file_name = today.strftime("backup-%Yy%mm%dd-%Hh%Mm%Ss")
-archive_type = "zip"  # Can be tar, bztar, gztar
-archive_output_dir = os.path.abspath(elsa.DIR_WEB_TEMP)
-archive_input_dir = os.path.abspath(elsa.DIR_USER_DATA)
-
-# Switching working directory to save to the right place
-# A context is used to guarantee we will go back to the original place afterwards
-with cd(archive_output_dir):
-    make_archive(archive_output_file_name, archive_type,
-                 archive_output_dir, archive_input_dir)
+    # Switching working directory to save to the right place
+    # A context is used to guarantee we will go back to the original place afterwards
+    with cd(archive_output_dir):
+        make_archive(archive_output_file_name, archive_type,
+                     archive_output_dir, archive_input_dir)
