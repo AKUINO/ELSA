@@ -1,8 +1,12 @@
 begin	lang	m_id	name	user
+2016-01-01 13:45:56	FR	parent	Générique(s)	1
+2016-01-01 13:45:56	FR	child	Spécifique(s)	1
 2016-01-01 13:45:56	DE	acronym	Akronym	1
 2016-01-01 13:45:56	EN	acronym	Acronym	1
 2016-01-01 13:45:56	FR	acronym	Acronyme	1
 2016-01-01 13:45:56	NL	acronym	Acroniem	1
+2016-01-01 13:45:56	EN	createBackup	Create backup	1
+2016-01-01 13:45:56	FR	createBackup	Créer backup	1
 2016-01-01 13:45:56	EN	acronymrequired	Acronym is required !	1
 2016-01-01 13:45:56	FR	acronymrequired	Acronyme requis	1
 2016-01-01 13:45:56	EN	acronymrules	Acronym can only contain letters, digits and _!	1
@@ -27,52 +31,42 @@ begin	lang	m_id	name	user
 2016-01-01 13:45:56	NL	alarm	Alarm	1
 2016-01-01 13:45:56	EN	alarmlog	Alarm Log	1
 2016-01-01 13:45:56	FR	alarmlog	Déclenchements d'Alarme	1
-2016-01-01 13:45:56	EN	alarmmanual	"Observation for {0}
-{1} :
-     Name : ({3}) {2}
-Observation :
-     Value = {4} {5}
-     Remark : {6}
-Time : {7}"	1
-2016-01-01 13:45:56	FR	alarmmanual	"Observation pour {0}
-{1} :
-     Nom : ({3}) {2}
-Observation :
-     Valeur : {4} {5}
-     Remarque : {6}
-Heure : {7}"	1
-2016-01-01 13:45:56		alarmmanualtitle	ManualData : {0} {1} in {2}	1
-2016-01-01 13:45:56		alarmmanualtitle	ManualData : {0} {1} in {2}	1
-2016-01-01 13:45:56	EN	alarmmessage	"Alarm from {0}
-{1} :
-     Name : ({3}) {2}
-Sensor :
-     Name : ({5}) {4}
-     Value = {6}
-     Type of Alarm : {7}
-Time : {8}
-Degree : {9}"	1
-2016-01-01 13:45:56	FR	alarmmessage	"Alarme pour {0}
-{1} :
-     Nom : ({3}) {2}
-Senseur :
-     Nom : ({5}) {4}
-     Value = {6}
-     Type d'Alarme : {7}
-Heure : {8}
-Degré : {9}"	1
-2016-01-01 13:45:56	EN	alarmpouring	"Alarm from {0}
-Pouring from Batch : ({2}) {1}
-into Batch : ({4}) {3}
-Quantity : {5} {6}
-Remark : {7}
+2016-01-01 13:45:56	EN	alarmmanual	"Observation for {0}, {1}
+{2} : ({4}) {3}
+Observation : {5} {6}
+     Remark : {7}
 Time : {8}"	1
-2016-01-01 13:45:56	FR	alarmpouring	"Alarme pour {0}
-Versement depuis le Lot : ({2}) {1}
-vers le Lot : ({4}) {3}
-Quantité : {5} {6}
-Remarque : {7}
+2016-01-01 13:45:56	FR	alarmmanual	"Observation pour {0}, {1}
+{2} : ({4}) {3}
+Observation : {5} {6}
+     Remarque : {7}
 Heure : {8}"	1
+2016-01-01 13:45:56		alarmmanualtitle	ManualData : {0} {1} in {2}	1
+2016-01-01 13:45:56		alarmmanualtitle	ManualData : {0} {1} in {2}	1
+2016-01-01 13:45:56	EN	alarmmessage	"Alarm from {0}, {1}
+{2} : ({4}) {3}
+Sensor : ({6}) {5} = {7}
+     Type of Alarm : {8}
+Time : {9}
+Degree : {10}"	1
+2016-01-01 13:45:56	FR	alarmmessage	"Alarme pour {0}, {1}
+{2} : ({4}) {3}
+Senseur : ({6}) {5} = {7}
+     Type d'Alarme : {8}
+Heure : {9}
+Degré : {10}"	1
+2016-01-01 13:45:56	EN	alarmpouring	"Alarm from {0}, {1}
+Pouring from Batch : ({3}) {2}
+into Batch : ({5}) {4}
+Quantity : {6} {7}
+Remark : {8}
+Time : {9}"	1
+2016-01-01 13:45:56	FR	alarmpouring	"Alarme pour {0}, {1}
+Versement depuis le Lot : ({3}) {2}
+vers le Lot : ({5}) {4}
+Quantité : {6} {7}
+Remarque : {8}
+Heure : {9}"	1
 2016-01-01 13:45:56	EN	alarmpouringtitle	Pouring from {0} {1} to {2} {3}	1
 2016-01-01 13:45:56	FR	alarmpouringtitle	Versement depuis {0} {1} vers {2} {3}	1
 2016-01-01 13:45:56	EN	alarmtitle	{0}  {1}    {2}    {3} {4} {5} {6}    {7}	1
@@ -216,8 +210,8 @@ Heure : {8}"	1
 2016-01-01 13:45:56	NL	group	Groep	1
 2016-01-01 13:45:56	EN	grouprules	New parent of a group can't be an existing parent, child or sibling	1
 2016-01-01 13:45:56	FR	grouprules	Le nouveau parent d'un groupe ne peut-être parent, enfant ou frère	1
-2016-01-01 13:45:56	EN	guse	Main Use	1
-2016-01-01 13:45:56	FR	guse	Usage principal	1
+2016-01-01 13:45:56	EN	guse	Component Use	1
+2016-01-01 13:45:56	FR	guse	Usage du composant	1
 2016-01-01 13:45:56	EN	info	Info 	1
 2016-01-01 13:45:56	DE	lang	Sprache	1
 2016-01-01 13:45:56	EN	lang	Language	1
@@ -245,6 +239,8 @@ Heure : {8}"	1
 2016-01-01 13:45:56	FR	measurerules	Type de mesure requis !	1
 2016-01-01 13:45:56	EN	min	Min 	1
 2016-01-01 13:45:56	EN	minmin	Min --- 	1
+2016-01-01 13:45:56	EN	typical	Typical 	1
+2016-01-01 13:45:56	FR	typical	Typique 	1
 2016-01-01 13:45:56	DE	modified	Angepasst von	1
 2016-01-01 13:45:56	EN	modified	Modified by	1
 2016-01-01 13:45:56	FR	modified	Modifié par	1
@@ -308,12 +304,16 @@ Heure : {8}"	1
 2016-01-01 13:45:56	EN	sensor	Sensor	1
 2016-01-01 13:45:56	FR	sensor	Senseur	1
 2016-01-01 13:45:56	NL	sensor	Sensor	1
+2016-01-01 13:45:56	DE	backup	Backup	1
+2016-01-01 13:45:56	EN	backup	Backup	1
+2016-01-01 13:45:56	FR	backup	Sauvegarde	1
+2016-01-01 13:45:56	NL	backup	Backup	1
 2016-01-01 13:45:56	EN	sensorrules	A sensor is required !	1
 2016-01-01 13:45:56	FR	sensorrules	Un senseur est requis !	1
-2016-01-01 13:45:56	DE	sound	Seine 	1
-2016-01-01 13:45:56	EN	sound	Sound 	1
-2016-01-01 13:45:56	FR	sound	Son 	1
-2016-01-01 13:45:56	NL	sound	Zijn 	1
+2016-01-01 13:45:56	DE	sound	Seine	1
+2016-01-01 13:45:56	EN	sound	Sound	1
+2016-01-01 13:45:56	FR	sound	Son	1
+2016-01-01 13:45:56	NL	sound	Zijn	1
 2016-01-01 13:45:56	EN	source	Source	1
 2016-01-01 13:45:56	FR	source	Source	1
 2016-01-01 13:45:56	EN	specialvalue	Min Max Average 	1
@@ -324,8 +324,8 @@ Heure : {8}"	1
 2016-01-01 13:45:56	FR	target	Destination	1
 2016-01-01 13:45:56	EN	time	Time	1
 2016-01-01 13:45:56	FR	time	Heure	1
-2016-01-01 13:45:56	EN	timerules	The time must be in this format %H:%M:%S  -  %d/%m/%y	1
-2016-01-01 13:45:56	FR	timerules	L'heure doit être au format %H:%M:%S  -  %d/%m/%y	1
+2016-01-01 13:45:56	EN	timerules	The time must be in this format Year-Month-Day Hour:Minute:Second	1
+2016-01-01 13:45:56	FR	timerules	La date/heure doit être au format Année-Mois-Jour Heure:Minute:Secondes	1
 2016-01-01 13:45:56	EN	transfer	Transfer	1
 2016-01-01 13:45:56	FR	transfer	Transfert	1
 2016-01-01 13:45:56	EN	transferhierarchy	This object can't be moved to this component	1

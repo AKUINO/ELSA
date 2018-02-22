@@ -1,8 +1,8 @@
 begin	m_id	default	user
 2016-01-01 13:45:56	name	Name	1
 2016-01-01 13:45:56	disconnect	Disconnect	1
-2016-01-01 13:45:56	parent	Parent(s)	1
-2016-01-01 13:45:56	child	Child(ren)	1
+2016-01-01 13:45:56	parent	Generic(s)	1
+2016-01-01 13:45:56	child	Specific(s)	1
 2016-01-01 13:45:56	sibling	Sibling(s)	1
 2016-01-01 13:45:56	abstract	Abstract	1
 2016-01-01 13:45:56	currentbatch	Current batch	1
@@ -38,7 +38,7 @@ begin	m_id	default	user
 2016-01-01 13:45:56	acronymrules	Acronym can only contain letters, digits and _!	1
 2016-01-01 13:45:56	barcoderules	Barcode must be an EAN 13!\nBarcode must be unique!	1
 2016-01-01 13:45:56	floatrules	The value must be a number	1
-2016-01-01 13:45:56	timerules	The time must be in this format %H:%M:%S  -  %d/%m/%y	1
+2016-01-01 13:45:56	timerules	The time must be in this format year-month-day hour:minute:second 	1
 2016-01-01 13:45:56	grouprules	A group can't be added to a parent, child or sibling	1
 2016-01-01 13:45:56	componentrules	Error component	1
 2016-01-01 13:45:56	measurerules	A measure is required !	1
@@ -65,6 +65,7 @@ begin	m_id	default	user
 2016-01-01 13:45:56	grecipe	Group Recipe	1
 2016-01-01 13:45:56	active	Active	1
 2016-01-01 13:45:56	acronym	Acronym	1
+2016-01-01 13:45:56	createBackup	Create backup	1
 2016-01-01 13:45:56	barcode	Barcode	1
 2016-01-01 13:45:56	remark	Remark	1
 2016-01-01 13:45:56	welcome	Welcome	1
@@ -88,6 +89,7 @@ begin	m_id	default	user
 2016-01-01 13:45:56	transfer	Transfer	1
 2016-01-01 13:45:56	measure	Measure	1
 2016-01-01 13:45:56	sensor	Sensor	1
+2016-01-01 13:45:56	backup	Backup	1
 2016-01-01 13:45:56	alarm	Alarm	1
 2016-01-01 13:45:56	createe	Add a new equipment	1
 2016-01-01 13:45:56	createtm	Add a new TransferModel	1
@@ -121,6 +123,7 @@ begin	m_id	default	user
 2016-01-01 13:45:56	mtransfer	Transfer(s) 	1
 2016-01-01 13:45:56	mdata	Observation(s)	1
 2016-01-01 13:45:56	maxmax	Max +++ 	1
+2016-01-01 13:45:56	typical	Typical 	1
 2016-01-01 13:45:56	phone	Phone  	1
 2016-01-01 13:45:56	add	Add	1
 2016-01-01 13:45:56	edit	Edit	1
