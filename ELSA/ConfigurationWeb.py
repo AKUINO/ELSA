@@ -5,6 +5,8 @@ import ConfigurationELSA as elsa
 import myuseful as useful
 import traceback
 import sys
+import shutil
+import os
 from backup import create_backup_zip
 
 global c, render
@@ -542,12 +544,21 @@ def notfound():
 def update_cookie(infoCookie):
     web.setcookie('webpy', infoCookie, expires=9000)
 
+def cleanup_web_temp_dir():
+    try:
+        shutil.rmtree(elsa.DIR_WEB_TEMP)
+    except OSError, e:
+        print ("Error: %s - %s." % (e.filename,e.strerror))
+    finally:
+        if not os.path.exists(elsa.DIR_WEB_TEMP):
+            os.makedirs(elsa.DIR_WEB_TEMP)
 
 c = None
 wsgiapp = None
 
 
 def main():
+    cleanup_web_temp_dir()
 
     global c, wsgiapp, render
     try:
@@ -598,6 +609,7 @@ def main():
             c.RadioThread.join()
 # Replaced by an abstract socket:
 #            unlink(c.pidfile)
+
         print 'Exit system'
 
 
