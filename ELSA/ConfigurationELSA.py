@@ -5,7 +5,6 @@ import time
 import datetime
 import traceback
 import unicodecsv
-#import random
 import sys
 import threading
 import os
@@ -30,17 +29,24 @@ PIG = pigpio.pi()
 # if a JSON decoder is needed to read a sensor...
 import json
 
-#import smbus
+# import smbus
 
 # mise a jour git
-DIR_BASE = os.path.dirname(os.path.abspath(__file__)) + '/'
-DIR_CSV = DIR_BASE + "../data/csv/"
-DIR_RRD = DIR_BASE + '../data/rrd/'
 DIR_TTY = '/dev/ttyS0'
-DIR_IMG = DIR_BASE + 'static/img'
-TEMPLATES_DIR = DIR_BASE + 'templates'
-DIR_BARCODES = DIR_BASE + 'static/img/barcodes/'
+DIR_BASE = os.path.dirname(os.path.abspath(__file__)) + '/'
+DIR_USER_DATA = os.path.join(DIR_BASE, '../data/')
+DIR_CSV = os.path.join(DIR_USER_DATA, 'csv/')
+DIR_RRD = os.path.join(DIR_USER_DATA, 'rrd/')
+
+STATIC_DIR = os.path.join(DIR_BASE, 'static/')
+DIR_IMG = os.path.join(STATIC_DIR, 'static/img/')
+DIR_BARCODES = os.path.join(STATIC_DIR, 'img/barcodes/')
+DIR_WEB_TEMP = os.path.join(STATIC_DIR, 'temp')
+
+TEMPLATES_DIR = os.path.join(DIR_BASE, 'templates')
+
 GROUPWEBUSERS = '_WEB'
+
 
 imagedTypes = [u'u', u'e', u'p', u'g', u'gf', u'gr', u'gu', u'c', u'b', u'h']
 
@@ -78,14 +84,14 @@ class Configuration(object):
         self.HardConfig = hardconfig.HardConfig()
 
 
-# Run only OUNCE: Check if /run/akuino/ELSA.pid exists...
-##        pid = str(os.getpid())
-##        self.pidfile = self.HardConfig.RUNdirectory+"/ELSA.pid"
+# Run only ONCE: Check if /run/akuino/ELSA.pid exists...
+# pid = str(os.getpid())
+# self.pidfile = self.HardConfig.RUNdirectory+"/ELSA.pid"
 ##
 # if os.path.isfile(self.pidfile):
 # print "%s already exists, exiting" % self.pidfile
 # sys.exit()
-##        file(self.pidfile, 'w').write(pid)
+# file(self.pidfile, 'w').write(pid)
 
         # Without holding a reference to our socket somewhere it gets garbage
         # collected when the function exits
@@ -99,6 +105,9 @@ class Configuration(object):
         except socket.error:
             print 'AKUINO-ELSA lock exists'
             sys.exit()
+
+        if not os.path.samefile(os.getcwd(), DIR_BASE) :
+            os.chdir(DIR_BASE)
 
         self.valueCategs = valueCategs
         self.sortedCategs = sorted(valueCategs)
@@ -669,9 +678,9 @@ class RadioThread(threading.Thread):
                                 now = useful.get_timestamp()
                                 RSS = int(line[0]+line[1], 16)
                                 HEX = line[2]+line[3]+line[4]
-                                #ADDRESS = int(HEX,16)
+                                # ADDRESS = int(HEX,16)
                                 VAL = int(line[5]+line[6]+line[7], 16)
-                                #READER = int(line[8]+line[9],16)
+                                # READER = int(line[8]+line[9],16)
                                 print "ELA="+HEX+", RSS="+unicode(RSS)+", val="+unicode(VAL)
                                 currSensor = None
                                 value = VAL
@@ -2717,7 +2726,7 @@ class ExportData():
                         if tmp > self.max:
                             self.max = tmp
                             timemax = sensor['timestamp']
-                    #sensor['typevalue'] = 'DAT'
+                    # sensor['typevalue'] = 'DAT'
                     if self.cond['valuesensor'] is True:
                         self.elements.append(sensor)
                 if self.count > 0:
@@ -2726,7 +2735,7 @@ class ExportData():
                     sensor1 = self.transform_object_to_export_data(
                         self.config.AllSensors.elements[a])
                     sensor1['value'] = self.min
-                    #sensor1['typevalue'] = 'MIN'
+                    # sensor1['typevalue'] = 'MIN'
                     sensor1['type'] = 'MIN'
                     sensor1['timestamp'] = timemin
                     sensor1['remark'] = ''
@@ -2734,7 +2743,7 @@ class ExportData():
                     sensor2 = self.transform_object_to_export_data(
                         self.config.AllSensors.elements[a])
                     sensor2['value'] = self.max
-                    #sensor2['typevalue'] = 'MAX'
+                    # sensor2['typevalue'] = 'MAX'
                     sensor2['type'] = 'MAX'
                     sensor2['timestamp'] = timemax
                     sensor2['remark'] = ''
@@ -2742,7 +2751,7 @@ class ExportData():
                     sensor3 = self.transform_object_to_export_data(
                         self.config.AllSensors.elements[a])
                     sensor3['value'] = self.average
-                    #sensor3['typevalue'] = 'AVG'
+                    # sensor3['typevalue'] = 'AVG'
                     sensor3['type'] = 'AVG'
                     sensor3['timestamp'] = end
                     sensor3['duration'] = self.get_duration(begin, end)
@@ -3377,7 +3386,7 @@ class Sensor(ConfigurationObject):
             self.updateRRD(now, value)
 
             minutes = int(now / 60)
-            #GMT + DST
+            # GMT + DST
             hours = (int(minutes / 60) % 24)+100 + 2
             minutes = (minutes % 60)+100
             strnow = unicode(hours)[1:3]+":"+unicode(minutes)[1:3]

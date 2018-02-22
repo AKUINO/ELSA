@@ -1,0 +1,16 @@
+$def with (mail, link)
+
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+$var recursive : False
+$var location : backup=backup
+$var title : Backup
+
+<div class="container">
+    <form method="post" action="" id="selectAction" enctype="multipart/form-data">
+        <div class="form-group column">
+            <input type="submit" value="$c.AllMessages.elements['createBackup'].getName(self.lang)" class="form-control" name="create_backup">
+        </div>
+    </form>
+    $if link is not None:
+        <a href="$link">Download last backup</a>
+</div>

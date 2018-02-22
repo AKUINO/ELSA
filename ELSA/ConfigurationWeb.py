@@ -5,9 +5,28 @@ import ConfigurationELSA as elsa
 import myuseful as useful
 import traceback
 import sys
+import shutil
+import os
+import backup
 
 global c, render
 
+
+def web_link_from_abs_path(path):
+    """Will strip DIR_BASE from path. Intended to be used in href"""
+    return path[len(elsa.DIR_BASE):]
+
+def getLinkForLatestBackupArchive():
+    """Returns the web path (as in web_link_from_abs_path of the lastest backup archive in the temporary web folder"""
+    list = os.listdir(elsa.DIR_WEB_TEMP)
+    lastFile = None
+    for f in sorted(list):
+        if f.find(backup.ARCHIVE_FILE_NAME_PREFIX) >= 0:
+            lastFile = f
+    if lastFile is not None:
+        return web_link_from_abs_path(os.path.join(elsa.DIR_WEB_TEMP, lastFile))
+    else:
+        return None
 
 class WebColor():
     def GET(self, type, id):
@@ -16,6 +35,27 @@ class WebColor():
             return render.colorpicker(mail, type, id)
         return ''
 
+class WebBackup():
+    def __init(self):
+        self.name = u"WebBackup"
+
+    def GET(self):
+        mail = isConnected()
+        if mail is not None:
+            return render.backup(mail, getLinkForLatestBackupArchive())
+        raise web.seeother('/')
+    
+    def POST(self):
+        mail = isConnected()
+        data = web.input()
+        if mail is None:
+            raise web.seeother('/')
+        elif data.create_backup is not None:
+            backup.create_backup_zip()
+            return render.backup(mail, getLinkForLatestBackupArchive())
+        else:
+            raise web.seeother('/')
+ # We should put a real error message on the normal backup page
 
 class WebDisconnect():
     def GET(self):
@@ -23,7 +63,6 @@ class WebDisconnect():
         if mail is not None:
             c.connectedUsers.disconnect(mail)
         raise web.seeother('/')
-
 
 class WebPermission():
     def GET(self, type, id):
@@ -516,12 +555,21 @@ def notfound():
 def update_cookie(infoCookie):
     web.setcookie('webpy', infoCookie, expires=9000)
 
+def cleanup_web_temp_dir():
+    try:
+        shutil.rmtree(elsa.DIR_WEB_TEMP)
+    except OSError, e:
+        print ("Error: %s - %s." % (e.filename,e.strerror))
+    finally:
+        if not os.path.exists(elsa.DIR_WEB_TEMP):
+            os.makedirs(elsa.DIR_WEB_TEMP)
 
 c = None
 wsgiapp = None
 
 
 def main():
+    cleanup_web_temp_dir()
 
     global c, wsgiapp, render
     try:
@@ -551,6 +599,7 @@ def main():
             '/fullentry/(.+)_(.+)', 'WebFullEntry',
             '/export/(.+)_(.+)/(.+)', 'WebDownloadData',
             '/export/(.+)_(.+)', 'WebExport',
+            '/backup', 'WebBackup',
             '/datatable/(.+)_(.+)', 'WebDataTable',
             '/find/(.+)/(.+)_(.+)', 'WebFind',
             '/permission/(.+)_(.+)', 'WebPermission',
@@ -571,6 +620,7 @@ def main():
             c.RadioThread.join()
 # Replaced by an abstract socket:
 #            unlink(c.pidfile)
+
         print 'Exit system'
 
 
