@@ -1042,7 +1042,7 @@ class AllHalflings(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, "halfling", config)
-        self.fileobject = DIR_DATA_CSV + "halflings.csv"
+        self.fileobject = os.path.join(DIR_STATIC_CSV, "halflings.csv")
         self.filename = None
         self.keyColumn = "classname"
         self.fieldnames = ['begin', 'classname', 'glyphname', 'user']
@@ -1630,7 +1630,7 @@ class AllLanguages(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'l', config)
-        self.fileobject = DIR_DATA_CSV + "language.csv"
+        self.fileobject = os.path.join(DIR_STATIC_CSV, "language.csv")
         self.filename = None
         self.nameColumn = "name"
 
