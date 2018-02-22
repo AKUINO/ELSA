@@ -1,7 +1,7 @@
 *.swp
 *.pyc
 static/img/barcodes
-static/temp
+ELSA/static/temp/
 ELSA/static/img/barcodes/
 data/*
 ELSA.egg-info/

@@ -5,9 +5,14 @@ import ConfigurationELSA as elsa
 import myuseful as useful
 import traceback
 import sys
+from backup import create_backup_zip
 
 global c, render
 
+
+def web_link_from_abs_path(path):
+    """Will strip DIR_BASE from path. Intended to be used in href"""
+    return path[len(elsa.DIR_BASE):]
 
 class WebColor():
     def GET(self, type, id):
@@ -16,6 +21,28 @@ class WebColor():
             return render.colorpicker(mail, type, id)
         return ''
 
+class WebBackup():
+    def __init(self):
+        self.name = u"WebBackup"
+
+    def GET(self):
+        mail = isConnected()
+        if mail is not None:
+            return render.backup(mail, None)
+        raise web.seeother('/')
+    
+    def POST(self):
+        mail = isConnected()
+        data = web.input()
+        if mail is None:
+            raise web.seeother('/')
+        elif data.create_backup is not None:
+            link = web_link_from_abs_path(create_backup_zip())
+            print(link)
+            return render.backup(mail, link)
+        else:
+            raise web.seeother('/')
+ # We should put a real error message on the normal backup page
 
 class WebDisconnect():
     def GET(self):
@@ -23,7 +50,6 @@ class WebDisconnect():
         if mail is not None:
             c.connectedUsers.disconnect(mail)
         raise web.seeother('/')
-
 
 class WebPermission():
     def GET(self, type, id):
@@ -525,7 +551,7 @@ def main():
 
     global c, wsgiapp, render
     try:
-        web.config.debug = False
+        web.config.debug = True
         # Configuration Singleton ELSA
         c = elsa.Configuration()
         c.load()
@@ -551,6 +577,7 @@ def main():
             '/fullentry/(.+)_(.+)', 'WebFullEntry',
             '/export/(.+)_(.+)/(.+)', 'WebDownloadData',
             '/export/(.+)_(.+)', 'WebExport',
+            '/backup', 'WebBackup',
             '/datatable/(.+)_(.+)', 'WebDataTable',
             '/find/(.+)/(.+)_(.+)', 'WebFind',
             '/permission/(.+)_(.+)', 'WebPermission',

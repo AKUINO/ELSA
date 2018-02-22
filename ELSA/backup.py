@@ -17,7 +17,7 @@ def cd(newdir):
 
 
 def create_backup_zip():
-    "Creates an archive of the DIR_USER_DATA and saves it to DIR_WEB_TEMP"
+    """Creates an archive of the DIR_USER_DATA and saves it to DIR_WEB_TEMP. Returns absolute path to the generated file."""
     today = datetime.datetime.today()
     
     archive_output_file_name = today.strftime("backup-%Yy%mm%dd-%Hh%Mm%Ss")
@@ -30,3 +30,4 @@ def create_backup_zip():
     with cd(archive_output_dir):
         make_archive(archive_output_file_name, archive_type,
                      archive_output_dir, archive_input_dir)
+    return os.path.join(archive_output_dir, archive_output_file_name) + '.' + archive_type
