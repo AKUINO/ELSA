@@ -112,8 +112,8 @@ class Configuration(object):
 
         self.valueCategs = valueCategs
         self.sortedCategs = sorted(valueCategs)
-        self.csvCodes = DIR_DATA_CSV + 'codes.csv'
-        self.csvRelations = DIR_DATA_CSV + 'relations.csv'
+        self.csvCodes = os.path.join(DIR_DATA_CSV, 'codes.csv')
+        self.csvRelations = os.path.join(DIR_DATA_CSV, 'relations.csv')
         self.fieldcode = ['begin', 'type', 'idobject', 'code', 'user']
         self.AllUsers = AllUsers(self)
         self.AllLanguages = AllLanguages(self)
@@ -716,8 +716,8 @@ class AllObjects(object):
     def __init__(self, code, config=None):
         self.code = code
         self.elements = {}
-        self.fileobject = DIR_DATA_CSV + code.upper() + ".csv"
-        self.filename = DIR_DATA_CSV + code.upper() + "names.csv"
+        self.fileobject = os.path.join(DIR_DATA_CSV, code.upper()) + ".csv"
+        self.filename = os.path.join(DIR_DATA_CSV, code.upper()) + "names.csv"
         self.keyColumn = code + "_id"
         self.config = config
         self.count = 0
@@ -1018,7 +1018,7 @@ class AllAlarmLogs(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'al', config)
-        self.fileobject = DIR_DATA_CSV + "alarmlogs.csv"
+        self.fileobject = os.path.join(DIR_DATA_CSV, "alarmlogs.csv")
         self.filename = None
         self.fieldnames = ['begin', 'al_id', 'cont_id', 'cont_type',
                            's_id', 'value', 'typealarm', 'begintime', 'alarmtime', 'degree']
@@ -1184,7 +1184,7 @@ class AllGrUsage(AllGroups):
         self.fieldnames = ["begin", "gu_id",
                            "active", "acronym", "remark", "user"]
         self.fieldtranslate = ['begin', 'lang', 'gu_id', 'name', 'user']
-        self.csvRelations = DIR_DATA_CSV + "GUrelations.csv"
+        self.csvRelations = os.path.join(DIR_DATA_CSV, "GUrelations.csv")
 
     def newObject(self):
         return GrUsage(self.config)
@@ -1202,7 +1202,7 @@ class AllGrRecipe(AllGroups):
         self.fieldnames = ["begin", "gr_id",
                            "active", "acronym", "remark", "user"]
         self.fieldtranslate = ['begin', 'lang', 'gr_id', 'name', 'user']
-        self.csvRelations = DIR_DATA_CSV + "GRrelations.csv"
+        self.csvRelations = os.path.join(DIR_DATA_CSV, "GRrelations.csv")
 
     def newObject(self):
         return GrRecipe(self.config)
@@ -1222,8 +1222,8 @@ class AllCheckPoints(AllGroups):
         self.fieldtranslate = ['begin', 'lang', 'h_id', 'name', 'user']
         self.fieldcontrols = ['begin', 'h_id',
                               'object_type', 'object_id', 'user']
-        self.csvRelations = DIR_DATA_CSV + "Hrelations.csv"
-        self.csvControls = DIR_DATA_CSV + "Hcontrols.csv"
+        self.csvRelations = os.path.join(DIR_DATA_CSV, "Hrelations.csv")
+        self.csvControls = os.path.join(DIR_DATA_CSV, "Hcontrols.csv")
 
     def newObject(self):
         return CheckPoint(self.config)
@@ -1295,7 +1295,7 @@ class AllGrFunction(AllGroups):
         self.fieldnames = ["begin", "gf_id",
                            "active", "acronym", "remark", "user"]
         self.fieldtranslate = ['begin', 'lang', 'gf_id', 'name', 'user']
-        self.csvRelations = DIR_DATA_CSV + "GFrelations.csv"
+        self.csvRelations = os.path.join(DIR_DATA_CSV, "GFrelations.csv")
 
     def newObject(self):
         return GrFunction(self.config)
@@ -1374,7 +1374,7 @@ class AllSensors(AllObjects):
 
     def check_rrd(self):
         for k, v in self.elements.items():
-            filename = DIR_RRD + v.getRRDName()
+            filename = os.path.join(DIR_RRD, v.getRRDName())
             if not os.path.exists(filename):
                 v.createRRD()
 
@@ -1471,7 +1471,7 @@ class AllBarcodes(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'barcode', config)
-        self.fileobject = DIR_DATA_CSV + "codes.csv"
+        self.fileobject = os.path.join(DIR_DATA_CSV, "codes.csv")
         self.filename = None
         self.keyColumn = "code"
         self.fieldnames = ['begin', 'type',
@@ -2569,7 +2569,7 @@ class ExportData():
         self.fieldnames = ['timestamp', 'user', 'type', 'b_id', 'p_id', 'e_id', 'c_id',
                            'h_id', 'm_id', 'sensor', 'value', 'unit', 'category', 'duration', 'remark']
         self.history = []
-        self.filename = DIR_DATA_CSV + "exportdata.csv"
+        self.filename = os.path.join(DIR_DATA_CSV, "exportdata.csv")
         self.cond = cond
         self.elem = elem
         if elem.get_type() != 'b':
@@ -4115,13 +4115,13 @@ class Barcode(ConfigurationObject):
         EAN = barcode.get_barcode_class('ean13')
         self.fields['code'] = str(self.fields['code'])
         ean = EAN(self.fields['code'])
-        ean.save(DIR_BARCODES+self.fields['code'])
+        ean.save(os.path.join(DIR_BARCODES, self.fields['code']))
 
     def get_picture_name(self):
         return self.fields['code']+'.png'
 
     def get_picture(self):
-        location = DIR_BARCODES + self.fields['code']
+        location = os.path.join(DIR_BARCODES, self.fields['code'])
         if not os.path.exists(location):
             self.barcode_picture()
         return location
