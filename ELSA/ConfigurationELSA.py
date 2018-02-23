@@ -35,14 +35,15 @@ import json
 DIR_TTY = '/dev/ttyS0'
 DIR_BASE = os.path.dirname(os.path.abspath(__file__)) + '/'
 DIR_USER_DATA = os.path.join(DIR_BASE, '../data/')
+DIR_APP_CSV = os.path.join(DIR_BASE, 'csv/')
+DIR_STATIC = os.path.join(DIR_BASE, 'static/')
+
 DIR_DATA_CSV = os.path.join(DIR_USER_DATA, 'csv/')
 DIR_RRD = os.path.join(DIR_USER_DATA, 'rrd/')
 
-STATIC_DIR = os.path.join(DIR_BASE, 'static/')
-DIR_IMG = os.path.join(STATIC_DIR, 'static/img/')
-DIR_BARCODES = os.path.join(STATIC_DIR, 'img/barcodes/')
-DIR_WEB_TEMP = os.path.join(STATIC_DIR, 'temp/')
-DIR_STATIC_CSV = os.path.join(STATIC_DIR, 'csv/')
+DIR_IMG = os.path.join(DIR_STATIC, 'static/img/')
+DIR_BARCODES = os.path.join(DIR_STATIC, 'img/barcodes/')
+DIR_WEB_TEMP = os.path.join(DIR_STATIC, 'temp/')
 
 TEMPLATES_DIR = os.path.join(DIR_BASE, 'templates/')
 
@@ -387,10 +388,9 @@ class ConfigurationObject(object):
             self.fields[field] = ''
 
     def getImagePath(self):
-        directory = u'static/img'
         thisType = self.get_type()
         if thisType in imagedTypes:
-            return directory + u'/' + thisType + u'/' + thisType + u'_'+unicode(self.id) + u'.jpg'
+            return os.path.join(DIR_IMG, thisType, thisType + u'_'+unicode(self.id) + u'.jpg')
         return None
 
     def isImaged(self):
@@ -1042,7 +1042,7 @@ class AllHalflings(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, "halfling", config)
-        self.fileobject = os.path.join(DIR_STATIC_CSV, "halflings.csv")
+        self.fileobject = os.path.join(DIR_APP_CSV, "halflings.csv")
         self.filename = None
         self.keyColumn = "classname"
         self.fieldnames = ['begin', 'classname', 'glyphname', 'user']
@@ -1630,7 +1630,7 @@ class AllLanguages(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'l', config)
-        self.fileobject = os.path.join(DIR_STATIC_CSV, "language.csv")
+        self.fileobject = os.path.join(DIR_APP_CSV, "language.csv")
         self.filename = None
         self.nameColumn = "name"
 
@@ -1647,8 +1647,8 @@ class AllMessages(AllObjects):
         AllObjects.__init__(self, 'm', config)
         self.elements = {}
         self.names = {}
-        self.fileobject = os.path.join(DIR_STATIC_CSV + "mess.csv")
-        self.filename = os.path.join(DIR_STATIC_CSV + "messages.csv")
+        self.fileobject = os.path.join(DIR_APP_CSV + "mess.csv")
+        self.filename = os.path.join(DIR_APP_CSV + "messages.csv")
         self.nameColumn = "name"
 
     def newObject(self):
