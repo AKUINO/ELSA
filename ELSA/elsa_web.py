@@ -582,7 +582,6 @@ def main():
     try:
         web.config.debug = True
         # Configuration Singleton ELSA
-        print(args.config)
         if 'config' in args:
             c = elsa.Configuration(args.config)
         else:
