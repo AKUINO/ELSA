@@ -85,7 +85,6 @@ class Configuration(object):
 
         self.HardConfig = hardconfig.HardConfig()
 
-
 # Run only ONCE: Check if /run/akuino/ELSA.pid exists...
 # pid = str(os.getpid())
 # self.pidfile = self.HardConfig.RUNdirectory+"/ELSA.pid"
@@ -149,6 +148,8 @@ class Configuration(object):
         self.batteryVoltage = 0.0
 
     def load(self):
+        print(globals())
+        os.environ["PORT"] = str(self.HardConfig.port)
         """
         if not self.HardConfig.oled is None:
             # 128x64 display with hardware I2C:

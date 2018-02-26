@@ -24,6 +24,7 @@ class HardConfig():
     ela_reset = '[9C5E01]'
     bluetooth = None
     wifi = None
+    port = "8080"
     owfs = None
     oled = None
     oled_address = 0x3C
@@ -44,6 +45,7 @@ class HardConfig():
     keypad_r = [0, 0, 0, 0]
     keypad_c = [0, 0, 0, 0]
 
+
     def __init__(self):
         self.hostname = socket.gethostname()
         # Test if hostname is correctly initialized
@@ -51,15 +53,14 @@ class HardConfig():
             print(self.hostname+": hostname should begin with akuino")
         self.config = ConfigParser.RawConfigParser()
         try:
-            configFile = os.path.expanduser(
-                HARDdirectory+'/'+self.hostname+'.ini')
+            configFile = os.path.expanduser(os.path.join(HARDdirectory,
+                                                         self.hostname+'.ini'))
             self.config.readfp(codecs.open(configFile, 'r', 'utf8'))
         except:
             try:
-                print(configFile+" not found. Using " +
-                      HARDdirectory+"/DEFAULT.ini")
-                self.config.readfp(codecs.open(os.path.expanduser(
-                    HARDdirectory+'/DEFAULT.ini'), 'r', 'utf8'))
+                newPath = os.path.join(HARDdirectory, '/DEFAULT.ini')
+                print(configFile+' not found. Using ' + newPath)
+                self.config.readfp(codecs.open(os.path.expanduser(newPath), 'r', 'utf8'))
             except:
                 traceback.print_exc()
 
@@ -77,6 +78,8 @@ class HardConfig():
                             traceback.print_exc()
                     elif anItem[0].lower() == u'model':
                         self.model = anItem[1]
+                    elif anItem[0].lower() == u'port':
+                        self.port = anItem[1]
 
             if u'I2C' in self.config.sections():
                 for anItem in self.config.items(u'I2C'):
