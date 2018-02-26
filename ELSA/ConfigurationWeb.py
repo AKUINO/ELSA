@@ -8,9 +8,15 @@ import sys
 import shutil
 import os
 import backup
+import argparse
 
 global c, render
 
+def manage_cmdline_arguments():
+    parser = argparse.ArgumentParser(description='Enregistrement des Lots pour la Sécurité Alimentaire')
+    parser.add_argument('port', type=int, help='Port number of the internal web server') # Est interprété directement par WebPI
+    parser.add_argument('--config', help='Configuration file for this particular computer')
+    return parser.parse_args()
 
 def web_link_from_abs_path(path):
     """Will strip DIR_BASE from path. Intended to be used in href"""
@@ -569,13 +575,18 @@ wsgiapp = None
 
 
 def main():
+    args = manage_cmdline_arguments()
     cleanup_web_temp_dir()
 
     global c, wsgiapp, render
     try:
         web.config.debug = True
         # Configuration Singleton ELSA
-        c = elsa.Configuration()
+        print(args.config)
+        if 'config' in args:
+            c = elsa.Configuration(args.config)
+        else:
+            c = elsa.Configuration(None)
         c.load()
         web.template.Template.globals['c'] = c
         web.template.Template.globals['useful'] = useful

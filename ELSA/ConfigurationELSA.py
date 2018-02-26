@@ -33,6 +33,8 @@ import json
 
 # mise a jour git
 DIR_TTY = '/dev/ttyS0'
+dir_hardconfig = os.path.normpath('~/akuino/hardware')
+
 DIR_BASE = os.path.dirname(os.path.abspath(__file__)) + '/'
 DIR_USER_DATA = os.path.join(DIR_BASE, '../data/')
 DIR_APP_CSV = os.path.join(DIR_BASE, 'csv/')
@@ -79,11 +81,13 @@ valueCategs = {-2: valueCategory(-2, 'minmin', '---', color_violet), -1: valueCa
     0, 'typical', '==', color_green), 1: valueCategory(1, 'max', '++', color_orange), 2: valueCategory(2, 'maxmax', '++', color_red)}
 
 
-class Configuration(object):
+class Configuration():
 
-    def __init__(self):
-
-        self.HardConfig = hardconfig.HardConfig()
+    def __init__(self, config_file):
+        if config_file is not None:
+            self.HardConfig = hardconfig.HardConfig(config_file)
+        else:
+            self.HardConfig = hardconfig.HardConfig(None)
 
 # Run only ONCE: Check if /run/akuino/ELSA.pid exists...
 # pid = str(os.getpid())
@@ -148,8 +152,6 @@ class Configuration(object):
         self.batteryVoltage = 0.0
 
     def load(self):
-        print(globals())
-        os.environ["PORT"] = str(self.HardConfig.port)
         """
         if not self.HardConfig.oled is None:
             # 128x64 display with hardware I2C:
