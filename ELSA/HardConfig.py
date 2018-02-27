@@ -74,11 +74,8 @@ class HardConfig():
                 for anItem in self.config.items(u'system'):
                     if anItem[0].lower() == u'rundirectory':
                         self.rundirectory = unicode(anItem[1]).strip()
-                        try:
-                            if not os.path.exists(self.rundirectory):
-                                os.makedirs(self.rundirectory)
-                        except:
-                            traceback.print_exc()
+                        if not os.path.exists(self.rundirectory):
+                            os.makedirs(self.rundirectory)
                     elif anItem[0].lower() == u'model':
                         self.model = anItem[1]
 
