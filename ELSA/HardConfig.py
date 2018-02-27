@@ -74,8 +74,12 @@ class HardConfig():
                 for anItem in self.config.items(u'system'):
                     if anItem[0].lower() == u'rundirectory':
                         self.rundirectory = unicode(anItem[1]).strip()
-                        if not os.path.exists(self.rundirectory):
-                            os.makedirs(self.rundirectory)
+                        try:
+                            if not os.path.exists(self.rundirectory):
+                                os.makedirs(self.rundirectory)
+                        except OSError:
+                            print('Impossible de creer le dossier ' + self.rundirectory + '.')
+                            sys.exit()
                     elif anItem[0].lower() == u'model':
                         self.model = anItem[1]
 
