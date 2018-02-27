@@ -897,6 +897,8 @@ class AllObjects(object):
     def check_csv(self):
         filename = self.fileobject
         if not os.path.exists(filename):
+            if not os.path.exists(os.path.dirname(filename)):
+                os.makedirs(os.path.dirname(filename))
             self.create_csv(filename)
 
     def create_csv(self, fname):
@@ -1483,6 +1485,7 @@ class AllBarcodes(AllObjects):
         self.EAN = barcode.get_barcode_class('ean13')
 
     def load(self):
+        AllObjects.check_csv(self)
         with open(self.fileobject) as csvfile:
             reader = unicodecsv.DictReader(csvfile, delimiter="\t")
             for row in reader:
