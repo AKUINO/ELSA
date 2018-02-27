@@ -6,7 +6,7 @@ import os
 import codecs
 import sys
 
-HARDdirectory = os.path.join('~/akuino/hardware')
+HARDdirectory = os.path.normpath('~/akuino/hardware')
 
 def get_config_file_path(config_file, hostname):
     if config_file is not None:
@@ -58,10 +58,14 @@ class HardConfig():
         self.config = ConfigParser.RawConfigParser()
         try:
             self.config.readfp(codecs.open(config_file, 'r', 'utf8'))
-        except:
-            new_path = os.path.join(HARDdirectory, '/DEFAULT.ini')
+        except IOError:
+            new_path = os.path.join(HARDdirectory, 'DEFAULT.ini')
             print(config_file+' not found. Using ' + new_path)
-            self.config.readfp(codecs.open(os.path.expanduser(new_path), 'r', 'utf8'))
+            try:
+                self.config.readfp(codecs.open(os.path.expanduser(new_path), 'r', 'utf8'))
+            except IOError:
+                print("No valid configuration hardware configuration file found. Exiting")
+                sys.exit()
 
         if self.config.has_section('system'):
             #            print(self.config.sections())
