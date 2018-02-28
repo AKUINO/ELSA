@@ -20,6 +20,7 @@ import socket
 import urllib2
 import collections
 import math
+import shutil
 """
 import SSD1306
 from I2CScreen import *
@@ -38,6 +39,7 @@ dir_hardconfig = os.path.normpath('~/akuino/hardware')
 DIR_BASE = os.path.dirname(os.path.abspath(__file__)) + '/'
 DIR_USER_DATA = os.path.join(DIR_BASE, '../data/')
 DIR_APP_CSV = os.path.join(DIR_BASE, 'csv/')
+DIR_DEFAULT_CSV = os.path.join(DIR_APP_CSV, 'default/')  # Defines default values for some .csv files (ex: default user for a new installation)
 DIR_STATIC = os.path.join(DIR_BASE, 'static/')
 
 DIR_DATA_CSV = os.path.join(DIR_USER_DATA, 'csv/')
@@ -63,6 +65,18 @@ color_blue = "0000FF"
 color_green = "00FF00"
 color_orange = "FFFF00"
 color_red = "FF0000"
+
+
+def copy_default_csv(filename):
+    '''
+    Will copy the default .csv to `filename` and return true if a default exists, otherwise does nothing and returns false
+    '''
+    default_csv_file = os.path.join(DIR_DEFAULT_CSV, os.path.basename(filename))
+    if os.path.exists(default_csv_file):
+        shutil.copyfile(default_csv_file, filename)
+        return True
+    else:
+        return False
 
 
 class valueCategory(object):
@@ -710,10 +724,6 @@ class RadioThread(threading.Thread):
         except:
             traceback.print_exc()
 
-        if elaSerial:
-            elaSerial.close()
-
-
 class AllObjects(object):
 
     def __init__(self, code, config=None):
@@ -893,13 +903,14 @@ class AllObjects(object):
 
     def delete(self, anID):
         del self.elements[unicode(anID)]
-
+    
     def check_csv(self):
         filename = self.fileobject
         if not os.path.exists(filename):
             if not os.path.exists(os.path.dirname(filename)):
                 os.makedirs(os.path.dirname(filename))
-            self.create_csv(filename)
+            if copy_default_csv(filename) == False:
+                self.create_csv(filename)
 
     def create_csv(self, fname):
         with open(fname, 'w') as csvfile:
