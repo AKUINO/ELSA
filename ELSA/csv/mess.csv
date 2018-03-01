@@ -90,6 +90,7 @@ begin	m_id	default	user
 2016-01-01 13:45:56	measure	Measure	1
 2016-01-01 13:45:56	sensor	Sensor	1
 2016-01-01 13:45:56	backup	Backup	1
+2016-01-01 13:45:56	updateElsa	Update ELSA	1
 2016-01-01 13:45:56	alarm	Alarm	1
 2016-01-01 13:45:56	createe	Add a new equipment	1
 2016-01-01 13:45:56	createtm	Add a new TransferModel	1

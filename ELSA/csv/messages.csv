@@ -7,6 +7,8 @@ begin	lang	m_id	name	user
 2016-01-01 13:45:56	NL	acronym	Acroniem	1
 2016-01-01 13:45:56	EN	createBackup	Create backup	1
 2016-01-01 13:45:56	FR	createBackup	Créer backup	1
+2016-01-01 13:45:56	EN	updateElsa	Update ELSA	1
+2016-01-01 13:45:56	FR	updateElsa	Mise à jour d'ELSA	1
 2016-01-01 13:45:56	EN	acronymrequired	Acronym is required !	1
 2016-01-01 13:45:56	FR	acronymrequired	Acronyme requis	1
 2016-01-01 13:45:56	EN	acronymrules	Acronym can only contain letters, digits and _!	1
