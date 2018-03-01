@@ -78,13 +78,6 @@ def copy_default_csv(filename):
     else:
         return False
 
-def check_csv(filename):
-    if not os.path.exists(filename):
-        if not os.path.exists(os.path.dirname(filename)):
-            os.makedirs(os.path.dirname(filename))
-        if copy_default_csv(filename) == False:
-            self.create_csv(filename)
-
 
 class valueCategory(object):
 
@@ -746,11 +739,35 @@ class AllObjects(object):
         return self.code
 
     def load(self):
-        check_csv(self.fileobject)
+        self.check_csv(self.fileobject)
         self.loadFields()
         if self.filename is not None:
-            check_csv(self.filename)
+            self.check_csv(self.filename)
             self.loadNames()
+
+    def check_csv(self, filename):
+        if not os.path.exists(filename):
+            if not os.path.exists(os.path.dirname(filename)):
+                os.makedirs(os.path.dirname(filename))
+            if copy_default_csv(filename) == False:
+                self.create_csv(filename)
+
+    def create_csv(self, fname):
+        with open(fname, 'w') as csvfile:
+            csvfile.write(self.fieldnames[0])
+            tmp = 1
+            while tmp < len(self.fieldnames):
+                csvfile.write('\t'+self.fieldnames[tmp])
+                tmp = tmp + 1
+            csvfile.write('\n')
+        if self.filename is not None:
+            with open(self.filename, 'w') as csvfile:
+                csvfile.write(self.fieldtranslate[0])
+                tmp = 1
+                while tmp < len(self.fieldtranslate):
+                    csvfile.write('\t'+self.fieldtranslate[tmp])
+                    tmp = tmp + 1
+                csvfile.write('\n')
 
     def loadFields(self):
         with open(self.fileobject) as csvfile:
@@ -912,23 +929,6 @@ class AllObjects(object):
     def delete(self, anID):
         del self.elements[unicode(anID)]
     
-    def create_csv(self, fname):
-        with open(fname, 'w') as csvfile:
-            csvfile.write(self.fieldnames[0])
-            tmp = 1
-            while tmp < len(self.fieldnames):
-                csvfile.write('\t'+self.fieldnames[tmp])
-                tmp = tmp + 1
-            csvfile.write('\n')
-        if self.filename is not None:
-            with open(self.filename, 'w') as csvfile:
-                csvfile.write(self.fieldtranslate[0])
-                tmp = 1
-                while tmp < len(self.fieldtranslate):
-                    csvfile.write('\t'+self.fieldtranslate[tmp])
-                    tmp = tmp + 1
-                csvfile.write('\n')
-
     def get_name_object(self):
         return 'component'
 
@@ -1496,7 +1496,7 @@ class AllBarcodes(AllObjects):
         self.EAN = barcode.get_barcode_class('ean13')
 
     def load(self):
-        check_csv(self.fileobject)
+        AllObjects.check_csv(self, self.fileobject)
         with open(self.fileobject) as csvfile:
             reader = unicodecsv.DictReader(csvfile, delimiter="\t")
             for row in reader:
