@@ -9,6 +9,7 @@ import shutil
 import os
 import backup
 import argparse
+import subprocess
 
 global c, render
 
@@ -575,6 +576,33 @@ def cleanup_web_temp_dir():
         if not os.path.exists(elsa.DIR_WEB_TEMP):
             os.makedirs(elsa.DIR_WEB_TEMP)
 
+
+def start_update():
+    try:
+        subprocess.check_call("git pull", shell=True) #, stdout=sys.stdout, stderr=sys.stderr)
+    except subprocess.CalledProcessError:
+        print("Update error. Please update manually.")
+
+class end_activities_flags:
+    """
+    An object that holds some flags until just before the end of the program.
+    Intended to launch things when we want to ELSA to be in a coherent state.
+    """
+    def __init__(self):
+        self._check_update = False
+    
+    def set_check_update(self, value):
+        if value == False:
+            self._check_update = False
+        elif value == True:
+            self._check_update = True
+        else:
+            raise("Invalid value received : expected bool")
+
+    def launch_activities(self):
+        if self._check_update:
+            start_update()
+
 c = None
 wsgiapp = None
 
@@ -582,10 +610,11 @@ wsgiapp = None
 def main():
     args = manage_cmdline_arguments()
     cleanup_web_temp_dir()
+    flags = end_activities_flags()
 
     global c, wsgiapp, render
     try:
-        web.config.debug = True
+        web.config.debug = False
         # Configuration Singleton ELSA
         if 'config' in args:
             c = elsa.Configuration(args.config)
@@ -633,8 +662,8 @@ def main():
             c.isThreading = False
             c.UpdateThread.join()
             c.RadioThread.join()
-# Replaced by an abstract socket:
-#            unlink(c.pidfile)
+        
+        flags.launch_activities()
 
         print 'Exit system'
 
