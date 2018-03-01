@@ -1,3 +1,2 @@
 begin	u_id	active	acronym	remark	registration	phone	mail	password	language	gf_id	user
-01/01/2016 12:00:00	1	1	Admin	/	01/01/2016 12:00:00	+32000000000	elsa@destin.be	170d121ea1afcf8527aec60c1c2a005ac8656b3e28de4cf53bd0a27a446b181e	FR		1
-2018-02-19 15:06:40	17	1	SUPPORT_Quentin		2018-02-19 15:05:42	0032	qt@mail.com	170d121ea1afcf8527aec60c1c2a005ac8656b3e28de4cf53bd0a27a446b181e	FR	1	17
+2018-01-01 12:00:00	1	1	SUPPORT_Quentin		2016-01-01 12:00:00	0032	elsa@destin.be	46849644dd639e3b8f0c54ca667504c710a2fb77fb226016a529fec3c55aee4f	FR	1	1

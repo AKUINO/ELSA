@@ -15,15 +15,20 @@ global c, render
 def manage_cmdline_arguments():
     parser = argparse.ArgumentParser(description='Enregistrement des Lots pour la Sécurité Alimentaire')
     parser.add_argument('port', type=int, help='Port number of the internal web server') # Est interprété directement par WebPI
-    parser.add_argument('--config', help='Configuration file for this particular computer')
+    parser.add_argument('--hw-config', help='Configuration file for this particular computer')
     return parser.parse_args()
 
 def web_link_from_abs_path(path):
-    """Will strip DIR_BASE from path. Intended to be used in href"""
+    """
+    Will strip DIR_BASE from path. Intended to be used in href
+    """
     return path[len(elsa.DIR_BASE):]
 
 def getLinkForLatestBackupArchive():
-    """Returns the web path (as in web_link_from_abs_path of the lastest backup archive in the temporary web folder"""
+    """
+    Returns the web path (as in web_link_from_abs_path of the lastest backup
+    archive in the temporary web folder
+    """
     list = os.listdir(elsa.DIR_WEB_TEMP)
     lastFile = None
     for f in sorted(list):
