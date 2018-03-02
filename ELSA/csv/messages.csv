@@ -7,8 +7,10 @@ begin	lang	m_id	name	user
 2016-01-01 13:45:56	NL	acronym	Acroniem	1
 2016-01-01 13:45:56	EN	createBackup	Create backup	1
 2016-01-01 13:45:56	FR	createBackup	Créer backup	1
-2016-01-01 13:45:56	EN	updateElsa	Update ELSA	1
-2016-01-01 13:45:56	FR	updateElsa	Mise à jour d'ELSA	1
+2016-01-01 13:45:56	EN	restarting	Restarting	1
+2016-01-01 13:45:56	FR	restarting	Redémarrage	1
+2016-01-01 13:45:56	EN	startUpdate	Update ELSA	1
+2016-01-01 13:45:56	FR	startUpdate	Mise à jour d'ELSA	1
 2016-01-01 13:45:56	EN	acronymrequired	Acronym is required !	1
 2016-01-01 13:45:56	FR	acronymrequired	Acronyme requis	1
 2016-01-01 13:45:56	EN	acronymrules	Acronym can only contain letters, digits and _!	1
@@ -342,8 +344,8 @@ Heure : {9}"	1
 2016-01-01 13:45:56	FR	unit	Unité 	1
 2016-01-01 13:45:56	EN	unitrules	An unit is required !	1
 2016-01-01 13:45:56	FR	unitrules	Une unité de mesure est requise !	1
-2016-01-01 13:45:56	EN	update	Update	1
-2016-01-01 13:45:56	FR	update	Mettre à jour	1
+2016-01-01 13:45:56	EN	updateELSA	Update	1
+2016-01-01 13:45:56	FR	updateELSA	Mettre à jour	1
 2016-01-01 13:45:56	DE	user	Benutzer	1
 2016-01-01 13:45:56	EN	user	User	1
 2016-01-01 13:45:56	FR	user	Utilisateur	1

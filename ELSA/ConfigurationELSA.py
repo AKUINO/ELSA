@@ -120,9 +120,9 @@ class Configuration():
 
         try:
             _lock_socket.bind('\0AKUINO-ELSA')
-            print 'Socket AKUINO-ELSA now locked'
+            print ('Socket AKUINO-ELSA now locked')
         except socket.error:
-            print 'AKUINO-ELSA lock exists'
+            print ('AKUINO-ELSA lock exists')
             sys.exit()
 
         if not os.path.samefile(os.getcwd(), DIR_BASE) :

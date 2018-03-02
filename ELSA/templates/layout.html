@@ -94,9 +94,9 @@ $if content.recursive == 'False' :
 			    <ul class="dropdown-menu">
 				<li><a href="/list/u" tabindex="-1"><span class="$c.AllHalflings.elements['user'].getHalfling()"></span>&nbsp;$c.AllMessages.elements['user'].getName(content.lang)</a></li>
 				<li><a href="/list/gf" tabindex="-2"><span class="$c.AllHalflings.elements['gfunction'].getHalfling()"></span>&nbsp;&nbsp;$c.AllMessages.elements['gfunction'].getName(content.lang)</a></li>
+				<li><a href="/updateELSA" tabindex="-3"><span class="$c.AllHalflings.elements['updateELSA'].getHalfling()"></span>&nbsp;&nbsp;$c.AllMessages.elements['updateELSA'].getName(content.lang)</a></li>
 				$if self.tmp == 'connected':
-				    <li><a href="/disconnect" tabindex="-3"><span class="$c.AllHalflings.elements['disconnect'].getHalfling()"></span>&nbsp;$c.AllMessages.elements['disconnect'].getName(content.lang)</a></li>
-				<li><a href="/list/updateELSA" tabindex="-4"><span class="$c.AllHalflings.elements['updateElsa'].getHalfling()"></span>&nbsp;&nbsp;$c.AllMessages.elements['updateElsa'].getName(content.lang)</a></li>
+				    <li><a href="/disconnect" tabindex="-4"><span class="$c.AllHalflings.elements['disconnect'].getHalfling()"></span>&nbsp;$c.AllMessages.elements['disconnect'].getName(content.lang)</a></li>
 			    </ul>
 			</li>
 		    </ul>

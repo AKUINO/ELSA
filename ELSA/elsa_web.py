@@ -69,6 +69,38 @@ class WebBackup():
             raise web.seeother('/')
  # We should put a real error message on the normal backup page
 
+class WebUpdateELSA():
+    def __init(self):
+        self.name = u"WebUpdateELSA"
+
+    def GET(self):
+        mail = isConnected()
+        if mail is not None:
+            return render.updateELSA(mail)
+        raise web.seeother('/')
+    
+    def POST(self):
+        mail = isConnected()
+        data = web.input()
+        if mail is not None and data.start_elsa_update is not None:
+            flags.set_check_update(True)
+            raise web.seeother('/restarting')
+        else:
+            raise web.seeother('/')
+        
+class WebRestarting():
+    global app
+    def __init(self):
+        self.name = u"WebRestarting"
+
+    def GET(self):
+        mail = isConnected()
+        if mail is not None:
+            app.stop()
+            # sys.exit()
+            return render.restarting(mail)
+        raise web.seeother('/')
+    
 class WebDisconnect():
     def GET(self):
         mail = isConnected()
@@ -578,10 +610,24 @@ def cleanup_web_temp_dir():
 
 
 def start_update():
+    print("Debut de la mise à jour d'ELSA avec Git")
     try:
         subprocess.check_call("git pull", shell=True) #, stdout=sys.stdout, stderr=sys.stderr)
     except subprocess.CalledProcessError:
         print("Update error. Please update manually.")
+    finally:
+        print("Fin du processus de mise à jour")
+
+def restart_program():
+    """Restarts the current program, with file objects and descriptors
+       cleanup
+    """
+    elsa._lock_socket.close()
+    python = sys.executable
+    args = sys.argv
+    args[0] = os.path.join(elsa.DIR_BASE, os.path.basename(sys.argv[0]))
+    print(args) 
+    os.execl(python, python, *args)
 
 class end_activities_flags:
     """
@@ -599,20 +645,26 @@ class end_activities_flags:
         else:
             raise("Invalid value received : expected bool")
 
-    def launch_activities(self):
+    def launch_end_activities(self):
+        _restart = False
         if self._check_update:
             start_update()
+            _restart = True
+	if _restart:
+	   restart_program() 
+        
 
 c = None
 wsgiapp = None
-
+flags = end_activities_flags()
+app = None
 
 def main():
+    # restart_program()
     args = manage_cmdline_arguments()
     cleanup_web_temp_dir()
-    flags = end_activities_flags()
 
-    global c, wsgiapp, render
+    global c, wsgiapp, render, app
     try:
         web.config.debug = False
         # Configuration Singleton ELSA
@@ -643,12 +695,14 @@ def main():
             '/fullentry/(.+)_(.+)', 'WebFullEntry',
             '/export/(.+)_(.+)/(.+)', 'WebDownloadData',
             '/export/(.+)_(.+)', 'WebExport',
-            '/backup', 'WebBackup',
             '/datatable/(.+)_(.+)', 'WebDataTable',
             '/find/(.+)/(.+)_(.+)', 'WebFind',
             '/permission/(.+)_(.+)', 'WebPermission',
             '/control/b_(.+)/h_(.+)', 'WebControl',
             '/disconnect', 'WebDisconnect',
+            '/backup', 'WebBackup',
+            '/updateELSA', 'WebUpdateELSA',
+            '/restarting', 'WebRestarting'
         )
         app = web.application(urls, globals())
         app.notfound = notfound
@@ -663,7 +717,7 @@ def main():
             c.UpdateThread.join()
             c.RadioThread.join()
         
-        flags.launch_activities()
+        flags.launch_end_activities()
 
         print 'Exit system'
 

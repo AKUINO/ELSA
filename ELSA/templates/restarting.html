@@ -1,0 +1,10 @@
+$def with (mail)
+
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+$var recursive : False
+$var location : restarting=restarting
+$var title : Restarting
+
+<div class="container">
+    Redémarrage en cours… veuillez attendre un peu et puis recharger la page.
+</div>
