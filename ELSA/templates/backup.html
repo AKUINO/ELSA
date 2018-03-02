@@ -9,6 +9,8 @@ $var title : Backup
     <form method="post" action="" id="selectAction" enctype="multipart/form-data">
         <div class="form-group column">
             <input type="submit" value="$c.AllMessages.elements['createBackup'].getName(self.lang)" class="form-control" name="create_backup">
+            <input type="file" name="zip_archive_to_restore">
+            <input type="submit">
         </div>
     </form>
     $if link is not None:

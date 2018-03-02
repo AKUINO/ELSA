@@ -27,7 +27,7 @@ def web_link_from_abs_path(path):
 
 def getLinkForLatestBackupArchive():
     """
-    Returns the web path (as in web_link_from_abs_path of the lastest backup
+    Returns the web path (as in web_link_from_abs_path) of the lastest backup
     archive in the temporary web folder
     """
     list = os.listdir(elsa.DIR_WEB_TEMP)
@@ -59,10 +59,11 @@ class WebBackup():
     
     def POST(self):
         mail = isConnected()
-        data = web.input()
-        if mail is None:
-            raise web.seeother('/')
-        elif data.create_backup is not None:
+        data = web.input(zip_archive_to_restore={}, create_backup={})
+        if mail is not None and data.zip_archive_to_restore is not None:
+            print(data['zip_archive_to_restore'].filename)
+            raise web.seeother('/restarting')
+        elif mail is not None and data.create_backup is None:
             backup.create_backup_zip()
             return render.backup(mail, getLinkForLatestBackupArchive())
         else:
