@@ -60,10 +60,20 @@ class WebBackup():
     def POST(self):
         mail = isConnected()
         data = web.input(zip_archive_to_restore={}, create_backup={})
-        if mail is not None and data.zip_archive_to_restore is not None:
-            print(data['zip_archive_to_restore'].filename)
+        if mail is not None and data.zip_archive_to_restore.filename is not "":
+            if 'zip_archive_to_restore' in data:
+                fpath = data.zip_archive_to_restore.filename.replace('\\','/') # replaces the windows-style slashes with linux ones.
+		fname = fpath.split('/')[-1] # splits the and chooses the last part (the filename with extension)
+                try:
+                    fout = open(os.path.join(elsa.DIR_WEB_TEMP, fname),'w') # creates the file where the uploaded file should be stored
+		    fout.write(data.zip_archive_to_restore.file.read()) # writes the uploaded file to the newly created file.
+		    fout.close() # closes the file, upload complete.
+                except IOError:
+                    print("Error while creating backup file.")
+                    raise IOError
+                flags.set_restore(fname)
             raise web.seeother('/restarting')
-        elif mail is not None and data.create_backup is None:
+        elif mail is not None and data.create_backup is not None:
             backup.create_backup_zip()
             return render.backup(mail, getLinkForLatestBackupArchive())
         else:
@@ -637,7 +647,12 @@ class end_activities_flags:
     """
     def __init__(self):
         self._check_update = False
+        self._restart = False
+        self._restore = False
     
+    def set_restore(self, fname):
+        self._restore = fname
+
     def set_check_update(self, value):
         if value == False:
             self._check_update = False
@@ -646,13 +661,20 @@ class end_activities_flags:
         else:
             raise("Invalid value received : expected bool")
 
+    def set_restart(self):
+        self._restart = True
+    
     def launch_end_activities(self):
-        _restart = False
+        if self._restore:
+            backup.restore_from_zip(self._restore)
+            self.set_restart()
+
         if self._check_update:
             start_update()
-            _restart = True
-	if _restart:
-	   restart_program() 
+            self.set_restart()
+	
+        if self._restart:
+	    restart_program() 
         
 
 c = None
