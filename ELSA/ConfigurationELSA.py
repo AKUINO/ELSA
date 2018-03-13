@@ -653,6 +653,17 @@ class ConfigurationObject(object):
                 return configuration.AllTransfers.elements[self.position[count-1]]
         return configuration.AllTransfers.elements[self.position[-1]]
 
+    def get_alarm(self):
+	if self.actualAlarm == 'typical':
+	    return self.fields['a_typical']
+	elif self.actualAlarm == 'minmin':
+	    return self.fields['a_minmin']
+	elif self.actualAlarm == 'min':
+	    return self.fields['a_min']
+	elif self.actualAlarm == 'max':
+	    return self.fields['a_max']
+	elif self.actualAlarm == 'maxmax':
+	    return self.fields['a_maxmax']
 
 class UpdateThread(threading.Thread):
 
@@ -3583,18 +3594,6 @@ class Sensor(ConfigurationObject):
             return owData, debugging
         return None, debugging
 
-    def get_alarm(self):
-        if self.actualAlarm == 'typical':
-            return self.fields['a_typical']
-        elif self.actualAlarm == 'minmin':
-            return self.fields['a_minmin']
-        elif self.actualAlarm == 'min':
-            return self.fields['a_min']
-        elif self.actualAlarm == 'max':
-            return self.fields['a_max']
-        elif self.actualAlarm == 'maxmax':
-            return self.fields['a_maxmax']
-
     def get_name_listing(self):
         return 'sensors'
 
@@ -3951,6 +3950,16 @@ class ManualDataModel(ConfigurationObject):
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
 
+    def setCorrectAlarmValue(self):
+        if self.fields['minmin'] == '' :
+            self.fields['minmin'] = -99999999
+        if self.fields['min'] == '' :
+            self.fields['min'] = -99999999
+        if self.fields['max'] == '' :
+            self.fields['max'] = 99999999
+        if self.fields['maxmax'] == '' :
+            self.fields['maxmax'] = 99999999
+
     def get_type(self):
         return 'dm'
 
@@ -3968,6 +3977,9 @@ class ManualDataModel(ConfigurationObject):
             self.config.AllCheckPoints.elements[self.fields['h_id']].remove_dm(
                 self)
         super(ManualDataModel, self).set_value_from_data(data, c, user)
+	tmp = ['minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax']
+	for elem in tmp:
+	    self.fields[elem] = data[elem]
         self.fields['m_id'] = data['measure']
         self.fields['h_id'] = data['checkpoint']
         self.fields['rank'] = data['rank']
