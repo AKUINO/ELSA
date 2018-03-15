@@ -12,6 +12,7 @@ import argparse
 import subprocess
 import time
 import ast
+import json
 
 global c, render
 
@@ -100,7 +101,13 @@ class WebUpdateELSA():
             raise web.seeother('/restarting')
         else:
             raise web.seeother('/')
-       
+
+def getListOfSensors():
+    list = []
+    for i in c.AllSensors.elements:
+        list.append(c.AllSensors.elements[i].fields['acronym'])
+    return list
+
 class WebApiGrafana():
     def __init(self):
         self.name = u"WebApiGrafana"
@@ -111,14 +118,13 @@ class WebApiGrafana():
     def POST(self, id=''):
         data=ast.literal_eval(web.data())
         if id=='search':
-            return '["upper_25","upper_50","upper_75","upper_90","upper_95"]'
+            return json.dumps(getListOfSensors())
         elif id=='query':
             time_from_utc = data['range']['from']
             time_from_utc = time_from_utc.split('.')[0]
             time_from_utc = time.strptime(time_from_utc, "%Y-%m-%dT%H:%M:%S")
             time_to_utc = time.strptime(data['range']['to'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
             
-            print("query")
         else:
             return 'Error: Invalid url requested'
     
@@ -753,6 +759,7 @@ def main():
         )
         app = web.application(urls, globals())
         app.notfound = notfound
+        
         app.run()
         # wsgiapp = app.wsgifunc()
     except:
