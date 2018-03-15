@@ -13,6 +13,7 @@ import subprocess
 import time
 import ast
 import json
+import rrd
 
 global c, render
 
@@ -102,11 +103,21 @@ class WebUpdateELSA():
         else:
             raise web.seeother('/')
 
-def getListOfSensors():
+def getListOfSensorsAcronym():
     list = []
     for i in c.AllSensors.elements:
         list.append(c.AllSensors.elements[i].fields['acronym'])
     return list
+
+def getDataPointsForGrafanaApi(target, time_from_utc, time_to_utc):
+    datapoints = []
+    sensor = c.AllSensors.findAcronym(target).fields
+    if sensor is None:
+        raise ValueError("That acronym does not exist : " + target)
+    
+    sensor_id = sensor['s_id']
+    return [{"target": target, "datapoints": rrd.get_datapoints_from_s_id(sensor_id, time_from_utc, time_to_utc)}]
+    
 
 class WebApiGrafana():
     def __init(self):
@@ -118,13 +129,21 @@ class WebApiGrafana():
     def POST(self, id=''):
         data=ast.literal_eval(web.data())
         if id=='search':
-            return json.dumps(getListOfSensors())
+            return json.dumps(getListOfSensorsAcronym())
         elif id=='query':
             time_from_utc = data['range']['from']
             time_from_utc = time_from_utc.split('.')[0]
             time_from_utc = time.strptime(time_from_utc, "%Y-%m-%dT%H:%M:%S")
             time_to_utc = time.strptime(data['range']['to'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
             
+            targets = []
+            for i in data['targets']:
+                targets.append(i['target'])
+            
+            for i in targets:
+                out = json.dumps(getDataPointsForGrafanaApi(i, time_from_utc, time_to_utc))
+                print(out)
+                return out
         else:
             return 'Error: Invalid url requested'
     
