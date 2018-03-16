@@ -672,14 +672,16 @@ class UpdateThread(threading.Thread):
         self.config = config
 
     def run(self):
-        time.sleep(60)
         self.config.owproxy = pyownet.protocol.proxy(
             host="localhost", port=4304)
         while self.config.isThreading is True:
+            timer = 0
             now = useful.get_timestamp()
             if not len(self.config.AllSensors.elements) == 0:
                 self.config.AllSensors.update(now)
-            time.sleep(60)
+            while self.config.isThreading is True and timer < 60:
+                time.sleep(1)
+                timer = timer + 1
 
 
 class RadioThread(threading.Thread):

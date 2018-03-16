@@ -10,6 +10,10 @@ import os
 import backup
 import argparse
 import subprocess
+import time
+import ast
+import json
+import rrd
 
 global c, render
 
@@ -98,7 +102,51 @@ class WebUpdateELSA():
             raise web.seeother('/restarting')
         else:
             raise web.seeother('/')
-        
+
+def getListOfSensorsAcronym():
+    list = []
+    for i in c.AllSensors.elements:
+        list.append(c.AllSensors.elements[i].fields['acronym'])
+    return list
+
+def getDataPointsForGrafanaApi(target, time_from_utc, time_to_utc):
+    datapoints = []
+    sensor = c.AllSensors.findAcronym(target).fields
+    if sensor is None:
+        raise ValueError("That acronym does not exist : " + target)
+    
+    sensor_id = sensor['s_id']
+    return {"target": target, "datapoints": rrd.get_datapoints_from_s_id(sensor_id, time_from_utc, time_to_utc)}
+    
+
+class WebApiGrafana():
+    def __init(self):
+        self.name = u"WebApiGrafana"
+
+    def GET(self, id=''):
+        return 'You have reached the / of ELSA\'s API for Grafana'
+
+    def POST(self, id=''):
+        data=ast.literal_eval(web.data())
+        if id=='search':
+            return json.dumps(getListOfSensorsAcronym())
+        elif id=='query':
+            time_from_utc = data['range']['from']
+            time_from_utc = time_from_utc.split('.')[0]
+            time_from_utc = time.strptime(time_from_utc, "%Y-%m-%dT%H:%M:%S")
+            time_to_utc = time.strptime(data['range']['to'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
+            
+            targets = []
+            for i in data['targets']:
+                targets.append(i['target'])
+            
+            out = []
+            for i in targets:
+                out.append(getDataPointsForGrafanaApi(i, time_from_utc, time_to_utc))
+            return json.dumps(out)
+        else:
+            return 'Error: Invalid url requested'
+    
 class WebRestarting():
     global app
     def __init(self):
@@ -725,10 +773,12 @@ def main():
             '/disconnect', 'WebDisconnect',
             '/backup', 'WebBackup',
             '/updateELSA', 'WebUpdateELSA',
-            '/restarting', 'WebRestarting'
+            '/restarting', 'WebRestarting',
+            '/api/grafana/(.*)', 'WebApiGrafana'
         )
         app = web.application(urls, globals())
         app.notfound = notfound
+        
         app.run()
         # wsgiapp = app.wsgifunc()
     except:
