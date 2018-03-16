@@ -123,14 +123,20 @@ class WebApiGrafana():
     def __init(self):
         self.name = u"WebApiGrafana"
 
-    def GET(self, id=''):
+    def GET(self, lang='', request=''):
+        # When no lang is set, WebPY inverts lang and request variables
+        if request == '':
+            request, lang = lang, request
         return 'You have reached the / of ELSA\'s API for Grafana'
 
-    def POST(self, id=''):
+    def POST(self, lang='', request=''):
+        # When no lang is set, WebPY inverts lang and request variables
+        if request == '':
+            request, lang = lang, request
         data=ast.literal_eval(web.data())
-        if id=='search':
+        if request=='search':
             return json.dumps(getListOfSensorsAcronym())
-        elif id=='query':
+        elif request=='query':
             time_from_utc = data['range']['from']
             time_from_utc = time_from_utc.split('.')[0]
             time_from_utc = time.strptime(time_from_utc, "%Y-%m-%dT%H:%M:%S")
@@ -774,7 +780,7 @@ def main():
             '/backup', 'WebBackup',
             '/updateELSA', 'WebUpdateELSA',
             '/restarting', 'WebRestarting',
-            '/api/grafana/(.*)', 'WebApiGrafana'
+            '/api/grafana/([^/]*)/{0,1}(.*)', 'WebApiGrafana'
         )
         app = web.application(urls, globals())
         app.notfound = notfound
