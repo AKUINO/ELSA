@@ -116,7 +116,7 @@ def getDataPointsForGrafanaApi(target, time_from_utc, time_to_utc):
         raise ValueError("That acronym does not exist : " + target)
     
     sensor_id = sensor['s_id']
-    return [{"target": target, "datapoints": rrd.get_datapoints_from_s_id(sensor_id, time_from_utc, time_to_utc)}]
+    return {"target": target, "datapoints": rrd.get_datapoints_from_s_id(sensor_id, time_from_utc, time_to_utc)}
     
 
 class WebApiGrafana():
@@ -140,10 +140,10 @@ class WebApiGrafana():
             for i in data['targets']:
                 targets.append(i['target'])
             
+            out = []
             for i in targets:
-                out = json.dumps(getDataPointsForGrafanaApi(i, time_from_utc, time_to_utc))
-                print(out)
-                return out
+                out.append(getDataPointsForGrafanaApi(i, time_from_utc, time_to_utc))
+            return json.dumps(out)
         else:
             return 'Error: Invalid url requested'
     
