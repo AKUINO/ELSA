@@ -106,7 +106,8 @@ class WebUpdateELSA():
 def getListOfSensorsAcronym():
     list = []
     for i in c.AllSensors.elements:
-        list.append(c.AllSensors.elements[i].fields['acronym'])
+        if c.AllSensors.elements[i].fields['active'] == '1':
+            list.append(c.AllSensors.elements[i].fields['acronym'])
     return list
 
 def getDataPointsForGrafanaApi(target, time_from_utc, time_to_utc):
