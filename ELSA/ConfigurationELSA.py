@@ -428,6 +428,7 @@ class ConfigurationObject(object):
             self.names[key] = newName
 
     def getName(self, lang):
+        lang = lang.upper()
         if lang == 'disconnected':
             lang = 'EN'
         if lang in self.names:
@@ -953,7 +954,7 @@ class AllObjects(object):
             if element.fields['acronym'] == acronym:
                 return element
         return None
-
+    
     def findBarcode(self, barcode):
         try:
             elem = config.AllBarcodes.barcode_to_item(barcode)
