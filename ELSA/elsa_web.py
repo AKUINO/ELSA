@@ -103,19 +103,30 @@ class WebUpdateELSA():
         else:
             raise web.seeother('/')
 
-def getListOfSensorsAcronym():
+def get_list_of_active_sensors_acronyms(lang):
     list = []
     for i in c.AllSensors.elements:
-        list.append(c.AllSensors.elements[i].fields['acronym'])
+        if c.AllSensors.elements[i].fields['active'] == '1':
+            acronym = c.AllSensors.elements[i].get_acronym()
+            if lang is None:
+                list.append(acronym)
+            else:
+                list.append(c.AllSensors.elements[i].getName(lang) + ' [' + acronym + ']')
     return list
 
-def getDataPointsForGrafanaApi(target, time_from_utc, time_to_utc):
+def get_data_points_for_grafana_api(target, lang, time_from_utc, time_to_utc):
     datapoints = []
-    sensor = c.AllSensors.findAcronym(target).fields
-    if sensor is None:
+    sensor = None
+    acronym = target
+    if lang is not None:
+        acronym = target[target.find('[')+1 : -1]
+
+    sensor = c.AllSensors.findAcronym(acronym)
+    try:
+        sensor_id = sensor.fields['s_id']
+    except AttributeError:
         raise ValueError("That acronym does not exist : " + target)
     
-    sensor_id = sensor['s_id']
     return {"target": target, "datapoints": rrd.get_datapoints_from_s_id(sensor_id, time_from_utc, time_to_utc)}
     
 
@@ -123,14 +134,22 @@ class WebApiGrafana():
     def __init(self):
         self.name = u"WebApiGrafana"
 
-    def GET(self, id=''):
+    def GET(self, lang='', request=''):
+        # When no lang is set, WebPY inverts lang and request variables
+        if request == '':
+            request = lang
+            lang = None
         return 'You have reached the / of ELSA\'s API for Grafana'
 
-    def POST(self, id=''):
-        data=ast.literal_eval(web.data())
-        if id=='search':
-            return json.dumps(getListOfSensorsAcronym())
-        elif id=='query':
+    def POST(self, lang='', request=''):
+        # When no lang is set, WebPY inverts lang and request variables
+        if request == '':
+            request = lang
+            lang = None
+        data=json.loads(web.data())
+        if request=='search':
+            return json.dumps(get_list_of_active_sensors_acronyms(lang))
+        elif request=='query':
             time_from_utc = data['range']['from']
             time_from_utc = time_from_utc.split('.')[0]
             time_from_utc = time.strptime(time_from_utc, "%Y-%m-%dT%H:%M:%S")
@@ -142,7 +161,7 @@ class WebApiGrafana():
             
             out = []
             for i in targets:
-                out.append(getDataPointsForGrafanaApi(i, time_from_utc, time_to_utc))
+                out.append(get_data_points_for_grafana_api(i, lang, time_from_utc, time_to_utc))
             return json.dumps(out)
         else:
             return 'Error: Invalid url requested'
@@ -774,7 +793,7 @@ def main():
             '/backup', 'WebBackup',
             '/updateELSA', 'WebUpdateELSA',
             '/restarting', 'WebRestarting',
-            '/api/grafana/(.*)', 'WebApiGrafana'
+            '/api/grafana/([^/]*)/{0,1}(.*)', 'WebApiGrafana'
         )
         app = web.application(urls, globals())
         app.notfound = notfound
