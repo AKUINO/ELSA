@@ -1520,7 +1520,7 @@ class AllBarcodes(AllObjects):
                     currObject.fields = row
                     currObject.id = key
                     self.elements[key] = currObject
-        self.to_pictures()
+        #self.to_pictures()
 
     def newObject(self, item):
         return Barcode(item)
@@ -1529,7 +1529,7 @@ class AllBarcodes(AllObjects):
         for k in self.elements.keys():
             if self.elements[k].element:
                 if self.elements[k].element.get_type() == myType and unicode(self.elements[k].element.getID()) == myID:
-                    self.elements[k].barcode_picture()
+                    # self.elements[k].barcode_picture()
                     return k
         return ''
 
@@ -1593,9 +1593,9 @@ class AllBarcodes(AllObjects):
             return False
         return True
 
-    def to_pictures(self):
-        for k, v in self.elements.items():
-            v.barcode_picture()
+##    def to_pictures(self):
+##        for k, v in self.elements.items():
+##            v.barcode_picture()
 
     def barcode_to_item(self, code):
         for k, barcode in self.elements.items():
@@ -3167,7 +3167,7 @@ class Alarm(ConfigurationObject):
                                                       ].fields['unit']
             else:
                 measure = ''
-            return unicode.format(mess, config.HardConfig.hostname, specmess, name, elem.getName(lang), elem.fields['acronym'], unicode(sensor.fields['value']), measure, sensor.fields['remark'], sensor.fields['time'])
+            return unicode.format(mess, config.HardConfig.hostname, '', name, elem.getName(lang), elem.fields['acronym'], unicode(sensor.fields['value']), measure, sensor.fields['remark'], sensor.fields['time'])
         elif sensor.get_type() == 'v':
             mess = config.AllMessages.elements['alarmpouring'].getName(lang)
             elemin = config.AllBatches.elements[sensor.fields['src']]
@@ -3177,7 +3177,7 @@ class Alarm(ConfigurationObject):
                                                       ].fields['unit']
             else:
                 measure = ''
-            return unicode.format(mess, config.HardConfig.hostname, specmess, elemout.getName(lang), elemout.fields['acronym'], elemin.getName(lang), elemin.fields['acronym'], unicode(sensor.fields['quantity']), measure, sensor.fields['remark'], sensor.fields['time'])
+            return unicode.format(mess, config.HardConfig.hostname, '', elemout.getName(lang), elemout.fields['acronym'], elemin.getName(lang), elemin.fields['acronym'], unicode(sensor.fields['quantity']), measure, sensor.fields['remark'], sensor.fields['time'])
 
     def get_alarm_title(self, sensor, config, lang):
         if sensor.get_type() == 's':

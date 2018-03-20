@@ -55,8 +55,10 @@ $for i in elem.checkpoints:
 	    <div class="col-sm-4">
 		<select name = "checkpoint" class="form-control" id="inputPosition">
 		$for v in c.AllCheckPoints.get_checkpoints_for_recipe_usage(recipes,usages):
-		    $if v.getID() not in elem.checkpoints :
-			<option value="$v.getID()">$v.fields['acronym'] - $v.getName(self.lang) </option>
+		    <option value="$v.getID()">
+		    $if v.getID() in elem.checkpoints :
+			*
+		    $v.fields['acronym'] - $v.getName(self.lang) </option>
 		</select>
 	    </div>
 	    <div class="col-sm-3">

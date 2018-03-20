@@ -18,25 +18,33 @@ $var location: list/$(type)=$(c.findAllFromType(type).get_name_object()) find/d/
 
 
 <div class="row active">
-    <label class="col-sm-12">$c.AllMessages.elements['manualdata'].getName(self.lang) :</label>
+    <label class="col-sm-12"><span class="$c.AllHalflings.elements[c.AllManualData.get_name_object()].getHalfling()"></span>$c.AllMessages.elements['manualdata'].getName(self.lang) :</label>
 </div>
 <div class="row active">
     <label class="col-sm-3">$c.AllMessages.elements['time'].getName(self.lang)</label>
+    <label class="col-sm-2">$c.AllMessages.elements['checkpoint'].getName(self.lang)</label>
     <label class="col-sm-3">$c.AllMessages.elements['measure'].getName(self.lang)</label>
-    <label class="col-sm-5">$c.AllMessages.elements['remark'].getName(self.lang)</label>
+    <label class="col-sm-3">$c.AllMessages.elements['remark'].getName(self.lang)</label>
 </div>
 
 $for d in elem.data:
+    $code:
+        dd = c.AllManualData.elements[d]
     <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<div class="col-xs-3" >
-	    $c.AllManualData.elements[d].fields['time']
+	    $(dd.fields['time'])
 	</div>	    
-	<div class="col-xs-3" >
-	    $if c.AllManualData.elements[d].fields['m_id'] != '' :
-	        $c.AllMeasures.elements[c.AllManualData.elements[d].fields['m_id']].fields['acronym'] : $c.AllManualData.elements[d].fields['value']  $c.AllMeasures.elements[c.AllManualData.elements[d].fields['m_id']].fields['unit']</a>
+	<div class="col-xs-2" >
+	    $if dd.fields['h_id'] != '' :
+	        <a href="/find/related/h_$(dd.fields['h_id'])"><span class="$c.AllHalflings.elements[c.AllCheckPoints.get_name_object()].getHalfling()"></span>$c.AllCheckPoints.elements[dd.fields['h_id']].fields['acronym']</a>
 	</div>
-	<div class="col-xs-5" >
-	    $c.AllManualData.elements[d].fields['remark']
+	<div class="col-xs-3" >
+            <strong>$dd.fields['value']</strong>
+	    $if dd.fields['m_id'] != '' :
+	        $c.AllMeasures.elements[dd.fields['m_id']].fields['unit']
+	</div>
+	<div class="col-xs-3" >
+	    $(dd.fields['remark'])
 	</div>
 	<div class="col-xs-1">
 	    <strong><a href="/edit/d_$(d)" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
