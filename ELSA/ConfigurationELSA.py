@@ -21,6 +21,7 @@ import urllib2
 import collections
 import math
 import shutil
+import abe_adcpi
 """
 import SSD1306
 from I2CScreen import *
@@ -58,7 +59,7 @@ imagedTypes = [u'u', u'e', u'p', u'g', u'gf', u'gr', u'gu', u'c', u'b', u'h']
 
 _lock_socket = None
 
-queryChannels = ['wire', 'http', 'json', 'battery', 'cputemp', 'system']
+queryChannels = ['wire', 'http', 'json', 'battery', 'cputemp', 'system', 'lightsensor']
 
 color_violet = "FF00FF"
 color_blue = "0000FF"
@@ -3515,29 +3516,27 @@ class Sensor(ConfigurationObject):
     def get_value_sensor(self, config, webCache=None):
         if webCache is None:
             webCache = {}
-        owData = None
+        output_val = None
         debugging = u""
         if self.fields['channel'] == 'wire':
             try:
                 sensorAdress = u'/' + \
                     unicode(self.fields['sensor'])+u'/' + \
                     unicode(self.fields['subsensor'])
-                owData = config.owproxy.read(sensorAdress)
+                output_val = config.owproxy.read(sensorAdress)
             except:
                 debugging = u"Device="+sensorAdress+u", Message="+traceback.format_exc()
-        elif self.fields['channel'] == 'battery':
-            owData = config.batteryVoltage
         elif self.fields['channel'] == 'cputemp':
             with open('/sys/class/thermal/thermal_zone0/temp', 'r') as sensorfile:
                 info = sensorfile.read()
-                owData = float(info)/1000.0
+                output_val = float(info)/1000.0
         elif self.fields['channel'] == 'http':
             url = self.fields['sensor']
             code = 0
             info = ""
             if url in webCache:
                 info = webCache[url]
-                owData = eval(self.fields['subsensor'])
+                output_val = eval(self.fields['subsensor'])
             else:
                 try:
                     sensorfile = urllib2.urlopen(
@@ -3545,7 +3544,7 @@ class Sensor(ConfigurationObject):
                     info = sensorfile.read(80000)
                     sensorfile.close()
                     webCache[url] = info
-                    owData = eval(self.fields['subsensor'])
+                    output_val = eval(self.fields['subsensor'])
                 except:
                     debugging = u"URL="+url+u", code=" + \
                         unicode(code)+u", Response="+info + \
@@ -3557,7 +3556,7 @@ class Sensor(ConfigurationObject):
             if url in webCache:
                 info = webCache[url]
                 try:
-                    owData = eval(self.fields['subsensor'])
+                    output_val = eval(self.fields['subsensor'])
                 except:
                     debugging = u"URL="+url+u", code="+unicode(code)+u", Response="+unicode(
                         info)+u", Subsensor="+self.fields['subsensor']+u", Message="+traceback.format_exc()
@@ -3571,7 +3570,7 @@ class Sensor(ConfigurationObject):
                     info = json.loads(info)
                     sensorfile.close()
                     webCache[url] = info
-                    owData = eval(self.fields['subsensor'])
+                    output_val = eval(self.fields['subsensor'])
                 except:
                     debugging = u"URL="+url+u", code="+unicode(code)+u", Response="+unicode(
                         info)+u", Subsensor="+self.fields['subsensor']+u", Message="+traceback.format_exc()
@@ -3580,23 +3579,28 @@ class Sensor(ConfigurationObject):
                 sensorAdress = self.fields['sensor']
                 with open(sensorAdress, 'r') as sensorfile:
                     info = sensorfile.read()
-                    owData = eval(self.fields['subsensor'])
+                    output_val = eval(self.fields['subsensor'])
             except:
                 debugging = u"Device="+sensorAdress+u", field=" + \
                     self.fields['subsensor']+u", data=" + \
                     unicode(info)+u", Message="+traceback.format_exc()
-        if owData:
+        elif self.fields['channel'] == 'battery':
+            input = config.HardConfig.inputs[self.fields['channel']]
+            device = config.HardConfig.devices[input['device']]
+            adc = abe_adcpi.ADCPi(int(device['i2c'], 16), int(input['resolution']))
+            output_val = adc.read_voltage(int(input['channel']))
+        if output_val:
             if self.fields['formula']:
                 try:
-                    value = float(owData)
-                    owData = unicode(eval(self.fields['formula']))
+                    value = float(output_val)
+                    output_val = unicode(eval(self.fields['formula']))
                 except:
                     debugging = u"Device="+self.fields['sensor']+u" / "+self.fields['subsensor'] + \
                         u", Formula="+self.fields['formula'] + \
                         u", Message="+traceback.format_exc()
-            return owData, debugging
+            return output_val, debugging
         return None, debugging
-
+    
     def get_name_listing(self):
         return 'sensors'
 
