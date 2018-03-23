@@ -22,6 +22,7 @@ import collections
 import math
 import shutil
 import abe_adcpi
+import abe_mcp3424
 """
 import SSD1306
 from I2CScreen import *
@@ -3899,8 +3900,18 @@ class Sensor(ConfigurationObject):
             output_val = adc.read_voltage(int(input['channel']))
         elif self.fields['channel'] == 'lightsensor1':
             input = config.HardConfig.inputs[self.fields['channel']]
+            device = config.HardConfig.devices[input['device']]
+            #adc = abe_adcpi.ADCPi(int(device['i2c'], 16), int(input['resolution']))
+            adc = abe_mcp3424.ADCDifferentialPi(int(device['i2c'], 16),
+                                                int(device['i2c'], 16) + 1,
+                                                int(input['resolution']))
+            adc.set_pga(int(device['amplification']))
+            output_val = adc.read_voltage(int(input['channel'])) 
+            print(output_val)
+        elif self.fields['channel'] == 'humiditysensor1':
+            input = config.HardConfig.inputs[self.fields['channel']]
             input_device = config.HardConfig.devices[input['device']]
-            output_device = config.HardConfig.output[input['powerOutput']]
+            output_device = config.HardConfig.outputs[input['poweroutput']]
             
             output_gpio = abe_mcp23008.IOPi(int(output_device['i2c']))
             output_gpio.set_port_direction(int(output_device['channel']), 0)
