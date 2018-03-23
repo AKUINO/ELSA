@@ -194,7 +194,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <div class="col-sm-9">
 		<select name = "channel" class="form-control" id="channelSelect">
 		    $code:
-			dicchannel = {'wire':'1-Wire','radio':'ELA Radio','http':'HTTP or HTTPS request', 'json' : 'JSON format from HTTP/HTTPS request','cputemp':'CPU Temperature','system':'System File','battery':'input.battery', 'lightsensor1', 'lightsensor1'}
+			dicchannel = {'wire':'1-Wire','radio':'ELA Radio','http':'HTTP or HTTPS request', 'json' : 'JSON format from HTTP/HTTPS request','cputemp':'CPU Temperature','system':'System File','battery':'input.battery', 'humiditysensor1':'humiditysensor1'}
 		    $for k,v in dicchannel.items():
 			<option value="$(k)"
 			$if errormess != '' :
