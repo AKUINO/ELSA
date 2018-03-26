@@ -21,10 +21,13 @@ class ADCPi:
     """
     # internal variables
     __adc1_address = 0x68
+    __adc2_address = 0x69
 
     __adc1_conf = 0x9C
+    __adc2_conf = 0x9C
 
     __adc1_channel = 0x01
+    __adc2_channel = 0x01
 
     __bitrate = 18  # current bitrate
     __conversionmode = 1  # Conversion Mode
@@ -84,7 +87,7 @@ class ADCPi:
 
     def __setchannel(self, channel):
         # internal method for updating the config to the selected channel
-        if channel < 3 and channel > 0:
+        if channel < 5:
             if channel != self.__adc1_channel:
                 self.__adc1_channel = channel
                 if channel == 1:  # bit 5 = 1, bit 6 = 0
@@ -93,15 +96,35 @@ class ADCPi:
                 elif channel == 2:  # bit 5 = 1, bit 6 = 0
                     self.__adc1_conf = self.__updatebyte(self.__adc1_conf,
                                                          0x9F, 0x20)
+                elif channel == 3:  # bit 5 = 0, bit 6 = 1
+                    self.__adc1_conf = self.__updatebyte(self.__adc1_conf,
+                                                         0x9F, 0x40)
+                elif channel == 4:  # bit 5 = 1, bit 6 = 1
+                    self.__adc1_conf = self.__updatebyte(self.__adc1_conf,
+                                                         0x9F, 0x60)
         else:
-            raise ValueError('Invalid channel selected')
+            if channel != self.__adc2_channel:
+                self.__adc2_channel = channel
+                if channel == 5:  # bit 5 = 1, bit 6 = 0
+                    self.__adc2_conf = self.__updatebyte(self.__adc2_conf,
+                                                         0x9F, 0x00)
+                elif channel == 6:  # bit 5 = 1, bit 6 = 0
+                    self.__adc2_conf = self.__updatebyte(self.__adc2_conf,
+                                                         0x9F, 0x20)
+                elif channel == 7:  # bit 5 = 0, bit 6 = 1
+                    self.__adc2_conf = self.__updatebyte(self.__adc2_conf,
+                                                         0x9F, 0x40)
+                elif channel == 8:  # bit 5 = 1, bit 6 = 1
+                    self.__adc2_conf = self.__updatebyte(self.__adc2_conf,
+                                                         0x9F, 0x60)
         return
 
     # init object with i2caddress, default is 0x68, 0x69 for ADCoPi board
-    def __init__(self, address=0x68, rate=18):
+    def __init__(self, address=0x68, address2=0x69, rate=18):
 
         self.__bus = self.__get_smbus()
         self.__adc1_address = address
+        self.__adc2_address = address2
         self.set_bit_rate(rate)
 
     def read_voltage(self, channel):
@@ -112,7 +135,7 @@ class ADCPi:
         voltage = float(0.0)
         if not self.__signbit:
             voltage = float(
-                (raw * (self.__lsb / self.__pga)))
+                (raw * (self.__lsb / self.__pga)) * 2.471)
 
         return voltage
 
@@ -127,9 +150,12 @@ class ADCPi:
 
         # get the config and i2c address for the selected channel
         self.__setchannel(channel)
-        if channel < 3:
+        if channel < 5:
             config = self.__adc1_conf
             address = self.__adc1_address
+        elif channel < 9:
+            config = self.__adc2_conf
+            address = self.__adc2_address
         else:
             raise ValueError('read_raw: channel out of range')
 
@@ -191,23 +217,28 @@ class ADCPi:
         if gain == 1:
             # bit 0 = 0, bit 1 = 0
             self.__adc1_conf = self.__updatebyte(self.__adc1_conf, 0xFC, 0x00)
+            self.__adc2_conf = self.__updatebyte(self.__adc2_conf, 0xFC, 0x00)
             self.__pga = 0.5
         elif gain == 2:
             # bit 0 = 1, bit 1 = 0
             self.__adc1_conf = self.__updatebyte(self.__adc1_conf, 0xFC, 0x01)
+            self.__adc2_conf = self.__updatebyte(self.__adc2_conf, 0xFC, 0x01)
             self.__pga = 1.0
         elif gain == 4:
             # bit 0 = 0, bit 1 = 1
             self.__adc1_conf = self.__updatebyte(self.__adc1_conf, 0xFC, 0x02)
+            self.__adc2_conf = self.__updatebyte(self.__adc2_conf, 0xFC, 0x02)
             self.__pga = 2.0
         elif gain == 8:
             # bit 0 = 1, bit 1 = 1
             self.__adc1_conf = self.__updatebyte(self.__adc1_conf, 0xFC, 0x03)
+            self.__adc2_conf = self.__updatebyte(self.__adc2_conf, 0xFC, 0x03)
             self.__pga = 4.0
         else:
             raise ValueError('set_pga: gain out of range')
 
         self.__bus.write_byte(self.__adc1_address, self.__adc1_conf)
+        self.__bus.write_byte(self.__adc2_address, self.__adc2_conf)
         return
 
     def set_bit_rate(self, rate):
@@ -222,27 +253,32 @@ class ADCPi:
         if rate == 12:
             # bit 2 = 0, bit 3 = 0
             self.__adc1_conf = self.__updatebyte(self.__adc1_conf, 0xF3, 0x00)
+            self.__adc2_conf = self.__updatebyte(self.__adc2_conf, 0xF3, 0x00)
             self.__bitrate = 12
             self.__lsb = 0.0005
         elif rate == 14:
             # bit 2 = 1, bit 3 = 0
             self.__adc1_conf = self.__updatebyte(self.__adc1_conf, 0xF3, 0x04)
+            self.__adc2_conf = self.__updatebyte(self.__adc2_conf, 0xF3, 0x04)
             self.__bitrate = 14
             self.__lsb = 0.000125
         elif rate == 16:
             # bit 2 = 0, bit 3 = 1
             self.__adc1_conf = self.__updatebyte(self.__adc1_conf, 0xF3, 0x08)
+            self.__adc2_conf = self.__updatebyte(self.__adc2_conf, 0xF3, 0x08)
             self.__bitrate = 16
             self.__lsb = 0.00003125
         elif rate == 18:
             # bit 2 = 1, bit 3 = 1
             self.__adc1_conf = self.__updatebyte(self.__adc1_conf, 0xF3, 0x0C)
+            self.__adc2_conf = self.__updatebyte(self.__adc2_conf, 0xF3, 0x0C)
             self.__bitrate = 18
             self.__lsb = 0.0000078125
         else:
             raise ValueError('set_bit_rate: rate out of range')
 
         self.__bus.write_byte(self.__adc1_address, self.__adc1_conf)
+        self.__bus.write_byte(self.__adc2_address, self.__adc2_conf)
         return
 
     def set_conversion_mode(self, mode):
@@ -254,10 +290,12 @@ class ADCPi:
         if mode == 0:
             # bit 4 = 0
             self.__adc1_conf = self.__updatebyte(self.__adc1_conf, 0xEF, 0x00)
+            self.__adc2_conf = self.__updatebyte(self.__adc1_conf, 0xEF, 0x00)
             self.__conversionmode = 0
         elif mode == 1:
             # bit 4 = 1
             self.__adc1_conf = self.__updatebyte(self.__adc1_conf, 0xEF, 0x10)
+            self.__adc2_conf = self.__updatebyte(self.__adc1_conf, 0xEF, 0x10)
             self.__conversionmode = 1
         else:
             raise ValueError('set_conversion_mode: mode out of range')

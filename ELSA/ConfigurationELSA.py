@@ -23,6 +23,7 @@ import math
 import shutil
 import abe_adcpi
 import abe_mcp3424
+import abe_iopi
 """
 import SSD1306
 from I2CScreen import *
@@ -68,7 +69,8 @@ queryChannels = ['wire',
                  'battery',
                  'cputemp',
                  'system',
-                 'lightsensor']
+                 'lightsensor1',
+                 'humiditysensor1']
 
 color_violet = "FF00FF"
 color_blue = "0000FF"
@@ -705,10 +707,11 @@ class UpdateThread(threading.Thread):
     def __init__(self, config):
         threading.Thread.__init__(self)
         self.config = config
-
+    
     def run(self):
-        self.config.owproxy = pyownet.protocol.proxy(
-            host="localhost", port=4304)
+        if self.config.HardConfig.owfs == 'yes':
+                self.config.owproxy = pyownet.protocol.proxy(host="localhost",
+                                                             port=4304)
         while self.config.isThreading is True:
             timer = 0
             now = useful.get_timestamp()
@@ -1487,6 +1490,7 @@ class AllSensors(AllObjects):
     def check_rrd(self):
         for k, v in self.elements.items():
             filename = os.path.join(DIR_RRD, v.getRRDName())
+            print(filename)
             if not os.path.exists(filename):
                 v.createRRD()
 
@@ -3730,8 +3734,6 @@ class Sensor(ConfigurationObject):
         rrdtool.update(str(DIR_RRD + self.getRRDName()), '%d:%f' % (now, value))
 
     def createRRD(self):
-        print('trtr ')
-        print(self.fields)
         name = re.sub('[^\w]+', '', self.fields['acronym'])
         now = str(int(time.time())-60)
         if self.fields['channel'] in queryChannels:
@@ -3896,36 +3898,37 @@ class Sensor(ConfigurationObject):
         elif self.fields['channel'] == 'battery':
             input = config.HardConfig.inputs[self.fields['channel']]
             device = config.HardConfig.devices[input['device']]
-            adc = abe_adcpi.ADCPi(int(device['i2c'], 16), int(input['resolution']))
+            adc = abe_adcpi.ADCPi(int(device['i2c'], 16),
+                                  int(input['resolution']))
             output_val = adc.read_voltage(int(input['channel']))
         elif self.fields['channel'] == 'lightsensor1':
             input = config.HardConfig.inputs[self.fields['channel']]
             device = config.HardConfig.devices[input['device']]
-            #adc = abe_adcpi.ADCPi(int(device['i2c'], 16), int(input['resolution']))
             adc = abe_mcp3424.ADCDifferentialPi(int(device['i2c'], 16),
                                                 int(device['i2c'], 16) + 1,
                                                 int(input['resolution']))
             adc.set_pga(int(device['amplification']))
             output_val = adc.read_voltage(int(input['channel'])) 
-            print(output_val)
         elif self.fields['channel'] == 'humiditysensor1':
             input = config.HardConfig.inputs[self.fields['channel']]
             input_device = config.HardConfig.devices[input['device']]
-            output_device = config.HardConfig.outputs[input['poweroutput']]
-            
-            output_gpio = abe_mcp23008.IOPi(int(output_device['i2c']))
-            output_gpio.set_port_direction(int(output_device['channel']), 0)
-            adc = abe_adcpi.ADCPi(int(device['i2c'], 16), int(input['resolution']))
+            output = config.HardConfig.outputs[input['poweroutput']]
+            output_device = config.HardConfig.devices[output['device']]
+
+            output_gpio = abe_iopi.IOPi(int(output_device['i2c'], 16))
+            output_gpio.set_pin_direction(int(output['channel']), 0)
+            adc = abe_adcpi.ADCPi(int(input_device['i2c'], 16),
+                                  int(input_device['i2c'], 16) + 1,
+                                  int(input['resolution']))
             
 # TODO: manage invertion for output
             # Stimulate
-            output_gpio.write_pin(int(output_device['channel']), 1)
-            time.sleep(int(input_device['delayms'])*0.001)
-
-            output_val = adc.read_voltage(int(input_device['channel']))
-
+            output_gpio.write_pin(int(output['channel']), 1)
+            time.sleep(int(input['delayms'])*0.001)
+            
+            output_val = adc.read_voltage(int(input['channel']))
             # End stimulation
-            output_gpio.write_pin(int(output_device['channel']), 0)
+            output_gpio.write_pin(int(output['channel']), 0)
 
         
         if output_val:
