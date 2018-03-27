@@ -218,8 +218,9 @@ class WebFullEntry():
 class WebList():
     def __init__(self):
         self.name = u"WebList"
-
+    
     def GET(self, type):
+        print(c.AllSensors._queryChannels)
         id = ''
         data = web.input(nifile={})
         if 'status' in data:

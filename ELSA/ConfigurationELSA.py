@@ -63,15 +63,6 @@ imagedTypes = [u'u', u'e', u'p', u'g', u'gf', u'gr', u'gu', u'c', u'b', u'h']
 
 _lock_socket = None
 
-queryChannels = ['wire',
-                 'http',
-                 'json',
-                 'battery',
-                 'cputemp',
-                 'system',
-                 'lightsensor1',
-                 'humiditysensor1']
-
 color_violet = "FF00FF"
 color_blue = "0000FF"
 color_green = "00FF00"
@@ -1415,16 +1406,38 @@ class AllMeasures(AllObjects):
 
 
 class AllSensors(AllObjects):
+    
+# We dynamically append all [input.xxx] from hardconfig to _queryChannels
+    _queryChannels = ['wire',
+                     'http',
+                     'json',
+                     'cputemp',
+                     'system']
+    
+    def add_query_channel(self, channel):
+        '''
+        Supposed to be used when reading HardConfig, to add the [input.xxx]
+        fields
+        '''
+        self._queryChannels.append(channel)
+
+    def get_query_channels(self)
+        return self._queryChannels
+    
+    def add_query_channels_from_hardconfig(self):
+        for key in self.config.HardConfig.inputs:
+            self.add_query_channel(key)
 
     def __init__(self, config):
         AllObjects.__init__(self, 's', config)
         self.fieldnames = ['begin', 's_id', 'c_id', 'p_id', 'e_id', 'm_id',
                            'active', 'acronym', 'remark', 'channel', 'sensor',
-                           'subsensor', 'valuetype', 'formula', 'minmin', 'min',
-                            'typical', 'max', 'maxmax', 'a_minmin', 'a_min',
-                            'a_typical', 'a_max', 'a_maxmax', 'lapse1',
-                            'lapse2', 'lapse3', 'user']
+                           'subsensor', 'valuetype', 'formula', 'minmin',
+                           'min', 'typical', 'max', 'maxmax', 'a_minmin',
+                           'a_min', 'a_typical', 'a_max', 'a_maxmax', 'lapse1',
+                           'lapse2', 'lapse3', 'user']
         self.fieldtranslate = ['begin', 'lang', 's_id', 'name', 'user']
+        self.add_query_channels_from_hardconfig()
 
     def newObject(self):
         return Sensor()
@@ -1475,7 +1488,7 @@ class AllSensors(AllObjects):
     def update(self, now):
         webCache = {}
         for k, sensor in self.elements.items():
-            if sensor.fields['channel'] in queryChannels \
+            if sensor.fields['channel'] in self._queryChannels \
                                         and not sensor.fields['active'] == '0':
                 try:
                     value, debugging = sensor.get_value_sensor(self.config,
@@ -1490,7 +1503,6 @@ class AllSensors(AllObjects):
     def check_rrd(self):
         for k, v in self.elements.items():
             filename = os.path.join(DIR_RRD, v.getRRDName())
-            print(filename)
             if not os.path.exists(filename):
                 v.createRRD()
 
@@ -3736,7 +3748,7 @@ class Sensor(ConfigurationObject):
     def createRRD(self):
         name = re.sub('[^\w]+', '', self.fields['acronym'])
         now = str(int(time.time())-60)
-        if self.fields['channel'] in queryChannels:
+        if self.fields['channel'] in _queryChannels:
             data_sources = str('DS:'+name+':GAUGE:120:U:U')
             rrdtool.create(str(DIR_RRD+self.getRRDName()),
                            "--step", "60",
