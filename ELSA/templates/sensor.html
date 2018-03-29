@@ -10,6 +10,7 @@ $if id == 'new':
 $else:
     $var location: all/s=sensor edit/s_$(id)=edit
     $ aSensor = c.AllSensors.elements[id]
+    $ sensor_channels = c.AllSensors.get_query_channels()
     $ rmq =  aSensor.fields['remark']
 $if errormess != '':
     $if 'remark' in data :
@@ -195,16 +196,16 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 		<select name = "channel" class="form-control" id="channelSelect">
 		    $code:
 			dicchannel = {'wire':'1-Wire','radio':'ELA Radio','http':'HTTP or HTTPS request', 'json' : 'JSON format from HTTP/HTTPS request','cputemp':'CPU Temperature','system':'System File','battery':'input.battery', 'humiditysensor1':'humiditysensor1', 'lightsensor1':'lightsensor1'}
-		    $for k,v in dicchannel.items():
+		    $for item in sensor_channels:
 			<option value="$(k)"
 			$if errormess != '' :
 			    $if 'channel' in data:
-				$if k == data['channel']:
+				$if item == data['channel']:
 				    selected
 			$elif id != 'new':
 			    $if k == aSensor.fields['channel'] :
 				selected
-			>$(v)</option>
+			>$(item)</option>
 		</select>
 	    </div>
 	</div>

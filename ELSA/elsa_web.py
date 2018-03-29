@@ -18,9 +18,13 @@ import rrd
 global c, render
 
 def manage_cmdline_arguments():
-    parser = argparse.ArgumentParser(description='Enregistrement des Lots pour la Sécurité Alimentaire')
-    parser.add_argument('port', type=int, help='Port number of the internal web server') # Est interprété directement par WebPI
-    parser.add_argument('--hw-config', help='Configuration file for this particular computer')
+    parser = argparse.ArgumentParser(description='Enregistrement des Lots \
+                                                  pour la Sécurité Alimentaire')
+    # Est interprété directement par WebPY
+    parser.add_argument('port', type=int, help='Port number of the internal \
+                                                web server')
+    parser.add_argument('--hw-config', help='Configuration file for this \
+                                             particular computer')
     return parser.parse_args()
 
 def web_link_from_abs_path(path):
@@ -220,7 +224,6 @@ class WebList():
         self.name = u"WebList"
     
     def GET(self, type):
-        print(c.AllSensors._queryChannels)
         id = ''
         data = web.input(nifile={})
         if 'status' in data:

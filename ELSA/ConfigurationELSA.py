@@ -1409,10 +1409,10 @@ class AllSensors(AllObjects):
     
 # We dynamically append all [input.xxx] from hardconfig to _queryChannels
     _queryChannels = ['wire',
-                     'http',
-                     'json',
-                     'cputemp',
-                     'system']
+                      'http',
+                      'json',
+                      'cputemp',
+                      'system']
     
     def add_query_channel(self, channel):
         '''
@@ -1421,7 +1421,7 @@ class AllSensors(AllObjects):
         '''
         self._queryChannels.append(channel)
 
-    def get_query_channels(self)
+    def get_query_channels(self):
         return self._queryChannels
     
     def add_query_channels_from_hardconfig(self):
