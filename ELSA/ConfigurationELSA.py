@@ -24,6 +24,7 @@ import shutil
 import abe_adcpi
 import abe_mcp3424
 import abe_iopi
+import serial
 """
 import SSD1306
 from I2CScreen import *
@@ -3748,7 +3749,7 @@ class Sensor(ConfigurationObject):
     def createRRD(self):
         name = re.sub('[^\w]+', '', self.fields['acronym'])
         now = str(int(time.time())-60)
-        if self.fields['channel'] in _queryChannels:
+        if self.fields['channel'] != 'radio':
             data_sources = str('DS:'+name+':GAUGE:120:U:U')
             rrdtool.create(str(DIR_RRD+self.getRRDName()),
                            "--step", "60",
@@ -3913,7 +3914,7 @@ class Sensor(ConfigurationObject):
             adc = abe_adcpi.ADCPi(int(device['i2c'], 16),
                                   int(input['resolution']))
             output_val = adc.read_voltage(int(input['channel']))
-        elif self.fields['channel'] == 'lightsensor1':
+        elif self.fields['channel'].startswith('lightsensor'):
             input = config.HardConfig.inputs[self.fields['channel']]
             device = config.HardConfig.devices[input['device']]
             adc = abe_mcp3424.ADCDifferentialPi(int(device['i2c'], 16),
@@ -3921,7 +3922,7 @@ class Sensor(ConfigurationObject):
                                                 int(input['resolution']))
             adc.set_pga(int(device['amplification']))
             output_val = adc.read_voltage(int(input['channel'])) 
-        elif self.fields['channel'] == 'humiditysensor1':
+        elif self.fields['channel'].startswith('humiditysensor'):
             input = config.HardConfig.inputs[self.fields['channel']]
             input_device = config.HardConfig.devices[input['device']]
             output = config.HardConfig.outputs[input['poweroutput']]
@@ -3941,7 +3942,15 @@ class Sensor(ConfigurationObject):
             output_val = adc.read_voltage(int(input['channel']))
             # End stimulation
             output_gpio.write_pin(int(output['channel']), 0)
-
+        elif self.fields['channel'] == 'atmos41':
+            input = config.HardConfig.inputs[self.fields['channel']]
+            ser = serial.Serial(input['serialport'], baudrate=9600, timeout=10)
+            time.sleep(2.5) # Leave some time to initialize
+            
+            ser.write(input['sdiaddress'].encode() + b'I!')
+            print(ser.readline())
+        else:
+            print('Error: no sensor channel for ' + self.fields['channel'])
         
         if output_val:
             if self.fields['formula']:
