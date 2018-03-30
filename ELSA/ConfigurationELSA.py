@@ -1491,15 +1491,9 @@ class AllSensors(AllObjects):
         for k, sensor in self.elements.items():
             if sensor.fields['channel'] in self._queryChannels \
                                         and not sensor.fields['active'] == '0':
-                try:
-                    value, debugging = sensor.get_value_sensor(self.config,
-                                                               iteration_cache)
-                except:
-                    traceback.print_exc()
-                if value:
+                value = sensor.get_value_sensor(self.config, iteration_cache)
+                if value is not None:
                     sensor.update(now, value, self.config)
-                if debugging:
-                    print debugging
 
     def check_rrd(self):
         for k, v in self.elements.items():
@@ -3696,51 +3690,41 @@ class Sensor(ConfigurationObject):
         self.fields['h_id'] = data
 
     def update(self, now, value, config):
-        if value is not None:
-            self.lastvalue = value
-            self.updateRRD(now, value)
+        print(self.fields['channel'] + str(value))
+        self.lastvalue = value
+        self.updateRRD(now, value)
 
-            minutes = int(now / 60)
-            # GMT + DST
-            hours = (int(minutes / 60) % 24)+100 + 2
-            minutes = (minutes % 60)+100
-            strnow = unicode(hours)[1:3]+":"+unicode(minutes)[1:3]
-            if config.screen is not None:
-                pos = config.screen.show(config.screen.begScreen, strnow)
-                pos = config.screen.showBW(pos+2, self.get_acronym())
-                pos = (config.screen
-                             .show(pos+2,
-                                   unicode(round(float(value), 1))))
-            if self.fields['m_id']:
-                id_measure = unicode(self.fields['m_id'])
-                if id_measure in config.AllMeasures.elements \
-                                    and config.screen is not None:
-                    measure = config.AllMeasures.elements[id_measure]
-                    pos = config.screen.show(pos, measure.fields['unit'])
+        minutes = int(now / 60)
+        # GMT + DST
+        hours = (int(minutes / 60) % 24)+100 + 2
+        minutes = (minutes % 60)+100
+        strnow = unicode(hours)[1:3]+":"+unicode(minutes)[1:3]
+        if config.screen is not None:
+            pos = config.screen.show(config.screen.begScreen, strnow)
+            pos = config.screen.showBW(pos+2, self.get_acronym())
+            pos = (config.screen
+                         .show(pos+2,
+                               unicode(round(float(value), 1))))
+        if self.fields['m_id']:
+            id_measure = unicode(self.fields['m_id'])
+            if id_measure in config.AllMeasures.elements \
+                                and config.screen is not None:
+                measure = config.AllMeasures.elements[id_measure]
+                pos = config.screen.show(pos, measure.fields['unit'])
 
-            typeAlarm, symbAlarm, self.colorAlarm = self.getTypeAlarm(value)
-#            print(u'Sensor update Channel : ' + self.fields['channel']
-#                                              + u'    '
-#                                              + self.fields['sensor'] 
-#                                              + u' ==> ' 
-#                                              + self.fields['acronym'] 
-#                                              + u' = ' 
-#                                              + unicode(value))
-            if typeAlarm == 'typical':
-                self.setTypicalAlarm()
-            else:
-                if not ((typeAlarm == 'min' and self.actualAlarm == 'minmin')
-                        or (typeAlarm == 'max'
-                                    and self.actualAlarm == 'maxmax')):
-                    self.actualAlarm = typeAlarm
-                if config.screen is not None:
-                    config.screen.showBW(-1, symbAlarm)
-                self.launchAlarm(config, now)
-            if config.screen is not None:
-                config.screen.end_line()
+        typeAlarm, symbAlarm, self.colorAlarm = self.getTypeAlarm(value)
+        if typeAlarm == 'typical':
+            self.setTypicalAlarm()
         else:
-            # TODO : si on ne sait pas se connecter au senseur, rajouter Alarme " Erreur Senseur not working"
-            print "Impossible d acceder au senseur "+self.fields['acronym']
+            if not ((typeAlarm == 'min' and self.actualAlarm == 'minmin')
+                    or (typeAlarm == 'max'
+                                and self.actualAlarm == 'maxmax')):
+                self.actualAlarm = typeAlarm
+            if config.screen is not None:
+                config.screen.showBW(-1, symbAlarm)
+            self.launchAlarm(config, now)
+        if config.screen is not None:
+            config.screen.end_line()
 
     def updateRRD(self, now, value):
         value = float(value)
@@ -4002,7 +3986,9 @@ class Sensor(ConfigurationObject):
         else:
             print('Error: no sensor channel for ' + self.fields['channel'])
             return None
-        
+       
+        if (debugging != ''):
+            print(debugging) 
         try:
             assert output_val != None 
         except AssertionError:
@@ -4016,10 +4002,10 @@ class Sensor(ConfigurationObject):
                     value = float(output_val)
                     output_val = unicode(eval(self.fields['formula']))
                 except:
-                    debugging = u"Device="+self.fields['sensor']+u" / "+self.fields['subsensor'] + \
+                    print(u"Device="+self.fields['sensor']+u" / "+self.fields['subsensor'] + \
                         u", Formula="+self.fields['formula'] + \
-                        u", Message="+traceback.format_exc()
-            return output_val, debugging
+                        u", Message="+traceback.format_exc())
+            return output_val
     
     def get_name_listing(self):
         return 'sensors'
