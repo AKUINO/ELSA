@@ -3690,7 +3690,6 @@ class Sensor(ConfigurationObject):
         self.fields['h_id'] = data
 
     def update(self, now, value, config):
-        print(self.fields['channel'] + str(value))
         self.lastvalue = value
         self.updateRRD(now, value)
 
