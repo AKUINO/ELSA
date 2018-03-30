@@ -1487,19 +1487,19 @@ class AllSensors(AllObjects):
             sensor.setCorrectAlarmValue()
 
     def update(self, now):
-        webCache = {}
+        iteration_cache = {}
         for k, sensor in self.elements.items():
             if sensor.fields['channel'] in self._queryChannels \
                                         and not sensor.fields['active'] == '0':
                 try:
                     value, debugging = sensor.get_value_sensor(self.config,
-                                                               webCache)
-                    if value:
-                        sensor.update(now, value, self.config)
-                    if debugging:
-                        print debugging
+                                                               iteration_cache)
                 except:
                     traceback.print_exc()
+                if value:
+                    sensor.update(now, value, self.config)
+                if debugging:
+                    print debugging
 
     def check_rrd(self):
         for k, v in self.elements.items():
@@ -3819,9 +3819,38 @@ class Sensor(ConfigurationObject):
         self.degreeAlarm = 0
         self.time = 0
 
-    def get_value_sensor(self, config, webCache=None):
-        if webCache is None:
-            webCache = {}
+    def get_value_sensor(self, config, iteration_cache=None):
+        def parse_atmos_data(self, input):
+            '''
+            Given a single string '+a+b-c+d', returns ['+a','+b','-c','+d']
+            Used to parse the data returned from the Atmos41 weather station
+            '''
+            return reduce(lambda acc, elem:
+                                acc[:-1] + [acc[-1] + elem]
+                                if elem != '+' and elem != '-'
+                                else acc + [elem],
+                                    re.split("([+,-])", input.strip())[1:], [])
+            return re.split("([+,-])", input.strip())
+        
+        def set_cache(self, field, cache):
+            channel = self.fields['channel']
+            if not channel in iteration_cache:
+                iteration_cache[channel] = {}
+            iteration_cache[channel][field] = cache
+            
+        def get_cache(self, field):
+            '''
+            Returns the data from iteration_cache for at the coresponding field.
+            May return None
+            '''
+            channel = self.fields['channel']
+            try:
+                return iteration_cache[channel][field]
+            except KeyError:
+                return None
+
+        if iteration_cache is None:
+            iteration_cache = {}
         output_val = None
         debugging = u""
         if self.fields['channel'] == 'wire':
@@ -3843,8 +3872,8 @@ class Sensor(ConfigurationObject):
             url = self.fields['sensor']
             code = 0
             info = ""
-            if url in webCache:
-                info = webCache[url]
+            if url in iteration_cache:
+                info = iteration_cache[url]
                 output_val = eval(self.fields['subsensor'])
             else:
                 try:
@@ -3852,18 +3881,19 @@ class Sensor(ConfigurationObject):
                         self.fields['sensor'], None, 20)
                     info = sensorfile.read(80000)
                     sensorfile.close()
-                    webCache[url] = info
+                    iteration_cache[url] = info
                     output_val = eval(self.fields['subsensor'])
                 except:
                     debugging = u"URL="+url+u", code=" + \
                         unicode(code)+u", Response="+info + \
                         u", Message="+traceback.format_exc()
         elif self.fields['channel'] == 'json':
+# TODO: use get_cache()
             url = self.fields['sensor']
             code = 0
             info = ""
-            if url in webCache:
-                info = webCache[url]
+            if url in iteration_cache[self.fields['channel']]:
+                info = iteration_cache[self.fields['channel']][url]
                 try:
                     output_val = eval(self.fields['subsensor'])
                 except:
@@ -3886,7 +3916,7 @@ class Sensor(ConfigurationObject):
                     info = sensorfile.read()
                     info = json.loads(info)
                     sensorfile.close()
-                    webCache[url] = info
+                    iteration_cache[self.fields['channel']][url] = info
                     output_val = eval(self.fields['subsensor'])
                 except:
                     debugging = (u"URL=" + url
@@ -3933,7 +3963,6 @@ class Sensor(ConfigurationObject):
             adc = abe_adcpi.ADCPi(int(input_device['i2c'], 16),
                                   int(input_device['i2c'], 16) + 1,
                                   int(input['resolution']))
-            
 # TODO: manage invertion for output
             # Stimulate
             output_gpio.write_pin(int(output['channel']), 1)
@@ -3944,15 +3973,44 @@ class Sensor(ConfigurationObject):
             output_gpio.write_pin(int(output['channel']), 0)
         elif self.fields['channel'] == 'atmos41':
             input = config.HardConfig.inputs[self.fields['channel']]
-            ser = serial.Serial(input['serialport'], baudrate=9600, timeout=10)
-            time.sleep(2.5) # Leave some time to initialize
-            
-            ser.write(input['sdiaddress'].encode() + b'I!')
-            print(ser.readline())
+            cache = get_cache(self, input['serialport']+input['sdiaddress'])
+            if cache is None:
+                ser = serial.Serial(input['serialport'],
+                                    baudrate=9600,
+                                    timeout=10)
+                time.sleep(2.5) # Leave some time to initialize
+                ser.write(input['sdiaddress'].encode() + b'R0!')
+                try:
+                    cache = parse_atmos_data(self, ser.readline())
+                except SerialException:
+                    print('Tried to read several times back to back ?')
+                    raise
+                else:
+                    set_cache(self,
+                              input['serialport']+input['sdiaddress'],
+                              cache)
+                finally:
+                    ser.close()
+            try:
+                output_val = float(cache[int(self.fields['subsensor'])])
+            except ValueError:
+                print('Subsensor should be an integer')
+            except IndexError:
+                print('Subsensor for atmos is out of range: '
+                      + self.fields['subsensor']
+                      + '. Range starts at 0')
         else:
             print('Error: no sensor channel for ' + self.fields['channel'])
+            return None
         
-        if output_val:
+        try:
+            assert output_val != None 
+        except AssertionError:
+            print("output_val has not been set for channel: "
+                  + self.fields['channel']
+                  + '. Ignoring.')
+            return None
+        else:
             if self.fields['formula']:
                 try:
                     value = float(output_val)
@@ -3962,7 +4020,6 @@ class Sensor(ConfigurationObject):
                         u", Formula="+self.fields['formula'] + \
                         u", Message="+traceback.format_exc()
             return output_val, debugging
-        return None, debugging
     
     def get_name_listing(self):
         return 'sensors'
