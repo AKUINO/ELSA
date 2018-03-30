@@ -24,6 +24,7 @@ import shutil
 import abe_adcpi
 import abe_mcp3424
 import abe_iopi
+import serial
 """
 import SSD1306
 from I2CScreen import *
@@ -1486,19 +1487,13 @@ class AllSensors(AllObjects):
             sensor.setCorrectAlarmValue()
 
     def update(self, now):
-        webCache = {}
+        iteration_cache = {}
         for k, sensor in self.elements.items():
             if sensor.fields['channel'] in self._queryChannels \
                                         and not sensor.fields['active'] == '0':
-                try:
-                    value, debugging = sensor.get_value_sensor(self.config,
-                                                               webCache)
-                    if value:
-                        sensor.update(now, value, self.config)
-                    if debugging:
-                        print debugging
-                except:
-                    traceback.print_exc()
+                value = sensor.get_value_sensor(self.config, iteration_cache)
+                if value is not None:
+                    sensor.update(now, value, self.config)
 
     def check_rrd(self):
         for k, v in self.elements.items():
@@ -3695,51 +3690,41 @@ class Sensor(ConfigurationObject):
         self.fields['h_id'] = data
 
     def update(self, now, value, config):
-        if value is not None:
-            self.lastvalue = value
-            self.updateRRD(now, value)
+        print(self.fields['channel'] + str(value))
+        self.lastvalue = value
+        self.updateRRD(now, value)
 
-            minutes = int(now / 60)
-            # GMT + DST
-            hours = (int(minutes / 60) % 24)+100 + 2
-            minutes = (minutes % 60)+100
-            strnow = unicode(hours)[1:3]+":"+unicode(minutes)[1:3]
-            if config.screen is not None:
-                pos = config.screen.show(config.screen.begScreen, strnow)
-                pos = config.screen.showBW(pos+2, self.get_acronym())
-                pos = (config.screen
-                             .show(pos+2,
-                                   unicode(round(float(value), 1))))
-            if self.fields['m_id']:
-                id_measure = unicode(self.fields['m_id'])
-                if id_measure in config.AllMeasures.elements \
-                                    and config.screen is not None:
-                    measure = config.AllMeasures.elements[id_measure]
-                    pos = config.screen.show(pos, measure.fields['unit'])
+        minutes = int(now / 60)
+        # GMT + DST
+        hours = (int(minutes / 60) % 24)+100 + 2
+        minutes = (minutes % 60)+100
+        strnow = unicode(hours)[1:3]+":"+unicode(minutes)[1:3]
+        if config.screen is not None:
+            pos = config.screen.show(config.screen.begScreen, strnow)
+            pos = config.screen.showBW(pos+2, self.get_acronym())
+            pos = (config.screen
+                         .show(pos+2,
+                               unicode(round(float(value), 1))))
+        if self.fields['m_id']:
+            id_measure = unicode(self.fields['m_id'])
+            if id_measure in config.AllMeasures.elements \
+                                and config.screen is not None:
+                measure = config.AllMeasures.elements[id_measure]
+                pos = config.screen.show(pos, measure.fields['unit'])
 
-            typeAlarm, symbAlarm, self.colorAlarm = self.getTypeAlarm(value)
-#            print(u'Sensor update Channel : ' + self.fields['channel']
-#                                              + u'    '
-#                                              + self.fields['sensor'] 
-#                                              + u' ==> ' 
-#                                              + self.fields['acronym'] 
-#                                              + u' = ' 
-#                                              + unicode(value))
-            if typeAlarm == 'typical':
-                self.setTypicalAlarm()
-            else:
-                if not ((typeAlarm == 'min' and self.actualAlarm == 'minmin')
-                        or (typeAlarm == 'max'
-                                    and self.actualAlarm == 'maxmax')):
-                    self.actualAlarm = typeAlarm
-                if config.screen is not None:
-                    config.screen.showBW(-1, symbAlarm)
-                self.launchAlarm(config, now)
-            if config.screen is not None:
-                config.screen.end_line()
+        typeAlarm, symbAlarm, self.colorAlarm = self.getTypeAlarm(value)
+        if typeAlarm == 'typical':
+            self.setTypicalAlarm()
         else:
-            # TODO : si on ne sait pas se connecter au senseur, rajouter Alarme " Erreur Senseur not working"
-            print "Impossible d acceder au senseur "+self.fields['acronym']
+            if not ((typeAlarm == 'min' and self.actualAlarm == 'minmin')
+                    or (typeAlarm == 'max'
+                                and self.actualAlarm == 'maxmax')):
+                self.actualAlarm = typeAlarm
+            if config.screen is not None:
+                config.screen.showBW(-1, symbAlarm)
+            self.launchAlarm(config, now)
+        if config.screen is not None:
+            config.screen.end_line()
 
     def updateRRD(self, now, value):
         value = float(value)
@@ -3748,7 +3733,7 @@ class Sensor(ConfigurationObject):
     def createRRD(self):
         name = re.sub('[^\w]+', '', self.fields['acronym'])
         now = str(int(time.time())-60)
-        if self.fields['channel'] in _queryChannels:
+        if self.fields['channel'] != 'radio':
             data_sources = str('DS:'+name+':GAUGE:120:U:U')
             rrdtool.create(str(DIR_RRD+self.getRRDName()),
                            "--step", "60",
@@ -3818,9 +3803,38 @@ class Sensor(ConfigurationObject):
         self.degreeAlarm = 0
         self.time = 0
 
-    def get_value_sensor(self, config, webCache=None):
-        if webCache is None:
-            webCache = {}
+    def get_value_sensor(self, config, iteration_cache=None):
+        def parse_atmos_data(self, input):
+            '''
+            Given a single string '+a+b-c+d', returns ['+a','+b','-c','+d']
+            Used to parse the data returned from the Atmos41 weather station
+            '''
+            return reduce(lambda acc, elem:
+                                acc[:-1] + [acc[-1] + elem]
+                                if elem != '+' and elem != '-'
+                                else acc + [elem],
+                                    re.split("([+,-])", input.strip())[1:], [])
+            return re.split("([+,-])", input.strip())
+        
+        def set_cache(self, field, cache):
+            channel = self.fields['channel']
+            if not channel in iteration_cache:
+                iteration_cache[channel] = {}
+            iteration_cache[channel][field] = cache
+            
+        def get_cache(self, field):
+            '''
+            Returns the data from iteration_cache for at the coresponding field.
+            May return None
+            '''
+            channel = self.fields['channel']
+            try:
+                return iteration_cache[channel][field]
+            except KeyError:
+                return None
+
+        if iteration_cache is None:
+            iteration_cache = {}
         output_val = None
         debugging = u""
         if self.fields['channel'] == 'wire':
@@ -3842,8 +3856,8 @@ class Sensor(ConfigurationObject):
             url = self.fields['sensor']
             code = 0
             info = ""
-            if url in webCache:
-                info = webCache[url]
+            if url in iteration_cache:
+                info = iteration_cache[url]
                 output_val = eval(self.fields['subsensor'])
             else:
                 try:
@@ -3851,18 +3865,19 @@ class Sensor(ConfigurationObject):
                         self.fields['sensor'], None, 20)
                     info = sensorfile.read(80000)
                     sensorfile.close()
-                    webCache[url] = info
+                    iteration_cache[url] = info
                     output_val = eval(self.fields['subsensor'])
                 except:
                     debugging = u"URL="+url+u", code=" + \
                         unicode(code)+u", Response="+info + \
                         u", Message="+traceback.format_exc()
         elif self.fields['channel'] == 'json':
+# TODO: use get_cache()
             url = self.fields['sensor']
             code = 0
             info = ""
-            if url in webCache:
-                info = webCache[url]
+            if url in iteration_cache[self.fields['channel']]:
+                info = iteration_cache[self.fields['channel']][url]
                 try:
                     output_val = eval(self.fields['subsensor'])
                 except:
@@ -3885,7 +3900,7 @@ class Sensor(ConfigurationObject):
                     info = sensorfile.read()
                     info = json.loads(info)
                     sensorfile.close()
-                    webCache[url] = info
+                    iteration_cache[self.fields['channel']][url] = info
                     output_val = eval(self.fields['subsensor'])
                 except:
                     debugging = (u"URL=" + url
@@ -3913,7 +3928,7 @@ class Sensor(ConfigurationObject):
             adc = abe_adcpi.ADCPi(int(device['i2c'], 16),
                                   int(input['resolution']))
             output_val = adc.read_voltage(int(input['channel']))
-        elif self.fields['channel'] == 'lightsensor1':
+        elif self.fields['channel'].startswith('lightsensor'):
             input = config.HardConfig.inputs[self.fields['channel']]
             device = config.HardConfig.devices[input['device']]
             adc = abe_mcp3424.ADCDifferentialPi(int(device['i2c'], 16),
@@ -3921,7 +3936,7 @@ class Sensor(ConfigurationObject):
                                                 int(input['resolution']))
             adc.set_pga(int(device['amplification']))
             output_val = adc.read_voltage(int(input['channel'])) 
-        elif self.fields['channel'] == 'humiditysensor1':
+        elif self.fields['channel'].startswith('humiditysensor'):
             input = config.HardConfig.inputs[self.fields['channel']]
             input_device = config.HardConfig.devices[input['device']]
             output = config.HardConfig.outputs[input['poweroutput']]
@@ -3932,7 +3947,6 @@ class Sensor(ConfigurationObject):
             adc = abe_adcpi.ADCPi(int(input_device['i2c'], 16),
                                   int(input_device['i2c'], 16) + 1,
                                   int(input['resolution']))
-            
 # TODO: manage invertion for output
             # Stimulate
             output_gpio.write_pin(int(output['channel']), 1)
@@ -3941,19 +3955,57 @@ class Sensor(ConfigurationObject):
             output_val = adc.read_voltage(int(input['channel']))
             # End stimulation
             output_gpio.write_pin(int(output['channel']), 0)
-
-        
-        if output_val:
+        elif self.fields['channel'] == 'atmos41':
+            input = config.HardConfig.inputs[self.fields['channel']]
+            cache = get_cache(self, input['serialport']+input['sdiaddress'])
+            if cache is None:
+                ser = serial.Serial(input['serialport'],
+                                    baudrate=9600,
+                                    timeout=10)
+                time.sleep(2.5) # Leave some time to initialize
+                ser.write(input['sdiaddress'].encode() + b'R0!')
+                try:
+                    cache = parse_atmos_data(self, ser.readline())
+                except SerialException:
+                    print('Tried to read several times back to back ?')
+                    raise
+                else:
+                    set_cache(self,
+                              input['serialport']+input['sdiaddress'],
+                              cache)
+                finally:
+                    ser.close()
+            try:
+                output_val = float(cache[int(self.fields['subsensor'])])
+            except ValueError:
+                print('Subsensor should be an integer')
+            except IndexError:
+                print('Subsensor for atmos is out of range: '
+                      + self.fields['subsensor']
+                      + '. Range starts at 0')
+        else:
+            print('Error: no sensor channel for ' + self.fields['channel'])
+            return None
+       
+        if (debugging != ''):
+            print(debugging) 
+        try:
+            assert output_val != None 
+        except AssertionError:
+            print("output_val has not been set for channel: "
+                  + self.fields['channel']
+                  + '. Ignoring.')
+            return None
+        else:
             if self.fields['formula']:
                 try:
                     value = float(output_val)
                     output_val = unicode(eval(self.fields['formula']))
                 except:
-                    debugging = u"Device="+self.fields['sensor']+u" / "+self.fields['subsensor'] + \
+                    print(u"Device="+self.fields['sensor']+u" / "+self.fields['subsensor'] + \
                         u", Formula="+self.fields['formula'] + \
-                        u", Message="+traceback.format_exc()
-            return output_val, debugging
-        return None, debugging
+                        u", Message="+traceback.format_exc())
+            return output_val
     
     def get_name_listing(self):
         return 'sensors'
