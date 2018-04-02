@@ -3790,29 +3790,38 @@ class Sensor(ConfigurationObject):
         elif self.fields['channel'] == 'http':
             url = self.fields['sensor']
             code = 0
-            info = ""
-            if url in iteration_cache:
-                info = iteration_cache[url]
-                output_val = eval(self.fields['subsensor'])
+            info = self.get_cache(url)
+            if info is not None:
+                try:
+                    output_val = eval(self.fields['subsensor'])
+                except:
+                    debugging = (u"URL=" + url
+                                         + u", code="
+                                         + unicode(code)
+                                         + u", Response="
+                                         + unicode(info)
+                                         + u", Subsensor="
+                                         + self.fields['subsensor']
+                                         + u", Message="
+                                         + traceback.format_exc())
+                    traceback.print_exc()
             else:
                 try:
                     sensorfile = urllib2.urlopen(
                         self.fields['sensor'], None, 20)
                     info = sensorfile.read(80000)
                     sensorfile.close()
-                    iteration_cache[url] = info
+                    self.set_cache(url,info)
                     output_val = eval(self.fields['subsensor'])
                 except:
                     debugging = u"URL="+url+u", code=" + \
                         unicode(code)+u", Response="+info + \
                         u", Message="+traceback.format_exc()
         elif self.fields['channel'] == 'json':
-# TODO: use get_cache()
             url = self.fields['sensor']
             code = 0
-            info = ""
-            if url in iteration_cache[self.fields['channel']]:
-                info = iteration_cache[self.fields['channel']][url]
+            info = self.get_cache(url)
+            if info is not None:
                 try:
                     output_val = eval(self.fields['subsensor'])
                 except:
@@ -3835,7 +3844,7 @@ class Sensor(ConfigurationObject):
                     info = sensorfile.read()
                     info = json.loads(info)
                     sensorfile.close()
-                    iteration_cache[self.fields['channel']][url] = info
+                    self.set_cache(url,info)
                     output_val = eval(self.fields['subsensor'])
                 except:
                     debugging = (u"URL=" + url
@@ -3939,7 +3948,7 @@ class Sensor(ConfigurationObject):
                 except:
                     print(u"Device="+self.fields['sensor']+u" / "+self.fields['subsensor'] + \
                         u", Formula="+self.fields['formula'] + \
-                        u", Message="+traceback.format_exc()
+                        u", Message="+traceback.format_exc() )
             return output_val
         return None, debugging
 
