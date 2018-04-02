@@ -749,10 +749,7 @@ class RadioThread(threading.Thread):
                                 currSensor = None
                                 value = VAL
                                 for sensor in self.config.AllSensors.elements:
-                                    currSensor = (self
-                                                 .config
-                                                 .AllSensors
-                                                 .elements[sensor])
+                                    currSensor = self.config.AllSensors.elements[sensor]
                                     try:
                                         if (unicode(currSensor.fields['sensor']).translate(noDots) == unicode(HEX).translate(noDots)):
                                             if not currSensor.fields['formula'] == '':
@@ -760,8 +757,7 @@ class RadioThread(threading.Thread):
                                                     eval(currSensor.fields['formula']))
                                             print(
                                                 u"Sensor ELA-" + currSensor.fields['sensor'] + u": " + currSensor.fields['acronym'] + u" = "+unicode(value))
-                                            currSensor.update(
-                                                now, value, self.config)
+                                            currSensor.update(now, value, self.config)
                                     except:
                                         traceback.print_exc()
                                         print "Erreur dans la formule"
@@ -1416,6 +1412,8 @@ class AllMeasures(AllObjects):
         return 'measure'
 
 
+iteration_cache = None
+
 class AllSensors(AllObjects):
     
 # We dynamically append all [input.xxx] from hardconfig to _queryChannels
@@ -1497,11 +1495,13 @@ class AllSensors(AllObjects):
             sensor.setCorrectAlarmValue()
 
     def update(self, now):
-        iteration_cache = {}
+        global iteration_cache
+
+        iteration_cache = None
         for k, sensor in self.elements.items():
             if sensor.fields['channel'] in self._queryChannels \
                                         and not sensor.fields['active'] == '0':
-                value = sensor.get_value_sensor(self.config, iteration_cache)
+                value = sensor.get_value_sensor(self.config)
                 if value is not None:
                     sensor.update(now, value, self.config)
 
@@ -3547,7 +3547,6 @@ class Measure(ConfigurationObject):
             self.fields[elem] = data[elem]
         self.save(c, user)
 
-
 class Sensor(ConfigurationObject):
     def __init__(self):
         ConfigurationObject.__init__(self)
@@ -3624,6 +3623,31 @@ class Sensor(ConfigurationObject):
 
     def add_phase(self, data):
         self.fields['h_id'] = data
+
+    def set_cache(self, field, cache):
+        global iteration_cache
+
+        if iteration_cache is None:
+            iteration_cache = {}
+        channel = self.fields['channel']
+        if not channel in iteration_cache:
+            iteration_cache[channel] = {}
+        iteration_cache[channel][field] = cache
+
+    def get_cache(self, field):
+        '''
+        Returns the data from iteration_cache for at the coresponding field.
+        May return None
+        '''
+        global iteration_cache
+
+        if iteration_cache is None:
+            return None
+        channel = self.fields['channel']
+        try:
+            return iteration_cache[channel][field]
+        except KeyError:
+            return None
 
     def update(self, now, value, config):
         self.lastvalue = value
@@ -3738,38 +3762,20 @@ class Sensor(ConfigurationObject):
         self.degreeAlarm = 0
         self.time = 0
 
-    def get_value_sensor(self, config, iteration_cache=None):
-        def parse_atmos_data(self, input):
-            '''
-            Given a single string '+a+b-c+d', returns ['+a','+b','-c','+d']
-            Used to parse the data returned from the Atmos41 weather station
-            '''
-            return reduce(lambda acc, elem:
-                                acc[:-1] + [acc[-1] + elem]
-                                if elem != '+' and elem != '-'
-                                else acc + [elem],
-                                    re.split("([+,-])", input.strip())[1:], [])
-            return re.split("([+,-])", input.strip())
+    def parse_atmos_data(self, input):
+        '''
+        Given a single string '+a+b-c+d', returns ['+a','+b','-c','+d']
+        Used to parse the data returned from the Atmos41 weather station
+        '''
+        return reduce(lambda acc, elem:
+                            acc[:-1] + [acc[-1] + elem]
+                            if elem != '+' and elem != '-'
+                            else acc + [elem],
+                                re.split("([+,-])", input.strip())[1:], [])
+        #return re.split("([+,-])", input.strip())
+    
+    def get_value_sensor(self, config):
         
-        def set_cache(self, field, cache):
-            channel = self.fields['channel']
-            if not channel in iteration_cache:
-                iteration_cache[channel] = {}
-            iteration_cache[channel][field] = cache
-            
-        def get_cache(self, field):
-            '''
-            Returns the data from iteration_cache for at the coresponding field.
-            May return None
-            '''
-            channel = self.fields['channel']
-            try:
-                return iteration_cache[channel][field]
-            except KeyError:
-                return None
-
-        if iteration_cache is None:
-            iteration_cache = {}
         output_val = None
         debugging = u""
         if self.fields['channel'] == 'wire':
@@ -3904,7 +3910,7 @@ class Sensor(ConfigurationObject):
             cache = get_cache(self, input['serialport']+input['sdiaddress'])
             if cache is None:
                 ser = serial.Serial(input['serialport'],
-                                    baudrate=9600,
+                                    baudrate=1200,
                                     timeout=10)
                 time.sleep(2.5) # Leave some time to initialize
                 ser.write(input['sdiaddress'].encode() + b'R0!')
@@ -3944,13 +3950,16 @@ class Sensor(ConfigurationObject):
             if self.fields['formula']:
                 try:
                     value = float(output_val)
-                    output_val = unicode(eval(self.fields['formula']))
+                    if self.fields['formula']:
+                        output_val = unicode(eval(self.fields['formula']))
+                    else:
+                        output_val = value
                 except:
                     print(u"Device="+self.fields['sensor']+u" / "+self.fields['subsensor'] + \
                         u", Formula="+self.fields['formula'] + \
                         u", Message="+traceback.format_exc() )
             return output_val
-        return None, debugging
+        return None
 
     def is_in_component(self, type, id):
         if type == 'e':
