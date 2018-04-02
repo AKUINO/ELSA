@@ -3947,17 +3947,16 @@ class Sensor(ConfigurationObject):
                   + '. Ignoring.')
             return None
         else:
-            if self.fields['formula']:
-                try:
-                    value = float(output_val)
-                    if self.fields['formula']:
-                        output_val = unicode(eval(self.fields['formula']))
-                    else:
-                        output_val = value
-                except:
-                    print(u"Device="+self.fields['sensor']+u" / "+self.fields['subsensor'] + \
-                        u", Formula="+self.fields['formula'] + \
-                        u", Message="+traceback.format_exc() )
+            try:
+                value = float(output_val)
+                if self.fields['formula']:
+                    output_val = unicode(eval(self.fields['formula']))
+                else:
+                    output_val = value
+            except:
+                print(u"Device="+self.fields['sensor']+u" / "+self.fields['subsensor'] + \
+                    u", Formula="+self.fields['formula'] + \
+                    u", Message="+traceback.format_exc() )
             return output_val
         return None
 
