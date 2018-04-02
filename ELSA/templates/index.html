@@ -6,8 +6,9 @@ $var recursive : False
 
 $if connected is True:
 	$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+
 	<div>
-		$c.AllMessages.elements['welcome'].getName(self.lang) <em>$c.connectedUsers.users[mail].cuser.getName(self.lang)</em>
+		$c.getMessage('welcome',self.lang) <em>$c.connectedUsers.users[mail].cuser.getName(self.lang)</em>
 	</div>
 	$code:
 	    allObjects = c.findAllFromType('b')
@@ -24,13 +25,13 @@ $if connected is True:
 	    <div class="col-xs-5">
 	    </div>
 	    <div class="col-xs-6" id="addItem">
-		<a href="/create/b"><span class="halflings halflings-plus"></span>$c.AllMessages.elements[c.AllBatches.get_name_object()].getName(self.lang)</a>
+		<a href="/create/b">$:c.getHalfling('add') $c.getName(c.AllBatches,self.lang)</a>
 	    </div>
 	</div>    
 $else :
     $var title : ELSA login
     <div>
-	<p>This application stores the configuration and the data of the different AKUINO modules installed.</p>
+	<p>ELSA stores sensors data and observation made at the different Control Points of your production.</p>
 	<h1>Please log-in</h1>
 	<p>You must be logged in to use the application</p>
 

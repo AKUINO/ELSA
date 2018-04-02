@@ -6,7 +6,7 @@ $if errormess == '' :
     $code:
 	elem  = c.AllBarcodes.barcode_to_item(barcode)
 	tmp = True
-    $var location: list/$(elem.get_type())=$(c.findAllFromType(elem.get_type()).get_name_object()) barcode/$(barcode)=barcode
+    $var location: list/$(elem.get_type())=$(c.findAllFromType(elem.get_type()).get_class_acronym()) barcode/$(barcode)=barcode
     
     <script>
 	$$(function(){
@@ -17,7 +17,7 @@ $if errormess == '' :
 $else:
     $var location: barcode/$(barcode)=barcode
     <div class="form-group row" id="error">
-	    $c.AllMessages.elements['errorbarcode'].getName(self.lang) [$(barcode)]
+	    $c.getMessage('errorbarcode',self.lang) [$(barcode)]
     </div>
     $code:
 	tmp = c.create_picture(barcode)
@@ -27,5 +27,5 @@ $if tmp is True:
     </div>
 $else :
     <div class="form-group row" id="error">
-	    $c.AllMessages.elements['barcoderules'].getName(self.lang) [$(barcode)]
+	    $c.getMessage('barcoderules',self.lang) [$(barcode)]
     </div>

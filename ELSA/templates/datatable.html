@@ -2,9 +2,12 @@ $def with (mail, type,id)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $code :
     elem = c.connectedUsers.users[mail].cuser.exportdata
-$var recursive : False
-$var location: list/$(type)=$(c.findAllFromType(type).get_name_object()) exportdata/$(type)_$(id)=exportdata datatable/$(type)_$(id)=datatable
+    allSource = c.findAllFromType(type)
+    source = allSource.elements[id]
 
+$var recursive : False
+$var location: list/$(type)=$(c.findAllFromType(type).get_class_acronym()) exportdata/$(type)_$(id)=exportdata datatable/$(type)_$(id)=datatable
+$var title : $(source.getName(self.lang))
 <script>
     $$(function(){
 	$$("#includedMenu$(type)_$(id)").load("/fullentry/$(type)_$(id)");
@@ -13,7 +16,7 @@ $var location: list/$(type)=$(c.findAllFromType(type).get_name_object()) exportd
 <div id="includedMenu$(type)_$(id)"></div>
 
 $if elem is not None:    
-    <div class="container" style="margin-top:15px;">           
+    <div class="container" style="margin-top:15px;">        
 	<table class="table table-condensed" >
 	    <thead>
 		<tr>

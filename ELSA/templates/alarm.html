@@ -1,15 +1,15 @@
 $def with (id, mail, errormess, data)
-$var title : ELSA alarm
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
-
+$var title: $c.getMessage("new",self.lang) $c.AllAlarms.getName(self.lang)
 $if id == 'new':
     $var location: all/a=alarm edit/a_new=add
-    $var rmq :
-    
+    $var rmq :    
 $else:
     $var location: all/a=alarm edit/a_$(id)=edit
-    $var rmq :  $c.AllAlarms.elements[id].fields['remark']
+    $ alarmdef = c.AllAlarms.elements[id]
+    $var rmq :  $alarmdef.fields['remark']
+    $var title: $c.getMessage("update",self.lang) $alarmdef.getName(self.lang) 
 $if errormess != '':
     $if 'remark' in data :
 	$var rmq : $data['remark']
@@ -20,21 +20,21 @@ $if errormess != '':
 	    $errormess
 	</div>
 	<div class="form-group row">
-	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(self.lang)</label>
+	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.getMessage('acronym',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.AllMessages.elements['acronym'].getName(self.lang)" 
+		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.getMessage('acronym',self.lang)" 
 		$if errormess != '':
 		    $if 'acronym' in data :
 			value="$data['acronym']" 
 		$elif id != 'new':
-		    value="$c.AllAlarms.elements[id].fields['acronym']"
+		    value="$alarmdef.fields['acronym']"
 		required="true">
 	    </div>
 	</div>
 	
 	
 	<div class="form-group row">
-	    <label for="inputName" class="col-sm-3 col-form-label">$c.AllMessages.elements['name'].getName(self.lang)</label>
+	    <label for="inputName" class="col-sm-3 col-form-label">$c.getMessage('name',self.lang)</label>
 	</div>
 	
 	$for k,v in c.AllLanguages.elements.items():
@@ -45,12 +45,12 @@ $if errormess != '':
 		    <strong>$v.fields['name']</strong>
 		</div>
 		<div class="col-sm-8">
-		    <input name="$k" type="text" class="form-control" id="inputName" placeholder="Name"
+		    <input name="$k" type="text" class="form-control" id="inputName" placeholder="$c.getMessage('name',self.lang)"
 		$if errormess != '':
 		    $if k in data :
 			value="$data[k]"
 		$elif id !='new':
-		    value="$c.AllAlarms.elements[id].get_real_name(k)"
+		    value="$alarmdef.get_real_name(k)"
 		$if self.lang == k: 
 		    required="true"
 		> 
@@ -58,7 +58,7 @@ $if errormess != '':
 	    </div>
 	
 	<div class="form-group row">
-	    <label for="inputSms1" class="col-sm-3 col-form-label">$c.AllMessages.elements['phone'].getName(self.lang) 1</label>
+	    <label for="inputSms1" class="col-sm-3 col-form-label">$c.getMessage('phone',self.lang) 1</label>
 	    <div class="col-sm-9">
 		<select name = "o_sms1" class="form-control" id="inputSms1">
 		    <option value=""></option>
@@ -69,7 +69,7 @@ $if errormess != '':
 				$if k == data['o_sms1']:
 				    selected
 			$elif id != 'new':
-                            $if c.AllAlarms.elements[id].fields["o_sms1"] == k:
+                            $if alarmdef.fields["o_sms1"] == k:
 				selected
 			>$c.AllGrFunction.elements[k].fields['acronym'] - $c.AllGrFunction.elements[k].getName(self.lang) </option>
 		</select>
@@ -77,7 +77,7 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputMail1" class="col-sm-3 col-form-label">$c.AllMessages.elements['mail'].getName(self.lang) 1</label>
+	    <label for="inputMail1" class="col-sm-3 col-form-label">$c.getMessage('mail',self.lang) 1</label>
 	    <div class="col-sm-9">
 		<select name = "o_email1" class="form-control" id="inputMail1">
 		    <option value=""></option>
@@ -88,7 +88,7 @@ $if errormess != '':
 				$if k == data['o_email1']:
 				    selected	
 			$elif id != 'new':
-                            $if c.AllAlarms.elements[id].fields["o_email1"] == k:
+                            $if alarmdef.fields["o_email1"] == k:
 				selected
 			>$c.AllGrFunction.elements[k].fields['acronym'] - $c.AllGrFunction.elements[k].getName(self.lang) </option>
 		</select>
@@ -96,7 +96,7 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputSound1" class="col-sm-3 col-form-label">$c.AllMessages.elements['sound'].getName(self.lang) 1</label>
+	    <label for="inputSound1" class="col-sm-3 col-form-label">$c.getMessage('sound',self.lang) 1</label>
 	    <div class="col-sm-9">
 		<select name = "o_sound1" class="form-control" id="inputSound1">
 		    <option value=""></option>
@@ -107,7 +107,7 @@ $if errormess != '':
 				$if k == data['o_sound1']:
 				    selected
 			$elif id != 'new':
-                            $if c.AllAlarms.elements[id].fields["o_sound1"] == k:
+                            $if alarmdef.fields["o_sound1"] == k:
 				selected
 			>$c.AllGrFunction.elements[k].fields['acronym'] - $c.AllGrFunction.elements[k].getName(self.lang) </option>
 		</select>
@@ -116,7 +116,7 @@ $if errormess != '':
 	
 	
 	<div class="form-group row">
-	    <label for="inputSms2" class="col-sm-3 col-form-label">$c.AllMessages.elements['phone'].getName(self.lang) 2</label>
+	    <label for="inputSms2" class="col-sm-3 col-form-label">$c.getMessage('phone',self.lang) 2</label>
 	    <div class="col-sm-9">
 		<select name = "o_sms2" class="form-control" id="inputSms2">
 		    <option value=""></option>
@@ -127,7 +127,7 @@ $if errormess != '':
 				$if k == data['o_sms2']:
 				    selected
 			$elif id != 'new':
-                            $if c.AllAlarms.elements[id].fields["o_sms2"] == k:
+                            $if alarmdef.fields["o_sms2"] == k:
 				selected
 			>$c.AllGrFunction.elements[k].fields['acronym'] - $c.AllGrFunction.elements[k].getName(self.lang) </option>
 		</select>
@@ -135,7 +135,7 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputMail2" class="col-sm-3 col-form-label">$c.AllMessages.elements['mail'].getName(self.lang) 2</label>
+	    <label for="inputMail2" class="col-sm-3 col-form-label">$c.getMessage('mail',self.lang) 2</label>
 	    <div class="col-sm-9">
 		<select name = "o_email2" class="form-control" id="inputMail2">
 		    <option value=""></option>
@@ -146,7 +146,7 @@ $if errormess != '':
 				$if k == data['o_email2']:
 				    selected
 			$elif id != 'new':
-                            $if c.AllAlarms.elements[id].fields["o_email2"] == k:
+                            $if alarmdef.fields["o_email2"] == k:
 				selected
 			>$c.AllGrFunction.elements[k].fields['acronym'] - $c.AllGrFunction.elements[k].getName(self.lang) </option>
 		</select>
@@ -154,7 +154,7 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputSound2" class="col-sm-3 col-form-label">$c.AllMessages.elements['sound'].getName(self.lang) 2</label>
+	    <label for="inputSound2" class="col-sm-3 col-form-label">$c.getMessage('sound',self.lang) 2</label>
 	    <div class="col-sm-9">
 		<select name = "o_sound2" class="form-control" id="inputSound2">
 		    <option value=""></option>
@@ -165,7 +165,7 @@ $if errormess != '':
 				$if k == data['o_sound2']:
 				    selected
 			$elif id != 'new':
-                            $if c.AllAlarms.elements[id].fields["o_sound2"] == k:
+                            $if alarmdef.fields["o_sound2"] == k:
 				selected
 			>$c.AllGrFunction.elements[k].fields['acronym'] - $c.AllGrFunction.elements[k].getName(self.lang) </option>
 		</select>
@@ -173,58 +173,58 @@ $if errormess != '':
 	</div>	
 	
 	<div class="form-group row">
-	    <label for="inputRelay1" class="col-sm-3 col-form-label">$c.AllMessages.elements['relay'].getName(self.lang) 1</label>
+	    <label for="inputRelay1" class="col-sm-3 col-form-label">$c.getMessage('relay',self.lang) 1</label>
 	    <div class="col-sm-9">
-		<input name="relay1" type="text" class="form-control" id="inputRelay1" placeholder="$c.AllMessages.elements['relay'].getName(self.lang)" 
+		<input name="relay1" type="text" class="form-control" id="inputRelay1" placeholder="$c.getMessage('relay',self.lang)" 
 		$if errormess != '' :
 		    $if 'relay1' in data:
 			value = "$data['relay1']"
 		$elif id != 'new':
-		    value="$c.AllAlarms.elements[id].fields['relay1']"
+		    value="$alarmdef.fields['relay1']"
 		>
 	    </div>
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputRelay2" class="col-sm-3 col-form-label">$c.AllMessages.elements['relay'].getName(self.lang) 2</label>
+	    <label for="inputRelay2" class="col-sm-3 col-form-label">$c.getMessage('relay',self.lang) 2</label>
 	    <div class="col-sm-9">
-		<input name="relay2" type="text" class="form-control" id="inputRelay2" placeholder="$c.AllMessages.elements['relay'].getName(self.lang)" 
+		<input name="relay2" type="text" class="form-control" id="inputRelay2" placeholder="$c.getMessage('relay',self.lang)" 
 		$if errormess != '' :
 		    $if 'relay1' in data:
 			value = "$data['relay2']"
 		$elif id != 'new':
-		    value="$c.AllAlarms.elements[id].fields['relay2']"
+		    value="$alarmdef.fields['relay2']"
 		>
 	    </div>
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.AllMessages.elements['code'].getName(self.lang)</label>
+	    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.getMessage('code',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.AllMessages.elements['code'].getName(self.lang)" 
+		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.getMessage('code',self.lang)" 
 		$if errormess != '':
 		    $if 'code' in data :
 			value="$data['code']"
 		$elif id != 'new':
-		    value="$c.AllBarcodes.get_barcode(c.AllAlarms.elements[id].get_type(), id)"
+		    value="$c.AllBarcodes.get_barcode(alarmdef.get_type(), id)"
 		>
 	    </div>
 	</div>	
 	
 	<div class="form-group row">
-	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
+	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 	    <div class="col-sm-9">
 		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >$self.rmq</textarea>
 	    </div>
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputactive" class="col-sm-6 col-form-label">$c.AllMessages.elements['active'].getName(self.lang)</label>
+	    <label for="inputactive" class="col-sm-6 col-form-label">$c.getMessage('active',self.lang)</label>
 	    <span class="glyphicon glyphicon-remove-circle"> </span>
 	    $code:
 		cond = (id == 'new')
 		if not cond :
-		    cond = (c.AllAlarms.elements[id].fields['active'] == 1 or c.AllAlarms.elements[id].fields['active'] == '1')
+		    cond = (alarmdef.fields['active'] == 1 or alarmdef.fields['active'] == '1')
 		if errormess != '' :
 		    if 'active' in data :
 			cond  = True
@@ -253,7 +253,7 @@ $if errormess != '':
 		    href="/item/a_$(id)"
 		$else :
 		    href="/list/a"
-		class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>

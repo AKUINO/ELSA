@@ -2,9 +2,9 @@ $def with (type, id,mail)
 $code :
     elem = c.findAllFromType(type).elements[id]
 $var recursive : False
-$var title : ELSA $(c.findAllFromType(type).get_name_object())
+$var title : ELSA $(c.findAllFromType(type).get_class_acronym())
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
-$var location: list/$(type)=$(c.findAllFromType(type).get_name_object())
+$var location: list/$(type)=$(c.findAllFromType(type).get_class_acronym())
 
 $if not type in 'tdv':
     <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">

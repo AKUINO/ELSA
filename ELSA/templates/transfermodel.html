@@ -2,14 +2,15 @@ $def with (id, mail, errormess, data, context='')
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
-
+$var title : $c.AllTransferModels.getName(self.lang)
 $if id == 'new':
     $var location: list/tm=transfermodel edit/tm_new=add
     $var rmq :
-    
 $else:
     $var location: list/tm=transfermodel edit/tm_$(id)=edit
-    $var rmq :  $c.AllTransferModels.elements[id].fields['remark']
+    $ transfer_model = transfer_model
+    $var rmq :  $transfer_model.fields['remark']
+    $var title : transfer_model.getName(self.lang)
 $if errormess != '':
     $if 'remark' in data :
 	$var rmq : $data['remark']
@@ -21,7 +22,7 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputPosition" class="col-sm-3 col-form-label">$c.AllMessages.elements['checkpoint'].getName(self.lang)</label>
+	    <label for="inputPosition" class="col-sm-3 col-form-label">$c.getMessage('checkpoint',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "checkpoint" class="form-control" id="inputPosition">
 		    $for k in c.AllCheckPoints.elements.keys():
@@ -30,7 +31,7 @@ $if errormess != '':
 				$if  k == context.split('_')[-1] :
 				    selected
 			    $elif id != 'new':
-				$if  k == c.AllTransferModels.elements[id].fields['h_id'] :
+				$if  k == transfer_model.fields['h_id'] :
 				    selected
 			>$c.AllCheckPoints.elements[k].fields['acronym'] - $c.AllCheckPoints.elements[k].getName(self.lang) </option>
 		</select>
@@ -38,29 +39,29 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(self.lang)</label>
+	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.getMessage('acronym',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.AllMessages.elements['acronym'].getName(self.lang)"
+		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.getMessage('acronym',self.lang)"
 		$if errormess != '':
 		    $if 'acronym' in data :
 			value="$data['acronym']"
 		$elif context != '':
 		    value="$(c.AllCheckPoints.elements[context.split('_')[-1]].fields['acronym'])_"
 		$elif id != 'new':
-		    value="$c.AllTransferModels.elements[id].fields['acronym']"
+		    value="$transfer_model.fields['acronym']"
 		required="true">
 	    </div>
 	</div>
 	
 	<div class="form-group row">
-	    <label for="rankinput" class="col-sm-3 col-form-label">$c.AllMessages.elements['rank'].getName(self.lang)</label>
+	    <label for="rankinput" class="col-sm-3 col-form-label">$c.getMessage('rank',self.lang)</label>
 	    <div class="col-sm-9">
 		<input name="rank" type="number" class="form-control" 
 		$if errormess != '':
 		    $if 'rank' in data :
 			value="$data['rank']" 
 		$elif id != 'new':
-		    value="$c.AllTransferModels.elements[id].fields['rank']"
+		    value="$transfer_model.fields['rank']"
 		$else:
 		    value="1"
 		id="rankinput">
@@ -68,7 +69,7 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputName" class="col-sm-3 col-form-label">$c.AllMessages.elements['name'].getName(self.lang)</label>
+	    <label for="inputName" class="col-sm-3 col-form-label">$c.getMessage('name',self.lang)</label>
 	</div>
 	
 	$for k,v in c.AllLanguages.elements.items():
@@ -84,7 +85,7 @@ $if errormess != '':
 		    $if k in data :
 			value="$data[k]"
 		$elif id !='new':
-		    value="$c.AllTransferModels.elements[id].get_real_name(k)"
+		    value="$transfer_model.get_real_name(k)"
 		$if self.lang == k: 
 		    required="true"
 		>
@@ -92,13 +93,13 @@ $if errormess != '':
 	    </div>
 	    
 	<div class="form-group row">
-	    <label for="inputPosition" class="col-sm-3 col-form-label">$c.AllMessages.elements['target'].getName(self.lang)</label>
+	    <label for="inputPosition" class="col-sm-3 col-form-label">$c.getMessage('target',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "position" class="form-control" id="inputPosition">
 		    $for k in c.AllGrUsage.elements.keys():
 			<option value="$k"
 			    $if id != 'new':
-				$if  k == c.AllTransferModels.elements[id].fields['gu_id'] :
+				$if  k == transfer_model.fields['gu_id'] :
 				    selected
 			>$c.AllGrUsage.elements[k].fields['acronym'] - $c.AllGrUsage.elements[k].getName(self.lang) </option>
 		</select>
@@ -106,19 +107,19 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
+	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 	    <div class="col-sm-9">
-		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.AllMessages.elements['remark'].getName(self.lang)" >$self.rmq</textarea>
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.getMessage('remark',self.lang)" >$self.rmq</textarea>
 	    </div>
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputactive" class="col-sm-6 col-form-label">$c.AllMessages.elements['active'].getName(self.lang)</label>
+	    <label for="inputactive" class="col-sm-6 col-form-label">$c.getMessage('active',self.lang)</label>
 	    <span class="glyphicon glyphicon-remove-circle"> </span>
 	    $code:
 		cond = (id == 'new')
 		if not cond :
-		    cond = (c.AllTransferModels.elements[id].fields['active'] == 1 or c.AllTransferModels.elements[id].fields['active'] == '1')
+		    cond = (transfer_model.fields['active'] == 1 or transfer_model.fields['active'] == '1')
 		if errormess != '' :
 		    if 'active' in data :
 			cond  = True
@@ -146,12 +147,12 @@ $if errormess != '':
 		    href="/item/tm_$(id)"
 		$else :
 		    href="/list/tm"
-		class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>
 	    <div class="col-sm-2">
-		<button type="submit" class="btn btn-primary btn-block">$c.AllMessages.elements['save'].getName(self.lang)</button>
+		<button type="submit" class="btn btn-primary btn-block">$c.getMessage('save',self.lang)</button>
 	    </div> 
 	    <div class="col-sm-3">
 	    </div>

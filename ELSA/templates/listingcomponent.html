@@ -2,11 +2,11 @@ $def with (type,id,mail)
 $code:
     allobjects = c.findAllFromType(type)
     elem = allobjects.elements[id]
-    keyID = c.findAllFromObject(elem).keyColumn
-    
+    keyID = c.findAllFromObject(elem).keyColumn    
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : False
-$var location: list/$(type)=$(c.findAllFromType(type).get_name_object()) find/related/$(type)_$(id)=related
+$var location: list/$(type)=$(c.findAllFromType(type).get_class_acronym()) find/related/$(type)_$(id)=related
+$var title: $elem.getName(self.lang)
 <script>
     $$(function(){
         $$("#includedAllMenu$(type)_$(id)").load("/fullentry/$(type)_$(id)");
@@ -22,7 +22,7 @@ $if t is not None :
         pos = c.findAllFromType(c.AllTransfers.elements[t].fields['cont_type'])
         p = pos.elements[c.AllTransfers.elements[t].fields['cont_id']]
     <div class="row active" style ="margin-top:10px;margin-bottom:10px;background-color:#E5E5E7;padding:15px;" >
-	<label class="col-sm-12">$c.AllMessages.elements['actualposition'].getName(self.lang) :</label>   
+	<label class="col-sm-12">$c.getMessage('actualposition',self.lang) :</label>   
 	<script>
             $$(function(){
                 $$("#includedMenu$(c.AllTransfers.elements[t].fields['cont_type'])_$(c.AllTransfers.elements[t].fields['cont_id'])").load("/fullentry/$(c.AllTransfers.elements[t].fields['cont_type'])_$(c.AllTransfers.elements[t].fields['cont_id'])");
@@ -36,7 +36,7 @@ $code:
     toCheck =[[type,id]]
 $if type in 'p' :
     <div class="row active" style ="margin-top:10px;margin-bottom:10px;background-color:#E5E5E7;padding:15px;" >
-	<label class="col-sm-12">$c.AllMessages.elements['equipment'].getName(self.lang) :</label>
+	<label class="col-sm-12">$c.getMessage('equipment',self.lang) :</label>
 	$for k,equipment in c.AllEquipments.elements.items():
 	    $if equipment.is_actual_position(toCheck[0][0],id,c) :
 		$code
@@ -50,7 +50,7 @@ $if type in 'p' :
     </div>
 $if type in 'pe':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
-	<label class="col-sm-12">$c.AllMessages.elements['container'].getName(self.lang) :</label>    
+	<label class="col-sm-12">$c.getMessage('container',self.lang) :</label>    
 	$for k,container in c.AllContainers.elements.items():
 	    $if container.is_actual_position(toCheck[0][0],id,c) :
 		$code
@@ -64,7 +64,7 @@ $if type in 'pe':
     </div>
 $if type not in 'bg':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
-	<label class="col-sm-12">$c.AllMessages.elements['sensor'].getName(self.lang) :</label>    
+	<label class="col-sm-12">$c.getMessage('sensor',self.lang) :</label>    
 
     $for k,sensor in c.AllSensors.elements.items():
         $if sensor.fields[type+'_id'] is not '' :
@@ -77,7 +77,7 @@ $if type not in 'bg':
                 <div id="includedMenus_$(k)"></div>
     </div>
 <div class="row active"style = "background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
-    <label class="col-sm-12">$c.AllMessages.elements['batch'].getName(self.lang) :</label>
+    <label class="col-sm-12">$c.getMessage('batch',self.lang) :</label>
     $for k,batch in c.AllBatches.elements.items():
         $for t, i in toCheck:
             $if batch.is_actual_position(t, i, c) is True:

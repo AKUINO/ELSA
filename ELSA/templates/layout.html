@@ -2,6 +2,7 @@ $def with(content)
 $if content.recursive == 'False' :
     $if content.lang == 'disconnected':
 	$var tmp : disconnected
+        $var title : Log-In
     $else:
 	$var tmp : connected 
     <!doctype html>
@@ -12,7 +13,7 @@ $if content.recursive == 'False' :
 	<head>
 	    <meta charset="utf-8">
 	    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	    <title></title>
+	    <title>$(content.title)</title>
 	    <meta name="description" content="">
 	    <meta name="viewport" content="width=device-width, initial-scale=1">
 	    <link rel="icon" type="image/png" href="/static/favicon.ico">
@@ -53,55 +54,55 @@ $if content.recursive == 'False' :
 		<div id="navbar" class="navbar-collapse collapse">
 		    <ul class="nav navbar-nav">
 			<li class="dropdown" data-show-icon="true">
-			    <a href="#" class="dropdown-toggle" data-toggle="dropdown">$c.AllMessages.elements['component'].getName(content.lang)<b class="caret"></b></a>
+			    <a href="#" class="dropdown-toggle" data-toggle="dropdown">$c.getMessage('component',content.lang)<b class="caret"></b></a>
 			    <ul class="dropdown-menu">
-				<li><a href="/list/p" tabindex="-1"><span class="$c.AllHalflings.elements['place'].getHalfling()"></span>&nbsp;$c.AllMessages.elements['place'].getName(content.lang)</a></li>
-				<li><a href="/list/e" tabindex="-2"><span class="$c.AllHalflings.elements['equipment'].getHalfling()"></span>&nbsp;$c.AllMessages.elements['equipment'].getName(content.lang)</a></li>
-				<li><a href="/list/c" tabindex="-3"><span class="$c.AllHalflings.elements['container'].getHalfling()"></span>&nbsp;$c.AllMessages.elements['container'].getName(content.lang)</a></li>
-				<li><a href="/list/gu" tabindex="-4"><span class="$c.AllHalflings.elements['guse'].getHalfling()"></span>&nbsp;$c.AllMessages.elements['guse'].getName(content.lang)</a></li>				
+				<li><a href="/list/p" tabindex="-1">$:c.getHalfling('place')&nbsp;$c.getMessage('place',content.lang)</a></li>
+				<li><a href="/list/e" tabindex="-2">$:c.getHalfling('equipment')&nbsp;$c.getMessage('equipment',content.lang)</a></li>
+				<li><a href="/list/c" tabindex="-3">$:c.getHalfling('container')&nbsp;$c.getMessage('container',content.lang)</a></li>
+				<li><a href="/list/gu" tabindex="-4">$:c.getHalfling('guse')&nbsp;$c.getMessage('guse',content.lang)</a></li>				
 			    </ul>
 			</li>
 			<li class="dropdown" data-show-icon="true">
-			    <a href="#" class="dropdown-toggle" data-toggle="dropdown">$c.AllMessages.elements['data'].getName(content.lang)<b class="caret"></b></a>
+			    <a href="#" class="dropdown-toggle" data-toggle="dropdown">$c.getMessage('data',content.lang)<b class="caret"></b></a>
 			    <ul class="dropdown-menu">
-				<li><a href="/list/m" tabindex="-1"><span class="$c.AllHalflings.elements['measure'].getHalfling()"></span>&nbsp;$c.AllMessages.elements['measure'].getName(content.lang)</a></li>
-				<li><a href="/list/a" tabindex="-2"><span class="$c.AllHalflings.elements['alarm'].getHalfling()"></span>&nbsp;$c.AllMessages.elements['alarm'].getName(content.lang)</a></li>
-				<li><a href="/list/s" tabindex="-3"><span class="$c.AllHalflings.elements['sensor'].getHalfling()"></span>&nbsp;$c.AllMessages.elements['sensor'].getName(content.lang)</a></li>
-				<li><a href="/backup" tabindex="-4"><span class="$c.AllHalflings.elements['backup'].getHalfling()"></span>&nbsp;$c.AllMessages.elements['backup'].getName(content.lang)</a></li>
+				<li><a href="/list/m" tabindex="-1">$:c.getHalfling('measure')&nbsp;$c.getMessage('measure',content.lang)</a></li>
+				<li><a href="/list/a" tabindex="-2">$:c.getHalfling('alarm')&nbsp;$c.getMessage('alarm',content.lang)</a></li>
+				<li><a href="/list/s" tabindex="-3">$:c.getHalfling('sensor')&nbsp;$c.getMessage('sensor',content.lang)</a></li>
+				<li><a href="/backup" tabindex="-4">$:c.getHalfling('backup')&nbsp;$c.getMessage('backup',content.lang)</a></li>
 			    </ul>
 			</li>
 			<li class="dropdown" data-show-icon="true">
-			    <a href="#" class="dropdown-toggle" data-toggle="dropdown">$c.AllMessages.elements['checkpoint'].getName(content.lang)<b class="caret"></b></a>
+			    <a href="#" class="dropdown-toggle" data-toggle="dropdown">$c.getMessage('checkpoint',content.lang)<b class="caret"></b></a>
 			    <ul class="dropdown-menu">
-				<li><a href="/list/h" tabindex="-1" class="blue"><span class="$c.AllHalflings.elements['checkpoint'].getHalfling()"></span>&nbsp;$c.AllMessages.elements['checkpoint'].getName(content.lang)</a></li>
-				<li><a href="/list/dm" tabindex="-2" class="blue"><span class="$c.AllHalflings.elements['manualdatamodel'].getHalfling()"></span>&nbsp;$c.AllMessages.elements['manualdatamodel'].getName(content.lang)</a></li>
-				<li><a href="/list/tm" tabindex="-3" class="blue"><span class="$c.AllHalflings.elements['transfermodel'].getHalfling()"></span>&nbsp;$c.AllMessages.elements['transfermodel'].getName(content.lang)</a></li>
-				<li><a href="/list/vm" tabindex="-4"><span class="$c.AllHalflings.elements['pouringmodel'].getHalfling()"></span>&nbsp;$c.AllMessages.elements['pouringmodel'].getName(content.lang)</a></li>
+				<li><a href="/list/h" tabindex="-1" class="blue">$:c.getHalfling('checkpoint')&nbsp;$c.getMessage('checkpoint',content.lang)</a></li>
+				<li><a href="/list/dm" tabindex="-2" class="blue">$:c.getHalfling('manualdatamodel')&nbsp;$c.getMessage('manualdatamodel',content.lang)</a></li>
+				<li><a href="/list/tm" tabindex="-3" class="blue">$:c.getHalfling('transfermodel')&nbsp;$c.getMessage('transfermodel',content.lang)</a></li>
+				<li><a href="/list/vm" tabindex="-4">$:c.getHalfling('pouringmodel')&nbsp;$c.getMessage('pouringmodel',content.lang)</a></li>
 			    </ul>
 			</li>
 			<li class="dropdown" data-show-icon="true">
-			    <a href="#" class="dropdown-toggle" data-toggle="dropdown">$c.AllMessages.elements['production'].getName(content.lang)<b class="caret"></b></a>
+			    <a href="#" class="dropdown-toggle" data-toggle="dropdown">$c.getMessage('production',content.lang)<b class="caret"></b></a>
 			    <ul class="dropdown-menu">
-				<li><a href="/list/b" tabindex="-1"><span class="$c.AllHalflings.elements['batch'].getHalfling()"></span>&nbsp;$c.AllMessages.elements['batch'].getName(content.lang)</a></li>
-				<li><a href="/list/gr" tabindex="-2"><span class="$c.AllHalflings.elements['grecipe'].getHalfling()"></span>&nbsp;$c.AllMessages.elements['grecipe'].getName(content.lang)</a></li>
-				<li><a href="/create/d" tabindex="-3"><span class="$c.AllHalflings.elements['manualdata'].getHalfling()"></span>&nbsp;$c.AllMessages.elements['manualdata'].getName(content.lang)</a></li>
-				<li><a href="/create/t" tabindex="-4"><span class="$c.AllHalflings.elements['transfer'].getHalfling()"></span>&nbsp;$c.AllMessages.elements['transfer'].getName(content.lang)</a></li>
-				<li><a href="/create/v" tabindex="-5"><span class="$c.AllHalflings.elements['pouring'].getHalfling()"></span>&nbsp;$c.AllMessages.elements['pouring'].getName(content.lang)</a></li>
+				<li><a href="/list/b" tabindex="-1">$:c.getHalfling('batch')&nbsp;$c.getMessage('batch',content.lang)</a></li>
+				<li><a href="/list/gr" tabindex="-2">$:c.getHalfling('grecipe')&nbsp;$c.getMessage('grecipe',content.lang)</a></li>
+				<li><a href="/create/d" tabindex="-3">$:c.getHalfling('manualdata')&nbsp;$c.getMessage('manualdata',content.lang)</a></li>
+				<li><a href="/create/t" tabindex="-4">$:c.getHalfling('transfer')&nbsp;$c.getMessage('transfer',content.lang)</a></li>
+				<li><a href="/create/v" tabindex="-5">$:c.getHalfling('pouring')&nbsp;$c.getMessage('pouring',content.lang)</a></li>
 			    </ul>
 			</li>
 			<li class="dropdown" data-show-icon="true">
-			    <a href="#" class="dropdown-toggle" data-toggle="dropdown">$c.AllMessages.elements['people'].getName(content.lang)<b class="caret"></b></a>
+			    <a href="#" class="dropdown-toggle" data-toggle="dropdown">$c.getMessage('people',content.lang)<b class="caret"></b></a>
 			    <ul class="dropdown-menu">
-				<li><a href="/list/u" tabindex="-1"><span class="$c.AllHalflings.elements['user'].getHalfling()"></span>&nbsp;$c.AllMessages.elements['user'].getName(content.lang)</a></li>
-				<li><a href="/list/gf" tabindex="-2"><span class="$c.AllHalflings.elements['gfunction'].getHalfling()"></span>&nbsp;&nbsp;$c.AllMessages.elements['gfunction'].getName(content.lang)</a></li>
-				<li><a href="/updateELSA" tabindex="-3"><span class="$c.AllHalflings.elements['updateELSA'].getHalfling()"></span>&nbsp;&nbsp;$c.AllMessages.elements['updateELSA'].getName(content.lang)</a></li>
+				<li><a href="/list/u" tabindex="-1">$:c.getHalfling('user')&nbsp;$c.getMessage('user',content.lang)</a></li>
+				<li><a href="/list/gf" tabindex="-2">$:c.getHalfling('gfunction')&nbsp;&nbsp;$c.getMessage('gfunction',content.lang)</a></li>
+				<li><a href="/updateELSA" tabindex="-3">$:c.getHalfling('updateELSA')&nbsp;&nbsp;$c.getMessage('updateELSA',content.lang)</a></li>
 				$if self.tmp == 'connected':
-				    <li><a href="/disconnect" tabindex="-4"><span class="$c.AllHalflings.elements['disconnect'].getHalfling()"></span>&nbsp;$c.AllMessages.elements['disconnect'].getName(content.lang)</a></li>
+				    <li><a href="/disconnect" tabindex="-4">$:c.getHalfling('disconnect')&nbsp;$c.getMessage('disconnect',content.lang)</a></li>
 			    </ul>
 			</li>
 		    </ul>
 		    $if self.tmp == 'connected':
-			<button onclick="test()" type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#modal_barcode" aria-expanded="false" aria-controls="navbar" style="margin-top:5px;"><span class="$c.AllHalflings.elements['barcode'].getHalfling()"></span></button>
+			<button onclick="test()" type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#modal_barcode" aria-expanded="false" aria-controls="navbar" style="margin-top:5px;">$:c.getHalfling('barcode')</button>
 		</div><!--/.navbar-collapse -->
 	    </div>
 	</nav>
@@ -117,7 +118,7 @@ $if content.recursive == 'False' :
 			    css = ''
 			    if 'tm' in tmp or 'vm' in tmp or 'dm' in tmp:
 				css = 'blue'
-			/    <a href="$tmp" class="$(css)"><span class="$c.AllHalflings.elements[elem.split('=')[1]].getHalfling()"></span>&nbsp;$c.AllMessages.elements[elem.split('=')[1]].getName(content.lang)</a>
+			/    <a href="$tmp" class="$(css)">$:c.getHalfling(elem.split('=')[1])&nbsp;$c.getMessage(elem.split('=')[1],content.lang)</a>
 			
 	    </div>
 	    <div style="margin-top:25px;">
@@ -128,15 +129,13 @@ $if content.recursive == 'False' :
 	<footer style="margin-top:40px;">
 	    <div class="col-xs-11 text-center"><a href="http://www.akuino.net">AKUINO</a>, &copy;<small><a href="http://www.destin-informatique.com">DESTIN-Informatique</a>, <a href="http://www.glyphicons.com">GlyphIcons</a>, 2017</small></div>
 	</footer> 
-	</body>
-    </html>
     
     <div class="modal" id="modal_barcode">
 	<div class="modal-dialog">
 	    <div class="modal-content">
 		<div class="modal-header row ">
 		    <div class="col-xs-2" >
-			<strong><span class="$c.AllHalflings.elements['barcode'].getHalfling()"></span></strong>
+			<strong>$:c.getHalfling('barcode')</strong>
 		    </div>
 		    <h4 class="modal-title col-xs-6 "> Search by barcode</h4>
 		    <div class="col-xs-2" >
@@ -152,9 +151,9 @@ $if content.recursive == 'False' :
 		<div class="modal-body">
 		    <form action="/barcode/" onsubmit="myFunction()">
 			<div class="form-group row">
-			    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.AllMessages.elements['barcode'].getName(content.lang)</label>
+			    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.getMessage('barcode',content.lang)</label>
 			    <div class="col-sm-9">
-				<input name="barcode" type="text" class="form-control" id="inputBarcode" placeholder="$c.AllMessages.elements['barcode'].getName(content.lang)" required="true" onsubmit="myFunction()" autofocus>
+				<input name="barcode" type="text" class="form-control" id="inputBarcode" placeholder="$c.getMessage('barcode',content.lang)" required="true" onsubmit="myFunction()" autofocus>
 			    </div>
 			</div>
 			<button type= "submit" onclick="myFunction()" onsubmit="myFunction()" class="btn btn-primary btn-block" href ="/barcode/">Search</button>
@@ -174,5 +173,7 @@ $if content.recursive == 'False' :
 	    $$('#navbar').collapse('hide');
 	}
     </script>
+    </body>
+    </html>
 $else:
     $:content

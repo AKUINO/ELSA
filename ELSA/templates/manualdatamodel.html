@@ -2,7 +2,7 @@ $def with (id, mail, errormess, data, context='')
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
-
+$var title : $c.getMessage('manualdatamodel',self.lang)
 $if id == 'new':
     $var location: list/dm=manualdatamodel edit/dm_new=add
     $ rmq = ""
@@ -11,6 +11,7 @@ $else:
     $var location: list/dm=manualdatamodel edit/dm_$(id)=edit
     $ aDataModel = c.AllManualDataModels.elements[id]
     $ rmq = aDataModel.fields['remark']
+    $var title : $aDataModel.getName(self.lang)
 $if errormess != '':
     $if 'remark' in data :
 	$ rmq = data['remark']
@@ -22,7 +23,7 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputPosition" class="col-sm-3 col-form-label">$c.AllMessages.elements['checkpoint'].getName(self.lang)</label>
+	    <label for="inputPosition" class="col-sm-3 col-form-label">$c.getMessage('checkpoint',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "checkpoint" class="form-control" id="inputPosition">
 		    $for k in c.AllCheckPoints.elements.keys():
@@ -39,9 +40,9 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(self.lang)</label>
+	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.getMessage('acronym',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.AllMessages.elements['acronym'].getName(self.lang)"
+		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.getMessage('acronym',self.lang)"
 		$if errormess != '':
 		    $if 'acronym' in data :
 			value="$data['acronym']" 
@@ -54,7 +55,7 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="rankinput" class="col-sm-3 col-form-label">$c.AllMessages.elements['rank'].getName(self.lang)</label>
+	    <label for="rankinput" class="col-sm-3 col-form-label">$c.getMessage('rank',self.lang)</label>
 	    <div class="col-sm-9">
 		<input name="rank" type="number" class="form-control" 
 		$if errormess != '':
@@ -69,7 +70,7 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputName" class="col-sm-3 col-form-label">$c.AllMessages.elements['name'].getName(self.lang)</label>
+	    <label for="inputName" class="col-sm-3 col-form-label">$c.getMessage('name',self.lang)</label>
 	</div>
 	
 	$for k,v in c.AllLanguages.elements.items():
@@ -93,7 +94,7 @@ $if errormess != '':
 	    </div>
 	    
 	<div class="form-group row">
-	    <label for="inputPosition" class="col-sm-3 col-form-label">$c.AllMessages.elements['measure'].getName(self.lang)</label>
+	    <label for="inputPosition" class="col-sm-3 col-form-label">$c.getMessage('measure',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "measure" class="form-control" id="inputPosition">
 		    $for k in c.AllMeasures.elements.keys():
@@ -111,9 +112,9 @@ $if errormess != '':
             $ acolor = c.valueCategs[alarm].color
 	    <div  class="form-group row" style="border:5px solid #$(acolor);margin-bottom:10px;padding-top:5px">
 	    <div class="form-group row">
-		<label for="$(aname)Select" class="col-sm-3 col-form-label">$(c.AllMessages.elements[aname].getName(self.lang))</label>
+		<label for="$(aname)Select" class="col-sm-3 col-form-label">$(c.getMessage(aname].getName(self.lang))</label>
 		<div class="col-sm-9">
-		    <input name="$(aname)" type="text" class="form-control" id="$(aname)Select" placeholder="$(c.AllMessages.elements['alarm'].getName(self.lang))" 
+		    <input name="$(aname)" type="text" class="form-control" id="$(aname)Select" placeholder="$(c.getMessage('alarm',self.lang))" 
 			$if errormess != '' :
 			    $if 'alarm' in data:
 				value = data['alarm']
@@ -123,7 +124,7 @@ $if errormess != '':
 		</div>
 	    </div>
 	    <div class="form-group row" style="border-color:#$(acolor)">
-		<label for="a$(aname)Select" class="col-sm-3 col-form-label"> &nbsp; &nbsp; $c.AllMessages.elements['alarm'].getName(self.lang)</label>
+		<label for="a$(aname)Select" class="col-sm-3 col-form-label"> &nbsp; &nbsp; $c.getMessage('alarm',self.lang)</label>
 		<div class="col-sm-9">
 		    <select name = "a_$(aname)" class="form-control" id="a$(aname)Select">
 			<option value=''></option>
@@ -143,14 +144,14 @@ $if errormess != '':
             </div>
 	
 	<div class="form-group row">
-	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
+	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 	    <div class="col-sm-9">
-		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.AllMessages.elements['remark'].getName(self.lang)" >$(rmq)</textarea>
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.getMessage('remark',self.lang)" >$(rmq)</textarea>
 	    </div>
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputactive" class="col-sm-6 col-form-label">$c.AllMessages.elements['active'].getName(self.lang)</label>
+	    <label for="inputactive" class="col-sm-6 col-form-label">$c.getMessage('active',self.lang)</label>
 	    <span class="glyphicon glyphicon-remove-circle"> </span>
 	    $code:
 		cond = (id == 'new')
@@ -183,12 +184,12 @@ $if errormess != '':
 		    href="/item/dm_$(id)"
 		$else :
 		    href="/list/dm"
-		class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>
 	    <div class="col-sm-2">
-		<button type="submit" class="btn btn-primary btn-block">$c.AllMessages.elements['save'].getName(self.lang)</button>
+		<button type="submit" class="btn btn-primary btn-block">$c.getMessage('save',self.lang)</button>
 	    </div> 
 	    <div class="col-sm-3">
 	    </div>

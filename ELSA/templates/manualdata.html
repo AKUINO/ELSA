@@ -1,5 +1,7 @@
 $def with (id, mail, errormess, context='')
 $var recursive : False
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+$var title: $c.getMessage('new',self.lang) $c.getName(c.AllManualData,self.lang)
 $if id == 'new' and context == '':
     $code :
 	myID = 'new'
@@ -17,13 +19,11 @@ $else :
 	    elem = c.findAllFromType(data.fields['object_type']).elements[data.fields['object_id']]
 	    myID = 'update'
 	    rmq = data.fields['remark']
+    $var title: $c.getMessage('update',lang) $c.getName(c.AllManualData,self.lang)
 $if myID == 'update':
-    $var location: list/$(elem.get_type())=$(elem.get_name()) manualdata/$(elem.get_type())_$(elem.getID())=manualdata edit/m_$(data.getID())=edit
+    $var location: list/$(elem.get_type())=$(elem.get_class_acronym()) manualdata/$(elem.get_type())_$(elem.getID())=manualdata edit/m_$(data.getID())=edit
 $elif myID == 'component':
-    $var location: list/$(id.split('_')[-0])=$(elem.get_name()) manualdata/$(id.split('_')[0])_$(elem.getID())=manualdata transfers/$(id.split('_')[0])_$(elem.getID())/new=add
-
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
-
+    $var location: list/$(id.split('_')[-0])=$(elem.get_class_acronym()) manualdata/$(id.split('_')[0])_$(elem.getID())=manualdata transfers/$(id.split('_')[0])_$(elem.getID())/new=add
 
 <div class="container">
     <form  method="post" action="" id="modifyManualData"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
@@ -32,9 +32,9 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputTime" class="col-sm-3 col-form-label">$c.AllMessages.elements['time'].getName(self.lang)</label>
+	    <label for="inputTime" class="col-sm-3 col-form-label">$c.getMessage('time',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="time" type="text" class="form-control" id="inputTime" placeholder="$c.AllMessages.elements['time'].getName(self.lang)" 
+		<input name="time" type="text" class="form-control" id="inputTime" placeholder="$c.getMessage('time',self.lang)" 
 		$if myID == 'update':
 		    value="$data.fields['time']"
 		$else :
@@ -44,11 +44,11 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	</div>
 	
 	<div class="form-group row">
-	    <label for="itemSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['component'].getName(self.lang)</label>
+	    <label for="itemSelect" class="col-sm-3 col-form-label">$c.getMessage('component',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "component" class="form-control" id="langSelect">
 		    $if myID == 'new':
-			<optgroup label="$c.AllMessages.elements['place'].getName(self.lang)">
+			<optgroup label="$c.getMessage('place',self.lang)">
 			    $for k in c.AllPieces.elements.keys():
 				<option value="p_$k"
 				    $if myID == 'component':
@@ -56,7 +56,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 					    selected
 				>$c.AllPieces.elements[k].fields['acronym'] - $c.AllPieces.elements[k].getName(self.lang) </option>
 			    </optgroup>
-			    <optgroup label="$c.AllMessages.elements['equipment'].getName(self.lang)">
+			    <optgroup label="$c.getMessage('equipment',self.lang)">
 			    $for k in c.AllEquipments.elements.keys():
 				<option value="e_$k"
 				    $if myID == 'component':
@@ -64,7 +64,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 					    selected			
 				>$c.AllEquipments.elements[k].fields['acronym'] - $c.AllEquipments.elements[k].getName(self.lang)</option>
 			    </optgroup>
-			    <optgroup label="$c.AllMessages.elements['container'].getName(self.lang)">
+			    <optgroup label="$c.getMessage('container',self.lang)">
 			    $for k in c.AllContainers.elements.keys():
 				<option value="c_$k"
 				    $if myID == 'component':
@@ -72,7 +72,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 					    selected
 				>$c.AllContainers.elements[k].fields['acronym'] - $c.AllContainers.elements[k].getName(self.lang)</option>
 			    </optgroup>
-			    <optgroup label="$c.AllMessages.elements['batch'].getName(self.lang)">
+			    <optgroup label="$c.getMessage('batch',self.lang)">
 			    $for k in c.AllBatches.elements.keys():
 				<option value="b_$k"
 				    $if myID == 'component':
@@ -87,7 +87,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	</div>
 	
 	<div class="form-group row">
-	    <label for="measureSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['measure'].getName(self.lang)</label>
+	    <label for="measureSelect" class="col-sm-3 col-form-label">$c.getMessage('measure',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "measure" class="form-control" id="measureSelect">
 		    <option value="None"></option>
@@ -102,9 +102,9 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputValue" class="col-sm-3 col-form-label">$c.AllMessages.elements['value'].getName(self.lang)</label>
+	    <label for="inputValue" class="col-sm-3 col-form-label">$c.getMessage('value',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="value" type="text" class="form-control" id="inputValue" placeholder="$c.AllMessages.elements['value'].getName(self.lang)" 
+		<input name="value" type="text" class="form-control" id="inputValue" placeholder="$c.getMessage('value',self.lang)" 
 		$if myID == 'update':
 		    value="$data.fields['value']"
 		>
@@ -112,7 +112,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	</div>
 	
 	<div class="form-group row">
-	    <label for="alarmSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['alarm'].getName(self.lang)</label>
+	    <label for="alarmSelect" class="col-sm-3 col-form-label">$c.getMessage('alarm',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "a_id" class="form-control" id="alarmSelect">
 		    <option value=""></option>
@@ -123,14 +123,14 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
+	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 	    <div class="col-sm-9">
-		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.AllMessages.elements['remark'].getName(self.lang)" >$rmq</textarea>
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.getMessage('remark',self.lang)" >$rmq</textarea>
 	    </div>
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputactive" class="col-sm-6 col-form-label">$c.AllMessages.elements['active'].getName(self.lang)</label>
+	    <label for="inputactive" class="col-sm-6 col-form-label">$c.getMessage('active',self.lang)</label>
 	    <span class="glyphicon glyphicon-remove-circle"> </span>
 		<label class="switch">
 		    <input id='inputactive' name="active" type="checkbox" value="1" checked>
@@ -148,7 +148,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 		    href="/item/$(elem.get_type())_$(elem.getID())"
 		$else :
 		    href="/index"
-		class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>

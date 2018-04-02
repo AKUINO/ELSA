@@ -1,8 +1,7 @@
 $def with (id, mail, errormess, data)
-
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
-
+$var title : $c.AllSensors.getName(self.lang)
 $if id == 'new':
     $var location: all/s=sensor edit/s_new=add
     $ rmq = ""
@@ -11,6 +10,7 @@ $else:
     $var location: all/s=sensor edit/s_$(id)=edit
     $ aSensor = c.AllSensors.elements[id]
     $ rmq =  aSensor.fields['remark']
+    $var title : $aSensor.getName(self.lang)
 $if errormess != '':
     $if 'remark' in data :
 	$ rmq = data['remark']
@@ -22,9 +22,9 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    $errormess
 	</div>
 	<div class="form-group row">
-	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(self.lang)</label>
+	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.getMessage('acronym',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.AllMessages.elements['acronym'].getName(self.lang)" 
+		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.getMessage('acronym',self.lang)" 
 		$if errormess != '':
 		    $if 'acronym' in data :
 			value="$data['acronym']" 
@@ -35,7 +35,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputName" class="col-sm-3 col-form-label">$c.AllMessages.elements['name'].getName(self.lang)</label>
+	    <label for="inputName" class="col-sm-3 col-form-label">$c.getMessage('name',self.lang)</label>
 	</div>
 	
 	$for k,v in c.AllLanguages.elements.items():
@@ -59,10 +59,10 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    </div>
 	
 	<div class="form-group row">
-	    <label for="langSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['component'].getName(self.lang)</label>
+	    <label for="langSelect" class="col-sm-3 col-form-label">$c.getMessage('component',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "component" class="form-control" id="langSelect">
-		    <optgroup label="$c.AllMessages.elements['place'].getName(self.lang)">
+		    <optgroup label="$c.getMessage('place',self.lang)">
 		    $for k in c.AllPieces.elements.keys():
 			<option value="p_$k"
 			    $if errormess != '' :
@@ -73,7 +73,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 				$if k == aSensor.fields['p_id'] :
 				    selected
 			>$c.AllPieces.elements[k].fields['acronym'] - $c.AllPieces.elements[k].getName(self.lang) </option>
-		    <optgroup label="$c.AllMessages.elements['equipment'].getName(self.lang)">
+		    <optgroup label="$c.getMessage('equipment',self.lang)">
 		    $for k in c.AllEquipments.elements.keys():
 			<option value="e_$k"
 			    $if errormess != '' :
@@ -84,7 +84,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 				$if k == aSensor.fields['e_id'] :
 				    selected			
 			>$c.AllEquipments.elements[k].fields['acronym'] - $c.AllEquipments.elements[k].getName(self.lang)</option>
-		    <optgroup label="$c.AllMessages.elements['container'].getName(self.lang)">
+		    <optgroup label="$c.getMessage('container',self.lang)">
 		    $for k in c.AllContainers.elements.keys():
 			<option value="c_$k"
 			    $if errormess != '' :
@@ -100,7 +100,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	</div>
 	
 	<div class="form-group row">
-	    <label for="measureSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['measure'].getName(self.lang)</label>
+	    <label for="measureSelect" class="col-sm-3 col-form-label">$c.getMessage('measure',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "measure" class="form-control" id="measureSelect">
 		    $for k in c.AllMeasures.elements.keys():
@@ -122,9 +122,9 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
             $ acolor = c.valueCategs[alarm].color
 	    <div  class="form-group row" style="border:5px solid #$(acolor);margin-bottom:10px;padding-top:5px">
 	    <div class="form-group row">
-		<label for="$(aname)Select" class="col-sm-3 col-form-label">$(c.AllMessages.elements[aname].getName(self.lang))</label>
+		<label for="$(aname)Select" class="col-sm-3 col-form-label">$(c.getMessage(aname].getName(self.lang))</label>
 		<div class="col-sm-9">
-		    <input name="$(aname)" type="text" class="form-control" id="$(aname)Select" placeholder="$(c.AllMessages.elements['alarm'].getName(self.lang))" 
+		    <input name="$(aname)" type="text" class="form-control" id="$(aname)Select" placeholder="$(c.getMessage('alarm',self.lang))" 
 			$if errormess != '' :
 			    $if 'alarm' in data:
 				value = data['alarm']
@@ -134,7 +134,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 		</div>
 	    </div>
 	    <div class="form-group row" style="border-color:#$(acolor)">
-		<label for="a$(aname)Select" class="col-sm-3 col-form-label"> &nbsp; &nbsp; $c.AllMessages.elements['alarm'].getName(self.lang)</label>
+		<label for="a$(aname)Select" class="col-sm-3 col-form-label"> &nbsp; &nbsp; $c.getMessage('alarm',self.lang)</label>
 		<div class="col-sm-9">
 		    <select name = "a_$(aname)" class="form-control" id="a$(aname)Select">
 			<option value=''></option>
@@ -153,9 +153,9 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    </div>
             </div>
 	<div class="form-group row">
-	    <label for="inputLapse1" class="col-sm-3 col-form-label">$c.AllMessages.elements['lapse'].getName(self.lang) 1 (")</label>
+	    <label for="inputLapse1" class="col-sm-3 col-form-label">$c.getMessage('lapse',self.lang) 1 (")</label>
 	    <div class="col-sm-9">
-		<input name="lapse1" type="text" class="form-control" id="inputLapse1" placeholder="$c.AllMessages.elements['lapse'].getName(self.lang)" 
+		<input name="lapse1" type="text" class="form-control" id="inputLapse1" placeholder="$c.getMessage('lapse',self.lang)" 
 		$if errormess != '':
 		    $if 'lapse1' in data :
 			value="$data['lapse1']"
@@ -165,9 +165,9 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    </div>
 	</div>
 	<div class="form-group row">
-	    <label for="inputLapse2" class="col-sm-3 col-form-label">$c.AllMessages.elements['lapse'].getName(self.lang) 2 (")</label>
+	    <label for="inputLapse2" class="col-sm-3 col-form-label">$c.getMessage('lapse',self.lang) 2 (")</label>
 	    <div class="col-sm-9">
-		<input name="lapse2" type="text" class="form-control" id="inputLapse2" placeholder="$c.AllMessages.elements['lapse'].getName(self.lang)" 
+		<input name="lapse2" type="text" class="form-control" id="inputLapse2" placeholder="$c.getMessage('lapse',self.lang)" 
 		$if errormess != '':
 		    $if 'lapse2' in data :
 			value="$data['lapse2']"
@@ -177,9 +177,9 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    </div>
 	</div>
 	<div class="form-group row">
-	    <label for="inputLapse3" class="col-sm-3 col-form-label">$c.AllMessages.elements['lapse'].getName(self.lang) 3 (")</label>
+	    <label for="inputLapse3" class="col-sm-3 col-form-label">$c.getMessage('lapse',self.lang) 3 (")</label>
 	    <div class="col-sm-9">
-		<input name="lapse3" type="text" class="form-control" id="inputLapse3" placeholder="$c.AllMessages.elements['lapse'].getName(self.lang)" 
+		<input name="lapse3" type="text" class="form-control" id="inputLapse3" placeholder="$c.getMessage('lapse',self.lang)" 
 		$if errormess != '':
 		    $if 'lapse3' in data :
 			value="$data['lapse3']"
@@ -190,7 +190,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	</div>
 	
 	<div class="form-group row">
-	    <label for="channelSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['channel'].getName(self.lang)</label>
+	    <label for="channelSelect" class="col-sm-3 col-form-label">$c.getMessage('channel',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "channel" class="form-control" id="channelSelect">
 		    $code:
@@ -210,9 +210,9 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	</div>
 
 	<div class="form-group row">
-	    <label for="inputSensor" class="col-sm-3 col-form-label">$c.AllMessages.elements['sensor'].getName(self.lang)</label>
+	    <label for="inputSensor" class="col-sm-3 col-form-label">$c.getMessage('sensor',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="sensor" type="text" class="form-control" id="inputSensor" placeholder="$c.AllMessages.elements['sensor'].getName(self.lang)" 
+		<input name="sensor" type="text" class="form-control" id="inputSensor" placeholder="$c.getMessage('sensor',self.lang)" 
 		$if errormess != '':
 		    $if 'sensor' in data :
 			value="$data['sensor']"
@@ -223,9 +223,9 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputSubsensor" class="col-sm-3 col-form-label">$c.AllMessages.elements['subsensor'].getName(self.lang)</label>
+	    <label for="inputSubsensor" class="col-sm-3 col-form-label">$c.getMessage('subsensor',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="subsensor" type="text" class="form-control" id="inputUnit" placeholder="$c.AllMessages.elements['subsensor'].getName(self.lang)" 
+		<input name="subsensor" type="text" class="form-control" id="inputUnit" placeholder="$c.getMessage('subsensor',self.lang)" 
 		$if errormess != '':
 		    $if 'subsensor' in data :
 			value="$data['subsensor']"
@@ -236,7 +236,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputValuetype" class="col-sm-3 col-form-label">$c.AllMessages.elements['valuetype'].getName(self.lang)</label>
+	    <label for="inputValuetype" class="col-sm-3 col-form-label">$c.getMessage('valuetype',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "valuetype" class="form-control" id="channelSelect">
 		    $code:
@@ -256,9 +256,9 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputFormula" class="col-sm-3 col-form-label">$c.AllMessages.elements['formula'].getName(self.lang)</label>
+	    <label for="inputFormula" class="col-sm-3 col-form-label">$c.getMessage('formula',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="formula" type="text" class="form-control" id="inputFormula" placeholder="$c.AllMessages.elements['formula'].getName(self.lang)" 
+		<input name="formula" type="text" class="form-control" id="inputFormula" placeholder="$c.getMessage('formula',self.lang)" 
 		$if errormess != '':
 		    $if 'formula' in data :
 			value="$data['formula']"
@@ -283,9 +283,9 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    </div>
 	
 	<div class="form-group row">
-	    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.AllMessages.elements['code'].getName(self.lang)</label>
+	    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.getMessage('code',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.AllMessages.elements['code'].getName(self.lang)" 
+		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.getMessage('code',self.lang)" 
 		$if errormess != '':
 		    $if 'code' in data :
 			value="$data['code']"
@@ -296,14 +296,14 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
+	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 	    <div class="col-sm-9">
 		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >$(rmq)</textarea>
 	    </div>
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputactive" class="col-sm-6 col-form-label">$c.AllMessages.elements['active'].getName(self.lang)</label>
+	    <label for="inputactive" class="col-sm-6 col-form-label">$c.getMessage('active',self.lang)</label>
 	    <span class="glyphicon glyphicon-remove-circle"> </span>
 	    $code:
 		cond = (id == 'new')
@@ -337,7 +337,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 		    href="/item/s_$(id)"
 		$else :
 		    href="/list/s"
-		class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>

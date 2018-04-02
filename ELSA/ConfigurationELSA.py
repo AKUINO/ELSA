@@ -310,6 +310,18 @@ class Configuration():
         obj = self.findAllFromObject(anObject)
         return obj.keyColumn
 
+    def getMessage(self,message_acronym,lang):
+        return self.AllMessages.elements[message_acronym].getName(lang)
+
+    def getName(self, allObjects,lang):
+        return self.getMessage(allObjects.get_class_acronym(),lang)
+
+    def getHalfling(self, acronym, supp_classes=""):
+        return self.AllHalflings.getHalfling(acronym, supp_classes)
+
+    def getAllHalfling(self, allObjects, supp_classes=""):
+        return self.AllHalflings.getHalfling(allObjects.get_class_acronym(), supp_classes)
+
     def findAllFromType(self, aType):
         return self.findAllFromName(aType)
 
@@ -428,7 +440,6 @@ class ConfigurationObject(object):
             self.names[key] = newName
 
     def getName(self, lang):
-        lang = lang.upper()
         if lang == 'disconnected':
             lang = 'EN'
         if lang in self.names:
@@ -472,33 +483,27 @@ class ConfigurationObject(object):
     def validate_form(self, data, configuration, lang):
         tmp = ''
         if 'acronym' not in data:
-            tmp = configuration.AllMessages.elements['acronymrequired'].getName(
-                lang) + '\n'
+            tmp = configuration.getMessage('acronymrequired',lang) + '\n'
         try:
             cond = data['acronym'] == re.sub('[^\w]+', '', data['acronym'])
             if not cond:
-                tmp += configuration.AllMessages.elements['acronymrules'].getName(
-                    lang) + '\n'
+                tmp += configuration.getMessage('acronymrules',lang) + '\n'
         except:
-            tmp += configuration.AllMessages.elements['acronymrules'].getName(
-                lang) + '\n'
+            tmp += configuration.getMessage('acronymrules',lang) + '\n'
 
         allObjects = configuration.findAllFromObject(self)
         cond = allObjects.unique_acronym(data['acronym'], self.id)
         if not cond:
-            tmp += configuration.AllMessages.elements['acronymunique'].getName(
-                lang) + '\n'
+            tmp += configuration.getMessage('acronymunique',lang) + '\n'
         try:
             if 'code' in data and len(data['code']) > 0:
                 code = int(data['code'])
                 cond = configuration.AllBarcodes.validate_barcode(
                     code, self.id, self.get_type())
                 if cond == False:
-                    tmp += configuration.AllMessages.elements['barcoderules'].getName(
-                        lang) + '\n'
+                    tmp += configuration.getMessage('barcoderules',lang) + '\n'
         except:
-            tmp += configuration.AllMessages.elements['barcoderules'].getName(
-                lang) + '\n'
+            tmp += configuration.getMessage('barcoderules',lang) + '\n'
         if tmp == '':
             return True
         return tmp
@@ -628,7 +633,7 @@ class ConfigurationObject(object):
         return False
 
     def get_name_listing(self):
-        return 'index'
+        return self.get_class_acronym()+'s'
 
     def get_acronym(self):
         return self.fields['acronym']
@@ -673,16 +678,14 @@ class UpdateThread(threading.Thread):
         self.config = config
 
     def run(self):
+        time.sleep(60)
         self.config.owproxy = pyownet.protocol.proxy(
             host="localhost", port=4304)
         while self.config.isThreading is True:
-            timer = 0
             now = useful.get_timestamp()
             if not len(self.config.AllSensors.elements) == 0:
                 self.config.AllSensors.update(now)
-            while self.config.isThreading is True and timer < 60:
-                time.sleep(1)
-                timer = timer + 1
+            time.sleep(60)
 
 
 class RadioThread(threading.Thread):
@@ -943,8 +946,11 @@ class AllObjects(object):
     def delete(self, anID):
         del self.elements[unicode(anID)]
     
-    def get_name_object(self):
+    def get_class_acronym(self):
         return 'component'
+
+    def getName(self,lang):
+        return self.config.getName(self,lang)
 
     def get_sorted(self):
         return collections.OrderedDict(sorted(self.elements.items(), key=lambda t: t[1].fields['acronym'])).keys()
@@ -954,13 +960,12 @@ class AllObjects(object):
             if element.fields['acronym'] == acronym:
                 return element
         return None
-    
+
     def findBarcode(self, barcode):
         try:
             elem = config.AllBarcodes.barcode_to_item(barcode)
         except:
             return None
-
 
 class AllUsers(AllObjects):
 
@@ -983,7 +988,7 @@ class AllUsers(AllObjects):
             if user.fields['mail'] == mail:
                 return user
 
-    def get_name_object(self):
+    def get_class_acronym(self):
         return 'user'
 
     def get_key_group(self):
@@ -1001,7 +1006,7 @@ class AllEquipments(AllObjects):
     def newObject(self):
         return Equipment(self.config)
 
-    def get_name_object(self):
+    def get_class_acronym(self):
         return 'equipment'
 
     def get_key_group(self):
@@ -1019,7 +1024,7 @@ class AllContainers(AllObjects):
     def newObject(self):
         return Container(self.config)
 
-    def get_name_object(self):
+    def get_class_acronym(self):
         return 'container'
 
     def get_key_group(self):
@@ -1037,7 +1042,7 @@ class AllPieces(AllObjects):
     def newObject(self):
         return Piece(self.config)
 
-    def get_name_object(self):
+    def get_class_acronym(self):
         return 'place'
 
     def get_key_group(self):
@@ -1067,6 +1072,8 @@ class AllAlarmLogs(AllObjects):
                     logs.append(e)
         return logs
 
+    def get_class_acronym(self):
+        return 'alarmlog'
 
 class AllHalflings(AllObjects):
 
@@ -1087,6 +1094,11 @@ class AllHalflings(AllObjects):
             tmp = tmp + k + '/' + v.fields['glyphname'] + ' '
         return tmp[0:-1]
 
+    def get_class_acronym(self):
+        return 'halfling'
+
+    def getHalfling(self,acronym, supp_classes = ""):
+        return self.elements[acronym].getHalfling(supp_classes)
 
 class AllAlarms(AllObjects):
 
@@ -1099,9 +1111,8 @@ class AllAlarms(AllObjects):
     def newObject(self):
         return Alarm()
 
-    def get_name_object(self):
+    def get_class_acronym(self):
         return 'alarm'
-
 
 class AllManualData(AllObjects):
 
@@ -1115,7 +1126,7 @@ class AllManualData(AllObjects):
     def newObject(self):
         return ManualData()
 
-    def get_name_object(self):
+    def get_class_acronym(self):
         return 'manualdata'
 
 
@@ -1131,8 +1142,8 @@ class AllPourings(AllObjects):
     def newObject(self):
         return Pouring()
 
-    def get_name_object(self):
-        return 'v'
+    def get_class_acronym(self):
+        return 'pouring'
 
 
 class AllGroups(AllObjects):
@@ -1207,6 +1218,9 @@ class AllGroups(AllObjects):
             if g.fields['acronym'] == GROUPWEBUSERS:
                 return k
 
+    def get_class_acronym(self):
+        return 'group'
+
 
 class AllGrUsage(AllGroups):
     def __init__(self, config):
@@ -1219,7 +1233,7 @@ class AllGrUsage(AllGroups):
     def newObject(self):
         return GrUsage(self.config)
 
-    def get_name_object(self):
+    def get_class_acronym(self):
         return 'guse'
 
     def get_key_group(self):
@@ -1237,7 +1251,7 @@ class AllGrRecipe(AllGroups):
     def newObject(self):
         return GrRecipe(self.config)
 
-    def get_name_object(self):
+    def get_class_acronym(self):
         return 'grecipe'
 
     def get_key_group(self):
@@ -1258,7 +1272,7 @@ class AllCheckPoints(AllGroups):
     def newObject(self):
         return CheckPoint(self.config)
 
-    def get_name_object(self):
+    def get_class_acronym(self):
         return 'checkpoint'
 
     def get_key_group(self):
@@ -1330,7 +1344,7 @@ class AllGrFunction(AllGroups):
     def newObject(self):
         return GrFunction(self.config)
 
-    def get_name_object(self):
+    def get_class_acronym(self):
         return 'gfunction'
 
     def get_key_group(self):
@@ -1348,7 +1362,7 @@ class AllMeasures(AllObjects):
     def newObject(self):
         return Measure()
 
-    def get_name_object(self):
+    def get_class_acronym(self):
         return 'measure'
 
 
@@ -1363,7 +1377,7 @@ class AllSensors(AllObjects):
     def newObject(self):
         return Sensor()
 
-    def get_name_object(self):
+    def get_class_acronym(self):
         return 'sensor'
 
     def getColor(self, ids):
@@ -1420,7 +1434,7 @@ class AllBatches(AllObjects):
     def newObject(self):
         return Batch(self.config)
 
-    def get_name_object(self):
+    def get_class_acronym(self):
         return 'batch'
 
     def get_key_group(self):
@@ -1439,7 +1453,7 @@ class AllTransfers(AllObjects):
     def newObject(self):
         return Transfer(self.config)
 
-    def get_name_object(self):
+    def get_class_acronym(self):
         return 'transfer'
 
 
@@ -1454,7 +1468,7 @@ class AllTransferModels(AllObjects):
     def newObject(self):
         return TransferModel(self.config)
 
-    def get_name_object(self):
+    def get_class_acronym(self):
         return 'transfermodel'
 
     def get_key_group(self):
@@ -1472,7 +1486,7 @@ class AllPouringModels(AllObjects):
     def newObject(self):
         return PouringModel(self.config)
 
-    def get_name_object(self):
+    def get_class_acronym(self):
         return 'pouringmodel'
 
     def get_key_group(self):
@@ -1490,7 +1504,7 @@ class AllManualDataModels(AllObjects):
     def newObject(self):
         return ManualDataModel(self.config)
 
-    def get_name_object(self):
+    def get_class_acronym(self):
         return 'manualdatamodel'
 
     def get_key_group(self):
@@ -1605,6 +1619,9 @@ class AllBarcodes(AllObjects):
             if barcode.fields['code'] == code:
                 return self.config.findAllFromType(barcode.fields['type']).elements[barcode.fields['idobject']]
 
+    def get_class_acronym(self):
+        return 'barcode'
+
 
 class ConnectedUser():
 
@@ -1671,6 +1688,9 @@ class AllLanguages(AllObjects):
     def __getitem__(self, key):
         return self.elements[key]
 
+    def get_class_acronym(self):
+        return 'language'
+
 
 class AllMessages(AllObjects):
 
@@ -1687,6 +1707,9 @@ class AllMessages(AllObjects):
 
     def __getitem__(self, key):
         return self.elements[key]
+
+    def get_class_acronym(self):
+        return 'message'
 
 
 class Language(ConfigurationObject):
@@ -1747,10 +1770,7 @@ class User(ConfigurationObject):
     def get_type(self):
         return 'u'
 
-    def get_name_listing(self):
-        return 'users'
-
-    def get_name(self):
+    def get_class_acronym(self):
         return 'user'
 
     def validate_form(self, data, configuration, lang):
@@ -1760,8 +1780,7 @@ class User(ConfigurationObject):
         if tmp is True:
             tmp = ''
         if data['password'] == '' or len(data['password']) < 8:
-            tmp += configuration.AllMessages.elements['passwordrules'].getName(
-                lang) + '\n'
+            tmp += configuration.getMessage('passwordrules',lang) + '\n'
 
         if tmp == '':
             return True
@@ -1804,10 +1823,7 @@ class Equipment(ConfigurationObject):
     def getID(self):
         return self.fields['e_id']
 
-    def get_name_listing(self):
-        return 'equipments'
-
-    def get_name(self):
+    def get_class_acronym(self):
         return 'equipment'
 
     def get_sensors_in_component(self, config):
@@ -1849,10 +1865,7 @@ class Container(ConfigurationObject):
     def get_type(self):
         return 'c'
 
-    def get_name_listing(self):
-        return 'containers'
-
-    def get_name(self):
+    def get_class_acronym(self):
         return 'container'
 
     def get_sensors_in_component(self, config):
@@ -1894,8 +1907,8 @@ class ManualData(ConfigurationObject):
     def get_type(self):
         return 'd'
 
-    def get_name_listing(self):
-        return 'manualdata'
+    def get_class_acronym(self):
+        return 'observation'
 
     def add_component(self, component):
         type = component.split('_')[0]
@@ -1915,28 +1928,23 @@ class ManualData(ConfigurationObject):
             value = useful.transform_date(data['time'])
         except:
             traceback.print_exc()
-            tmp += configuration.AllMessages.elements['timerules'].getName(
-                lang) + '\n'
+            tmp += configuration.getMessage('timerules',lang) + '\n'
 
         if 'value' in data and data['measure'] == u'None':
             if not data['value'] == '':
-                tmp += configuration.AllMessages.elements['datarules'].getName(
-                    lang) + '\n'
+                tmp += configuration.getMessage('datarules',lang) + '\n'
         elif 'value' in data:
             try:
                 value = float(data['value'])
             except:
-                tmp += configuration.AllMessages.elements['floatrules'].getName(
-                    lang) + ' '+data['value']+'\n'
+                tmp += configuration.getMessage('floatrules',lang) + ' '+data['value']+'\n'
         try:
             aType = data['component'].split('_')[0]
             anId = data['component'].split('_')[1]
             if not configuration.is_component(aType):
-                tmp += configuration.AllMessages.elements['componentrules'].getName(
-                    lang) + ' '+data['component']+'\n'
+                tmp += configuration.getMessage('componentrules',lang) + ' '+data['component']+'\n'
         except:
-            tmp += configuration.AllMessages.elements['componentrules'].getName(
-                lang) + '\n'
+            tmp += configuration.getMessage('componentrules',lang) + '\n'
 
         if tmp == '':
             return True
@@ -1967,7 +1975,7 @@ class ManualData(ConfigurationObject):
                 self.fields['object_type']).elements[self.fields['object_id']].remove_data(self)
         self.save(c, user)
 
-    def get_name(self):
+    def get_class_acronym(self):
         return 'manualdata'
 
 
@@ -1989,9 +1997,6 @@ class Pouring(ConfigurationObject):
     def get_type(self):
         return 'v'
 
-    def get_name_listing(self):
-        return 'pouring'
-
     def add_measure(self, measure):
         tmp = measure.split('_')
         self.fields['m_id'] = tmp[-1]
@@ -2001,32 +2006,25 @@ class Pouring(ConfigurationObject):
         try:
             value = useful.transform_date(data['time'])
         except:
-            tmp += configuration.AllMessages.elements['timerules'].getName(
-                lang) + '\n'
+            tmp += configuration.getMessage('timerules',lang) + '\n'
         try:
             value = float(data['quantity'])
         except:
-            tmp += configuration.AllMessages.elements['floatrules'].getName(
-                lang) + '\n'
+            tmp += configuration.getMessage('floatrules',lang) + '\n'
         try:
             b_id = data['src']
             if not b_id in configuration.AllBatches.elements.keys():
-                tmp += configuration.AllMessages.elements['batchrules1'].getName(
-                    lang) + '\n'
+                tmp += configuration.getMessage('batchrules1',lang) + '\n'
         except:
-            tmp += configuration.AllMessages.elements['batchrules1'].getName(
-                lang) + '\n'
+            tmp += configuration.getMessage('batchrules1',lang) + '\n'
         try:
             b_id = data['dest']
             if not b_id in configuration.AllBatches.elements.keys():
-                tmp += configuration.AllMessages.elements['batchrules2'].getName(
-                    lang) + '\n'
+                tmp += configuration.getMessage('batchrules2',lang) + '\n'
         except:
-            tmp += configuration.AllMessages.elements['batchrules2'].getName(
-                lang) + '\n'
+            tmp += configuration.getMessage('batchrules2',lang) + '\n'
         if data['src'] == data['dest']:
-            tmp += configuration.AllMessages.elements['batchrules3'].getName(
-                lang) + '\n'
+            tmp += configuration.getMessage('batchrules3',lang) + '\n'
 
         if tmp == '':
             return True
@@ -2056,7 +2054,7 @@ class Pouring(ConfigurationObject):
             c.AllBatches.elements[data['dest']].remove_destination(self)
         self.save(c, user)
 
-    def get_name(self):
+    def get_class_acronym(self):
         return 'pouring'
 
 
@@ -2093,8 +2091,8 @@ class Group(ConfigurationObject):
                     return True
         return False
 
-    def get_name_listing(self):
-        return 'groups'
+    def get_class_acronym(self):
+        return 'group'
 
     def validate_form(self, data, configuration, lang):
         tmp = super(Group, self).validate_form(data, configuration, lang)
@@ -2103,8 +2101,7 @@ class Group(ConfigurationObject):
         for k, v in configuration.findAllFromObject(self).elements.items():
             if k in data:
                 if self.getID() in v.parents or self.getID() in v.siblings:
-                    tmp += configuration.AllMessages.elements['grouprules'].getName(
-                        lang) + '\n'
+                    tmp += configuration.getMessage('grouprules',lang) + '\n'
                     return tmp
         if tmp == '':
             return True
@@ -2217,7 +2214,7 @@ class GrUsage(Group):
     def get_type(self):
         return 'gu'
 
-    def get_name(self):
+    def get_class_acronym(self):
         return 'guse'
 
     def validate_form(self, data, configuration, lang):
@@ -2242,7 +2239,7 @@ class CheckPoint(Group):
     def get_type(self):
         return 'h'
 
-    def get_name(self):
+    def get_class_acronym(self):
         return 'checkpoint'
 
     def validate_form(self, data, configuration, lang):
@@ -2349,23 +2346,22 @@ class CheckPoint(Group):
             value = useful.transform_date(data['time'])
         except:
             traceback.print_exc()
-            tmp += self.config.AllMessages.elements['timerules'].getName(
-                lang) + '\n'
+            tmp += self.config.getMessage('timerules',lang) + '\n'
         for m in model:
             type = m.get_type()
             if type == 'dm':
                 try:
                     value = float(data['dm_value_'+str(countdm)])
                 except:
-                    tmp += self.config.AllMessages.elements['floatrules'].getName(
-                        lang) + ' '+data['dm_value_'+str(countdm)]+'\n'
+                    tmp += self.config.getMessage('floatrules',lang) \
+                            + ' '+data['dm_value_'+str(countdm)]+'\n'
                 countdm += 1
             elif type == 'vm':
                 try:
                     value = float(data['vm_quantity_'+str(countvm)])
                 except:
-                    tmp += self.config.AllMessages.elements['floatrules'].getName(
-                        lang) + ' '+data['vm_quantity_'+str(countvm)]+'\n'
+                    tmp += self.config.getMessage('floatrules',lang) \
+                           + ' '+data['vm_quantity_'+str(countvm)]+'\n'
                 countvm += 1
         if tmp == '':
             return True
@@ -2473,7 +2469,7 @@ class GrRecipe(Group):
     def get_type(self):
         return 'gr'
 
-    def get_name(self):
+    def get_class_acronym(self):
         return 'grecipe'
 
     def validate_form(self, data, configuration, lang):
@@ -2502,7 +2498,7 @@ class GrFunction(Group):
                 listusers.append(k)
         return listusers
 
-    def get_name(self):
+    def get_class_acronym(self):
         return 'gfunction'
 
     def validate_form(self, data, configuration, lang):
@@ -2534,10 +2530,7 @@ class Piece(ConfigurationObject):
     def get_type(self):
         return 'p'
 
-    def get_name_listing(self):
-        return 'places'
-
-    def get_name(self):
+    def get_class_acronym(self):
         return 'place'
 
     def get_sensors_in_component(self, config):
@@ -2587,12 +2580,8 @@ class AlarmLog(ConfigurationObject):
     def get_type(self):
         return 'al'
 
-    def get_name_listing(self):
-        return ''
-
-    def get_name(self):
+    def get_class_acronym(self):
         return 'alarmlog'
-
 
 class ExportData():
     def __init__(self, config, elem, cond, user):
@@ -3094,10 +3083,10 @@ class Halfling(ConfigurationObject):
     def get_type(self):
         return 'halfling'
 
-    def getHalfling(self):
-        return 'halflings halflings-'+self.fields['glyphname']
+    def getHalfling(self, supp_classes):
+        return '<span class="halflings halflings-'+self.fields['glyphname']+supp_classes+'"></span>'
 
-    def get_name(self):
+    def get_class_acronym(self):
         return 'halfling'
 
 
@@ -3133,21 +3122,21 @@ class Alarm(ConfigurationObject):
 
     def get_alarm_message(self, sensor, config, lang):
         if sensor.get_type() == 's':
-            mess = config.AllMessages.elements['alarmmessage'].getName(lang)
+            mess = config.getMessage('alarmmessage',lang)
             specmess = self.getName(lang)
             cpe = ''
             elem = ''
             currObject = config.AllAlarmLogs.createObject()
             if not sensor.fields['p_id'] == '':
-                cpe = config.AllMessages.elements['place'].getName(lang)
+                cpe = config.getMessage('place',lang)
                 elem = config.AllPieces.elements[sensor.fields['p_id']]
                 currObject.fields['cont_type'] = 'p'
             elif not sensor.fields['e_id'] == '':
-                cpe = config.AllMessages.elements['equipment'].getName(lang)
+                cpe = config.getMessage('equipment',lang)
                 elem = config.AllPieces.elements[sensor.fields['e_id']]
                 currObject.fields['cont_type'] = 'e'
             elif not sensor.fields['c_id'] == '':
-                cpe = config.AllMessages.elements['container'].getName(lang)
+                cpe = config.getMessage('container',lang)
                 elem = config.AllPieces.elements[sensor.fields['c_id']]
                 currObject.fields['cont_type'] = 'c'
             currObject.fields['cont_id'] = elem.getID()
@@ -3161,10 +3150,10 @@ class Alarm(ConfigurationObject):
             currObject.save(config)
             return unicode.format(mess, config.HardConfig.hostname, specmess, cpe, elem.getName(lang), elem.fields['acronym'], sensor.getName(lang), sensor.fields['acronym'], unicode(sensor.lastvalue), sensor.actualAlarm, useful.timestamp_to_date(sensor.time), unicode(sensor.degreeAlarm))
         elif sensor.get_type() == 'd':
-            mess = config.AllMessages.elements['alarmmanual'].getName(lang)
+            mess = config.getMessage('alarmmanual',lang)
             elem = config.findAllFromType(
                 sensor.fields['object_type']).elements[sensor.fields['object_id']]
-            name = config.AllMessages.elements[elem.get_name()].getName(lang)
+            name = config.AllMessages.elements[elem.get_class_acronym()].getName(lang)
             if sensor.fields['m_id'] != '':
                 measure = config.AllMeasures.elements[sensor.fields['m_id']
                                                       ].fields['unit']
@@ -3172,7 +3161,7 @@ class Alarm(ConfigurationObject):
                 measure = ''
             return unicode.format(mess, config.HardConfig.hostname, '', name, elem.getName(lang), elem.fields['acronym'], unicode(sensor.fields['value']), measure, sensor.fields['remark'], sensor.fields['time'])
         elif sensor.get_type() == 'v':
-            mess = config.AllMessages.elements['alarmpouring'].getName(lang)
+            mess = config.getMessage('alarmpouring',lang)
             elemin = config.AllBatches.elements[sensor.fields['src']]
             elemout = config.AllBatches.elements[sensor.fields['dest']]
             if sensor.fields['m_id'] != '':
@@ -3184,7 +3173,7 @@ class Alarm(ConfigurationObject):
 
     def get_alarm_title(self, sensor, config, lang):
         if sensor.get_type() == 's':
-            title = config.AllMessages.elements['alarmtitle'].getName(lang)
+            title = config.getMessage('alarmtitle',lang)
             code = ''
             equal = ''
             if sensor.actualAlarm == 'minmin':
@@ -3201,8 +3190,7 @@ class Alarm(ConfigurationObject):
                 equal = '>'
             return unicode.format(title, code, unicode(sensor.degreeAlarm), sensor.fields['acronym'], unicode(sensor.lastvalue), equal, sensor.fields[sensor.actualAlarm], config.AllMeasures.elements[sensor.fields['m_id']].fields['unit'], sensor.getName(lang))
         elif sensor.get_type() == 'd':
-            title = config.AllMessages.elements['alarmmanualtitle'].getName(
-                lang)
+            title = config.getMessage('alarmmanualtitle',lang)
             elem = config.findAllFromType(
                 sensor.fields['object_type']).elements[sensor.fields['object_id']]
             if sensor.fields['m_id'] != '':
@@ -3212,8 +3200,7 @@ class Alarm(ConfigurationObject):
                 measure = ''
             return unicode.format(title, sensor.fields['value'], measure, elem.getName(lang))
         elif sensor.get_type() == 'v':
-            title = config.AllMessages.elements['alarmpouringtitle'].getName(
-                lang)
+            title = config.getMessage('alarmpouringtitle',lang)
             elemin = config.AllBatches.elements[sensor.fields['src']]
             elemout = config.AllBatches.elements[sensor.fields['dest']]
             return unicode.format(title, elemout.fields['acronym'], elemout.getName(lang), elemin.fields['acronym'], elemin.getName(lang))
@@ -3262,10 +3249,7 @@ class Alarm(ConfigurationObject):
                 useful.send_email(
                     config.AllUsers.elements[user].fields['mail'], title, mess)
 
-    def get_name_listing(self):
-        return 'alarms'
-
-    def get_name(self):
+    def get_class_acronym(self):
         return 'alarm'
 
 
@@ -3288,10 +3272,7 @@ class Measure(ConfigurationObject):
     def get_type(self):
         return 'm'
 
-    def get_name_listing(self):
-        return 'measures'
-
-    def get_name(self):
+    def get_class_acronym(self):
         return 'measure'
 
     def get_sensors_in_component(self, config):
@@ -3312,16 +3293,13 @@ class Measure(ConfigurationObject):
                 value = 0
                 owData = unicode(eval(data['formula']))
         except:
-            tmp += configuration.AllMessages.elements['formularules'].getName(
-                lang) + '\n'
+            tmp += configuration.getMessage('formularules',lang) + '\n'
 
         try:
             if not len(data['unit']) > 0:
-                tmp += configuration.AllMessages.elements['unitrules'].getName(
-                    lang) + '\n'
+                tmp += configuration.getMessage('unitrules',lang) + '\n'
         except:
-            tmp += configuration.AllMessages.elements['unitrules'].getName(
-                lang) + '\n'
+            tmp += configuration.getMessage('unitrules',lang) + '\n'
 
         if tmp == '':
             return True
@@ -3379,7 +3357,7 @@ class Sensor(ConfigurationObject):
     def get_type(self):
         return 's'
 
-    def get_name(self):
+    def get_class_acronym(self):
         return 'sensor'
 
     def getRRDName(self):
@@ -3597,9 +3575,6 @@ class Sensor(ConfigurationObject):
             return owData, debugging
         return None, debugging
 
-    def get_name_listing(self):
-        return 'sensors'
-
     def is_in_component(self, type, id):
         if type == 'e':
             return id == self.fields['e_id']
@@ -3657,37 +3632,28 @@ class Sensor(ConfigurationObject):
                 value = 0
                 owData = unicode(eval(data['formula']))
         except:
-            tmp += configuration.AllMessages.elements['formularules'].getName(
-                lang) + '\n'
+            tmp += configuration.getMessage('formularules',lang) + '\n'
 
         try:
             if not len(data['component']) > 0:
-                tmp += configuration.AllMessages.elements['componentrules'].getName(
-                    lang) + '\n'
+                tmp += configuration.getMessage('componentrules',lang) + '\n'
         except:
-            tmp += configuration.AllMessages.elements['componentrules'].getName(
-                lang) + '\n'
+            tmp += configuration.getMessage('componentrules',lang) + '\n'
         try:
             if not len(data['measure']) > 0:
-                tmp += configuration.AllMessages.elements['measurerules'].getName(
-                    lang) + '\n'
+                tmp += configuration.getMessage('measurerules',lang) + '\n'
         except:
-            tmp += configuration.AllMessages.elements['measurerules'].getName(
-                lang) + '\n'
+            tmp += configuration.getMessage('measurerules',lang) + '\n'
         try:
             if not len(data['channel']) > 0:
-                tmp += configuration.AllMessages.elements['channelrules'].getName(
-                    lang) + '\n'
+                tmp += configuration.getMessage('channelrules',lang) + '\n'
         except:
-            tmp += configuration.AllMessages.elements['channelrules'].getName(
-                lang) + '\n'
+            tmp += configuration.getMessage('channelrules',lang) + '\n'
         try:
             if not len(data['sensor']) > 0:
-                tmp += configuration.AllMessages.elements['sensorrules'].getName(
-                    lang) + '\n'
+                tmp += configuration.getMessage('sensorrules',lang) + '\n'
         except:
-            tmp += configuration.AllMessages.elements['sensorrules'].getName(
-                lang) + '\n'
+            tmp += configuration.getMessage('sensorrules',lang) + '\n'
 
         if tmp == '':
             return True
@@ -3729,7 +3695,7 @@ class Batch(ConfigurationObject):
     def get_name_listing(self):
         return 'batches'
 
-    def get_name(self):
+    def get_class_acronym(self):
         return 'batch'
 
     def add_measure(self, data):
@@ -3799,7 +3765,8 @@ class Batch(ConfigurationObject):
             self.destination.remove(pouring.getID())
 
     def add_checkpoint(self, cp):
-        self.checkpoints.append(cp)
+        if cp not in self.checkpoints:
+            self.checkpoints.append(cp)
 
     def get_residual_quantity(self):
         val = self.get_quantity_used()
@@ -3845,30 +3812,24 @@ class Batch(ConfigurationObject):
             value = useful.transform_date(data['time'])
         except:
             traceback.print_exc()
-            tmp += configuration.AllMessages.elements['timerules'].getName(
-                lang) + '\n'
+            tmp += configuration.getMessage('timerules',lang) + '\n'
 
         try:
             value = float(data['cost'])
             if value < 0.0:
-                tmp += configuration.AllMessages.elements['costrules'].getName(
-                    lang) + '\n'
+                tmp += configuration.getMessage('costrules',lang) + '\n'
         except:
-            tmp += configuration.AllMessages.elements['costrules'].getName(
-                lang) + '\n'
+            tmp += configuration.getMessage('costrules',lang) + '\n'
 
         try:
             value = float(data['basicqt'])
             if value < 0.0:
-                tmp += configuration.AllMessages.elements['quantityrules'].getName(
-                    lang) + '\n'
+                tmp += configuration.getMessage('quantityrules',lang) + '\n'
         except:
-            tmp += configuration.AllMessages.elements['quantityrules'].getName(
-                lang) + '\n'
+            tmp += configuration.getMessage('quantityrules',lang) + '\n'
 
         if data['measure'] == '':
-            tmp += configuration.AllMessages.elements['measurerules'].getName(
-                lang) + '\n'
+            tmp += configuration.getMessage('measurerules',lang) + '\n'
 
         if tmp == '':
             return True
@@ -3905,7 +3866,7 @@ class PouringModel(ConfigurationObject):
     def get_type(self):
         return 'vm'
 
-    def get_name(self):
+    def get_class_acronym(self):
         return 'pouringmodel'
 
     def get_group(self):
@@ -3966,7 +3927,7 @@ class ManualDataModel(ConfigurationObject):
     def get_type(self):
         return 'dm'
 
-    def get_name(self):
+    def get_classe_acronym(self):
         return 'manualdatamodel'
 
     def get_group(self):
@@ -4010,7 +3971,7 @@ class TransferModel(ConfigurationObject):
     def get_type(self):
         return 'tm'
 
-    def get_name(self):
+    def get_class_acronym(self):
         return 'transfermodel'
 
     def validate_form(self, data, configuration, lang):
@@ -4083,14 +4044,11 @@ class Transfer(ConfigurationObject):
             objet = configuration.get_object(objtype, objid)
             print objet.get_actual_position()
             if (objet.is_actual_position(postype, posid, configuration) is True and objet.get_actual_position() != self.id):
-                tmp += configuration.AllMessages.elements['transferrules'].getName(
-                    lang) + '\n'
+                tmp += configuration.getMessage('transferrules',lang) + '\n'
             if (objtype == 'e' and postype != 'p') or(objtype == 'c' and postype not in 'ep'):
-                tmp += configuration.AllMessages.elements['transferhierarchy'].getName(
-                    lang) + '\n'
+                tmp += configuration.getMessage('transferhierarchy',lang) + '\n'
         else:
-            tmp += configuration.AllMessages.elements['transferrules'].getName(
-                lang) + '\n'
+            tmp += configuration.getMessage('transferrules',lang) + '\n'
         if tmp == '':
             return True
         return tmp
@@ -4123,7 +4081,7 @@ class Transfer(ConfigurationObject):
     def get_cont(self):
         return self.config.findAllFromType(self.fields['cont_type']).elements[self.fields['cont_id']]
 
-    def get_name(self):
+    def get_class_acronym(self):
         return 'transfer'
 
 
@@ -4158,7 +4116,7 @@ class Barcode(ConfigurationObject):
             self.barcode_picture()
         return location
 
-    def get_name(self):
+    def get_class_acronym(self):
         return 'barcode'
 
     def get_type(self):

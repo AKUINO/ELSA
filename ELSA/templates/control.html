@@ -4,23 +4,23 @@ $code:
     batch = c.AllBatches.elements[id1]
     cp = c.AllCheckPoints.elements[id2]
     elems = cp.get_model_sorted()
-    
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var location: list/b=batch find/h/b_$(id1)=related control/b_$(id1)/h_$(id2)=checkpoint
+$var title : $batch.getName(self.lang): $cp.getName(self.lang)
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
 	<div class="form-group row" id="error">
 	    $errormess
 	</div>
 	<div class="form-group row">
-	    <label for="inputTime" class="col-sm-3 col-form-label">$c.AllMessages.elements['time'].getName(self.lang)</label>
+	    <label for="inputTime" class="col-sm-3 col-form-label">$c.getMessage('time',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="time" type="text" class="form-control" id="inputTime" placeholder="$c.AllMessages.elements['time'].getName(self.lang)" value ="$c.get_time()">
+		<input name="time" type="text" class="form-control" id="inputTime" placeholder="$c.getMessage('time',self.lang)" value ="$c.get_time()">
 	    </div>
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputObject" class="col-sm-3 col-form-label">$c.AllMessages.elements['batch'].getName(self.lang) </label>
+	    <label for="inputObject" class="col-sm-3 col-form-label">$c.getName(c.AllBatches,self.lang) </label>
 	    <div class="col-sm-9">
 		<select name = "batch" class="form-control" id="inputPosition">
 			<option value="b_$(id1)">$batch.fields['acronym'] - $batch.getName(self.lang) </option>
@@ -37,22 +37,21 @@ $var location: list/b=batch find/h/b_$(id1)=related control/b_$(id1)/h_$(id2)=ch
 	$for e in elems:
 	    $if e.get_type() == 'tm':
 		<div class="form-group row">
-		    <label class="col-sm-3 col-form-label">$c.AllMessages.elements['transfer'].getName(self.lang)</label>
-		    <label class="col-sm-9 col-form-label">$e.getName(self.lang)</label>
+		    <label class="col-sm-12 col-form-label">$:c.getAllHalfling(c.AllTransfers) $e.getName(self.lang)</label>
 		</div>
 		<div class="form-group row">
-		    <label for="inputPosition" class="col-sm-3 col-form-label">$c.AllMessages.elements['target'].getName(self.lang)</label>
+		    <label for="inputPosition" class="col-sm-3 col-form-label">$c.getMessage('target',self.lang)</label>
 		    <div class="col-sm-9">
 			<select name = "tm_position_$(counttm)" class="form-control" id="inputPosition">
-			    <optgroup label="$c.AllMessages.elements['place'].getName(self.lang)">
+			    <optgroup label="$c.getMessage('place',self.lang)">
 			    $for k,v in c.AllPieces.elements.items():
 				$if v.fields['gu_id'] == e.fields['gu_id'] or v.fields['gu_id'] in c.AllGrUsage.elements[v.fields['gu_id']].children :
 				    <option value="p_$k">$v.fields['acronym'] - $v.getName(self.lang) </option>
-			    <optgroup label="$c.AllMessages.elements['equipment'].getName(self.lang)">
+			    <optgroup label="$c.getMessage('equipment',self.lang)">
 			    $for k,v in c.AllEquipments.elements.items():
 				$if v.fields['gu_id'] == e.fields['gu_id'] or v.fields['gu_id'] in c.AllGrUsage.elements[v.fields['gu_id']].children :
 				    <option value="e_$k" >$v.fields['acronym'] - $v.getName(self.lang)</option>
-			    <optgroup label="$c.AllMessages.elements['container'].getName(self.lang)">
+			    <optgroup label="$c.getMessage('container',self.lang)">
 			    $for k,v in c.AllContainers.elements.items():
 				$if v.fields['gu_id'] == e.fields['gu_id'] or v.fields['gu_id'] in c.AllGrUsage.elements[v.fields['gu_id']].children :
 				    <option value="c_$k">$v.fields['acronym'] - $v.getName(self.lang)</option>
@@ -60,9 +59,9 @@ $var location: list/b=batch find/h/b_$(id1)=related control/b_$(id1)/h_$(id2)=ch
 		    </div>
 		</div>
 		<div class="form-group row">
-		    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
+		    <label for="inputRemark" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 		    <div class="col-sm-9">
-			<textarea name="tm_remark_$(counttm)" type="text" class="form-control" id="inputRemark" placeholder="$c.AllMessages.elements['remark'].getName(self.lang)" >$e.fields['remark']</textarea>
+			<textarea name="tm_remark_$(counttm)" type="text" class="form-control" id="inputRemark" placeholder="$c.getMessage('remark',self.lang)" >$e.fields['remark']</textarea>
 		    </div>
 		</div>
 		<hr id = "hrform">
@@ -70,30 +69,23 @@ $var location: list/b=batch find/h/b_$(id1)=related control/b_$(id1)/h_$(id2)=ch
 		    counttm += 1
 	    $elif e.get_type() == 'dm':
 		<div class="form-group row">
-		    <label class="col-sm-3 col-form-label">$c.AllMessages.elements['manualdata'].getName(self.lang)</label>
-		    <label class="col-sm-9 col-form-label">$e.getName(self.lang)</label>
+		    <label class="col-sm-12 col-form-label">$:c.getAllHalfling(c.AllManualData) $e.getName(self.lang)</label>
 		</div>
 		
 		<div class="form-group row">
-		    <label for="measureSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['measure'].getName(self.lang)</label>
-		    <div class="col-sm-9">
-			<select name = "dm_measure_$(countdm)" class="form-control" id="measureSelect">
-			    <option value="$e.fields['m_id']">$c.AllMeasures.elements[e.fields['m_id']].fields['acronym'] - $c.AllMeasures.elements[e.fields['m_id']].getName(self.lang) - $c.AllMeasures.elements[e.fields['m_id']].fields['unit']</option>
-			</select>
-		    </div>
-		</div>
-		
-		<div class="form-group row">
-		    <label for="inputValue" class="col-sm-3 col-form-label">$c.AllMessages.elements['value'].getName(self.lang)</label>
-		    <div class="col-sm-9">
-			<input name="dm_value_$(countdm)" type="text" class="form-control" id="inputValue" placeholder="$c.AllMessages.elements['value'].getName(self.lang)" value=""
-			>
+		    <label for="inputValue" class="col-sm-3 col-form-label">$c.AllMeasures.elements[e.fields['m_id']].getName(self.lang)</label>
+		    <div class="col-sm-3">
+		        <input name="dm_value_$(countdm)" type="text" class="form-control" size="15" id="inputValue" placeholder="$c.getMessage('value',self.lang)" value="$e.fields['typical']">
+                    </div>
+		    <div class="col-sm-3">
+                        <input type="hidden" name="dm_measure_$(countdm)" value="$e.fields['m_id']">
+                        <strong>$c.AllMeasures.elements[e.fields['m_id']].fields['unit']</strong>
 		    </div>
 		</div>
 		<div class="form-group row">
-		    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
+		    <label for="inputRemark" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 		    <div class="col-sm-9">
-			<textarea name="dm_remark_$(countdm)" type="text" class="form-control" id="inputRemark" placeholder="$c.AllMessages.elements['remark'].getName(self.lang)" >$e.fields['remark']</textarea>
+			<textarea name="dm_remark_$(countdm)" type="text" class="form-control" id="inputRemark" placeholder="$c.getMessage('remark',self.lang)" >$e.fields['remark']</textarea>
 		    </div>
 		</div>
 		<hr id = "hrform">
@@ -101,12 +93,11 @@ $var location: list/b=batch find/h/b_$(id1)=related control/b_$(id1)/h_$(id2)=ch
 		    countdm += 1
 	    $elif e.get_type() == 'vm':		
 		<div class="form-group row">
-		    <label class="col-sm-3 col-form-label">$c.AllMessages.elements['pouring'].getName(self.lang)</label>
-		    <label class="col-sm-9 col-form-label">$e.getName(self.lang)</label>
+		    <label class="col-sm-12 col-form-label">$:c.getAllHalfling(c.AllPourings) $e.getName(self.lang)</label>
 		</div>
 		$if e.fields['in'] != '0':
 		    <div class="form-group row">
-			<label for="b_id" class="col-sm-3 col-form-label">$c.AllMessages.elements['batch'].getName(self.lang) $c.AllMessages.elements['source'].getName(self.lang)</label>
+			<label for="b_id" class="col-sm-3 col-form-label">$c.getMessage('batch',self.lang) $c.getMessage('source',self.lang)</label>
 			<div class="col-sm-9" id = "divsrc">
 			    <select name="vm_src_$(countvm)" class="form-control" id="src">
 				$for k in c.AllBatches.elements.keys():
@@ -117,7 +108,7 @@ $var location: list/b=batch find/h/b_$(id1)=related control/b_$(id1)/h_$(id2)=ch
 		    </div>
 		$else :
 		    <div class="form-group row">
-			<label for="b_id" class="col-sm-3 col-form-label">$c.AllMessages.elements['batch'].getName(self.lang) $c.AllMessages.elements['source'].getName(self.lang)</label>
+			<label for="b_id" class="col-sm-3 col-form-label">$c.getMessage('batch',self.lang) $c.getMessage('source',self.lang)</label>
 			<div class="col-sm-9" id = "divdest">
 			    <select name="vm_dest_$(countvm)" class="form-control" id="dest">
 				$for k in c.AllBatches.elements.keys():
@@ -127,16 +118,16 @@ $var location: list/b=batch find/h/b_$(id1)=related control/b_$(id1)/h_$(id2)=ch
 			</div>
 		    </div>		
 		<div class="form-group row">
-		    <label for="inputValue" class="col-sm-3 col-form-label">$c.AllMessages.elements['quantity'].getName(self.lang)</label>
+		    <label for="inputValue" class="col-sm-3 col-form-label">$c.getMessage('quantity',self.lang)</label>
 		    <div class="col-sm-9">
-			<input name="vm_quantity_$(countvm)" type="text" class="form-control" id="inputValue" placeholder="$c.AllMessages.elements['value'].getName(self.lang)" value="$e.fields['quantity']"required >
+			<input name="vm_quantity_$(countvm)" type="text" class="form-control" id="inputValue" placeholder="$c.getMessage('value',self.lang)" value="$e.fields['quantity']"required >
 		    </div>
 		</div>
 		
 		<div class="form-group row">
-		    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
+		    <label for="inputRemark" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 		    <div class="col-sm-9">
-			<textarea name="vm_remark_$(countvm)" type="text" class="form-control" id="inputRemark" placeholder="$c.AllMessages.elements['remark'].getName(self.lang)" >$e.fields['remark']</textarea>
+			<textarea name="vm_remark_$(countvm)" type="text" class="form-control" id="inputRemark" placeholder="$c.getMessage('remark',self.lang)" >$e.fields['remark']</textarea>
 		    </div>
 		</div>
 		<hr id = "hrform">
@@ -146,7 +137,7 @@ $var location: list/b=batch find/h/b_$(id1)=related control/b_$(id1)/h_$(id2)=ch
 	    <div class="col-sm-3">
 	    </div>
 	    <div class="col-sm-2">
-		<a href="/item/b_$(batch.getID())" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		<a href="/item/b_$(batch.getID())" class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>
