@@ -2,6 +2,7 @@ $def with (id, mail, errormess, data)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
 $var title : $c.AllSensors.getName(self.lang)
+$ sensor_channels = c.AllSensors.get_query_channels()
 $if id == 'new':
     $var location: all/s=sensor edit/s_new=add
     $ rmq = ""
@@ -194,17 +195,17 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <div class="col-sm-9">
 		<select name = "channel" class="form-control" id="channelSelect">
 		    $code:
-			dicchannel = {'wire':'1-Wire','radio':'ELA Radio','http':'HTTP or HTTPS request', 'json' : 'JSON format from HTTP/HTTPS request','battery':'AKUINO Battery','cputemp':'CPU Temperature','system':'System File'}
-		    $for k,v in dicchannel.items():
-			<option value="$(k)"
+			dicchannel = {'wire':'1-Wire','radio':'ELA Radio','http':'HTTP or HTTPS request', 'json' : 'JSON format from HTTP/HTTPS request','cputemp':'CPU Temperature','system':'System File','battery':'input.battery', 'humiditysensor1':'humiditysensor1', 'lightsensor1':'lightsensor1'}
+		    $for item in sensor_channels:
+			<option value="$(item)"
 			$if errormess != '' :
 			    $if 'channel' in data:
-				$if k == data['channel']:
+				$if item == data['channel']:
 				    selected
 			$elif id != 'new':
-			    $if k == aSensor.fields['channel'] :
+			    $if item == aSensor.fields['channel'] :
 				selected
-			>$(v)</option>
+			>$(item)</option>
 		</select>
 	    </div>
 	</div>

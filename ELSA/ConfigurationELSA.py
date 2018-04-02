@@ -21,6 +21,10 @@ import urllib2
 import collections
 import math
 import shutil
+import abe_adcpi
+import abe_mcp3424
+import abe_iopi
+import serial
 """
 import SSD1306
 from I2CScreen import *
@@ -39,7 +43,9 @@ dir_hardconfig = os.path.normpath('~/akuino/hardware')
 DIR_BASE = os.path.dirname(os.path.abspath(__file__)) + '/'
 DIR_USER_DATA = os.path.join(DIR_BASE, '../data/')
 DIR_APP_CSV = os.path.join(DIR_BASE, 'csv/')
-DIR_DEFAULT_CSV = os.path.join(DIR_APP_CSV, 'default/')  # Defines default values for some .csv files (ex: default user for a new installation)
+DIR_DEFAULT_CSV = os.path.join(DIR_APP_CSV, 'default/')
+# Defines default values for some .csv files
+# (ex: default user for a new installation)
 DIR_STATIC = os.path.join(DIR_BASE, 'static/')
 
 DIR_DATA_CSV = os.path.join(DIR_USER_DATA, 'csv/')
@@ -58,8 +64,6 @@ imagedTypes = [u'u', u'e', u'p', u'g', u'gf', u'gr', u'gu', u'c', u'b', u'h']
 
 _lock_socket = None
 
-queryChannels = ['wire', 'http', 'json', 'battery', 'cputemp', 'system']
-
 color_violet = "FF00FF"
 color_blue = "0000FF"
 color_green = "00FF00"
@@ -69,7 +73,8 @@ color_red = "FF0000"
 
 def copy_default_csv(filename):
     '''
-    Will copy the default .csv to `filename` and return true if a default exists, otherwise does nothing and returns false
+    Will copy the default .csv to `filename` and return true if a default
+    exists, otherwise does nothing and returns false
     '''
     default_csv_file = os.path.join(DIR_DEFAULT_CSV, os.path.basename(filename))
     if os.path.exists(default_csv_file):
@@ -169,7 +174,9 @@ class Configuration():
         """
         if not self.HardConfig.oled is None:
             # 128x64 display with hardware I2C:
-            self.screen = I2CScreen(True, disp = SSD1306.SSD1305_132_64(rst=self.HardConfig.oled_reset,gpio=PIG))
+            self.screen = I2CScreen(True,
+            disp = SSD1306.SSD1305_132_64 (rst=self.HardConfig.oled_reset,
+                                           gpio=PIG))
             self.screen.clear()
         else:
             self.screen = I2CScreen(False, disp = None)	
@@ -380,8 +387,10 @@ class ConfigurationObject(object):
         print allObjects.fileobject
         print allObjects.fieldnames
         with open(allObjects.fileobject, "a") as csvfile:
-            writer = unicodecsv.DictWriter(
-                csvfile, delimiter='\t', fieldnames=allObjects.fieldnames, encoding="utf-8")
+            writer = unicodecsv.DictWriter(csvfile,
+                                           delimiter='\t',
+                                           fieldnames=allObjects.fieldnames,
+                                           encoding="utf-8")
             writer.writerow(self.fields)
         self.saveName(configuration, anUser)
         return self
@@ -394,8 +403,10 @@ class ConfigurationObject(object):
             print key
             print allObjects.fieldtranslate
             with open(allObjects.filename, "a") as csvfile:
-                writer = unicodecsv.DictWriter(
-                    csvfile, delimiter='\t', fieldnames=allObjects.fieldtranslate, encoding="utf-8")
+                writer = unicodecsv.DictWriter(csvfile,
+                                               delimiter='\t',
+                                               fieldnames=allObjects.fieldtranslate,
+                                               encoding="utf-8")
                 writer.writerow(self.names[key])
 
     def saveCode(self, configuration, anUser):
@@ -408,8 +419,10 @@ class ConfigurationObject(object):
             tmpCode['idobject'] = self.fields[allObjects.keyColumn]
             tmpCode['code'] = self.code
             tmpCode["user"] = anUser.fields['u_id']
-            writer = unicodecsv.DictWriter(
-                csvfile, delimiter='\t', fieldnames=configuration.fieldcode, encoding="utf-8")
+            writer = unicodecsv.DictWriter(csvfile,
+                                           delimiter='\t',
+                                           fieldnames=configuration.fieldcode,
+                                           encoding="utf-8")
             writer.writerow(tmpCode)
 
     def initialise(self, fieldsname):
@@ -419,7 +432,9 @@ class ConfigurationObject(object):
     def getImagePath(self):
         thisType = self.get_type()
         if thisType in imagedTypes:
-            return os.path.join(DIR_IMG, thisType, thisType + u'_'+unicode(self.id) + u'.jpg')
+            return os.path.join(DIR_IMG,
+                                thisType,
+                                thisType + u'_'+unicode(self.id) + u'.jpg')
         return None
 
     def isImaged(self):
@@ -476,8 +491,10 @@ class ConfigurationObject(object):
             tmpCode['type'] = self.get_type()
             tmpCode["user"] = user.fields['u_id']
             tmpCode['active'] = active
-            writer = unicodecsv.DictWriter(
-                csvfile, delimiter='\t', fieldnames=configuration.fieldrelations, encoding="utf-8")
+            writer = unicodecsv.DictWriter(csvfile,
+                                           delimiter='\t',
+                                           fieldnames=configuration.fieldrelations,
+                                           encoding="utf-8")
             writer.writerow(tmpCode)
 
     def validate_form(self, data, configuration, lang):
@@ -569,10 +586,15 @@ class ConfigurationObject(object):
                 if first is True:
                     first = False
                     if count > 0:
-                        if useful.date_to_timestamp(self.config.AllTransfers.elements[self.position[count-1]].fields['time']) > begin:
+                        if useful.date_to_timestamp(self
+                                .config
+                                .AllTransfers
+                                .elements[self.position[count-1]]
+                                .fields['time']) > begin:
                             tmp.append(self.position[count - 1])
                 tmp.append(t)
-            elif time <= begin and (first is True or count == len(self.position)-1):
+            elif time <= begin and (first is True
+                    or count == len(self.position)-1):
                 tmp.append(t)
                 first = False
             count += 1
@@ -621,14 +643,16 @@ class ConfigurationObject(object):
                 currObj = configuration.get_object(
                     tmp.fields['cont_type'], tmp.fields['cont_id'])
                 if currObj:
-                    return currObj.get_actual_position_hierarchy(configuration, result)
+                    return currObj.get_actual_position_hierarchy(configuration,
+                                                                 result)
         return result
 
     def is_actual_position(self, type, id, configuration):
         tmp = self.get_actual_position()
         if tmp is not None:
             tmp = configuration.AllTransfers.elements[tmp]
-            if type == tmp.fields['cont_type'] and str(id) == tmp.fields['cont_id']:
+            if type == tmp.fields['cont_type'] \
+                    and str(id) == tmp.fields['cont_id']:
                 return True
         return False
 
@@ -656,7 +680,8 @@ class ConfigurationObject(object):
             tmp = configuration.AllTransfers.elements[self.position[count]]
             tmptime = useful.date_to_timestamp(tmp.fields['time'])
             if time < tmptime:
-                return configuration.AllTransfers.elements[self.position[count-1]]
+                return configuration.AllTransfers \
+                                    .elements[self.position[count-1]]
         return configuration.AllTransfers.elements[self.position[-1]]
 
     def get_alarm(self):
@@ -676,11 +701,11 @@ class UpdateThread(threading.Thread):
     def __init__(self, config):
         threading.Thread.__init__(self)
         self.config = config
-
+    
     def run(self):
-        time.sleep(60)
-        self.config.owproxy = pyownet.protocol.proxy(
-            host="localhost", port=4304)
+        if self.config.HardConfig.owfs == 'yes':
+                self.config.owproxy = pyownet.protocol.proxy(host="localhost",
+                                                             port=4304)
         while self.config.isThreading is True:
             now = useful.get_timestamp()
             if not len(self.config.AllSensors.elements) == 0:
@@ -716,11 +741,18 @@ class RadioThread(threading.Thread):
                                 # ADDRESS = int(HEX,16)
                                 VAL = int(line[5]+line[6]+line[7], 16)
                                 # READER = int(line[8]+line[9],16)
-                                print "ELA="+HEX+", RSS="+unicode(RSS)+", val="+unicode(VAL)
+                                print ("ELA="
+                                        + HEX
+                                        + ", RSS="
+                                        + unicode(RSS)
+                                        + ", val="+unicode(VAL))
                                 currSensor = None
                                 value = VAL
                                 for sensor in self.config.AllSensors.elements:
-                                    currSensor = self.config.AllSensors.elements[sensor]
+                                    currSensor = (self
+                                                 .config
+                                                 .AllSensors
+                                                 .elements[sensor])
                                     try:
                                         if (unicode(currSensor.fields['sensor']).translate(noDots) == unicode(HEX).translate(noDots)):
                                             if not currSensor.fields['formula'] == '':
@@ -799,25 +831,35 @@ class AllObjects(object):
                     currObject.creator = self.elements[key].creator
                     tmp = self.elements[key]
                     if tmp.get_type() == 't':
-                        self.config.findAllFromType(
-                            tmp.fields['object_type']).elements[tmp.fields['object_id']].remove_position(tmp)
+                        self.config \
+                            .findAllFromType(tmp.fields['object_type']) \
+                            .elements[tmp.fields['object_id']] \
+                            .remove_position(tmp)
                     elif tmp.get_type() == 'd':
-                        self.config.findAllFromType(
-                            tmp.fields['object_type']).elements[tmp.fields['object_id']].remove_data(tmp)
+                        self.config \
+                            .findAllFromType(tmp.fields['object_type']) \
+                            .elements[tmp.fields['object_id']] \
+                            .remove_data(tmp)
                     elif tmp.get_type() == 'v':
                         objects = self.config.AllBatches
                         objects.elements[tmp.fields['src']].remove_source(tmp)
-                        objects.elements[tmp.fields['dest']
-                                         ].remove_destination(tmp)
+                        objects.elements[tmp.fields['dest']] \
+                               .remove_destination(tmp)
                     elif tmp.get_type() == 'tm':
-                        self.config.AllCheckPoints.elements[tmp.fields['h_id']].remove_tm(
-                            tmp)
+                        self.config \
+                            .AllCheckPoints \
+                            .elements[tmp.fields['h_id']] \
+                            .remove_tm(tmp)
                     elif tmp.get_type() == 'vm':
-                        self.config.AllCheckPoints.elements[tmp.fields['h_id']].remove_vm(
-                            tmp)
+                        self.config \
+                            .AllCheckPoints \
+                            .elements[tmp.fields['h_id']] \
+                            .remove_vm(tmp)
                     elif tmp.get_type() == 'dm':
-                        self.config.AllCheckPoints.elements[tmp.fields['h_id']].remove_dm(
-                            tmp)
+                        self.config \
+                            .AllCheckPoints \
+                            .elements[tmp.fields['h_id']] \
+                            .remove_dm(tmp)
                 else:
                     currObject.created = currObject.fields['begin']
                     if 'user' in row:
@@ -829,56 +871,56 @@ class AllObjects(object):
                     objects = self.config.findAllFromType(
                         currObject.fields['object_type'])
                     if currObject.fields['active'] == '1':
-                        objects.elements[currObject.fields['object_id']].add_position(
-                            currObject)
+                        objects.elements[currObject.fields['object_id']] \
+                               .add_position(currObject)
                     else:
-                        objects.elements[currObject.fields['object_id']].remove_position(
-                            currObject)
+                        objects.elements[currObject.fields['object_id']] \
+                               .remove_position(currObject)
                 elif currObject.get_type() == 'd':
-                    objects = self.config.findAllFromType(
-                        currObject.fields['object_type'])
+                    objects = self.config \
+                                  .findAllFromType(currObject.fields['object_type'])
                     if currObject.fields['active'] == '1':
-                        objects.elements[currObject.fields['object_id']].add_data(
-                            currObject)
+                        objects.elements[currObject.fields['object_id']] \
+                               .add_data(currObject)
                     else:
-                        objects.elements[currObject.fields['object_id']].remove_data(
-                            currObject)
+                        objects.elements[currObject.fields['object_id']] \
+                                .remove_data(currObject)
                 elif currObject.get_type() == 'dm':
                     objects = self.config.AllCheckPoints
                     if currObject.fields['active'] == '1':
-                        objects.elements[currObject.fields['h_id']].add_dm(
-                            currObject)
+                        objects.elements[currObject.fields['h_id']] \
+                               .add_dm(currObject)
                     else:
-                        objects.elements[currObject.fields['h_id']].remove_dm(
-                            currObject)
+                        objects.elements[currObject.fields['h_id']] \
+                               .remove_dm(currObject)
                 elif currObject.get_type() == 'tm':
                     objects = self.config.AllCheckPoints
                     if currObject.fields['active'] == '1':
-                        objects.elements[currObject.fields['h_id']].add_tm(
-                            currObject)
+                        objects.elements[currObject.fields['h_id']] \
+                               .add_tm(currObject)
                     else:
-                        objects.elements[currObject.fields['h_id']].remove_tm(
-                            currObject)
+                        objects.elements[currObject.fields['h_id']] \
+                               .remove_tm(currObject)
                 elif currObject.get_type() == 'vm':
                     objects = self.config.AllCheckPoints
                     if currObject.fields['active'] == '1':
-                        objects.elements[currObject.fields['h_id']].add_vm(
-                            currObject)
+                        objects.elements[currObject.fields['h_id']] \
+                               .add_vm(currObject)
                     else:
-                        objects.elements[currObject.fields['h_id']].remove_vm(
-                            currObject)
+                        objects.elements[currObject.fields['h_id']] \
+                               .remove_vm(currObject)
                 elif currObject.get_type() == 'v':
                     objects = self.config.AllBatches
                     if currObject.fields['active'] == '1':
-                        objects.elements[currObject.fields['src']].add_source(
-                            currObject)
-                        objects.elements[currObject.fields['dest']
-                                         ].add_destination(currObject)
+                        objects.elements[currObject.fields['src']] \
+                               .add_source(currObject)
+                        objects.elements[currObject.fields['dest']] \
+                               .add_destination(currObject)
                     else:
-                        objects.elements[currObject.fields['src']
-                                         ].remove_source(currObject)
-                        objects.elements[currObject.fields['dest']
-                                         ].remove_destination(currObject)
+                        objects.elements[currObject.fields['src']] \
+                               .remove_source(currObject)
+                        objects.elements[currObject.fields['dest']] \
+                               .remove_destination(currObject)
 
     def loadNames(self):
         with open(self.filename) as csvfile:
@@ -916,7 +958,8 @@ class AllObjects(object):
 
     def unique_acronym(self, acronym, myID):
         for k, element in self.elements.items():
-            if element.fields['acronym'] == acronym and unicode(myID) != unicode(element.fields[self.keyColumn]):
+            if element.fields['acronym'] == acronym \
+                    and unicode(myID)!=unicode(element.fields[self.keyColumn]):
                 return False
         return True
 
@@ -953,7 +996,8 @@ class AllObjects(object):
         return self.config.getName(self,lang)
 
     def get_sorted(self):
-        return collections.OrderedDict(sorted(self.elements.items(), key=lambda t: t[1].fields['acronym'])).keys()
+        return collections.OrderedDict(sorted(self.elements.items(),
+                                       key=lambda t: t[1].fields['acronym'])).keys()
 
     def findAcronym(self, acronym):
         for k, element in self.elements.items():
@@ -972,7 +1016,8 @@ class AllUsers(AllObjects):
     def __init__(self, config):
         AllObjects.__init__(self, 'u', config)
         self.fieldnames = ['begin', 'u_id', 'active', 'acronym', 'remark',
-                           'registration', 'phone', 'mail', 'password', 'language', 'gf_id', 'user']
+                           'registration', 'phone', 'mail', 'password',
+                           'language', 'gf_id', 'user']
         self.fieldtranslate = ['begin', 'lang', 'u_id', 'name', 'user']
 
     def newObject(self):
@@ -1056,7 +1101,8 @@ class AllAlarmLogs(AllObjects):
         self.fileobject = os.path.join(DIR_DATA_CSV, "alarmlogs.csv")
         self.filename = None
         self.fieldnames = ['begin', 'al_id', 'cont_id', 'cont_type',
-                           's_id', 'value', 'typealarm', 'begintime', 'alarmtime', 'degree']
+                           's_id', 'value', 'typealarm', 'begintime',
+                           'alarmtime', 'degree']
         self.fieldtranslate = None
 
     def newObject(self):
@@ -1104,8 +1150,9 @@ class AllAlarms(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'a', config)
-        self.fieldnames = ['begin', 'a_id', 'active', 'acronym', 'o_sms1', 'o_sms2',
-                           'o_email1', 'o_email2', 'o_sound1', 'o_sound2', 'relay1', 'relay2', 'remark', 'user']
+        self.fieldnames = ['begin', 'a_id', 'active', 'acronym', 'o_sms1',
+                           'o_sms2', 'o_email1', 'o_email2', 'o_sound1',
+                           'o_sound2', 'relay1', 'relay2', 'remark', 'user']
         self.fieldtranslate = ['begin', 'lang', 'a_id', 'name', 'user']
 
     def newObject(self):
@@ -1120,7 +1167,8 @@ class AllManualData(AllObjects):
         AllObjects.__init__(self, 'd', config)
         self.filename = None
         self.fieldnames = ['begin', 'd_id', 'dm_id', 'object_id', 'object_type',
-                           'time', 'h_id', 'remark', 'm_id', 'value', 'active', 'user']
+                           'time', 'h_id', 'remark', 'm_id', 'value', 'active',
+                           'user']
         self.fieldtranslate = None
 
     def newObject(self):
@@ -1136,7 +1184,8 @@ class AllPourings(AllObjects):
         AllObjects.__init__(self, 'v', config)
         self.filename = None
         self.fieldnames = ['begin', 'v_id', 'src', 'dest', 'time',
-                           'h_id', 'quantity', 'm_id', 'remark', 'active', 'user']
+                           'h_id', 'quantity', 'm_id', 'remark',
+                           'active', 'user']
         self.fieldtranslate = None
 
     def newObject(self):
@@ -1262,7 +1311,8 @@ class AllCheckPoints(AllGroups):
     def __init__(self, config):
         AllGroups.__init__(self, 'h', config)
         self.fieldnames = ["begin", "h_id", "active", "acronym",
-                           'rank', 'abstract', "remark", 'gr_id', 'gu_id', "user"]
+                           'rank', 'abstract', "remark", 'gr_id',
+                           'gu_id', "user"]
         self.fieldtranslate = ['begin', 'lang', 'h_id', 'name', 'user']
         self.fieldcontrols = ['begin', 'h_id',
                               'object_type', 'object_id', 'user']
@@ -1367,12 +1417,38 @@ class AllMeasures(AllObjects):
 
 
 class AllSensors(AllObjects):
+    
+# We dynamically append all [input.xxx] from hardconfig to _queryChannels
+    _queryChannels = ['wire',
+                      'http',
+                      'json',
+                      'cputemp',
+                      'system']
+    
+    def add_query_channel(self, channel):
+        '''
+        Supposed to be used when reading HardConfig, to add the [input.xxx]
+        fields
+        '''
+        self._queryChannels.append(channel)
+
+    def get_query_channels(self):
+        return self._queryChannels
+    
+    def add_query_channels_from_hardconfig(self):
+        for key in self.config.HardConfig.inputs:
+            self.add_query_channel(key)
 
     def __init__(self, config):
         AllObjects.__init__(self, 's', config)
-        self.fieldnames = ['begin', 's_id', 'c_id', 'p_id', 'e_id', 'm_id', 'active', 'acronym', 'remark', 'channel', 'sensor', 'subsensor', 'valuetype',
-                           'formula', 'minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax', 'lapse1', 'lapse2', 'lapse3', 'user']
+        self.fieldnames = ['begin', 's_id', 'c_id', 'p_id', 'e_id', 'm_id',
+                           'active', 'acronym', 'remark', 'channel', 'sensor',
+                           'subsensor', 'valuetype', 'formula', 'minmin',
+                           'min', 'typical', 'max', 'maxmax', 'a_minmin',
+                           'a_min', 'a_typical', 'a_max', 'a_maxmax', 'lapse1',
+                           'lapse2', 'lapse3', 'user']
         self.fieldtranslate = ['begin', 'lang', 's_id', 'name', 'user']
+        self.add_query_channels_from_hardconfig()
 
     def newObject(self):
         return Sensor()
@@ -1386,16 +1462,34 @@ class AllSensors(AllObjects):
             sensor = self.elements[ids]
             if not sensor.fields['p_id'] == '':
                 pid = sensor.fields['p_id']
-                if not self.config.AllPieces.elements[pid].fields['colorgraph'] == '':
-                    color = self.config.AllPieces.elements[pid].fields['colorgraph']
+                if not (self.config
+                            .AllPieces
+                            .elements[pid]
+                            .fields['colorgraph'] == ''):
+                    color = (self.config
+                                 .AllPieces
+                                 .elements[pid]
+                                 .fields['colorgraph'])
             elif not sensor.fields['c_id'] == '':
                 cid = sensor.fields['c_id']
-                if not self.config.AllContainers.elements[cid].fields['colorgraph'] == '':
-                    color = self.config.AllContainers.elements[cid].fields['colorgraph']
+                if not (self.config
+                            .AllContainers
+                            .elements[cid]
+                            .fields['colorgraph'] == ''):
+                    color = (self.config
+                                 .AllContainers
+                                 .elements[cid]
+                                 .fields['colorgraph'])
             elif not sensor.fields['e_id'] == '':
                 eid = sensor.fields['e_id']
-                if not self.config.AllEquipments.elements[eid].fields['colorgraph'] == '':
-                    color = self.config.AllEquipments.elements[eid].fields['colorgraph']
+                if not (self.config
+                            .AllEquipments
+                            .elements[eid]
+                            .fields['colorgraph'] == ''):
+                    color = (self.config
+                                 .AllEquipments
+                                 .elements[eid]
+                                 .fields['colorgraph'])
         return color
 
     def correctValueAlarm(self):
@@ -1403,18 +1497,13 @@ class AllSensors(AllObjects):
             sensor.setCorrectAlarmValue()
 
     def update(self, now):
-        webCache = {}
+        iteration_cache = {}
         for k, sensor in self.elements.items():
-            if sensor.fields['channel'] in queryChannels and not sensor.fields['active'] == '0':
-                try:
-                    value, debugging = sensor.get_value_sensor(
-                        self.config, webCache)
-                    if value:
-                        sensor.update(now, value, self.config)
-                    if debugging:
-                        print debugging
-                except:
-                    traceback.print_exc()
+            if sensor.fields['channel'] in self._queryChannels \
+                                        and not sensor.fields['active'] == '0':
+                value = sensor.get_value_sensor(self.config, iteration_cache)
+                if value is not None:
+                    sensor.update(now, value, self.config)
 
     def check_rrd(self):
         for k, v in self.elements.items():
@@ -1428,7 +1517,8 @@ class AllBatches(AllObjects):
     def __init__(self, config):
         AllObjects.__init__(self, 'b', config)
         self.fieldnames = ["begin", "b_id", "active", "acronym",
-                           "basicqt", "m_id", "time", "cost", "remark", 'gr_id', "user"]
+                           "basicqt", "m_id", "time", "cost", "remark",
+                           'gr_id', "user"]
         self.fieldtranslate = ['begin', 'lang', 'b_id', 'name', 'user']
 
     def newObject(self):
@@ -1447,7 +1537,8 @@ class AllTransfers(AllObjects):
         AllObjects.__init__(self, 't', config)
         self.filename = None
         self.fieldnames = ["begin", "t_id", 'time', 'h_id', "cont_id",
-                           "cont_type", "object_id", "object_type", "remark", 'active', "user"]
+                           "cont_type", "object_id", "object_type", "remark",
+                           'active', "user"]
         self.fieldtranslate = None
 
     def newObject(self):
@@ -1480,7 +1571,8 @@ class AllPouringModels(AllObjects):
     def __init__(self, config):
         AllObjects.__init__(self, 'vm', config)
         self.fieldnames = ["begin", "vm_id", 'acronym', 'src', 'dest',
-                           'quantity', 'h_id', 'rank', "in", "remark", 'active', "user"]
+                           'quantity', 'h_id', 'rank', "in", "remark", 'active',
+                           "user"]
         self.fieldtranslate = ['begin', 'lang', 'vm_id', 'name', 'user']
 
     def newObject(self):
@@ -1497,8 +1589,10 @@ class AllManualDataModels(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'dm', config)
-        self.fieldnames = ["begin", "dm_id", 'acronym', 'm_id', 'h_id', 'rank', "remark", 'active', 'minmin',
-                           'min', 'typical', 'max', 'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax', "user"]
+        self.fieldnames = ["begin", "dm_id", 'acronym', 'm_id', 'h_id', 'rank',
+                           "remark", 'active', 'minmin',
+                           'min', 'typical', 'max', 'maxmax', 'a_minmin',
+                           'a_min', 'a_typical', 'a_max', 'a_maxmax', "user"]
         self.fieldtranslate = ['begin', 'lang', 'dm_id', 'name', 'user']
 
     def newObject(self):
@@ -1545,14 +1639,17 @@ class AllBarcodes(AllObjects):
     def get_barcode(self, myType, myID):
         for k in self.elements.keys():
             if self.elements[k].element:
-                if self.elements[k].element.get_type() == myType and unicode(self.elements[k].element.getID()) == myID:
-                    # self.elements[k].barcode_picture()
+                if self.elements[k].element.get_type() == myType \
+                        and unicode(self.elements[k].element.getID()) == myID:
+                    #self.elements[k].barcode_picture()
                     return k
         return ''
 
     def unique_barcode(self, code, myID, myType):
         for k, v in self.elements.items():
-            if int(code) == int(k) and not myID == v.getID() and not myType == v.fields['type']:
+            if (int(code) == int(k)
+                    and not myID == v.getID()
+                    and not myType == v.fields['type']):
                 return False
         return True
 
@@ -1570,8 +1667,10 @@ class AllBarcodes(AllObjects):
     def write_csv(self, code, active, user):
         with open(self.fileobject, "a") as csvfile:
             tmpCode = self.create_fields(code, active, user)
-            writer = unicodecsv.DictWriter(
-                csvfile, delimiter='\t', fieldnames=self.fieldnames, encoding="utf-8")
+            writer = unicodecsv.DictWriter(csvfile,
+                                           delimiter='\t',
+                                           fieldnames=self.fieldnames,
+                                           encoding="utf-8")
             writer.writerow(tmpCode)
 
     def create_barcode(self, item, code, user):
@@ -1617,7 +1716,9 @@ class AllBarcodes(AllObjects):
     def barcode_to_item(self, code):
         for k, barcode in self.elements.items():
             if barcode.fields['code'] == code:
-                return self.config.findAllFromType(barcode.fields['type']).elements[barcode.fields['idobject']]
+                return (self.config
+                            .findAllFromType(barcode.fields['type'])
+                            .elements[barcode.fields['idobject']])
 
     def get_class_acronym(self):
         return 'barcode'
@@ -1951,9 +2052,11 @@ class ManualData(ConfigurationObject):
         return tmp
 
     def set_value_from_data(self, data, c, user):
-        if self.fields['object_type'] != '' and self.fields['object_id'] != '':
-            c.findAllFromType(
-                self.fields['object_type']).elements[self.fields['object_id']].remove_data(self)
+        if self.fields['object_type'] != '' \
+                and self.fields['object_id'] != '':
+            c.findAllFromType(self.fields['object_type']) \
+             .elements[self.fields['object_id']] \
+             .remove_data(self)
         tmp = ['time', 'value', 'remark']
         for elem in tmp:
             self.fields[elem] = data[elem]
@@ -1968,11 +2071,13 @@ class ManualData(ConfigurationObject):
         else:
             self.fields['active'] = '0'
         if self.fields['active'] == '1':
-            c.findAllFromType(
-                self.fields['object_type']).elements[self.fields['object_id']].add_data(self)
+            c.findAllFromType(self.fields['object_type']) \
+             .elements[self.fields['object_id']] \
+             .add_data(self)
         else:
-            c.findAllFromType(
-                self.fields['object_type']).elements[self.fields['object_id']].remove_data(self)
+            c.findAllFromType(self.fields['object_type']) \
+             .elements[self.fields['object_id']] \
+             .remove_data(self)
         self.save(c, user)
 
     def get_class_acronym(self):
@@ -2123,15 +2228,17 @@ class Group(ConfigurationObject):
         c.findAllFromObject(self).load_family()
 
     def write_group(self, parentid, configuration, user, active):
-        with open(configuration.findAllFromObject(self).csvRelations, "a") as csvfile:
+        with open(configuration.findAllFromObject(self)
+                               .csvRelations, "a") as csvfile:
             tmpCode = {}
             tmpCode['begin'] = useful.now()
             tmpCode['parent_id'] = parentid
             tmpCode['child_id'] = self.getID()
             tmpCode["user"] = user.fields['u_id']
             tmpCode['active'] = active
-            writer = unicodecsv.DictWriter(csvfile, delimiter='\t', fieldnames=configuration.findAllFromObject(
-                self).fieldrelations, encoding="utf-8")
+            writer = unicodecsv.DictWriter(csvfile,
+                                           delimiter='\t',
+                                           fieldnames=configuration.findAllFromObject(self).fieldrelations, encoding="utf-8")
             writer.writerow(tmpCode)
 
     def get_group(self):
@@ -2174,15 +2281,20 @@ class Group(ConfigurationObject):
         for i in self.related:
             if i not in self.parents:
                 self.parents.append(i)
-                self.config.findAllFromType(
-                    self.get_type()).elements[i].load_parents()
+                self.config \
+                    .findAllFromType(self.get_type()) \
+                    .elements[i] \
+                    .load_parents()
             else:
                 print "Error Group : GROUPE EN RELATION CIRCLAIRE"
 
     def load_children(self, g=None):
         if g == None:
             g = self
-        for k, group in self.config.findAllFromType(self.get_type()).elements.items():
+        for k, group in self.config \
+                            .findAllFromType(self.get_type()) \
+                            .elements \
+                            .items():
             if self.getID() in group.related:
                 if group.getID() not in g.children:
                     g.add_child(group)
@@ -2191,7 +2303,10 @@ class Group(ConfigurationObject):
                     print "Error Group : GROUPE EN RELATION CIRCLAIRE"
 
     def load_siblings(self):
-        for k, group in self.config.findAllFromType(self.get_type()).elements.items():
+        for k, group in self.config \
+                            .findAllFromType(self.get_type()) \
+                            .elements \
+                            .items():
             for rel in group.related:
                 if rel in self.related and k != self.getID():
                     self.siblings.append(k)
@@ -2201,8 +2316,9 @@ class Group(ConfigurationObject):
             parents = []
         for e in self.parents:
             parents.append(e)
-            self.config.findAllFromType(
-                self.get_type()).elements[e].get_all_parents(parents)
+            self.config.findAllFromType(self.get_type()) \
+                                            .elements[e] \
+                                            .get_all_parents(parents)
         return parents
 
 
@@ -2419,15 +2535,18 @@ class CheckPoint(Group):
         return tmp
 
     def write_control(self, type, id, user):
-        with open(self.config.findAllFromObject(self).csvControls, "a") as csvfile:
+        with open(self.config.findAllFromObject(self).csvControls, "a") \
+                as csvfile:
             tmpCode = {}
             tmpCode['begin'] = useful.now()
             tmpCode['h_id'] = self.getID()
             tmpCode['object_type'] = type
             tmpCode['object_id'] = id
             tmpCode["user"] = user.fields['u_id']
-            writer = unicodecsv.DictWriter(csvfile, delimiter='\t', fieldnames=self.config.findAllFromObject(
-                self).fieldcontrols, encoding="utf-8")
+            writer = unicodecsv.DictWriter(csvfile,
+                                           delimiter='\t',
+                                           fieldnames=self.config
+                                                          .findAllFromObject(self).fieldcontrols, encoding="utf-8")
             writer.writerow(tmpCode)
 
     def get_hierarchy_dm(self, list=None, group=None):
@@ -2494,7 +2613,8 @@ class GrFunction(Group):
     def get_user_group(self):
         listusers = []
         for k, user in self.config.AllUsers.elements.items():
-            if user.fields['gf_id'] in self.children or user.fields['gf_id'] == self.fields['gf_id']:
+            if user.fields['gf_id'] in self.children \
+                                        or user.fields['gf_id'] == self.fields['gf_id']:
                 listusers.append(k)
         return listusers
 
@@ -2541,7 +2661,8 @@ class Piece(ConfigurationObject):
             transfer = v.get_actual_position()
             if transfer is not None:
                 transfer = config.AllTransfers.elements[transfer]
-                if transfer.fields['cont_type'] == 'e'and transfer.fields['cont_id'] == self.id:
+                if transfer.fields['cont_type'] == 'e' \
+                        and transfer.fields['cont_id'] == self.id:
                     checklist.append(['e', k])
         for k, sensor in config.AllSensors.elements.items():
             for comp, id in checklist:
@@ -2586,8 +2707,9 @@ class AlarmLog(ConfigurationObject):
 class ExportData():
     def __init__(self, config, elem, cond, user):
         self.config = config
-        self.fieldnames = ['timestamp', 'user', 'type', 'b_id', 'p_id', 'e_id', 'c_id',
-                           'h_id', 'm_id', 'sensor', 'value', 'unit', 'category', 'duration', 'remark']
+        self.fieldnames = ['timestamp', 'user', 'type', 'b_id', 'p_id', 'e_id',
+                           'c_id', 'h_id', 'm_id', 'sensor', 'value', 'unit',
+                           'category', 'duration', 'remark']
         self.history = []
         self.filename = os.path.join(DIR_DATA_CSV, "exportdata.csv")
         self.cond = cond
@@ -2619,7 +2741,9 @@ class ExportData():
             component = self.elem
             if len(component.position) > 0:
                 begin = useful.date_to_timestamp(
-                    self.config.AllTransfers.elements[component.position[0]].fields['time'])
+                    self.config
+                        .AllTransfers
+                        .elements[component.position[0]].fields['time'])
                 if len(component.position) > 1:
                     end = component.position[1]
                 else:
@@ -2657,12 +2781,14 @@ class ExportData():
         if self.elem.get_type() != 'b':
             if self.cond['manualdata'] is True:
                 for data in self.elem.data:
-                    self.elements.append(self.transform_object_to_export_data(
-                        self.config.AllManualData.elements[data]))
+                    self.elements \
+                        .append(self.transform_object_to_export_data(
+                                self.config.AllManualData.elements[data]))
             if self.cond['transfer'] is True:
                 for t in self.elem.position:
-                    self.elements.append(self.transform_object_to_export_data(
-                        self.config.AllTransfers.elements[t]))
+                    self.elements \
+                        .append(self.transform_object_to_export_data(
+                                self.config.AllTransfers.elements[t]))
 
         for self.b in self.batches:
             self.load_data()
@@ -2713,8 +2839,10 @@ class ExportData():
             csvfile.write('\n')
         for e in self.elements:
             with open(self.filename, 'a') as csvfile:
-                writer = unicodecsv.DictWriter(
-                    csvfile, delimiter="\t", fieldnames=self.fieldnames, encoding="utf-8")
+                writer = unicodecsv.DictWriter(csvfile,
+                                               delimiter="\t",
+                                               fieldnames=self.fieldnames,
+                                               encoding="utf-8")
                 writer.writerow(e)
 
     def add_value_from_sensors(self, infos):
@@ -2754,7 +2882,7 @@ class ExportData():
                     self.average /= self.count
                 if self.cond['specialvalue'] is True and self.count > 0:
                     sensor1 = self.transform_object_to_export_data(
-                        self.config.AllSensors.elements[a])
+                            self.config.AllSensors.elements[a])
                     sensor1['value'] = self.min
                     # sensor1['typevalue'] = 'MIN'
                     sensor1['type'] = 'MIN'
@@ -2779,8 +2907,9 @@ class ExportData():
                     sensor3['remark'] = ''
                     self.elements.append(sensor3)
                 if self.cond['alarm'] is True:
-                    logs = self.config.AllAlarmLogs.get_alarmlog_component(
-                        a, begin, end)
+                    logs = self.config \
+                               .AllAlarmLogs \
+                               .get_alarmlog_component(a, begin, end)
                     for log in logs:
                         tmp = self.transform_object_to_export_data(log)
                         self.elements.append(tmp)
@@ -2869,17 +2998,21 @@ class ExportData():
         if elem.get_type() in 'bcpem':
             if elem.get_type() == 'b':
                 tmp['timestamp'] = useful.date_to_timestamp(
-                    elem.fields['time'])
+                      elem.fields['time'])
                 tmp['duration'] = self.get_duration(useful.date_to_timestamp(
-                    elem.fields['time']), useful.get_timestamp())
-                tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
+                        elem.fields['time']), useful.get_timestamp())
+                tmp['unit'] = self.config \
+                                  .AllMeasures \
+                                  .elements[elem.fields['m_id']].fields['unit']
                 tmp['value'] = elem.fields['basicqt']
 
             if self.cond['acronym'] is True:
                 tmp[elem.get_type()+'_id'] = elem.fields['acronym']
                 if elem.get_type() == 'b':
-                    tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']
-                                                                   ].fields['acronym']
+                    tmp['m_id'] = self.config \
+                                      .AllMeasures \
+                                      .elements[elem.fields['m_id']] \
+                                      .fields['acronym']
             else:
                 tmp[elem.get_type()+'_id'] = elem.getID()
                 if elem.get_type() == 'b':
@@ -2892,83 +3025,114 @@ class ExportData():
         elif elem.get_type() == 's':
             if self.cond['acronym'] is True:
                 if elem.fields['p_id'] != '':
-                    tmp['p_id'] = self.config.AllPieces.elements[elem.fields['p_id']
-                                                                 ].fields['acronym']
+                    tmp['p_id'] = self.config \
+                                      .AllPieces \
+                                      .elements[elem.fields['p_id']] \
+                                      .fields['acronym']
                 else:
                     tmp['p_id'] = ''
                 if elem.fields['e_id'] != '':
-                    tmp['e_id'] = self.config.AllEquipments.elements[elem.fields['e_id']
-                                                                     ].fields['acronym']
+                    tmp['e_id'] = (self.config
+                                       .AllEquipments
+                                       .elements[elem.fields['e_id']]
+                                       .fields['acronym'])
                 else:
                     tmp['e_id'] = ''
                 if elem.fields['c_id'] != '':
-                    tmp['c_id'] = self.config.AllContainers.elements[elem.fields['c_id']
-                                                                     ].fields['acronym']
+                    tmp['c_id'] = (self.config
+                                       .AllContainers
+                                       .elements[elem.fields['c_id']]
+                                       .fields['acronym'])
                 else:
                     tmp['c_id'] = ''
                 tmp['sensor'] = elem.fields['acronym']
-                tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']
-                                                               ].fields['acronym']
+                tmp['m_id'] = (self.config
+                                   .AllMeasures
+                                   .elements[elem.fields['m_id']]
+                                   .fields['acronym'])
             else:
                 tmp['p_id'] = elem.fields['p_id']
                 tmp['e_id'] = elem.fields['e_id']
                 tmp['c_id'] = elem.fields['c_id']
                 tmp['sensor'] = elem.fields['s_id']
                 tmp['m_id'] = elem.fields['m_id']
-            tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
+            tmp['unit'] = (self.config
+                               .AllMeasures
+                               .elements[elem.fields['m_id']]
+                               .fields['unit'])
             tmp['remark'] = elem.fields['remark']
 
         elif elem.get_type() == 'al':
-            sensor = self.config.AllSensors.elements[elem.fields['s_id']]
+            sensor = (self.config
+                          .AllSensors
+                          .elements[elem.fields['s_id']])
             tmp['timestamp'] = elem.fields['begintime']
             tmp['type'] = 'ALR'
             if self.cond['acronym'] is True:
-                tmp[elem.fields['cont_type']+'_id'] = self.config.findAllFromType(
-                    elem.fields['cont_type']).elements[elem.fields['cont_id']].fields['acronym']
-                tmp['sensor'] = self.config.AllSensors.elements[elem.fields['s_id']
-                                                                ].fields['acronym']
-                tmp['m_id'] = self.config.AllMeasures.elements[self.config.AllSensors.elements[elem.fields['s_id']
-                                                                                               ].fields['m_id']].fields['acronym']
+                tmp[elem.fields['cont_type'] + '_id'] = self.config.findAllFromType(elem.fields['cont_type']).elements[elem.fields['cont_id']].fields['acronym']
+                tmp['sensor'] = (self.config
+                                     .AllSensors
+                                     .elements[elem.fields['s_id']]
+                                     .fields['acronym'])
+                tmp['m_id'] = (self.config
+                                   .AllMeasures
+                                   .elements[self.config
+                                                 .AllSensors
+                                                 .elements[elem.fields['s_id']]
+                                                 .fields['m_id']]
+                                                 .fields['acronym'])
             else:
                 tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
                 tmp['sensor'] = elem.fields['s_id']
                 tmp['m_id'] = elem.fields['m_id']
-            tmp['duration'] = self.get_duration(
-                int(elem.fields['begintime']), useful.date_to_timestamp(elem.fields['begin']))
+            tmp['duration'] = self.get_duration(int(elem.fields['begintime']), \
+                                                useful.date_to_timestamp(elem.fields['begin']))
             tmp['category'] = elem.fields['degree']
             tmp['value'] = elem.fields['value']
-            tmp['unit'] = self.config.AllMeasures.elements[sensor.fields['m_id']].fields['unit']
+            tmp['unit'] = (self.config
+                               .AllMeasures
+                               .elements[sensor.fields['m_id']]
+                               .fields['unit'])
 
         elif elem.get_type() == 'd':
             tmp['type'] = 'MAN'
             if self.cond['acronym'] is True and elem.fields['h_id'] != '':
-                tmp['h_id'] = self.config.AllCheckPoints.elements[elem.fields['h_id']
-                                                                  ].fields['acronym']
+                tmp['h_id'] = (self.config
+                                   .AllCheckPoints
+                                   .elements[elem.fields['h_id']]
+                                   .fields['acronym'])
             else:
                 tmp['h_id'] = elem.fields['h_id']
             tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'])
             if elem.fields['m_id'] != '':
                 tmp['value'] = elem.fields['value']
-                tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
+                tmp['unit'] = (self.config
+                                   .AllMeasures
+                                   .elements[elem.fields['m_id']]
+                                   .fields['unit'])
                 if self.cond['acronym'] is True:
-                    tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']
-                                                                   ].fields['acronym']
+                    tmp['m_id'] = (self.config
+                                       .AllMeasures
+                                       .elements[elem.fields['m_id']]
+                                       .fields['acronym'])
                 else:
                     tmp['m_id'] = elem.fields['m_id']
             if self.cond['acronym'] is True and elem.fields['m_id'] != '':
-                tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']
-                                                               ].fields['acronym']
-                tmp[elem.fields['object_type']+'_id'] = self.config.findAllFromType(
-                    elem.fields['object_type']).elements[elem.fields['object_id']].fields['acronym']
+                tmp['m_id'] = (self.config
+                                   .AllMeasures
+                                   .elements[elem.fields['m_id']]
+                                   .fields['acronym'])
+                tmp[elem.fields['object_type']+'_id'] = self.config.findAllFromType(elem.fields['object_type']).elements[elem.fields['object_id']].fields['acronym']
             else:
                 tmp['m_id'] = elem.fields['m_id']
                 tmp[elem.fields['object_type']+'_id'] = elem.fields['object_id']
             tmp['remark'] = elem.fields['remark']
             if self.cond['acronym'] is True:
-                tmp['user'] = self.config.AllUsers.elements[elem.fields['user']
-                                                            ].fields['acronym']
-                tmp[elem.fields['object_type']+'_id'] = self.config.findAllFromType(
-                    elem.fields['object_type']).elements[elem.fields['object_id']].fields['acronym']
+                tmp['user'] = (self.config
+                                   .AllUsers
+                                   .elements[elem.fields['user']]
+                                   .fields['acronym'])
+                tmp[elem.fields['object_type']+'_id'] = self.config.findAllFromType(elem.fields['object_type']).elements[elem.fields['object_id']].fields['acronym']
             else:
                 tmp['user'] = elem.fields['user']
                 tmp[elem.fields['object_type']+'_id'] = elem.fields['object_id']
@@ -2976,31 +3140,29 @@ class ExportData():
         elif elem.get_type() == 't':
             tmp['type'] = 'TRF'
             if self.cond['acronym'] is True and elem.fields['h_id'] != '':
-                tmp['h_id'] = self.config.AllCheckPoints.elements[elem.fields['h_id']
-                                                                  ].fields['acronym']
+                tmp['h_id'] = (self.config
+                                   .AllCheckPoints
+                                   .elements[elem.fields['h_id']]
+                                   .fields['acronym'])
             else:
                 tmp['h_id'] = elem.fields['h_id']
 
             tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'])
             tmp['remark'] = elem.fields['remark']
             if self.cond['acronym'] is True:
-                tmp[elem.fields['cont_type']+'_id'] = self.config.findAllFromType(
-                    elem.fields['cont_type']).elements[elem.fields['cont_id']].fields['acronym']
+                tmp[elem.fields['cont_type']+'_id'] = self.config.findAllFromType(elem.fields['cont_type']).elements[elem.fields['cont_id']].fields['acronym']
                 if elem.fields['object_type'] != 'b':
-                    tmp[elem.fields['object_type']+'_id'] = self.config.findAllFromType(
-                        elem.fields['object_type']).elements[elem.fields['object_id']].fields['acronym']
+                    tmp[elem.fields['object_type']+'_id'] = self.config.findAllFromType(elem.fields['object_type']).elements[elem.fields['object_id']].fields['acronym']
                 elemtmp = elem.get_cont().get_position_on_time(
                     self.config, elem.fields['time'])
                 while elemtmp is not None:
-                    tmp[elemtmp.fields['cont_type']+'_id'] = self.config.findAllFromType(
-                        elemtmp.fields['cont_type']).elements[elemtmp.fields['cont_id']].fields['acronym']
+                    tmp[elemtmp.fields['cont_type']+'_id'] = self.config.findAllFromType(elemtmp.fields['cont_type']).elements[elemtmp.fields['cont_id']].fields['acronym']
                     elemtmp = elemtmp.get_cont().get_position_on_time(
                         self.config, elemtmp.fields['time'])
             else:
                 tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
                 if elem.fields['object_type'] != 'b':
-                    tmp[elem.fields['object_type'] +
-                        '_id'] = elem.fields['object_id']
+                    tmp[elem.fields['object_type'] + '_id'] = elem.fields['object_id']
                 elemtmp = elem.get_cont().get_position_on_time(
                     self.config, elem.fields['time'])
                 while elemtmp is not None:
@@ -3011,35 +3173,47 @@ class ExportData():
 
         elif elem.get_type() == 'v':
             if self.cond['acronym'] is True and elem.fields['h_id'] != '':
-                tmp['h_id'] = self.config.AllCheckPoints.elements[elem.fields['h_id']
-                                                                  ].fields['acronym']
+                tmp['h_id'] = (self.config
+                                   .AllCheckPoints
+                                   .elements[elem.fields['h_id']]
+                                   .fields['acronym'])
             else:
                 tmp['h_id'] = elem.fields['h_id']
             tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'])
             tmp['remark'] = elem.fields['remark']
             tmp['value'] = elem.fields['quantity']
-            tmp['unit'] = self.config.AllMeasures.elements[elem.fields['m_id']].fields['unit']
+            tmp['unit'] = (self.config
+                               .AllMeasures
+                               .elements[elem.fields['m_id']].fields['unit'])
             if elem.fields['src'] == self.b.getID():
                 tmp['type'] += 'OUT'
                 if self.cond['acronym'] is True:
-                    tmp['b_id'] = self.config.AllBatches.elements[elem.fields['dest']
-                                                                  ].fields['acronym']
-                    tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']
-                                                                   ].fields['acronym']
+                    tmp['b_id'] = (self.config
+                                       .AllBatches
+                                       .elements[elem.fields['dest']]
+                                       .fields['acronym'])
+                    tmp['m_id'] = (self.config
+                                       .AllMeasures
+                                       .elements[elem.fields['m_id']]
+                                       .fields['acronym'])
                 else:
                     tmp['b_id'] = elem.fields['dest']
                     tmp['m_id'] = elem.fields['m_id']
             else:
                 tmp['type'] += 'INP'
                 if self.cond['acronym'] is True:
-                    tmp['b_id'] = self.config.AllBatches.elements[elem.fields['src']
-                                                                  ].fields['acronym']
-                    tmp['m_id'] = self.config.AllMeasures.elements[elem.fields['m_id']
-                                                                   ].fields['acronym']
+                    tmp['b_id'] = (self.config
+                                       .AllBatches
+                                       .elements[elem.fields['src']]
+                                       .fields['acronym'])
+                    tmp['m_id'] = (self.config
+                                       .AllMeasures
+                                       .elements[elem.fields['m_id']]
+                                       .fields['acronym'])
                 else:
                     tmp['b_id'] = elem.fields['src']
                     tmp['m_id'] = elem.fields['m_id']
-        return tmp
+        return tmp 
 
     def get_duration(self, begin, end):
         timestamp = int(end) - int(begin)
@@ -3148,28 +3322,60 @@ class Alarm(ConfigurationObject):
                 int(sensor.time) * sensor.countActual)
             currObject.fields['degree'] = unicode(sensor.degreeAlarm)
             currObject.save(config)
-            return unicode.format(mess, config.HardConfig.hostname, specmess, cpe, elem.getName(lang), elem.fields['acronym'], sensor.getName(lang), sensor.fields['acronym'], unicode(sensor.lastvalue), sensor.actualAlarm, useful.timestamp_to_date(sensor.time), unicode(sensor.degreeAlarm))
+            return unicode.format(mess,
+                                  config.HardConfig.hostname,
+                                  specmess,
+                                  cpe,
+                                  elem.getName(lang),
+                                  elem.fields['acronym'],
+                                  sensor.getName(lang),
+                                  sensor.fields['acronym'],
+                                  unicode(sensor.lastvalue),
+                                  sensor.actualAlarm,
+                                  useful.timestamp_to_date(sensor.time),
+                                  unicode(sensor.degreeAlarm))
         elif sensor.get_type() == 'd':
             mess = config.getMessage('alarmmanual',lang)
             elem = config.findAllFromType(
                 sensor.fields['object_type']).elements[sensor.fields['object_id']]
-            name = config.AllMessages.elements[elem.get_class_acronym()].getName(lang)
+            name = config.getMessage(elem.get_class_acronym(),lang)
             if sensor.fields['m_id'] != '':
-                measure = config.AllMeasures.elements[sensor.fields['m_id']
-                                                      ].fields['unit']
+                measure = (config.AllMeasures
+                                 .elements[sensor.fields['m_id']]
+                                 .fields['unit'])
             else:
                 measure = ''
-            return unicode.format(mess, config.HardConfig.hostname, '', name, elem.getName(lang), elem.fields['acronym'], unicode(sensor.fields['value']), measure, sensor.fields['remark'], sensor.fields['time'])
+            return unicode.format(mess,
+                                  config.HardConfig.hostname,
+                                  '',
+                                  name,
+                                  elem.getName(lang),
+                                  elem.fields['acronym'],
+                                  unicode(sensor.fields['value']),
+                                  measure,
+                                  sensor.fields['remark'],
+                                  sensor.fields['time'])
         elif sensor.get_type() == 'v':
             mess = config.getMessage('alarmpouring',lang)
             elemin = config.AllBatches.elements[sensor.fields['src']]
             elemout = config.AllBatches.elements[sensor.fields['dest']]
             if sensor.fields['m_id'] != '':
-                measure = config.AllMeasures.elements[sensor.fields['m_id']
-                                                      ].fields['unit']
+                measure = (config.AllMeasures
+                                 .elements[sensor.fields['m_id']]
+                                 .fields['unit'])
             else:
                 measure = ''
-            return unicode.format(mess, config.HardConfig.hostname, '', elemout.getName(lang), elemout.fields['acronym'], elemin.getName(lang), elemin.fields['acronym'], unicode(sensor.fields['quantity']), measure, sensor.fields['remark'], sensor.fields['time'])
+            return unicode.format(mess,
+                                  config.HardConfig.hostname,
+                                  '',
+                                  elemout.getName(lang),
+                                  elemout.fields['acronym'],
+                                  elemin.getName(lang),
+                                  elemin.fields['acronym'],
+                                  unicode(sensor.fields['quantity']),
+                                  measure,
+                                  sensor.fields['remark'],
+                                  sensor.fields['time'])
 
     def get_alarm_title(self, sensor, config, lang):
         if sensor.get_type() == 's':
@@ -3188,17 +3394,31 @@ class Alarm(ConfigurationObject):
             elif sensor.actualAlarm == 'maxmax':
                 code = '+++'
                 equal = '>'
-            return unicode.format(title, code, unicode(sensor.degreeAlarm), sensor.fields['acronym'], unicode(sensor.lastvalue), equal, sensor.fields[sensor.actualAlarm], config.AllMeasures.elements[sensor.fields['m_id']].fields['unit'], sensor.getName(lang))
+            return unicode.format(title,
+                                  code,
+                                  unicode(sensor.degreeAlarm),
+                                  sensor.fields['acronym'],
+                                  unicode(sensor.lastvalue),
+                                  equal,
+                                  sensor.fields[sensor.actualAlarm],
+                                  config.AllMeasures
+                                        .elements[sensor.fields['m_id']]
+                                        .fields['unit'],
+                                  sensor.getName(lang))
         elif sensor.get_type() == 'd':
             title = config.getMessage('alarmmanualtitle',lang)
             elem = config.findAllFromType(
                 sensor.fields['object_type']).elements[sensor.fields['object_id']]
             if sensor.fields['m_id'] != '':
-                measure = config.AllMeasures.elements[sensor.fields['m_id']
-                                                      ].fields['unit']
+                measure = (config.AllMeasures
+                                 .elements[sensor.fields['m_id']]
+                                 .fields['unit'])
             else:
                 measure = ''
-            return unicode.format(title, sensor.fields['value'], measure, elem.getName(lang))
+            return unicode.format(title,
+                                  sensor.fields['value'],
+                                  measure,
+                                  elem.getName(lang))
         elif sensor.get_type() == 'v':
             title = config.getMessage('alarmpouringtitle',lang)
             elemin = config.AllBatches.elements[sensor.fields['src']]
@@ -3210,44 +3430,59 @@ class Alarm(ConfigurationObject):
             level = sensor.degreeAlarm
             if level == 1:
                 print 'Send mails, level 1'
-                userlist = config.AllGrFunction.elements[self.fields['o_email1']].get_user_group(
-                )
+                userlist = (config.AllGrFunction
+                                  .elements[self.fields['o_email1']]
+                                  .get_user_group())
                 for user in userlist:
                     lang = config.AllUsers.elements[user].fields['language']
                     mess = self.get_alarm_message(sensor, config, lang)
                     title = self.get_alarm_title(sensor, config, lang)
-                    useful.send_email(
-                        config.AllUsers.elements[user].fields['mail'], title, mess)
+                    useful.send_email(config.AllUsers
+                                            .elements[user].fields['mail'],
+                                            title,
+                                            mess)
             elif level == 2:
                 print 'Send mails, level 2'
-                userlist = config.AllGrFunction.elements[self.fields['o_email2']].get_user_group(
-                )
+                userlist = (config.AllGrFunction
+                                  .elements[self.fields['o_email2']]
+                                  .get_user_group())
                 for user in userlist:
                     lang = config.AllUsers.elements[user].fields['language']
                     mess = self.get_alarm_message(sensor, config, lang)
                     title = self.get_alarm_title(sensor, config, lang)
-                    useful.send_email(
-                        config.AllUsers.elements[user].fields['mail'], title, mess)
+                    useful.send_email(config.AllUsers
+                                            .elements[user].fields['mail'],
+                                            title,
+                                            mess)
         elif sensor.get_type() == 'd':
-            userlist = config.AllGrFunction.elements[self.fields['o_email2']].get_user_group(
-            )
+            userlist = (config.AllGrFunction
+                              .elements[self.fields['o_email2']]
+                              .get_user_group())
             for user in userlist:
                 lang = config.AllUsers.elements[user].fields['language']
                 mess = self.get_alarm_message(sensor, config, lang)
                 title = self.get_alarm_title(sensor, config, lang)
                 print 'Send mail depuis manuel data'
                 useful.send_email(
-                    config.AllUsers.elements[user].fields['mail'], title, mess)
+                        config.AllUsers
+                              .elements[user]
+                              .fields['mail'],
+                        title,
+                        mess)
         elif sensor.get_type() == 'v':
-            userlist = config.AllGrFunction.elements[self.fields['o_email2']].get_user_group(
-            )
+            userlist = (config.AllGrFunction
+                              .elements[self.fields['o_email2']]
+                              .get_user_group())
             for user in userlist:
                 lang = config.AllUsers.elements[user].fields['language']
                 mess = self.get_alarm_message(sensor, config, lang)
                 title = self.get_alarm_title(sensor, config, lang)
                 print 'Send mail depuis versement'
-                useful.send_email(
-                    config.AllUsers.elements[user].fields['mail'], title, mess)
+                useful.send_email(config.AllUsers
+                                        .elements[user]
+                                        .fields['mail'],
+                                  title,
+                                  mess)
 
     def get_class_acronym(self):
         return 'alarm'
@@ -3391,42 +3626,40 @@ class Sensor(ConfigurationObject):
         self.fields['h_id'] = data
 
     def update(self, now, value, config):
-        if value is not None:
-            self.lastvalue = value
-            self.updateRRD(now, value)
+        self.lastvalue = value
+        self.updateRRD(now, value)
 
-            minutes = int(now / 60)
-            # GMT + DST
-            hours = (int(minutes / 60) % 24)+100 + 2
-            minutes = (minutes % 60)+100
-            strnow = unicode(hours)[1:3]+":"+unicode(minutes)[1:3]
-            if config.screen is not None:
-                pos = config.screen.show(config.screen.begScreen, strnow)
-                pos = config.screen.showBW(pos+2, self.get_acronym())
-                pos = config.screen.show(
-                    pos+2, unicode(round(float(value), 1)))
-            if self.fields['m_id']:
-                id_measure = unicode(self.fields['m_id'])
-                if id_measure in config.AllMeasures.elements and config.screen is not None:
-                    measure = config.AllMeasures.elements[id_measure]
-                    pos = config.screen.show(pos, measure.fields['unit'])
+        minutes = int(now / 60)
+        # GMT + DST
+        hours = (int(minutes / 60) % 24)+100 + 2
+        minutes = (minutes % 60)+100
+        strnow = unicode(hours)[1:3]+":"+unicode(minutes)[1:3]
+        if config.screen is not None:
+            pos = config.screen.show(config.screen.begScreen, strnow)
+            pos = config.screen.showBW(pos+2, self.get_acronym())
+            pos = (config.screen
+                         .show(pos+2,
+                               unicode(round(float(value), 1))))
+        if self.fields['m_id']:
+            id_measure = unicode(self.fields['m_id'])
+            if id_measure in config.AllMeasures.elements \
+                                and config.screen is not None:
+                measure = config.AllMeasures.elements[id_measure]
+                pos = config.screen.show(pos, measure.fields['unit'])
 
-            typeAlarm, symbAlarm, self.colorAlarm = self.getTypeAlarm(value)
-            print(u'Sensor update Channel : ' + self.fields['channel'] + u'    ' +
-                  self.fields['sensor'] + u' ==> ' + self.fields['acronym'] + u' = ' + unicode(value))
-            if typeAlarm == 'typical':
-                self.setTypicalAlarm()
-            else:
-                if not ((typeAlarm == 'min' and self.actualAlarm == 'minmin') or (typeAlarm == 'max' and self.actualAlarm == 'maxmax')):
-                    self.actualAlarm = typeAlarm
-                if config.screen is not None:
-                    config.screen.showBW(-1, symbAlarm)
-                self.launchAlarm(config, now)
-            if config.screen is not None:
-                config.screen.end_line()
+        typeAlarm, symbAlarm, self.colorAlarm = self.getTypeAlarm(value)
+        if typeAlarm == 'typical':
+            self.setTypicalAlarm()
         else:
-            # TODO : si on ne sait pas se connecter au senseur, rajouter Alarme " Erreur Senseur not working"
-            print "Impossible d acceder au senseur "+self.fields['acronym']
+            if not ((typeAlarm == 'min' and self.actualAlarm == 'minmin')
+                    or (typeAlarm == 'max'
+                                and self.actualAlarm == 'maxmax')):
+                self.actualAlarm = typeAlarm
+            if config.screen is not None:
+                config.screen.showBW(-1, symbAlarm)
+            self.launchAlarm(config, now)
+        if config.screen is not None:
+            config.screen.end_line()
 
     def updateRRD(self, now, value):
         value = float(value)
@@ -3435,14 +3668,24 @@ class Sensor(ConfigurationObject):
     def createRRD(self):
         name = re.sub('[^\w]+', '', self.fields['acronym'])
         now = str(int(time.time())-60)
-        if self.fields['channel'] in queryChannels:
+        if self.fields['channel'] != 'radio':
             data_sources = str('DS:'+name+':GAUGE:120:U:U')
-            rrdtool.create(str(DIR_RRD+self.getRRDName()), "--step", "60", '--start', now, data_sources,
-                           'RRA:LAST:0.5:1:43200', 'RRA:AVERAGE:0.5:5:103680', 'RRA:AVERAGE:0.5:30:86400')
+            rrdtool.create(str(DIR_RRD+self.getRRDName()),
+                           "--step", "60",
+                           '--start', now,
+                           data_sources,
+                           'RRA:LAST:0.5:1:43200',
+                           'RRA:AVERAGE:0.5:5:103680',
+                           'RRA:AVERAGE:0.5:30:86400')
         elif self.fields['channel'] == 'radio':
             data_sources = str('DS:'+name+':GAUGE:360:U:U')
-            rrdtool.create(str(DIR_RRD+self.getRRDName()), "--step", "180", '--start', now, data_sources,
-                           'RRA:LAST:0.5:1:14400', 'RRA:AVERAGE:0.5:5:34560', 'RRA:AVERAGE:0.5:30:28800')
+            rrdtool.create(str(DIR_RRD+self.getRRDName()),
+                           "--step", "180",
+                           '--start', now,
+                           data_sources,
+                           'RRA:LAST:0.5:1:14400',
+                           'RRA:AVERAGE:0.5:5:34560',
+                           'RRA:AVERAGE:0.5:30:28800')
 
     def getTypeAlarm(self, value):
         value = float(value)
@@ -3469,19 +3712,24 @@ class Sensor(ConfigurationObject):
                 self.degreeAlarm = 2
         else:
             self.countAlarm = self.countAlarm + 1
-            if self.degreeAlarm == 1 and self.countAlarm >= int(self.fields['lapse1']):
-                config.AllAlarms.elements[self.get_alarm()].launch_alarm(
-                    self, config)
+            if self.degreeAlarm == 1 \
+                    and self.countAlarm >= int(self.fields['lapse1']):
+                (config.AllAlarms
+                       .elements[self.get_alarm()]
+                       .launch_alarm(self, config))
                 self.degreeAlarm = 2
                 self.countAlarm = 0
-            elif self.degreeAlarm == 2 and self.countAlarm >= int(self.fields['lapse2']):
-                config.AllAlarms.elements[self.get_alarm()].launch_alarm(
-                    self, config)
+            elif self.degreeAlarm == 2 \
+                    and self.countAlarm >= int(self.fields['lapse2']):
+                config.AllAlarms \
+                      .elements[self.get_alarm()].launch_alarm(self, config)
                 self.degreeAlarm = 3
                 self.countAlarm = 0
-            elif self.degreeAlarm == 3 and self.countAlarm >= int(self.fields['lapse3']):
-                config.AllAlarms.elements[self.get_alarm()].launch_alarm(
-                    self, config)
+            elif self.degreeAlarm == 3 \
+                    and self.countAlarm >= int(self.fields['lapse3']):
+                (config.AllAlarms
+                       .elements[self.get_alarm()]
+                       .launch_alarm(self, config))
                 self.setTypicalAlarm()
 
     def setTypicalAlarm(self):
@@ -3490,89 +3738,209 @@ class Sensor(ConfigurationObject):
         self.degreeAlarm = 0
         self.time = 0
 
-    def get_value_sensor(self, config, webCache=None):
-        if webCache is None:
-            webCache = {}
-        owData = None
+    def get_value_sensor(self, config, iteration_cache=None):
+        def parse_atmos_data(self, input):
+            '''
+            Given a single string '+a+b-c+d', returns ['+a','+b','-c','+d']
+            Used to parse the data returned from the Atmos41 weather station
+            '''
+            return reduce(lambda acc, elem:
+                                acc[:-1] + [acc[-1] + elem]
+                                if elem != '+' and elem != '-'
+                                else acc + [elem],
+                                    re.split("([+,-])", input.strip())[1:], [])
+            return re.split("([+,-])", input.strip())
+        
+        def set_cache(self, field, cache):
+            channel = self.fields['channel']
+            if not channel in iteration_cache:
+                iteration_cache[channel] = {}
+            iteration_cache[channel][field] = cache
+            
+        def get_cache(self, field):
+            '''
+            Returns the data from iteration_cache for at the coresponding field.
+            May return None
+            '''
+            channel = self.fields['channel']
+            try:
+                return iteration_cache[channel][field]
+            except KeyError:
+                return None
+
+        if iteration_cache is None:
+            iteration_cache = {}
+        output_val = None
         debugging = u""
         if self.fields['channel'] == 'wire':
             try:
                 sensorAdress = u'/' + \
                     unicode(self.fields['sensor'])+u'/' + \
                     unicode(self.fields['subsensor'])
-                owData = config.owproxy.read(sensorAdress)
+                output_val = config.owproxy.read(sensorAdress)
             except:
-                debugging = u"Device="+sensorAdress+u", Message="+traceback.format_exc()
-        elif self.fields['channel'] == 'battery':
-            owData = config.batteryVoltage
+                debugging = (u"Device=" + sensorAdress
+                                        + u", Message="
+                                        + traceback.format_exc())
         elif self.fields['channel'] == 'cputemp':
-            with open('/sys/class/thermal/thermal_zone0/temp', 'r') as sensorfile:
+            with open('/sys/class/thermal/thermal_zone0/temp', 'r') \
+                    as sensorfile:
                 info = sensorfile.read()
-                owData = float(info)/1000.0
+                output_val = float(info)/1000.0
         elif self.fields['channel'] == 'http':
             url = self.fields['sensor']
             code = 0
             info = ""
-            if url in webCache:
-                info = webCache[url]
-                owData = eval(self.fields['subsensor'])
+            if url in iteration_cache:
+                info = iteration_cache[url]
+                output_val = eval(self.fields['subsensor'])
             else:
                 try:
                     sensorfile = urllib2.urlopen(
                         self.fields['sensor'], None, 20)
                     info = sensorfile.read(80000)
                     sensorfile.close()
-                    webCache[url] = info
-                    owData = eval(self.fields['subsensor'])
+                    iteration_cache[url] = info
+                    output_val = eval(self.fields['subsensor'])
                 except:
                     debugging = u"URL="+url+u", code=" + \
                         unicode(code)+u", Response="+info + \
                         u", Message="+traceback.format_exc()
         elif self.fields['channel'] == 'json':
+# TODO: use get_cache()
             url = self.fields['sensor']
             code = 0
             info = ""
-            if url in webCache:
-                info = webCache[url]
+            if url in iteration_cache[self.fields['channel']]:
+                info = iteration_cache[self.fields['channel']][url]
                 try:
-                    owData = eval(self.fields['subsensor'])
+                    output_val = eval(self.fields['subsensor'])
                 except:
-                    debugging = u"URL="+url+u", code="+unicode(code)+u", Response="+unicode(
-                        info)+u", Subsensor="+self.fields['subsensor']+u", Message="+traceback.format_exc()
+                    debugging = (u"URL=" + url
+                                         + u", code="
+                                         + unicode(code)
+                                         + u", Response="
+                                         + unicode(info)
+                                         + u", Subsensor="
+                                         + self.fields['subsensor']
+                                         + u", Message="
+                                         + traceback.format_exc())
                     traceback.print_exc()
             else:
                 try:
-                    sensorfile = urllib2.urlopen(
-                        self.fields['sensor'], None, 20)
+                    sensorfile = urllib2.urlopen(self.fields['sensor'],
+                                                 None,
+                                                 20)
                     print sensorfile.getcode()
                     info = sensorfile.read()
                     info = json.loads(info)
                     sensorfile.close()
-                    webCache[url] = info
-                    owData = eval(self.fields['subsensor'])
+                    iteration_cache[self.fields['channel']][url] = info
+                    output_val = eval(self.fields['subsensor'])
                 except:
-                    debugging = u"URL="+url+u", code="+unicode(code)+u", Response="+unicode(
-                        info)+u", Subsensor="+self.fields['subsensor']+u", Message="+traceback.format_exc()
+                    debugging = (u"URL=" + url
+                                         + u", code="
+                                         + unicode(code)
+                                         + u", Response="
+                                         + unicode(info)
+                                         + u", Subsensor="
+                                         + self.fields['subsensor']
+                                         + u", Message="
+                                         + traceback.format_exc())
         elif self.fields['channel'] == 'system':
             try:
                 sensorAdress = self.fields['sensor']
                 with open(sensorAdress, 'r') as sensorfile:
                     info = sensorfile.read()
-                    owData = eval(self.fields['subsensor'])
+                    output_val = eval(self.fields['subsensor'])
             except:
                 debugging = u"Device="+sensorAdress+u", field=" + \
                     self.fields['subsensor']+u", data=" + \
                     unicode(info)+u", Message="+traceback.format_exc()
-        if owData:
+        elif self.fields['channel'] == 'battery':
+            input = config.HardConfig.inputs[self.fields['channel']]
+            device = config.HardConfig.devices[input['device']]
+            adc = abe_adcpi.ADCPi(int(device['i2c'], 16),
+                                  int(input['resolution']))
+            output_val = adc.read_voltage(int(input['channel']))
+        elif self.fields['channel'].startswith('lightsensor'):
+            input = config.HardConfig.inputs[self.fields['channel']]
+            device = config.HardConfig.devices[input['device']]
+            adc = abe_mcp3424.ADCDifferentialPi(int(device['i2c'], 16),
+                                                int(device['i2c'], 16) + 1,
+                                                int(input['resolution']))
+            adc.set_pga(int(device['amplification']))
+            output_val = adc.read_voltage(int(input['channel'])) 
+        elif self.fields['channel'].startswith('humiditysensor'):
+            input = config.HardConfig.inputs[self.fields['channel']]
+            input_device = config.HardConfig.devices[input['device']]
+            output = config.HardConfig.outputs[input['poweroutput']]
+            output_device = config.HardConfig.devices[output['device']]
+
+            output_gpio = abe_iopi.IOPi(int(output_device['i2c'], 16))
+            output_gpio.set_pin_direction(int(output['channel']), 0)
+            adc = abe_adcpi.ADCPi(int(input_device['i2c'], 16),
+                                  int(input_device['i2c'], 16) + 1,
+                                  int(input['resolution']))
+# TODO: manage invertion for output
+            # Stimulate
+            output_gpio.write_pin(int(output['channel']), 1)
+            time.sleep(int(input['delayms'])*0.001)
+            
+            output_val = adc.read_voltage(int(input['channel']))
+            # End stimulation
+            output_gpio.write_pin(int(output['channel']), 0)
+        elif self.fields['channel'] == 'atmos41':
+            input = config.HardConfig.inputs[self.fields['channel']]
+            cache = get_cache(self, input['serialport']+input['sdiaddress'])
+            if cache is None:
+                ser = serial.Serial(input['serialport'],
+                                    baudrate=9600,
+                                    timeout=10)
+                time.sleep(2.5) # Leave some time to initialize
+                ser.write(input['sdiaddress'].encode() + b'R0!')
+                try:
+                    cache = parse_atmos_data(self, ser.readline())
+                except SerialException:
+                    print('Tried to read several times back to back ?')
+                    raise
+                else:
+                    set_cache(self,
+                              input['serialport']+input['sdiaddress'],
+                              cache)
+                finally:
+                    ser.close()
+            try:
+                output_val = float(cache[int(self.fields['subsensor'])])
+            except ValueError:
+                print('Subsensor should be an integer')
+            except IndexError:
+                print('Subsensor for atmos is out of range: '
+                      + self.fields['subsensor']
+                      + '. Range starts at 0')
+        else:
+            print('Error: no sensor channel for ' + self.fields['channel'])
+            return None
+       
+        if (debugging != ''):
+            print(debugging) 
+        try:
+            assert output_val != None 
+        except AssertionError:
+            print("output_val has not been set for channel: "
+                  + self.fields['channel']
+                  + '. Ignoring.')
+            return None
+        else:
             if self.fields['formula']:
                 try:
-                    value = float(owData)
-                    owData = unicode(eval(self.fields['formula']))
+                    value = float(output_val)
+                    output_val = unicode(eval(self.fields['formula']))
                 except:
-                    debugging = u"Device="+self.fields['sensor']+u" / "+self.fields['subsensor'] + \
+                    print(u"Device="+self.fields['sensor']+u" / "+self.fields['subsensor'] + \
                         u", Formula="+self.fields['formula'] + \
                         u", Message="+traceback.format_exc()
-            return owData, debugging
+            return output_val
         return None, debugging
 
     def is_in_component(self, type, id):

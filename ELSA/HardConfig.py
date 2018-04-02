@@ -45,12 +45,36 @@ class HardConfig():
     battery_RV = 45000
     battery_RG = 5000
     battery_divider = 10.0
-    battery_shutdown = 'sudo shutdown now "ON FERME!"'
+    battery_shutdown = 'sudo shutdown now "Batterie faible !"'
     shutdown = None
     running = None
     keypad = None
     keypad_r = [0, 0, 0, 0]
     keypad_c = [0, 0, 0, 0]
+    devices = {}
+    inputs = {}
+    outputs = {}
+
+    def parse_section_system(self):
+        if self.config.has_section('system'):
+            if u'system' in self.config.sections():
+                for anItem in self.config.items(u'system'):
+                    if anItem[0].lower() == u'rundirectory':
+                        self.rundirectory = unicode(anItem[1]).strip()
+                        try:
+                            if not os.path.exists(self.rundirectory):
+                                os.makedirs(self.rundirectory)
+                        except OSError:
+                            print('Impossible de creer le dossier ' + self.rundirectory + '.')
+                            sys.exit()
+                    elif anItem[0].lower() == u'model':
+                        self.model = anItem[1]
+
+    def parse_section_I2C(self):
+        if u'I2C' in self.config.sections():
+            for anItem in self.config.items(u'I2C'):
+                if anItem[0].lower() == u'bus':
+                    self.i2c_bus = int(anItem[1])
 
     def __init__(self, config_file):
         self.hostname = socket.gethostname()
@@ -66,28 +90,12 @@ class HardConfig():
             except IOError:
                 print("No valid configuration hardware configuration file found. Exiting")
                 sys.exit()
-
-        if self.config.has_section('system'):
-            #            print(self.config.sections())
-
-            if u'system' in self.config.sections():
-                for anItem in self.config.items(u'system'):
-                    if anItem[0].lower() == u'rundirectory':
-                        self.rundirectory = unicode(anItem[1]).strip()
-                        try:
-                            if not os.path.exists(self.rundirectory):
-                                os.makedirs(self.rundirectory)
-                        except OSError:
-                            print('Impossible de creer le dossier ' + self.rundirectory + '.')
-                            sys.exit()
-                    elif anItem[0].lower() == u'model':
-                        self.model = anItem[1]
-
-            if u'I2C' in self.config.sections():
-                for anItem in self.config.items(u'I2C'):
-                    if anItem[0].lower() == u'bus':
-                        self.i2c_bus = int(anItem[1])
-
+    
+        self.parse_section_system()
+        self.parse_section_I2C()
+# TODO:Finish copying sections to functions
+       
+        if True: 
             if u'SPI' in self.config.sections():
                 for anItem in self.config.items(u'SPI'):
                     if anItem[0].lower() == u'channel':
@@ -265,6 +273,17 @@ class HardConfig():
                             self.keypad_c[x] = int(anItem[1])
                         except:
                             pass
+            
+# TODO: Add verfication for configuration options (if an input mentions a device, it should exitst, etc.)
+            for section in (j for j in self.config.sections() if '.' in j):
+                name = section.split('.')[1]
+                if section.startswith('device'):
+                    self.devices[name] = dict(self.config.items(section))
+                elif section.startswith('input'):
+                    self.inputs[name] = dict(self.config.items(section))
+                elif section.startswith('output'):
+                    self.outputs[name] = dict(self.config.items(section))
+                    
 
         else:
             print('Unable to load configuration. Exiting.')
