@@ -1402,7 +1402,7 @@ class AllMeasures(AllObjects):
     def __init__(self, config):
         AllObjects.__init__(self, 'm', config)
         self.fieldnames = ['begin', 'm_id', 'active',
-                           'acronym', 'unit', 'remark', 'user']
+                           'acronym', 'unit', 'remark', 'min', 'step', 'max', 'user']
         self.fieldtranslate = ['begin', 'lang', 'm_id', 'name', 'user']
 
     def newObject(self):
@@ -3536,13 +3536,42 @@ class Measure(ConfigurationObject):
         except:
             tmp += configuration.getMessage('unitrules',lang) + '\n'
 
+        valueMin = 0.0
+        try:
+            if not len(data['min']) > 0:
+                tmp += configuration.getMessage('minrules',lang) + '\n'
+            else:
+                valueMin = float(data['min'])
+        except:
+            tmp += configuration.getMessage('minrules',lang) + '\n'
+
+        try:
+            if not len(data['max']) > 0:
+                tmp += configuration.getMessage('maxrules',lang) + '\n'
+            else:
+                valueMax = float(data['max'])
+                if valueMax < valueMin:
+                    tmp += configuration.getMessage('maxrules',lang) + '\n'
+        except:
+            tmp += configuration.getMessage('maxrules',lang) + '\n'
+
+        try:
+            if not len(data['step']) > 0:
+                tmp += configuration.getMessage('steprules',lang) + '\n'
+            else:
+                value = float(data['step'])
+                if value <= 0.0:
+                    tmp += configuration.getMessage('steprules',lang) + '\n'
+        except:
+            tmp += configuration.getMessage('steprules',lang) + '\n'
+
         if tmp == '':
             return True
         return tmp
 
     def set_value_from_data(self, data, c, user):
         super(Measure, self).set_value_from_data(data, c, user)
-        tmp = ['unit']
+        tmp = ['unit','min','max','step']
         for elem in tmp:
             self.fields[elem] = data[elem]
         self.save(c, user)
@@ -3846,7 +3875,7 @@ class Sensor(ConfigurationObject):
                     sensorfile = urllib2.urlopen(self.fields['sensor'],
                                                  None,
                                                  20)
-                    print sensorfile.getcode()
+                    #print sensorfile.getcode()
                     info = sensorfile.read()
                     info = json.loads(info)
                     sensorfile.close()

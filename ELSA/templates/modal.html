@@ -87,6 +87,30 @@ $var title: MODAL
                     $if type == 'm':
                         <div class="row" style="margin-top:10px;">
                             <div class="col-xs-4">
+                            $c.getMessage('min',self.lang) :
+                            </div>
+                            <div class="col-xs-8" id="modalinfo" >
+                            $elem.fields['min']
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
+                            $c.getMessage('step',self.lang) :
+                            </div>
+                            <div class="col-xs-8" id="modalinfo" >
+                            $elem.fields['step']
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
+                            $c.getMessage('max',self.lang) :
+                            </div>
+                            <div class="col-xs-8" id="modalinfo" >
+                            $elem.fields['max']
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
                             $c.getMessage('unit',self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >

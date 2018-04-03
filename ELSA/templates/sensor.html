@@ -105,6 +105,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <div class="col-sm-9">
 		<select name = "measure" class="form-control" id="measureSelect">
 		    $for k in c.AllMeasures.elements.keys():
+                        $ aMeasure = c.AllMeasures.elements[k]
 			<option value="m_$k"
 			    $if errormess != '' :
 				$if 'measure' in data:
@@ -113,7 +114,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 			    $elif id != 'new':
 				$if k == aSensor.fields['m_id'] :
 				    selected
-			>$c.AllMeasures.elements[k].fields['acronym'] - $c.AllMeasures.elements[k].getName(self.lang) - $c.AllMeasures.elements[k].fields['unit']</option>
+			>$(aMeasure.fields['acronym']) - $(aMeasure.getName(self.lang)): $(aMeasure.fields['min']) +$(aMeasure.fields['step'])... $lt;= $(aMeasure.fields['max']) $(aMeasure.fields['unit'])</option>
 		</select>
 	    </div>
 	</div>

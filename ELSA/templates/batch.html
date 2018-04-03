@@ -110,9 +110,9 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputLapse1" class="col-sm-3 col-form-label">$c.getMessage('quantity',self.lang)</label>
+	    <label for="inputQty" class="col-sm-3 col-form-label">$c.getMessage('quantity',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="basicqt" type="text" class="form-control" id="inputLapse1" placeholder="$c.getMessage('quantity',self.lang)" 
+		<input name="basicqt" type="number" class="form-control" id="inputQty" placeholder="$c.getMessage('quantity',self.lang)" 
 		    $if errormess != '':
 			$if 'basicqt' in data :
 			    value="$data['basicqt']" 

@@ -91,10 +91,12 @@ $elif myID == 'component':
 	    <div class="col-sm-9">
 		<select name = "measure" class="form-control" id="measureSelect">
 		    <option value="None"></option>
+                    $ aMeasure = None
 		    $for k in c.AllMeasures.elements.keys():
 			<option value="$k"
 			    $if myID == "update":
 				$if k == data.fields['m_id']:
+                                    $ aMeasure = c.AllMeasures.elements[k]
 				    selected			
 			>$c.AllMeasures.elements[k].fields['acronym'] - $c.AllMeasures.elements[k].getName(self.lang) - $c.AllMeasures.elements[k].fields['unit']</option>
 		</select>
@@ -104,7 +106,10 @@ $elif myID == 'component':
 	<div class="form-group row">
 	    <label for="inputValue" class="col-sm-3 col-form-label">$c.getMessage('value',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="value" type="text" class="form-control" id="inputValue" placeholder="$c.getMessage('value',self.lang)" 
+		<input name="value" type="number"
+                $if aMeasure:
+                    min="$(aMeasure.fields['min'])" max="$(aMeasure.fields['max'])" step="$(aMeasure.fields['step'])"
+                class="form-control" id="inputValue" placeholder="$c.getMessage('value',self.lang)" 
 		$if myID == 'update':
 		    value="$data.fields['value']"
 		>

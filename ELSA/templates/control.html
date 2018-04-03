@@ -68,6 +68,7 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		$code:
 		    counttm += 1
 	    $elif e.get_type() == 'dm':
+		$ aMeasure=c.AllMeasures.elements[e.fields['m_id']]
 		<div class="form-group row">
 		    <label class="col-sm-12 col-form-label">$:c.getAllHalfling(c.AllManualData) $e.getName(self.lang)</label>
 		</div>
@@ -75,11 +76,11 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		<div class="form-group row">
 		    <label for="inputValue" class="col-sm-3 col-form-label">$c.AllMeasures.elements[e.fields['m_id']].getName(self.lang)</label>
 		    <div class="col-sm-3">
-		        <input name="dm_value_$(countdm)" type="text" class="form-control" size="15" id="inputValue" placeholder="$c.getMessage('value',self.lang)" value="$e.fields['typical']">
+		        <input name="dm_value_$(countdm)" type="number" min="$(aMeasure.fields['min'])" max="$(aMeasure.fields['max'])" step="$(aMeasure.fields['step'])" class="form-control" size="15" id="inputValue" placeholder="$c.getMessage('value',self.lang)" value="$e.fields['typical']">
                     </div>
 		    <div class="col-sm-3">
                         <input type="hidden" name="dm_measure_$(countdm)" value="$e.fields['m_id']">
-                        <strong>$c.AllMeasures.elements[e.fields['m_id']].fields['unit']</strong>
+                        <strong>$(aMeasure.fields['unit'])</strong>
 		    </div>
 		</div>
 		<div class="form-group row">
@@ -97,6 +98,7 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		</div>
 		$if e.fields['in'] != '0':
 		    <div class="form-group row">
+                        $ aMeasure = None
 			<label for="b_id" class="col-sm-3 col-form-label">$c.getMessage('batch',self.lang) $c.getMessage('source',self.lang)</label>
 			<div class="col-sm-9" id = "divsrc">
 			    <select name="vm_src_$(countvm)" class="form-control" id="src">
@@ -108,6 +110,7 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		    </div>
 		$else :
 		    <div class="form-group row">
+                        $ aMeasure = c.AllMeasures.elements[batch.fields['m_id']]
 			<label for="b_id" class="col-sm-3 col-form-label">$c.getMessage('batch',self.lang) $c.getMessage('source',self.lang)</label>
 			<div class="col-sm-9" id = "divdest">
 			    <select name="vm_dest_$(countvm)" class="form-control" id="dest">
@@ -120,7 +123,10 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		<div class="form-group row">
 		    <label for="inputValue" class="col-sm-3 col-form-label">$c.getMessage('quantity',self.lang)</label>
 		    <div class="col-sm-9">
-			<input name="vm_quantity_$(countvm)" type="text" class="form-control" id="inputValue" placeholder="$c.getMessage('value',self.lang)" value="$e.fields['quantity']"required >
+			<input name="vm_quantity_$(countvm)" type="number" 
+                        $if aMeasure:
+                            min="$(aMeasure.fields['min'])" max="$(aMeasure.fields['max'])" step="$(aMeasure.fields['step'])"
+                        class="form-control" id="inputValue" placeholder="$c.getMessage('value',self.lang)" value="$e.fields['quantity']"required >
 		    </div>
 		</div>
 		

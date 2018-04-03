@@ -48,6 +48,9 @@ begin	m_id	default	user
 2016-01-01 13:45:56	batchrules2	A Batch target is required !	1
 2016-01-01 13:45:56	batchrules3	The batch target must be different from batch source!	1
 2016-01-01 13:45:56	unitrules	An unit is required !	1
+2016-01-01 13:45:56	minrules	A Minimum value is required !	1
+2016-01-01 13:45:56	steprules	A Precision is required !	1
+2016-01-01 13:45:56	maxrules	A Maximum value (greater than Minimum) is required !	1
 2016-01-01 13:45:56	channelrules	A channel is required !	1
 2016-01-01 13:45:56	datarules	If you enter a value, select a measure	1
 2016-01-01 13:45:56	transferrules	The batch is already in this component	1
@@ -108,6 +111,9 @@ begin	m_id	default	user
 2016-01-01 13:45:56	source	Source 	1
 2016-01-01 13:45:56	formula	Formula 	1
 2016-01-01 13:45:56	unit	Unit 	1
+2016-01-01 13:45:56	min	Minimum 	1
+2016-01-01 13:45:56	step	Precision 	1
+2016-01-01 13:45:56	max	Maximum 	1
 2016-01-01 13:45:56	component	Component 	1
 2016-01-01 13:45:56	subsensor	Subsensor 	1
 2016-01-01 13:45:56	valuetype	Value type 	1

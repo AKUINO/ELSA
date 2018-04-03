@@ -344,6 +344,18 @@ Heure : {9}"	1
 2016-01-01 13:45:56	FR	unit	Unité 	1
 2016-01-01 13:45:56	EN	unitrules	An unit is required !	1
 2016-01-01 13:45:56	FR	unitrules	Une unité de mesure est requise !	1
+2016-01-01 13:45:56	EN	min	Minimum 	1
+2016-01-01 13:45:56	FR	min	Minimum 	1
+2016-01-01 13:45:56	EN	minrules	A Minimum value is required !	1
+2016-01-01 13:45:56	FR	minrules	Une valeur Minimum est requise !1
+2016-01-01 13:45:56	EN	max	Maximum 	1
+2016-01-01 13:45:56	FR	max	Maximum 	1
+2016-01-01 13:45:56	EN	maxrules	A Maximum value (greater than Minimum) is required !	1
+2016-01-01 13:45:56	FR	maxrules	Une valeur Maximum (plus grande que le Minimum) est requise !	1
+2016-01-01 13:45:56	EN	step	Precision 	1
+2016-01-01 13:45:56	FR	step	Précision 	1
+2016-01-01 13:45:56	EN	steprules	A Precision is required !	1
+2016-01-01 13:45:56	FR	steprules	Une précision est requise !	1
 2016-01-01 13:45:56	EN	updateELSA	Update	1
 2016-01-01 13:45:56	FR	updateELSA	Mettre à jour	1
 2016-01-01 13:45:56	DE	user	Benutzer	1

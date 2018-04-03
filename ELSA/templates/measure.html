@@ -1,15 +1,15 @@
 $def with (id, mail, errormess, data)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
-$var title : $c.getMessage(c.AllMeasures.class_acronym,self.lang)
+$var title : $c.getMessage('measure',self.lang)
 $if id == 'new':
     $var location: all/m=measure edit/m_new=add
     $var rmq :    
 $else:
     $var location: all/m=measure edit/m_$(id)=edit
-    $var rmq :  $elem.fields['remark']
     $code:
-        elem = elem
+        elem = c.AllMeasures.elements[id]
+    $var rmq :  $elem.fields['remark']
     $var title : $elem.getName(self.lang)
 $if errormess != '':
     $if 'remark' in data :
@@ -66,6 +66,50 @@ $if errormess != '':
 			value="$data['unit']"
 		$elif id !='new':
 		    value="$elem.fields['unit']"
+		required="true">
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputStep" class="col-sm-3 col-form-label">$c.getMessage('step',self.lang)</label>
+	    <div class="col-sm-9">
+		<select name = "step" class="form-control" id="inputStep" required="true">
+                    $for val in ["0.000001","0.00001","0.0001","0.001","0.01","0.1","1","10","100","1000"]:
+                        <option value="$val"
+			    $if errormess != '' :
+				$if 'step' in data:
+				    $if val == data['step']:
+					selected
+			    $elif id != 'new':
+				$if val == elem.fields['step'] :
+				    selected
+                        >$val</option>
+		</select>
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputMin" class="col-sm-3 col-form-label">$c.getMessage('min',self.lang)</label>
+	    <div class="col-sm-9">
+		<input name="min" type="number" class="form-control" id="inputMin" placeholder="$c.getMessage('min',self.lang)" 
+		$if errormess != '':
+		    $if 'min' in data :
+			value="$data['min']"
+		$elif id !='new':
+		    value="$elem.fields['min']"
+		required="true">
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputMax" class="col-sm-3 col-form-label">$c.getMessage('max',self.lang)</label>
+	    <div class="col-sm-9">
+		<input name="max" type="number" class="form-control" id="inputMax" placeholder="$c.getMessage('max',self.lang)" 
+		$if errormess != '':
+		    $if 'max' in data :
+			value="$data['max']"
+		$elif id !='new':
+		    value="$elem.fields['max']"
 		required="true">
 	    </div>
 	</div>
