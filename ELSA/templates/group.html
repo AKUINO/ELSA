@@ -152,7 +152,7 @@ $code:
 	<div class="form-group row">
 	    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.getAllMessages('code',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.getAllMessages('code',self.lang)" 
+		<input name="code" type="number" min="0" step="1" class="form-control" id="inputBarcode" placeholder="$c.getAllMessages('code',self.lang)" 
 		$if errormess != '':
 		    $if 'code' in data :
 			value="$data['code']"

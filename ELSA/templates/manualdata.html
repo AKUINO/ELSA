@@ -1,7 +1,7 @@
 $def with (id, mail, errormess, context='')
 $var recursive : False
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
-$var title: $c.getMessage('new',self.lang) $c.getName(c.AllManualData,self.lang)
+$var title: $c.getMessage('add',self.lang) $c.getName(c.AllManualData,self.lang)
 $if id == 'new' and context == '':
     $code :
 	myID = 'new'
@@ -19,12 +19,11 @@ $else :
 	    elem = c.findAllFromType(data.fields['object_type']).elements[data.fields['object_id']]
 	    myID = 'update'
 	    rmq = data.fields['remark']
-    $var title: $c.getMessage('update',lang) $c.getName(c.AllManualData,self.lang)
+    $var title: $c.getMessage('update',self.lang) $c.getName(c.AllManualData,self.lang)
 $if myID == 'update':
     $var location: list/$(elem.get_type())=$(elem.get_class_acronym()) manualdata/$(elem.get_type())_$(elem.getID())=manualdata edit/m_$(data.getID())=edit
 $elif myID == 'component':
     $var location: list/$(id.split('_')[-0])=$(elem.get_class_acronym()) manualdata/$(id.split('_')[0])_$(elem.getID())=manualdata transfers/$(id.split('_')[0])_$(elem.getID())/new=add
-
 <div class="container">
     <form  method="post" action="" id="modifyManualData"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
 	<div class="col-sm-12" >
@@ -90,15 +89,14 @@ $elif myID == 'component':
 	    <label for="measureSelect" class="col-sm-3 col-form-label">$c.getMessage('measure',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "measure" class="form-control" id="measureSelect">
-		    <option value="None"></option>
                     $ aMeasure = None
 		    $for k in c.AllMeasures.elements.keys():
+                        $ currMeasure = c.AllMeasures.elements[k]
 			<option value="$k"
 			    $if myID == "update":
 				$if k == data.fields['m_id']:
-                                    $ aMeasure = c.AllMeasures.elements[k]
 				    selected			
-			>$c.AllMeasures.elements[k].fields['acronym'] - $c.AllMeasures.elements[k].getName(self.lang) - $c.AllMeasures.elements[k].fields['unit']</option>
+			>$currMeasure.fields['acronym'] - $currMeasure.getName(self.lang): $currMeasure.fields['min'] +$currMeasure.fields['step']... &lt;= $currMeasure.fields['max'] $currMeasure.fields['unit']</option>
 		</select>
 	    </div>
 	</div>
@@ -106,10 +104,7 @@ $elif myID == 'component':
 	<div class="form-group row">
 	    <label for="inputValue" class="col-sm-3 col-form-label">$c.getMessage('value',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="value" type="number"
-                $if aMeasure:
-                    min="$(aMeasure.fields['min'])" max="$(aMeasure.fields['max'])" step="$(aMeasure.fields['step'])"
-                class="form-control" id="inputValue" placeholder="$c.getMessage('value',self.lang)" 
+		<input name="value" type="number" class="form-control" id="inputValue" placeholder="$c.getMessage('value',self.lang)" 
 		$if myID == 'update':
 		    value="$data.fields['value']"
 		>
@@ -166,3 +161,24 @@ $elif myID == 'component':
     </form>
 </div>
 
+<script>
+var mins = [];
+var maxs = [];
+var steps = [];
+$for k in c.AllMeasures.elements.keys():
+    $ aMeasure = c.AllMeasures.elements[k]
+    mins[$k]=$(aMeasure.fields['min']);
+    maxs[$k]=$(aMeasure.fields['max']);
+    steps[$k]=$(aMeasure.fields['step']);
+
+$$("#measureSelect").change(function() {
+    $$("#measureSelect option:selected").each(function() {
+       var v = this.value;
+       $$("#inputValue").attr({
+         "max" : maxs[v],
+         "min" : mins[v],
+         "step" : steps[v]
+       });
+    });
+}).change();
+</script>

@@ -74,7 +74,7 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		</div>
 		
 		<div class="form-group row">
-		    <label for="inputValue" class="col-sm-3 col-form-label">$c.AllMeasures.elements[e.fields['m_id']].getName(self.lang)</label>
+		    <label for="inputValue" class="col-sm-3 col-form-label">$aMeasure.getName(self.lang)</label>
 		    <div class="col-sm-3">
 		        <input name="dm_value_$(countdm)" type="number" min="$(aMeasure.fields['min'])" max="$(aMeasure.fields['max'])" step="$(aMeasure.fields['step'])" class="form-control" size="15" id="inputValue" placeholder="$c.getMessage('value',self.lang)" value="$e.fields['typical']">
                     </div>

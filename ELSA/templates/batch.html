@@ -1,21 +1,16 @@
 $def with (id, mail, errormess, data, context='')
-$var title : ELSA
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
-$var title : $c.getMessage('add') $c.getMessage($c.AllBatches.get_class_acronym)
-
-$if id == 'new':
-    $var location: all/b=batch edit/b_new=add
-    $var rmq :
-$else:
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+$var title : $c.getMessage('add',self.lang) $c.getMessage('batch',self.lang)
+$var rmq :
+$var location: all/b=batch edit/b_new=add
+$if id != 'new':
     $var location: all/b=batch edit/b_$(id)=edit
     $ curr_batch = c.AllBatches.elements[id]
     $var rmq :  $curr_batch.fields['remark']
     $var title :  $c.AllBatches.getName(self.lang) $curr_batch.fields['acronym']
-
 $if errormess != '':
     $var rmq : $data['remark']
-
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	<div class="form-group row" id="error">
@@ -96,6 +91,7 @@ $if errormess != '':
 	    <div class="col-sm-9">
 		<select name = "measure" class="form-control" id="measureSelect">
 		    $for k in c.AllMeasures.elements.keys():
+                        $ aMeasure = c.AllMeasures.elements[k]
 			<option value="m_$k"
 			$if errormess != '':
 			    $if 'measure' in data :
@@ -104,7 +100,7 @@ $if errormess != '':
 			$elif id !='new':
 				$if k == curr_batch.fields['m_id'] :
 				    selected
-			>$c.AllMeasures.elements[k].fields['acronym'] - $c.AllMeasures.elements[k].getName(self.lang) - $c.AllMeasures.elements[k].fields['unit']</option>
+			>$aMeasure.fields['acronym'] - $aMeasure.getName(self.lang):  $aMeasure.fields['min'] +$aMeasure.fields['step']... &lt;= $aMeasure.fields['max'] $aMeasure.fields['unit']</option>
 		</select>
 	    </div>
 	</div>
@@ -123,9 +119,9 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputLapse1" class="col-sm-3 col-form-label">$c.getMessage('cost',self.lang)</label>
+	    <label for="inputCost" class="col-sm-3 col-form-label">$c.getMessage('cost',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="cost" type="text" class="form-control" id="inputLapse1" placeholder="$c.getMessage('cost',self.lang)" 
+		<input name="cost" type="number" step="any" class="form-control" id="inputCost" placeholder="$c.getMessage('cost',self.lang)" 
 		    $if errormess != '':
 			$if 'cost' in data :
 			    value="$data['cost']" 
@@ -138,7 +134,7 @@ $if errormess != '':
 	<div class="form-group row">
 	    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.getMessage('code',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.getMessage('code',self.lang)" 
+		<input name="code" type="number" min="0" step="1" class="form-control" id="inputBarcode" placeholder="$c.getMessage('code',self.lang)" 
 		$if errormess != '':
 		    $if 'code' in data :
 			value="$data['code']"
@@ -216,4 +212,26 @@ $if errormess != '':
 	value = value.replace(" ", "")
 	document.getElementById("inputAcronym").value = value+"_";
     }
+</script>
+
+<script>
+var mins = [];
+var maxs = [];
+var steps = [];
+$for k in c.AllMeasures.elements.keys():
+    $ aMeasure = c.AllMeasures.elements[k]
+    mins[$k]=$(aMeasure.fields['min']);
+    maxs[$k]=$(aMeasure.fields['max']);
+    steps[$k]=$(aMeasure.fields['step']);
+
+$$("#measureSelect").change(function() {
+    $$("#measureSelect option:selected").each(function() {
+       var v = this.value.slice(2);
+       $$("#inputQty").attr({
+         "max" : maxs[v],
+         "min" : mins[v],
+         "step" : steps[v]
+       });
+    });
+}).change();
 </script>
