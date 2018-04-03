@@ -2,12 +2,11 @@ $def with (type, id, mail)
 $code:
     allobjects = c.findAllFromType(type)
     elem = allobjects.elements[id]
-    keyID = c.findAllFromObject(elem).keyColumn
-    
+    keyID = c.findAllFromObject(elem).keyColumn    
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : False
-$var location: list/$(type)=$(c.findAllFromType(type).get_name_object()) find/d/$(type)_$(id)=manualdata
-
+$var location: list/$(type)=$(allobjects.get_class_acronym()) find/d/$(type)_$(id)=manualdata
+$var title:  $c.getName(allobjects,self.lang) $elem.getName(self.lang)
 <script>
     $$(function(){
 	$$("#includedAllMenu$(type)_$(id)").load("/fullentry/$(type)_$(id)");
@@ -15,16 +14,14 @@ $var location: list/$(type)=$(c.findAllFromType(type).get_name_object()) find/d/
 </script>
 <div id="includedAllMenu$(type)_$(id)"></div>
 
-
-
 <div class="row active">
-    <label class="col-sm-12"><span class="$c.AllHalflings.elements[c.AllManualData.get_name_object()].getHalfling()"></span>$c.AllMessages.elements['manualdata'].getName(self.lang) :</label>
+    <label class="col-sm-12">$:c.getAllHalfling(c.AllManualData) $c.getName(c.AllManualData,self.lang) :</label>
 </div>
 <div class="row active">
-    <label class="col-sm-3">$c.AllMessages.elements['time'].getName(self.lang)</label>
-    <label class="col-sm-2">$c.AllMessages.elements['checkpoint'].getName(self.lang)</label>
-    <label class="col-sm-3">$c.AllMessages.elements['measure'].getName(self.lang)</label>
-    <label class="col-sm-3">$c.AllMessages.elements['remark'].getName(self.lang)</label>
+    <label class="col-sm-3">$c.getMessage('time',self.lang)</label>
+    <label class="col-sm-2">$c.getMessage('checkpoint',self.lang)</label>
+    <label class="col-sm-3">$c.getMessage('measure',self.lang)</label>
+    <label class="col-sm-3">$c.getMessage('remark',self.lang)</label>
 </div>
 
 $for d in elem.data:
@@ -36,7 +33,7 @@ $for d in elem.data:
 	</div>	    
 	<div class="col-xs-2" >
 	    $if dd.fields['h_id'] != '' :
-	        <a href="/find/related/h_$(dd.fields['h_id'])"><span class="$c.AllHalflings.elements[c.AllCheckPoints.get_name_object()].getHalfling()"></span>$c.AllCheckPoints.elements[dd.fields['h_id']].fields['acronym']</a>
+	        <a href="/find/related/h_$(dd.fields['h_id'])">$:c.getAllHalfling(c.AllCheckPoints) $c.AllCheckPoints.elements[dd.fields['h_id']].fields['acronym']</a>
 	</div>
 	<div class="col-xs-3" >
             <strong>$dd.fields['value']</strong>
@@ -55,6 +52,6 @@ $for d in elem.data:
     <div class="col-xs-5">
     </div>
     <div class="col-xs-6" id="addItem">
-	<a href="/create/d/$(type)_$(id)"><span class="halflings halflings-plus"></span>$c.AllMessages.elements['manualdata'].getName(self.lang)</a>
+	<a href="/create/d/$(type)_$(id)">$:c.getHalfling('add')$c.getMessage('manualdata',self.lang)</a>
     </div>
 </div> 

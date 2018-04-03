@@ -2,15 +2,14 @@ $def with (mail,type, id)
 $code :
     if type == 'v' :
 	type = 'b'	
-$code :
     allObjects = c.findAllFromType(type)
     elements = allObjects.get_sorted()
     keyID = allObjects.keyColumn
     permissionKey = type +'_'
-$var location: list/$(type)=$(allObjects.get_name_object())
+$var location: list/$(type)=$(allObjects.get_class_acronym())
 $var recursive : False
-
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$var title: $c.getName(allObjects,self.lang)
 
 $for a in elements:
     $if allObjects.elements[a].fields['active'] == '1' or id == 'all':
@@ -19,26 +18,25 @@ $for a in elements:
 		$$("#includedMenu$(type)_$(a)").load("/fullentry/$(type)_$(a)");
 	    });
 	</script>
-	<div id="includedMenu$(type)_$(a)" ></div>
-    
+	<div id="includedMenu$(type)_$(a)" ></div>    
 
 $if type == 'b' :    
     <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;">
 	<form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	    <div class="form-group row">
-		<label for="inputObject" class="col-sm-2 col-form-label">$c.AllMessages.elements['batch'].getName(self.lang) </label>
+		<label for="inputObject" class="col-sm-2 col-form-label">$c.getMessage('batch',self.lang) </label>
 		<div class="col-sm-4">
 		    <select name = "batch" class="form-control" id="inputPosition">
 		    $for k in c.AllBatches.elements.keys():
 			<option value="b_$k">$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang) </option>
 		    </select>
 		</div>
-		<label for="inputLapse1" class="col-sm-2 col-form-label">$c.AllMessages.elements['quantity'].getName(self.lang)</label>
+		<label for="inputLapse1" class="col-sm-2 col-form-label">$c.getMessage('quantity',self.lang)</label>
 		<div class="col-sm-2">
-		    <input name="quantity" type="number" min="0" step="1" data-bind="value:replyNumber" class="form-control" id="inputLapse1" placeholder="$c.AllMessages.elements['quantity'].getName(self.lang)" >
+		    <input name="quantity" type="number" min="0" step="1" data-bind="value:replyNumber" class="form-control" id="inputLapse1" placeholder="$c.getMessage('quantity',self.lang)" >
 		</div>	    
 		<div class="col-sm-2">
-		    <button type="submit" class="btn btn-primary btn-block">$c.AllMessages.elements['duplicate'].getName(self.lang)</button>
+		    <button type="submit" class="btn btn-primary btn-block">$c.getMessage('duplicate',self.lang)</button>
 		</div> 
 	    </div>
 	</form>
@@ -51,9 +49,9 @@ $if type == 'b' :
 		href="?status=all"
 	    $else :
 		href="/list/$(type)"
-	class="btn btn-default" ><span class="$c.AllHalflings.elements['active'].getHalfling()"></span>&nbsp;/&nbsp;<span class="$c.AllHalflings.elements['disabled'].getHalfling()"></span></a>
+	class="btn btn-default" >$:c.getHalfling('active')&nbsp;/&nbsp;$:c.getHalfling('disabled')</a>
     </div>
     <div class="col-xs-6 vcenter" id="addItem">
-	<a href="/create/$(type)" class = "vcenter"><span class="halflings halflings-plus"></span>$c.AllMessages.elements[allObjects.get_name_object()].getName(self.lang)</a>
+	<a href="/create/$(type)" class = "vcenter">$:c.getHalfling('add') $c.getName(allObjects,self.lang)</a>
     </div>
 </div>    

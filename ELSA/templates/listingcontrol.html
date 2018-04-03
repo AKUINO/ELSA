@@ -7,7 +7,8 @@ $code:
     recipe_id = elem.fields['gr_id']
     if recipe_id and recipe_id in c.AllGrRecipe.elements:
         recipe = c.AllGrRecipe.elements[recipe_id]
-        recipes = set(recipe_id)
+        new_recipes = set(recipe.get_all_parents())
+        recipes = recipes | new_recipes
     components = elem.get_actual_position_hierarchy(c)
     usages = set()
     for place in components:
@@ -17,10 +18,12 @@ $code:
 	    usage = c.AllGrUsage.elements[gr_usage]
             new_usages = set(usage.get_all_parents())
 	    usages = usages | new_usages
-    
+    allowedcheckpoints = c.AllCheckPoints.get_checkpoints_for_recipe_usage(recipes,usages)
+
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
-$var location: list/$(type)=$(c.findAllFromType(type).get_name_object()) find/h/$(type)_$(id)=checkpoint
+$var location: list/$(type)=$(allobjects.get_class_acronym()) find/h/$(type)_$(id)=checkpoint
 $var recursive : False
+$var title: $c.getName(allobjects,self.lang)
 
 <script>
     $$(function(){
@@ -31,21 +34,20 @@ $var recursive : False
 
 
 <div class="row active">
-    <label class="col-sm-12">$c.AllMessages.elements['checkpoint'].getName(self.lang) :</label>
+    <label class="col-sm-12">$c.getMessage('checkpoint',self.lang) :</label>
 </div>
 
-$for i in elem.checkpoints:
-    <script>
-    $$(function(){
-	$$("#includedAllMenuh_$(i)").load("/fullentry/h_$(i)");
-    });
-    </script>
-    <div id="includedAllMenuh_$(i)"></div>
+$for i in allowedcheckpoints:
+    $if i.getID() in elem.checkpoints :
+        <script>
+        $$(function(){
+	    $$("#includedAllMenuh_$(i)").load("/fullentry/h_$(i)");
+        });
+        </script>
+        <div id="includedAllMenuh_$(i)"></div>
     
 <div style="margin:15px;">
 </div>    
-
-
  
 <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
@@ -54,7 +56,7 @@ $for i in elem.checkpoints:
 	    </div>
 	    <div class="col-sm-4">
 		<select name = "checkpoint" class="form-control" id="inputPosition">
-		$for v in c.AllCheckPoints.get_checkpoints_for_recipe_usage(recipes,usages):
+		$for v in allowedcheckpoints:
 		    <option value="$v.getID()">
 		    $if v.getID() in elem.checkpoints :
 			*
@@ -62,7 +64,7 @@ $for i in elem.checkpoints:
 		</select>
 	    </div>
 	    <div class="col-sm-3">
-		<button type="submit" class="btn btn-primary btn-block">$c.AllMessages.elements['add'].getName(self.lang) $c.AllMessages.elements['checkpoint'].getName(self.lang)</button>
+		<button type="submit" class="btn btn-primary btn-block">$c.getMessage('add',self.lang) $c.getMessage('checkpoint',self.lang)</button>
 	    </div>
 	</div>
     </form>

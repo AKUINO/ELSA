@@ -3,9 +3,8 @@ $var recursive : True
 $code :
     elements = c.findAllFromType(type)
     groups = c.get_group(elements.get_key_group())
-
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
-
+$var title : permission
 $code:
     groupList = groups.get_hierarchy_str()
     tmp = ''
@@ -20,7 +19,7 @@ $code:
 	    mygroup = []
 $if 'g' in type or type == 'h':
     <div class="form-group row">
-	<label class="col-sm-3 col-form-label">$c.AllMessages.elements['group'].getName(self.lang)</label>
+	<label class="col-sm-3 col-form-label">$c.getMessage('group',self.lang)</label>
     </div>
     $if len(groupList) > 0:
 	$for group in groupList:
@@ -65,7 +64,7 @@ $if 'g' in type or type == 'h':
 		
 $if 'g' not in type and type != 'h':
     <div class="form-group row">
-	<label for="inputGroup" class="col-sm-3 col-form-label">$c.AllMessages.elements['group'].getName(self.lang) </label>
+	<label for="inputGroup" class="col-sm-3 col-form-label">$c.getMessage('group',self.lang) </label>
 	<div class="col-sm-9" id = "divgroup">
 	    <select name = "group" class="form-control" id="group" onchange="mySelectChange()">
 		<option value=''></option>

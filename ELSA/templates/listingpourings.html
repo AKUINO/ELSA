@@ -4,10 +4,9 @@ $code:
     permissionKey = 'm_'
     elem = c.AllBatches.elements[id]
     keyID = 'b'
-    
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var location: list/b=batch find/v/b_$(id)=pouring
-
+$var title : $elem.getName(self.lang)
 <script>
     $$(function(){
 	$$("#includedAllMenum_$(id)").load("/fullentry/b_$(id)");
@@ -17,11 +16,11 @@ $var location: list/b=batch find/v/b_$(id)=pouring
 
 
 <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
-    <label class="col-sm-12">$c.AllMessages.elements['batch'].getName(self.lang) $c.AllMessages.elements['source'].getName(self.lang) :</label>
-    <label class="col-sm-3">$c.AllMessages.elements['time'].getName(self.lang)</label>
-    <label class="col-sm-3">$c.AllMessages.elements['component'].getName(self.lang)</label>
-    <label class="col-sm-2">$c.AllMessages.elements['measure'].getName(self.lang)</label>    
-    <label class="col-sm-3">$c.AllMessages.elements['remark'].getName(self.lang)</label>    
+    <label class="col-sm-12">$c.getMessage('batch',self.lang) $c.getMessage('source',self.lang) :</label>
+    <label class="col-sm-3">$c.getMessage('time',self.lang)</label>
+    <label class="col-sm-3">$c.getMessage('component',self.lang)</label>
+    <label class="col-sm-2">$c.getMessage('measure',self.lang)</label>    
+    <label class="col-sm-3">$c.getMessage('remark',self.lang)</label>    
     $for k in elem.destination:
 	<div class="row active" style="color:#f07e26;">
 		<div class="col-xs-3" >
@@ -31,7 +30,7 @@ $var location: list/b=batch find/v/b_$(id)=pouring
 		    $c.AllBatches.elements[c.AllPourings.elements[k].fields['src']].getName(self.lang) 
 		    </div>	    
 		<div class="col-xs-1">
-		     <strong><a href="/find/v/b_$(c.AllPourings.elements[k].fields['src'])" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['input'].getHalfling()"></span></a></strong>
+		     <strong><a href="/find/v/b_$(c.AllPourings.elements[k].fields['src'])" class="btn btn-warning" role="button">$c.getHalfling('input')</a></strong>
 		</div>	    
 		<div class="col-xs-2" >
 		    $c.AllPourings.elements[k].fields['quantity']  $c.AllMeasures.elements[c.AllPourings.elements[k].fields['m_id']].fields['unit']</a>
@@ -49,23 +48,23 @@ $var location: list/b=batch find/v/b_$(id)=pouring
     <div class="col-xs-5">
     </div>
     <div class="col-xs-6" id="addItem">
-	<a href="/create/v/b_$(id)_in"><span class="halflings halflings-plus"></span>$c.AllMessages.elements['pouring'].getName(self.lang)<span class="$c.AllHalflings.elements['pouring'].getHalfling()"></span></a>
+	<a href="/create/v/b_$(id)_in">$:c.getHalfling('add') $c.getMessage('pouring',self.lang)$:c.getAllHalfling(c.AllPourings)</a>
     </div>
 </div> 
 
 <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
-    <label class="col-sm-12">$c.AllMessages.elements['batch'].getName(self.lang) $c.AllMessages.elements['target'].getName(self.lang)</label>   
-    <label class="col-sm-3">$c.AllMessages.elements['time'].getName(self.lang)</label>
-    <label class="col-sm-3">$c.AllMessages.elements['component'].getName(self.lang)</label>
-    <label class="col-sm-2">$c.AllMessages.elements['measure'].getName(self.lang)</label>    
-    <label class="col-sm-3">$c.AllMessages.elements['remark'].getName(self.lang)</label>   
+    <label class="col-sm-12">$c.getMessage('batch',self.lang) $c.getMessage('target',self.lang)</label>   
+    <label class="col-sm-3">$c.getMessage('time',self.lang)</label>
+    <label class="col-sm-3">$c.getMessage('component',self.lang)</label>
+    <label class="col-sm-2">$c.getMessage('measure',self.lang)</label>    
+    <label class="col-sm-3">$c.getMessage('remark',self.lang)</label>   
     $for k in elem.source:
 	<div class="row active" style="color:#f07e26;">
 		<div class="col-xs-3" >
 		    $c.AllPourings.elements[k].fields['time']
 		</div>	
 		<div class="col-xs-3">
-		    <strong><a href="/find/v/b_$(c.AllPourings.elements[k].fields['dest'])" class="btn btn-warning" role="button"><span class="$c.AllHalflings.elements['output'].getHalfling()"></span></a></strong>  $c.AllBatches.elements[c.AllPourings.elements[k].fields['dest']].getName(self.lang)
+		    <strong><a href="/find/v/b_$(c.AllPourings.elements[k].fields['dest'])" class="btn btn-warning" role="button">$:c.getHalfling('output')</a></strong>  $c.AllBatches.elements[c.AllPourings.elements[k].fields['dest']].getName(self.lang)
 		</div>    
 		<div class="col-xs-2" >
 		    $c.AllPourings.elements[k].fields['quantity']  $c.AllMeasures.elements[c.AllPourings.elements[k].fields['m_id']].fields['unit']</a>
@@ -82,6 +81,6 @@ $var location: list/b=batch find/v/b_$(id)=pouring
     <div class="col-xs-5">
     </div>
     <div class="col-xs-6" id="addItem">
-	<a href="/create/v/b_$(id)_out"><span class="halflings halflings-plus"></span>$c.AllMessages.elements['pouring'].getName(self.lang)<span class="$c.AllHalflings.elements['pouring'].getHalfling() rotate180"></span></a>
+	<a href="/create/v/b_$(id)_out">$:c.getHalfling('add') $c.getMessage('pouring',self.lang)$:c.getAllHalfling(c.AllPourings," rotate180")</a>
     </div>
 </div> 

@@ -2,14 +2,16 @@ $def with (id, mail, errormess, data, context='')
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
-
+$var title : $c.AllPouringModels.getName(self.lang)
 $if id == 'new':
     $var location: list/vm=pouringmodel edit/vm_new=add
     $var rmq :
-    
 $else:
     $var location: list/vm=pouringmodel edit/vm_$(id)=edit
-    $var rmq :  $c.AllPouringModels.elements[id].fields['remark']
+    $code:
+        pouring_model = c.AllPouringModels.elements[id]
+    $var rmq :  $pouring_model.fields['remark']
+    $var title : $pouring_model.getName(self.lang)
 $if errormess != '':
     $if 'remark' in data :
 	$var rmq : $data['remark']
@@ -34,7 +36,7 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputPosition" class="col-sm-3 col-form-label">$c.AllMessages.elements['checkpoint'].getName(self.lang)</label>
+	    <label for="inputPosition" class="col-sm-3 col-form-label">$c.getMessage('checkpoint',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "checkpoint" class="form-control" id="inputPosition">
 		    $for k in c.AllCheckPoints.elements.keys():
@@ -43,7 +45,7 @@ $if errormess != '':
 				$if  k == context.split('_')[-1] :
 				    selected
 			    $elif id != 'new':
-				$if  k == c.AllPouringModels.elements[id].fields['h_id'] :
+				$if  k == pouring_model.fields['h_id'] :
 				    selected
 			>$c.AllCheckPoints.elements[k].fields['acronym'] - $c.AllCheckPoints.elements[k].getName(self.lang) </option>
 		</select>
@@ -51,29 +53,29 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(self.lang)</label>
+	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.getMessage('acronym',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.AllMessages.elements['acronym'].getName(self.lang)"
+		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.getMessage('acronym',self.lang)"
 		$if errormess != '':
 		    $if 'acronym' in data :
 			value="$data['acronym']" 
 		$elif context != '':
 		    value="$(c.AllCheckPoints.elements[context.split('_')[-1]].fields['acronym'])_"
 		$elif id != 'new':
-		    value="$c.AllPouringModels.elements[id].fields['acronym']"
+		    value="$pouring_model.fields['acronym']"
 		required="true">
 	    </div>
 	</div>
 	
 	<div class="form-group row">
-	    <label for="rankinput" class="col-sm-3 col-form-label">$c.AllMessages.elements['rank'].getName(self.lang)</label>
+	    <label for="rankinput" class="col-sm-3 col-form-label">$c.getMessage('rank',self.lang)</label>
 	    <div class="col-sm-9">
 		<input name="rank" type="number" class="form-control" 
 		$if errormess != '':
 		    $if 'rank' in data :
 			value="$data['rank']" 
 		$elif id != 'new':
-		    value="$c.AllPouringModels.elements[id].fields['rank']"
+		    value="$pouring_model.fields['rank']"
 		$else:
 		    value="1"
 		id="rankinput">
@@ -81,7 +83,7 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputName" class="col-sm-3 col-form-label">$c.AllMessages.elements['name'].getName(self.lang)</label>
+	    <label for="inputName" class="col-sm-3 col-form-label">$c.getMessage('name',self.lang)</label>
 	</div>
 	
 	$for k,v in c.AllLanguages.elements.items():
@@ -97,7 +99,7 @@ $if errormess != '':
 		    $if k in data :
 			value="$data[k]"
 		$elif id !='new':
-		    value="$c.AllPouringModels.elements[id].get_real_name(k)"
+		    value="$pouring_model.get_real_name(k)"
 		$if self.lang == k: 
 		    required="true"
 		>
@@ -105,10 +107,10 @@ $if errormess != '':
 	    </div>
 	    
 	<div class="form-group row">
-	    <label for="src" class="col-sm-3 col-form-label">$c.AllMessages.elements['source'].getName(self.lang)</label>
+	    <label for="src" class="col-sm-3 col-form-label">$c.getMessage('source',self.lang)</label>
 	    <div class="col-sm-9" id = "divsrc">
 		<select name = "src" class="form-control" id="src">
-		    $if id == 'new' or c.AllPouringModels.elements[id].fields['in'] == '1' :
+		    $if id == 'new' or pouring_model.fields['in'] == '1' :
 			$for k in c.AllGrRecipe.elements.keys():
 			    <option value="$k"
 				$if errormess != '':
@@ -116,19 +118,19 @@ $if errormess != '':
 					$if k == data['src']:
 					    selected
 				$elif id != 'new':
-				    $if  k == c.AllPouringModels.elements[id].fields['src'] :
+				    $if  k == pouring_model.fields['src'] :
 					selected
 			    >$c.AllGrRecipe.elements[k].fields['acronym'] - $c.AllGrRecipe.elements[k].getName(self.lang) </option>
 		    $else:
-			<option value="current">$c.AllMessages.elements['currentbatch'].getName(self.lang)</option>
+			<option value="current">$c.getMessage('currentbatch',self.lang)</option>
 		</select>
 	    </div>
 	</div>
 	<div class="form-group row">
-	    <label for="dest" class="col-sm-3 col-form-label">$c.AllMessages.elements['target'].getName(self.lang)</label>
+	    <label for="dest" class="col-sm-3 col-form-label">$c.getMessage('target',self.lang)</label>
 	    <div class="col-sm-9" id = "divdest">
 		<select name = "dest" class="form-control" id="dest">
-		    $if id != 'new' and c.AllPouringModels.elements[id].fields['in'] != '1' :
+		    $if id != 'new' and pouring_model.fields['in'] != '1' :
 			$for k in c.AllGrRecipe.elements.keys():
 			    <option value="$k"
 				$if errormess != '':
@@ -136,11 +138,11 @@ $if errormess != '':
 					$if k == data['dest']:
 					    selected
 				$elif id != 'new':
-				    $if  k == c.AllPouringModels.elements[id].fields['dest'] :
+				    $if  k == pouring_model.fields['dest'] :
 					selected
 			    >$c.AllGrRecipe.elements[k].fields['acronym'] - $c.AllGrRecipe.elements[k].getName(self.lang) </option>
 		    $else:
-			<option value="current">$c.AllMessages.elements['currentbatch'].getName(self.lang)</option>
+			<option value="current">$c.getMessage('currentbatch',self.lang)</option>
 		</select>
 	    </div>
 	</div>
@@ -150,32 +152,32 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputValue" class="col-sm-3 col-form-label">$c.AllMessages.elements['quantity'].getName(self.lang)</label>
+	    <label for="inputValue" class="col-sm-3 col-form-label">$c.getMessage('quantity',self.lang)</label>
 	    <div class="col-sm-9" >
-		<input name="quantity" type="text" class="form-control" id="inputValue" placeholder="$c.AllMessages.elements['value'].getName(self.lang)" 
+		<input name="quantity" type="text" class="form-control" id="inputValue" placeholder="$c.getMessage('value',self.lang)" 
 		$if errormess != '':
 		    $if 'quantity' in data :
 			value="$data['quantity']" 
 		$elif id != 'new':
-		    value="$c.AllPouringModels.elements[id].fields['quantity']"
+		    value="$pouring_model.fields['quantity']"
 		 required >
 	    </div>
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
+	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 	    <div class="col-sm-9">
-		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.AllMessages.elements['remark'].getName(self.lang)" >$self.rmq</textarea>
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.getMessage('remark',self.lang)" >$self.rmq</textarea>
 	    </div>
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputactive" class="col-sm-6 col-form-label">$c.AllMessages.elements['active'].getName(self.lang)</label>
+	    <label for="inputactive" class="col-sm-6 col-form-label">$c.getMessage('active',self.lang)</label>
 	    <span class="glyphicon glyphicon-remove-circle"> </span>
 	    $code:
 		cond = (id == 'new')
 		if not cond :
-		    cond = (c.AllPouringModels.elements[id].fields['active'] == 1 or c.AllPouringModels.elements[id].fields['active'] == '1')
+		    cond = (pouring_model.fields['active'] == 1 or pouring_model.fields['active'] == '1')
 		if errormess != '' :
 		    if 'active' in data :
 			cond  = True
@@ -203,12 +205,12 @@ $if errormess != '':
 		    href="/item/vm_$(id)"
 		$else :
 		    href="/list/vm"
-		class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>
 	    <div class="col-sm-2">
-		<button type="submit" class="btn btn-primary btn-block">$c.AllMessages.elements['save'].getName(self.lang)</button>
+		<button type="submit" class="btn btn-primary btn-block">$c.getMessage('save',self.lang)</button>
 	    </div> 
 	    <div class="col-sm-3">
 	    </div>

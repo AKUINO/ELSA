@@ -2,11 +2,11 @@ $def with (type, id, mail)
 $code:
     allobjects = c.findAllFromType(type)
     elem = allobjects.elements[id]
-    keyID = c.findAllFromObject(elem).keyColumn
-    
+    keyID = c.findAllFromObject(elem).keyColum
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
-$var location: list/$(type)=$(c.findAllFromType(type).get_name_object()) find/t/$(type)_$(id)=transfer
+$var location: list/$(type)=$(c.findAllFromType(type).get_class_acronym()) find/t/$(type)_$(id)=transfer
 $var recursive : False
+$var title : $elem.getName(self.lang)
 
 <script>
     $$(function(){
@@ -17,12 +17,12 @@ $var recursive : False
 
 
 <div class="row active">
-    <label class="col-sm-12">$c.AllMessages.elements['transfer'].getName(self.lang) :</label>
+    <label class="col-sm-12">$c.getMessage('transfer',self.lang) :</label>
 </div>
 <div class="row active">
-    <label class="col-sm-3">$c.AllMessages.elements['time'].getName(self.lang)</label>
-    <label class="col-sm-3">$c.AllMessages.elements['component'].getName(self.lang)</label>
-    <label class="col-sm-5">$c.AllMessages.elements['remark'].getName(self.lang)</label>
+    <label class="col-sm-3">$c.getMessage('time',self.lang)</label>
+    <label class="col-sm-3">$c.getMessage('component',self.lang)</label>
+    <label class="col-sm-5">$c.getMessage('remark',self.lang)</label>
 </div>
 
 $for i in elem.position:
@@ -35,7 +35,7 @@ $for i in elem.position:
 	$code :
 	    cont = c.findAllFromType(transfer.fields['cont_type']).elements[transfer.fields['cont_id']]
 	<div class="col-xs-1" >
-	    <span class="$c.AllHalflings.elements[cont.get_name()].getHalfling()"></span>
+	    $:c.getHalfling(cont.get_class_acronym())
 	</div>    
 	<div class="col-xs-3" >
 	    <a href="/item/$(cont.get_type())_$(cont.getID())">$cont.fields['acronym'] - $cont.getName(self.lang)</a>
@@ -52,6 +52,6 @@ $for i in elem.position:
     <div class="col-xs-5">
     </div>
     <div class="col-xs-6" id="addItem">
-	<a href="/create/t/$(type)_$(id)"><span class="halflings halflings-plus"></span>$c.AllMessages.elements['transfer'].getName(self.lang)</a>
+	<a href="/create/t/$(type)_$(id)">$:c.getHalfling('add') $c.getMessage('transfer',self.lang)</a>
     </div>
 </div> 

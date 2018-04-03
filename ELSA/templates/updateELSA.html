@@ -3,13 +3,13 @@ $def with (mail)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
 $var location : updateELSA=updateELSA
-$var title : Update
+$var title : Update ELSA
 
 <div class="container">
     <form method="post" action="" id="selectAction" enctype="multipart/form-data">
         Redémarrer et mettre à jour ELSA
         <div class="form-group column">
-            <input type="submit" value="$c.AllMessages.elements['startUpdate'].getName(self.lang)" class="form-control" name="start_elsa_update">
+            <input type="submit" value="$c.getMessag('startUpdate',self.lang)" class="form-control" name="start_elsa_update">
         </div>
     </form>
 </div>

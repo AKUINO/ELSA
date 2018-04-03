@@ -6,11 +6,11 @@ $code:
     keyID = c.findAllFromObject(elem).keyColumn
     
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
-$var location: list/$(type)=$(elem.get_name()) find/related/$(type)_$(id)=related
-$var title : ELSA - $(elem.get_name())
+$var location: list/$(type)=$(elem.get_class_acronym()) find/related/$(type)_$(id)=related
+$var title : $(elem.getName(self.lang))
 
 <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
-    <label class="col-sm-12">$c.AllMessages.elements['parent'].getName(self.lang) :</label>    
+    <label class="col-sm-12">$c.getMessage('parent',self.lang) :</label>    
     $for k in elem.parents:
 	<script>
 	    $$(function(){
@@ -28,7 +28,7 @@ $var title : ELSA - $(elem.get_name())
 <div id="includedAllMenug_$(id)"></div>
 
 <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
-    <label class="col-sm-12">$c.AllMessages.elements['child'].getName(self.lang) :</label>    
+    <label class="col-sm-12">$c.getMessage('child',self.lang) :</label>    
     $for k in elem.children:
 	<script>
 	    $$(function(){
@@ -41,7 +41,7 @@ $var title : ELSA - $(elem.get_name())
 
 $if type == 'gf':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
-	<label class="col-sm-12">$c.AllMessages.elements['user'].getName(self.lang) :</label>    
+	<label class="col-sm-12">$c.getMessage('user',self.lang) :</label>    
 	$for k,user in c.AllUsers.elements.items():
 	    $if user.get_group() == id :
 		<script>
@@ -55,12 +55,12 @@ $if type == 'gf':
 	<div class="col-xs-5">
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
-	    <a href="/create/u/$(type)_$(id)" class = "vcenter"><span class="halflings halflings-plus"></span>$c.AllMessages.elements['user'].getName(self.lang)</a>
+	    <a href="/create/u/$(type)_$(id)" class = "vcenter">$:c.getHalfling('add') $c.getMessage('user',self.lang)</a>
 	</div>
     </div> 
 $elif type == 'h':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
-	<label class="col-sm-12">$c.AllMessages.elements['manualdatamodel'].getName(self.lang) :</label>    
+	<label class="col-sm-12">$c.getMessage('manualdatamodel',self.lang) :</label>    
 	$for k in elem.dm:
 		<script>
 		    $$(function(){
@@ -73,12 +73,12 @@ $elif type == 'h':
 	<div class="col-xs-5">
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
-	    <a href="/create/dm/$(type)_$(id)" class = "vcenter"><span class="halflings halflings-plus"></span>$c.AllMessages.elements['manualdatamodel'].getName(self.lang)</a>
+	    <a href="/create/dm/$(type)_$(id)" class = "vcenter">$:c.getHalfling('add') $c.getMessage('manualdatamodel',self.lang)</a>
 	</div>
     </div> 
     
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
-	<label class="col-sm-12">$c.AllMessages.elements['transfermodel'].getName(self.lang) :</label>    
+	<label class="col-sm-12">$c.getMessage('transfermodel',self.lang) :</label>    
 	$for k in elem.tm:
 		<script>
 		    $$(function(){
@@ -91,12 +91,12 @@ $elif type == 'h':
 	<div class="col-xs-5">
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
-	    <a href="/create/tm/$(type)_$(id)" class = "vcenter"><span class="halflings halflings-plus"></span>$c.AllMessages.elements['transfermodel'].getName(self.lang)</a>
+	    <a href="/create/tm/$(type)_$(id)" class = "vcenter">$:c.getHalfling('add') $c.getMessage('transfermodel',self.lang)</a>
 	</div>
     </div> 
     
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
-	<label class="col-sm-12">$c.AllMessages.elements['pouringmodel'].getName(self.lang) :</label>    
+	<label class="col-sm-12">$c.getMessage('pouringmodel',self.lang) :</label>    
 	$for k in elem.vm:
 		<script>
 		    $$(function(){
@@ -109,12 +109,12 @@ $elif type == 'h':
 	<div class="col-xs-5">
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
-	    <a href="/create/vm/$(type)_$(id)" class = "vcenter"><span class="halflings halflings-plus"></span>$c.AllMessages.elements['pouringmodel'].getName(self.lang)</a>
+	    <a href="/create/vm/$(type)_$(id)" class = "vcenter">$:c.getHalfling('add') $c.getMessage('pouringmodel',self.lang)</a>
 	</div>
     </div> 
 $elif type == 'gu':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
-	<label class="col-sm-12">$c.AllMessages.elements['place'].getName(self.lang) :</label>    
+	<label class="col-sm-12">$c.getMessage('place',self.lang) :</label>    
 	$for k,p in c.AllPieces.elements.items():
 	    $if p.get_group() == id :
 		<script>
@@ -128,12 +128,12 @@ $elif type == 'gu':
 	<div class="col-xs-5">
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
-	    <a href="/create/p/$(type)_$(id)" class = "vcenter"><span class="halflings halflings-plus"></span>$c.AllMessages.elements['place'].getName(self.lang)</a>
+	    <a href="/create/p/$(type)_$(id)" class = "vcenter">$:c.getHalfling('add') $c.getMessage('place',self.lang)</a>
 	</div>
     </div> 
     
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
-	<label class="col-sm-12">$c.AllMessages.elements['equipment'].getName(self.lang) :</label>    
+	<label class="col-sm-12">$c.getMessage('equipment',self.lang) :</label>    
 	$for k,e in c.AllEquipments.elements.items():
 	    $if e.get_group() == id :
 		<script>
@@ -147,12 +147,12 @@ $elif type == 'gu':
 	<div class="col-xs-5">
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
-	    <a href="/create/e/$(type)_$(id)" class = "vcenter"><span class="halflings halflings-plus"></span>$c.AllMessages.elements['equipment'].getName(self.lang)</a>
+	    <a href="/create/e/$(type)_$(id)" class = "vcenter">$:c.getHalfling('add') $c.getMessage('equipment',self.lang)</a>
 	</div>
     </div> 
 
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
-	<label class="col-sm-12">$c.AllMessages.elements['container'].getName(self.lang) :</label>    
+	<label class="col-sm-12">$c.getMessage('container',self.lang) :</label>    
 	$for k,cont in c.AllContainers.elements.items():
 	    $if cont.get_group() == id :
 		<script>
@@ -166,12 +166,12 @@ $elif type == 'gu':
 	<div class="col-xs-5">
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
-	    <a href="/create/c/$(type)_$(id)" class = "vcenter"><span class="halflings halflings-plus"></span>$c.AllMessages.elements['container'].getName(self.lang)</a>
+	    <a href="/create/c/$(type)_$(id)" class = "vcenter">$:c.getHalfling('add') $c.getMessage('container',self.lang)</a>
 	</div>
     </div> 
 $elif type == 'gr':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
-	<label class="col-sm-12">$c.AllMessages.elements['batch'].getName(self.lang) :</label>    
+	<label class="col-sm-12">$c.getMessage('batch',self.lang) :</label>    
 	$for k,b in c.AllBatches.elements.items():
 	    $if b.get_group() == id:
 		<script>
@@ -185,12 +185,12 @@ $elif type == 'gr':
 	<div class="col-xs-5">
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
-	    <a href="/create/b/$(type)_$(id)" class = "vcenter"><span class="halflings halflings-plus"></span>$c.AllMessages.elements['batch'].getName(self.lang)</a>
+	    <a href="/create/b/$(type)_$(id)" class = "vcenter">$:c.getHalfling('add') $c.getMessage('batch',self.lang)</a>
 	</div>
     </div> 
     
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
-	<label class="col-sm-12">$c.AllMessages.elements['checkpoint'].getName(self.lang) :</label>    
+	<label class="col-sm-12">$c.getMessage('checkpoint',self.lang) :</label>    
 	$for k,cp in c.AllCheckPoints.elements.items():
 	    $if cp.fields['gr_id'] == id:
 		<script>
@@ -204,6 +204,6 @@ $elif type == 'gr':
 	<div class="col-xs-5">
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
-	    <a href="/create/h/$(type)_$(id)" class = "vcenter"><span class="halflings halflings-plus"></span>$c.AllMessages.elements['checkpoint'].getName(self.lang)</a>
+	    <a href="/create/h/$(type)_$(id)" class = "vcenter">$:c.getHalfling('add') $c.getMessage('checkpoint',self.lang)</a>
 	</div>
     </div> 

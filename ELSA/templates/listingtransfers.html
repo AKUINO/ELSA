@@ -4,7 +4,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : False
 
 <!--div class="row">
-    <label for="graphSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['selecttransfer'].getName(self.lang)</label>
+    <label for="graphSelect" class="col-sm-3 col-form-label">$c.getMessage('selecttransfer',self.lang)</label>
     <div class="col-sm-9">
 	<select id="choice" onchange="fname_update()">
 	    $for k in c.AllBatches.elements.keys():
@@ -18,6 +18,6 @@ $var recursive : False
     <div class="col-xs-5">
     </div>
     <div class="col-xs-6" id="addItem">
-	<a href="/transfers/new/new"><span class="halflings halflings-plus"></span>$c.AllMessages.elements["transfer"].getName(self.lang)</a>
+	<a href="/transfers/new/new">$:c.getHalfling('add') $c.getMessage('transfer',self.lang)</a>
     </div>
 </div> 

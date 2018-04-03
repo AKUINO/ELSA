@@ -2,15 +2,16 @@ $def with (id, mail, errormess, data, context='')
 $var title : ELSA
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
-$var title : ELSA batch
+$var title : $c.getMessage('add') $c.getMessage($c.AllBatches.get_class_acronym)
 
 $if id == 'new':
     $var location: all/b=batch edit/b_new=add
     $var rmq :
 $else:
     $var location: all/b=batch edit/b_$(id)=edit
-    $var rmq :  $c.AllBatches.elements[id].fields['remark']
-    $var title :  ELSA batch $c.AllBatches.elements[id].fields['acronym']
+    $ curr_batch = c.AllBatches.elements[id]
+    $var rmq :  $curr_batch.fields['remark']
+    $var title :  $c.AllBatches.getName(self.lang) $curr_batch.fields['acronym']
 
 $if errormess != '':
     $var rmq : $data['remark']
@@ -36,14 +37,14 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputTime" class="col-sm-3 col-form-label">$c.AllMessages.elements['time'].getName(self.lang)</label>
+	    <label for="inputTime" class="col-sm-3 col-form-label">$c.getMessage('time',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="time" type="text" class="form-control" id="inputTime" placeholder="$c.AllMessages.elements['time'].getName(self.lang)" 
+		<input name="time" type="text" class="form-control" id="inputTime" placeholder="$c.getMessage('time',self.lang)" 
 		$if errormess != '':
 		    $if 'time' in data :
 			value="$data['time']" 
 		$elif id != 'new':
-		    value="$c.AllBatches.elements[id].fields['time']"
+		    value="$curr_batch.fields['time']"
 		$else :
 		    value ="$c.get_time()"
 		>
@@ -51,14 +52,14 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(self.lang)</label>
+	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.getMessage('acronym',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.AllMessages.elements['acronym'].getName(self.lang)" 
+		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.getMessage('acronym',self.lang)" 
 		$if errormess != '':
 		    $if 'acronym' in data :
 			value="$data['acronym']" 
 		$elif id != 'new':
-		    value="$c.AllBatches.elements[id].fields['acronym']"
+		    value="$curr_batch.fields['acronym']"
 		$elif context != '':
 		    value = $(c.AllGrRecipe.elements[context.split('_')[-1]].fields['acronym'])_
 		required="true">
@@ -67,7 +68,7 @@ $if errormess != '':
 	
 	
 	<div class="form-group row">
-	    <label for="inputName" class="col-sm-3 col-form-label">$c.AllMessages.elements['name'].getName(self.lang)</label>
+	    <label for="inputName" class="col-sm-3 col-form-label">$c.getMessage('name',self.lang)</label>
 	</div>
 	
 	$for k,v in c.AllLanguages.elements.items():
@@ -83,7 +84,7 @@ $if errormess != '':
 		    $if k in data :
 			value="$data[k]"
 		$elif id !='new':
-		    value="$c.AllBatches.elements[id].get_real_name(k)"
+		    value="$curr_batch.get_real_name(k)"
 		$if self.lang == k: 
 		    required="true"
 		>
@@ -91,7 +92,7 @@ $if errormess != '':
 	    </div>
 	    
 	<div class="form-group row">
-	    <label for="measureSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['measure'].getName(self.lang)</label>
+	    <label for="measureSelect" class="col-sm-3 col-form-label">$c.getMessage('measure',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "measure" class="form-control" id="measureSelect">
 		    $for k in c.AllMeasures.elements.keys():
@@ -101,7 +102,7 @@ $if errormess != '':
 				$if 'm_'+k == data['measure']:
 				    selected
 			$elif id !='new':
-				$if k == c.AllBatches.elements[id].fields['m_id'] :
+				$if k == curr_batch.fields['m_id'] :
 				    selected
 			>$c.AllMeasures.elements[k].fields['acronym'] - $c.AllMeasures.elements[k].getName(self.lang) - $c.AllMeasures.elements[k].fields['unit']</option>
 		</select>
@@ -109,57 +110,57 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputLapse1" class="col-sm-3 col-form-label">$c.AllMessages.elements['quantity'].getName(self.lang)</label>
+	    <label for="inputQty" class="col-sm-3 col-form-label">$c.getMessage('quantity',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="basicqt" type="text" class="form-control" id="inputLapse1" placeholder="$c.AllMessages.elements['quantity'].getName(self.lang)" 
+		<input name="basicqt" type="number" class="form-control" id="inputQty" placeholder="$c.getMessage('quantity',self.lang)" 
 		    $if errormess != '':
 			$if 'basicqt' in data :
 			    value="$data['basicqt']" 
 		    $elif id != 'new':
-			value="$c.AllBatches.elements[id].fields['basicqt']"
+			value="$curr_batch.fields['basicqt']"
 		>
 	    </div>
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputLapse1" class="col-sm-3 col-form-label">$c.AllMessages.elements['cost'].getName(self.lang)</label>
+	    <label for="inputLapse1" class="col-sm-3 col-form-label">$c.getMessage('cost',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="cost" type="text" class="form-control" id="inputLapse1" placeholder="$c.AllMessages.elements['cost'].getName(self.lang)" 
+		<input name="cost" type="text" class="form-control" id="inputLapse1" placeholder="$c.getMessage('cost',self.lang)" 
 		    $if errormess != '':
 			$if 'cost' in data :
 			    value="$data['cost']" 
 		    $elif id != 'new':
-			value="$c.AllBatches.elements[id].fields['cost']"
+			value="$curr_batch.fields['cost']"
 		>
 	    </div>
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.AllMessages.elements['code'].getName(self.lang)</label>
+	    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.getMessage('code',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.AllMessages.elements['code'].getName(self.lang)" 
+		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.getMessage('code',self.lang)" 
 		$if errormess != '':
 		    $if 'code' in data :
 			value="$data['code']"
 		$elif id != 'new':
-		    value="$c.AllBarcodes.get_barcode(c.AllBatches.elements[id].get_type(), id)"
+		    value="$c.AllBarcodes.get_barcode(curr_batch.get_type(), id)"
 		>
 	    </div>
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
+	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 	    <div class="col-sm-9">
 		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >$self.rmq</textarea>
 	    </div>
 	</div>
 	<div class="form-group row">
-	    <label for="inputactive" class="col-sm-6 col-form-label">$c.AllMessages.elements['active'].getName(self.lang)</label>
+	    <label for="inputactive" class="col-sm-6 col-form-label">$c.getMessage('active',self.lang)</label>
 	    <span class="glyphicon glyphicon-remove-circle"> </span>
 	    $code:
 		cond = (id == 'new')
 		if not cond :
-		    cond = (c.AllBatches.elements[id].fields['active'] == 1 or c.AllBatches.elements[id].fields['active'] == '1')
+		    cond = (curr_batch.fields['active'] == 1 or curr_batch.fields['active'] == '1')
 		if errormess != '' :
 		    if 'active' in data :
 			cond  = True
@@ -180,7 +181,7 @@ $if errormess != '':
 	
 	
 	<div class="form-group row">
-	    <label for="inputFile" class="col-sm-6 col-form-label">$c.AllMessages.elements['file'].getName(self.lang)</label>
+	    <label for="inputFile" class="col-sm-6 col-form-label">$c.getMessage('file',self.lang)</label>
 	    <label class="control-label"></label>
 	    <input id="inputFile" name="placeImg" multiple type="file" class="file file-loading" data-allowed-file-extensions='["jpg", "jpeg"]'>
 	</div>
@@ -194,7 +195,7 @@ $if errormess != '':
 		    href="/item/b_$(id)"
 		$else :
 		    href="/list/b"
-		class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>

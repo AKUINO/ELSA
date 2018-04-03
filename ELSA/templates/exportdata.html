@@ -4,39 +4,41 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : False
 $if type == 'new':
     $var location: exportdata/=exportdata
+    $var title : $c.getMessage('export',self.lang)
 $else:
     $code:
         elem = c.findAllFromType(type).elements[id]
-    $var location: all/$(type)=$(elem.get_name()) exportdata/$(type)_$(id)=exportdata
+    $var location: all/$(type)=$(elem.get_class_acronym()) exportdata/$(type)_$(id)=exportdata
+    $var title : $elem.getName(self.lang)
 
 <div class="container">
     <form  method="post" action="" id="exportdata"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
         <div class="form-group row">
-            <label for="inputElement" class="col-sm-3 col-form-label">$c.AllMessages.elements['component'].getName(self.lang)</label>
+            <label for="inputElement" class="col-sm-3 col-form-label">$c.getMessage('component',self.lang)</label>
             <div class="col-sm-9">
             <select name = "element" class="form-control" id="inputElement">
-                <optgroup label="$c.AllMessages.elements['place'].getName(self.lang)">
+                <optgroup label="$c.getMessage('place',self.lang)">
                 $for k in c.AllPieces.elements.keys():
                     <option value="p_$k"
                         $if type != 'new':
                             $if 'p' == type and k == id :
                                 selected
                     >$c.AllPieces.elements[k].fields['acronym'] - $c.AllPieces.elements[k].getName(self.lang) </option>
-                <optgroup label="$c.AllMessages.elements['equipment'].getName(self.lang)">
+                <optgroup label="$c.getMessage('equipment',self.lang)">
                 $for k in c.AllEquipments.elements.keys():
                     <option value="e_$k"
                         $if type != 'new':
                             $if 'e' == type and k == id :
                                 selected			
                     >$c.AllEquipments.elements[k].fields['acronym'] - $c.AllEquipments.elements[k].getName(self.lang)</option>
-                <optgroup label="$c.AllMessages.elements['container'].getName(self.lang)">
+                <optgroup label="$c.getMessage('container',self.lang)">
                 $for k in c.AllContainers.elements.keys():
                     <option value="c_$k"
                         $if type != 'new':
                             $if 'c' == type and k == id :
                                 selected
                     >$c.AllContainers.elements[k].fields['acronym'] - $c.AllContainers.elements[k].getName(self.lang)</option>
-                <optgroup label="$c.AllMessages.elements['batch'].getName(self.lang)">
+                <optgroup label="$c.getMessage('batch',self.lang)">
                 $for k in c.AllBatches.elements.keys():
                     <option value="b_$k"
                         $if type != 'new':
@@ -48,7 +50,7 @@ $else:
         </div>
         
         <div class="form-group row">
-            <label class="col-sm-6 col-form-label">$c.AllMessages.elements['alarm'].getName(self.lang)</label>
+            <label class="col-sm-6 col-form-label">$c.getMessage('alarm',self.lang)</label>
             <span class="glyphicon glyphicon-remove-circle"> </span>
             <label class="switch">
                 <input name="alarm" type="checkbox" value="1" checked >
@@ -58,7 +60,7 @@ $else:
         </div>
         
         <div class="form-group row">
-            <label class="col-sm-6 col-form-label">$c.AllMessages.elements['manualdata'].getName(self.lang)</label>
+            <label class="col-sm-6 col-form-label">$c.getMessage('manualdata',self.lang)</label>
             <span class="glyphicon glyphicon-remove-circle"> </span>
             <label class="switch">
                 <input name="manualdata" type="checkbox" value="1" checked >
@@ -68,7 +70,7 @@ $else:
         </div>
         
         <div class="form-group row">
-            <label  class="col-sm-6 col-form-label">$c.AllMessages.elements['transfer'].getName(self.lang)</label>
+            <label  class="col-sm-6 col-form-label">$c.getMessage('transfer',self.lang)</label>
             <span class="glyphicon glyphicon-remove-circle"> </span>
             <label class="switch">
                 <input name="transfer" type="checkbox" value="1" checked>
@@ -78,7 +80,7 @@ $else:
         </div>
 	
         <div class="form-group row">
-            <label  class="col-sm-6 col-form-label">$c.AllMessages.elements['pouring'].getName(self.lang)</label>
+            <label  class="col-sm-6 col-form-label">$c.getMessage('pouring',self.lang)</label>
             <span class="glyphicon glyphicon-remove-circle"> </span>
             <label class="switch">
                 <input name="pouring" type="checkbox" value="1" checked>
@@ -88,7 +90,7 @@ $else:
         </div>
         
         <div class="form-group row">
-            <label  class="col-sm-6 col-form-label">$c.AllMessages.elements['valuesensor'].getName(self.lang)</label>
+            <label  class="col-sm-6 col-form-label">$c.getMessage('valuesensor',self.lang)</label>
             <span class="glyphicon glyphicon-remove-circle"> </span>
             <label class="switch">
                 <input  name="valuesensor" type="checkbox" value="1" >
@@ -98,7 +100,7 @@ $else:
         </div>
         
         <div class="form-group row">
-            <label class="col-sm-6 col-form-label">$c.AllMessages.elements['specialvalue'].getName(self.lang)</label>
+            <label class="col-sm-6 col-form-label">$c.getMessage('specialvalue',self.lang)</label>
             <span class="glyphicon glyphicon-remove-circle"> </span>
             <label class="switch">
                 <input  name="specialvalue" type="checkbox" value="1" checked>
@@ -108,7 +110,7 @@ $else:
         </div>
         
         <div class="form-group row">
-            <label class="col-sm-6 col-form-label">$c.AllMessages.elements['acronym'].getName(self.lang)</label>
+            <label class="col-sm-6 col-form-label">$c.getMessage('acronym',self.lang)</label>
             <span class="glyphicon glyphicon-remove-circle"> </span>
             <label class="switch">
                 <input  name="acronym" type="checkbox" value="1" checked>
@@ -123,9 +125,9 @@ $else:
             
             <div class="col-sm-2">
                 $if type != 'new':
-                    <a href="/item/$(type)_$(id)" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+                    <a href="/item/$(type)_$(id)" class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>
                 $else:
-                    <a href="/" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+                    <a href="/" class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>
             </div>
             
             <div class="col-sm-2">

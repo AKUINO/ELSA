@@ -1,15 +1,15 @@
 $def with (id, mail, errormess, data, context='')
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
-$var title : ELSA container
-
+$var title : $c.AllContainers.getName(self.lang)
 $if id == 'new':
     $var location: all/c=container edit/c_new=add
     $var rmq :    
 $else:
     $var location: all/c=container edit/c_$(id)=edit
-    $var rmq :  $c.AllContainers.elements[id].fields['remark']
-    $var title : ELSA container $c.AllContainers.elements[id].fields['acronym']
+    $ elem = c.AllContainers.elements[id]
+    $var rmq :  $elem.fields['remark']
+    $var title : $elem.getName(self.lang)
 
 $if errormess != '':
     $if 'remark' in data :
@@ -35,14 +35,14 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.AllMessages.elements['acronym'].getName(self.lang)</label>
+	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.getMessage('acronym',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.AllMessages.elements['acronym'].getName(self.lang)" 
+		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.getMessage('acronym',self.lang)" 
 		$if errormess != '':
 		    $if 'acronym' in data :
 			value="$data['acronym']" 
 		$elif id != 'new':
-		    value="$c.AllContainers.elements[id].fields['acronym']"
+		    value="$elem.fields['acronym']"
 		$elif context != '':
 		    value = $(c.AllGrUsage.elements[context.split('_')[-1]].fields['acronym'])_
 		required="true">
@@ -51,7 +51,7 @@ $if errormess != '':
 	
 	
 	<div class="form-group row">
-	    <label for="inputName" class="col-sm-3 col-form-label">$c.AllMessages.elements['name'].getName(self.lang)</label>
+	    <label for="inputName" class="col-sm-3 col-form-label">$c.getMessage('name',self.lang)</label>
 	</div>
 	
 	$for k,v in c.AllLanguages.elements.items():
@@ -67,7 +67,7 @@ $if errormess != '':
 		    $if k in data :
 			value="$data[k]"
 		$elif id !='new':
-		    value="$c.AllContainers.elements[id].get_real_name(k)"
+		    value="$elem.get_real_name(k)"
 		$if self.lang == k: 
 		    required="true"
 		>
@@ -75,32 +75,32 @@ $if errormess != '':
 	    </div>
 	
 	<div class="form-group row">
-	    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.AllMessages.elements['code'].getName(self.lang)</label>
+	    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.getMessage('code',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.AllMessages.elements['code'].getName(self.lang)" 
+		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.getMessage('code',self.lang)" 
 		$if errormess != '':
 		    $if 'code' in data :
 			value="$data['code']"
 		$elif id != 'new':
-		    value="$c.AllBarcodes.get_barcode(c.AllContainers.elements[id].get_type(), id)"
+		    value="$c.AllBarcodes.get_barcode(elem.get_type(), id)"
 		>
 	    </div>
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
+	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 	    <div class="col-sm-9">
 		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >$self.rmq</textarea>
 	    </div>
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputactive" class="col-sm-6 col-form-label">$c.AllMessages.elements['active'].getName(self.lang)</label>
+	    <label for="inputactive" class="col-sm-6 col-form-label">$c.getMessage('active',self.lang)</label>
 	    <span class="glyphicon glyphicon-remove-circle"> </span>
 	    $code:
 		cond = (id == 'new')
 		if not cond :
-		    cond = (c.AllContainers.elements[id].fields['active'] == 1 or c.AllContainers.elements[id].fields['active'] == '1')
+		    cond = (elem.fields['active'] == 1 or elem.fields['active'] == '1')
 		if errormess != '' :
 		    if 'active' in data :
 			cond  = True
@@ -121,7 +121,7 @@ $if errormess != '':
 	
 	<div class="form-group row">
 	    <div class="col-sm-3">
-		<label for="includedContent" >$c.AllMessages.elements['color'].getName(self.lang)</label>
+		<label for="includedContent" >$c.getMessage('color',self.lang)</label>
 	    </div>
 	    <script>
 		$$(function(){
@@ -132,7 +132,7 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputFile" class="col-sm-6 col-form-label">$c.AllMessages.elements['file'].getName(self.lang)</label>
+	    <label for="inputFile" class="col-sm-6 col-form-label">$c.getMessage('file',self.lang)</label>
 	    <label class="control-label"></label>
 	    <input id="inputFile" name="placeImg" multiple type="file" class="file file-loading" data-allowed-file-extensions='["jpg", "jpeg"]'>
 	</div>
@@ -146,7 +146,7 @@ $if errormess != '':
 		    href="/item/c_$(id)"
 		$else :
 		    href="/list/c"
-		class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>

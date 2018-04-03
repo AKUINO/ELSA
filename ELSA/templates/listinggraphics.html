@@ -1,12 +1,13 @@
 $def with (mail,type,id)
 $var recursive : False
-$var location: list/$(type)=$(c.findAllFromType(type).get_name_object()) graphic/$(type)_$(id)=graphic
+$var location: list/$(type)=$(c.findAllFromType(type).get_class_acronym()) graphic/$(type)_$(id)=graphic
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $code:
     allobjects = c.findAllFromType(type)
     elem = allobjects.elements[id]
     keyID = c.findAllFromObject(elem).keyColumn
-    
+$var title : $elem.getName(self.lang)
+
 <script>
     $$(function(){
 	$$("#includedAllMenu$(type)_$(id)").load("/fullentry/$(type)_$(id)");
@@ -37,7 +38,7 @@ $for k in sensors:
 	$code:
 	    currSensor = c.AllSensors.elements[k]
 	$if currSensor and (currSensor.fields['active'] == '1' or currSensor.fields['active'] == 1):
-	    <h1 id="title"><a href="/graphic/s_$currSensor.id"><strong><span class="$c.AllHalflings.elements['sensor'].getHalfling()"></span></strong> $currSensor.getName(self.lang)</a></h1>
+	    <h1 id="title"><a href="/graphic/s_$currSensor.id"><strong><span class="$c.getHalfling('sensor')"></span></strong> $currSensor.getName(self.lang)</a></h1>
 	    <table width="100%">
 		<tr>
 		    <td>

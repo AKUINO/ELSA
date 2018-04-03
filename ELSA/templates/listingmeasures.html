@@ -4,9 +4,9 @@ $code:
     permissionKey = 'm_'
     elem = c.AllMeasures.elements[id]
     keyID = c.AllMeasures.keyColumn
-    
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
-$var location: list/m=$(c.findAllFromType('m').get_name_object()) find/d/m_$(id)=manualdata
+$var location: list/m=$(c.findAllFromType('m').get_class_acronym()) find/d/m_$(id)=manualdata
+$var title : $elem.getName(self.lang)
 
 <script>
     $$(function(){
@@ -17,7 +17,7 @@ $var location: list/m=$(c.findAllFromType('m').get_name_object()) find/d/m_$(id)
 
 
 <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
-    <label class="col-sm-12">$c.AllMessages.elements['sensor'].getName(self.lang) :</label>    
+    <label class="col-sm-12">$c.getMessage('sensor',self.lang) :</label>    
     $for k,sensor in c.AllSensors.elements.items():
 	$if sensor.fields['m_id'] == id :
 	    <script>
@@ -29,13 +29,13 @@ $var location: list/m=$(c.findAllFromType('m').get_name_object()) find/d/m_$(id)
 </div>
 
 <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:0px;padding:15px;">
-    <label class="col-sm-12"><span class="$c.AllHalflings.elements[c.AllManualData.get_name_object()].getHalfling()"></span>$c.AllMessages.elements['manualdata'].getName(self.lang) </label>    
+    <label class="col-sm-12">$:c.getAllHalfling(c.AllManualData) $c.getMessage('manualdata',self.lang) </label>    
 </div>
 <div class="row active" style ="background-color:#E5E5E7;margin-top:0px;margin-bottom:0px;padding:15px;">
-    <label class="col-sm-3">$c.AllMessages.elements['time'].getName(self.lang)</label>
-    <label class="col-sm-2">$c.AllMessages.elements['checkpoint'].getName(self.lang)</label>
-    <label class="col-sm-3">$c.AllMessages.elements['measure'].getName(self.lang)</label>
-    <label class="col-sm-3">$c.AllMessages.elements['remark'].getName(self.lang)</label>
+    <label class="col-sm-3">$c.getMessage('time',self.lang)</label>
+    <label class="col-sm-2">$c.getMessage('checkpoint',self.lang)</label>
+    <label class="col-sm-3">$c.getMessage('measure',self.lang)</label>
+    <label class="col-sm-3">$c.getMessage('remark',self.lang)</label>
 </div>
 <div class="row active" style ="background-color:#E5E5E7;margin-top:0px;margin-bottom:10px;padding:15px;">
     $for k,data in c.AllManualData.elements.items():
@@ -46,7 +46,7 @@ $var location: list/m=$(c.findAllFromType('m').get_name_object()) find/d/m_$(id)
 		</div>	    
 		<div class="col-xs-2" >
 		    $if data.fields['h_id'] != '' :
-		        <a href="/find/related/h_$(data.fields['h_id'])"><span class="$c.AllHalflings.elements[c.AllCheckPoints.get_name_object()].getHalfling()"></span>$c.AllCheckPoints.elements[data.fields['h_id']].fields['acronym']</a>
+		        <a href="/find/related/h_$(data.fields['h_id'])">$:c.getAllHalfling(c.AllCheckPoints) $c.AllCheckPoints.elements[data.fields['h_id']].fields['acronym']</a>
 		</div>
 		<div class="col-xs-3" >
 			<strong>$data.fields['value']</strong>  $elem.fields['unit']</a>

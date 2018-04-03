@@ -1,5 +1,7 @@
 $def with (id, mail, errormess, context='')
 $var recursive : False
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+$var title : $c.AllPourings.getName(self.lang)
 $if id == 'new' and context == '':
     $code :
 	myID = 'new'
@@ -12,6 +14,7 @@ $elif id == 'new':
 	rmq = ''
 $else :
     $code:
+        pouring = None
 	if not id.split('_')[0] == 'b':
 	    pouring = c.AllPourings.elements[id]
 	    src = c.AllBatches.elements[pouring.fields['src']]
@@ -19,15 +22,13 @@ $else :
 	    batch = dest
 	    myID = 'update'
 	    rmq = pouring.fields['remark']
-
+    $if pouring:
+	$var title : $pouring.getName(self.lang)
 
 $if myID == 'update':
     $var location: list/b=batch find/v/b_$(dest.getID())=pouring edit/v_$(dest.getID())=edit
 $elif myID == 'in' or myID == 'out':
     $var location: list/b=batch find/v/b_$(batch.getID())=pouring create/v/b_$(batch.getID())/new=add
-
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
-
 
 <script>
 function flip() {
@@ -50,9 +51,9 @@ function flip() {
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputTime" class="col-sm-3 col-form-label">$c.AllMessages.elements['time'].getName(self.lang)</label>
+	    <label for="inputTime" class="col-sm-3 col-form-label">$c.getMessage('time',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="time" type="text" class="form-control" id="inputTime" placeholder="$c.AllMessages.elements['time'].getName(self.lang)" 
+		<input name="time" type="text" class="form-control" id="inputTime" placeholder="$c.getMessage('time',self.lang)" 
 		$if myID == 'update':
 		    value="$pouring.fields['time']"
 		$else :
@@ -62,7 +63,7 @@ function flip() {
 	</div>
 	
 	<div class="form-group row">
-	    <label for="b_id" class="col-sm-3 col-form-label">$c.AllMessages.elements['batch'].getName(self.lang) $c.AllMessages.elements['source'].getName(self.lang)</label>
+	    <label for="b_id" class="col-sm-3 col-form-label">$c.getMessage('batch',self.lang) $c.getMessage('source',self.lang)</label>
 	    <div class="col-sm-9" id = "divsrc">
 		<select name="src" class="form-control" id="src">
 		    $if myID != 'out':
@@ -79,7 +80,7 @@ function flip() {
 	    </div>
 	</div>
 	<div class="form-group row">
-	    <label for="inputbatch" class="col-sm-3 col-form-label">$c.AllMessages.elements['batch'].getName(self.lang) $c.AllMessages.elements['target'].getName(self.lang)</label>
+	    <label for="inputbatch" class="col-sm-3 col-form-label">$c.getMessage('batch',self.lang) $c.getMessage('target',self.lang)</label>
 	    <div class="col-sm-9" id = "divdest">
 		<select name = "dest" class="form-control" id="dest">
 			$if myID != 'in' :
@@ -101,9 +102,9 @@ function flip() {
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputValue" class="col-sm-3 col-form-label">$c.AllMessages.elements['quantity'].getName(self.lang)</label>
+	    <label for="inputValue" class="col-sm-3 col-form-label">$c.getMessage('quantity',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="quantity" type="text" class="form-control" id="inputValue" placeholder="$c.AllMessages.elements['value'].getName(self.lang)" 
+		<input name="quantity" type="text" class="form-control" id="inputValue" placeholder="$c.getMessage('value',self.lang)" 
 		$if myID == 'update':
 		    value="$pouring.fields['quantity']"
 		 required >
@@ -111,7 +112,7 @@ function flip() {
 	</div>
 	
 	<div class="form-group row">
-	    <label for="alarmSelect" class="col-sm-3 col-form-label">$c.AllMessages.elements['alarm'].getName(self.lang)</label>
+	    <label for="alarmSelect" class="col-sm-3 col-form-label">$c.getMessage('alarm',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "a_id" class="form-control" id="alarmSelect">
 		    <option value=""></option>
@@ -122,14 +123,14 @@ function flip() {
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.AllMessages.elements['remark'].getName(self.lang)</label>
+	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 	    <div class="col-sm-9">
-		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.AllMessages.elements['remark'].getName(self.lang)" >$rmq</textarea>
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.getMessage('remark',self.lang)" >$rmq</textarea>
 	    </div>
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputactive" class="col-sm-6 col-form-label">$c.AllMessages.elements['active'].getName(self.lang)</label>
+	    <label for="inputactive" class="col-sm-6 col-form-label">$c.getMessage('active',self.lang)</label>
 	    <span class="glyphicon glyphicon-remove-circle"> </span>
 		<label class="switch">
 		    <input id='inputactive' name="active" type="checkbox" value="1" checked>
@@ -143,9 +144,9 @@ function flip() {
 	    </div>
 	    <div class="col-sm-2">
 		$if id == 'new' :
-		    <a href="/index" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		    <a href="/index" class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>
 		$else:
-		    <a href="/item/b_$(batch.getID())" class="btn btn-danger btn-block" role="button">$c.AllMessages.elements['cancel'].getName(self.lang)</a>
+		    <a href="/item/b_$(batch.getID())" class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>
