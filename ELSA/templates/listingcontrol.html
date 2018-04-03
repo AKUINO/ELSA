@@ -2,10 +2,11 @@ $def with (type, id, mail)
 $code:
     allobjects = c.findAllFromType(type)
     elem = allobjects.elements[id]
-    keyID = c.findAllFromObject(elem).keyColumn
+    keyID = allobjects.keyColumn
     recipes = set()
     recipe_id = elem.fields['gr_id']
     if recipe_id and recipe_id in c.AllGrRecipe.elements:
+        recipes.add(recipe_id)
         recipe = c.AllGrRecipe.elements[recipe_id]
         new_recipes = set(recipe.get_all_parents())
         recipes = recipes | new_recipes
@@ -19,7 +20,6 @@ $code:
             new_usages = set(usage.get_all_parents())
 	    usages = usages | new_usages
     allowedcheckpoints = c.AllCheckPoints.get_checkpoints_for_recipe_usage(recipes,usages)
-
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var location: list/$(type)=$(allobjects.get_class_acronym()) find/h/$(type)_$(id)=checkpoint
 $var recursive : False
@@ -37,8 +37,7 @@ $var title: $c.getName(allobjects,self.lang)
     <label class="col-sm-12">$c.getMessage('checkpoint',self.lang) :</label>
 </div>
 
-$for i in allowedcheckpoints:
-    $if i.getID() in elem.checkpoints :
+$for i in elem.checkpoints:
         <script>
         $$(function(){
 	    $$("#includedAllMenuh_$(i)").load("/fullentry/h_$(i)");

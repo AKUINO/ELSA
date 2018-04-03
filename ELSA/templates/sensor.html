@@ -114,7 +114,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 			    $elif id != 'new':
 				$if k == aSensor.fields['m_id'] :
 				    selected
-			>$(aMeasure.fields['acronym']) - $(aMeasure.getName(self.lang)): $(aMeasure.fields['min']) +$(aMeasure.fields['step'])... $lt;= $(aMeasure.fields['max']) $(aMeasure.fields['unit'])</option>
+			>$(aMeasure.fields['acronym']) - $(aMeasure.getName(self.lang)): $(aMeasure.fields['min']) +$(aMeasure.fields['step'])... &lt;= $(aMeasure.fields['max']) $(aMeasure.fields['unit'])</option>
 		</select>
 	    </div>
 	</div>
@@ -124,7 +124,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
             $ acolor = c.valueCategs[alarm].color
 	    <div  class="form-group row" style="border:5px solid #$(acolor);margin-bottom:10px;padding-top:5px">
 	    <div class="form-group row">
-		<label for="$(aname)Select" class="col-sm-3 col-form-label">$(c.getMessage(aname].getName(self.lang))</label>
+		<label for="$(aname)Select" class="col-sm-3 col-form-label">$(c.getMessage(aname,self.lang))</label>
 		<div class="col-sm-9">
 		    <input name="$(aname)" type="text" class="form-control" id="$(aname)Select" placeholder="$(c.getMessage('alarm',self.lang))" 
 			$if errormess != '' :
@@ -275,12 +275,11 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
                 <label for="inputValidation" class="col-sm-3 col-form-label">TEST</label>
                 <div class="col-sm-9" style="color:black">
 		    $code:
-                        value,debugging = aSensor.get_value_sensor(c.AllSensors.config)
+                        value = aSensor.get_value_sensor(c)
 		    Value=<b><span style="background-color:#$(aSensor.colorAlarm);color:black">$(value)</span>
                     $if aSensor.fields['m_id']:
                         $(c.AllMeasures.elements[aSensor.fields['m_id']].fields['unit'])
-                    </b><br/>
-                    $debugging
+                    </b>
 	        </div>
 	    </div>
 	

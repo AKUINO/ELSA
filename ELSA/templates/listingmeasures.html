@@ -28,6 +28,19 @@ $var title : $elem.getName(self.lang)
 	    <div id="includedMenus_$(k)"></div>
 </div>
 
+    <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+	<label class="col-sm-12">$c.getMessage('manualdatamodel',self.lang) :</label>    
+
+    $for k,dataModel in c.AllManualDataModels.elements.items():
+        $if dataModel.fields['m_id'] == id:
+                <script>
+                    $$(function(){
+                        $$("#includedDM_$(k)").load("/fullentry/dm_$(k)");
+                    });
+                </script>
+                <div id="includedDM_$(k)"></div>
+    </div>
+
 <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:0px;padding:15px;">
     <label class="col-sm-12">$:c.getAllHalfling(c.AllManualData) $c.getMessage('manualdata',self.lang) </label>    
 </div>

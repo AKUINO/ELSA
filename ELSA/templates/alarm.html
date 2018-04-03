@@ -1,7 +1,7 @@
 $def with (id, mail, errormess, data)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
-$var title: $c.getMessage("new",self.lang) $c.AllAlarms.getName(self.lang)
+$var title: $c.getMessage("add",self.lang) $c.AllAlarms.getName(self.lang)
 $if id == 'new':
     $var location: all/a=alarm edit/a_new=add
     $var rmq :    

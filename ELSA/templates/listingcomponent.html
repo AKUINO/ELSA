@@ -25,10 +25,10 @@ $if t is not None :
 	<label class="col-sm-12">$c.getMessage('actualposition',self.lang) :</label>   
 	<script>
             $$(function(){
-                $$("#includedMenu$(c.AllTransfers.elements[t].fields['cont_type'])_$(c.AllTransfers.elements[t].fields['cont_id'])").load("/fullentry/$(c.AllTransfers.elements[t].fields['cont_type'])_$(c.AllTransfers.elements[t].fields['cont_id'])");
+                $$("#includedT$(c.AllTransfers.elements[t].fields['cont_type'])_$(c.AllTransfers.elements[t].fields['cont_id'])").load("/fullentry/$(c.AllTransfers.elements[t].fields['cont_type'])_$(c.AllTransfers.elements[t].fields['cont_id'])");
             });
 	</script>
-	<div id="includedMenu$(c.AllTransfers.elements[t].fields['cont_type'])_$(c.AllTransfers.elements[t].fields['cont_id'])"></div>
+	<div id="includedT$(c.AllTransfers.elements[t].fields['cont_type'])_$(c.AllTransfers.elements[t].fields['cont_id'])"></div>
     </div>
     
 
@@ -43,10 +43,10 @@ $if type in 'p' :
 		    toCheck.append(['e',k])
 		<script>
 		$$(function(){
-		    $$("#includedMenue_$(k)").load("/fullentry/e_$(k)");
+		    $$("#includedE_$(k)").load("/fullentry/e_$(k)");
 		});
 		</script>
-		<div id="includedMenue_$(k)"></div>
+		<div id="includedE_$(k)"></div>
     </div>
 $if type in 'pe':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
@@ -57,34 +57,71 @@ $if type in 'pe':
 		    toCheck.append(['c',k])
 		<script>
 		$$(function(){
-		    $$("#includedMenuc_$(k)").load("/fullentry/c_$(k)");
+		    $$("#includedC_$(k)").load("/fullentry/c_$(k)");
 		});
 		</script>
-		<div id="includedMenuc_$(k)"></div>
+		<div id="includedC_$(k)"></div>
     </div>
-$if type not in 'bg':
+$if type in 'ampec':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('sensor',self.lang) :</label>    
 
     $for k,sensor in c.AllSensors.elements.items():
-        $if sensor.fields[type+'_id'] is not '' :
-            $if sensor.fields[type+'_id'] == id :
+        $if (type=='a'):
+            $ OK = (type=='a') and ( (sensor.fields['a_min'] == id) or (sensor.fields['a_minmin'] == id) or (sensor.fields['a_max'] == id) or (sensor.fields['a_maxmax'] == id) or (sensor.fields['a_typical'] == id) )
+        $else:
+            $ OK = sensor.fields[type+'_id'] == id
+        $if OK:
                 <script>
                     $$(function(){
-                        $$("#includedMenus_$(k)").load("/fullentry/s_$(k)");
+                        $$("#includedS_$(k)").load("/fullentry/s_$(k)");
                     });
                 </script>
-                <div id="includedMenus_$(k)"></div>
+                <div id="includedS_$(k)"></div>
     </div>
-<div class="row active"style = "background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
-    <label class="col-sm-12">$c.getMessage('batch',self.lang) :</label>
-    $for k,batch in c.AllBatches.elements.items():
-        $for t, i in toCheck:
-            $if batch.is_actual_position(t, i, c) is True:
+$if type in 'amh':
+    <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+	<label class="col-sm-12">$c.getMessage('manualdatamodel',self.lang) :</label>    
+
+    $for k,dataModel in c.AllManualDataModels.elements.items():
+        $if (type=='a'):
+            $ OK = (type=='a') and ( (dataModel.fields['a_min'] == id) or (dataModel.fields['a_minmin'] == id) or (dataModel.fields['a_max'] == id) or (dataModel.fields['a_maxmax'] == id) or (dataModel.fields['a_typical'] == id) )
+        $else:
+            $ OK = dataModel.fields[type+'_id'] == id
+        $if OK:
                 <script>
                     $$(function(){
-                        $$("#includedMenub_$(k)").load("/fullentry/b_$(k)");
+                        $$("#includedDM_$(k)").load("/fullentry/dm_$(k)");
                     });
-		</script>
-		<div id="includedMenub_$(k)"></div>
-</div>
+                </script>
+                <div id="includedDM_$(k)"></div>
+    </div>
+
+$if type in 'sdm':
+    <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+	<label class="col-sm-12">$c.getMessage('alarm',self.lang) :</label>    
+
+    $for k,alarm in c.AllAlarms.elements.items():
+        $if (elem.fields['a_min'] == k) or (elem.fields['a_minmin'] == k) or (elem.fields['a_max'] == k) or (elem.fields['a_maxmax'] == k) or (elem.fields['a_typical'] == k):
+                <script>
+                    $$(function(){
+                        $$("#includedA_$(k)").load("/fullentry/a_$(k)");
+                    });
+                </script>
+                <div id="includedA_$(k)"></div>
+    </div>
+
+
+$if type in 'pec':
+	<div class="row active"style = "background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+	    <label class="col-sm-12">$c.getMessage('batch',self.lang) :</label>
+	    $for k,batch in c.AllBatches.elements.items():
+	        $for t, i in toCheck:
+	            $if batch.is_actual_position(t, i, c) is True:
+	                <script>
+	                    $$(function(){
+	                        $$("#includedB_$(k)").load("/fullentry/b_$(k)");
+	                    });
+			</script>
+			<div id="includedB_$(k)"></div>
+	</div>

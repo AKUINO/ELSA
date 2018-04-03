@@ -1,5 +1,4 @@
 $def with (id, mail, errormess, data, context='')
-
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
 $var title : $c.getMessage('manualdatamodel',self.lang)
@@ -27,6 +26,7 @@ $if errormess != '':
 	    <div class="col-sm-9">
 		<select name = "checkpoint" class="form-control" id="inputPosition">
 		    $for k in c.AllCheckPoints.elements.keys():
+                        $ aCheck = c.AllCheckPoints.elements[k]
 			<option value="$k"
 			    $if context != '':
 				$if  k == context.split('_')[-1] :
@@ -34,7 +34,7 @@ $if errormess != '':
 			    $elif id != 'new':
 				$if  k == aDataModel.fields['h_id'] :
 				    selected
-			>$c.AllCheckPoints.elements[k].fields['acronym'] - $c.AllCheckPoints.elements[k].getName(self.lang) </option>
+			>$(aCheck.fields['acronym']) - $(aCheck.getName(self.lang)) </option>
 		</select>
 	    </div>
 	</div>
@@ -98,11 +98,12 @@ $if errormess != '':
 	    <div class="col-sm-9">
 		<select name = "measure" class="form-control" id="inputPosition">
 		    $for k in c.AllMeasures.elements.keys():
+                        $ currMeasure = c.AllMeasures.elements[k]
 			<option value="$k"
 			    $if id != 'new':
 				$if  k == aDataModel.fields['m_id'] :
 				    selected
-			>$c.AllMeasures.elements[k].fields['acronym'] - $c.AllMeasures.elements[k].getName(self.lang) </option>
+			>$currMeasure.fields['acronym'] - $currMeasure.getName(self.lang): $currMeasure.fields['min'] +$currMeasure.fields['step']... &lt;= $currMeasure.fields['max'] $currMeasure.fields['unit']</option>
 		</select>
 	    </div>
 	</div>
@@ -112,7 +113,7 @@ $if errormess != '':
             $ acolor = c.valueCategs[alarm].color
 	    <div  class="form-group row" style="border:5px solid #$(acolor);margin-bottom:10px;padding-top:5px">
 	    <div class="form-group row">
-		<label for="$(aname)Select" class="col-sm-3 col-form-label">$(c.getMessage(aname].getName(self.lang))</label>
+		<label for="$(aname)Select" class="col-sm-3 col-form-label">$(c.getMessage(aname,self.lang))</label>
 		<div class="col-sm-9">
 		    <input name="$(aname)" type="text" class="form-control" id="$(aname)Select" placeholder="$(c.getMessage('alarm',self.lang))" 
 			$if errormess != '' :

@@ -2,7 +2,7 @@ $def with (type, id, mail)
 $code:
     allobjects = c.findAllFromType(type)
     elem = allobjects.elements[id]
-    keyID = c.findAllFromObject(elem).keyColum
+    keyID = c.findAllFromObject(elem).keyColumn
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var location: list/$(type)=$(c.findAllFromType(type).get_class_acronym()) find/t/$(type)_$(id)=transfer
 $var recursive : False

@@ -32,10 +32,10 @@ begin	classname	glyphname	user
 2017-03-21 14:08:46	add	plus	1
 2017-03-21 14:08:46	exportdata	floppy-save 1	
 2017-03-21 14:08:46	datatable	list 1	
-2017-03-21 14:08:46	pouring	filter 1
+2017-03-21 14:08:46	pouring	filter	1
 2017-03-21 14:08:46	pouringmodel	filter 1
-2017-03-21 14:08:46	input	import 1
-2017-03-21 14:08:46	output	export 1
+2017-03-21 14:08:46	input	import	1
+2017-03-21 14:08:46	output	export	1
 2017-03-21 14:08:46	menu	cog 1
 2017-03-21 14:08:46	scale	oil	1
 2017-03-21 14:08:46	rank	hash	1

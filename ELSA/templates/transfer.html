@@ -1,7 +1,7 @@
 $def with (id, mail, errormess, context='')
 $var recursive : False
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
-$var title : $c.getMessage('add') $c.getMessage($c.AllBatches.get_class_acronym)
+$var title : $c.getMessage('add',self.lang) $c.getMessage('transfer',self.lang)
 $if id == 'new':
     $code :
 	myID = 'new'
@@ -14,7 +14,7 @@ $else :
 	    elem = c.findAllFromType(transfer.fields['object_type']).elements[transfer.fields['object_id']]
 	    myID = 'update'
 	    rmq = transfer.fields['remark']
-    $var title :  $c.getMessage($c.AllTransfers.get_class_acronym) $id
+    $var title :  $c.getMessage('transfer',self.lang) $id
 	    
 $if context != '' :
     $code:
