@@ -455,6 +455,7 @@ class ConfigurationObject(object):
             self.names[key] = newName
 
     def getName(self, lang):
+        lang = lang.upper()
         if lang == 'disconnected':
             lang = 'EN'
         if lang in self.names:
@@ -707,10 +708,13 @@ class UpdateThread(threading.Thread):
                 self.config.owproxy = pyownet.protocol.proxy(host="localhost",
                                                              port=4304)
         while self.config.isThreading is True:
+            timer = 0
             now = useful.get_timestamp()
             if not len(self.config.AllSensors.elements) == 0:
                 self.config.AllSensors.update(now)
-            time.sleep(60)
+            while self.config.isThreading is True and timer < 60:
+                time.sleep(1)           
+                timer = timer + 1
 
 
 class RadioThread(threading.Thread):
@@ -1495,13 +1499,11 @@ class AllSensors(AllObjects):
             sensor.setCorrectAlarmValue()
 
     def update(self, now):
-        global iteration_cache
-
-        iteration_cache = None
+        iteration_cache = {}
         for k, sensor in self.elements.items():
             if sensor.fields['channel'] in self._queryChannels \
                                         and not sensor.fields['active'] == '0':
-                value = sensor.get_value_sensor(self.config)
+                value = sensor.get_value_sensor(self.config, iteration_cache)
                 if value is not None:
                     sensor.update(now, value, self.config)
 
@@ -3653,31 +3655,6 @@ class Sensor(ConfigurationObject):
     def add_phase(self, data):
         self.fields['h_id'] = data
 
-    def set_cache(self, field, cache):
-        global iteration_cache
-
-        if iteration_cache is None:
-            iteration_cache = {}
-        channel = self.fields['channel']
-        if not channel in iteration_cache:
-            iteration_cache[channel] = {}
-        iteration_cache[channel][field] = cache
-
-    def get_cache(self, field):
-        '''
-        Returns the data from iteration_cache for at the coresponding field.
-        May return None
-        '''
-        global iteration_cache
-
-        if iteration_cache is None:
-            return None
-        channel = self.fields['channel']
-        try:
-            return iteration_cache[channel][field]
-        except KeyError:
-            return None
-
     def update(self, now, value, config):
         self.lastvalue = value
         self.updateRRD(now, value)
@@ -3791,20 +3768,38 @@ class Sensor(ConfigurationObject):
         self.degreeAlarm = 0
         self.time = 0
 
-    def parse_atmos_data(self, input):
-        '''
-        Given a single string '+a+b-c+d', returns ['+a','+b','-c','+d']
-        Used to parse the data returned from the Atmos41 weather station
-        '''
-        return reduce(lambda acc, elem:
-                            acc[:-1] + [acc[-1] + elem]
-                            if elem != '+' and elem != '-'
-                            else acc + [elem],
-                                re.split("([+,-])", input.strip())[1:], [])
-        #return re.split("([+,-])", input.strip())
-    
-    def get_value_sensor(self, config):
+    def get_value_sensor(self, config, iteration_cache=None):
+        if iteration_cache is None:
+            iteration_cache = {}
         
+        def parse_atmos_data(self, input):
+            '''
+            Given a single string '+a+b-c+d', returns ['+a','+b','-c','+d']
+            Used to parse the data returned from the Atmos41 weather station
+            '''
+            return reduce(lambda acc, elem:
+                                acc[:-1] + [acc[-1] + elem]
+                                if elem != '+' and elem != '-'
+                                else acc + [elem],
+                                    re.split("([+,-])", input.strip())[1:], [])
+        
+        def set_cache(self, field, cache):
+            channel = self.fields['channel']
+            if not channel in iteration_cache:
+                iteration_cache[channel] = {}
+            iteration_cache[channel][field] = cache
+            
+        def get_cache(self, field):
+            '''
+            Returns the data from iteration_cache for at the coresponding field.
+            May return None
+            '''
+            channel = self.fields['channel']
+            try:
+                return iteration_cache[channel][field]
+            except KeyError:
+                return None
+
         output_val = None
         debugging = u""
         if self.fields['channel'] == 'wire':
@@ -3846,7 +3841,7 @@ class Sensor(ConfigurationObject):
                         self.fields['sensor'], None, 20)
                     info = sensorfile.read(80000)
                     sensorfile.close()
-                    self.set_cache(url,info)
+                    self.set_cache(url, info)
                     output_val = eval(self.fields['subsensor'])
                 except:
                     debugging = u"URL="+url+u", code=" + \
@@ -3937,15 +3932,15 @@ class Sensor(ConfigurationObject):
         elif self.fields['channel'] == 'atmos41':
             input = config.HardConfig.inputs[self.fields['channel']]
             cache = get_cache(self, input['serialport']+input['sdiaddress'])
-            if cache is None:
+	    if cache is [] or cache is None :
                 ser = serial.Serial(input['serialport'],
-                                    baudrate=1200,
+                                    baudrate=9600,
                                     timeout=10)
                 time.sleep(2.5) # Leave some time to initialize
                 ser.write(input['sdiaddress'].encode() + b'R0!')
                 try:
                     cache = parse_atmos_data(self, ser.readline())
-                except SerialException:
+                except serial.SerialException:
                     print('Tried to read several times back to back ?')
                     raise
                 else:
