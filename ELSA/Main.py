@@ -39,8 +39,6 @@ def StepValuesUpdate(sensorIn, data):
     for sensor in c.AllSensors.elements:
         if (c.AllSensors.elements[sensor].fields['sensor'].translate(None, '.') == sensorIn.translate(None, '.')):
             currSensor = c.AllSensors.elements[sensor]
-            print("Sensor ID   : "+currSensor.fields['sensor'])
-            print("Sensor name : "+currSensor.fields['name'])
     if(currSensor != None):
         for batch in c.AllBatches.elements:
             if (c.AllBatches.elements[batch].piece != None and c.AllBatches.elements[batch].piece.fields['p_id'] == currSensor.fields['p_id']):

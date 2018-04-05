@@ -323,7 +323,6 @@ class WebEdit():
         return render.listing(mail, type, id)
 
     def getRender(self, type, id, mail, errormess, data, context=''):
-        print 'context :' + context
         if type in 'hpebcsmagugrgfutmdmvm' and type != 'g' and type != 'f' and type != 'd' and type != 'v'and type != 't':
             if type == 'p':
                 return render.place(id, mail, errormess, data, context)
@@ -707,7 +706,6 @@ def restart_program():
     python = sys.executable
     args = sys.argv
     args[0] = os.path.join(elsa.DIR_BASE, os.path.basename(sys.argv[0]))
-    print(args) 
     os.execl(python, python, *args)
 
 class end_activities_flags:

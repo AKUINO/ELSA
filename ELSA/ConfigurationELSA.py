@@ -384,8 +384,6 @@ class ConfigurationObject(object):
         if anUser != "":
             self.fields["user"] = anUser.fields['u_id']
         allObjects = configuration.findAllFromObject(self)
-        print allObjects.fileobject
-        print allObjects.fieldnames
         with open(allObjects.fileobject, "a") as csvfile:
             writer = unicodecsv.DictWriter(csvfile,
                                            delimiter='\t',
@@ -397,11 +395,7 @@ class ConfigurationObject(object):
 
     def saveName(self, configuration, anUser):
         allObjects = configuration.findAllFromObject(self)
-        print self.fields
-        print self.names
         for key in self.names:
-            print key
-            print allObjects.fieldtranslate
             with open(allObjects.filename, "a") as csvfile:
                 writer = unicodecsv.DictWriter(csvfile,
                                                delimiter='\t',
@@ -411,7 +405,6 @@ class ConfigurationObject(object):
 
     def saveCode(self, configuration, anUser):
         allObjects = configuration.findAllFromObject(self)
-        print self.code
         with open(configuration.csvCodes, "a") as csvfile:
             tmpCode = {}
             tmpCode['begin'] = useful.now()
@@ -2767,10 +2760,8 @@ class ExportData():
             self.load_transfers(tmpComponent, begin, end)
         self.transfers.sort(key=lambda x: int(
             useful.date_to_timestamp(x.fields['time'])), reverse=False)
-        print self.transfers
         while self.transfers[0].fields['object_type'] != 'b':
             self.transfers.pop(0)
-        print self.transfers
         return self.transfers
 
     def load_pourings(self):
@@ -2848,7 +2839,6 @@ class ExportData():
                 writer.writerow(e)
 
     def add_value_from_sensors(self, infos):
-        print infos.keys()
         for a in infos.keys():
             self.min = 99999999999
             self.max = -99999999999
@@ -4451,7 +4441,6 @@ class Transfer(ConfigurationObject):
             postype = data['position'].split('_')[0]
             posid = data['position'].split('_')[1]
             objet = configuration.get_object(objtype, objid)
-            print objet.get_actual_position()
             if (objet.is_actual_position(postype, posid, configuration) is True and objet.get_actual_position() != self.id):
                 tmp += configuration.getMessage('transferrules',lang) + '\n'
             if (objtype == 'e' and postype != 'p') or(objtype == 'c' and postype not in 'ep'):
