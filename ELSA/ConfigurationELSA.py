@@ -717,6 +717,8 @@ class RadioThread(threading.Thread):
         self.config = config
 
     def run(self):
+        if self.config.HardConfig.ela != 'yes':
+            return
         noDots = {ord(' '): None, ord('.'): None}
         try:
             elaSerial = serial.Serial(
