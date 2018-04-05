@@ -1493,12 +1493,33 @@ class AllSensors(AllObjects):
 
     def update(self, now):
         iteration_cache = {}
+        def set_cache(self, cache):
+            channel = self.fields['channel']
+            field = self.fields['sensor']
+            if not channel in iteration_cache:
+                iteration_cache[channel] = {}
+            iteration_cache[channel][field] = cache
+            
+        def get_cache(self):
+            '''
+            Returns the data from iteration_cache for at the coresponding field.
+            May return None
+            '''
+            channel = self.fields['channel']
+            field = self.fields['sensor']
+            try:
+                return iteration_cache[channel][field]
+            except KeyError:
+                return None
+
         for k, sensor in self.elements.items():
             if sensor.fields['channel'] in self._queryChannels \
                                         and not sensor.fields['active'] == '0':
-                value = sensor.get_value_sensor(self.config, iteration_cache)
+                value, cache = sensor.get_value_sensor(self.config, get_cache(sensor))
                 if value is not None:
                     sensor.update(now, value, self.config)
+                if cache is not None:
+                    set_cache(sensor, cache)
 
     def check_rrd(self):
         for k, v in self.elements.items():
@@ -3791,10 +3812,7 @@ class Sensor(ConfigurationObject):
         output_gpio.write_pin(int(output['channel']), 0)
         return output_val
 
-    def get_value_sensor(self, config, iteration_cache=None):
-        if iteration_cache is None:
-            iteration_cache = {}
-        
+    def get_value_sensor(self, config, cache=None):
         def parse_atmos_data(self, input):
             '''
             Given a single string '+a+b-c+d', returns ['+a','+b','-c','+d']
@@ -3806,23 +3824,6 @@ class Sensor(ConfigurationObject):
                                 else acc + [elem],
                                     re.split("([+,-])", input.strip())[1:], [])
         
-        def set_cache(self, field, cache):
-            channel = self.fields['channel']
-            if not channel in iteration_cache:
-                iteration_cache[channel] = {}
-            iteration_cache[channel][field] = cache
-            
-        def get_cache(self, field):
-            '''
-            Returns the data from iteration_cache for at the coresponding field.
-            May return None
-            '''
-            channel = self.fields['channel']
-            try:
-                return iteration_cache[channel][field]
-            except KeyError:
-                return None
-
         output_val = None
         debugging = u""
         if self.fields['channel'] == 'wire':
@@ -3843,7 +3844,7 @@ class Sensor(ConfigurationObject):
         elif self.fields['channel'] == 'http':
             url = self.fields['sensor']
             code = 0
-            info = self.get_cache(url)
+            info = cache
             if info is not None:
                 try:
                     output_val = eval(self.fields['subsensor'])
@@ -3864,7 +3865,7 @@ class Sensor(ConfigurationObject):
                         self.fields['sensor'], None, 20)
                     info = sensorfile.read(80000)
                     sensorfile.close()
-                    self.set_cache(url, info)
+                    cache = info
                     output_val = eval(self.fields['subsensor'])
                 except:
                     debugging = u"URL="+url+u", code=" + \
@@ -3873,7 +3874,7 @@ class Sensor(ConfigurationObject):
         elif self.fields['channel'] == 'json':
             url = self.fields['sensor']
             code = 0
-            info = get_cache(self, url)
+            info = cache
             if info is not None:
                 try:
                     output_val = eval(self.fields['subsensor'])
@@ -3897,7 +3898,7 @@ class Sensor(ConfigurationObject):
                     info = sensorfile.read()
                     info = json.loads(info)
                     sensorfile.close()
-                    set_cache(self, url, info)
+                    cache = info
                     output_val = eval(self.fields['subsensor'])
                 except:
                     debugging = (u"URL=" + url
@@ -3949,7 +3950,6 @@ class Sensor(ConfigurationObject):
             output_val = get_mesure_humidity_campbell()
         elif self.fields['channel'] == 'atmos41':
             input = config.HardConfig.inputs[self.fields['channel']]
-            cache = get_cache(self, input['serialport']+input['sdiaddress'])
 	    if cache is [] or cache is None :
                 ser = serial.Serial(input['serialport'],
                                     baudrate=9600,
@@ -3961,10 +3961,6 @@ class Sensor(ConfigurationObject):
                 except serial.SerialException:
                     print('Tried to read several times back to back ?')
                     raise
-                else:
-                    set_cache(self,
-                              input['serialport']+input['sdiaddress'],
-                              cache)
                 finally:
                     ser.close()
             try:
@@ -3977,7 +3973,7 @@ class Sensor(ConfigurationObject):
                       + '. Range starts at 0')
         else:
             print('Error: no sensor channel for ' + self.fields['channel'])
-            return None
+            return None, None
        
         if (debugging != ''):
             print(debugging) 
@@ -3987,7 +3983,7 @@ class Sensor(ConfigurationObject):
             print("output_val has not been set for channel: "
                   + self.fields['channel']
                   + '. Ignoring.')
-            return None
+            return None, None
         else:
             try:
                 value = float(output_val)
@@ -3999,8 +3995,8 @@ class Sensor(ConfigurationObject):
                 print(u"Device="+self.fields['sensor']+u" / "+self.fields['subsensor'] + \
                     u", Formula="+self.fields['formula'] + \
                     u", Message="+traceback.format_exc() )
-            return output_val
-        return None
+            return output_val, cache
+        return None, None
 
     def is_in_component(self, type, id):
         if type == 'e':
