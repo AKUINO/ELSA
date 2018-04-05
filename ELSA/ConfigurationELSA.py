@@ -3757,6 +3757,39 @@ class Sensor(ConfigurationObject):
         self.actualAlarm = 'typical'
         self.degreeAlarm = 0
         self.time = 0
+    def get_mesure_humidity_campbell():
+        input = config.HardConfig.inputs[self.fields['channel']]
+        input_device = config.HardConfig.devices[input['device']]
+        try:
+            output = config.HardConfig.outputs[input['poweroutput']]
+            output_device = config.HardConfig.devices[output['device']]
+        except IOError:
+            print('Unable to control output_device!' + ' channel : '
+                                                     + self.fields['channel']
+                                                     + ', i2c address : '
+                                                     + device['i2c'])
+            return None
+        try:
+            output_gpio = abe_iopi.IOPi(int(output_device['i2c'], 16))
+            output_gpio.set_pin_direction(int(output['channel']), 0)
+            adc = abe_adcpi.ADCPi(int(input_device['i2c'], 16),
+                                  int(input_device['i2c'], 16) + 1,
+                                  int(input['resolution']))
+        except IOError:
+            print('Unable to read sensor !' + ' channel : '
+                                            + self.fields['channel']
+                                            + ', i2c address : '
+                                            + device['i2c'])
+            return None
+# TODO: manage invertion for output
+        # Stimulate
+        output_gpio.write_pin(int(output['channel']), 1)
+        time.sleep(int(input['delayms'])*0.001)
+        
+        output_val = adc.read_voltage(int(input['channel']))
+        # End stimulation
+        output_gpio.write_pin(int(output['channel']), 0)
+        return output_val
 
     def get_value_sensor(self, config, iteration_cache=None):
         if iteration_cache is None:
@@ -3840,7 +3873,7 @@ class Sensor(ConfigurationObject):
         elif self.fields['channel'] == 'json':
             url = self.fields['sensor']
             code = 0
-            info = self.get_cache(url)
+            info = get_cache(self, url)
             if info is not None:
                 try:
                     output_val = eval(self.fields['subsensor'])
@@ -3864,7 +3897,7 @@ class Sensor(ConfigurationObject):
                     info = sensorfile.read()
                     info = json.loads(info)
                     sensorfile.close()
-                    self.set_cache(url,info)
+                    set_cache(self, url, info)
                     output_val = eval(self.fields['subsensor'])
                 except:
                     debugging = (u"URL=" + url
@@ -3889,36 +3922,31 @@ class Sensor(ConfigurationObject):
         elif self.fields['channel'] == 'battery':
             input = config.HardConfig.inputs[self.fields['channel']]
             device = config.HardConfig.devices[input['device']]
-            adc = abe_adcpi.ADCPi(int(device['i2c'], 16),
-                                  int(input['resolution']))
-            output_val = adc.read_voltage(int(input['channel']))
+            try:
+                adc = abe_adcpi.ADCPi(int(device['i2c'], 16),
+                                      int(input['resolution']))
+                output_val = adc.read_voltage(int(input['channel']))
+            except IOError:
+                print('Unable to read sensor !' + ' channel : '
+                                                + self.fields['channel']
+                                                + ', i2c address : '
+                                                + device['i2c'])
         elif self.fields['channel'].startswith('lightsensor'):
             input = config.HardConfig.inputs[self.fields['channel']]
             device = config.HardConfig.devices[input['device']]
-            adc = abe_mcp3424.ADCDifferentialPi(int(device['i2c'], 16),
-                                                int(device['i2c'], 16) + 1,
-                                                int(input['resolution']))
-            adc.set_pga(int(device['amplification']))
-            output_val = adc.read_voltage(int(input['channel'])) 
+            try:    
+                adc = abe_mcp3424.ADCDifferentialPi(int(device['i2c'], 16),
+                                                    int(device['i2c'], 16) + 1,
+                                                    int(input['resolution']))
+                adc.set_pga(int(device['amplification']))
+                output_val = adc.read_voltage(int(input['channel']))
+            except IOError:
+                print('Unable to read sensor !' + ' channel : '
+                                                + self.fields['channel']
+                                                + ', i2c address : '
+                                                + device['i2c'])
         elif self.fields['channel'].startswith('humiditysensor'):
-            input = config.HardConfig.inputs[self.fields['channel']]
-            input_device = config.HardConfig.devices[input['device']]
-            output = config.HardConfig.outputs[input['poweroutput']]
-            output_device = config.HardConfig.devices[output['device']]
-
-            output_gpio = abe_iopi.IOPi(int(output_device['i2c'], 16))
-            output_gpio.set_pin_direction(int(output['channel']), 0)
-            adc = abe_adcpi.ADCPi(int(input_device['i2c'], 16),
-                                  int(input_device['i2c'], 16) + 1,
-                                  int(input['resolution']))
-# TODO: manage invertion for output
-            # Stimulate
-            output_gpio.write_pin(int(output['channel']), 1)
-            time.sleep(int(input['delayms'])*0.001)
-            
-            output_val = adc.read_voltage(int(input['channel']))
-            # End stimulation
-            output_gpio.write_pin(int(output['channel']), 0)
+            output_val = get_mesure_humidity_campbell()
         elif self.fields['channel'] == 'atmos41':
             input = config.HardConfig.inputs[self.fields['channel']]
             cache = get_cache(self, input['serialport']+input['sdiaddress'])
@@ -3942,7 +3970,7 @@ class Sensor(ConfigurationObject):
             try:
                 output_val = float(cache[int(self.fields['subsensor'])])
             except ValueError:
-                print('Subsensor should be an integer')
+                print('Subsensor should be a number')
             except IndexError:
                 print('Subsensor for atmos is out of range: '
                       + self.fields['subsensor']
