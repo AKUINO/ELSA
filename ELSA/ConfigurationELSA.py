@@ -1492,7 +1492,7 @@ class AllSensors(AllObjects):
     def correctValueAlarm(self):
         for k, sensor in self.elements.items():
             sensor.setCorrectAlarmValue()
-
+    
     def update(self, now):
         iteration_cache = {}
         def set_cache(self, cache):
@@ -3813,7 +3813,23 @@ class Sensor(ConfigurationObject):
         # End stimulation
         output_gpio.write_pin(int(output['channel']), 0)
         return output_val
+    
+    def get_mesure_for_sensor(self, config):
+        sensor_m_id = self.fields['m_id']
+        for i in config.AllMeasures.elements:
+            if config.AllMeasures.elements[i].fields['m_id'] == sensor_m_id:
+                return config.AllMeasures.elements[i]
+        raise KeyError('This m_id does not exist')
 
+    def sanitize_reading(self, config, value):
+        '''
+        Rounds to the value of 'step'.
+        If outside of 'min' - 'max', returns None
+        '''
+        mesure = self.get_mesure_for_sensor(config)
+        print(self.fields['channel'], mesure.fields['acronym'])
+        return value
+         
     def get_value_sensor(self, config, cache=None):
         def parse_atmos_data(self, input):
             '''
@@ -3997,7 +4013,7 @@ class Sensor(ConfigurationObject):
                 print(u"Device="+self.fields['sensor']+u" / "+self.fields['subsensor'] + \
                     u", Formula="+self.fields['formula'] + \
                     u", Message="+traceback.format_exc() )
-            return output_val, cache
+            return self.sanitize_reading(config,output_val), cache
         return None, None
 
     def is_in_component(self, type, id):
