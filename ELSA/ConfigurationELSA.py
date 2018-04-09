@@ -3569,15 +3569,13 @@ class Measure(ConfigurationObject):
                     tmp += configuration.getMessage('maxrules',lang) + '\n'
         except:
             tmp += configuration.getMessage('maxrules',lang) + '\n'
-
+        
         try:
             if not len(data['step']) > 0:
                 tmp += configuration.getMessage('steprules',lang) + '\n'
             else:
-                value = float(data['step'])
-                if value <= 0.0:
-                    tmp += configuration.getMessage('steprules',lang) + '\n'
-        except:
+                value = int(data['step'])
+        except ValueError:
             tmp += configuration.getMessage('steprules',lang) + '\n'
 
         if tmp == '':
@@ -3827,8 +3825,13 @@ class Sensor(ConfigurationObject):
         If outside of 'min' - 'max', returns None
         '''
         mesure = self.get_mesure_for_sensor(config)
-        print(self.fields['channel'], mesure.fields['acronym'])
-        return value
+        minimum = int(mesure.fields['min'])
+        maximum = int(mesure.fields['max'])
+        step = int(mesure.fields['step'])
+        
+        if (minimum <= value <= maximum):
+            return round(value, step)
+        return None
          
     def get_value_sensor(self, config, cache=None):
         def parse_atmos_data(self, input):
