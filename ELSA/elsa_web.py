@@ -10,7 +10,9 @@ import os
 import backup
 import argparse
 import subprocess
-
+import json
+import rrd
+import time
 global c, render
 
 def manage_cmdline_arguments():
@@ -66,15 +68,18 @@ class WebBackup():
         data = web.input(zip_archive_to_restore={}, create_backup={})
         if mail is not None and data.zip_archive_to_restore.filename is not "":
             if 'zip_archive_to_restore' in data:
-                fpath = data.zip_archive_to_restore.filename.replace('\\','/') # replaces the windows-style slashes with linux ones.
-		fname = fpath.split('/')[-1] # splits the and chooses the last part (the filename with extension)
+                # replaces the windows-style slashes with linux ones.
+                fpath = data.zip_archive_to_restore.filename.replace('\\','/')
+                # splits the and chooses the last part (filename with extension)
+		fname = fpath.split('/')[-1]
                 try:
-                    fout = open(os.path.join(elsa.DIR_WEB_TEMP, fname),'w') # creates the file where the uploaded file should be stored
-		    fout.write(data.zip_archive_to_restore.file.read()) # writes the uploaded file to the newly created file.
-		    fout.close() # closes the file, upload complete.
+                    fout = open(os.path.join(elsa.DIR_WEB_TEMP, fname),'w')
+		    fout.write(data.zip_archive_to_restore.file.read())
                 except IOError:
                     print("Error while creating backup file.")
                     raise IOError
+                finally:
+		    fout.close()
                 flags.set_restore(fname)
             raise web.seeother('/restarting')
         elif mail is not None and data.create_backup is not None:
@@ -103,6 +108,70 @@ class WebUpdateELSA():
         else:
             raise web.seeother('/')
         
+def get_list_of_active_sensors_acronyms(lang):
+    list = []
+    for i in c.AllSensors.elements:
+        if c.AllSensors.elements[i].fields['active'] == '1':
+            acronym = c.AllSensors.elements[i].get_acronym()
+            if lang is None:
+                list.append(acronym)
+            else:
+                list.append(c.AllSensors.elements[i].getName(lang) + ' [' + acronym + ']')
+    return list
+
+def get_data_points_for_grafana_api(target, lang, time_from_utc, time_to_utc):
+    datapoints = []
+    sensor = None
+    acronym = target
+    if lang is not None:
+        acronym = target[target.find('[')+1 : -1]
+
+    sensor = c.AllSensors.findAcronym(acronym)
+    try:
+        sensor_id = sensor.fields['s_id']
+    except AttributeError:
+        raise ValueError("That acronym does not exist : " + target)
+    
+    return {"target": target, "datapoints": rrd.get_datapoints_from_s_id(sensor_id, time_from_utc, time_to_utc)}
+    
+
+class WebApiGrafana():
+    def __init(self):
+        self.name = u"WebApiGrafana"
+
+    def GET(self, lang='', request=''):
+        # When no lang is set, WebPY inverts lang and request variables
+        if request == '':
+            request = lang
+            lang = None
+        return 'You have reached the / of ELSA\'s API for Grafana'
+
+    def POST(self, lang='', request=''):
+        # When no lang is set, WebPY inverts lang and request variables
+        if request == '':
+            request = lang
+            lang = None
+        data=json.loads(web.data())
+        if request=='search':
+            return json.dumps(get_list_of_active_sensors_acronyms(lang))
+        elif request=='query':
+            time_from_utc = data['range']['from']
+            time_from_utc = time_from_utc.split('.')[0]
+            time_from_utc = time.strptime(time_from_utc, "%Y-%m-%dT%H:%M:%S")
+            time_to_utc = time.strptime(data['range']['to'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
+            
+            targets = []
+            for i in data['targets']:
+                targets.append(i['target'])
+            
+            out = []
+            for i in targets:
+                out.append(get_data_points_for_grafana_api(i, lang, time_from_utc, time_to_utc))
+            return json.dumps(out)
+        else:
+            return 'Error: Invalid url requested'
+    
+
 class WebRestarting():
     global app
     def __init(self):
@@ -257,7 +326,6 @@ class WebEdit():
         return render.listing(mail, type, id)
 
     def getRender(self, type, id, mail, errormess, data, context=''):
-        print 'context :' + context
         if type in 'hpebcsmagugrgfutmdmvm' and type != 'g' and type != 'f' and type != 'd' and type != 'v'and type != 't':
             if type == 'p':
                 return render.place(id, mail, errormess, data, context)
@@ -641,7 +709,6 @@ def restart_program():
     python = sys.executable
     args = sys.argv
     args[0] = os.path.join(elsa.DIR_BASE, os.path.basename(sys.argv[0]))
-    print(args) 
     os.execl(python, python, *args)
 
 class end_activities_flags:
@@ -693,7 +760,7 @@ def main():
 
     global c, wsgiapp, render, app
     try:
-        web.config.debug = True
+        web.config.debug = False
         # Configuration Singleton ELSA
         if 'config' in args:
             c = elsa.Configuration(args.config)
@@ -729,7 +796,8 @@ def main():
             '/disconnect', 'WebDisconnect',
             '/backup', 'WebBackup',
             '/updateELSA', 'WebUpdateELSA',
-            '/restarting', 'WebRestarting'
+            '/restarting', 'WebRestarting',
+            '/api/grafana/([^/]*)/{0,1}(.*)', 'WebApiGrafana'
         )
         app = web.application(urls, globals())
         app.notfound = notfound

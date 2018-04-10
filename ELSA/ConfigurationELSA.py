@@ -25,6 +25,7 @@ import abe_adcpi
 import abe_mcp3424
 import abe_iopi
 import serial
+import numbers
 """
 import SSD1306
 from I2CScreen import *
@@ -384,8 +385,6 @@ class ConfigurationObject(object):
         if anUser != "":
             self.fields["user"] = anUser.fields['u_id']
         allObjects = configuration.findAllFromObject(self)
-        print allObjects.fileobject
-        print allObjects.fieldnames
         with open(allObjects.fileobject, "a") as csvfile:
             writer = unicodecsv.DictWriter(csvfile,
                                            delimiter='\t',
@@ -397,11 +396,7 @@ class ConfigurationObject(object):
 
     def saveName(self, configuration, anUser):
         allObjects = configuration.findAllFromObject(self)
-        print self.fields
-        print self.names
         for key in self.names:
-            print key
-            print allObjects.fieldtranslate
             with open(allObjects.filename, "a") as csvfile:
                 writer = unicodecsv.DictWriter(csvfile,
                                                delimiter='\t',
@@ -411,7 +406,6 @@ class ConfigurationObject(object):
 
     def saveCode(self, configuration, anUser):
         allObjects = configuration.findAllFromObject(self)
-        print self.code
         with open(configuration.csvCodes, "a") as csvfile:
             tmpCode = {}
             tmpCode['begin'] = useful.now()
@@ -455,6 +449,7 @@ class ConfigurationObject(object):
             self.names[key] = newName
 
     def getName(self, lang):
+        lang = lang.upper()
         if lang == 'disconnected':
             lang = 'EN'
         if lang in self.names:
@@ -707,10 +702,13 @@ class UpdateThread(threading.Thread):
                 self.config.owproxy = pyownet.protocol.proxy(host="localhost",
                                                              port=4304)
         while self.config.isThreading is True:
+            timer = 0
             now = useful.get_timestamp()
             if not len(self.config.AllSensors.elements) == 0:
                 self.config.AllSensors.update(now)
-            time.sleep(60)
+            while self.config.isThreading is True and timer < 60:
+                time.sleep(1)           
+                timer = timer + 1
 
 
 class RadioThread(threading.Thread):
@@ -720,6 +718,8 @@ class RadioThread(threading.Thread):
         self.config = config
 
     def run(self):
+        if self.config.HardConfig.ela != 'yes':
+            return
         noDots = {ord(' '): None, ord('.'): None}
         try:
             elaSerial = serial.Serial(
@@ -1493,17 +1493,36 @@ class AllSensors(AllObjects):
     def correctValueAlarm(self):
         for k, sensor in self.elements.items():
             sensor.setCorrectAlarmValue()
-
+    
     def update(self, now):
-        global iteration_cache
+        iteration_cache = {}
+        def set_cache(self, cache):
+            channel = self.fields['channel']
+            field = self.fields['sensor']
+            if not channel in iteration_cache:
+                iteration_cache[channel] = {}
+            iteration_cache[channel][field] = cache
+            
+        def get_cache(self):
+            '''
+            Returns the data from iteration_cache for at the coresponding field.
+            May return None
+            '''
+            channel = self.fields['channel']
+            field = self.fields['sensor']
+            try:
+                return iteration_cache[channel][field]
+            except KeyError:
+                return None
 
-        iteration_cache = None
         for k, sensor in self.elements.items():
             if sensor.fields['channel'] in self._queryChannels \
                                         and not sensor.fields['active'] == '0':
-                value = sensor.get_value_sensor(self.config)
+                value, cache = sensor.get_value_sensor(self.config, get_cache(sensor))
                 if value is not None:
                     sensor.update(now, value, self.config)
+                if cache is not None:
+                    set_cache(sensor, cache)
 
     def check_rrd(self):
         for k, v in self.elements.items():
@@ -2765,10 +2784,8 @@ class ExportData():
             self.load_transfers(tmpComponent, begin, end)
         self.transfers.sort(key=lambda x: int(
             useful.date_to_timestamp(x.fields['time'])), reverse=False)
-        print self.transfers
         while self.transfers[0].fields['object_type'] != 'b':
             self.transfers.pop(0)
-        print self.transfers
         return self.transfers
 
     def load_pourings(self):
@@ -2846,7 +2863,6 @@ class ExportData():
                 writer.writerow(e)
 
     def add_value_from_sensors(self, infos):
-        print infos.keys()
         for a in infos.keys():
             self.min = 99999999999
             self.max = -99999999999
@@ -3554,15 +3570,13 @@ class Measure(ConfigurationObject):
                     tmp += configuration.getMessage('maxrules',lang) + '\n'
         except:
             tmp += configuration.getMessage('maxrules',lang) + '\n'
-
+        
         try:
             if not len(data['step']) > 0:
                 tmp += configuration.getMessage('steprules',lang) + '\n'
             else:
-                value = float(data['step'])
-                if value <= 0.0:
-                    tmp += configuration.getMessage('steprules',lang) + '\n'
-        except:
+                value = int(data['step'])
+        except ValueError:
             tmp += configuration.getMessage('steprules',lang) + '\n'
 
         if tmp == '':
@@ -3652,31 +3666,6 @@ class Sensor(ConfigurationObject):
 
     def add_phase(self, data):
         self.fields['h_id'] = data
-
-    def set_cache(self, field, cache):
-        global iteration_cache
-
-        if iteration_cache is None:
-            iteration_cache = {}
-        channel = self.fields['channel']
-        if not channel in iteration_cache:
-            iteration_cache[channel] = {}
-        iteration_cache[channel][field] = cache
-
-    def get_cache(self, field):
-        '''
-        Returns the data from iteration_cache for at the coresponding field.
-        May return None
-        '''
-        global iteration_cache
-
-        if iteration_cache is None:
-            return None
-        channel = self.fields['channel']
-        try:
-            return iteration_cache[channel][field]
-        except KeyError:
-            return None
 
     def update(self, now, value, config):
         self.lastvalue = value
@@ -3790,20 +3779,79 @@ class Sensor(ConfigurationObject):
         self.actualAlarm = 'typical'
         self.degreeAlarm = 0
         self.time = 0
-
-    def parse_atmos_data(self, input):
-        '''
-        Given a single string '+a+b-c+d', returns ['+a','+b','-c','+d']
-        Used to parse the data returned from the Atmos41 weather station
-        '''
-        return reduce(lambda acc, elem:
-                            acc[:-1] + [acc[-1] + elem]
-                            if elem != '+' and elem != '-'
-                            else acc + [elem],
-                                re.split("([+,-])", input.strip())[1:], [])
-        #return re.split("([+,-])", input.strip())
+    def get_mesure_humidity_campbell():
+        input = config.HardConfig.inputs[self.fields['channel']]
+        input_device = config.HardConfig.devices[input['device']]
+        try:
+            output = config.HardConfig.outputs[input['poweroutput']]
+            output_device = config.HardConfig.devices[output['device']]
+        except IOError:
+            print('Unable to control output_device!' + ' channel : '
+                                                     + self.fields['channel']
+                                                     + ', i2c address : '
+                                                     + device['i2c'])
+            return None
+        try:
+            output_gpio = abe_iopi.IOPi(int(output_device['i2c'], 16))
+            output_gpio.set_pin_direction(int(output['channel']), 0)
+            adc = abe_adcpi.ADCPi(int(input_device['i2c'], 16),
+                                  int(input_device['i2c'], 16) + 1,
+                                  int(input['resolution']))
+        except IOError:
+            print('Unable to read sensor !' + ' channel : '
+                                            + self.fields['channel']
+                                            + ', i2c address : '
+                                            + device['i2c'])
+            return None
+# TODO: manage invertion for output
+        # Stimulate
+        output_gpio.write_pin(int(output['channel']), 1)
+        time.sleep(int(input['delayms'])*0.001)
+        
+        output_val = adc.read_voltage(int(input['channel']))
+        # End stimulation
+        output_gpio.write_pin(int(output['channel']), 0)
+        return output_val
     
-    def get_value_sensor(self, config):
+    def get_mesure_for_sensor(self, config):
+        sensor_m_id = self.fields['m_id']
+        for i in config.AllMeasures.elements:
+            if config.AllMeasures.elements[i].fields['m_id'] == sensor_m_id:
+                return config.AllMeasures.elements[i]
+        raise KeyError('This m_id does not exist')
+
+    def sanitize_reading(self, config, value):
+        '''
+        Rounds to the value of 'step'.
+        If outside of 'min' - 'max', returns None
+        '''
+        if type(value) not in (float, int, long, bool):
+            print('Received non number sensor reding for channel '
+                  + self.fields['channel'] + '. Ignoring.')
+            return None
+        mesure = self.get_mesure_for_sensor(config)
+        minimum = int(mesure.fields['min'])
+        maximum = int(mesure.fields['max'])
+        step = int(mesure.fields['step'])
+       
+        if (minimum <= value <= maximum):
+            return round(value, step)
+        else:
+            print('Ignoring value of ' + self.fields['channel'] + ' with value '
+                + str(value) + ' because it is out of bounds')
+            return None
+         
+    def get_value_sensor(self, config, cache=None):
+        def parse_atmos_data(self, input):
+            '''
+            Given a single string '+a+b-c+d', returns ['+a','+b','-c','+d']
+            Used to parse the data returned from the Atmos41 weather station
+            '''
+            return reduce(lambda acc, elem:
+                                acc[:-1] + [acc[-1] + elem]
+                                if elem != '+' and elem != '-'
+                                else acc + [elem],
+                                    re.split("([+,-])", input.strip())[1:], [])
         
         output_val = None
         debugging = u""
@@ -3812,7 +3860,7 @@ class Sensor(ConfigurationObject):
                 sensorAdress = u'/' + \
                     unicode(self.fields['sensor'])+u'/' + \
                     unicode(self.fields['subsensor'])
-                output_val = config.owproxy.read(sensorAdress)
+                output_val = float(config.owproxy.read(sensorAdress))
             except:
                 debugging = (u"Device=" + sensorAdress
                                         + u", Message="
@@ -3825,7 +3873,7 @@ class Sensor(ConfigurationObject):
         elif self.fields['channel'] == 'http':
             url = self.fields['sensor']
             code = 0
-            info = self.get_cache(url)
+            info = cache
             if info is not None:
                 try:
                     output_val = eval(self.fields['subsensor'])
@@ -3846,7 +3894,7 @@ class Sensor(ConfigurationObject):
                         self.fields['sensor'], None, 20)
                     info = sensorfile.read(80000)
                     sensorfile.close()
-                    self.set_cache(url,info)
+                    cache = info
                     output_val = eval(self.fields['subsensor'])
                 except:
                     debugging = u"URL="+url+u", code=" + \
@@ -3855,7 +3903,7 @@ class Sensor(ConfigurationObject):
         elif self.fields['channel'] == 'json':
             url = self.fields['sensor']
             code = 0
-            info = self.get_cache(url)
+            info = cache
             if info is not None:
                 try:
                     output_val = eval(self.fields['subsensor'])
@@ -3879,7 +3927,7 @@ class Sensor(ConfigurationObject):
                     info = sensorfile.read()
                     info = json.loads(info)
                     sensorfile.close()
-                    self.set_cache(url,info)
+                    cache = info
                     output_val = eval(self.fields['subsensor'])
                 except:
                     debugging = (u"URL=" + url
@@ -3904,67 +3952,57 @@ class Sensor(ConfigurationObject):
         elif self.fields['channel'] == 'battery':
             input = config.HardConfig.inputs[self.fields['channel']]
             device = config.HardConfig.devices[input['device']]
-            adc = abe_adcpi.ADCPi(int(device['i2c'], 16),
-                                  int(input['resolution']))
-            output_val = adc.read_voltage(int(input['channel']))
+            try:
+                adc = abe_adcpi.ADCPi(int(device['i2c'], 16),
+                                      int(input['resolution']))
+                output_val = adc.read_voltage(int(input['channel']))
+            except IOError:
+                print('Unable to read sensor !' + ' channel : '
+                                                + self.fields['channel']
+                                                + ', i2c address : '
+                                                + device['i2c'])
         elif self.fields['channel'].startswith('lightsensor'):
             input = config.HardConfig.inputs[self.fields['channel']]
             device = config.HardConfig.devices[input['device']]
-            adc = abe_mcp3424.ADCDifferentialPi(int(device['i2c'], 16),
-                                                int(device['i2c'], 16) + 1,
-                                                int(input['resolution']))
-            adc.set_pga(int(device['amplification']))
-            output_val = adc.read_voltage(int(input['channel'])) 
+            try:    
+                adc = abe_mcp3424.ADCDifferentialPi(int(device['i2c'], 16),
+                                                    int(device['i2c'], 16) + 1,
+                                                    int(input['resolution']))
+                adc.set_pga(int(device['amplification']))
+                output_val = adc.read_voltage(int(input['channel']))
+            except IOError:
+                print('Unable to read sensor !' + ' channel : '
+                                                + self.fields['channel']
+                                                + ', i2c address : '
+                                                + device['i2c'])
         elif self.fields['channel'].startswith('humiditysensor'):
-            input = config.HardConfig.inputs[self.fields['channel']]
-            input_device = config.HardConfig.devices[input['device']]
-            output = config.HardConfig.outputs[input['poweroutput']]
-            output_device = config.HardConfig.devices[output['device']]
-
-            output_gpio = abe_iopi.IOPi(int(output_device['i2c'], 16))
-            output_gpio.set_pin_direction(int(output['channel']), 0)
-            adc = abe_adcpi.ADCPi(int(input_device['i2c'], 16),
-                                  int(input_device['i2c'], 16) + 1,
-                                  int(input['resolution']))
-# TODO: manage invertion for output
-            # Stimulate
-            output_gpio.write_pin(int(output['channel']), 1)
-            time.sleep(int(input['delayms'])*0.001)
-            
-            output_val = adc.read_voltage(int(input['channel']))
-            # End stimulation
-            output_gpio.write_pin(int(output['channel']), 0)
+            output_val = get_mesure_humidity_campbell()
         elif self.fields['channel'] == 'atmos41':
             input = config.HardConfig.inputs[self.fields['channel']]
-            cache = get_cache(self, input['serialport']+input['sdiaddress'])
-            if cache is None:
+	    if cache is [] or cache is None :
                 ser = serial.Serial(input['serialport'],
-                                    baudrate=1200,
+                                    baudrate=9600,
                                     timeout=10)
                 time.sleep(2.5) # Leave some time to initialize
                 ser.write(input['sdiaddress'].encode() + b'R0!')
                 try:
                     cache = parse_atmos_data(self, ser.readline())
-                except SerialException:
+                except serial.SerialException:
                     print('Tried to read several times back to back ?')
                     raise
-                else:
-                    set_cache(self,
-                              input['serialport']+input['sdiaddress'],
-                              cache)
                 finally:
                     ser.close()
             try:
                 output_val = float(cache[int(self.fields['subsensor'])])
             except ValueError:
-                print('Subsensor should be an integer')
+                print('Subsensor should be a number')
             except IndexError:
                 print('Subsensor for atmos is out of range: '
                       + self.fields['subsensor']
                       + '. Range starts at 0')
         else:
             print('Error: no sensor channel for ' + self.fields['channel'])
-            return None
+            return None, None
        
         if (debugging != ''):
             print(debugging) 
@@ -3974,20 +4012,20 @@ class Sensor(ConfigurationObject):
             print("output_val has not been set for channel: "
                   + self.fields['channel']
                   + '. Ignoring.')
-            return None
+            return None, None
         else:
             try:
                 value = float(output_val)
                 if self.fields['formula']:
-                    output_val = unicode(eval(self.fields['formula']))
+                    output_val = float(eval(self.fields['formula']))
                 else:
                     output_val = value
             except:
                 print(u"Device="+self.fields['sensor']+u" / "+self.fields['subsensor'] + \
                     u", Formula="+self.fields['formula'] + \
                     u", Message="+traceback.format_exc() )
-            return output_val
-        return None
+            return self.sanitize_reading(config, output_val), cache
+        return None, None
 
     def is_in_component(self, type, id):
         if type == 'e':
@@ -4456,7 +4494,6 @@ class Transfer(ConfigurationObject):
             postype = data['position'].split('_')[0]
             posid = data['position'].split('_')[1]
             objet = configuration.get_object(objtype, objid)
-            print objet.get_actual_position()
             if (objet.is_actual_position(postype, posid, configuration) is True and objet.get_actual_position() != self.id):
                 tmp += configuration.getMessage('transferrules',lang) + '\n'
             if (objtype == 'e' and postype != 'p') or(objtype == 'c' and postype not in 'ep'):
