@@ -13,15 +13,15 @@ $code :
 $var lang : $(c.connectedUsers.users[mail].cuser.fields['language'])
 $var title : $(elem.getName(self.lang))
 
-<div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:6px;margin-bottom:6px;padding:8px;
+<div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:6px;margin-bottom:6px;padding:5px;
 $if 'colorgraph' in elem.fields.keys() :
-    border-left-style: solid;border-width: 6px;border-color:$(elem.fields['colorgraph']);
+    border-left-style: solid;border-width: 5px;border-color:$(elem.fields['colorgraph']);
 $elif type == 'h':
     $if elem.fields['abstract'] == '1' or elem.fields['abstract'] == 1 :
 	border-left-style: solid;border-width: 6px;border-color:#337ab7;
 ">
-	 <div class="col-xs-2 vcenter glyphicon-stack">
-	    <button type="button" class="btn $(btn_class) btn-md $(type)_$(id) glyphicon-stack-2x" data-toggle="modal" data-target="#$(type)_$(id)modal">
+	 <div class="col-xs-2 vcenter">
+	    <button type="button" class="btn $(btn_class) btn-md $(type)_$(id)" data-toggle="modal" data-target="#$(type)_$(id)modal">
             $if 'active' in elem.fields :
                 $if elem.fields['active'] == '0' or  elem.fields['active'] == 0 :
                   <span class="icon-combine">

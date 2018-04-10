@@ -49,8 +49,8 @@ $if content.recursive == 'False' :
 	    <!--[if lt IE 8]>
 		<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
 	    <![endif]-->
-	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-	    <div class="container">
+        <div class="container">
+	    <nav class="navbar navbar-inverse navbar-default" role="navigation">
 		<div class="navbar-header">
 		    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
 			<span class="sr-only">Toggle navigation</span>
@@ -114,9 +114,7 @@ $if content.recursive == 'False' :
 		    $if self.tmp == 'connected':
 			<button onclick="test()" type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#modal_barcode" aria-expanded="false" aria-controls="navbar" style="margin-top:5px;">$:c.getHalfling('barcode')</button>
 		</div><!--/.navbar-collapse -->
-	    </div>
-	</nav>
-	<div class="container">
+	    </nav>
 	    <div style="margin-top:10px;font-size:20px;">
 		$if content.location != 'index' :
 		    <a href="/"><span class="glyphicon glyphicon-home"></span>   </a>
@@ -131,14 +129,14 @@ $if content.recursive == 'False' :
 			/    <a href="$tmp" class="$(css)">$:c.getHalfling(elem.split('=')[1])&nbsp;$c.getMessage(elem.split('=')[1],content.lang)</a>
 			
 	    </div>
-	    <div style="margin-top:25px;">
+	    <div style="margin-top:10px;">
 		$:content
 	    </div>
+            <hr>
+            <footer style="margin-top:20px;">
+                <div class="col-xs-11 text-center"><a href="https://www.akuino.net" onclick="return(YNconfirm(this))">AKUINO</a>, &copy;<small><a href="https://www.destin-informatique.com" onclick="return(YNconfirm(this))">DESTIN-Informatique</a>, <a href="https://www.glyphicons.com" onclick="return(YNconfirm(this))">GlyphIcons</a>, 2017</small></div>
+            </footer> 
 	</div>
-	<hr>
-	<footer style="margin-top:40px;">
-	    <div class="col-xs-11 text-center"><a href="https://www.akuino.net" onclick="return(YNconfirm(this))">AKUINO</a>, &copy;<small><a href="https://www.destin-informatique.com" onclick="return(YNconfirm(this))">DESTIN-Informatique</a>, <a href="https://www.glyphicons.com" onclick="return(YNconfirm(this))">GlyphIcons</a>, 2017</small></div>
-	</footer> 
     
     <div class="modal" id="modal_barcode">
 	<div class="modal-dialog">
