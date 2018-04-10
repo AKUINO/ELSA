@@ -20,16 +20,20 @@ $elif type == 'h':
     $if elem.fields['abstract'] == '1' or elem.fields['abstract'] == 1 :
 	border-left-style: solid;border-width: 6px;border-color:#337ab7;
 ">
-	<div class="col-xs-1 vcenter">
-	    <button type="button" class="btn $(btn_class) btn-md $(type)_$(id)" data-toggle="modal" data-target="#$(type)_$(id)modal">$:(c.getAllHalfling(allElem))</button>
-	</div>
-	<div class="col-xs-1 vcenter">
-	$if 'active' in elem.fields :
-	    $if elem.fields['active'] == '0' or  elem.fields['active'] == 0 :
-		<span class="glyphicon glyphicon-remove-circle"> </span>
-	    $else:
-		<span class="glyphicon glyphicon-ok-circle"> </span>
-	</div>	    
+	 <div class="col-xs-2 vcenter glyphicon-stack">
+	    <button type="button" class="btn $(btn_class) btn-md $(type)_$(id) glyphicon-stack-2x" data-toggle="modal" data-target="#$(type)_$(id)modal">
+            $if 'active' in elem.fields :
+                $if elem.fields['active'] == '0' or  elem.fields['active'] == 0 :
+                  <span class="icon-combine">
+                    $:(c.getAllHalfling(allElem))
+                    <span class="halflings halflings-remove text-danger"></span>
+                  </span>
+	        $else:
+                    $:(c.getAllHalfling(allElem))
+            $else:
+                $:(c.getAllHalfling(allElem))
+            </button>
+	 </div>
 	<div class="col-xs-4 vcenter">
 	    <div class="row">
 		<a href="/find/related/$(type)_$(id)">
