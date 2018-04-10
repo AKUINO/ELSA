@@ -19,7 +19,7 @@ $if content.recursive == 'False' :
 	    <link rel="icon" type="image/png" href="/static/favicon.ico">
 
 	    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
-	    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600,600italic,700,700italic,800,800italic' rel='stylesheet' type='text/css'>
+	    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600,600italic,700,700italic,800,800italic' rel='stylesheet' type='text/css'>
 	    <style>
 		body {
 		    padding-top: 50px;
@@ -34,6 +34,16 @@ $if content.recursive == 'False' :
 	    <script src="/static/js/vendor/bootstrap.min.js"></script>
 	    <script src="/static/js/plugins.js"></script>
 	    <script src="/static/js/main.js"></script>
+            <script>
+              function YNconfirm(el) {
+                if (window.confirm("Go to "+$$(el).attr("href")+" ?")) {
+		  window.location.href = $$(el).attr("href");
+                  return true;
+                } else {
+                  return false;
+                }
+              }
+            </script>
 	</head>
 	<body>
 	    <!--[if lt IE 8]>
@@ -127,7 +137,7 @@ $if content.recursive == 'False' :
 	</div>
 	<hr>
 	<footer style="margin-top:40px;">
-	    <div class="col-xs-11 text-center"><a href="http://www.akuino.net">AKUINO</a>, &copy;<small><a href="http://www.destin-informatique.com">DESTIN-Informatique</a>, <a href="http://www.glyphicons.com">GlyphIcons</a>, 2017</small></div>
+	    <div class="col-xs-11 text-center"><a href="https://www.akuino.net" onclick="return(YNconfirm(this))">AKUINO</a>, &copy;<small><a href="https://www.destin-informatique.com" onclick="return(YNconfirm(this))">DESTIN-Informatique</a>, <a href="https://www.glyphicons.com" onclick="return(YNconfirm(this))">GlyphIcons</a>, 2017</small></div>
 	</footer> 
     
     <div class="modal" id="modal_barcode">
