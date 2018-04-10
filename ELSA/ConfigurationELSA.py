@@ -3838,7 +3838,7 @@ class Sensor(ConfigurationObject):
             return round(value, step)
         else:
             print('Ignoring value of ' + self.fields['channel'] + ' with value '
-                + value + ' because it is out of bounds')
+                + str(value) + ' because it is out of bounds')
             return None
          
     def get_value_sensor(self, config, cache=None):
