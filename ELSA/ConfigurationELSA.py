@@ -25,6 +25,7 @@ import abe_adcpi
 import abe_mcp3424
 import abe_iopi
 import serial
+import numbers
 """
 import SSD1306
 from I2CScreen import *
@@ -1492,7 +1493,7 @@ class AllSensors(AllObjects):
     def correctValueAlarm(self):
         for k, sensor in self.elements.items():
             sensor.setCorrectAlarmValue()
-
+    
     def update(self, now):
         iteration_cache = {}
         def set_cache(self, cache):
@@ -3569,15 +3570,13 @@ class Measure(ConfigurationObject):
                     tmp += configuration.getMessage('maxrules',lang) + '\n'
         except:
             tmp += configuration.getMessage('maxrules',lang) + '\n'
-
+        
         try:
             if not len(data['step']) > 0:
                 tmp += configuration.getMessage('steprules',lang) + '\n'
             else:
-                value = float(data['step'])
-                if value <= 0.0:
-                    tmp += configuration.getMessage('steprules',lang) + '\n'
-        except:
+                value = int(data['step'])
+        except ValueError:
             tmp += configuration.getMessage('steprules',lang) + '\n'
 
         if tmp == '':
@@ -3813,7 +3812,35 @@ class Sensor(ConfigurationObject):
         # End stimulation
         output_gpio.write_pin(int(output['channel']), 0)
         return output_val
+    
+    def get_mesure_for_sensor(self, config):
+        sensor_m_id = self.fields['m_id']
+        for i in config.AllMeasures.elements:
+            if config.AllMeasures.elements[i].fields['m_id'] == sensor_m_id:
+                return config.AllMeasures.elements[i]
+        raise KeyError('This m_id does not exist')
 
+    def sanitize_reading(self, config, value):
+        '''
+        Rounds to the value of 'step'.
+        If outside of 'min' - 'max', returns None
+        '''
+        if type(value) not in (float, int, long, bool):
+            print('Received non number sensor reding for channel '
+                  + self.fields['channel'] + '. Ignoring.')
+            return None
+        mesure = self.get_mesure_for_sensor(config)
+        minimum = int(mesure.fields['min'])
+        maximum = int(mesure.fields['max'])
+        step = int(mesure.fields['step'])
+       
+        if (minimum <= value <= maximum):
+            return round(value, step)
+        else:
+            print('Ignoring value of ' + self.fields['channel'] + ' with value '
+                + value + ' because it is out of bounds')
+            return None
+         
     def get_value_sensor(self, config, cache=None):
         def parse_atmos_data(self, input):
             '''
@@ -3833,7 +3860,7 @@ class Sensor(ConfigurationObject):
                 sensorAdress = u'/' + \
                     unicode(self.fields['sensor'])+u'/' + \
                     unicode(self.fields['subsensor'])
-                output_val = config.owproxy.read(sensorAdress)
+                output_val = float(config.owproxy.read(sensorAdress))
             except:
                 debugging = (u"Device=" + sensorAdress
                                         + u", Message="
@@ -3990,14 +4017,14 @@ class Sensor(ConfigurationObject):
             try:
                 value = float(output_val)
                 if self.fields['formula']:
-                    output_val = unicode(eval(self.fields['formula']))
+                    output_val = float(eval(self.fields['formula']))
                 else:
                     output_val = value
             except:
                 print(u"Device="+self.fields['sensor']+u" / "+self.fields['subsensor'] + \
                     u", Formula="+self.fields['formula'] + \
                     u", Message="+traceback.format_exc() )
-            return output_val, cache
+            return self.sanitize_reading(config, output_val), cache
         return None, None
 
     def is_in_component(self, type, id):

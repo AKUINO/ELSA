@@ -115,7 +115,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 			    $elif id != 'new':
 				$if k == aSensor.fields['m_id'] :
 				    selected
-			>$(aMeasure.fields['acronym']) - $(aMeasure.getName(self.lang)): $(aMeasure.fields['min']) +$(aMeasure.fields['step'])... &lt;= $(aMeasure.fields['max']) $(aMeasure.fields['unit'])</option>
+			>$(aMeasure.fields['acronym']) - $(aMeasure.getName(self.lang)): [$(aMeasure.fields['min']), $(aMeasure.fields['max'])] $(aMeasure.fields['unit']),  $(aMeasure.fields['step']) décimale(s)</option>
 		</select>
 	    </div>
 	</div>
