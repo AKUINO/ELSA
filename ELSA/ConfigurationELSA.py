@@ -3519,6 +3519,28 @@ class Measure(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
+    
+    def get_select_str(self, lang):
+        acr = self.fields['acronym']
+        name = self.getName(lang)
+        min = self.fields['min']
+        step = self.fields['step']
+        max = self.fields['max']
+        unit = self.fields['unit']
+        
+        step_dec = {'-3':'1000', '-2':'100', '-1':'10', '0':'1', '1':'0.1',
+                    '2':'0.01', '3':'0.001', '4':'0.0001', '5':'0.00001',
+                    '6':'0.000001'}[step] 
+        return(str(acr) + ' - '
+                        + name
+                        + ': '
+                        + min 
+                        + u' ±'
+                        + step_dec
+                        + ' <= '
+                        + max
+                        + ' '
+                        + unit)
 
     def get_type(self):
         return 'm'
@@ -3829,10 +3851,10 @@ class Sensor(ConfigurationObject):
             print('Received non number sensor reding for channel '
                   + self.fields['channel'] + '. Ignoring.')
             return None
-        mesure = self.get_mesure_for_sensor(config)
-        minimum = int(mesure.fields['min'])
-        maximum = int(mesure.fields['max'])
-        step = int(mesure.fields['step'])
+        measure = self.get_mesure_for_sensor(config)
+        minimum = int(measure.fields['min'])
+        maximum = int(measure.fields['max'])
+        step = int(measure.fields['step'])
        
         if (minimum <= value <= maximum):
             return round(value, step)
