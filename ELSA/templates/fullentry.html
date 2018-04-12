@@ -189,7 +189,7 @@ $elif type == 'h':
 		    </div>
 		</div>
 	$elif type == 'm':
-		$elem.fields['min'] +$elem.fields['step']... &lt;= $elem.fields['max'] $elem.fields['unit']
+		$elem.get_select_str(self.lang)
 	</div>
 	<div class="col-xs-1 vcenter">
 	    <button type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#modal_menu_$(type)_$(id)">$:(c.getHalfling('menu'))</button>
