@@ -3780,7 +3780,8 @@ class Sensor(ConfigurationObject):
         self.actualAlarm = 'typical'
         self.degreeAlarm = 0
         self.time = 0
-    def get_mesure_humidity_campbell():
+    
+    def get_mesure_humidity_campbell(self, config):
         input = config.HardConfig.inputs[self.fields['channel']]
         input_device = config.HardConfig.devices[input['device']]
         try:
@@ -3949,7 +3950,7 @@ class Sensor(ConfigurationObject):
                                                 + ', i2c address : '
                                                 + device['i2c'])
         elif self.fields['channel'].startswith('humiditysensor'):
-            output_val = get_mesure_humidity_campbell()
+            output_val = self.get_mesure_humidity_campbell(config)
         elif self.fields['channel'] == 'atmos41':
             input = config.HardConfig.inputs[self.fields['channel']]
 	    if cache is [] or cache is None :
