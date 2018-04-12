@@ -34,7 +34,7 @@ $elif type == 'h':
                 $:(c.getAllHalfling(allElem))
             </button>
 	 </div>
-	<div class="col-xs-4 vcenter">
+	<div class="col-xs-3 vcenter">
 	    <div class="row">
 		<a href="/find/related/$(type)_$(id)">
 		$elem.fields['acronym'] 
@@ -46,7 +46,7 @@ $elif type == 'h':
 		</a>
 	   </div>
 	</div>
-        <div class="col-xs-4 vcenter">
+        <div class="col-xs-5 vcenter">
 	$if type in 'pu' :
 	        $code :
 		    groups = c.get_group(allElem.get_key_group())

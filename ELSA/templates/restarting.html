@@ -5,6 +5,6 @@ $var recursive : False
 $var location : restarting=restarting
 $var title : Restarting
 
-<div class="container">
-    Redémarrage en cours… veuillez attendre un peu et puis recharger la page.
-</div>
+<row>
+    <div class="column alert alert-warning">$c.getMessage('restarting',self.lang)</div>
+</row>

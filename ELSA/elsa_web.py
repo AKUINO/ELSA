@@ -60,34 +60,53 @@ class WebBackup():
     def GET(self):
         mail = isConnected()
         if mail is not None:
-            return render.backup(mail, getLinkForLatestBackupArchive())
+            return render.backup(mail, getLinkForLatestBackupArchive(),"")
         raise web.seeother('/')
     
     def POST(self):
         mail = isConnected()
-        data = web.input(zip_archive_to_restore={}, create_backup={})
-        if mail is not None and data.zip_archive_to_restore.filename is not "":
-            if 'zip_archive_to_restore' in data:
+        if mail is None:
+            raise web.seeother('/')
+        else:
+            data = web.input()
+            if data is not None and data.create_backup is not None:
+                backup.create_backup_zip()
+                return render.backup(mail, getLinkForLatestBackupArchive(),"backupDone")
+            return render.backup(mail, getLinkForLatestBackupArchive(),"")
+
+class WebRestore():
+    def __init(self):
+        self.name = u"WebRestore"
+
+    def GET(self):
+        mail = isConnected()
+        if mail is not None:
+            return render.backup(mail, getLinkForLatestBackupArchive(),"")
+        raise web.seeother('/')
+    
+    def POST(self):
+        mail = isConnected()
+	if mail is None:
+            raise web.seeother('/')
+        else:
+            data = web.input(zip_archive_to_restore={})
+            if data is not None and 'zip_archive_to_restore' in data and data['zip_archive_to_restore'].filename:
                 # replaces the windows-style slashes with linux ones.
-                fpath = data.zip_archive_to_restore.filename.replace('\\','/')
+                fpath = data['zip_archive_to_restore'].filename.replace('\\','/')
                 # splits the and chooses the last part (filename with extension)
 		fname = fpath.split('/')[-1]
                 try:
                     fout = open(os.path.join(elsa.DIR_WEB_TEMP, fname),'w')
 		    fout.write(data.zip_archive_to_restore.file.read())
                 except IOError:
-                    print("Error while creating backup file.")
-                    raise IOError
-                finally:
 		    fout.close()
+                    print("Error while restoring file.")
+                    return render.backup(mail, getLinkForLatestBackupArchive(), "restoreError")
+		fout.close()
                 flags.set_restore(fname)
-            raise web.seeother('/restarting')
-        elif mail is not None and data.create_backup is not None:
-            backup.create_backup_zip()
-            return render.backup(mail, getLinkForLatestBackupArchive())
-        else:
-            raise web.seeother('/')
- # We should put a real error message on the normal backup page
+                raise web.seeother('/restarting')
+            else:
+                return render.backup(mail, getLinkForLatestBackupArchive(), "restoreEmpty")
 
 class WebUpdateELSA():
     def __init(self):
@@ -737,7 +756,8 @@ class end_activities_flags:
     
     def launch_end_activities(self):
         if self._restore:
-            backup.restore_from_zip(self._restore)
+            if not backup.restore_from_zip(self._restore): #returns False if restore did not work but no way to alert the user !
+                print ("INVALID RESTORE FILE")
             self.set_restart()
 
         if self._check_update:
@@ -795,6 +815,7 @@ def main():
             '/control/b_(.+)/h_(.+)', 'WebControl',
             '/disconnect', 'WebDisconnect',
             '/backup', 'WebBackup',
+            '/restore', 'WebRestore',
             '/updateELSA', 'WebUpdateELSA',
             '/restarting', 'WebRestarting',
             '/api/grafana/([^/]*)/{0,1}(.*)', 'WebApiGrafana'

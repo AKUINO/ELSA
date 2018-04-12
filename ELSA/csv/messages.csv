@@ -5,8 +5,20 @@ begin	lang	m_id	name	user
 2016-01-01 13:45:56	EN	acronym	Acronym	1
 2016-01-01 13:45:56	FR	acronym	Acronyme	1
 2016-01-01 13:45:56	NL	acronym	Acroniem	1
-2016-01-01 13:45:56	EN	createBackup	Create backup	1
-2016-01-01 13:45:56	FR	createBackup	Créer backup	1
+2016-01-01 13:45:56	EN	createBackup	Create a Backup	1
+2016-01-01 13:45:56	FR	createBackup	Créer une Sauvegarde	1
+2016-01-01 13:45:56	EN	downloadBackup	Download last Backup	1
+2016-01-01 13:45:56	FR	downloadBackup	Télécharger la dernière Sauvegarde	1
+2016-01-01 13:45:56	EN	backupDone	Backup Done	1
+2016-01-01 13:45:56	FR	backupDone	Sauvegarde effectuée	1
+2016-01-01 13:45:56	EN	restore	Restore backup	1
+2016-01-01 13:45:56	FR	restore	Restaurer une Sauvegarde	1
+2016-01-01 13:45:56	EN	restartingDone	Restart in progress… Please wait a bit and reload this page.	1
+2016-01-01 13:45:56	FR	restartingDone	Redémarrage en cours… veuillez attendre un peu et puis recharger la page.	1
+2016-01-01 13:45:56	EN	restoreEmpty	Restore File Missing	1
+2016-01-01 13:45:56	FR	restoreEmpty	Fichier à Restaurer manquant	1
+2016-01-01 13:45:56	EN	restoreError	Restore Error	1
+2016-01-01 13:45:56	FR	restoreError	Erreur pour Restaurer...	1
 2016-01-01 13:45:56	EN	restarting	Restarting	1
 2016-01-01 13:45:56	FR	restarting	Redémarrage	1
 2016-01-01 13:45:56	EN	startUpdate	Update ELSA	1

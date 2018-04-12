@@ -1,18 +1,30 @@
-$def with (mail, link)
+$def with (mail, link, message)
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
 $var location : backup=backup
 $var title : $c.getMessage('createBackup',self.lang)
 
-<div class="container">
-    <form method="post" action="" id="selectAction" enctype="multipart/form-data">
+    <row>
+    $if message:
+        <div class="column alert alert-danger text-center">
+          <strong><big>$c.getMessage(message,self.lang)</big></strong>
+        </div>
+    </row>
+    <form method="post" action="/backup" id="selectBackup" enctype="multipart/form-data">
         <div class="form-group column">
             <input type="submit" value="$c.getMessage('createBackup',self.lang)" class="form-control" name="create_backup">
-            <input type="file" name="zip_archive_to_restore">
-            <input type="submit">
         </div>
     </form>
-    $if link is not None:
-        <a href="$link">Download last backup</a>
-</div>
+    <row>
+    $if link:
+        <div class="column alert alert-info text-center">
+          <strong><big><a href="$link">$c.getMessage('downloadBackup',self.lang)</a></big></strong>
+        </div>
+    </row>
+    <form method="post" action="/restore" id="selectRestore" enctype="multipart/form-data">
+        <div class="form-group column">
+            <input type="file" name="zip_archive_to_restore">
+            <input type="submit" value="$c.getMessage('restore',self.lang)" class="form-control" name="restore_and_restart">
+        </div>
+    </form>

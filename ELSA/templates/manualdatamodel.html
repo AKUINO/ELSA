@@ -103,7 +103,7 @@ $if errormess != '':
 			    $if id != 'new':
 				$if  k == aDataModel.fields['m_id'] :
 				    selected
-			>$currMeasure.fields['acronym'] - $currMeasure.getName(self.lang): $currMeasure.fields['min'] +$currMeasure.fields['step']... &lt;= $currMeasure.fields['max'] $currMeasure.fields['unit']</option>
+			>$(currMeasure.get_select_str(self.lang))</option>
 		</select>
 	    </div>
 	</div>

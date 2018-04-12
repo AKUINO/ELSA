@@ -3519,24 +3519,30 @@ class Measure(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
+
+    def get_html_step(self):
+        step = self.fields['step']
+        try:
+            step_dec = {'-3':'1000', '-2':'100', '-1':'10', '0':'1', '1':'0.1',
+                        '2':'0.01', '3':'0.001', '4':'0.0001', '5':'0.00001',
+                        '6':'0.000001'}[step]
+        except:
+            step_dec = 'any'
+        return step_dec
     
     def get_select_str(self, lang):
         acr = self.fields['acronym']
         name = self.getName(lang)
         min = self.fields['min']
-        step = self.fields['step']
         max = self.fields['max']
         unit = self.fields['unit']
         
-        step_dec = {'-3':'1000', '-2':'100', '-1':'10', '0':'1', '1':'0.1',
-                    '2':'0.01', '3':'0.001', '4':'0.0001', '5':'0.00001',
-                    '6':'0.000001'}[step] 
-        return(str(acr) + ' - '
+        return(unicode(acr) + ' - '
                         + name
                         + ': '
                         + min 
                         + u' ±'
-                        + step_dec
+                        + self.get_html_step()
                         + ' <= '
                         + max
                         + ' '

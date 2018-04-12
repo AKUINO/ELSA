@@ -100,7 +100,7 @@ $if errormess != '':
 			$elif id !='new':
 				$if k == curr_batch.fields['m_id'] :
 				    selected
-			>$aMeasure.fields['acronym'] - $aMeasure.getName(self.lang):  $aMeasure.fields['min'] +$aMeasure.fields['step']... &lt;= $aMeasure.fields['max'] $aMeasure.fields['unit']</option>
+			>$(aMeasure.get_select_str(self.lang))</option>
 		</select>
 	    </div>
 	</div>

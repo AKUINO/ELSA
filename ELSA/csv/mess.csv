@@ -69,7 +69,13 @@ begin	m_id	default	user
 2016-01-01 13:45:56	active	Active	1
 2016-01-01 13:45:56	acronym	Acronym	1
 2016-01-01 13:45:56	createBackup	Create backup	1
+2016-01-01 13:45:56	downloadBackup	Download backup	1
+2016-01-01 13:45:56	restore	Restore backup	1
+2016-01-01 13:45:56	restoreEmpty	Restore File Missing	1
+2016-01-01 13:45:56	restoreError	Restore Error	1
+2016-01-01 13:45:56	backupDone	Backup Done	1
 2016-01-01 13:45:56	restarting	Restarting	1
+2016-01-01 13:45:56	restartingDone	Restart in progress… Please wait a bit and reload this page.	1
 2016-01-01 13:45:56	barcode	Barcode	1
 2016-01-01 13:45:56	remark	Remark	1
 2016-01-01 13:45:56	welcome	Welcome	1
