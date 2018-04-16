@@ -105,7 +105,7 @@ $if errormess != '':
 		    $if 'code' in data :
 			value="$data['code']"
 		$elif id != 'new':
-		    value="$c.AllBarcodes.get_barcode(c.AllUsers.elements[id].get_type(), id)"
+		    value="$c.AllBarcodes.get_barcode(c.AllUsers.get_type(), id)"
 		>
 	    </div>
 	</div>

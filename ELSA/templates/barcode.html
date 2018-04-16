@@ -19,8 +19,8 @@ $else:
     <div class="form-group row" id="error">
 	    $c.getMessage('errorbarcode',self.lang) [$(barcode)]
     </div>
-    $code:
-	tmp = c.create_picture(barcode)
+$code:
+    tmp = c.create_picture(barcode)
 $if tmp is True:   
     <div class="row">
 	<img class="img-responsive" src="/static/img/barcodes/$(barcode).svg"  width="780" height="405" alt="Image not found" >

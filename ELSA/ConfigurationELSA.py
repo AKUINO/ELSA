@@ -358,11 +358,11 @@ class Configuration():
     def get_time_format(self):
         return useful.datetimeformat
 
-    def create_picture(self, code):
+    def create_picture(self, some_code):
         EAN = barcode.get_barcode_class('ean13')
         try:
-            ean = EAN(code)
-            ean.save(DIR_BARCODES+str(code))
+            ean = EAN(unicode(some_code))
+            ean.save(DIR_BARCODES+str(some_code))
         except:
             return False
         return True
@@ -404,20 +404,20 @@ class ConfigurationObject(object):
                                                encoding="utf-8")
                 writer.writerow(self.names[key])
 
-    def saveCode(self, configuration, anUser):
-        allObjects = configuration.findAllFromObject(self)
-        with open(configuration.csvCodes, "a") as csvfile:
-            tmpCode = {}
-            tmpCode['begin'] = useful.now()
-            tmpCode['type'] = self.get_type()
-            tmpCode['idobject'] = self.fields[allObjects.keyColumn]
-            tmpCode['code'] = self.code
-            tmpCode["user"] = anUser.fields['u_id']
-            writer = unicodecsv.DictWriter(csvfile,
-                                           delimiter='\t',
-                                           fieldnames=configuration.fieldcode,
-                                           encoding="utf-8")
-            writer.writerow(tmpCode)
+##    def saveCode(self, configuration, barcode, anUser):
+##        allObjects = configuration.findAllFromObject(self)
+##        with open(configuration.csvCodes, "a") as csvfile:
+##            tmpCode = {}
+##            tmpCode['begin'] = useful.now()
+##            tmpCode['type'] = self.get_type()
+##            tmpCode['idobject'] = self.fields[allObjects.keyColumn]
+##            tmpCode['code'] = unicode(barcode)
+##            tmpCode["user"] = anUser.fields['u_id']
+##            writer = unicodecsv.DictWriter(csvfile,
+##                                           delimiter='\t',
+##                                           fieldnames=configuration.fieldcode,
+##                                           encoding="utf-8")
+##            writer.writerow(tmpCode)
 
     def initialise(self, fieldsname):
         for field in fieldsname:
@@ -476,6 +476,13 @@ class ConfigurationObject(object):
     def getID(self):
         return self.id
 
+    def get_hash_type(self):
+        obj_type = self.get_type()
+        hash = 10 * (ord(obj_type[0]) - ord('a'))
+        if len(obj_type) > 1:
+            hash += ((ord(obj_type[1]) - ord('a'))+1) % 10
+        return hash
+
     def write_group(self, groupid, configuration, user, active):
         allObjects = configuration.findAllFromObject(self)
         with open(configuration.csvRelations, "a") as csvfile:
@@ -504,18 +511,17 @@ class ConfigurationObject(object):
             tmp += configuration.getMessage('acronymrules',lang) + '\n'
 
         allObjects = configuration.findAllFromObject(self)
-        cond = allObjects.unique_acronym(data['acronym'], self.id)
-        if not cond:
+        if not allObjects.unique_acronym(data['acronym'], self.id):
             tmp += configuration.getMessage('acronymunique',lang) + '\n'
-        try:
-            if 'code' in data and len(data['code']) > 0:
-                code = int(data['code'])
-                cond = configuration.AllBarcodes.validate_barcode(
-                    code, self.id, self.get_type())
-                if cond == False:
-                    tmp += configuration.getMessage('barcoderules',lang) + '\n'
-        except:
-            tmp += configuration.getMessage('barcoderules',lang) + '\n'
+        else:
+            try:
+                if 'code' in data and len(data['code']) > 0:
+                    some_code = int(data['code'])
+                    if not configuration.AllBarcodes.validate_barcode(
+                        some_code, self.id, self.get_type()) :
+                        tmp += configuration.getMessage('barcoderules',lang) + '\n'
+            except:
+                tmp += configuration.getMessage('barcoderules',lang) + '\n'
         if tmp == '':
             return True
         return tmp
@@ -539,9 +545,16 @@ class ConfigurationObject(object):
                 fout = open(self.getImagePath(), 'w')
                 fout.write(data.placeImg.file.read())
                 fout.close()
-        if 'code' in data and len(data['code']) < 14 and len(data['code']) > 11:
-            self.code = int(data['code'])
-            c.AllBarcodes.create_barcode(self, self.code, user)
+        if 'code' in data:
+            lenCode = len(data['code'])
+            if lenCode < 14 and lenCode > 11:
+                some_code = int(data['code'])
+                c.AllBarcodes.add_barcode(self, some_code, user)
+            elif lenCode == 0:
+                # Defaut barcode: 99hhT1234567x
+                some_code = 990000000000 + (self.get_hash_type()*10000000)+int(self.id)
+                ean = c.AllBarcodes.EAN(unicode(some_code))
+                c.AllBarcodes.add_barcode(self, ean.get_fullcode(), user)
 
         self.fields['remark'] = data['remark']
 
@@ -771,17 +784,17 @@ class RadioThread(threading.Thread):
 
 class AllObjects(object):
 
-    def __init__(self, code, config=None):
-        self.code = code
+    def __init__(self, obj_type, config=None):
+        self.obj_type = obj_type
         self.elements = {}
-        self.fileobject = os.path.join(DIR_DATA_CSV, code.upper()) + ".csv"
-        self.filename = os.path.join(DIR_DATA_CSV, code.upper()) + "names.csv"
-        self.keyColumn = code + "_id"
+        self.fileobject = os.path.join(DIR_DATA_CSV, obj_type.upper()) + ".csv"
+        self.filename = os.path.join(DIR_DATA_CSV, obj_type.upper()) + "names.csv"
+        self.keyColumn = obj_type + "_id"
         self.config = config
         self.count = 0
 
     def get_type(self):
-        return self.code
+        return self.obj_type
 
     def load(self):
         self.check_csv(self.fileobject)
@@ -1192,8 +1205,8 @@ class AllPourings(AllObjects):
 
 
 class AllGroups(AllObjects):
-    def __init__(self, code, config):
-        AllObjects.__init__(self, code, config)
+    def __init__(self, obj_type, config):
+        AllObjects.__init__(self, obj_type, config)
         self.fieldrelations = ['begin', 'parent_id',
                                'child_id', 'active', 'user']
 
@@ -1664,67 +1677,68 @@ class AllBarcodes(AllObjects):
                     return k
         return ''
 
-    def unique_barcode(self, code, myID, myType):
+    def unique_barcode(self, some_code, myID, myType):
+        some_code = int(some_code)
         for k, v in self.elements.items():
-            if (int(code) == int(k)
+            if ( some_code == int(k)
                     and not myID == v.getID()
                     and not myType == v.fields['type']):
                 return False
         return True
 
-    def add_barcode(self, item, code, user):
-        if self.unique_barcode(code, item.getID(), item.get_type()):
+    def add_barcode(self, item, some_code, user):
+        if self.unique_barcode(some_code, item.getID(), item.get_type()):
             oldBarcode = self.get_barcode(item.get_type(), item.getID())
-            if not oldBarcode == code and not oldBarcode == '':
+            if not oldBarcode == some_code and not oldBarcode == '':
                 self.delete_barcode(oldBarcode, user)
-            self.elements[code] = self.create_barcode(item, code, user)
+            self.elements[some_code] = self.create_barcode(item, some_code, user)
 
     def delete_barcode(self, oldBarcode, user):
         self.write_csv(oldBarcode, 0, user)
         del self.elements[oldBarcode]
 
-    def write_csv(self, code, active, user):
+    def write_csv(self, some_code, active, user):
         with open(self.fileobject, "a") as csvfile:
-            tmpCode = self.create_fields(code, active, user)
+            tmpCode = self.create_fields(some_code, active, user)
             writer = unicodecsv.DictWriter(csvfile,
                                            delimiter='\t',
                                            fieldnames=self.fieldnames,
                                            encoding="utf-8")
             writer.writerow(tmpCode)
 
-    def create_barcode(self, item, code, user):
+    def create_barcode(self, item, some_code, user):
         tmp = self.newObject(item)
-        fields = self.create_fields(code, 1, user, item)
+        fields = self.create_fields(some_code, 1, user, item)
         tmp.fields = fields
-        self.elements[code] = tmp
+        self.elements[some_code] = tmp
         tmp.element = item
-        self.write_csv(code, 1, user)
+        self.write_csv(some_code, 1, user)
         return tmp
 
-    def create_fields(self, code, active, user, item=None):
+    def create_fields(self, some_code, active, user, item=None):
         fields = {}
         fields['begin'] = useful.now()
         if item is None:
-            fields['type'] = self.elements[code].element.get_type()
-            fields['idobject'] = self.elements[code].element.id
+            fields['type'] = self.elements[some_code].element.get_type()
+            fields['idobject'] = self.elements[some_code].element.id
         else:
             fields['type'] = item.get_type()
             fields['idobject'] = item.id
-        fields['code'] = code
+        fields['code'] = some_code
         fields['active'] = active
         fields["user"] = user.fields['u_id']
         return fields
 
-    def validate_barcode(self, code, anID, aType):
-        if len(unicode(code)) < 12 or len(unicode(code)) > 13:
+    def validate_barcode(self, some_code, anID, aType):
+        some_code = unicode(some_code)
+        if len(some_code) < 12 or len(some_code) > 13:
             return False
         try:
-            EAN = barcode.get_barcode_class('ean13')
-            ean = EAN(unicode(code))
+            ean = self.EAN(some_code)
         except:
             traceback.print_exc()
             return False
-        if self.unique_barcode(code, anID, aType) is not True:
+        if self.unique_barcode(some_code, anID, aType) is not True:
             return False
         return True
 
@@ -1732,9 +1746,9 @@ class AllBarcodes(AllObjects):
 ##        for k, v in self.elements.items():
 ##            v.barcode_picture()
 
-    def barcode_to_item(self, code):
+    def barcode_to_item(self, some_code):
         for k, barcode in self.elements.items():
-            if barcode.fields['code'] == code:
+            if barcode.fields['code'] == some_code:
                 return (self.config
                             .findAllFromType(barcode.fields['type'])
                             .elements[barcode.fields['idobject']])

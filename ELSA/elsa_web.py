@@ -518,7 +518,7 @@ class WebBarcode():
         mail = isConnected()
         if mail is not None:
             try:
-                data = web.input(nifile={})
+                data = web.input()
                 if 'barcode' in data:
                     id = data['barcode']
                 return self.getRender(id, mail)
