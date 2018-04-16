@@ -135,7 +135,7 @@ def get_list_of_active_sensors_acronyms(lang):
             if lang is None:
                 list.append(acronym)
             else:
-                list.append(c.AllSensors.elements[i].getName(lang) + ' [' + acronym + ']')
+                list.append(c.AllSensors.elements[i].getName(lang) + u' [' + acronym + u']')
     return list
 
 def get_data_points_for_grafana_api(target, lang, time_from_utc, time_to_utc):
@@ -180,12 +180,12 @@ class WebApiGrafana():
             time_to_utc = time.strptime(data['range']['to'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
             
             targets = []
-            for i in data['targets']:
-                targets.append(i['target'])
-            
+            for elem in data['targets']:
+# .replace removes all '\' in the target name. Fixes a grafana/simple-json bug.
+                targets.append(elem['target'].replace('\\', ''))
             out = []
-            for i in targets:
-                out.append(get_data_points_for_grafana_api(i, lang, time_from_utc, time_to_utc))
+            for elem in targets:
+                out.append(get_data_points_for_grafana_api(elem, lang, time_from_utc, time_to_utc))
             return json.dumps(out)
         else:
             return 'Error: Invalid url requested'
