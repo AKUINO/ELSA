@@ -23,6 +23,7 @@ import math
 import shutil
 import abe_adcpi
 import abe_mcp3424
+import abe_mcp3423
 import abe_iopi
 import serial
 import numbers
@@ -4000,7 +4001,7 @@ class Sensor(ConfigurationObject):
             input = config.HardConfig.inputs[self.fields['channel']]
             device = config.HardConfig.devices[input['device']]
             try:
-                adc = abe_adcpi.ADCPi(int(device['i2c'], 16),
+                adc = abe_mcp3423.ADCPi(int(device['i2c'], 16),
                                       int(input['resolution']))
                 output_val = adc.read_voltage(int(input['channel']))
             except IOError:
