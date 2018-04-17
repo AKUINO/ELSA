@@ -717,7 +717,7 @@ class UpdateThread(threading.Thread):
         while self.config.isThreading is True:
             timer = 0
             now = useful.get_timestamp()
-            if not len(self.config.AllSensors.elements) == 0:
+            if len(self.config.AllSensors.elements) > 0:
                 self.config.AllSensors.update(now)
             while self.config.isThreading is True and timer < 60:
                 time.sleep(1)           
@@ -1913,7 +1913,7 @@ class User(ConfigurationObject):
             tmp = ''
         if tmp is True:
             tmp = ''
-        if data['password'] == '' or len(data['password']) < 8:
+        if data['password'] and len(data['password']) < 8:
             tmp += configuration.getMessage('passwordrules',lang) + '\n'
 
         if tmp == '':
@@ -1926,8 +1926,9 @@ class User(ConfigurationObject):
         for elem in tmp:
             self.fields[elem] = data[elem]
         self.fields['registration'] = self.created
-        self.fields['password'] = useful.encrypt(
-            data['password'], self.fields['registration'])
+        if data['password']:
+            self.fields['password'] = useful.encrypt(
+                data['password'], self.fields['registration'])
         self.fields['gf_id'] = data['group']
         self.save(c, user)
 
@@ -3423,6 +3424,9 @@ class Alarm(ConfigurationObject):
                 equal = '>'
             elif sensor.actualAlarm == 'maxmax':
                 code = '+++'
+                equal = '>'
+            elif sensor.actualAlarm == 'n.a.':
+                code = '???'
                 equal = '>'
             return unicode.format(title,
                                   code,
