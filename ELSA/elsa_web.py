@@ -13,6 +13,7 @@ import subprocess
 import json
 import rrd
 import time
+import calendar
 global c, render
 
 def manage_cmdline_arguments():
@@ -152,12 +153,33 @@ def get_data_points_for_grafana_api(target, lang, time_from_utc, time_to_utc):
         raise ValueError("That acronym does not exist : " + target)
     
     return {"target": target, "datapoints": rrd.get_datapoints_from_s_id(sensor_id, time_from_utc, time_to_utc)}
+
+def get_annotation_for_grafana_api(acronyms, time_from_utc, time_to_utc):
+    annotations = []
+    sensors = []
     
+    for i in acronyms:
+        try:
+            sensors = (c.AllSensors.findAcronym(i).fields['s_id'])
+        except AttributeError:
+            raise ValueError("That acronym does not exist : " + unicode(i))
+    
+    print('dsf', sensors[0], c.AllAlarmLogs.get_alarmlog_component(sensors[0],
+                    calendar.timegm(time_from_utc),
+                    calendar.timegm(time_to_utc))) 
+
 
 class WebApiGrafana():
     def __init(self):
         self.name = u"WebApiGrafana"
 
+    def parse_time_range(self, range):
+        time_from_utc = range['from']
+        time_from_utc = time_from_utc.split('.')[0]
+        time_from_utc = time.strptime(time_from_utc, "%Y-%m-%dT%H:%M:%S")
+        time_to_utc = time.strptime(range['to'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
+        return time_from_utc, time_to_utc    
+        
     def GET(self, lang='', request=''):
         # When no lang is set, WebPY inverts lang and request variables
         if request == '':
@@ -170,15 +192,16 @@ class WebApiGrafana():
         if request == '':
             request = lang
             lang = None
-        data=json.loads(web.data())
+        try:
+            data=json.loads(unicode(web.data()))
+        except ValueError:
+            print('Unable to parse JSON from Grafana. Ignoring.')
+            return None
+
         if request=='search':
             return json.dumps(get_list_of_active_sensors_acronyms(lang))
         elif request=='query':
-            time_from_utc = data['range']['from']
-            time_from_utc = time_from_utc.split('.')[0]
-            time_from_utc = time.strptime(time_from_utc, "%Y-%m-%dT%H:%M:%S")
-            time_to_utc = time.strptime(data['range']['to'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
-            
+            time_from_utc, time_to_utc = self.parse_time_range(data['range'])
             targets = []
             for elem in data['targets']:
 # .replace removes all '\' in the target name. Fixes a grafana/simple-json bug.
@@ -187,6 +210,14 @@ class WebApiGrafana():
             for elem in targets:
                 out.append(get_data_points_for_grafana_api(elem, lang, time_from_utc, time_to_utc))
             return json.dumps(out)
+        elif request=='annotations':
+            time_from_utc, time_to_utc = self.parse_time_range(data['range'])
+            name = data['annotation']['name']
+            enable = data['annotation']['enable']
+            query = json.loads(data['annotation']['query'])
+            return json.dumps(get_annotation_for_grafana_api(query,
+                                                             time_from_utc,
+                                                             time_to_utc))
         else:
             return 'Error: Invalid url requested'
     

@@ -1118,9 +1118,10 @@ class AllAlarmLogs(AllObjects):
         return AlarmLog()
 
     def get_alarmlog_component(self, id, begin, end):
+        print('zdf', self)
         logs = []
-        for i in range(len(self.elements)):
-            e = self.elements[str(i+1)]
+        for key in self.elements:
+            e = self.elements[key]
             time = useful.date_to_timestamp(e.fields['begin'])
             if id == e.fields['s_id']:
                 if time > begin and time < end:
