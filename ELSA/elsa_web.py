@@ -90,7 +90,8 @@ class WebRestore():
             raise web.seeother('/')
         else:
             data = web.input(zip_archive_to_restore={})
-            if data is not None and 'zip_archive_to_restore' in data and data['zip_archive_to_restore'].filename:
+            if data is not None and 'zip_archive_to_restore' in data\
+                                and data['zip_archive_to_restore'].filename:
                 # replaces the windows-style slashes with linux ones.
                 fpath = data['zip_archive_to_restore'].filename.replace('\\','/')
                 # splits the and chooses the last part (filename with extension)
