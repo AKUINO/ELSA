@@ -115,7 +115,17 @@ class WebUpdateELSA():
     def GET(self):
         mail = isConnected()
         if mail is not None:
-            return render.updateELSA(mail)
+            subprocess.call(['git', 'remote', 'update'])
+            git_status_out = subprocess.check_output(['git', 'status'])
+            git_status_out = git_status_out.split('\n')
+            try:
+                git_status_out = (git_status_out[0]
+                                  + '<br>'
+                                  + git_status_out[1])
+            except IndexError:
+                print("Error reading git status output. " + git_status_out)
+                raise
+            return render.updateELSA(mail, git_status_out)
         raise web.seeother('/')
     
     def POST(self):

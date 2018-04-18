@@ -1,4 +1,4 @@
-$def with (mail)
+$def with (mail, git_status)
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
@@ -6,6 +6,8 @@ $var location : updateELSA=updateELSA
 $var title : Update ELSA
 
 <div class="container">
+    Résultat de git status :<br>
+    <em>$:git_status</em>
     <form method="post" action="" id="selectAction" enctype="multipart/form-data">
         Redémarrer et mettre à jour ELSA
         <div class="form-group column">
