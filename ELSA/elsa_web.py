@@ -115,7 +115,8 @@ class WebUpdateELSA():
     def GET(self):
         mail = isConnected()
         if mail is not None:
-            git_status_out = unicode(subprocess.check_output(['git', 'status']))	
+            subprocess.call(['git', 'remote', 'update'])
+            git_status_out = subprocess.check_output(['git', 'status'])
             git_status_out = git_status_out.split('\n')
             try:
                 git_status_out = (git_status_out[0]
