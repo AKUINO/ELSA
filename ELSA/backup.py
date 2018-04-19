@@ -32,15 +32,19 @@ def create_backup_zip():
     
     archive_output_dir = os.path.abspath(elsa.DIR_WEB_TEMP)
     archive_input_dir = os.path.abspath(elsa.DIR_USER_DATA)
-    archive_output_file_name = today.strftime(ARCHIVE_FILE_NAME_PREFIX +
-        ARCHIVE_FILE_NAME_DATE_FORMAT + ARCHIVE_FILE_NAME_SUFFIX)
-    archive_output_file_name = os.path.join(archive_output_dir, archive_output_file_name)
+    archive_output_file_name = today.strftime(ARCHIVE_FILE_NAME_PREFIX
+                               + ARCHIVE_FILE_NAME_DATE_FORMAT
+                               + ARCHIVE_FILE_NAME_SUFFIX)
+    archive_output_file_name = os.path.join(archive_output_dir,
+                                            archive_output_file_name)
 
     # Switching working directory to save to the right place
-    # A context is used to guarantee we will go back to the original place afterwards
+    # A context is used to guarantee we will go back to the original place
+    #   afterwards
     with cd(archive_input_dir):
         shutil.make_archive(archive_output_file_name, ARCHIVE_TYPE)
-    return os.path.join(archive_output_dir, archive_output_file_name + '.' + ARCHIVE_TYPE)
+    return os.path.join(archive_output_dir,
+                        archive_output_file_name + '.' + ARCHIVE_TYPE)
 
 def restore_from_zip(fname):
     """
@@ -50,27 +54,45 @@ def restore_from_zip(fname):
     """
     archive_output_dir = os.path.abspath(elsa.DIR_WEB_TEMP)
     data_dir = os.path.abspath(elsa.DIR_USER_DATA)
-    try:
-      with zipfile.ZipFile(os.path.join(archive_output_dir, fname), "r") as zip_ref:
-        if is_zip_a_backup(zip_ref):
-            print("Starting recovery process")
-            try:
-                shutil.rmtree(elsa.DIR_USER_DATA)
-            except shutil.Error:
-                print("Unable to delete current data before restoration. Please delete user data then attempt restore again.")
-                return False
-            zip_ref.extractall(elsa.DIR_USER_DATA)
-        else:
-            print("Received an invalid backup .zip. Aborting restore.")
-            return False
-    except :
+    zip_ref = load_zip_file(os.path.join(archive_output_dir, fname))
+    if not __is_zip_a_backup(zip_ref):
+        print("Received an invalid backup .zip. Aborting restore.")
         return False
+    
+    print("Starting recovery process")
+    try:
+        shutil.rmtree(elsa.DIR_USER_DATA)
+    except shutil.Error:
+        print("Unable to delete current data before restoration. \
+              Please delete user data then attempt restore again.")
+        return False
+    zip_ref.extractall(elsa.DIR_USER_DATA)
     return True
 
-def is_zip_a_backup(zip_ref):
+def load_zip_file(file_path):
     """
-    Returns true if the .zip is a valid backup, fasle otherwise
+    Returns a zipfile reference. If an error occurs, will return False
     """
+    try:
+        zip_ref = zipfile.ZipFile(file_path, "r")
+    except zipfile.BadZipfile:
+        return False
+    return zip_ref
+
+def check_zip_backup(file_path):
+    """
+    Returns true if the file appears to be a valid backup, false otherwise
+    """
+    zip_ref = load_zip_file(os.path.join(file_path))
+    return __is_zip_a_backup(zip_ref)
+    
+
+def __is_zip_a_backup(zip_ref):
+    """
+    Returns true if the .zip is a valid backup, false otherwise
+    """
+    if zip_ref == False:
+        return False
     file_list = zip_ref.namelist()
     if 'csv/' not in file_list or 'rrd/' not in file_list:
         return False
