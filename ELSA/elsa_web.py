@@ -71,7 +71,9 @@ class WebBackup():
             data = web.input()
             if data is not None and data.create_backup is not None:
                 backup.create_backup_zip()
-                return render.backup(mail, getLinkForLatestBackupArchive(),"backupDone")
+                return render.backup(mail,
+                                     getLinkForLatestBackupArchive(),
+                                     "backupDone")
             return render.backup(mail, getLinkForLatestBackupArchive(),"")
 
 class WebRestore():
@@ -96,18 +98,27 @@ class WebRestore():
                 fpath = data['zip_archive_to_restore'].filename.replace('\\','/')
                 # splits the and chooses the last part (filename with extension)
 		fname = fpath.split('/')[-1]
+                file_uri = os.path.join(elsa.DIR_WEB_TEMP, fname)
                 try:
-                    fout = open(os.path.join(elsa.DIR_WEB_TEMP, fname),'w')
+                    fout = open(file_uri,'w')
 		    fout.write(data.zip_archive_to_restore.file.read())
                 except IOError:
 		    fout.close()
                     print("Error while restoring file.")
-                    return render.backup(mail, getLinkForLatestBackupArchive(), "restoreError")
+                    return render.backup(mail,
+                                         getLinkForLatestBackupArchive(),
+                                         "restoreError")
 		fout.close()
+                if backup.check_zip_backup(file_uri) == False:
+                    return render.backup(mail,
+                                         getLinkForLatestBackupArchive(),
+                                         "restoreError")
                 flags.set_restore(fname)
                 raise web.seeother('/restarting')
             else:
-                return render.backup(mail, getLinkForLatestBackupArchive(), "restoreEmpty")
+                return render.backup(mail,
+                                     getLinkForLatestBackupArchive(),
+                                     "restoreEmpty")
 
 class WebUpdateELSA():
     def __init(self):
@@ -146,7 +157,8 @@ def get_list_of_active_sensors_acronyms(lang):
             if lang is None:
                 list.append(acronym)
             else:
-                list.append(c.AllSensors.elements[i].getName(lang) + u' [' + acronym + u']')
+                list.append(c.AllSensors.elements[i].getName(lang)
+                            + u' [' + acronym + u']')
     return list
 
 def get_data_points_for_grafana_api(target, lang, time_from_utc, time_to_utc):
@@ -162,8 +174,10 @@ def get_data_points_for_grafana_api(target, lang, time_from_utc, time_to_utc):
     except AttributeError:
         raise ValueError("That acronym does not exist : " + target)
     
-    return {"target": target, "datapoints": rrd.get_datapoints_from_s_id(sensor_id, time_from_utc, time_to_utc)}
-    
+    return {"target": target,
+            "datapoints": rrd.get_datapoints_from_s_id(sensor_id,
+                                                       time_from_utc,
+                                                       time_to_utc)}
 
 class WebApiGrafana():
     def __init(self):
@@ -188,7 +202,8 @@ class WebApiGrafana():
             time_from_utc = data['range']['from']
             time_from_utc = time_from_utc.split('.')[0]
             time_from_utc = time.strptime(time_from_utc, "%Y-%m-%dT%H:%M:%S")
-            time_to_utc = time.strptime(data['range']['to'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
+            time_to_utc = time.strptime(data['range']['to'].split('.')[0],
+                                        "%Y-%m-%dT%H:%M:%S")
             
             targets = []
             for elem in data['targets']:
@@ -196,7 +211,10 @@ class WebApiGrafana():
                 targets.append(elem['target'].replace('\\', ''))
             out = []
             for elem in targets:
-                out.append(get_data_points_for_grafana_api(elem, lang, time_from_utc, time_to_utc))
+                out.append(get_data_points_for_grafana_api(elem,
+                                                           lang,
+                                                           time_from_utc,
+                                                           time_to_utc))
             return json.dumps(out)
         else:
             return 'Error: Invalid url requested'
@@ -278,8 +296,7 @@ class WebList():
                     if type == 'b':
                         count = 1
                         borne = int(data['quantity'])
-                        elem = c.AllBatches.elements[data['batch'].split('_')[
-                            1]]
+                        elem = c.AllBatches.elements[data['batch'].split('_')[1]]
                         try:
                             name = int(
                                 elem.fields['acronym'][elem.fields['acronym'].rfind('_')+1:])
@@ -356,7 +373,11 @@ class WebEdit():
         return render.listing(mail, type, id)
 
     def getRender(self, type, id, mail, errormess, data, context=''):
-        if type in 'hpebcsmagugrgfutmdmvm' and type != 'g' and type != 'f' and type != 'd' and type != 'v'and type != 't':
+        if type in 'hpebcsmagugrgfutmdmvm' and type != 'g'\
+                                           and type != 'f'\
+                                           and type != 'd'\
+                                           and type != 'v'\
+                                           and type != 't':
             if type == 'p':
                 return render.place(id, mail, errormess, data, context)
             elif type == 'e':
@@ -402,12 +423,20 @@ class WebCreate(WebEdit):
             if len(type.split('/')) == 1:
                 return self.getRender(type, 'new', mail, '', '')
             else:
-                return self.getRender(type.split('/')[0], 'new', mail, '', '', type.split('/')[-1])
+                return self.getRender(type.split('/')[0],
+                                      'new',
+                                      mail,
+                                      '',
+                                      '',
+                                      type.split('/')[-1])
         raise web.seeother('/')
 
     def POST(self, type):
         if len(type.split('_')) > 1:
-            return WebEdit.POST(self, type.split('/')[0], 'new', type.split('/')[-1])
+            return WebEdit.POST(self,
+                                type.split('/')[0],
+                                'new',
+                                type.split('/')[-1])
         else:
             return WebEdit.POST(self, type.split('/')[0], 'new')
 
@@ -725,7 +754,7 @@ def cleanup_web_temp_dir():
 def start_update():
     print("Debut de la mise à jour d'ELSA avec Git")
     try:
-        subprocess.check_call("git pull", shell=True) #, stdout=sys.stdout, stderr=sys.stderr)
+        subprocess.check_call("git pull", shell=True)
     except subprocess.CalledProcessError:
         print("Update error. Please update manually.")
     finally:
@@ -767,8 +796,9 @@ class end_activities_flags:
     
     def launch_end_activities(self):
         if self._restore:
-            if not backup.restore_from_zip(self._restore): #returns False if restore did not work but no way to alert the user !
-                print ("INVALID RESTORE FILE")
+#returns False if restore did not work but no way to alert the user !
+            if not backup.restore_from_zip(self._restore): 
+                print ("Error while restoring from bacup.")
             self.set_restart()
 
         if self._check_update:

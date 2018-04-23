@@ -75,7 +75,7 @@ def load_zip_file(file_path):
     """
     try:
         zip_ref = zipfile.ZipFile(file_path, "r")
-    except zipfile.BadZipfile:
+    except zipfile.BadZipfile, AttributeError:
         return False
     return zip_ref
 
