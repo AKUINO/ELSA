@@ -298,11 +298,12 @@ class HardConfig():
     def parse_one_subsection(self, section, name, type):
         output = {}
         REQUIRED_ITEMS = {}
-        REQUIRED_ITEMS['device'] = ['install', 'i2c']
+        REQUIRED_ITEMS['device'] = ['install']
         REQUIRED_ITEMS['input'] = []
         REQUIRED_ITEMS['output'] = ['device']
         VALID_ITEMS = {}
-        VALID_ITEMS['device'] = REQUIRED_ITEMS['device'] + ['amplification']
+        VALID_ITEMS['device'] = REQUIRED_ITEMS['device'] + ['amplification',
+                                                            'i2c']
         VALID_ITEMS['input'] = REQUIRED_ITEMS['input'] + ['device',
                                                           'channel',
                                                           'resolution',

@@ -27,6 +27,7 @@ import abe_mcp3423
 import abe_iopi
 import serial
 import numbers
+import abe_expanderpi
 """
 import SSD1306
 from I2CScreen import *
@@ -4000,15 +4001,23 @@ class Sensor(ConfigurationObject):
         elif self.fields['channel'] == 'battery':
             input = config.HardConfig.inputs[self.fields['channel']]
             device = config.HardConfig.devices[input['device']]
-            try:
-                adc = abe_mcp3423.ADCPi(int(device['i2c'], 16),
-                                      int(input['resolution']))
-                output_val = adc.read_voltage(int(input['channel']))
-            except IOError:
-                print('Unable to read sensor !' + ' channel : '
-                                                + self.fields['channel']
-                                                + ', i2c address : '
-                                                + device['i2c'])
+            if device['install'] == "mcp3423":
+                try:
+                    adc = abe_mcp3423.ADCPi(int(device['i2c'], 16),
+                                          int(input['resolution']))
+                    output_val = adc.read_voltage(int(input['channel']))
+                except IOError:
+                    print('Unable to read sensor !' + ' channel : '
+                                                    + self.fields['channel']
+                                                    + ', i2c address : '
+                                                    + device['i2c'])
+            elif device['install'] == "abe_expanderpi":
+                adc = abe_expanderpi.ADC()
+                output_val = adc.read_adc_voltage(int(input['channel']), 0)
+            else:
+                print("Error : device.install : "
+                      + device.install
+                      + " not supported for type battery.")
         elif self.fields['channel'].startswith('lightsensor'):
             input = config.HardConfig.inputs[self.fields['channel']]
             device = config.HardConfig.devices[input['device']]
