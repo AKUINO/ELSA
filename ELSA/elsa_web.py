@@ -49,9 +49,10 @@ def getLinkForLatestBackupArchive():
 class WebColor():
     def GET(self, type, id):
         mail = isConnected()
-        if mail is not None:
-            return render.colorpicker(mail, type, id)
-        return ''
+        if mail is None:
+            return ''
+        
+        return render.colorpicker(mail, type, id)
 
 class WebBackup():
     def __init(self):
@@ -59,22 +60,23 @@ class WebBackup():
 
     def GET(self):
         mail = isConnected()
-        if mail is not None:
-            return render.backup(mail, getLinkForLatestBackupArchive(),"")
-        raise web.seeother('/')
+        if mail is None:
+            raise web.seeother('/')
+        
+        return render.backup(mail, getLinkForLatestBackupArchive(),"")
     
     def POST(self):
         mail = isConnected()
         if mail is None:
             raise web.seeother('/')
-        else:
-            data = web.input()
-            if data is not None and data.create_backup is not None:
-                backup.create_backup_zip()
-                return render.backup(mail,
-                                     getLinkForLatestBackupArchive(),
-                                     "backupDone")
-            return render.backup(mail, getLinkForLatestBackupArchive(),"")
+            
+        data = web.input()
+        if data is not None and data.create_backup is not None:
+            backup.create_backup_zip()
+            return render.backup(mail,
+                                 getLinkForLatestBackupArchive(),
+                                 "backupDone")
+        return render.backup(mail, getLinkForLatestBackupArchive(),"")
 
 class WebRestore():
     def __init(self):
@@ -82,43 +84,44 @@ class WebRestore():
 
     def GET(self):
         mail = isConnected()
-        if mail is not None:
-            return render.backup(mail, getLinkForLatestBackupArchive(),"")
-        raise web.seeother('/')
+        if mail is None:
+            raise web.seeother('/')
+            
+        return render.backup(mail, getLinkForLatestBackupArchive(),"")
     
     def POST(self):
         mail = isConnected()
 	if mail is None:
             raise web.seeother('/')
-        else:
-            data = web.input(zip_archive_to_restore={})
-            if data is not None and 'zip_archive_to_restore' in data\
-                                and data['zip_archive_to_restore'].filename:
-                # replaces the windows-style slashes with linux ones.
-                fpath = data['zip_archive_to_restore'].filename.replace('\\','/')
-                # splits the and chooses the last part (filename with extension)
-		fname = fpath.split('/')[-1]
-                file_uri = os.path.join(elsa.DIR_WEB_TEMP, fname)
-                try:
-                    fout = open(file_uri,'w')
-		    fout.write(data.zip_archive_to_restore.file.read())
-                except IOError:
-		    fout.close()
-                    print("Error while restoring file.")
-                    return render.backup(mail,
-                                         getLinkForLatestBackupArchive(),
-                                         "restoreError")
-		fout.close()
-                if backup.check_zip_backup(file_uri) == False:
-                    return render.backup(mail,
-                                         getLinkForLatestBackupArchive(),
-                                         "restoreError")
-                flags.set_restore(fname)
-                raise web.seeother('/restarting')
-            else:
+        
+        data = web.input(zip_archive_to_restore={})
+        if data is not None and 'zip_archive_to_restore' in data\
+                            and data['zip_archive_to_restore'].filename:
+            # replaces the windows-style slashes with linux ones.
+            fpath = data['zip_archive_to_restore'].filename.replace('\\', '/')
+            # splits the and chooses the last part (filename with extension)
+            fname = fpath.split('/')[-1]
+            file_uri = os.path.join(elsa.DIR_WEB_TEMP, fname)
+            try:
+                fout = open(file_uri,'w')
+                fout.write(data.zip_archive_to_restore.file.read())
+            except IOError:
+                print("Error while restoring file.")
                 return render.backup(mail,
                                      getLinkForLatestBackupArchive(),
-                                     "restoreEmpty")
+                                     "restoreError")
+            finally:
+                fout.close()
+            if backup.check_zip_backup(file_uri) == False:
+                return render.backup(mail,
+                                     getLinkForLatestBackupArchive(),
+                                     "restoreError")
+            flags.set_restore(fname)
+            raise web.seeother('/restarting')
+        else:
+            return render.backup(mail,
+                                 getLinkForLatestBackupArchive(),
+                                 "restoreEmpty")
 
 class WebUpdateELSA():
     def __init(self):
@@ -126,19 +129,20 @@ class WebUpdateELSA():
 
     def GET(self):
         mail = isConnected()
-        if mail is not None:
-            subprocess.call(['git', 'remote', 'update'])
-            git_status_out = subprocess.check_output(['git', 'status'])
-            git_status_out = git_status_out.split('\n')
-            try:
-                git_status_out = (git_status_out[0]
-                                  + '<br>'
-                                  + git_status_out[1])
-            except IndexError:
-                print("Error reading git status output. " + git_status_out)
-                raise
-            return render.updateELSA(mail, git_status_out)
-        raise web.seeother('/')
+        if mail is None:
+            raise web.seeother('/')
+        
+        subprocess.call(['git', 'remote', 'update'])
+        git_status_out = subprocess.check_output(['git', 'status'])
+        git_status_out = git_status_out.split('\n')
+        try:
+            git_status_out = (git_status_out[0]
+                              + '<br>'
+                              + git_status_out[1])
+        except IndexError:
+            print("Error reading git status output. " + git_status_out)
+            raise
+        return render.updateELSA(mail, git_status_out)
     
     def POST(self):
         mail = isConnected()
@@ -172,7 +176,7 @@ def get_data_points_for_grafana_api(target, lang, time_from_utc, time_to_utc):
     try:
         sensor_id = sensor.fields['s_id']
     except AttributeError:
-        raise ValueError("That acronym does not exist : " + target)
+        raise AttributeError("That acronym does not exist : " + target)
     
     return {"target": target,
             "datapoints": rrd.get_datapoints_from_s_id(sensor_id,
@@ -227,46 +231,51 @@ class WebRestarting():
 
     def GET(self):
         mail = isConnected()
-        if mail is not None:
-            app.stop()
-            # sys.exit()
-            return render.restarting(mail)
-        raise web.seeother('/')
+        if mail is None:
+            raise web.seeother('/')
+        
+        app.stop()
+        # sys.exit()
+        return render.restarting(mail)
     
 class WebDisconnect():
     def GET(self):
         mail = isConnected()
-        if mail is not None:
-            c.connectedUsers.disconnect(mail)
-        raise web.seeother('/')
+        if mail is None:
+            raise web.seeother('/')
+            
+        c.connectedUsers.disconnect(mail)
 
 class WebPermission():
     def GET(self, type, id):
         mail = isConnected()
-        if mail is not None:
-            if len(id.split('/')) > 1:
-                context = id.split('/')[-1]
-                id = id.split('/')[0]
-            else:
-                context = ''
-            return render.permission(mail, type, id, context)
-        return ''
+        if mail is None:
+            return ''
+        
+        if len(id.split('/')) > 1:
+            context = id.split('/')[-1]
+            id = id.split('/')[0]
+        else:
+            context = ''
+        return render.permission(mail, type, id, context)
 
 
 class WebModal():
     def GET(self, type, id):
         mail = isConnected()
-        if mail is not None:
-            return render.modal(mail, type, id)
-        return ''
+        if mail is None:
+            return ''
+        
+        return render.modal(mail, type, id)
 
 
 class WebFullEntry():
     def GET(self, type, id):
         mail = isConnected()
-        if mail is not None:
-            return render.fullentry(mail, type, id)
-        return ''
+        if mail is None:
+            return ''
+        
+        return render.fullentry(mail, type, id)
 
 
 class WebList():
@@ -279,36 +288,38 @@ class WebList():
         if 'status' in data:
             id = data['status']
         mail = isConnected()
-        if mail is not None:
-            if type in 'abcpehsmugugrgftmdmvm' and type != 't' and type != 'f':
-                return self.getRender(type, mail, id)
-            else:
-                return render.notfound()
-        raise web.seeother('/')
+        if mail is None:
+            raise web.seeother('/')
+        
+        if type in 'abcpehsmugugrgftmdmvm' and type != 't' and type != 'f':
+            return self.getRender(type, mail, id)
+        else:
+            return render.notfound()
 
     def POST(self, type):
         mail = isConnected()
         user = c.connectedUsers.users[mail].cuser
-        if mail is not None:
-            data = web.input(placeImg={})
-            if 'quantity' in data:
-                try:
-                    if type == 'b':
-                        count = 1
-                        borne = int(data['quantity'])
-                        elem = c.AllBatches.elements[data['batch'].split('_')[1]]
-                        try:
-                            name = int(
-                                elem.fields['acronym'][elem.fields['acronym'].rfind('_')+1:])
-                        except:
-                            name = 0
-                        while count <= borne:
-                            elem.clone(user, (name + count))
-                            count += 1
-                    return self.getRender(type, mail)
-                except:
-                    raise render.notfound()
-        raise web.seeother('/')
+        if mail is None:
+            raise web.seeother('/')
+            
+        data = web.input(placeImg={})
+        if 'quantity' in data:
+            try:
+                if type == 'b':
+                    count = 1
+                    borne = int(data['quantity'])
+                    elem = c.AllBatches.elements[data['batch'].split('_')[1]]
+                    try:
+                        name = int(
+                            elem.fields['acronym'][elem.fields['acronym'].rfind('_')+1:])
+                    except:
+                        name = 0
+                    while count <= borne:
+                        elem.clone(user, (name + count))
+                        count += 1
+                return self.getRender(type, mail)
+            except:
+                raise render.notfound()
 
     def getRender(self, type, mail, id=''):
         return render.listing(mail, type, id)
@@ -317,57 +328,59 @@ class WebList():
 class WebItem():
     def GET(self, type, id):
         mail = isConnected()
-        if mail is not None:
-            try:
-                return render.item(type, id, mail)
-            except:
-                return render.notfound()
-        raise web.seeother('/')
+        if mail is None:
+            raise web.seeother('/')
+        
+        try:
+            return render.item(type, id, mail)
+        except:
+            return render.notfound()
 
 
 class WebEdit():
     def GET(self, type, id):
         mail = isConnected()
-        if mail is not None:
-            return self.getRender(type, id, mail, '', '')
-        raise web.seeother('/')
+        if mail is None:
+            raise web.seeother('/')
+        return self.getRender(type, id, mail, '', '')
 
     def POST(self, type, id, context=None):
         mail = isConnected()
         user = c.connectedUsers.users[mail].cuser
-        if mail is not None:
-            currObject = c.getObject(id, type)
-            infoCookie = mail + ',' + user.fields['password']
-            data = web.input(placeImg={})
-            method = data.get("method", "malformed")
-            update_cookie(infoCookie)
-            if currObject is None:
-                raise web.seeother('/')
-            cond = currObject.validate_form(data, c, user.fields['language'])
-            if cond is True:
-                currObject.set_value_from_data(data, c, user)
-                if 'a_id' in data:
-                    if len(data['a_id']) > 0:
-                        c.AllAlarms.elements[data['a_id']
-                                             ].launch_alarm(currObject, c)
-                if type not in 'tdv':
-                    raise web.seeother('/item/'+type+'_'+currObject.getID())
-                else:
-                    if currObject.get_type() == 'v':
-                        elemtype = 'b'
-                        elemid = currObject.fields['dest']
-                    elif currObject.get_type() == 't':
-                        elemtype = currObject.fields['object_type']
-                        elemid = currObject.fields['object_id']
-                    elif currObject.get_type() == 'd':
-                        elemtype = currObject.fields['object_type']
-                        elemid = currObject.fields['object_id']
-                    raise web.seeother('/find/'+type+'/'+elemtype+'_'+elemid)
+        if mail is None:
+            raise web.seeother('/')
+            
+        currObject = c.getObject(id, type)
+        infoCookie = mail + ',' + user.fields['password']
+        data = web.input(placeImg={})
+        method = data.get("method", "malformed")
+        update_cookie(infoCookie)
+        if currObject is None:
+            raise web.seeother('/')
+        cond = currObject.validate_form(data, c, user.fields['language'])
+        if cond is True:
+            currObject.set_value_from_data(data, c, user)
+            if 'a_id' in data:
+                if len(data['a_id']) > 0:
+                    c.AllAlarms.elements[data['a_id']
+                                         ].launch_alarm(currObject, c)
+            if type not in 'tdv':
+                raise web.seeother('/item/'+type+'_'+currObject.getID())
             else:
-                if id == 'new':
-                    currObject.delete(c)
-                return self.getRender(type, id, mail, cond, data)
-        raise web.seeother('/')
+                if currObject.get_type() == 'v':
+                    elemtype = 'b'
+                    elemid = currObject.fields['dest']
+                elif currObject.get_type() == 't':
+                    elemtype = currObject.fields['object_type']
+                    elemid = currObject.fields['object_id']
+                elif currObject.get_type() == 'd':
+                    elemtype = currObject.fields['object_type']
+                    elemid = currObject.fields['object_id']
+                raise web.seeother('/find/'+type+'/'+elemtype+'_'+elemid)
+        else:
+            if id == 'new':
+                currObject.delete(c)
+            return self.getRender(type, id, mail, cond, data)
 
     def getListing(self, mail, type, id=''):
         return render.listing(mail, type, id)
@@ -419,19 +432,24 @@ class WebEdit():
 class WebCreate(WebEdit):
     def GET(self, type):
         mail = isConnected()
-        if mail is not None:
-            if len(type.split('/')) == 1:
-                return self.getRender(type, 'new', mail, '', '')
-            else:
-                return self.getRender(type.split('/')[0],
-                                      'new',
-                                      mail,
-                                      '',
-                                      '',
-                                      type.split('/')[-1])
-        raise web.seeother('/')
+        if mail is None:
+            raise web.seeother('/')
+            
+        if len(type.split('/')) == 1:
+            return self.getRender(type, 'new', mail, '', '')
+        else:
+            return self.getRender(type.split('/')[0],
+                                  'new',
+                                  mail,
+                                  '',
+                                  '',
+                                  type.split('/')[-1])
 
     def POST(self, type):
+        mail = isConnected()
+        if mail is None:
+            raise web.seeother('/')
+        
         if len(type.split('_')) > 1:
             return WebEdit.POST(self,
                                 type.split('/')[0],
@@ -444,48 +462,52 @@ class WebCreate(WebEdit):
 class WebControl():
     def GET(self, idbatch, idcontrol):
         mail = isConnected()
-        if mail is not None:
-            return render.control(idbatch, idcontrol, mail, '')
-        raise web.seeother('/')
+        if mail is None:
+            raise web.seeother('/')
+            
+        return render.control(idbatch, idcontrol, mail, '')
 
     def POST(self, idbatch, idcontrol, context=None):
         mail = isConnected()
+        if mail is None:
+            raise web.seeother('/')
+            
         user = c.connectedUsers.users[mail].cuser
-        if mail is not None:
-            infoCookie = mail + ',' + user.fields['password']
-            update_cookie(infoCookie)
-            data = web.input(placeImg={})
-            method = data.get("method", "malformed")
-            currObject = c.getObject(idcontrol, 'h')
-            cond = currObject.validate_control(data, user.fields['language'])
-            if cond is True:
-                currObject.create_control(data, user)
-                raise web.seeother('/find/h/b_' + str(idbatch))
-            else:
-                return render.control(idbatch, idcontrol, mail, cond)
-        raise web.seeother('/')
+        infoCookie = mail + ',' + user.fields['password']
+        update_cookie(infoCookie)
+        data = web.input(placeImg={})
+        method = data.get("method", "malformed")
+        currObject = c.getObject(idcontrol, 'h')
+        cond = currObject.validate_control(data, user.fields['language'])
+        if cond is True:
+            currObject.create_control(data, user)
+            raise web.seeother('/find/h/b_' + str(idbatch))
+        else:
+            return render.control(idbatch, idcontrol, mail, cond)
 
 
 class WebFind():
     def GET(self, type, id1, id2):
         mail = isConnected()
         if mail is not None:
-            return self.getRender(type, id1, id2, mail)
-        raise web.seeother('/')
+            raise web.seeother('/')
+            
+        return self.getRender(type, id1, id2, mail)
 
     def POST(self, type, id1, id2):
         mail = isConnected()
+        if mail is None:
+            raise web.seeother('/')
+        
         user = c.connectedUsers.users[mail].cuser
-        if mail is not None:
-            infoCookie = mail + ',' + user.fields['password']
-            update_cookie(infoCookie)
-            data = web.input(placeImg={})
-            if type == 'h':
-                if 'checkpoint' in data:
-                    raise web.seeother('/control/b_'+id2 +
-                                       '/h_'+data['checkpoint'])
-                raise web.seeother('/item/b_'+id2)
-        raise web.seeother('/')
+        infoCookie = mail + ',' + user.fields['password']
+        update_cookie(infoCookie)
+        data = web.input(placeImg={})
+        if type == 'h':
+            if 'checkpoint' in data:
+                raise web.seeother('/control/b_'+id2 +
+                                   '/h_'+data['checkpoint'])
+            raise web.seeother('/item/b_'+id2)
 
     def getRender(self, type, id1, id2, mail):
         try:
@@ -517,11 +539,12 @@ class WebGraphic():
     def GET(self, type, id):
         mail = isConnected()
         if mail is not None:
-            objects = c.findAllFromType(type)
-            if id in objects.elements.keys() and type in 'scpem':
-                return render.listinggraphics(mail, type, id)
-            return render.notfound()
-        raise web.seeother('/')
+            raise web.seeother('/')
+            
+        objects = c.findAllFromType(type)
+        if id in objects.elements.keys() and type in 'scpem':
+            return render.listinggraphics(mail, type, id)
+        return render.notfound()
 
 
 class WebIndex():
@@ -530,9 +553,10 @@ class WebIndex():
 
     def GET(self):
         mail = isConnected()
-        if mail is not None:
-            return self.getRender(mail)
-        return render.index(False, '')
+        if mail is None:
+            return render.index(False, '')
+        
+        return self.getRender(mail)
 
     def POST(self):
         data = web.input(nifile={})
@@ -556,15 +580,16 @@ class WebBarcode():
 
     def GET(self, id=""):
         mail = isConnected()
-        if mail is not None:
-            try:
-                data = web.input()
-                if 'barcode' in data:
-                    id = data['barcode']
-                return self.getRender(id, mail)
-            except:
-                return self.getRender(id, mail, 'notfound')
-        raise web.seeother('/')
+        if mail is None:
+            raise web.seeother('/')
+            
+        try:
+            data = web.input()
+            if 'barcode' in data:
+                id = data['barcode']
+            return self.getRender(id, mail)
+        except:
+            return self.getRender(id, mail, 'notfound')
 
     def getRender(self, id, mail, errormess=''):
         return render.barcode(mail, id, errormess)
@@ -597,11 +622,16 @@ class WebMonitoring():
 
     def GET(self):
         mail = isConnected()
-        if mail is not None:
-            return self.getRender(mail)
-        return render.index(False, '')
+        if mail is None:
+            raise web.seeother('/')
+        
+        return self.getRender(mail)
 
     def POST(self):
+        mail = isConnected()
+        if mail is None:
+            raise web.seeother('/')
+        
         data = web.input(nifile={})
         # method = data.get("method","malformed")
         connectedUser = connexion(data._username_, data._password_)
@@ -611,7 +641,7 @@ class WebMonitoring():
             update_cookie(infoCookie)
             c.connectedUsers.addUser(connectedUser)
             return render.index(True, data._username_)
-        return render.index(False, '')
+        raise web.seeother('/')
 
     def getRender(self, mail):
         return render.monitoring(mail)
@@ -623,9 +653,10 @@ class WebListing():
 
     def GET(self, id):
         mail = isConnected()
-        if mail is not None:
-            return self.getRender(id, mail, '')
-        return render.index(False, '')
+        if mail is None:
+            raise web.seeother('/')
+        
+        return self.getRender(id, mail, '')
 
     def getRender(self, id, mail, error):
         typeobject = id.split('_')[0]
@@ -643,38 +674,38 @@ class WebListing():
 class WebExport():
     def GET(self, type, id):
         mail = isConnected()
-        if mail is not None:
-            return self.getRender(type, id, mail)
-        return render.index(False, '')
+        if mail is None:
+            raise web.seeother('/')
 
     def POST(self, type, id):
         mail = isConnected()
+        if mail is None:
+            raise web.seeother('/')
+        
         user = c.connectedUsers.users[mail].cuser
-        if mail is not None:
-            infoCookie = mail + ',' + user.fields['password']
-            update_cookie(infoCookie)
-            data = web.input(placeImg={})
-            cond = {}
-            cond['alarm'] = True if 'alarm' in data else False
-            cond['manualdata'] = True if 'manualdata' in data else False
-            cond['transfer'] = True if 'transfer' in data else False
-            cond['pouring'] = True if 'pouring' in data else False
-            cond['specialvalue'] = True if 'specialvalue' in data else False
-            cond['valuesensor'] = True if 'valuesensor' in data else False
-            cond['acronym'] = True if 'acronym' in data else False
-            method = data.get("method", "malformed")
-            elem = c.findAllFromType(data['element'].split(
-                '_')[0]).elements[data['element'].split('_')[1]]
-            tmp = elsa.ExportData(c, elem, cond, user)
-            tmp.create_export()
-            if "download" in data:
-                tmp.write_csv()
-                raise web.seeother('/export/'+str(type) +
-                                   '_'+str(id)+'/exportdata.csv')
-            else:
-                user.exportdata = tmp
-                raise web.seeother('/datatable/'+str(type)+'_'+str(id))
-        return render.index(False, '')
+        infoCookie = mail + ',' + user.fields['password']
+        update_cookie(infoCookie)
+        data = web.input(placeImg={})
+        cond = {}
+        cond['alarm'] = True if 'alarm' in data else False
+        cond['manualdata'] = True if 'manualdata' in data else False
+        cond['transfer'] = True if 'transfer' in data else False
+        cond['pouring'] = True if 'pouring' in data else False
+        cond['specialvalue'] = True if 'specialvalue' in data else False
+        cond['valuesensor'] = True if 'valuesensor' in data else False
+        cond['acronym'] = True if 'acronym' in data else False
+        method = data.get("method", "malformed")
+        elem = c.findAllFromType(data['element'].split(
+            '_')[0]).elements[data['element'].split('_')[1]]
+        tmp = elsa.ExportData(c, elem, cond, user)
+        tmp.create_export()
+        if "download" in data:
+            tmp.write_csv()
+            raise web.seeother('/export/'+str(type) +
+                               '_'+str(id)+'/exportdata.csv')
+        else:
+            user.exportdata = tmp
+            raise web.seeother('/datatable/'+str(type)+'_'+str(id))
 
     def getRender(self, type, id, mail):
         try:
@@ -689,9 +720,8 @@ class WebExport():
 class WebDataTable():
     def GET(self, type, id):
         mail = isConnected()
-        if mail is not None:
-            return self.getRender(type, id, mail)
-        return render.index(False, '')
+        if mail is None:
+            raise web.seeother('/')
 
     def getRender(self, type, id, mail):
         # try:
@@ -718,20 +748,22 @@ class WebDownloadData():
 
 def connexion(username, password):
     user = c.AllUsers.getUser(username)
-    if user is not None:
-        cryptedPassword = useful.encrypt(password, user.fields['registration'])
-        if user.checkPassword(cryptedPassword) is True:
-            return user
-    return None
+    if user is None:
+        return None
+    
+    cryptedPassword = useful.encrypt(password, user.fields['registration'])
+    if user.checkPassword(cryptedPassword) is True:
+        return user
 
 
 def isConnected():
     infoCookie = web.cookies().get('webpy')
-    if infoCookie is not None:
-        infoCookie = infoCookie.split(',')
-        if c.connectedUsers.isConnected(infoCookie[0], infoCookie[1]) is True:
-            return infoCookie[0]
-    return None
+    if infoCookie is None:
+        return None
+    
+    infoCookie = infoCookie.split(',')
+    if c.connectedUsers.isConnected(infoCookie[0], infoCookie[1]) is True:
+        return infoCookie[0]
 
 
 def notfound():
@@ -746,6 +778,7 @@ def cleanup_web_temp_dir():
         shutil.rmtree(elsa.DIR_WEB_TEMP)
     except OSError, e:
         print ("Error: %s - %s." % (e.filename,e.strerror))
+        raise
     finally:
         if not os.path.exists(elsa.DIR_WEB_TEMP):
             os.makedirs(elsa.DIR_WEB_TEMP)
