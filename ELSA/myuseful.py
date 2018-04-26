@@ -13,9 +13,9 @@ import struct
 
 import unicodecsv
 
-GMAIL_USER = u'akuino6002@gmail.com'
-GMAIL_PASS = u'My_Password6002'
-SMTP_SERVER = u'smtp.gmail.com'
+GMAIL_USER = u'christophe.dupriez@guest.uliege.be' #u'akuino6002@gmail.com'
+GMAIL_PASS = u'vjdQ5631' #u'My_Password6002'
+SMTP_SERVER = u'smtp.ulg.ac.be' #'u'smtp.gmail.com'
 SMTP_PORT = 587
 csvDir = "../ELSAcsv/csv/"
 
@@ -54,10 +54,11 @@ def send_email(recipient, subject, text):
 
     _attach = MIMEText(text.encode('utf-8'), 'plain', 'UTF-8')
     msg.attach(_attach)
+    print msg.as_string()
 
     smtpserver.sendmail(GMAIL_USER, recipient, msg.as_string())
     smtpserver.close()
-
+    print "DONE"
 
 def timestamp_to_date(now, format=datetimeformat):
     return datetime.datetime.fromtimestamp(int(now)).strftime(format)

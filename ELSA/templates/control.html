@@ -37,6 +37,7 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 	$for e in elems:
 	    $if e.get_type() == 'tm':
 		<div class="form-group row">
+		    <input type="hidden" name="tm_id_$(counttm)" value="$e.getID()"/>
 		    <label class="col-sm-12 col-form-label">$:c.getAllHalfling(c.AllTransfers) $e.getName(self.lang)</label>
 		</div>
 		<div class="form-group row">
@@ -70,6 +71,7 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 	    $elif e.get_type() == 'dm':
 		$ aMeasure=c.AllMeasures.elements[e.fields['m_id']]
 		<div class="form-group row">
+		    <input type="hidden" name="dm_id_$(countdm)" value="$e.getID()"/>
 		    <label class="col-sm-12 col-form-label">$:c.getAllHalfling(c.AllManualData) $e.getName(self.lang)</label>
 		</div>
 		
@@ -94,6 +96,7 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		    countdm += 1
 	    $elif e.get_type() == 'vm':		
 		<div class="form-group row">
+		    <input type="hidden" name="vm_id_$(countvm)" value="$e.getID()"/>
 		    <label class="col-sm-12 col-form-label">$:c.getAllHalfling(c.AllPourings) $e.getName(self.lang)</label>
 		</div>
 		$if e.fields['in'] != '0':

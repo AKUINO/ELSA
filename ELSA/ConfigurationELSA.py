@@ -363,7 +363,7 @@ class Configuration():
         EAN = barcode.get_barcode_class('ean13')
         try:
             ean = EAN(unicode(some_code))
-            ean.save(DIR_BARCODES+str(some_code))
+            ean.save(DIR_BARCODES+unicode(some_code))
         except:
             return False
         return True
@@ -380,6 +380,9 @@ class ConfigurationObject(object):
         self.creator = None
         self.position = []
         self.data = []
+
+    def __repr__(self):
+        return self.get_type()+'_'+self.id+(' '+self.fields['acronym']) if 'acronym' in self.fields else ''
 
     def save(self, configuration, anUser=""):
         self.fields["begin"] = useful.now()
@@ -661,7 +664,7 @@ class ConfigurationObject(object):
         if tmp is not None:
             tmp = configuration.AllTransfers.elements[tmp]
             if type == tmp.fields['cont_type'] \
-                    and str(id) == tmp.fields['cont_id']:
+                    and unicode(id) == tmp.fields['cont_id']:
                 return True
         return False
 
@@ -692,18 +695,6 @@ class ConfigurationObject(object):
                 return configuration.AllTransfers \
                                     .elements[self.position[count-1]]
         return configuration.AllTransfers.elements[self.position[-1]]
-
-    def get_alarm(self):
-	if self.actualAlarm == 'typical':
-	    return self.fields['a_typical']
-	elif self.actualAlarm == 'minmin':
-	    return self.fields['a_minmin']
-	elif self.actualAlarm == 'min':
-	    return self.fields['a_min']
-	elif self.actualAlarm == 'max':
-	    return self.fields['a_max']
-	elif self.actualAlarm == 'maxmax':
-	    return self.fields['a_maxmax']
 
 class UpdateThread(threading.Thread):
 
@@ -959,10 +950,10 @@ class AllObjects(object):
         currObject = self.newObject()
         currObject.initialise(self.fieldnames)
         self.initCount()
-        tmp = self.getNewId()
-        currObject.fields[self.keyColumn] = unicode(tmp)
-        currObject.id = str(tmp)
-        self.elements[unicode(tmp)] = currObject
+        tmp = unicode(self.getNewId())
+        currObject.fields[self.keyColumn] = tmp
+        currObject.id = tmp
+        self.elements[tmp] = currObject
         currObject.fields["begin"] = useful.now()
         return currObject
 
@@ -1121,7 +1112,7 @@ class AllAlarmLogs(AllObjects):
     def get_alarmlog_component(self, id, begin, end):
         logs = []
         for i in range(len(self.elements)):
-            e = self.elements[str(i+1)]
+            e = self.elements[unicode(i+1)]
             time = useful.date_to_timestamp(e.fields['begin'])
             if id == e.fields['s_id']:
                 if time > begin and time < end:
@@ -1363,8 +1354,10 @@ class AllCheckPoints(AllGroups):
             for row in reader:
                 type = row['object_type']
                 id = row['object_id']
-                currObject = self.config.findAllFromType(
-                    type).elements[id].add_checkpoint(row['h_id'])
+                if id:
+                    currObject = self.config.findAllFromType(type).elements[id]
+                    if currObject:
+                        currObject.add_checkpoint(row['h_id'])
 
     def get_checkpoints_for_recipe(self, recipes):
         checkpoints = []
@@ -1852,10 +1845,6 @@ class Language(ConfigurationObject):
     def __init__(self):
         ConfigurationObject.__init__(self)
 
-    def __repr__(self):
-        string = unicode(self.id) + " " + self.fields['name']
-        return string
-
     def __str__(self):
         string = "\nLanguage :"
         for field in self.fields:
@@ -1867,10 +1856,6 @@ class Language(ConfigurationObject):
 
 
 class Message(ConfigurationObject):
-
-    def __repr__(self):
-        string = unicode(self.id) + " " + self.fields['default']
-        return string
 
     def __str__(self):
         string = "\nMessage :"
@@ -1887,10 +1872,6 @@ class User(ConfigurationObject):
     def __init__(self):
         ConfigurationObject.__init__(self)
         self.exportdata = None
-
-    def __repr__(self):
-        string = unicode(self.id) + " " + self.fields['acronym']
-        return string
 
     def __str__(self):
         string = "\nUtilisateur :"
@@ -1943,10 +1924,6 @@ class Equipment(ConfigurationObject):
         ConfigurationObject.__init__(self)
         self.config = config
 
-    def __repr__(self):
-        string = unicode(self.id) + " " + self.fields['acronym']
-        return string
-
     def __str__(self):
         string = "\nEquipement :"
         for field in self.fields:
@@ -1988,10 +1965,6 @@ class Container(ConfigurationObject):
         ConfigurationObject.__init__(self)
         self.config = config
 
-    def __repr__(self):
-        string = unicode(self.id) + " " + self.fields['acronym']
-        return string
-
     def __str__(self):
         string = "\nContainer :"
         for field in self.fields:
@@ -2024,15 +1997,72 @@ class Container(ConfigurationObject):
         return self.fields['gu_id']
 
 
-class ManualData(ConfigurationObject):
+class AlarmingObject(ConfigurationObject):
 
     def __init__(self):
         ConfigurationObject.__init__(self)
-        self.id = str(self.id)
+        self.actualAlarm = 'typical'
+        self.countActual = 0
+        self.degreeAlarm = 0
+        self.colorAlarm = valueCategs[0].color
+        self.lastvalue = None
+        self.time = 0
+    
+    def get_alarm(self,model=None):
+        bounds = model.fields if model else self.fields
+	if self.actualAlarm == 'typical':
+	    return bounds['a_typical']
+	elif self.actualAlarm == 'minmin':
+	    return bounds['a_minmin']
+	elif self.actualAlarm == 'min':
+	    return bounds['a_min']
+	elif self.actualAlarm == 'max':
+	    return bounds['a_max']
+	elif self.actualAlarm == 'maxmax':
+	    return bounds['a_maxmax']
 
-    def __repr__(self):
-        string = unicode(self.id)
-        return string
+    def setCorrectAlarmValue(self,model=None):
+        bounds = model.fields if model else self.fields
+        if bounds['minmin'] == '':
+            bounds['minmin'] = -99999999
+        if bounds['min'] == '':
+            bounds['min'] = -99999999
+        if bounds['max'] == '':
+            bounds['max'] = 99999999
+        if bounds['maxmax'] == '':
+            bounds['maxmax'] = 99999999
+        if bounds['lapse1'] == '':
+            bounds['lapse1'] = 99999999
+        if bounds['lapse2'] == '':
+            bounds['lapse2'] = 99999999
+        if bounds['lapse3'] == '':
+            bounds['lapse3'] = 99999999
+
+
+    def getTypeAlarm(self, value, model=None):
+        value = float(value)
+        bounds = model.fields if model else self.fields
+        if bounds['minmin'] and value <= float(bounds['minmin']):
+            return valueCategs[-2].triple()
+        elif bounds['min'] and value <= float(bounds['min']):
+            return valueCategs[-1].triple()
+        elif bounds['maxmax'] and value > float(bounds['maxmax']):
+            return valueCategs[2].triple()
+        elif bounds['max'] and value > float(bounds['max']):
+            return valueCategs[1].triple()
+        else:
+            return valueCategs[0].triple()
+
+    def setTypicalAlarm(self):
+        self.countActual = 0
+        self.actualAlarm = 'typical'
+        self.degreeAlarm = 0
+        self.time = 0
+
+class ManualData(AlarmingObject):
+
+    def __init__(self):
+        AlarmingObject.__init__(self)
 
     def __str__(self):
         string = "\nManual Data :"
@@ -2054,7 +2084,7 @@ class ManualData(ConfigurationObject):
 
     def add_measure(self, measure):
         if not measure == 'None':
-            self.fields['m_id'] = str(measure)
+            self.fields['m_id'] = unicode(measure)
         else:
             self.fields['m_id'] = ''
 
@@ -2105,6 +2135,20 @@ class ManualData(ConfigurationObject):
             self.fields['active'] = '1'
         else:
             self.fields['active'] = '0'
+        if ('origin' in data) and data['origin']:
+            model = c.AllManualDataModels.elements[data['origin']]
+            prvAlarm = self.actualAlarm
+            typeAlarm, symbAlarm, self.colorAlarm = self.getTypeAlarm(data['value'],model)
+            if typeAlarm == 'typical':
+                self.setTypicalAlarm()
+            else:
+               if not ((typeAlarm == 'min' and self.actualAlarm == 'minmin')
+                       or (typeAlarm == 'max' and self.actualAlarm == 'maxmax')):
+                    self.actualAlarm = typeAlarm
+            if prvAlarm != self.actualAlarm:
+                alarmCode = self.get_alarm(model);
+                if alarmCode:
+                    c.AllAlarms.elements[alarmCode].launch_alarm(self, c)
         if self.fields['active'] == '1':
             c.findAllFromType(self.fields['object_type']) \
              .elements[self.fields['object_id']] \
@@ -2122,11 +2166,6 @@ class ManualData(ConfigurationObject):
 class Pouring(ConfigurationObject):
     def __init__(self):
         ConfigurationObject.__init__(self)
-        self.id = str(self.id)
-
-    def __repr__(self):
-        string = unicode(self.id)
-        return string
 
     def __str__(self):
         string = "\nPouring :"
@@ -2207,10 +2246,6 @@ class Group(ConfigurationObject):
         self.parents = []
         self.children = []
         self.related = []
-
-    def __repr__(self):
-        string = unicode(self.id) + " " + self.fields['acronym']
-        return string
 
     def __str__(self):
         string = "\nGroup :"
@@ -2502,17 +2537,17 @@ class CheckPoint(Group):
             type = m.get_type()
             if type == 'dm':
                 try:
-                    value = float(data['dm_value_'+str(countdm)])
+                    value = float(data['dm_value_'+unicode(countdm)])
                 except:
                     tmp += self.config.getMessage('floatrules',lang) \
-                            + ' '+data['dm_value_'+str(countdm)]+'\n'
+                            + ' '+data['dm_value_'+unicode(countdm)]+'\n'
                 countdm += 1
             elif type == 'vm':
                 try:
-                    value = float(data['vm_quantity_'+str(countvm)])
+                    value = float(data['vm_quantity_'+unicode(countvm)])
                 except:
                     tmp += self.config.getMessage('floatrules',lang) \
-                           + ' '+data['vm_quantity_'+str(countvm)]+'\n'
+                           + ' '+data['vm_quantity_'+unicode(countvm)]+'\n'
                 countvm += 1
         if tmp == '':
             return True
@@ -2526,6 +2561,7 @@ class CheckPoint(Group):
         for m in model:
             type = m.get_type()
             currObject = self.config.getObject('new', type[0])
+            tmp = None
             if type == 'dm':
                 tmp = self.create_data(data, type, countdm)
                 countdm += 1
@@ -2535,7 +2571,8 @@ class CheckPoint(Group):
             elif type == 'vm':
                 tmp = self.create_data(data, type, countvm)
                 countvm += 1
-            currObject.set_value_from_data(tmp, self.config, user)
+            if tmp:
+                currObject.set_value_from_data(tmp, self.config, user)
         type = data['batch'].split('_')[0]
         id = data['batch'].split('_')[1]
         self.write_control(type, id, user)
@@ -2549,24 +2586,28 @@ class CheckPoint(Group):
         tmp['time'] = time
         tmp['active'] = '1'
         tmp['h_id'] = self.getID()
+        count = unicode(count)
         if type == 'dm':
             tmp['component'] = batch
-            tmp['remark'] = data['dm_remark_'+str(count)]
-            tmp['measure'] = data['dm_measure_'+str(count)]
-            tmp['value'] = data['dm_value_'+str(count)]
+            tmp['origin'] = data['dm_id_'+count]
+            tmp['remark'] = data['dm_remark_'+count]
+            tmp['measure'] = data['dm_measure_'+count]
+            tmp['value'] = data['dm_value_'+count]
         elif type == 'tm':
             tmp['object'] = batch
-            tmp['position'] = data['tm_position_'+str(count)]
-            tmp['remark'] = data['tm_remark_'+str(count)]
+            tmp['origin'] = data['tm_id_'+count]
+            tmp['position'] = data['tm_position_'+count]
+            tmp['remark'] = data['tm_remark_'+count]
         elif type == 'vm':
-            if 'vm_src_'+str(count) in data:
-                tmp['src'] = data['vm_src_'+str(count)]
+            tmp['origin'] = data['vm_id_'+count]
+            if 'vm_src_'+count in data:
+                tmp['src'] = data['vm_src_'+count]
                 tmp['dest'] = batch.split('_')[1]
             else:
-                tmp['dest'] = data['vm_dest_'+str(count)]
+                tmp['dest'] = data['vm_dest_'+count]
                 tmp['src'] = batch.split('_')[1]
-            tmp['quantity'] = data['vm_quantity_'+str(count)]
-            tmp['remark'] = data['tm_remark_'+str(count)]
+            tmp['quantity'] = data['vm_quantity_'+count]
+            tmp['remark'] = data['tm_remark_'+count]
         return tmp
 
     def write_control(self, type, id, user):
@@ -2672,10 +2713,6 @@ class Piece(ConfigurationObject):
         ConfigurationObject.__init__(self)
         self.config = config
 
-    def __repr__(self):
-        string = unicode(self.id) + " " + self.fields['acronym']
-        return string
-
     def __str__(self):
         string = "\nPiece :"
         for field in self.fields:
@@ -2722,10 +2759,6 @@ class AlarmLog(ConfigurationObject):
 
     def __init__(self):
         ConfigurationObject.__init__(self)
-
-    def __repr__(self):
-        string = unicode(self.id)
-        return string
 
     def __str__(self):
         string = "\nAlarmLog :"
@@ -2895,7 +2928,7 @@ class ExportData():
                     sensor['remark'] = ''
                     sensor['timestamp'] = value[0]
                     end = sensor['timestamp']
-                    sensor['value'] = str(tmp)
+                    sensor['value'] = unicode(tmp)
                     sensor['type'] = 'MES'
                     if tmp is not None:
                         tmp = float(value[1][0])
@@ -3276,10 +3309,6 @@ class Halfling(ConfigurationObject):
     def __init__(self):
         ConfigurationObject.__init__(self)
 
-    def __repr__(self):
-        string = unicode(self.id) + " " + self.fields['classname']
-        return string
-
     def __str__(self):
         string = "\nHalfling :"
         for field in self.fields:
@@ -3300,10 +3329,6 @@ class Alarm(ConfigurationObject):
 
     def __init__(self):
         ConfigurationObject.__init__(self)
-
-    def __repr__(self):
-        string = unicode(self.id) + " " + self.fields['acronym']
-        return string
 
     def __str__(self):
         string = "\nAlarm :"
@@ -3529,10 +3554,6 @@ class Measure(ConfigurationObject):
         ConfigurationObject.__init__(self)
         self.sensors = sets.Set()
 
-    def __repr__(self):
-        string = self.id
-        return string
-
     def __str__(self):
         string = "\nMeasure :"
         for field in self.fields:
@@ -3637,20 +3658,9 @@ class Measure(ConfigurationObject):
             self.fields[elem] = data[elem]
         self.save(c, user)
 
-class Sensor(ConfigurationObject):
+class Sensor(AlarmingObject):
     def __init__(self):
-        ConfigurationObject.__init__(self)
-        self.actualAlarm = 'typical'
-        self.countActual = 0
-        self.degreeAlarm = 0
-        self.colorAlarm = valueCategs[0].color
-        self.lastvalue = None
-        self.time = 0
-
-    def __repr__(self):
-        string = self.id + " " + \
-            self.fields['channel'] + " " + self.fields['acronym']
-        return string
+        AlarmingObject.__init__(self)
 
     def __str__(self):
         string = "\nSensor :"
@@ -3662,22 +3672,6 @@ class Sensor(ConfigurationObject):
         string = string + ' Degree Alarm : ' + unicode(self.degreeAlarm)
         return string + "\n"
 
-    def setCorrectAlarmValue(self):
-        if self.fields['minmin'] == '':
-            self.fields['minmin'] = -99999999
-        if self.fields['min'] == '':
-            self.fields['min'] = -99999999
-        if self.fields['max'] == '':
-            self.fields['max'] = 99999999
-        if self.fields['maxmax'] == '':
-            self.fields['maxmax'] = 99999999
-        if self.fields['lapse1'] == '':
-            self.fields['lapse1'] = 99999999
-        if self.fields['lapse2'] == '':
-            self.fields['lapse2'] = 99999999
-        if self.fields['lapse3'] == '':
-            self.fields['lapse3'] = 99999999
-
     def get_type(self):
         return 's'
 
@@ -3685,7 +3679,7 @@ class Sensor(ConfigurationObject):
         return 'sensor'
 
     def getRRDName(self):
-        name = 's_' + unicode(self.id)
+        name = 's_' + self.id
         name += '.rrd'
         return name
 
@@ -3714,6 +3708,39 @@ class Sensor(ConfigurationObject):
     def add_phase(self, data):
         self.fields['h_id'] = data
 
+    def nextAlarm(self, config, now):
+        if self.degreeAlarm == 0:
+            self.degreeAlarm = 1
+            self.countAlarm = 0
+            self.time = now
+            alarmCode = self.get_alarm()
+            if int(float(self.fields['lapse1'])) == 0:
+                if alarmCode:
+                    config.AllAlarms.elements[alarmCode].launch_alarm(self, config)
+                self.degreeAlarm = 2
+        else:
+            self.countAlarm = self.countAlarm + 1
+            alarmCode = self.get_alarm()
+            if self.degreeAlarm == 1 \
+                    and self.countAlarm >= int(self.fields['lapse1']):
+                if alarmCode:
+                    config.AllAlarms.elements[alarmCode].launch_alarm(self, config)
+                self.degreeAlarm = 2
+                self.countAlarm = 0
+            elif self.degreeAlarm == 2 \
+                    and self.countAlarm >= int(self.fields['lapse2']):
+                if alarmCode:
+                    config.AllAlarms \
+                        .elements[alarmCode].launch_alarm(self, config)
+                self.degreeAlarm = 3
+                self.countAlarm = 0
+            elif self.degreeAlarm == 3 \
+                    and self.countAlarm >= int(self.fields['lapse3']):
+                if alarmCode:
+                    config.AllAlarms.elements[alarmCode].launch_alarm(self, config)
+                self.setTypicalAlarm()
+        print 'Alarm level '+unicode(self.degreeAlarm)+' for ' + self.__repr__()
+
     def update(self, now, value, config):
         self.lastvalue = value
         self.updateRRD(now, value)
@@ -3730,7 +3757,7 @@ class Sensor(ConfigurationObject):
                          .show(pos+2,
                                unicode(round(float(value), 1))))
         if self.fields['m_id']:
-            id_measure = unicode(self.fields['m_id'])
+            id_measure = self.fields['m_id']
             if id_measure in config.AllMeasures.elements \
                                 and config.screen is not None:
                 measure = config.AllMeasures.elements[id_measure]
@@ -3746,7 +3773,7 @@ class Sensor(ConfigurationObject):
                 self.actualAlarm = typeAlarm
             if config.screen is not None:
                 config.screen.showBW(-1, symbAlarm)
-            self.launchAlarm(config, now)
+            self.nextAlarm(config, now)
         if config.screen is not None:
             config.screen.end_line()
 
@@ -3775,57 +3802,6 @@ class Sensor(ConfigurationObject):
                            'RRA:LAST:0.5:1:14400',
                            'RRA:AVERAGE:0.5:5:34560',
                            'RRA:AVERAGE:0.5:30:28800')
-
-    def getTypeAlarm(self, value):
-        value = float(value)
-        if self.fields['minmin'] and value <= float(self.fields['minmin']):
-            return valueCategs[-2].triple()
-        elif self.fields['min'] and value <= float(self.fields['min']):
-            return valueCategs[-1].triple()
-        elif self.fields['maxmax'] and value > float(self.fields['maxmax']):
-            return valueCategs[2].triple()
-        elif self.fields['max'] and value > float(self.fields['max']):
-            return valueCategs[1].triple()
-        else:
-            return valueCategs[0].triple()
-
-    def launchAlarm(self, config, now):
-        print 'lancement alarme Sensor : ' + self.getName('EN')
-        if self.degreeAlarm == 0:
-            self.degreeAlarm = 1
-            self.countAlarm = 0
-            self.time = now
-            if int(float(self.fields['lapse1'])) == 0:
-                config.AllAlarms.elements[self.get_alarm()].launch_alarm(
-                    self, config)
-                self.degreeAlarm = 2
-        else:
-            self.countAlarm = self.countAlarm + 1
-            if self.degreeAlarm == 1 \
-                    and self.countAlarm >= int(self.fields['lapse1']):
-                (config.AllAlarms
-                       .elements[self.get_alarm()]
-                       .launch_alarm(self, config))
-                self.degreeAlarm = 2
-                self.countAlarm = 0
-            elif self.degreeAlarm == 2 \
-                    and self.countAlarm >= int(self.fields['lapse2']):
-                config.AllAlarms \
-                      .elements[self.get_alarm()].launch_alarm(self, config)
-                self.degreeAlarm = 3
-                self.countAlarm = 0
-            elif self.degreeAlarm == 3 \
-                    and self.countAlarm >= int(self.fields['lapse3']):
-                (config.AllAlarms
-                       .elements[self.get_alarm()]
-                       .launch_alarm(self, config))
-                self.setTypicalAlarm()
-
-    def setTypicalAlarm(self):
-        self.countActual = 0
-        self.actualAlarm = 'typical'
-        self.degreeAlarm = 0
-        self.time = 0
     
     def get_mesure_humidity_campbell(self, config):
         input = config.HardConfig.inputs[self.fields['channel']]
@@ -3886,7 +3862,7 @@ class Sensor(ConfigurationObject):
             return round(value, step)
         else:
             print('Ignoring value of ' + self.fields['channel'] + ' with value '
-                + str(value) + ' because it is out of bounds')
+                + unicode(value) + ' because it is out of bounds')
             return None
          
     def get_value_sensor(self, config, cache=None):
@@ -4179,10 +4155,6 @@ class Batch(ConfigurationObject):
         self.destination = []
         self.checkpoints = []
 
-    def __repr__(self):
-        string = unicode(self.id) + " " + self.fields['acronym']
-        return string
-
     def __str__(self):
         string = "\nBatch :"
         for field in self.fields:
@@ -4278,15 +4250,15 @@ class Batch(ConfigurationObject):
         b = self.config.getObject('new', 'b')
         b.fields['active'] = self.fields['active']
         tmp = len(self.fields['acronym']) - \
-            self.fields['acronym'].rfind('_')-1-len(str(name))
+            self.fields['acronym'].rfind('_')-1-len(unicode(name))
         tmpname = self.fields['acronym'][0:self.fields['acronym'].rfind(
-            '_')+1] + '0' * tmp + str(name)
+            '_')+1] + '0' * tmp + unicode(name)
         allObjects = self.config.findAllFromObject(self)
         cond = allObjects.unique_acronym(tmpname, self.id)
         while not cond:
             name += 1
             tmp = len(self.fields['acronym']) - \
-                self.fields['acronym'].rfind('_')-1-len(str(name))
+                self.fields['acronym'].rfind('_')-1-len(unicode(name))
             tmpname = self.fields['acronym'][0:self.fields['acronym'].rfind(
                 '_')+1] + '0' * tmp + str(name)
             cond = allObjects.unique_acronym(tmpname, self.id)
@@ -4353,10 +4325,6 @@ class PouringModel(ConfigurationObject):
         ConfigurationObject.__init__(self)
         self.config = config
 
-    def __repr__(self):
-        string = unicode(self.id)
-        return string
-
     def __str__(self):
         string = "\nPouring Model :"
         for field in self.fields:
@@ -4404,10 +4372,6 @@ class ManualDataModel(ConfigurationObject):
         ConfigurationObject.__init__(self)
         self.config = config
 
-    def __repr__(self):
-        string = unicode(self.id)
-        return string
-
     def __str__(self):
         string = "\nManual Data Model :"
         for field in self.fields:
@@ -4441,12 +4405,11 @@ class ManualDataModel(ConfigurationObject):
             self.config.AllCheckPoints.elements[self.fields['h_id']].remove_dm(
                 self)
         super(ManualDataModel, self).set_value_from_data(data, c, user)
-	tmp = ['minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax']
+	tmp = ['rank', 'minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax']
 	for elem in tmp:
 	    self.fields[elem] = data[elem]
         self.fields['m_id'] = data['measure']
         self.fields['h_id'] = data['checkpoint']
-        self.fields['rank'] = data['rank']
         if 'active' in data:
             self.config.AllCheckPoints.elements[self.fields['h_id']].add_dm(
                 self)
@@ -4457,10 +4420,6 @@ class TransferModel(ConfigurationObject):
     def __init__(self, config):
         ConfigurationObject.__init__(self)
         self.config = config
-
-    def __repr__(self):
-        string = unicode(self.id)
-        return string
 
     def __str__(self):
         string = "\nModelTransfer :"
@@ -4498,10 +4457,6 @@ class Transfer(ConfigurationObject):
     def __init__(self, config):
         ConfigurationObject.__init__(self)
         self.config = config
-
-    def __repr__(self):
-        string = unicode(self.id)
-        return string
 
     def __str__(self):
         string = "\nBatchTransfer :"
@@ -4590,9 +4545,7 @@ class Barcode(ConfigurationObject):
         self.element = item
 
     def __repr__(self):
-        string = ""
-        string = string + self.fields['code']
-        return string
+        return self.fields['code']
 
     def __str__(self):
         string = "\nCode barre :"
@@ -4602,7 +4555,7 @@ class Barcode(ConfigurationObject):
 
     def barcode_picture(self):
         EAN = barcode.get_barcode_class('ean13')
-        self.fields['code'] = str(self.fields['code'])
+        self.fields['code'] = unicode(self.fields['code'])
         ean = EAN(self.fields['code'])
         ean.save(os.path.join(DIR_BARCODES, self.fields['code']))
 
