@@ -489,7 +489,7 @@ class WebControl():
 class WebFind():
     def GET(self, type, id1, id2):
         mail = isConnected()
-        if mail is not None:
+        if mail is None:
             raise web.seeother('/')
             
         return self.getRender(type, id1, id2, mail)
@@ -538,7 +538,7 @@ class WebGraphic():
 
     def GET(self, type, id):
         mail = isConnected()
-        if mail is not None:
+        if mail is None:
             raise web.seeother('/')
             
         objects = c.findAllFromType(type)
