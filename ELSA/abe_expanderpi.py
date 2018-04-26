@@ -95,14 +95,13 @@ class ADC:
     """
     Based on the Microchip MCP3208
     """
-
-    # variables
-    __adcrefvoltage = 4.096  # reference voltage for the ADC chip.
-
-    # Define SPI bus and init
-    __spiADC = spidev.SpiDev()
-    __spiADC.open(0, 0)
-    __spiADC.max_speed_hz = (1900000)
+    def __init__(self):
+        # variables
+        self.__adcrefvoltage = 4.096  # reference voltage for the ADC chip.
+        # Define SPI bus and init
+        self.__spiADC = spidev.SpiDev()
+        self.__spiADC.open(0, 0)
+        self.__spiADC.max_speed_hz = (1900000)
 
     # public methods
 
@@ -173,19 +172,20 @@ class DAC:
 
     Define SPI bus and init
     """
-    spiDAC = spidev.SpiDev()
-    spiDAC.open(0, 1)
-    spiDAC.max_speed_hz = (20000000)
-    dactx = [0, 0]
+    def __init__():
+        self.spiDAC = spidev.SpiDev()
+        self.spiDAC.open(0, 1)
+        self.spiDAC.max_speed_hz = (20000000)
+        self.dactx = [0, 0]
 
-    # Max DAC output voltage.  Depends on gain factor
-    # The following table is in the form <gain factor>:<max voltage>
-    __dacMaxOutput__ = {
-        1: 2.048,  # This is Vref
-        2: 4.096  # This is double Vref
-    }
+        # Max DAC output voltage.  Depends on gain factor
+        # The following table is in the form <gain factor>:<max voltage>
+        self.__dacMaxOutput__ = {
+            1: 2.048,  # This is Vref
+            2: 4.096  # This is double Vref
+        }
 
-    maxdacvoltage = 2.048
+        self.maxdacvoltage = 2.048
 
     # public methods
     def __init__(self, gainFactor=1):
@@ -255,87 +255,86 @@ class IO:
     represents the lowest numbered pin on the selected port.
     #
     """
-
-    # Define registers values from datasheet
-    IODIRA = 0x00  # IO direction A - 1= input 0 = output
-    IODIRB = 0x01  # IO direction B - 1= input 0 = output
-    # Input polarity A - If a bit is set, the corresponding GPIO register bit
-    # will reflect the inverted value on the pin.
-    IPOLA = 0x02
-    # Input polarity B - If a bit is set, the corresponding GPIO register bit
-    # will reflect the inverted value on the pin.
-    IPOLB = 0x03
-    # The GPINTEN register controls the interrupt-onchange feature for each
-    # pin on port A.
-    GPINTENA = 0x04
-    # The GPINTEN register controls the interrupt-onchange feature for each
-    # pin on port B.
-    GPINTENB = 0x05
-    # Default value for port A - These bits set the compare value for pins
-    # configured for interrupt-on-change.  If the associated pin level is the
-    # opposite from the register bit, an interrupt occurs.
-    DEFVALA = 0x06
-    # Default value for port B - These bits set the compare value for pins
-    # configured for interrupt-on-change.  If the associated pin level is the
-    # opposite from the register bit, an interrupt occurs.
-    DEFVALB = 0x07
-    # Interrupt control register for port A.  If 1 interrupt is fired when the
-    # pin matches the default value, if 0 the interrupt is fired on state
-    # change
-    INTCONA = 0x08
-    # Interrupt control register for port B.  If 1 interrupt is fired when the
-    # pin matches the default value, if 0 the interrupt is fired on state
-    # change
-    INTCONB = 0x09
-    IOCON = 0x0A  # see datasheet for configuration register
-    GPPUA = 0x0C  # pull-up resistors for port A
-    GPPUB = 0x0D  # pull-up resistors for port B
-    # The INTF register reflects the interrupt condition on the port A pins of
-    # any pin that is enabled for interrupts. A set bit indicates that the
-    # associated pin caused the interrupt.
-    INTFA = 0x0E
-    # The INTF register reflects the interrupt condition on the port B pins of
-    # any pin that is enabled for interrupts.  A set bit indicates that the
-    # associated pin caused the interrupt.
-    INTFB = 0x0F
-    # The INTCAP register captures the GPIO port A value at the time the
-    # interrupt occurred.
-    INTCAPA = 0x10
-    # The INTCAP register captures the GPIO port B value at the time the
-    # interrupt occurred.
-    INTCAPB = 0x11
-    GPIOA = 0x12  # data port A
-    GPIOB = 0x13  # data port B
-    OLATA = 0x14  # output latches A
-    OLATB = 0x15  # output latches B
-
-    # variables
-    __port_a_direction = 0x00
-    __port_b_direction = 0x00
-
-    __port_a_value = 0x00
-    __port_b_value = 0x00
-
-    __port_a_pullup = 0x00
-    __port_b_pullup = 0x00
-
-    __port_a_polarity = 0x00
-    __port_b_polarity = 0x00
-
-    __ioaddress = 0x20  # I2C address
-    __inta = 0x00  # interrupt control for port a
-    __intb = 0x00  # interrupt control for port a
-    # initial configuration - see IOCON page in the MCP23017 datasheet for
-    # more information.
-    __ioconfig = 0x22
-    __helper = None
-    __bus = None
-
     def __init__(self, reset=True):
         """
         init object with i2c address, default is 0x20, 0x21 for IOPi board,
         load default configuration
         """
+        # Define registers values from datasheet
+        self.IODIRA = 0x00  # IO direction A - 1= input 0 = output
+        self.IODIRB = 0x01  # IO direction B - 1= input 0 = output
+        # Input polarity A - If a bit is set, the corresponding GPIO register bit
+        # will reflect the inverted value on the pin.
+        self.IPOLA = 0x02
+        # Input polarity B - If a bit is set, the corresponding GPIO register bit
+        # will reflect the inverted value on the pin.
+        self.IPOLB = 0x03
+        # The GPINTEN register controls the interrupt-onchange feature for each
+        # pin on port A.
+        self.GPINTENA = 0x04
+        # The GPINTEN register controls the interrupt-onchange feature for each
+        # pin on port B.
+        self.GPINTENB = 0x05
+        # Default value for port A - These bits set the compare value for pins
+        # configured for interrupt-on-change.  If the associated pin level is the
+        # opposite from the register bit, an interrupt occurs.
+        self.DEFVALA = 0x06
+        # Default value for port B - These bits set the compare value for pins
+        # configured for interrupt-on-change.  If the associated pin level is the
+        # opposite from the register bit, an interrupt occurs.
+        self.DEFVALB = 0x07
+        # Interrupt control register for port A.  If 1 interrupt is fired when the
+        # pin matches the default value, if 0 the interrupt is fired on state
+        # change
+        self.INTCONA = 0x08
+        # Interrupt control register for port B.  If 1 interrupt is fired when the
+        # pin matches the default value, if 0 the interrupt is fired on state
+        # change
+        self.INTCONB = 0x09
+        self.IOCON = 0x0A  # see datasheet for configuration register
+        self.GPPUA = 0x0C  # pull-up resistors for port A
+        self.GPPUB = 0x0D  # pull-up resistors for port B
+        # The INTF register reflects the interrupt condition on the port A pins of
+        # any pin that is enabled for interrupts. A set bit indicates that the
+        # associated pin caused the interrupt.
+        self.INTFA = 0x0E
+        # The INTF register reflects the interrupt condition on the port B pins of
+        # any pin that is enabled for interrupts.  A set bit indicates that the
+        # associated pin caused the interrupt.
+        self.INTFB = 0x0F
+        # The INTCAP register captures the GPIO port A value at the time the
+        # interrupt occurred.
+        self.INTCAPA = 0x10
+        # The INTCAP register captures the GPIO port B value at the time the
+        # interrupt occurred.
+        self.INTCAPB = 0x11
+        self.GPIOA = 0x12  # data port A
+        self.GPIOB = 0x13  # data port B
+        self.OLATA = 0x14  # output latches A
+        self.OLATB = 0x15  # output latches B
+
+        # variables
+        self.__port_a_direction = 0x00
+        self.__port_b_direction = 0x00
+
+        self.__port_a_value = 0x00
+        self.__port_b_value = 0x00
+
+        self.__port_a_pullup = 0x00
+        self.__port_b_pullup = 0x00
+
+        self.__port_a_polarity = 0x00
+        self.__port_b_polarity = 0x00
+
+        self.__ioaddress = 0x20  # I2C address
+        self.__inta = 0x00  # interrupt control for port a
+        self.__intb = 0x00  # interrupt control for port a
+        # initial configuration - see IOCON page in the MCP23017 datasheet for
+        # more information.
+        self.__ioconfig = 0x22
+        self.__helper = None
+        self.__bus = None
+
         self.__helper = _ABEHelpers()
 
         self.__bus = self.__helper.get_smbus()
@@ -909,3 +908,4 @@ class RTC:
                                 length exceeds 0x3F')
         else:
             raise ValueError('read_memory: address out of range')
+

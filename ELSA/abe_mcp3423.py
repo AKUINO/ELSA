@@ -19,25 +19,6 @@ class ADCPi:
     """
     Control the MCP3423 ADC on the ADC Pi Plus and ADC Pi Zero
     """
-    # internal variables
-    __adc1_address = 0x68
-
-    __adc1_conf = 0x9C
-
-    __adc1_channel = 0x01
-
-    __bitrate = 18  # current bitrate
-    __conversionmode = 1  # Conversion Mode
-    __pga = float(0.5)  # current pga setting
-    __lsb = float(0.0000078125)  # default lsb value for 18 bit
-    __signbit = 0  # stores the sign bit for the sampled value
-
-    # create byte array and fill with initial values to define size
-    __adcreading = bytearray([0, 0, 0, 0])
-
-    __bus = None
-
-    # local methods
 
     @staticmethod
     def __get_smbus():
@@ -99,6 +80,23 @@ class ADCPi:
 
     # init object with i2caddress, default is 0x68, 0x69 for ADCoPi board
     def __init__(self, address=0x68, rate=18):
+        # internal variables
+        self.__adc1_address = 0x68
+
+        self.__adc1_conf = 0x9C
+
+        self.__adc1_channel = 0x01
+
+        self.__bitrate = 18  # current bitrate
+        self.__conversionmode = 1  # Conversion Mode
+        self.__pga = float(0.5)  # current pga setting
+        self.__lsb = float(0.0000078125)  # default lsb value for 18 bit
+        self.__signbit = 0  # stores the sign bit for the sampled value
+
+        # create byte array and fill with initial values to define size
+        self.__adcreading = bytearray([0, 0, 0, 0])
+
+        self.__bus = None
 
         self.__bus = self.__get_smbus()
         self.__adc1_address = address
