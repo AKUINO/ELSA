@@ -72,6 +72,7 @@ color_blue = "0000FF"
 color_green = "00FF00"
 color_orange = "FFFF00"
 color_red = "FF0000"
+color_grey = "808080"
 
 
 def copy_default_csv(filename):
@@ -100,7 +101,7 @@ class valueCategory(object):
 
 
 valueCategs = {-2: valueCategory(-2, 'minmin', '---', color_violet), -1: valueCategory(-1, 'min', '--', color_blue), 0: valueCategory(
-    0, 'typical', '==', color_green), 1: valueCategory(1, 'max', '++', color_orange), 2: valueCategory(2, 'maxmax', '++', color_red)}
+    0, 'typical', '==', color_green), 1: valueCategory(1, 'max', '++', color_orange), 2: valueCategory(2, 'maxmax', '++', color_red), 3: valueCategory(3, 'none', '??', color_grey)}
 
 
 class Configuration():
@@ -2021,6 +2022,8 @@ class AlarmingObject(ConfigurationObject):
 	    return bounds['a_max']
 	elif self.actualAlarm == 'maxmax':
 	    return bounds['a_maxmax']
+	elif self.actualAlarm == 'none':
+	    return bounds['a_minmin'] #TODO:a_none field would be better
 
     def setCorrectAlarmValue(self,model=None):
         bounds = model.fields if model else self.fields
@@ -2041,6 +2044,8 @@ class AlarmingObject(ConfigurationObject):
 
 
     def getTypeAlarm(self, value, model=None):
+        if (value == None) or (value==''):
+            return valueCategs[3].triple()
         value = float(value)
         bounds = model.fields if model else self.fields
         if bounds['minmin'] and value <= float(bounds['minmin']):
@@ -2053,12 +2058,6 @@ class AlarmingObject(ConfigurationObject):
             return valueCategs[1].triple()
         else:
             return valueCategs[0].triple()
-
-    def setTypicalAlarm(self):
-        self.countActual = 0
-        self.actualAlarm = 'typical'
-        self.degreeAlarm = 0
-        self.time = 0
 
 class ManualData(AlarmingObject):
 
@@ -2138,18 +2137,11 @@ class ManualData(AlarmingObject):
             self.fields['active'] = '0'
         if ('origin' in data) and data['origin']:
             model = c.AllManualDataModels.elements[data['origin']]
-            prvAlarm = self.actualAlarm
             typeAlarm, symbAlarm, self.colorAlarm = self.getTypeAlarm(data['value'],model)
-            if typeAlarm == 'typical':
-                self.setTypicalAlarm()
-            else:
-               if not ((typeAlarm == 'min' and self.actualAlarm == 'minmin')
-                       or (typeAlarm == 'max' and self.actualAlarm == 'maxmax')):
-                    self.actualAlarm = typeAlarm
-            if prvAlarm != self.actualAlarm:
-                alarmCode = self.get_alarm(model);
-                if alarmCode:
-                    c.AllAlarms.elements[alarmCode].launch_alarm(self, c)
+            self.actualAlarm = typeAlarm
+            alarmCode = self.get_alarm(model);
+            if alarmCode:
+                c.AllAlarms.elements[alarmCode].launch_alarm(self, c)
         if self.fields['active'] == '1':
             c.findAllFromType(self.fields['object_type']) \
              .elements[self.fields['object_id']] \
@@ -3452,7 +3444,7 @@ class Alarm(ConfigurationObject):
             elif sensor.actualAlarm == 'maxmax':
                 code = '+++'
                 equal = '>'
-            elif sensor.actualAlarm == 'n.a.':
+            elif sensor.actualAlarm == 'na':
                 code = '???'
                 equal = '>'
             return unicode.format(title,
@@ -3709,7 +3701,9 @@ class Sensor(AlarmingObject):
     def add_phase(self, data):
         self.fields['h_id'] = data
 
-    def nextAlarm(self, config, now):
+    def nextAlarm(self, config, now, no_change):
+        if not no_change: # Alarm just changed !
+            self.degreeAlarm = 0
         if self.degreeAlarm == 0:
             self.degreeAlarm = 1
             self.countAlarm = 0
@@ -3739,8 +3733,8 @@ class Sensor(AlarmingObject):
                     and self.countAlarm >= int(self.fields['lapse3']):
                 if alarmCode:
                     config.AllAlarms.elements[alarmCode].launch_alarm(self, config)
-                self.setTypicalAlarm()
-        print 'Alarm level '+unicode(self.degreeAlarm)+' for ' + self.__repr__()
+                self.degreeAlarm = 4 # Do nothing after this!
+        print 'Alarm ['+self.actualAlarm+'] level '+unicode(self.degreeAlarm)+' for ' + self.__repr__()
 
     def update(self, now, value, config):
         self.lastvalue = value
@@ -3764,19 +3758,16 @@ class Sensor(AlarmingObject):
                 measure = config.AllMeasures.elements[id_measure]
                 pos = config.screen.show(pos, measure.fields['unit'])
 
+        prvAlarm = self.actualAlarm
         typeAlarm, symbAlarm, self.colorAlarm = self.getTypeAlarm(value)
-        if typeAlarm == 'typical':
-            self.setTypicalAlarm()
-        else:
-            if not ((typeAlarm == 'min' and self.actualAlarm == 'minmin')
-                    or (typeAlarm == 'max'
-                                and self.actualAlarm == 'maxmax')):
-                self.actualAlarm = typeAlarm
-            if config.screen is not None:
-                config.screen.showBW(-1, symbAlarm)
-            self.nextAlarm(config, now)
-        if config.screen is not None:
-            config.screen.end_line()
+##        if typeAlarm == 'typical':
+##            self.setTypicalAlarm()
+##        else:
+##            if not ((typeAlarm == 'min' and self.actualAlarm == 'minmin')
+##                    or (typeAlarm == 'max'
+##                                and self.actualAlarm == 'maxmax')):
+        self.actualAlarm = typeAlarm
+        self.nextAlarm(config, now, prvAlarm == self.actualAlarm)
 
     def updateRRD(self, now, value):
         value = float(value)

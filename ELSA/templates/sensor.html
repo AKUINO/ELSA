@@ -122,6 +122,9 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	
 	$for alarm in c.sortedCategs:
             $ aname = c.valueCategs[alarm].name
+	    $code:
+                if aname == 'none':
+                    continue
             $ acolor = c.valueCategs[alarm].color
 	    <div  class="form-group row" style="border:5px solid #$(acolor);margin-bottom:10px;padding-top:5px">
 	    <div class="form-group row">
