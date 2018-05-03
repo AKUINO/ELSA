@@ -34,6 +34,8 @@ $if content.recursive == 'False' :
 	    <script src="/static/js/vendor/bootstrap.min.js"></script>
 	    <script src="/static/js/plugins.js"></script>
 	    <script src="/static/js/main.js"></script>
+            <script src='/static/js/jquery.qrcode.js'></script>
+            <script src='/static/js/qrcode.js'></script>
             <script>
               function YNconfirm(el) {
                 if (window.confirm("Go to "+$$(el).attr("href")+" ?")) {
@@ -112,7 +114,7 @@ $if content.recursive == 'False' :
 			</li>
 		    </ul>
 		    $if self.tmp == 'connected':
-			<button onclick="test()" type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#modal_barcode" aria-expanded="false" aria-controls="navbar" style="margin-top:5px;">$:c.getHalfling('barcode')</button>
+			<button onclick="generateQRCode()" type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#modal_barcode" aria-expanded="false" aria-controls="navbar" style="margin-top:5px;">$:c.getHalfling('barcode')</button>
 		</div><!--/.navbar-collapse -->
 	    </nav>
 	    <div style="margin-top:10px;font-size:20px;">
@@ -135,7 +137,7 @@ $if content.recursive == 'False' :
             <hr>
             <footer style="margin-top:20px;">
                 <div class="col-xs-11 text-center"><a href="https://www.akuino.net" onclick="return(YNconfirm(this))">AKUINO</a>, &copy;<small><a href="https://www.destin-informatique.com" onclick="return(YNconfirm(this))">DESTIN-Informatique</a>, <a href="https://www.glyphicons.com" onclick="return(YNconfirm(this))">GlyphIcons</a>, 2017</small></div>
-            </footer> 
+	    </footer>
 	</div>
     
     <div class="modal" id="modal_barcode">
@@ -166,6 +168,7 @@ $if content.recursive == 'False' :
 			</div>
 			<button type= "submit" onclick="myFunction()" onsubmit="myFunction()" class="btn btn-primary btn-block" href ="/barcode/">Search</button>
 		    </form>
+                    <div id="qrCodeCurrUrl"></div>
 		</div>
 		<div class="modal-footer row">
 		    <div class="col-xs-10" >
@@ -175,6 +178,13 @@ $if content.recursive == 'False' :
 	    </div>
 	</div>
     </div>
+    <script>
+        function generateQRCode() {
+                jQuery('div#qrCodeCurrUrl').qrcode({
+                text:window.location.href
+            });
+        }
+    </script>
     </body>
     </html>
 $else:
