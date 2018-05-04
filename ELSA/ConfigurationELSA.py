@@ -3773,6 +3773,23 @@ class Sensor(AlarmingObject):
         value = float(value)
         rrdtool.update(str(DIR_RRD + self.getRRDName()), '%d:%f' % (now, value))
 
+    def fetchRRD(self,period=None):
+        filename = str(DIR_RRD + self.getRRDName())
+        start = rrdtool.first(filename)
+        if period:
+            result = rrdtool.fetch(filename, 'AVERAGE',"-s",str(start),"-r",str(period) )
+        else:    
+            result = rrdtool.fetch(filename, 'LAST',"-s",str(start) )
+        start,end,step = result[0]
+        rows = result[2]
+        out = u""
+        for a_value in rows:
+            if a_value[0]:
+                a_date = datetime.datetime.fromtimestamp(start)
+                out += a_date.isoformat(sep=' ') + u"\t" + unicode(a_value[0]).replace('.',',',1) + u"\n"
+            start += step
+        return out
+
     def createRRD(self):
         name = re.sub('[^\w]+', '', self.fields['acronym'])
         now = str(int(time.time())-60)

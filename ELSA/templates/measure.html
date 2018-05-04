@@ -3,10 +3,10 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : False
 $var title : $c.getMessage('measure',self.lang)
 $if id == 'new':
-    $var location: all/m=measure edit/m_new=add
+    $var location: list/m=measure edit/m_new=add
     $var rmq :    
 $else:
-    $var location: all/m=measure edit/m_$(id)=edit
+    $var location: list/m=measure edit/m_$(id)=edit
     $code:
         elem = c.AllMeasures.elements[id]
     $var rmq :  $elem.fields['remark']

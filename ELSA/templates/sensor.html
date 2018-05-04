@@ -4,11 +4,11 @@ $var recursive : False
 $var title : $c.AllSensors.getName(self.lang)
 $ sensor_channels = c.AllSensors.get_query_channels()
 $if id == 'new':
-    $var location: all/s=sensor edit/s_new=add
+    $var location: list/s=sensor edit/s_new=add
     $ rmq = ""
     $ aSensor = None
 $else:
-    $var location: all/s=sensor edit/s_$(id)=edit
+    $var location: list/s=sensor edit/s_$(id)=edit
     $ aSensor = c.AllSensors.elements[id]
     $ rmq =  aSensor.fields['remark']
     $var title : $aSensor.getName(self.lang)
