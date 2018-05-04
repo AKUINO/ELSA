@@ -29,11 +29,13 @@ $if elem is not None:
 		    $if line['value'] != 'None' :
 			<tr>
 			    $for e in elem.fieldnames:
-                                $if e == 'timestamp':
-                                    $if line['timestamp'] != '' :
-                                        <td>$useful.timestamp_to_date(int(line['timestamp']))</td>
+                              <td align="center">
+                                $if e == 'duration':
+                                    $if line['duration'] != '' :
+                                        $useful.timestamp_to_time(int(line['duration']))
                                 $else :
-				    <td align="center">$line[e]</td>
+				    $line[e]
+                              </td>
 			</tr>
 	    </tbody>
 	</table>

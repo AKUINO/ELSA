@@ -31,7 +31,7 @@ $if connected is True:
 $else :
     $var title : ELSA login
     <div>
-	<p>ELSA stores sensors data and observation made at the different Control Points of your production.</p>
+	<p>ELSA stores sensors data and observations made at the different Control Points of your production.</p>
 	<h1>Please log-in</h1>
 	<p>You must be logged in to use the application</p>
 
@@ -52,4 +52,7 @@ $else :
 		</button>
 	    </span>
 	</form>
+	$code:
+           result = subprocess.check_output(['ip','addr'])
+        <pre>$result</pre>
     </div>

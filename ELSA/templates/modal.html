@@ -40,7 +40,21 @@ $var title: MODAL
 				<span class="glyphicon glyphicon-remove-circle"> </span>		    
 			</div>
                     </div>
-		    <button type="button" class="btn btn-warning btn-md flip" data-toggle="modal" data-target="#modal_menu_$(type)_$(id)">$:c.getHalfling('menu')</button>
+		    <div class="row">
+		         <div class="col-xs-2">
+		            <button type="button" class="btn btn-warning btn-md flip" data-toggle="modal" data-target="#modal_menu_$(type)_$(id)">$:c.getHalfling('menu')</button>
+                         </div>
+		      $if type == 's':
+		         <div class="col-xs-10" style="color:black">
+			   $code:
+		               value, ignore = elem.get_value_sensor(c)
+			   <b><span style="background-color:#$(elem.colorAlarm);color:black">$(value)</span>
+		           $if elem.fields['m_id']:
+		               $(c.AllMeasures.elements[elem.fields['m_id']].fields['unit'])
+		           </b>
+                           $useful.timestamp_to_ISO(useful.get_timestamp())
+			 </div>
+		    </div>
 		    
                     $if type != 'u':
                         $for lg in c.AllLanguages.elements.keys():

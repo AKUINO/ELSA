@@ -67,6 +67,11 @@ def timestamp_to_date(now, format=datetimeformat):
 def timestamp_to_time(now):
     return str(datetime.timedelta(seconds=now))
 
+def timestamp_to_ISO(start):
+    if not start:
+        return ""
+    a_date = datetime.datetime.fromtimestamp(float(start))
+    return a_date.isoformat(sep=' ')
 
 def get_time():
     now = int(time.time())
@@ -88,6 +93,13 @@ def date_to_timestamp(date):
     except:  # old format ?
         tmp = datetime.datetime.strptime(date, "%H:%M:%S  -  %d/%m/%y")
     return (tmp - datetime.datetime(1970, 1, 1)).total_seconds()
+
+def date_to_ISO(date):
+    try:
+        tmp = datetime.datetime.strptime(date, datetimeformat)
+    except:  # old format ?
+        tmp = datetime.datetime.strptime(date, "%H:%M:%S  -  %d/%m/%y")
+    return tmp.isoformat(sep=' ')
 
 
 def transform_date(date):

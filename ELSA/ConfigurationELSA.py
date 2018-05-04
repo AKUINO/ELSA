@@ -87,6 +87,12 @@ def copy_default_csv(filename):
     else:
         return False
 
+# ensure comma to separate integer from decimals
+def export_float(value):
+    if not value:
+        return ""
+    else:
+        return unicode(value).replace('.',',',1)
 
 class valueCategory(object):
 
@@ -2919,9 +2925,9 @@ class ExportData():
                     sensor = self.transform_object_to_export_data(
                         self.config.AllSensors.elements[a])
                     sensor['remark'] = ''
-                    sensor['timestamp'] = value[0]
-                    end = sensor['timestamp']
-                    sensor['value'] = unicode(tmp)
+                    end = value[0]
+                    sensor['timestamp'] = useful.timestamp_to_ISO(end)
+                    sensor['value'] = export_float(tmp)
                     sensor['type'] = 'MES'
                     if tmp is not None:
                         tmp = float(value[1][0])
@@ -2929,10 +2935,10 @@ class ExportData():
                         self.average += tmp
                         if tmp < self.min:
                             self.min = tmp
-                            timemin = sensor['timestamp']
+                            timemin = end
                         if tmp > self.max:
                             self.max = tmp
-                            timemax = sensor['timestamp']
+                            timemax = end
                     # sensor['typevalue'] = 'DAT'
                     if self.cond['valuesensor'] is True:
                         self.elements.append(sensor)
@@ -2941,26 +2947,26 @@ class ExportData():
                 if self.cond['specialvalue'] is True and self.count > 0:
                     sensor1 = self.transform_object_to_export_data(
                             self.config.AllSensors.elements[a])
-                    sensor1['value'] = self.min
+                    sensor1['value'] = export_float(self.min)
                     # sensor1['typevalue'] = 'MIN'
                     sensor1['type'] = 'MIN'
-                    sensor1['timestamp'] = timemin
+                    sensor1['timestamp'] = useful.timestamp_to_ISO(timemin)
                     sensor1['remark'] = ''
                     self.elements.append(sensor1)
                     sensor2 = self.transform_object_to_export_data(
                         self.config.AllSensors.elements[a])
-                    sensor2['value'] = self.max
+                    sensor2['value'] = export_float(self.max)
                     # sensor2['typevalue'] = 'MAX'
                     sensor2['type'] = 'MAX'
-                    sensor2['timestamp'] = timemax
+                    sensor2['timestamp'] = useful.timestamp_to_ISO(timemax)
                     sensor2['remark'] = ''
                     self.elements.append(sensor2)
                     sensor3 = self.transform_object_to_export_data(
                         self.config.AllSensors.elements[a])
-                    sensor3['value'] = self.average
+                    sensor3['value'] = export_float(self.average)
                     # sensor3['typevalue'] = 'AVG'
                     sensor3['type'] = 'AVG'
-                    sensor3['timestamp'] = end
+                    sensor3['timestamp'] = useful.timestamp_to_ISO(end)
                     sensor3['duration'] = self.get_duration(begin, end)
                     sensor3['remark'] = ''
                     self.elements.append(sensor3)
@@ -3051,18 +3057,18 @@ class ExportData():
                 if aUser and aUser.fields['acronym']:
                     tmp['user'] = aUser.fields['acronym']
         if elem.created:
-            tmp['timestamp'] = useful.date_to_timestamp(elem.created)
+            tmp['timestamp'] = useful.date_to_ISO(elem.created)
 
         if elem.get_type() in 'bcpem':
             if elem.get_type() == 'b':
-                tmp['timestamp'] = useful.date_to_timestamp(
+                tmp['timestamp'] = useful.date_to_ISO(
                       elem.fields['time'])
                 tmp['duration'] = self.get_duration(useful.date_to_timestamp(
                         elem.fields['time']), useful.get_timestamp())
                 tmp['unit'] = self.config \
                                   .AllMeasures \
                                   .elements[elem.fields['m_id']].fields['unit']
-                tmp['value'] = elem.fields['basicqt']
+                tmp['value'] = export_float(elem.fields['basicqt'])
 
             if self.cond['acronym'] is True:
                 tmp[elem.get_type()+'_id'] = elem.fields['acronym']
@@ -3124,7 +3130,7 @@ class ExportData():
             sensor = (self.config
                           .AllSensors
                           .elements[elem.fields['s_id']])
-            tmp['timestamp'] = elem.fields['begintime']
+            tmp['timestamp'] = useful.timestamp_to_ISO(elem.fields['begintime'])
             tmp['type'] = 'ALR'
             if self.cond['acronym'] is True:
                 tmp[elem.fields['cont_type'] + '_id'] = self.config.findAllFromType(elem.fields['cont_type']).elements[elem.fields['cont_id']].fields['acronym']
@@ -3146,7 +3152,7 @@ class ExportData():
             tmp['duration'] = self.get_duration(int(elem.fields['begintime']), \
                                                 useful.date_to_timestamp(elem.fields['begin']))
             tmp['category'] = elem.fields['degree']
-            tmp['value'] = elem.fields['value']
+            tmp['value'] = export_float(elem.fields['value'])
             tmp['unit'] = (self.config
                                .AllMeasures
                                .elements[sensor.fields['m_id']]
@@ -3161,9 +3167,9 @@ class ExportData():
                                    .fields['acronym'])
             else:
                 tmp['h_id'] = elem.fields['h_id']
-            tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'])
+            tmp['timestamp'] = useful.date_to_ISO(elem.fields['time'])
             if elem.fields['m_id'] != '':
-                tmp['value'] = elem.fields['value']
+                tmp['value'] = export_float(elem.fields['value'])
                 tmp['unit'] = (self.config
                                    .AllMeasures
                                    .elements[elem.fields['m_id']]
@@ -3205,7 +3211,7 @@ class ExportData():
             else:
                 tmp['h_id'] = elem.fields['h_id']
 
-            tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'])
+            tmp['timestamp'] = useful.date_to_ISO(elem.fields['time'])
             tmp['remark'] = elem.fields['remark']
             if self.cond['acronym'] is True:
                 tmp[elem.fields['cont_type']+'_id'] = self.config.findAllFromType(elem.fields['cont_type']).elements[elem.fields['cont_id']].fields['acronym']
@@ -3237,9 +3243,9 @@ class ExportData():
                                    .fields['acronym'])
             else:
                 tmp['h_id'] = elem.fields['h_id']
-            tmp['timestamp'] = useful.date_to_timestamp(elem.fields['time'])
+            tmp['timestamp'] = useful.date_to_ISO(elem.fields['time'])
             tmp['remark'] = elem.fields['remark']
-            tmp['value'] = elem.fields['quantity']
+            tmp['value'] = export_float(elem.fields['quantity'])
             tmp['unit'] = (self.config
                                .AllMeasures
                                .elements[elem.fields['m_id']].fields['unit'])
@@ -3274,8 +3280,9 @@ class ExportData():
         return tmp 
 
     def get_duration(self, begin, end):
-        timestamp = int(end) - int(begin)
-        return useful.timestamp_to_time(timestamp)
+        #timestamp = int(end) - int(begin)
+        #return useful.timestamp_to_time(timestamp)
+        return int(end) - int(begin)
 
     def get_new_line(self):
         tmp = {}
@@ -3786,7 +3793,7 @@ class Sensor(AlarmingObject):
         for a_value in rows:
             if a_value[0]:
                 a_date = datetime.datetime.fromtimestamp(start)
-                out += a_date.isoformat(sep=' ') + u"\t" + unicode(a_value[0]).replace('.',',',1) + u"\n"
+                out += a_date.isoformat(sep=' ') + u"\t" + export_float(a_value[0]) + u"\n"
             start += step
         return out
 

@@ -585,6 +585,7 @@ class WebIndex():
 
     def POST(self):
         data = web.input(nifile={})
+        # method = data.get("method","malformed")
         connectedUser = connexion(data._username_, data._password_)
         if connectedUser is not None:
             infoCookie = data._username_ + ',' + \
@@ -634,7 +635,7 @@ class getRRD():
 class getCSV():
     def GET(self, filename):
         try:
-            f = open(elsa.DIR_CSV + filename)
+            f = open(elsa.DIR_DATA_CSV + filename)
             return f.read()
         except IOError:
             web.notfound()
@@ -767,7 +768,7 @@ class WebDownloadData():
                        'attachment; filename="'+str(filename)+'"')
             web.header('Content-type', 'text/tab-separated-values')
             web.header('Content-transfer-encoding', 'binary')
-            f = open(elsa.DIR_CSV + filename)
+            f = open(elsa.DIR_DATA_CSV + filename)
             return f.read()
         except IOError:
             web.notfound()
@@ -890,6 +891,7 @@ def main():
         c.load()
         web.template.Template.globals['c'] = c
         web.template.Template.globals['useful'] = useful
+        web.template.Template.globals['subprocess'] = subprocess
         layout = web.template.frender(elsa.TEMPLATES_DIR+'/layout.html')
         render = web.template.render(elsa.TEMPLATES_DIR, base=layout)
         urls = (
