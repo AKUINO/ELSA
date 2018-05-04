@@ -283,13 +283,13 @@ class WebList():
         self.name = u"WebList"
     
     def GET(self, type):
+        mail = isConnected()
+        if mail is None:
+            raise web.seeother('/')
         id = ''
         data = web.input(nifile={})
         if 'status' in data:
             id = data['status']
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
         
         if type in 'abcpehsmugugrgftmdmvm' and type != 't' and type != 'f':
             return self.getRender(type, mail, id)
@@ -566,7 +566,12 @@ class WebIndex():
                 connectedUser.fields['password']
             update_cookie(infoCookie)
             c.connectedUsers.addUser(connectedUser)
-            return render.index(True, data._username_)
+            query_string = web.ctx.env.get('QUERY_STRING')
+            redirect_url = useful.parse_url_query_string(query_string, 'redir')
+            if (redirect_url is not None):
+                raise web.seeother(redirect_url)
+            else:
+                return render.index(True, data._username_)
         return render.index(False, '')
 
     def getRender(self, mail):
