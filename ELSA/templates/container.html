@@ -3,10 +3,10 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : False
 $var title : $c.AllContainers.getName(self.lang)
 $if id == 'new':
-    $var location: all/c=container edit/c_new=add
+    $var location: list/c=container edit/c_new=add
     $var rmq :    
 $else:
-    $var location: all/c=container edit/c_$(id)=edit
+    $var location: list/c=container edit/c_$(id)=edit
     $ elem = c.AllContainers.elements[id]
     $var rmq :  $elem.fields['remark']
     $var title : $elem.getName(self.lang)

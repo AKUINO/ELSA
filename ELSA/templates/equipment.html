@@ -3,11 +3,11 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : False
 $var title : Equipement
 $if id == 'new':
-    $var location: all/e=equipment edit/e_new=add
+    $var location: list/e=equipment edit/e_new=add
     $var rmq :
     
 $else:
-    $var location: all/e=equipment edit/e_$(id)=edit
+    $var location: list/e=equipment edit/e_$(id)=edit
     $code:
         elem = c.AllEquipments.elements[id]
     $var rmq :  $elem.fields['remark']

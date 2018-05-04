@@ -45,6 +45,18 @@ $for k in sensors:
 			<div id="mygraph$(k)"></div>
 		    </td>
 		</tr>
+		<tr>
+		    <th>
+			<form action="/rrdfetch/${k}">
+			    <select name="period">
+				<option value="">- - -</option>
+				<option value="300">5 mn</option>
+				<option value="1800">30 mn</option>
+			    </select>
+			    <input type="submit" value="CSV" class="btn btn-primary">
+			</form>
+		    </th>
+		</tr>
 	    </table>
 	
 	    <script type="text/javascript">		

@@ -3,9 +3,9 @@ $var recursive : False
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var title : $c.getMessage('add',self.lang) $c.getMessage('batch',self.lang)
 $var rmq :
-$var location: all/b=batch edit/b_new=add
+$var location: list/b=batch edit/b_new=add
 $if id != 'new':
-    $var location: all/b=batch edit/b_$(id)=edit
+    $var location: list/b=batch edit/b_$(id)=edit
     $ curr_batch = c.AllBatches.elements[id]
     $var rmq :  $curr_batch.fields['remark']
     $var title :  $c.AllBatches.getName(self.lang) $curr_batch.fields['acronym']

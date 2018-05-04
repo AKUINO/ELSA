@@ -4,11 +4,11 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : False
 $var title : $c.getMessage('add',self.lang)
 $if id == 'new':
-    $var location: all/u=user edit/u_new=add
+    $var location: list/u=user edit/u_new=add
     $var rmq :
     
 $else:
-    $var location: all/u=user edit/u_$(id)=edit
+    $var location: list/u=user edit/u_$(id)=edit
     $var rmq :  $c.AllUsers.elements[id].fields['remark']
     $var title : $c.AllUsers.elements[id].getName(self.lang)
 

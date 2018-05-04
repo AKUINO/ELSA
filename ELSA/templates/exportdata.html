@@ -1,5 +1,4 @@
 $def with (mail, type,id)
-
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
 $if type == 'new':
@@ -8,9 +7,8 @@ $if type == 'new':
 $else:
     $code:
         elem = c.findAllFromType(type).elements[id]
-    $var location: all/$(type)=$(elem.get_class_acronym()) exportdata/$(type)_$(id)=exportdata
+    $var location: list/$(type)=$(elem.get_class_acronym()) exportdata/$(type)_$(id)=exportdata
     $var title : $elem.getName(self.lang)
-
 <div class="container">
     <form  method="post" action="" id="exportdata"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
         <div class="form-group row">

@@ -3,10 +3,10 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : False
 $var title: $c.getMessage("add",self.lang) $c.AllAlarms.getName(self.lang)
 $if id == 'new':
-    $var location: all/a=alarm edit/a_new=add
+    $var location: list/a=alarm edit/a_new=add
     $var rmq :    
 $else:
-    $var location: all/a=alarm edit/a_$(id)=edit
+    $var location: list/a=alarm edit/a_$(id)=edit
     $ alarmdef = c.AllAlarms.elements[id]
     $var rmq :  $alarmdef.fields['remark']
     $var title: $c.getMessage("update",self.lang) $alarmdef.getName(self.lang) 

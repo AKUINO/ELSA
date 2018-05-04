@@ -245,6 +245,7 @@ class WebDisconnect():
             raise web.seeother('/')
             
         c.connectedUsers.disconnect(mail)
+        raise web.seeother('/')
 
 class WebPermission():
     def GET(self, type, id):
@@ -320,6 +321,7 @@ class WebList():
                 return self.getRender(type, mail)
             except:
                 raise render.notfound()
+        raise web.seeother('/')
 
     def getRender(self, type, mail, id=''):
         return render.listing(mail, type, id)
@@ -508,6 +510,7 @@ class WebFind():
                 raise web.seeother('/control/b_'+id2 +
                                    '/h_'+data['checkpoint'])
             raise web.seeother('/item/b_'+id2)
+        raise web.seeother('/')
 
     def getRender(self, type, id1, id2, mail):
         try:
@@ -547,6 +550,28 @@ class WebGraphic():
         return render.notfound()
 
 
+class WebRRDfetch():
+    def __init__(self):
+        self.name = u"WebRRDfetch"
+
+    def GET(self, id):
+        mail = isConnected()
+        if mail is None:
+            raise web.seeother('/')
+        data = web.input(nifile={})
+        period = None
+        if 'period' in data:
+            period = data['period']
+            
+        if id in c.AllSensors.elements:
+            currSensor = c.AllSensors.elements[id]
+            web.header('Content-Disposition',
+                       'attachment; filename="s_'+str(id)+'.csv"')
+            web.header('Content-type', 'text/tab-separated-values')
+            web.header('Content-transfer-encoding', 'binary')
+            return currSensor.fetchRRD(period)
+        return render.notfound()
+
 class WebIndex():
     def __init(self):
         self.name = u"WebIndex"
@@ -568,7 +593,7 @@ class WebIndex():
             update_cookie(infoCookie)
             c.connectedUsers.addUser(connectedUser)
             return render.index(True, data._username_)
-        return render.index(False, '')
+        return render.index(False, '').s
 
     def getRender(self, mail):
         return render.index(True, mail)
@@ -676,6 +701,8 @@ class WebExport():
         mail = isConnected()
         if mail is None:
             raise web.seeother('/')
+        
+        return self.getRender(type, id, mail)
 
     def POST(self, type, id):
         mail = isConnected()
@@ -722,6 +749,7 @@ class WebDataTable():
         mail = isConnected()
         if mail is None:
             raise web.seeother('/')
+        return self.getRender(type, id, mail)
 
     def getRender(self, type, id, mail):
         # try:
@@ -883,6 +911,7 @@ def main():
             '/fullentry/(.+)_(.+)', 'WebFullEntry',
             '/export/(.+)_(.+)/(.+)', 'WebDownloadData',
             '/export/(.+)_(.+)', 'WebExport',
+            '/rrdfetch/(.+)', 'WebRRDfetch',
             '/datatable/(.+)_(.+)', 'WebDataTable',
             '/find/(.+)/(.+)_(.+)', 'WebFind',
             '/permission/(.+)_(.+)', 'WebPermission',
