@@ -10,6 +10,7 @@ import datetime
 import socket
 import fcntl
 import struct
+import traceback
 
 import unicodecsv
 
@@ -21,15 +22,6 @@ csvDir = "../ELSAcsv/csv/"
 
 datetimeformat = "%Y-%m-%d %H:%M:%S"
 
-# Returns the value of the key if it exists in the string, None otherwise
-# Exemple : string = "?abc=123&def=456", key = "def", will return 456
-def parse_url_query_string(string, key):
-    string = string.split('&')
-    for item in string:
-        item = item.split('=')
-        if item[0] == key:
-            return item[1]
-    return None
 
 def get_timestamp():
     now = time.time()
@@ -44,6 +36,7 @@ def encrypt(password, salt):
 
 
 def send_email(recipient, subject, text):
+  try:
     smtpserver = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
     smtpserver.ehlo()
     smtpserver.starttls()
@@ -68,6 +61,10 @@ def send_email(recipient, subject, text):
     smtpserver.sendmail(GMAIL_USER, recipient, msg.as_string())
     smtpserver.close()
     print "DONE"
+    return True
+  except:
+    traceback.print_exc()
+    return False
 
 def timestamp_to_date(now, format=datetimeformat):
     return datetime.datetime.fromtimestamp(int(now)).strftime(format)

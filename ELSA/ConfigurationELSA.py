@@ -3497,6 +3497,7 @@ class Alarm(ConfigurationObject):
                     lang = config.AllUsers.elements[user].fields['language']
                     mess = self.get_alarm_message(sensor, config, lang)
                     title = self.get_alarm_title(sensor, config, lang)
+                    #TODO manage send_email FALSE...
                     useful.send_email(config.AllUsers
                                             .elements[user].fields['mail'],
                                             title,
@@ -3778,6 +3779,7 @@ class Sensor(AlarmingObject):
 
     def updateRRD(self, now, value):
         value = float(value)
+        print self.getRRDName() + " " + useful.timestamp_to_ISO(now) +"."+ unicode(now)+"="+ unicode(value)
         rrdtool.update(str(DIR_RRD + self.getRRDName()), '%d:%f' % (now, value))
 
     def fetchRRD(self,period=None):
