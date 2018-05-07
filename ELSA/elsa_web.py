@@ -77,7 +77,7 @@ class WebBackup():
         return render.backup(mail, getLinkForLatestBackupArchive(),"")
     
     def POST(self):
-        mail = redirect_when_not_logged()           
+        mail = redirect_when_not_logged()
         data = web.input()
         if data is not None and data.create_backup is not None:
             backup.create_backup_zip()
@@ -500,7 +500,7 @@ class WebFind():
                 return render.itemtransfers(id1, id2, mail)
             elif type == 'v' and id1 in 'ecb':
                 return render.listingpourings(id2, mail)
-            elif type == 'related'and ('g' in id1 or id1 == 'h'):
+            elif type == 'related' and ('g' in id1 or id1 == 'h'):
                 return render.listinggroup(id1, id2, mail)
             elif type == 'related':
                 return render.listingcomponent(id1, id2, mail)
@@ -908,4 +908,4 @@ def main():
 
 
 if __name__ == "__main__":
-   main()
+    main()
