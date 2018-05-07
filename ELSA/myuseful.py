@@ -22,6 +22,15 @@ csvDir = "../ELSAcsv/csv/"
 
 datetimeformat = "%Y-%m-%d %H:%M:%S"
 
+# Returns the value of the key if it exists in the string, None otherwise
+# Exemple : string = "?abc=123&def=456", key = "def", will return 456
+def parse_url_query_string(string, key):
+    string = string.split('&')
+    for item in string:
+        item = item.split('=')
+        if item[0] == key:
+            return item[1]
+    return None
 
 def get_timestamp():
     now = time.time()
