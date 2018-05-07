@@ -57,7 +57,8 @@ $else :
            result = result.split('\n')
            parsedResult = []
            for line in result:
-               parsedResult.append(line.split('scope')[0].split('brd')[0])
+               line = line.split('scope')[0].split('brd')[0].strip()
+               parsedResult.append(line)
            toDisplay = '</br>'.join(x for x in parsedResult)
         <pre>$:toDisplay</pre>
     </div>
