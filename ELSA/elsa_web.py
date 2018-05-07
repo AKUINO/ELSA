@@ -46,6 +46,20 @@ def getLinkForLatestBackupArchive():
     else:
         return None
 
+
+def redirect_when_not_logged():
+    """
+    Should be used at the begining of every GET, POST, etc.
+    When the user is not logged, will redirect to login page and preserve
+    current path. Returns None
+    When the user is logged, returns the mail (does not redirect)
+    """
+    mail = isConnected()
+    if mail is None:
+        path = web.ctx.env.get('PATH_INFO')
+        raise web.seeother('/?redir=' + path)
+    return mail
+
 class WebColor():
     def GET(self, type, id):
         mail = isConnected()
@@ -59,17 +73,11 @@ class WebBackup():
         self.name = u"WebBackup"
 
     def GET(self):
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
-        
+        mail = redirect_when_not_logged()
         return render.backup(mail, getLinkForLatestBackupArchive(),"")
     
     def POST(self):
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
-            
+        mail = redirect_when_not_logged()           
         data = web.input()
         if data is not None and data.create_backup is not None:
             backup.create_backup_zip()
@@ -83,9 +91,7 @@ class WebRestore():
         self.name = u"WebRestore"
 
     def GET(self):
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
+        mail = redirect_when_not_logged()
             
         return render.backup(mail, getLinkForLatestBackupArchive(),"")
     
@@ -128,9 +134,7 @@ class WebUpdateELSA():
         self.name = u"WebUpdateELSA"
 
     def GET(self):
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
+        mail = redirect_when_not_logged()
         
         subprocess.call(['git', 'remote', 'update'])
         git_status_out = subprocess.check_output(['git', 'status'])
@@ -145,7 +149,7 @@ class WebUpdateELSA():
         return render.updateELSA(mail, git_status_out)
     
     def POST(self):
-        mail = isConnected()
+        mail = redirect_when_not_logged()
         data = web.input()
         if mail is not None and data.start_elsa_update is not None:
             flags.set_check_update(True)
@@ -230,9 +234,7 @@ class WebRestarting():
         self.name = u"WebRestarting"
 
     def GET(self):
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
+        mail = redirect_when_not_logged()
         
         app.stop()
         # sys.exit()
@@ -240,9 +242,7 @@ class WebRestarting():
     
 class WebDisconnect():
     def GET(self):
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
+        mail = redirect_when_not_logged()
             
         c.connectedUsers.disconnect(mail)
         raise web.seeother('/')
@@ -284,13 +284,11 @@ class WebList():
         self.name = u"WebList"
     
     def GET(self, type):
+        mail = redirect_when_not_logged()
         id = ''
         data = web.input(nifile={})
         if 'status' in data:
             id = data['status']
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
         
         if type in 'abcpehsmugugrgftmdmvm' and type != 't' and type != 'f':
             return self.getRender(type, mail, id)
@@ -298,11 +296,9 @@ class WebList():
             return render.notfound()
 
     def POST(self, type):
-        mail = isConnected()
-        user = c.connectedUsers.users[mail].cuser
-        if mail is None:
-            raise web.seeother('/')
+        mail = redirect_when_not_logged()
             
+        user = c.connectedUsers.users[mail].cuser
         data = web.input(placeImg={})
         if 'quantity' in data:
             try:
@@ -329,9 +325,7 @@ class WebList():
 
 class WebItem():
     def GET(self, type, id):
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
+        mail = redirect_when_not_logged()
         
         try:
             return render.item(type, id, mail)
@@ -341,17 +335,13 @@ class WebItem():
 
 class WebEdit():
     def GET(self, type, id):
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
+        mail = redirect_when_not_logged()
         return self.getRender(type, id, mail, '', '')
 
     def POST(self, type, id, context=None):
-        mail = isConnected()
-        user = c.connectedUsers.users[mail].cuser
-        if mail is None:
-            raise web.seeother('/')
+        mail = redirect_when_not_logged()
             
+        user = c.connectedUsers.users[mail].cuser
         currObject = c.getObject(id, type)
         infoCookie = mail + ',' + user.fields['password']
         data = web.input(placeImg={})
@@ -433,9 +423,7 @@ class WebEdit():
 
 class WebCreate(WebEdit):
     def GET(self, type):
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
+        mail = redirect_when_not_logged()
             
         if len(type.split('/')) == 1:
             return self.getRender(type, 'new', mail, '', '')
@@ -448,9 +436,7 @@ class WebCreate(WebEdit):
                                   type.split('/')[-1])
 
     def POST(self, type):
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
+        mail = redirect_when_not_logged()
         
         if len(type.split('_')) > 1:
             return WebEdit.POST(self,
@@ -463,16 +449,12 @@ class WebCreate(WebEdit):
 
 class WebControl():
     def GET(self, idbatch, idcontrol):
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
+        mail = redirect_when_not_logged()
             
         return render.control(idbatch, idcontrol, mail, '')
 
     def POST(self, idbatch, idcontrol, context=None):
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
+        mail = redirect_when_not_logged()
             
         user = c.connectedUsers.users[mail].cuser
         infoCookie = mail + ',' + user.fields['password']
@@ -490,16 +472,12 @@ class WebControl():
 
 class WebFind():
     def GET(self, type, id1, id2):
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
+        mail = redirect_when_not_logged()
             
         return self.getRender(type, id1, id2, mail)
 
     def POST(self, type, id1, id2):
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
+        mail = redirect_when_not_logged()
         
         user = c.connectedUsers.users[mail].cuser
         infoCookie = mail + ',' + user.fields['password']
@@ -540,9 +518,7 @@ class WebGraphic():
         self.name = u"WebGraph"
 
     def GET(self, type, id):
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
+        mail = redirect_when_not_logged()
             
         objects = c.findAllFromType(type)
         if id in objects.elements.keys() and type in 'scpem':
@@ -555,9 +531,7 @@ class WebRRDfetch():
         self.name = u"WebRRDfetch"
 
     def GET(self, id):
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
+        mail = redirect_when_not_logged()
         data = web.input(nifile={})
         period = None
         if 'period' in data:
@@ -592,8 +566,13 @@ class WebIndex():
                 connectedUser.fields['password']
             update_cookie(infoCookie)
             c.connectedUsers.addUser(connectedUser)
-            return render.index(True, data._username_)
-        return render.index(False, '').s
+            query_string = web.ctx.env.get('QUERY_STRING')
+            redirect_url = useful.parse_url_query_string(query_string, 'redir')
+            if (redirect_url is not None):
+                raise web.seeother(redirect_url)
+            else:
+                return render.index(True, data._username_)
+        return render.index(False, '')
 
     def getRender(self, mail):
         return render.index(True, mail)
@@ -604,9 +583,7 @@ class WebBarcode():
         self.name = u"WebBarcode"
 
     def GET(self, id=""):
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
+        mail = redirect_when_not_logged()
             
         try:
             data = web.input()
@@ -646,16 +623,12 @@ class WebMonitoring():
         self.name = u"WebMonitoring"
 
     def GET(self):
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
+        mail = redirect_when_not_logged()
         
         return self.getRender(mail)
 
     def POST(self):
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
+        mail = redirect_when_not_logged()
         
         data = web.input(nifile={})
         # method = data.get("method","malformed")
@@ -677,9 +650,7 @@ class WebListing():
         self.name = u"WebListing"
 
     def GET(self, id):
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
+        mail = redirect_when_not_logged()
         
         return self.getRender(id, mail, '')
 
@@ -698,16 +669,12 @@ class WebListing():
 
 class WebExport():
     def GET(self, type, id):
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
+        mail = redirect_when_not_logged()
         
         return self.getRender(type, id, mail)
 
     def POST(self, type, id):
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
+        mail = redirect_when_not_logged()
         
         user = c.connectedUsers.users[mail].cuser
         infoCookie = mail + ',' + user.fields['password']
@@ -746,9 +713,7 @@ class WebExport():
 
 class WebDataTable():
     def GET(self, type, id):
-        mail = isConnected()
-        if mail is None:
-            raise web.seeother('/')
+        mail = redirect_when_not_logged()
         return self.getRender(type, id, mail)
 
     def getRender(self, type, id, mail):
@@ -943,4 +908,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+   main()
