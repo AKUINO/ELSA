@@ -108,6 +108,7 @@ function rrdFlot(html_id, rrd_file, graph_options, ds_graph_options, rrdflot_def
   this.populateRes();
   this.populateDScb();
   this.drawFlotGraph();
+ 
 
   if (this.rrdflot_defaults.graph_only==true) {
     this.cleanHTMLCruft();
@@ -139,17 +140,9 @@ rrdFlot.prototype.createHTML = function() {
 
   // Header two: resulution select and DS selection title
   var rowHeader=external_table.insertRow(-1);
-  var cellRes=rowHeader.insertCell(-1);
-  cellRes.colSpan=3;
-  cellRes.appendChild(document.createTextNode("Resolution:"));
-  var forRes=document.createElement("Select");
-  forRes.id=this.res_id;
-  //forRes.onChange= this.callback_res_changed;
-  forRes.onchange= function () {rf_this.callback_res_changed();};
-  cellRes.appendChild(forRes);
-  
-  var cellDSTitle=rowHeader.insertCell(-1);
-  cellDSTitle.appendChild(document.createTextNode("Select elements to plot:"));
+
+//  var cellDSTitle=rowHeader.insertCell(-1);
+//  cellDSTitle.appendChild(document.createTextNode("Select elements to plot:"));
 
   // Graph row: main graph and DS selection block
   var rowGraph=external_table.insertRow(-1);
@@ -165,18 +158,30 @@ rrdFlot.prototype.createHTML = function() {
   elGraph.id=this.graph_id;
   cellGraph.appendChild(elGraph);
 
-  var cellDScb=rowGraph.insertCell(-1);
-  
-
-  cellDScb.vAlign="top";
-  var formDScb=document.createElement("Form");
-  formDScb.id=this.ds_cb_id;
-  formDScb.onchange= function () {rf_this.callback_ds_cb_changed();};
-  cellDScb.appendChild(formDScb);
-
   // Scale row: scaled down selection graph
   var rowScale=external_table.insertRow(-1);
 
+  var cellRes=rowScale.insertCell(-1);
+  //cellRes.colSpan=3;
+  cellRes.vAlign="top";
+  //cellRes.appendChild(document.createTextNode("Resolution:"));
+  var forRes=document.createElement("Select");
+  forRes.id=this.res_id;
+  //forRes.onChange= this.callback_res_changed;
+  forRes.onchange= function () {rf_this.callback_res_changed();};
+  cellRes.appendChild(forRes);
+  
+/*
+  var cellDScb=rowScale.insertCell(-1);
+
+  cellDScb.vAlign="top";
+*/
+  var formDScb=document.createElement("Form");
+  formDScb.id=this.ds_cb_id;
+  formDScb.onchange= function () {rf_this.callback_ds_cb_changed();};
+  formDScb.style.backgroundColor = "white";
+  cellRes.appendChild(formDScb);
+/*
   var cellScaleLegend=rowScale.insertCell(-1);
   cellScaleLegend.vAlign="top";
   cellScaleLegend.appendChild(document.createTextNode("Legend:"));
@@ -223,6 +228,7 @@ rrdFlot.prototype.createHTML = function() {
   timezone.onchange= function () {rf_this.callback_timezone_changed();};
 
   cellScaleLegend.appendChild(timezone);
+*/  
 
   var cellScale=rowScale.insertCell(-1);
   cellScale.align="right";
@@ -235,11 +241,11 @@ rrdFlot.prototype.createHTML = function() {
   } else {elScale.style.height="110px";}
   elScale.id=this.scale_id;
   cellScale.appendChild(elScale);
-  
+
   var cellScaleReset=rowScale.insertCell(-1);
   cellScaleReset.vAlign="top";
-  cellScaleReset.appendChild(document.createTextNode(" "));
-  cellScaleReset.appendChild(document.createElement('br'));
+  //cellScaleReset.appendChild(document.createTextNode(" "));
+  //cellScaleReset.appendChild(document.createElement('br'));
   var elScaleReset=document.createElement("input");
   elScaleReset.type = "button";
   elScaleReset.value = "Reset selection";
@@ -292,10 +298,10 @@ rrdFlot.prototype.populateDScb = function() {
  
   //Create a table within a table to arrange
   // checkbuttons into two or more columns
-  var table_el=document.createElement("Table");
-  var row_el=table_el.insertRow(-1);
-  row_el.vAlign="top";
-  var cell_el=null; // will define later
+  //var table_el=document.createElement("Table");
+  //var row_el=table_el.insertRow(-1);
+  //row_el.vAlign="top";
+  //var cell_el=null; // will define later
 
   if (this.rrdflot_defaults.num_cb_rows==null) {
      this.rrdflot_defaults.num_cb_rows=12; 
@@ -308,7 +314,7 @@ rrdFlot.prototype.populateDScb = function() {
 
     if ((i%this.rrdflot_defaults.num_cb_rows)==0) { // one column every x DSs
       if(this.rrdflot_defaults.use_element_buttons) {
-        cell_el=row_el.insertCell(-1); //make next element column 
+        //cell_el=form_el.insertCell(-1); //make next element column 
         if(nrDSs>this.rrdflot_defaults.num_cb_rows) { //if only one column, no need for a button
           elem_group_number = (i/this.rrdflot_defaults.num_cb_rows)+1;
           var elGroupSelect = document.createElement("input");
@@ -317,12 +323,12 @@ rrdFlot.prototype.populateDScb = function() {
           elGroupSelect.onclick = (function(e) { //lambda function!!
              return function() {rf_this.callback_elem_group_changed(e);};})(elem_group_number);
 
-          cell_el.appendChild(elGroupSelect);
-          cell_el.appendChild(document.createElement('br')); //add space between the two
+          form_el.appendChild(elGroupSelect);
+          //cell_el.appendChild(document.createElement('br')); //add space between the two
         }
       } else {
          //just make next element column
-         cell_el=row_el.insertCell(-1); 
+         //cell_el=form_el.insertCell(-1); 
       }
     }
     var ds=this.rrd_file.getDS(i);
@@ -363,16 +369,17 @@ rrdFlot.prototype.populateDScb = function() {
              if (name==this.rrdflot_defaults.checked_DSs[j]) {checked=true;}
        }
     }
+
     var cb_el = document.createElement("input");
-    cb_el.type = "checkbox";
+    cb_el.type = "hidden";
     cb_el.name = "ds";
     cb_el.value = name2;
     cb_el.checked = cb_el.defaultChecked = checked;
-    cell_el.appendChild(cb_el);
-    cell_el.appendChild(document.createTextNode(title));
-    cell_el.appendChild(document.createElement('br'));
+    form_el.appendChild(cb_el); 
+//    cell_el.appendChild(document.createTextNode(title));
+//    cell_el.appendChild(document.createElement('br'));
   }
-  form_el.appendChild(table_el);
+//  form_el.appendChild(table_el);
 };
 
 // ======================================
@@ -427,13 +434,13 @@ rrdFlot.prototype.drawFlotGraph = function() {
     }
   }
 
-  var timeSelect=document.getElementById(this.time_sel_id);
-  timezone_shift=timeSelect.options[timeSelect.selectedIndex].value;
+//  var timeSelect=document.getElementById(this.time_sel_id);
+//  timezone_shift=timeSelect.options[timeSelect.selectedIndex].value;
 
   // then extract RRA data about those DSs
   var flot_obj=rrdRRAStackFlotObj(this.rrd_file,rra_idx,
 				  ds_positive_stack_list,ds_negative_stack_list,ds_single_list,
-                                  timezone_shift*3600);
+                                  0/*timezone_shift*3600*/);
 
   // fix the colors, based on the position in the RRD
   for (var i=0; i<flot_obj.data.length; i++) {
@@ -473,8 +480,8 @@ rrdFlot.prototype.bindFlotGraph = function(flot_obj) {
   var rf_this=this; // use obj inside other functions
 
   // Legend
-  var oSelect=document.getElementById(this.legend_sel_id);
-  var legend_id=oSelect.options[oSelect.selectedIndex].value;
+  //var oSelect=document.getElementById(this.legend_sel_id);
+  var legend_id="nw" // oSelect.options[oSelect.selectedIndex].value;
   var graph_jq_id="#"+this.graph_id;
   var scale_jq_id="#"+this.scale_id;
 
@@ -585,6 +592,7 @@ rrdFlot.prototype.bindFlotGraph = function(flot_obj) {
       window_min = 0;
       window_max = 0;
   });
+  $(scale_jq_id).hide()
 };
 
 // callback functions that are called when one of the selections changes

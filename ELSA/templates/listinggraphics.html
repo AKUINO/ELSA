@@ -8,12 +8,6 @@ $code:
     keyID = c.findAllFromObject(elem).keyColumn
 $var title : $elem.getName(self.lang)
 
-<script>
-    $$(function(){
-	$$("#includedAllMenu$(type)_$(id)").load("/fullentry/$(type)_$(id)");
-    });
-</script>
-<div id="includedAllMenu$(type)_$(id)"></div>
 <script type="text/javascript" src="/static/js/jquery.flot.min.js"></script>
 <script type="text/javascript" src="/static/js/jquery.flot.time.min.js"></script>
 <script type="text/javascript" src="/static/js/jquery.flot.selection.min.js"></script>
@@ -24,29 +18,29 @@ $var title : $elem.getName(self.lang)
 <script type="text/javascript" src="/static/js/rrdFile.js"></script>
 <script type="text/javascript" src="/static/js/rrdFilter.js"></script>
 <script type="text/javascript" src="/static/js/rrdFlotAsync.js"></script>
-<script type="text/javascript" src="/static/js/javascriptrrd.js"></script>
 <script>
     var graph_opts={legend: { noColumns:4},
 		tooltip: true,
-	    	tooltipOpts: { show:true, xDateFormat:"%H:%M:%S", content:"<h4>%s</h4> Value: %y.3 <br/> %x " } };
-    var rrdflot_defaults={graph_width: "600px", graph_only:true}
+	    	tooltipOpts: { show:true, dateFormat:"%H:%M:%S", content:"<h4>%s</h4> Value: %y.3 <br/> %x " } };
+    var rrdflot_defaults={graph_width: "600px"}
 </script>
 $code:
     sensors = elem.get_sensors_in_component(c)
 
+<script>
+    $$(function(){
+	$$("#includedAllMenu$(type)_$(id)").load("/fullentry/$(type)_$(id)");
+    });
+</script>
+<div id="includedAllMenu$(type)_$(id)"></div>
 $for k in sensors:
 	$code:
 	    currSensor = c.AllSensors.elements[k]
 	$if currSensor and (currSensor.fields['active'] == '1' or currSensor.fields['active'] == 1):
 	    <h1 id="title"><a href="/graphic/s_$currSensor.id"><strong><span class="$c.getHalfling('sensor')"></span></strong> $currSensor.getName(self.lang)</a></h1>
-	    <table width="100%">
-		<tr>
-		    <td>
-			<div id="mygraph$(k)"></div>
-		    </td>
-		</tr>
-		<tr>
-		    <th>
+	    <div class="row" id="mygraph$(k)"></div>
+            <div class="row">
+                <div class="col-sm-12">
 			<form action="/rrdfetch/${k}">
 			    <select name="period">
 				<option value="">- - -</option>
@@ -55,17 +49,19 @@ $for k in sensors:
 			    </select>
 			    <input type="submit" value="CSV" class="btn btn-primary">
 			</form>
-		    </th>
-		</tr>
-	    </table>
+                </div>
+	    </div>
 	
 	    <script type="text/javascript">		
 		$code:
 		    url = '/rrd/'+currSensor.getRRDName()
 		    dsName = currSensor.fields['acronym']
-	   	    dsColor = None #currSensor.fields['color']
+                    dsColor = ''
+	   	    if 'color' in dsColor:
+                        dsColor = currSensor.fields['color']
 		    if not dsColor:
 			dsColor = "#0080ff"
-		var ds_graph_opts = { '$dsName': { color:'$dsColor' }}
+		var ds_graph_opts = { '$dsName': { color:'$dsColor' }};
 		flot_obj=new rrdFlotAsync("mygraph$(k)","$url",null,graph_opts,ds_graph_opts,rrdflot_defaults);
+                $$("#mygraph$(k)_ds_cb").parent().hide();
 	    </script>

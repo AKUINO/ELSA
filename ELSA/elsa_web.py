@@ -593,7 +593,7 @@ class WebIndex():
             update_cookie(infoCookie)
             c.connectedUsers.addUser(connectedUser)
             return render.index(True, data._username_)
-        return render.index(False, '').s
+        return render.index(False, '')
 
     def getRender(self, mail):
         return render.index(True, mail)
