@@ -53,6 +53,11 @@ $else :
 	    </span>
 	</form>
 	$code:
-           result = subprocess.check_output(['ip','addr'])
-        <pre>$result</pre>
+           result = subprocess.check_output(['ip','-o','addr'])
+           result = result.split('\n')
+           parsedResult = []
+           for line in result:
+               parsedResult.append(line.split('scope')[0].split('brd')[0])
+           toDisplay = '</br>'.join(x for x in parsedResult)
+        <pre>$:toDisplay</pre>
     </div>
