@@ -22,8 +22,10 @@ Toutes les contributions sont bienvenues ! Nous utilisons git flow. La branche m
 
 ## Petit rappel pour git flow
 https://danielkummer.github.io/git-flow-cheatsheet/
-commencer une feature : git flow feature start maFeature
+commencer une feature : `git flow feature start maFeature`
+
 faire toute ses modifications et commits dans une branche
+
 finir une feature et la merger dans develop : `git flow feature finish maFeature`
 
 pour publier de develop vers master:
