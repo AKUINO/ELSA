@@ -13,6 +13,7 @@ Vous êtes fins prêt à faire des changements ! N'hésitez pas à demander l de
 ## Comment signaler un bug
 
 Merci d'intégrer un maximum d'informations afin de simplifier la vie de tout le monde et de résoudre les problèmes plus rapidement.
+
 Exemples d'informations utiles : log d'ELSA, matériel (RPi 2 ou 3, éventuels boards et capteurs supplémentaires), comportement remarqué, comportement attendu, étapes pour reproduire le problème, etc
 
 
