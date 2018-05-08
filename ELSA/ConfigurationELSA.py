@@ -3489,23 +3489,26 @@ class Alarm(ConfigurationObject):
         if sensor.get_type() == 's':
             level = sensor.degreeAlarm
             if level == 1:
-                print 'Send mails, level 1'
+                e_mail = self.fields['o_email1']
+                if (e_mail == ''):
+                    return
                 userlist = (config.AllGrFunction
-                                  .elements[self.fields['o_email1']]
+                                  .elements[e_mail]
                                   .get_user_group())
                 for user in userlist:
                     lang = config.AllUsers.elements[user].fields['language']
                     mess = self.get_alarm_message(sensor, config, lang)
                     title = self.get_alarm_title(sensor, config, lang)
-                    #TODO manage send_email FALSE...
                     useful.send_email(config.AllUsers
                                             .elements[user].fields['mail'],
                                             title,
                                             mess)
             elif level == 2:
-                print 'Send mails, level 2'
+                e_mail = self.fields['o_email2']
+                if (e_mail == ''):
+                    return
                 userlist = (config.AllGrFunction
-                                  .elements[self.fields['o_email2']]
+                                  .elements[e_mail]
                                   .get_user_group())
                 for user in userlist:
                     lang = config.AllUsers.elements[user].fields['language']
@@ -3516,8 +3519,11 @@ class Alarm(ConfigurationObject):
                                             title,
                                             mess)
         elif sensor.get_type() == 'd':
+            e_mail = self.fields['o_email2']
+            if (e_mail == ''):
+                return
             userlist = (config.AllGrFunction
-                              .elements[self.fields['o_email2']]
+                              .elements[e_mail]
                               .get_user_group())
             for user in userlist:
                 lang = config.AllUsers.elements[user].fields['language']
@@ -3531,8 +3537,11 @@ class Alarm(ConfigurationObject):
                         title,
                         mess)
         elif sensor.get_type() == 'v':
+            e_mail = self.fields['o_email2']
+            if (e_mail == ''):
+                return
             userlist = (config.AllGrFunction
-                              .elements[self.fields['o_email2']]
+                              .elements[e_mail]
                               .get_user_group())
             for user in userlist:
                 lang = config.AllUsers.elements[user].fields['language']
