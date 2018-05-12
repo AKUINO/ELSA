@@ -19,7 +19,7 @@ $code:
 	    mygroup = []
 $if 'g' in type or type == 'h':
     <div class="form-group row">
-	<label class="col-sm-3 col-form-label">$c.getMessage('group',self.lang)</label>
+	<label class="col-sm-3 col-form-label">$c.getMessage('group',self.lang) ($c.getMessage('parent',self.lang))</label>
     </div>
     $if len(groupList) > 0:
 	$for group in groupList:

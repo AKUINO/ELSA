@@ -109,7 +109,8 @@ $if errormess != '':
 	</div>
 
 	$for alarm in c.sortedCategs:
-            $ aname = c.valueCategs[alarm].name
+          $ aname = c.valueCategs[alarm].name
+          $if aname != 'none':
             $ acolor = c.valueCategs[alarm].color
 	    <div  class="form-group row" style="border:5px solid #$(acolor);margin-bottom:10px;padding-top:5px">
 	    <div class="form-group row">

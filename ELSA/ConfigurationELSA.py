@@ -2654,6 +2654,15 @@ class CheckPoint(Group):
             self.get_hierarchy_vm(list, self.config.AllCheckPoints.elements[e])
         return list
 
+    def owns(self,type,id):
+        elems = []
+        if type == "dm":
+            elems = self.get_hierarchy_dm()
+        elif type == "vm":
+            elems = self.get_hierarchy_vm()
+        elif type == "tm":
+            elems = self.get_hierarchy_tm()
+        return id in elems;
 
 class GrRecipe(Group):
     def __init__(self, config):
