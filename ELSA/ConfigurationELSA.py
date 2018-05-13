@@ -203,11 +203,11 @@ class Configuration():
         self.AllSensors.correctValueAlarm()
         self.AllAlarms.load()
         self.AllHalflings.load()
-        self.AllBatches.load()
         # doit toujours être appelé à la fin
         self.AllGrFunction.load()
         self.AllGrUsage.load()
         self.AllGrRecipe.load()
+        self.AllBatches.load()   # must be just before loading checkpoints
         self.AllCheckPoints.load()
         self.AllBarcodes.load()
         self.AllTransfers.load()
@@ -1564,6 +1564,17 @@ class AllBatches(AllObjects):
     def get_key_group(self):
         return 'gr'
 
+    def get_batches_for_recipe_usage(self, recipes, usages):
+        batches = []
+        for k, e in self.elements.items():
+                if not e.fields['gr_id'] or (e.fields['gr_id'] in recipes):
+                    tmp = e.get_actual_position()
+                    if tmp is not None:
+                        tmp = self.config.AllTransfers.elements[tmp]
+                        currObj = self.config.get_object(tmp.fields['cont_type'], tmp.fields['cont_id'])
+                        if currObj.get_group() in usages:
+                            batches.append(e)
+        return batches
 
 class AllTransfers(AllObjects):
 
@@ -2420,6 +2431,7 @@ class CheckPoint(Group):
         self.tm = []
         self.vm = []
         self.dm = []
+        self.batches = []
 
     def get_type(self):
         return 'h'
@@ -4281,8 +4293,12 @@ class Batch(ConfigurationObject):
             self.destination.remove(pouring.getID())
 
     def add_checkpoint(self, cp):
-        if cp not in self.checkpoints:
+        if cp not in self.checkpoints and cp in self.config.AllCheckPoints.elements:
             self.checkpoints.append(cp)
+            aCP = self.config.AllCheckPoints.elements[cp]
+            if self.id not in aCP.batches:
+                aCP.batches.append(self.id)
+            
 
     def get_residual_quantity(self):
         val = self.get_quantity_used()

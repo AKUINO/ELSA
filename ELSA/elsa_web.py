@@ -488,26 +488,35 @@ class WebFind():
                 raise web.seeother('/control/b_'+id2 +
                                    '/h_'+data['checkpoint'])
             raise web.seeother('/item/b_'+id2)
+        elif type == 'b':
+            if 'batch' in data:
+                raise web.seeother('/control/b_'+data['batch'] +
+                                   '/h_'+id2)
+            raise web.seeother('/item/h_'+id2)
         raise web.seeother('/')
 
     def getRender(self, type, id1, id2, mail):
         try:
-            if type == 'related' and id1 == 'm':
-                return render.listingmeasures(id2, mail)
-            elif type == 'd'and id1 in 'pceb':
-                return render.itemdata(id1, id2, mail)
-            elif type == 't' and id1 in 'ceb':
-                return render.itemtransfers(id1, id2, mail)
-            elif type == 'v' and id1 in 'ecb':
-                return render.listingpourings(id2, mail)
-            elif type == 'related' and ('g' in id1 or id1 == 'h'):
-                return render.listinggroup(id1, id2, mail)
-            elif type == 'related':
-                return render.listingcomponent(id1, id2, mail)
-            elif type == 'h':
-                return render.listingcontrol(id1, id2, mail)
+            if type == 'related':
+                if id1 == 'm':
+                    return render.listingmeasures(id2, mail)
+                elif ('g' in id1 or id1 == 'h'):
+                    return render.listinggroup(id1, id2, mail)
+                else:
+                    return render.listingcomponent(id1, id2, mail)
             else:
-                return render.notfound()
+                if type == 'd'and id1 in 'pceb':
+                    return render.itemdata(id1, id2, mail)
+                elif type == 't' and id1 in 'ceb':
+                    return render.itemtransfers(id1, id2, mail)
+                elif type == 'v' and id1 in 'ecb':
+                    return render.listingpourings(id2, mail)
+                elif type == 'h':
+                    return render.listingcontrol(id1, id2, mail)
+                elif type == 'b':
+                    return render.listingbatch(id1, id2, mail)
+                else:
+                    return render.notfound()
         except:
             traceback.print_exc()
             return render.notfound()
