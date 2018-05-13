@@ -43,17 +43,20 @@ $if content.recursive == 'False' :
             <script>
               function scalescreen() {
 		      var scaling = 1;
-	              if ((document.documentElement.clientWidth < 768) && (window.devicePixelRatio > 1)) {
+                      var maxWidth = screen.width;
+	              if ((maxWidth < 768) && (window.devicePixelRatio > 1)) {
 	                scaling = window.devicePixelRatio;
-	                var maxWidth = document.documentElement.clientWidth * scaling;
+	                maxWidth = (maxWidth * scaling).toFixed(0);
 	                if (maxWidth > 1024) {
-			  scaling = 800 / document.documentElement.clientWidth;
+			  scaling = 800 / maxWidth;
+                          maxWidth = 800;
 	                }
                         
 	                //document.documentElement.style.transform = "scale(1/"+scaling+")";      
                         //document.documentElement.style.transformOrigin = 'top left';
 	              }
-                      $$('meta[name="viewport"]').attr("content","initial-scale="+scaling);
+                      $$('meta[name="viewport"]').attr("content","device-width="+maxWidth+", initial-scale="+scaling);
+                      //$$('#debug').text("dpr="+window.devicePixelRatio+", scale="+scaling+", max="+maxWidth+", scr="+screen.width+", win="+window.innerWidth+", cli="+document.documentElement.clientWidth);
               }
 
               $$(window).on("orientationchange", function (event) {
@@ -61,6 +64,10 @@ $if content.recursive == 'False' :
               } );
 
               $$(window).on("ready", function (event) {
+                  scalescreen();
+              } );
+
+              $$(window).on("resize", function (event) {
                   scalescreen();
               } );
 
