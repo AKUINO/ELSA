@@ -79,13 +79,23 @@ class WebBackup():
     def POST(self):
         mail = redirect_when_not_logged()
         data = web.input()
-        if data is not None and data.create_backup is not None:
+        if data is not None and data.shutdown is not None:
+            subprocess.call(['sudo', '/sbin/shutdown', '-h', 'now'])
+        elif data is not None and data.create_backup is not None:
             backup.create_backup_zip()
             return render.backup(mail,
                                  getLinkForLatestBackupArchive(),
                                  "backupDone")
         return render.backup(mail, getLinkForLatestBackupArchive(),"")
 
+class WebShutdown():
+    def __init(self):
+        self.name = u"WebShutdown"
+
+    def POST(self):
+        mail = redirect_when_not_logged()
+        
+        
 class WebRestore():
     def __init(self):
         self.name = u"WebRestore"
@@ -96,9 +106,7 @@ class WebRestore():
         return render.backup(mail, getLinkForLatestBackupArchive(),"")
     
     def POST(self):
-        mail = isConnected()
-	if mail is None:
-            raise web.seeother('/')
+        mail = redirect_when_not_logged()
         
         data = web.input(zip_archive_to_restore={})
         if data is not None and 'zip_archive_to_restore' in data\

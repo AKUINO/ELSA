@@ -80,7 +80,6 @@ $if content.recursive == 'False' :
 				<li><a href="/list/m" tabindex="-1">$:c.getHalfling('measure')&nbsp;$c.getMessage('measure',content.lang)</a></li>
 				<li><a href="/list/a" tabindex="-2">$:c.getHalfling('alarm')&nbsp;$c.getMessage('alarm',content.lang)</a></li>
 				<li><a href="/list/s" tabindex="-3">$:c.getHalfling('sensor')&nbsp;$c.getMessage('sensor',content.lang)</a></li>
-				<li><a href="/backup" tabindex="-4">$:c.getHalfling('backup')&nbsp;$c.getMessage('backup',content.lang)</a></li>
 			    </ul>
 			</li>
 			<li class="dropdown" data-show-icon="true">
@@ -107,7 +106,7 @@ $if content.recursive == 'False' :
 			    <ul class="dropdown-menu">
 				<li><a href="/list/u" tabindex="-1">$:c.getHalfling('user')&nbsp;$c.getMessage('user',content.lang)</a></li>
 				<li><a href="/list/gf" tabindex="-2">$:c.getHalfling('gfunction')&nbsp;&nbsp;$c.getMessage('gfunction',content.lang)</a></li>
-				<li><a href="/updateELSA" tabindex="-3">$:c.getHalfling('updateELSA')&nbsp;&nbsp;$c.getMessage('updateELSA',content.lang)</a></li>
+				<li><a href="/backup" tabindex="-3">$:c.getHalfling('backup')&nbsp;$c.getMessage('backup',content.lang)</a></li>
 				$if self.tmp == 'connected':
 				    <li><a href="/disconnect" tabindex="-4">$:c.getHalfling('disconnect')&nbsp;$c.getMessage('disconnect',content.lang)</a></li>
 			    </ul>
