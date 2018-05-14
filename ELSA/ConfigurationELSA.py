@@ -1566,14 +1566,18 @@ class AllBatches(AllObjects):
 
     def get_batches_for_recipe_usage(self, recipes, usages):
         batches = []
+        #print recipes
+        #print usages
         for k, e in self.elements.items():
-                if not e.fields['gr_id'] or (e.fields['gr_id'] in recipes):
-                    tmp = e.get_actual_position()
-                    if tmp is not None:
-                        tmp = self.config.AllTransfers.elements[tmp]
-                        currObj = self.config.get_object(tmp.fields['cont_type'], tmp.fields['cont_id'])
-                        if currObj.get_group() in usages:
-                            batches.append(e)
+            if not e.fields['gr_id'] or (e.fields['gr_id'] in recipes):
+                #print "key="+k+", recipe=",e.fields['gr_id']
+                tmp = e.get_actual_position()
+                if tmp is not None:
+                    tmp = self.config.AllTransfers.elements[tmp]
+                    currObj = self.config.get_object(tmp.fields['cont_type'], tmp.fields['cont_id'])
+                    #print currObj.__repr__()+"="+currObj.get_group()
+                    if currObj.get_group() in usages:
+                        batches.append(e)
         return batches
 
 class AllTransfers(AllObjects):
