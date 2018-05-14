@@ -27,6 +27,7 @@
  *  [Flot]/jquery.flot.selection.js
  */
 
+/*
 function touchHandler(event)
 {
     var touches = event.changedTouches,
@@ -40,19 +41,16 @@ function touchHandler(event)
         default:           return;
     }
 
-    // initMouseEvent(type, canBubble, cancelable, view, clickCount, 
-    //                screenX, screenY, clientX, clientY, ctrlKey, 
-    //                altKey, shiftKey, metaKey, button, relatedTarget);
-
     var simulatedEvent = document.createEvent("MouseEvent");
     simulatedEvent.initMouseEvent(type, true, true, window, 1, 
                                   first.screenX, first.screenY, 
                                   first.clientX, first.clientY, false, 
-                                  false, false, false, 0/*left*/, null);
+                                  false, false, false, 0, null);
 
     first.target.dispatchEvent(simulatedEvent);
     event.preventDefault();
 }
+*/
 
 /* graph_options defaults (see Flot docs for details)
  * {
@@ -139,10 +137,10 @@ function rrdFlot(html_id, rrd_file, graph_options, ds_graph_options, rrdflot_def
   if (this.rrdflot_defaults.graph_only==true) {
     this.cleanHTMLCruft();
   }
-    document.addEventListener("touchstart", touchHandler, true);
-    document.addEventListener("touchmove", touchHandler, true);
-    document.addEventListener("touchend", touchHandler, true);
-    document.addEventListener("touchcancel", touchHandler, true);    
+    //document.addEventListener("touchstart", touchHandler, true);
+    //document.addEventListener("touchmove", touchHandler, true);
+    //document.addEventListener("touchend", touchHandler, true);
+    //document.addEventListener("touchcancel", touchHandler, true);    
 
 }
 

@@ -281,6 +281,15 @@ $elif type == 'h':
 			    $(c.getMessage('info',self.lang))
 			</div>
 		    </div>
+		    $if type == 'h':
+			<div class="row" style="margin-top:6px;">
+			    <div class="col-xs-2 justify-content-start">
+				<strong><a href="/find/b/h_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('batch'))</a></strong>
+			    </div>
+			    <div class="col-xs-10">
+				<b>$len(c.AllCheckPoints.elements[id].batches)</b> $(c.getMessage('batch',self.lang))
+			    </div>
+			</div>
 		    $if type in 'cpemgugrgfh' and type not in 'u':
 			<div class="row" style="margin-top:6px;">
 			    <div class="col-xs-2 justify-content-start">

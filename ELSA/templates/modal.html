@@ -84,11 +84,13 @@ $var title: MODAL
 				    $c.getMessage('group',self.lang) :
 				</div>
 				<div class="col-xs-9" id="modalinfo" >
-				    $if type != 'h':
-					<a href="/item/$(allElem.get_key_group())_$(elem.get_group())">$groups.elements[elem.get_group()].fields['acronym']</a>
-				    $else :
-					$if elem.fields['gr_id'] != '' :
+				    $if type == 'h':
+					$if 'gr_id' in elem.fields and elem.fields['gr_id'] != '' :
 					    <a href="/item/gr_$(elem.fields['gr_id'])">$c.AllGrRecipe.elements[elem.fields['gr_id']].fields['acronym']</a>
+					$if 'gu_id' in elem.fields and elem.fields['gu_id'] != '' :
+					    <a href="/item/gu_$(elem.fields['gu_id'])">$c.AllGrUsage.elements[elem.fields['gu_id']].fields['acronym']</a>
+				    $else :
+					<a href="/item/$(allElem.get_key_group())_$(elem.get_group())">$groups.elements[elem.get_group()].fields['acronym']</a>
 				</div>
 			    </div>
 		    $if type in 'bce':
@@ -139,7 +141,7 @@ $var title: MODAL
                                 $c.getMessage('phone',self.lang) 1:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                <a href="/item/gu_$elem.fields['o_sms1']">$c.AllGrFunction.elements[elem.fields['o_sms1']].getName(self.lang)</a>
+                                <a href="/item/gf_$elem.fields['o_sms1']">$c.AllGrFunction.elements[elem.fields['o_sms1']].getName(self.lang)</a>
                                 </div>
                             </div>
                         $if elem.fields['o_email1'] != '':
@@ -148,7 +150,7 @@ $var title: MODAL
                                 $c.getMessage('mail',self.lang) 1:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                <a href="/item/gu_$elem.fields['o_email1']">$c.AllGrFunction.elements[elem.fields['o_email1']].getName(self.lang)</a>
+                                <a href="/item/gf_$elem.fields['o_email1']">$c.AllGrFunction.elements[elem.fields['o_email1']].getName(self.lang)</a>
                                 </div>
                             </div>
                         $if elem.fields['o_sound1'] != '':
@@ -157,7 +159,7 @@ $var title: MODAL
                                 $c.getMessage('sound',self.lang) 1:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                <a href="/item/gu_$elem.fields['o_sound1']">$c.AllGrFunction.elements[elem.fields['o_sound1']].getName(self.lang)</a>
+                                <a href="/item/gf_$elem.fields['o_sound1']">$c.AllGrFunction.elements[elem.fields['o_sound1']].getName(self.lang)</a>
                                 </div>
                             </div>
                         $if elem.fields['relay1'] != '':
@@ -175,7 +177,7 @@ $var title: MODAL
                                 $c.getMessage('phone',self.lang) 2:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                <a href="/item/gu_$elem.fields['o_sms2']">$c.AllGrFunction.elements[elem.fields['o_sms2']].getName(self.lang)</a>
+                                <a href="/item/gf_$elem.fields['o_sms2']">$c.AllGrFunction.elements[elem.fields['o_sms2']].getName(self.lang)</a>
                                 </div>
                             </div>
                         $if elem.fields['o_email2'] != '':
@@ -184,7 +186,7 @@ $var title: MODAL
                                 $c.getMessage('mail',self.lang) 2:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                <a href="/item/gu_$elem.fields['o_email2']">$c.AllGrFunction.elements[elem.fields['o_email2']].getName(self.lang)</a>
+                                <a href="/item/gf_$elem.fields['o_email2']">$c.AllGrFunction.elements[elem.fields['o_email2']].getName(self.lang)</a>
                                 </div>
                             </div>
                         $if elem.fields['o_sound2'] != '':
@@ -193,7 +195,7 @@ $var title: MODAL
                                 $c.getMessage('sound',self.lang) 1:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                <a href="/item/gu_$elem.fields['o_sound2']">$c.AllGrFunction.elements[elem.fields['o_sound2']].getName(self.lang)</a>
+                                <a href="/item/gf_$elem.fields['o_sound2']">$c.AllGrFunction.elements[elem.fields['o_sound2']].getName(self.lang)</a>
                                 </div>
                             </div>
                         $if elem.fields['relay2'] != '':

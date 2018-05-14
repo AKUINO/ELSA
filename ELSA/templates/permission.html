@@ -19,7 +19,7 @@ $code:
 	    mygroup = []
 $if 'g' in type or type == 'h':
     <div class="form-group row">
-	<label class="col-sm-3 col-form-label">$c.getMessage('group',self.lang)</label>
+	<label class="col-sm-12 col-form-label">$:c.getAllHalfling(groups) $c.getMessage(groups.get_class_acronym(),self.lang) ($c.getMessage('parent',self.lang))</label>
     </div>
     $if len(groupList) > 0:
 	$for group in groupList:
@@ -64,7 +64,7 @@ $if 'g' in type or type == 'h':
 		
 $if 'g' not in type and type != 'h':
     <div class="form-group row">
-	<label for="inputGroup" class="col-sm-3 col-form-label">$c.getMessage('group',self.lang) </label>
+	<label for="inputGroup" class="col-sm-3 col-form-label">$:c.getAllHalfling(groups) $c.getMessage(groups.get_class_acronym(),self.lang)</label>
 	<div class="col-sm-9" id = "divgroup">
 	    <select name = "group" class="form-control" id="group" onchange="mySelectChange()">
 		<option value=''></option>
