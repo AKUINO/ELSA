@@ -11,6 +11,9 @@ $var title : $c.getMessage('createBackup',self.lang)
           <strong><big>$c.getMessage(message,self.lang)</big></strong>
         </div>
     </row>
+    <div class="column alert alert-info text-center">
+      <strong><big><a href="/updateELSA">$:c.getHalfling('updateELSA')&nbsp;&nbsp;$c.getMessage('updateELSA', self.lang)</a></big></strong>
+    </div>
     <form method="post" action="/backup" id="selectBackup" enctype="multipart/form-data">
         <div class="form-group column">
             <input type="submit" value="$c.getMessage('createBackup',self.lang)" class="form-control" name="create_backup">
@@ -26,5 +29,10 @@ $var title : $c.getMessage('createBackup',self.lang)
         <div class="form-group column">
             <input type="file" name="zip_archive_to_restore">
             <input type="submit" value="$c.getMessage('restore',self.lang)" class="form-control" name="restore_and_restart">
+        </div>
+    </form>
+    <form method="post" action="/backup" id="selectShutdown" enctype="multipart/form-data">
+        <div class="form-group column">
+            <input type="submit" value="$c.getMessage('shutdown',self.lang)" class="form-control" name="shutdown">
         </div>
     </form>
