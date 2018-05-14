@@ -21,7 +21,7 @@ $if errormess != '':
 	    $errormess
 	</div>
 	<div class="form-group row">
-	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.getMessage('acronym',self.lang)</label>
+	    <label for="inputAcronym" class="col-sm-3 col-form-label">$:c.getAllHalfling(c.AllMeasures) $c.getMessage('acronym',self.lang)</label>
 	    <div class="col-sm-9">
 		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.getMessage('acronym',self.lang)" 
 		$if errormess != '':

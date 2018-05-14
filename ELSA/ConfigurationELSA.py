@@ -1153,7 +1153,11 @@ class AllHalflings(AllObjects):
         return 'halfling'
 
     def getHalfling(self,acronym, supp_classes = ""):
-        return self.elements[acronym].getHalfling(supp_classes)
+        try:
+            return self.elements[acronym].getHalfling(supp_classes)
+        except:
+            traceback.print_exc()
+            return "<H1>"+acronym+" not found</H1>"
 
 class AllAlarms(AllObjects):
 

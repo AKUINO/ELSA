@@ -22,7 +22,7 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputPosition" class="col-sm-3 col-form-label">$c.getMessage('checkpoint',self.lang)</label>
+	    <label for="inputPosition" class="col-sm-3 col-form-label">$:(c.getAllHalfling(c.AllCheckPoints))$c.getMessage('checkpoint',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "checkpoint" class="form-control" id="inputPosition">
 		    $for k in c.AllCheckPoints.elements.keys():
@@ -40,7 +40,7 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputAcronym" class="col-sm-3 col-form-label">$c.getMessage('acronym',self.lang)</label>
+	    <label for="inputAcronym" class="col-sm-3 col-form-label">$:c.getAllHalfling(c.AllManualDataModels)$c.getMessage('acronym',self.lang)</label>
 	    <div class="col-sm-9">
 		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.getMessage('acronym',self.lang)"
 		$if errormess != '':
@@ -55,7 +55,7 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="rankinput" class="col-sm-3 col-form-label">$c.getMessage('rank',self.lang)</label>
+	    <label for="rankinput" class="col-sm-3 col-form-label">$:(c.getHalfling('rank'))$c.getMessage('rank',self.lang)</label>
 	    <div class="col-sm-9">
 		<input name="rank" type="number" class="form-control" 
 		$if errormess != '':
@@ -94,7 +94,7 @@ $if errormess != '':
 	    </div>
 	    
 	<div class="form-group row">
-	    <label for="inputPosition" class="col-sm-3 col-form-label">$c.getMessage('measure',self.lang)</label>
+	    <label for="inputPosition" class="col-sm-3 col-form-label">$:(c.getAllHalfling(c.AllMeasures))$c.getMessage('measure',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "measure" class="form-control" id="inputPosition">
 		    $for k in c.AllMeasures.elements.keys():
@@ -126,7 +126,7 @@ $if errormess != '':
 		</div>
 	    </div>
 	    <div class="form-group row" style="border-color:#$(acolor)">
-		<label for="a$(aname)Select" class="col-sm-3 col-form-label"> &nbsp; &nbsp; $c.getMessage('alarm',self.lang)</label>
+		<label for="a$(aname)Select" class="col-sm-3 col-form-label">$:(c.getAllHalfling(c.AllAlarms)) $c.getMessage('alarm',self.lang)</label>
 		<div class="col-sm-9">
 		    <select name = "a_$(aname)" class="form-control" id="a$(aname)Select">
 			<option value=''></option>
