@@ -34,5 +34,6 @@ $var title : $c.getMessage('createBackup',self.lang)
     <form method="post" action="/backup" id="selectShutdown" enctype="multipart/form-data">
         <div class="form-group column">
             <input type="submit" value="$c.getMessage('shutdown',self.lang)" class="form-control" name="shutdown">
+            <input type="checkbox" name="restart" checked>Restart</input>
         </div>
     </form>

@@ -47,17 +47,21 @@ def getLinkForLatestBackupArchive():
         return None
 
 
-def redirect_when_not_logged():
+def redirect_when_not_logged(redir=True):
     """
     Should be used at the begining of every GET, POST, etc.
     When the user is not logged, will redirect to login page and preserve
     current path. Returns None
     When the user is logged, returns the mail (does not redirect)
+    When redir is Fals, will log into home page
     """
     mail = isConnected()
     if mail is None:
         path = web.ctx.env.get('PATH_INFO')
-        raise web.seeother('/?redir=' + path)
+        if redir:
+            raise web.seeother('/?redir=' + path)
+        else:
+            raise web.seeother('/')
     return mail
 
 class WebColor():
@@ -79,14 +83,22 @@ class WebBackup():
     def POST(self):
         mail = redirect_when_not_logged()
         data = web.input()
-        if data is not None and data.shutdown is not None:
-            subprocess.call(['sudo', '/sbin/shutdown', '-h', 'now'])
-        elif data is not None and data.create_backup is not None:
+        if data is None:
+            return render.backup(mail, getLinkForLatestBackupArchive(),"")
+        if 'shutdown' in data and 'restart' in data:
+            flags.set_restart()
+            raise web.seeother('/restarting')
+        elif 'shutdown' in data:
+            flags.set_shutdown()
+            raise web.seeother('/restarting')
+        elif data.create_backup is not None:
             backup.create_backup_zip()
             return render.backup(mail,
                                  getLinkForLatestBackupArchive(),
                                  "backupDone")
-        return render.backup(mail, getLinkForLatestBackupArchive(),"")
+        else:
+            print('sdfqdsdsf', 'You should not be here…')
+            sys.exit()
 
 class WebShutdown():
     def __init(self):
@@ -242,7 +254,7 @@ class WebRestarting():
         self.name = u"WebRestarting"
 
     def GET(self):
-        mail = redirect_when_not_logged()
+        mail = redirect_when_not_logged(False)
         
         app.stop()
         # sys.exit()
@@ -821,7 +833,9 @@ class end_activities_flags:
     """
     def __init__(self):
         self._check_update = False
+        self._restart_elsa = False
         self._restart = False
+        self._shutdown = False
         self._restore = False
     
     def set_restore(self, fname):
@@ -835,6 +849,12 @@ class end_activities_flags:
         else:
             raise("Invalid value received : expected bool")
 
+    def set_restart_elsa(self):
+        self._restart_elsa = True
+    
+    def set_shutdown(self):
+        self._shutdown = True
+    
     def set_restart(self):
         self._restart = True
     
@@ -843,15 +863,20 @@ class end_activities_flags:
 #returns False if restore did not work but no way to alert the user !
             if not backup.restore_from_zip(self._restore): 
                 print ("Error while restoring from bacup.")
-            self.set_restart()
+            self.set_restart_elsa()
 
         if self._check_update:
             start_update()
-            self.set_restart()
+            self.set_restart_elsa()
 	
-        if self._restart:
-	    restart_program() 
+        if self._restart_elsa:
+	    restart_program()
         
+        if self._restart:
+            subprocess.call(['sudo', '/sbin/shutdown', '-r', 'now'])
+        
+        if self._shutdown: 
+            subprocess.call(['sudo', '/sbin/shutdown', '-h', 'now'])
 
 c = None
 wsgiapp = None
