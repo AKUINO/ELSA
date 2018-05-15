@@ -1463,7 +1463,7 @@ class AllSensors(AllObjects):
                            'subsensor', 'valuetype', 'formula', 'minmin',
                            'min', 'typical', 'max', 'maxmax', 'a_minmin',
                            'a_min', 'a_typical', 'a_max', 'a_maxmax', 'lapse1',
-                           'lapse2', 'lapse3', 'user']
+                           'lapse2', 'lapse3', 'a_none', 'user']
         self.fieldtranslate = ['begin', 'lang', 's_id', 'name', 'user']
         self.add_query_channels_from_hardconfig()
 
@@ -1645,7 +1645,7 @@ class AllManualDataModels(AllObjects):
         self.fieldnames = ["begin", "dm_id", 'acronym', 'm_id', 'h_id', 'rank',
                            "remark", 'active', 'minmin',
                            'min', 'typical', 'max', 'maxmax', 'a_minmin',
-                           'a_min', 'a_typical', 'a_max', 'a_maxmax', "user"]
+                           'a_min', 'a_typical', 'a_max', 'a_maxmax', 'a_none', "user"]
         self.fieldtranslate = ['begin', 'lang', 'dm_id', 'name', 'user']
 
     def newObject(self):
@@ -2048,7 +2048,7 @@ class AlarmingObject(ConfigurationObject):
 	elif self.actualAlarm == 'maxmax':
 	    return bounds['a_maxmax']
 	elif self.actualAlarm == 'none':
-	    return bounds['a_minmin'] #TODO:a_none field would be better
+	    return bounds['a_none'] #TODO:a_none field would be better
 
     def setCorrectAlarmValue(self,model=None):
         bounds = model.fields if model else self.fields
@@ -3480,7 +3480,7 @@ class Alarm(ConfigurationObject):
             elif sensor.actualAlarm == 'maxmax':
                 code = '+++'
                 equal = '>'
-            elif sensor.actualAlarm == 'na':
+            elif sensor.actualAlarm == 'none':
                 code = '???'
                 equal = '>'
             return unicode.format(title,
@@ -4202,7 +4202,7 @@ class Sensor(AlarmingObject):
     def set_value_from_data(self, data, c, user):
         super(Sensor, self).set_value_from_data(data, c, user)
         tmp = ['channel', 'sensor', 'subsensor', 'valuetype', 'formula', 'minmin', 'min', 'typical', 'max',
-               'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax', 'lapse1', 'lapse2', 'lapse3']
+               'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax', 'lapse1', 'lapse2', 'lapse3', 'a_none']
         for elem in tmp:
             self.fields[elem] = data[elem]
         self.add_component(data['component'])
@@ -4473,7 +4473,7 @@ class ManualDataModel(ConfigurationObject):
             self.config.AllCheckPoints.elements[self.fields['h_id']].remove_dm(
                 self)
         super(ManualDataModel, self).set_value_from_data(data, c, user)
-	tmp = ['rank', 'minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax']
+	tmp = ['rank', 'minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax', 'a_none']
 	for elem in tmp:
 	    self.fields[elem] = data[elem]
         self.fields['m_id'] = data['measure']

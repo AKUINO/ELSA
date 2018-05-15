@@ -110,12 +110,12 @@ $if errormess != '':
 
 	$for alarm in c.sortedCategs:
           $ aname = c.valueCategs[alarm].name
-          $if aname != 'none':
-            $ acolor = c.valueCategs[alarm].color
-	    <div  class="form-group row" style="border:5px solid #$(acolor);margin-bottom:10px;padding-top:5px">
-	    <div class="form-group row">
+          $ acolor = c.valueCategs[alarm].color
+	  <div  class="form-group row" style="border:5px solid #$(acolor);margin-bottom:10px;padding-top:5px">
+	  <div class="form-group row">
 		<label for="$(aname)Select" class="col-sm-3 col-form-label">$(c.getMessage(aname,self.lang))</label>
-		<div class="col-sm-9">
+          	$if aname != 'none':
+		  <div class="col-sm-9">
 		    <input name="$(aname)" type="text" class="form-control" id="$(aname)Select" placeholder="$(c.getMessage('alarm',self.lang))" 
 			$if errormess != '' :
 			    $if 'alarm' in data:
@@ -123,9 +123,9 @@ $if errormess != '':
 			$elif id != 'new':
 			    value="$aDataModel.fields[aname]"
 		    >
-		</div>
-	    </div>
-	    <div class="form-group row" style="border-color:#$(acolor)">
+		  </div>
+	  </div>
+          <div class="form-group row" style="border-color:#$(acolor)">
 		<label for="a$(aname)Select" class="col-sm-3 col-form-label">$:(c.getAllHalfling(c.AllAlarms)) $c.getMessage('alarm',self.lang)</label>
 		<div class="col-sm-9">
 		    <select name = "a_$(aname)" class="form-control" id="a$(aname)Select">
@@ -142,7 +142,7 @@ $if errormess != '':
 			    >$c.AllAlarms.elements[k].fields['acronym'] - $c.AllAlarms.elements[k].getName(self.lang) </option>
 		    </select>
 		</div>
-	    </div>
+	  </div>
             </div>
 	
 	<div class="form-group row">
