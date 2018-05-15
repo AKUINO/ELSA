@@ -47,17 +47,21 @@ def getLinkForLatestBackupArchive():
         return None
 
 
-def redirect_when_not_logged():
+def redirect_when_not_logged(redir=True):
     """
     Should be used at the begining of every GET, POST, etc.
     When the user is not logged, will redirect to login page and preserve
     current path. Returns None
     When the user is logged, returns the mail (does not redirect)
+    When redir is Fals, will log into home page
     """
     mail = isConnected()
     if mail is None:
         path = web.ctx.env.get('PATH_INFO')
-        raise web.seeother('/?redir=' + path)
+        if redir:
+            raise web.seeother('/?redir=' + path)
+        else:
+            raise web.seeother('/')
     return mail
 
 class WebColor():
@@ -242,7 +246,7 @@ class WebRestarting():
         self.name = u"WebRestarting"
 
     def GET(self):
-        mail = redirect_when_not_logged()
+        mail = redirect_when_not_logged(False)
         
         app.stop()
         # sys.exit()
