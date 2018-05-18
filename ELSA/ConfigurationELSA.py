@@ -4068,17 +4068,18 @@ class Sensor(AlarmingObject):
         elif self.fields['channel'] == 'atmos41':
             input = config.HardConfig.inputs[self.fields['channel']]
 	    if cache is [] or cache is None :
-                ser = serial.Serial(input['serialport'],
-                                    baudrate=9600,
-                                    timeout=10)
-                time.sleep(2.5) # Leave some time to initialize
-                ser.write(input['sdiaddress'].encode() + b'R0!')
                 try:
+                    ser = serial.Serial(input['serialport'],
+                                        baudrate=9600,
+                                        timeout=10)
+                    time.sleep(2.5) # Leave some time to initialize
+                    ser.write(input['sdiaddress'].encode() + b'R0!')
                     cache = parse_atmos_data(self, ser.readline())
                 except serial.SerialException:
                     print('Tried to read several times back to back ?')
                     raise
-                ser.close()
+                finally:
+                    ser.close()
             try:
                 output_val = float(cache[int(self.fields['subsensor'])])
             except ValueError:
