@@ -4078,8 +4078,7 @@ class Sensor(AlarmingObject):
                 except serial.SerialException:
                     print('Tried to read several times back to back ?')
                     raise
-                finally:
-                    ser.close()
+                ser.close()
             try:
                 output_val = float(cache[int(self.fields['subsensor'])])
             except ValueError:
