@@ -5,8 +5,6 @@ $var title : ELSA BARCODE search
 $if errormess == '' :
     $code:
 	elem  = c.AllBarcodes.barcode_to_item(barcode)
-	tmp = True
-    $var location: list/$(elem.get_type())=$(c.findAllFromType(elem.get_type()).get_class_acronym()) barcode/$(barcode)=barcode
     
     <script>
 	$$(function(){
@@ -19,14 +17,14 @@ $else:
     <div class="form-group row" id="error">
 	    $c.getMessage('errorbarcode',self.lang) [$(barcode)]
     </div>
-$code:
-    tmp = c.create_picture(barcode)
-$if tmp is True:   
     <div class="row">
         <svg id='barcode'></svg>
-        <script> generateBarcode('#barcode', $barcode) </script>
     </div>
-$else :
-    <div class="form-group row" id="error">
+    <div class="form-group row" id="error2">
 	    $c.getMessage('barcoderules',self.lang) [$(barcode)]
     </div>
+    <script>
+    if (generateBarcode('#barcode', $barcode)) {
+            jQuery('div#error2').css('display', 'none')
+        }
+    </script>

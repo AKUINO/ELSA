@@ -6,9 +6,14 @@ function generateQRCode() {
 
 function generateBarcode(id, num) {
     if (num == null || num == '') {
-        return
+        return false
     }
-    JsBarcode(id, num, {format: 'EAN13'})
-
+    try {
+        JsBarcode(id, num, {format: 'EAN13'})
+    }
+    catch(err) {
+        return false
+    }
+    return true
 }
         

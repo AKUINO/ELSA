@@ -14,7 +14,6 @@ import pyownet
 import serial
 import myuseful as useful
 import HardConfig as hardconfig
-import barcode
 import re
 import socket
 import urllib2
@@ -367,14 +366,6 @@ class Configuration():
     def get_time_format(self):
         return useful.datetimeformat
 
-    def create_picture(self, some_code):
-        EAN = barcode.get_barcode_class('ean13')
-        try:
-            ean = EAN(unicode(some_code))
-            ean.save(DIR_BARCODES+unicode(some_code))
-        except:
-            return False
-        return True
 
 
 class ConfigurationObject(object):
