@@ -296,6 +296,10 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 		    value="$c.AllBarcodes.get_barcode(aSensor.get_type(), id)"
 		>
 	    </div>
+            <svg id=sensorBarcode></svg>
+            <script>
+                generateBarcode('#sensorBarcode', jQuery('#inputBarcode').val())
+            </script>
 	</div>
 	
 	<div class="form-group row">
