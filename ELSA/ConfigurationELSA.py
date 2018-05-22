@@ -27,6 +27,7 @@ import abe_iopi
 import serial
 import numbers
 import abe_expanderpi
+import barcode
 """
 import SSD1306
 from I2CScreen import *
@@ -4616,7 +4617,7 @@ class Barcode(ConfigurationObject):
         EAN = barcode.get_barcode_class('ean13')
         self.fields['code'] = unicode(self.fields['code'])
         ean = EAN(self.fields['code'])
-        ean.save(os.path.join(DIR_BARCODES, self.fields['code']))
+        # ean.save(os.path.join(DIR_BARCODES, self.fields['code']))
 
     def get_picture_name(self):
         return self.fields['code']+'.png'
