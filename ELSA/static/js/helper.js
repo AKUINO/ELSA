@@ -1,7 +1,14 @@
 function generateQRCode() {
-        jQuery('div#qrCodeCurrUrl').qrcode({
-        text:window.location.href
-    });
+    element = jQuery('div#qrCodeCurrUrl')
+    if (isEmpty(element)) {
+        element.qrcode({
+            text:window.location.href
+        })
+    }
+}
+
+function isEmpty(el) {
+    return !$.trim(el.html())
 }
 
 function generateBarcode(id, num) {
