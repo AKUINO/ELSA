@@ -14,7 +14,6 @@ import pyownet
 import serial
 import myuseful as useful
 import HardConfig as hardconfig
-import barcode
 import re
 import socket
 import urllib2
@@ -28,6 +27,7 @@ import abe_iopi
 import serial
 import numbers
 import abe_expanderpi
+import barcode
 """
 import SSD1306
 from I2CScreen import *
@@ -367,14 +367,6 @@ class Configuration():
     def get_time_format(self):
         return useful.datetimeformat
 
-    def create_picture(self, some_code):
-        EAN = barcode.get_barcode_class('ean13')
-        try:
-            ean = EAN(unicode(some_code))
-            ean.save(DIR_BARCODES+unicode(some_code))
-        except:
-            return False
-        return True
 
 
 class ConfigurationObject(object):
@@ -4630,7 +4622,7 @@ class Barcode(ConfigurationObject):
         EAN = barcode.get_barcode_class('ean13')
         self.fields['code'] = unicode(self.fields['code'])
         ean = EAN(self.fields['code'])
-        ean.save(os.path.join(DIR_BARCODES, self.fields['code']))
+        # ean.save(os.path.join(DIR_BARCODES, self.fields['code']))
 
     def get_picture_name(self):
         return self.fields['code']+'.png'
