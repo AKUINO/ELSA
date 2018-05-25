@@ -3,7 +3,7 @@ $var title : ELSA
 $var location : index
 $var lang : disconnected
 $var recursive : False
-
+<h4> $useful.timestamp_to_ISO(useful.get_timestamp()) </h4>
 $if connected is True:
 	$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 
