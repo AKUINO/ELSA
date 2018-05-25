@@ -103,6 +103,9 @@ class ADC:
         self.__spiADC.open(0, 0)
         self.__spiADC.max_speed_hz = (1900000)
 
+    def close(self):
+        self.__spiADC.close()
+
     # public methods
 
     def read_adc_voltage(self, channel, mode):

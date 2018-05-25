@@ -554,9 +554,11 @@ class ConfigurationObject(object):
             if data.placeImg.filename != '':
                 filepath = data.placeImg.filename.replace('\\', '/')
                 ext = ((filepath.split('/')[-1]).split('.')[-1])
-                fout = open(self.getImagePath(), 'w')
-                fout.write(data.placeImg.file.read())
-                fout.close()
+                try:
+                    fout = open(self.getImagePath(), 'w')
+                    fout.write(data.placeImg.file.read())
+                finally:
+                    fout.close()
         if 'code' in data:
             lenCode = len(data['code'])
             if lenCode < 14 and lenCode > 11:
@@ -3973,13 +3975,14 @@ class Sensor(AlarmingObject):
                     sensorfile = urllib2.urlopen(
                         self.fields['sensor'], None, 20)
                     info = sensorfile.read(80000)
-                    sensorfile.close()
                     cache = info
                     output_val = eval(self.fields['subsensor'])
                 except:
                     debugging = u"URL="+url+u", code=" + \
                         unicode(code)+u", Response="+info + \
                         u", Message="+traceback.format_exc()
+                finally:
+                    sensorfile.close()
         elif self.fields['channel'] == 'json':
             url = self.fields['sensor']
             code = 0
@@ -4006,7 +4009,6 @@ class Sensor(AlarmingObject):
                     #print sensorfile.getcode()
                     info = sensorfile.read()
                     info = json.loads(info)
-                    sensorfile.close()
                     cache = info
                     output_val = eval(self.fields['subsensor'])
                 except:
@@ -4019,6 +4021,8 @@ class Sensor(AlarmingObject):
                                          + self.fields['subsensor']
                                          + u", Message="
                                          + traceback.format_exc())
+                finally:
+                    sensorfile.close()
         elif self.fields['channel'] == 'system':
             try:
                 sensorAdress = self.fields['sensor']
@@ -4045,6 +4049,7 @@ class Sensor(AlarmingObject):
             elif device['install'] == "abe_expanderpi":
                 adc = abe_expanderpi.ADC()
                 output_val = adc.read_adc_voltage(int(input['channel']), 0)
+                adc.close()
             else:
                 print("Error : device.install : "
                       + device.install
@@ -4072,8 +4077,8 @@ class Sensor(AlarmingObject):
                                     baudrate=9600,
                                     timeout=10)
                 time.sleep(2.5) # Leave some time to initialize
-                ser.write(input['sdiaddress'].encode() + b'R0!')
                 try:
+                    ser.write(input['sdiaddress'].encode() + b'R0!')
                     cache = parse_atmos_data(self, ser.readline())
                 except serial.SerialException:
                     print('Tried to read several times back to back ?')

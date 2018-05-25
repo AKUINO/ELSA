@@ -637,7 +637,8 @@ class getRRD():
             return f.read()
         except IOError:
             web.notfound()
-
+        finally:
+            f.close()
 
 class getCSV():
     def GET(self, filename):
@@ -646,7 +647,8 @@ class getCSV():
             return f.read()
         except IOError:
             web.notfound()
-
+        finally:
+            f.close()
 
 class WebMonitoring():
     def __init__(self):
@@ -759,14 +761,16 @@ class WebDataTable():
 class WebDownloadData():
     def GET(self, id1, id2, filename):
         try:
+            f = open(elsa.DIR_DATA_CSV + filename)
             web.header('Content-Disposition',
                        'attachment; filename="'+str(filename)+'"')
             web.header('Content-type', 'text/tab-separated-values')
             web.header('Content-transfer-encoding', 'binary')
-            f = open(elsa.DIR_DATA_CSV + filename)
             return f.read()
         except IOError:
             web.notfound()
+        finally:
+            f.close()
 
 
 def connexion(username, password):
