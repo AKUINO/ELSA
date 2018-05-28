@@ -1,4 +1,4 @@
-begin	lang	m_id	name	user
+begin	lang	message_id	name	user
 2016-01-01 13:45:56	FR	parent	Générique(s)	1
 2016-01-01 13:45:56	FR	child	Spécifique(s)	1
 2016-01-01 13:45:56	DE	acronym	Akronym	1

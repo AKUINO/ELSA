@@ -517,7 +517,7 @@ class WebFind():
 
     def getRender(self, type, id1, id2, mail):
         try:
-            if type == 'related':
+            if type == 'related': # sync with getRender from WebBarcode
                 if id1 == 'm':
                     return render.listingmeasures(id2, mail)
                 elif ('g' in id1 or id1 == 'h'):
@@ -624,7 +624,18 @@ class WebBarcode():
             return self.getRender(id, mail, 'notfound')
 
     def getRender(self, id, mail, errormess=''):
-        return render.barcode(mail, id, errormess)
+	 elem  = c.AllBarcodes.barcode_to_item(id)
+         if elem == None:
+             render.barcode(mail, id, errormess)
+         else:
+            aType = elem.get_type()
+	    if aType == 'm':
+                return render.listingmeasures(elem.getID(), mail)
+            elif ('g' in aType or aType == 'h'):
+                return render.listinggroup(aType, elem.getID(), mail)
+            else:
+                return render.listingcomponent(aType, elem.getID(), mail)
+         return render.barcode(mail, id, errormess)
 
     def getListing(self, mail):
         return render.listing(mail, 'places')
@@ -690,11 +701,11 @@ class WebListing():
         typeobject = id.split('_')[0]
         idobject = id.split('_')[1]
         if typeobject in 'pceb':
-            return render.listingcomponent(mail, idobject, typeobject)
+            return render.listingcomponent(typeobject, idobject, mail)
         elif typeobject == 'g':
-            return render.listinggroup(mail, idobject)
+            return render.listinggroup(typeobject, idobject, mail)
         elif typeobject == 'm':
-            return render.listingmeasures(mail, idobject)
+            return render.listingmeasures(idobject, mail)
         else:
             return render.notfound()
 

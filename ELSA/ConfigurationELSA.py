@@ -1844,7 +1844,7 @@ class AllLanguages(AllObjects):
 class AllMessages(AllObjects):
 
     def __init__(self, config):
-        AllObjects.__init__(self, 'm', config)
+        AllObjects.__init__(self, 'message', config)
         self.elements = {}
         self.names = {}
         self.fileobject = os.path.join(DIR_APP_CSV + "mess.csv")

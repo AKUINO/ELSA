@@ -150,16 +150,15 @@ $if content.recursive == 'False' :
 	    <div style="margin-top:10px;font-size:20px;">
 		$if content.location != 'index' :
 		    <a href="/"><span class="glyphicon glyphicon-home"></span>   </a>
-		    $code : 
-			url = '/'
+		    $ url = '/'
 		    $for elem in content.location.split():
-			$code:
-			    tmp = url+elem.split('=')[0]
-			    css = ''
-			    if 'tm' in tmp or 'vm' in tmp or 'dm' in tmp:
-				css = 'blue'
-			/    <a href="$tmp" class="$(css)">$:c.getHalfling(elem.split('=')[1])&nbsp;$c.getMessage(elem.split('=')[1],content.lang)</a>
-			
+                        $ splitted=elem.split('=')
+                        $if len(splitted) > 1:
+			    $ tmp=url+splitted[0]
+			    $ css=''
+			    $if 'tm' in tmp or 'vm' in tmp or 'dm' in tmp:
+			        $ css='blue'
+			    / <a href="$tmp" class="$(css)">$:c.getHalfling(splitted[1])&nbsp;$c.getMessage(splitted[1],content.lang)</a>
 	    </div>
 	    <div style="margin-top:10px;">
 		$:content

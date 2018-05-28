@@ -1,4 +1,4 @@
-begin	m_id	default	user
+begin	message_id	default	user
 2016-01-01 13:45:56	name	Name	1
 2016-01-01 13:45:56	disconnect	Disconnect	1
 2016-01-01 13:45:56	parent	Generic(s)	1
