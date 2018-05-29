@@ -4,6 +4,7 @@ $code:
     batch = c.AllBatches.elements[id1]
     cp = c.AllCheckPoints.elements[id2]
     elems = cp.get_model_sorted()
+    aMeasure = None
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var location: list/b=batch find/h/b_$(id1)=related control/b_$(id1)/h_$(id2)=checkpoint
 $var title : $batch.getName(self.lang): $cp.getName(self.lang)
@@ -50,15 +51,18 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 			<select name = "tm_position_$(counttm)" class="form-control" id="inputPosition">
 			    <optgroup label="$c.getMessage('place',self.lang)">
 			    $for k,v in c.AllPieces.elements.items():
-				$if v.fields['gu_id'] == e.fields['gu_id'] or v.fields['gu_id'] in c.AllGrUsage.elements[v.fields['gu_id']].children :
+                                $ curr_group=v.fields['gu_id']
+				$if curr_group and (curr_group == e.fields['gu_id'] or curr_group in c.AllGrUsage.elements[curr_group].children) :
 				    <option value="p_$k">$v.fields['acronym'] - $v.getName(self.lang) </option>
 			    <optgroup label="$c.getMessage('equipment',self.lang)">
 			    $for k,v in c.AllEquipments.elements.items():
-				$if v.fields['gu_id'] == e.fields['gu_id'] or v.fields['gu_id'] in c.AllGrUsage.elements[v.fields['gu_id']].children :
+                                $ curr_group=v.fields['gu_id']
+				$if curr_group and (curr_group == e.fields['gu_id'] or curr_group in c.AllGrUsage.elements[curr_group].children) :
 				    <option value="e_$k" >$v.fields['acronym'] - $v.getName(self.lang)</option>
 			    <optgroup label="$c.getMessage('container',self.lang)">
 			    $for k,v in c.AllContainers.elements.items():
-				$if v.fields['gu_id'] == e.fields['gu_id'] or v.fields['gu_id'] in c.AllGrUsage.elements[v.fields['gu_id']].children :
+                                $ curr_group=v.fields['gu_id']
+				$if curr_group and (curr_group == e.fields['gu_id'] or curr_group in c.AllGrUsage.elements[curr_group].children) :
 				    <option value="c_$k">$v.fields['acronym'] - $v.getName(self.lang)</option>
 			</select>
 		    </div>
@@ -73,6 +77,7 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		$code:
 		    counttm += 1
 	    $elif e.get_type() == 'dm':
+              $if e.fields['m_id'] and e.fields['m_id'] in c.AllMeasures.elements:
 		$ aMeasure=c.AllMeasures.elements[e.fields['m_id']]
 		<div class="form-group row">
 		    <input type="hidden" name="dm_id_$(countdm)" value="$e.getID()"/>
@@ -117,7 +122,8 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		    </div>
 		$else :
 		    <div class="form-group row">
-                        $ aMeasure = c.AllMeasures.elements[batch.fields['m_id']]
+                        $if batch.fields['m_id'] and batch.fields['m_id'] in c.AllMeasures.elements:
+                            $ aMeasure = c.AllMeasures.elements[batch.fields['m_id']]
 			<label for="b_id" class="col-sm-3 col-form-label">$c.getMessage('batch',self.lang) $c.getMessage('source',self.lang)</label>
 			<div class="col-sm-9" id = "divdest">
 			    <select name="vm_dest_$(countvm)" class="form-control" id="dest">

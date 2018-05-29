@@ -500,7 +500,11 @@ class WebFind():
     def GET(self, type, id1, id2):
         mail = redirect_when_not_logged()
             
-        return self.getRender(type, id1, id2, mail)
+        data = web.input()
+	barcode = ''
+        if 'barcode' in data:
+	    barcode = data['barcode']
+        return self.getRender(type, id1, id2, mail, barcode)
 
     def POST(self, type, id1, id2):
         mail = redirect_when_not_logged()
@@ -509,27 +513,20 @@ class WebFind():
         infoCookie = mail + ',' + user.fields['password']
         update_cookie(infoCookie)
         data = web.input(placeImg={})
-        if type == 'h':
-            if 'checkpoint' in data:
-                raise web.seeother('/control/b_'+id2 +
-                                   '/h_'+data['checkpoint'])
-            raise web.seeother('/item/b_'+id2)
-        elif type == 'b':
-            if 'batch' in data:
-                raise web.seeother('/control/b_'+data['batch'] +
-                                   '/h_'+id2)
-            raise web.seeother('/item/h_'+id2)
-        raise web.seeother('/')
+        if 'checkpoint' in data and 'batch' in data:
+          raise web.seeother('/control/b_'+data['batch'] +
+                             '/h_'+data['checkpoint'])
+        return self.getRender(type, id1, id2, mail)
 
-    def getRender(self, type, id1, id2, mail):
+    def getRender(self, type, id1, id2, mail, barcode=''):
         try:
             if type == 'related': # sync with getRender from WebBarcode
                 if id1 == 'm':
-                    return render.listingmeasures(id2, mail)
+                    return render.listingmeasures(id2, mail, barcode)
                 elif ('g' in id1 or id1 == 'h'):
-                    return render.listinggroup(id1, id2, mail)
+                    return render.listinggroup(id1, id2, mail, barcode)
                 else:
-                    return render.listingcomponent(id1, id2, mail)
+                    return render.listingcomponent(id1, id2, mail, barcode)
             else:
                 if type == 'd'and id1 in 'pceb':
                     return render.itemdata(id1, id2, mail)
@@ -639,12 +636,7 @@ class WebBarcode():
              return render.barcode(mail, id, errormess)
          else:
             aType = elem.get_type()
-	    if aType == 'm':
-                return render.listingmeasures(elem.getID(), mail, id)
-            elif ('g' in aType or aType == 'h'):
-                return render.listinggroup(aType, elem.getID(), mail, id)
-            else:
-                return render.listingcomponent(aType, elem.getID(), mail, id)
+            raise web.seeother('/find/related/'+aType+'_'+elem.getID()+'?barcode='+id)
          return render.barcode(mail, id, errormess)
 
     def getListing(self, mail):

@@ -2,8 +2,9 @@ $def with (type,id,mail,barcode='')
 $var recursive : False
 $var title : ELSA
 $code:
-    elem = c.findAllFromType(type).elements[id]
-    keyID = c.findAllFromObject(elem).keyColumn
+    allobjects = c.findAllFromType(type)
+    elem = allobjects.elements[id]
+    keyID = allobjects.keyColumn
     
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var location: list/$(type)=$(elem.get_class_acronym()) find/related/$(type)_$(id)=related
@@ -112,6 +113,49 @@ $elif type == 'h':
 	    <a href="/create/vm/$(type)_$(id)" class = "vcenter">$:c.getHalfling('add') $c.getMessage('pouringmodel',self.lang)</a>
 	</div>
     </div> 
+    $code:
+	    recipes = set()
+	    recipe_id = elem.fields['gr_id']
+	    if recipe_id and recipe_id in c.AllGrRecipe.elements:
+	        recipes.add(recipe_id)
+	        recipe = c.AllGrRecipe.elements[recipe_id]
+	        new_recipes = set(recipe.get_all_parents())
+	        recipes = recipes | new_recipes
+	    usages = set()
+	    gr_usage = elem.fields['gu_id']
+	    if gr_usage and gr_usage in c.AllGrUsage.elements:
+		usages.add(gr_usage)
+		usage = c.AllGrUsage.elements[gr_usage]
+		new_usages = set(usage.get_all_parents())
+		usages = usages | new_usages
+	    allowedbatches = c.AllBatches.get_batches_for_recipe_usage(recipes,usages)
+
+    	<div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
+	    <label class="col-sm-12">$c.getMessage('batch',self.lang) :</label>
+	    $for i in elem.batches:
+	        <script>
+	        $$(function(){
+		    $$("#includedAllMenub_$(i)").load("/fullentry/b_$(i)");
+	        });
+	        </script>
+	        <div id="includedAllMenub_$(i)"></div>
+        </div>
+	 
+        <form method="post" action="" class="row active" enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
+	        <input type="hidden" name="checkpoint" value="$id">
+			<select name = "batch" class="form-control">
+			$for v in allowedbatches:
+			    <option value="$v.getID()">
+			    $if v.getID() in elem.batches :
+				*
+			    $v.fields['acronym'] - $v.getName(self.lang) </option>
+			</select>
+                </div>
+		<div class="col-sm-3">
+			<button type="submit" class="btn btn-primary">$c.getMessage('add',self.lang) $c.getMessage('checkpoint',self.lang)</button>
+                </div>
+	</form>
+
 $elif type == 'gu':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('place',self.lang) :</label>    
@@ -225,6 +269,7 @@ $elif type == 'gr':
 	    <a href="/create/h/$(type)_$(id)" class = "vcenter">$:c.getHalfling('add') $c.getMessage('checkpoint',self.lang)</a>
 	</div>
     </div> 
+
 $if barcode > '':
 	<div class="row">
 	    <svg id='barcode'></svg>

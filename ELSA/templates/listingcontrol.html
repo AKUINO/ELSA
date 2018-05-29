@@ -54,6 +54,7 @@ $for i in elem.checkpoints:
 	    <div class="col-sm-2">
 	    </div>
 	    <div class="col-sm-4">
+		<input type="hidden" name="batch" value="$id">
 		<select name = "checkpoint" class="form-control" id="inputPosition">
 		$for v in allowedcheckpoints:
 		    <option value="$v.getID()">
