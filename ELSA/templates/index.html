@@ -3,13 +3,11 @@ $var title : ELSA
 $var location : index
 $var lang : disconnected
 $var recursive : False
-<h4> $useful.timestamp_to_ISO(useful.get_timestamp()) </h4>
+<h4> $useful.timestamp_to_ISO(useful.get_timestamp())
 $if connected is True:
 	$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
-
-	<div>
-		$c.getMessage('welcome',self.lang) <em>$c.connectedUsers.users[mail].cuser.getName(self.lang)</em>
-	</div>
+        : $c.getMessage('welcome',self.lang) <em>$c.connectedUsers.users[mail].cuser.getName(self.lang)</em>
+	</h4>
 	$code:
 	    allObjects = c.findAllFromType('b')
 	    elements = allObjects.get_sorted()
@@ -30,7 +28,7 @@ $if connected is True:
 	</div>    
 $else :
     $var title : ELSA login
-    <div>
+    </h4><div>
 	<p>ELSA stores sensors data and observations made at the different Control Points of your production.</p>
 	<h1>Please log-in</h1>
 	<p>You must be logged in to use the application</p>

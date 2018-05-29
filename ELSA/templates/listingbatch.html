@@ -1,0 +1,68 @@
+$def with (type, id, mail)
+$code:
+    allobjects = c.findAllFromType(type)
+    elem = allobjects.elements[id]
+    keyID = allobjects.keyColumn
+    recipes = set()
+    recipe_id = elem.fields['gr_id']
+    if recipe_id and recipe_id in c.AllGrRecipe.elements:
+        recipes.add(recipe_id)
+        recipe = c.AllGrRecipe.elements[recipe_id]
+        new_recipes = set(recipe.get_all_parents())
+        recipes = recipes | new_recipes
+    usages = set()
+    gr_usage = elem.fields['gu_id']
+    if gr_usage and gr_usage in c.AllGrUsage.elements:
+	usages.add(gr_usage)
+	usage = c.AllGrUsage.elements[gr_usage]
+	new_usages = set(usage.get_all_parents())
+	usages = usages | new_usages
+    allowedbatches = c.AllBatches.get_batches_for_recipe_usage(recipes,usages)
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$var location: list/$(type)=$(allobjects.get_class_acronym()) find/b/$(type)_$(id)=batch
+$var recursive : False
+$var title: $c.getName(allobjects,self.lang)
+
+<script>
+    $$(function(){
+	$$("#includedAllMenu$(type)_$(id)").load("/fullentry/$(type)_$(id)");
+    });
+</script>
+<div id="includedAllMenu$(type)_$(id)"></div>
+
+
+<div class="row active">
+    <label class="col-sm-12">$c.getMessage('batch',self.lang) :</label>
+</div>
+
+$for i in elem.batches:
+        <script>
+        $$(function(){
+	    $$("#includedAllMenub_$(i)").load("/fullentry/b_$(i)");
+        });
+        </script>
+        <div id="includedAllMenub_$(i)"></div>
+    
+<div style="margin:15px;">
+</div>    
+ 
+<div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+    <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
+	<div class="row active">
+	    <div class="col-sm-2">
+	    </div>
+	    <div class="col-sm-4">
+		<select name = "batch" class="form-control" id="inputPosition">
+		$for v in allowedbatches:
+		    <option value="$v.getID()">
+		    $if v.getID() in elem.batches :
+			*
+		    $v.fields['acronym'] - $v.getName(self.lang) </option>
+		</select>
+	    </div>
+	    <div class="col-sm-3">
+		<button type="submit" class="btn btn-primary btn-block">$c.getMessage('add',self.lang) $c.getMessage('checkpoint',self.lang)</button>
+	    </div>
+	</div>
+    </form>
+</div>

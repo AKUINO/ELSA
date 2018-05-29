@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import web
+import urllib
 import ConfigurationELSA as elsa
 import myuseful as useful
 import traceback
@@ -57,8 +58,13 @@ def redirect_when_not_logged(redir=True):
     """
     mail = isConnected()
     if mail is None:
-        path = web.ctx.env.get('PATH_INFO')
         if redir:
+            path = web.ctx.env.get('PATH_INFO')
+            query = web.ctx.env.get('QUERY_STRING')
+            if query:
+                path = path+u'?'+urllib.quote(query)
+                print query
+                print path
             raise web.seeother('/?redir=' + path)
         else:
             raise web.seeother('/')
@@ -340,7 +346,7 @@ class WebList():
         raise web.seeother('/')
 
     def getRender(self, type, mail, id=''):
-        return render.listing(mail, type, id)
+        return render.list(mail, type, id)
 
 
 class WebItem():
@@ -395,7 +401,7 @@ class WebEdit():
             return self.getRender(type, id, mail, cond, data)
 
     def getListing(self, mail, type, id=''):
-        return render.listing(mail, type, id)
+        return render.list(mail, type, id)
 
     def getRender(self, type, id, mail, errormess, data, context=''):
         if type in 'hpebcsmagugrgfutmdmvm' and type != 'g'\
@@ -598,6 +604,7 @@ class WebIndex():
 
             query_string = web.ctx.env.get('QUERY_STRING')
             redirect_url = useful.parse_url_query_string(query_string, 'redir')
+            print redirect_url
             if (redirect_url is not None):
                 raise web.seeother(redirect_url)
             else:
@@ -624,21 +631,24 @@ class WebBarcode():
             return self.getRender(id, mail, 'notfound')
 
     def getRender(self, id, mail, errormess=''):
+         id = id.strip()
+         if errormess:
+             return render.barcode(mail, id, errormess)
 	 elem  = c.AllBarcodes.barcode_to_item(id)
          if elem == None:
-             render.barcode(mail, id, errormess)
+             return render.barcode(mail, id, errormess)
          else:
             aType = elem.get_type()
 	    if aType == 'm':
-                return render.listingmeasures(elem.getID(), mail)
+                return render.listingmeasures(elem.getID(), mail, id)
             elif ('g' in aType or aType == 'h'):
-                return render.listinggroup(aType, elem.getID(), mail)
+                return render.listinggroup(aType, elem.getID(), mail, id)
             else:
-                return render.listingcomponent(aType, elem.getID(), mail)
+                return render.listingcomponent(aType, elem.getID(), mail, id)
          return render.barcode(mail, id, errormess)
 
     def getListing(self, mail):
-        return render.listing(mail, 'places')
+        return render.list(mail, 'places')
 
 
 class getRRD():
@@ -686,29 +696,6 @@ class WebMonitoring():
 
     def getRender(self, mail):
         return render.monitoring(mail)
-
-
-class WebListing():
-    def __init__(self):
-        self.name = u"WebListing"
-
-    def GET(self, id):
-        mail = redirect_when_not_logged()
-        
-        return self.getRender(id, mail, '')
-
-    def getRender(self, id, mail, error):
-        typeobject = id.split('_')[0]
-        idobject = id.split('_')[1]
-        if typeobject in 'pceb':
-            return render.listingcomponent(typeobject, idobject, mail)
-        elif typeobject == 'g':
-            return render.listinggroup(typeobject, idobject, mail)
-        elif typeobject == 'm':
-            return render.listingmeasures(idobject, mail)
-        else:
-            return render.notfound()
-
 
 class WebExport():
     def GET(self, type, id):

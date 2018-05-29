@@ -1,4 +1,4 @@
-$def with (type,id,mail)
+$def with (type,id,mail,barcode='')
 $code:
     allobjects = c.findAllFromType(type)
     elem = allobjects.elements[id]
@@ -138,3 +138,70 @@ $if (type+' ') in 'dm tm vm ':
 			</script>
 			<div id="includedCK_$(k)"></div>
 	</div>
+$if type in 'b':
+	$code:
+	    recipes = set()
+	    recipe_id = elem.fields['gr_id']
+	    if recipe_id and recipe_id in c.AllGrRecipe.elements:
+	        recipes.add(recipe_id)
+	        recipe = c.AllGrRecipe.elements[recipe_id]
+	        new_recipes = set(recipe.get_all_parents())
+	        recipes = recipes | new_recipes
+	    components = elem.get_actual_position_hierarchy(c)
+	    usages = set()
+	    for place in components:
+	        gr_usage = place.get_group()
+	        if gr_usage and gr_usage in c.AllGrUsage.elements:
+	            usages.add(gr_usage)
+		    usage = c.AllGrUsage.elements[gr_usage]
+	            new_usages = set(usage.get_all_parents())
+		    usages = usages | new_usages
+	    allowedcheckpoints = c.AllCheckPoints.get_checkpoints_for_recipe_usage(recipes,usages)
+	<div class="row active">
+	    <label class="col-sm-12">$c.getMessage('checkpoint',self.lang) :</label>
+	</div>
+	
+	$for i in elem.checkpoints:
+	        <script>
+	        $$(function(){
+		    $$("#includedAllMenuh_$(i)").load("/fullentry/h_$(i)");
+	        });
+	        </script>
+	        <div id="includedAllMenuh_$(i)"></div>
+	    
+	<div style="margin:15px;">
+	</div>    
+	 
+	<div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+	    <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
+		<div class="row active">
+		    <div class="col-sm-2">
+		    </div>
+		    <div class="col-sm-4">
+			<select name = "checkpoint" class="form-control" id="inputPosition">
+			$for v in allowedcheckpoints:
+			    <option value="$v.getID()">
+			    $if v.getID() in elem.checkpoints :
+				*
+			    $v.fields['acronym'] - $v.getName(self.lang) </option>
+			</select>
+		    </div>
+		    <div class="col-sm-3">
+			<button type="submit" class="btn btn-primary btn-block">$c.getMessage('add',self.lang) $c.getMessage('checkpoint',self.lang)</button>
+		    </div>
+		</div>
+	    </form>
+	</div>
+
+$if barcode > '':
+	<div class="row">
+	    <svg id='barcode'></svg>
+	</div>
+	<div class="form-group row" id="error2">
+	        $c.getMessage('barcoderules',self.lang) [$(barcode)]
+	</div>
+	<script>
+	if (generateBarcode('#barcode', $barcode)) {
+	        jQuery('div#error2').css('display', 'none')
+	    }
+	</script>

@@ -1,4 +1,5 @@
 import time
+import urllib
 import math
 import hashlib
 import binascii
@@ -29,7 +30,7 @@ def parse_url_query_string(string, key):
     for item in string:
         item = item.split('=')
         if item[0] == key:
-            return item[1]
+            return urllib.unquote(item[1]).decode('UTF-8')
     return None
 
 def get_timestamp():

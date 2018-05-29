@@ -9,7 +9,7 @@ $if errormess == '' :
      
     <script>
 	$$(function(){
-	    $$("#includedMenu").load("/find/related/$(elem.get_type())_$(elem.getID())?recursive=true");
+	    $$("#includedMenu").load("/fullentry/$(elem.get_type())_$(elem.getID())");
 	});
     </script>
     <div id="includedMenu" style="min-height:11ex;"></div>
