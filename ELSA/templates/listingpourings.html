@@ -30,7 +30,7 @@ $var title : $elem.getName(self.lang)
 		    $c.AllBatches.elements[c.AllPourings.elements[k].fields['src']].getName(self.lang) 
 		    </div>	    
 		<div class="col-xs-1">
-		     <strong><a href="/find/v/b_$(c.AllPourings.elements[k].fields['src'])" class="btn btn-warning" role="button">$c.getHalfling('input')</a></strong>
+		     <strong><a href="/find/v/b_$(c.AllPourings.elements[k].fields['src'])" class="btn btn-warning" role="button">$:c.getHalfling('input')</a></strong>
 		</div>	    
 		<div class="col-xs-2" >
 		    $c.AllPourings.elements[k].fields['quantity']  $c.AllMeasures.elements[c.AllPourings.elements[k].fields['m_id']].fields['unit']</a>

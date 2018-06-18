@@ -142,7 +142,8 @@ $elif type == 'h':
         </div>
 	 
         <form method="post" action="" class="row active" enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
-	        <input type="hidden" name="checkpoint" value="$id">
+		<div class="col-sm-9">
+	        	<input type="hidden" name="checkpoint" value="$id">
 			<select name = "batch" class="form-control">
 			$for v in allowedbatches:
 			    <option value="$v.getID()">

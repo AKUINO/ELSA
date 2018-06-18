@@ -306,7 +306,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputactive" class="col-sm-6 col-form-label">$c.getMessage('active',self.lang)</label>
+	    <label for="inputactive" class="col-sm-3 col-form-label">$c.getMessage('active',self.lang)</label>
 	    <span class="glyphicon glyphicon-remove-circle"> </span>
 	    $code:
 		cond = (id == 'new')
@@ -317,16 +317,10 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 			cond  = True
 		    else:
 			cond = False
-	    $if cond :
-		<label class="switch">
-		    <input id='inputactive' name="active" type="checkbox" value="1" checked>
+	    <label class="switch">
+		    <input id='inputactive' name="active" type="checkbox" value="1" $('checked' if cond else '')>
 		    <div class="slider round"></div>
-		</label>
-	    $else :
-		<label class="switch">
-		    <input id='inputactive' name="active" type="checkbox" value="1" >
-		    <div class="slider round"></div>
-		</label>
+	    </label>
 	    <span class="glyphicon glyphicon-ok-circle"> </span>
 	</div>
 	

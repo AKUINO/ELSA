@@ -117,12 +117,21 @@ $elif myID == 'component':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputactive" class="col-sm-6 col-form-label">$c.getMessage('active',self.lang)</label>
+	    <label for="inputactive" class="col-sm-3 col-form-label">$c.getMessage('active',self.lang)</label>
 	    <span class="glyphicon glyphicon-remove-circle"> </span>
-		<label class="switch">
-		    <input id='inputactive' name="active" type="checkbox" value="1" checked>
+	    <label class="switch">
+		    $code:
+			cond = (id == 'new')
+			if not cond :
+			    cond = (transfer.fields['active'] == 1 or transfer.fields['active'] == '1')
+			if errormess != '' :
+			    if 'active' in data :
+				cond  = True
+			    else:
+				cond = False
+		    <input id='inputactive' name="active" type="checkbox" value="1" $('checked' if cond else '')>
 		    <div class="slider round"></div>
-		</label>
+	    </label>
 	    <span class="glyphicon glyphicon-ok-circle"> </span>
 	</div>
 	
