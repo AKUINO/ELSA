@@ -1,4 +1,5 @@
 $def with (mail,type,id, context='')
+$# Template included in update forms and others where a group has to be chosen
 $var recursive : True
 $code :
     elements = c.findAllFromType(type)
@@ -60,9 +61,8 @@ $if 'g' in type or type == 'h':
 				</label>
 				<span class="glyphicon glyphicon-ok-circle"> </span>
 			    </label>
-		</div>
-		
-$if 'g' not in type and type != 'h':
+		</div>	
+$else:
     <div class="form-group row">
 	<label for="inputGroup" class="col-sm-3 col-form-label">$:c.getAllHalfling(groups) $c.getMessage(groups.get_class_acronym(),self.lang)</label>
 	<div class="col-sm-9" id = "divgroup">

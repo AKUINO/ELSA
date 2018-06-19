@@ -16,12 +16,12 @@ $else:
             <div class="col-sm-9">
             <select name = "element" class="form-control" id="inputElement">
                 <optgroup label="$c.getMessage('place',self.lang)">
-                $for k in c.AllPieces.elements.keys():
+                $for k in c.AllPlaces.elements.keys():
                     <option value="p_$k"
                         $if type != 'new':
                             $if 'p' == type and k == id :
                                 selected
-                    >$c.AllPieces.elements[k].fields['acronym'] - $c.AllPieces.elements[k].getName(self.lang) </option>
+                    >$c.AllPlaces.elements[k].fields['acronym'] - $c.AllPlaces.elements[k].getName(self.lang) </option>
                 <optgroup label="$c.getMessage('equipment',self.lang)">
                 $for k in c.AllEquipments.elements.keys():
                     <option value="e_$k"

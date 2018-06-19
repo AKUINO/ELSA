@@ -7,12 +7,11 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var location: list/$(type)=$(c.findAllFromType(type).get_class_acronym())
 
 $if not type in 'tdv':
-    <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<script>
 	    $$(function(){
 		$$("#includedMenu$(type)_$(id)").load("/fullentry/$(type)_$(id)");
+		$$("#includedModal$(type)_$(id)").load("/modal/$(type)_$(id)?direct=1");
 	    });
 	</script>
-	<div id="includedMenu$(type)_$(id)"
-	></div>
-    </div>
+ 	<div id="includedMenu$(type)_$(id)"></div>
+ 	<div id="includedModal$(type)_$(id)"></div>

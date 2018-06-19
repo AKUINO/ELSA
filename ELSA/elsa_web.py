@@ -103,24 +103,15 @@ class WebBackup():
                                  getLinkForLatestBackupArchive(),
                                  "backupDone")
         else:
-            print('sdfqdsdsf', 'You should not be here…')
-            sys.exit()
-
-class WebShutdown():
-    def __init(self):
-        self.name = u"WebShutdown"
-
-    def POST(self):
-        mail = redirect_when_not_logged()
-        
+            mail = redirect_when_not_logged()
+            return render.backup(mail, "","")
         
 class WebRestore():
     def __init(self):
         self.name = u"WebRestore"
 
     def GET(self):
-        mail = redirect_when_not_logged()
-            
+        mail = redirect_when_not_logged()            
         return render.backup(mail, getLinkForLatestBackupArchive(),"")
     
     def POST(self):
@@ -273,38 +264,41 @@ class WebDisconnect():
         c.connectedUsers.disconnect(mail)
         raise web.seeother('/')
 
+# Menu of groups within an update form
 class WebPermission():
     def GET(self, type, id):
         mail = isConnected()
         if mail is None:
             return ''
-        
-        if len(id.split('/')) > 1:
-            context = id.split('/')[-1]
-            id = id.split('/')[0]
+
+        splitted = id.split('/')
+        if len(splitted) > 1:
+            context = splitted[-1]
+            id = splitted[0]
         else:
             context = ''
         return render.permission(mail, type, id, context)
 
-
+# Display of  a record within a list
 class WebModal():
     def GET(self, type, id):
         mail = isConnected()
         if mail is None:
             return ''
         
-        return render.modal(mail, type, id)
+        data = web.input(nifile={})
+        return render.modal(mail, type, id, data)
 
-
+# Short (and not full!) Entry in a list of records
 class WebFullEntry():
     def GET(self, type, id):
         mail = isConnected()
         if mail is None:
             return ''
-        
+
         return render.fullentry(mail, type, id)
 
-
+# List of all (active) elements of a Class
 class WebList():
     def __init__(self):
         self.name = u"WebList"
@@ -348,7 +342,7 @@ class WebList():
     def getRender(self, type, mail, id=''):
         return render.list(mail, type, id)
 
-
+# Display of one item
 class WebItem():
     def GET(self, type, id):
         mail = redirect_when_not_logged()
@@ -358,7 +352,7 @@ class WebItem():
         except:
             return render.notfound()
 
-
+# UPDATE of Place, Equipment, Container, etc.
 class WebEdit():
     def GET(self, type, id):
         mail = redirect_when_not_logged()
@@ -404,11 +398,7 @@ class WebEdit():
         return render.list(mail, type, id)
 
     def getRender(self, type, id, mail, errormess, data, context=''):
-        if type in 'hpebcsmagugrgfutmdmvm' and type != 'g'\
-                                           and type != 'f'\
-                                           and type != 'd'\
-                                           and type != 'v'\
-                                           and type != 't':
+        if type in 'hpebcsmagugrgfutmdmvm' and not type in 'dvtfg':
             if type == 'p':
                 return render.place(id, mail, errormess, data, context)
             elif type == 'e':
@@ -522,22 +512,22 @@ class WebFind():
         try:
             if type == 'related': # sync with getRender from WebBarcode
                 if id1 == 'm':
-                    return render.listingmeasures(id2, mail, barcode)
+                    return render.findrelatedmeasures(id2, mail, barcode)
                 elif ('g' in id1 or id1 == 'h'):
-                    return render.listinggroup(id1, id2, mail, barcode)
+                    return render.findrelatedgroups(id1, id2, mail, barcode)
                 else:
-                    return render.listingcomponent(id1, id2, mail, barcode)
+                    return render.findrelatedcomponents(id1, id2, mail, barcode)
             else:
                 if type == 'd'and id1 in 'pceb':
-                    return render.itemdata(id1, id2, mail)
+                    return render.findlinkeddata(id1, id2, mail)
                 elif type == 't' and id1 in 'ceb':
-                    return render.itemtransfers(id1, id2, mail)
+                    return render.findlinkedtransfers(id1, id2, mail)
                 elif type == 'v' and id1 in 'ecb':
-                    return render.listingpourings(id2, mail)
+                    return render.findlinkedpourings(id2, mail)
                 elif type == 'h':
-                    return render.listingcontrol(id1, id2, mail)
+                    return render.findcontrol(id1, id2, mail)
                 elif type == 'b':
-                    return render.listingbatch(id1, id2, mail)
+                    return render.findbatch(id1, id2, mail)
                 else:
                     return render.notfound()
         except:
@@ -547,14 +537,14 @@ class WebFind():
 
 class WebGraphic():
     def __init__(self):
-        self.name = u"WebGraph"
+        self.name = u"WebGraphic"
 
     def GET(self, type, id):
         mail = redirect_when_not_logged()
             
         objects = c.findAllFromType(type)
         if id in objects.elements.keys() and type in 'scpem':
-            return render.listinggraphics(mail, type, id)
+            return render.graphic(mail, type, id)
         return render.notfound()
 
 

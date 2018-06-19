@@ -150,7 +150,7 @@ class Configuration():
         self.fieldcode = ['begin', 'type', 'idobject', 'code', 'user']
         self.AllUsers = AllUsers(self)
         self.AllLanguages = AllLanguages(self)
-        self.AllPieces = AllPieces(self)
+        self.AllPlaces = AllPlaces(self)
         self.AllContainers = AllContainers(self)
         self.AllMessages = AllMessages(self)
         self.AllEquipments = AllEquipments(self)
@@ -193,7 +193,7 @@ class Configuration():
         """
         self.AllLanguages.load()
         self.AllUsers.load()
-        self.AllPieces.load()
+        self.AllPlaces.load()
         self.AllEquipments.load()
         self.AllContainers.load()
         self.AllMessages.load()
@@ -227,8 +227,8 @@ class Configuration():
             return self.AllEquipments
         elif className == Language.__name__:
             return self.AllLanguages
-        elif className == Piece.__name__:
-            return self.AllPieces
+        elif className == Place.__name__:
+            return self.AllPlaces
         elif className == GrUsage.__name__:
             return self.AllGrUsage
         elif className == GrRecipe.__name__:
@@ -268,7 +268,7 @@ class Configuration():
         elif className == u"l":
             return self.AllLanguages
         elif className == u"p":
-            return self.AllPieces
+            return self.AllPlaces
         elif className == u"gu":
             return self.AllGrUsage
         elif className == u"gr":
@@ -1079,7 +1079,7 @@ class AllContainers(AllObjects):
         return 'gu'
 
 
-class AllPieces(AllObjects):
+class AllPlaces(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'p', config)
@@ -1088,7 +1088,7 @@ class AllPieces(AllObjects):
         self.fieldtranslate = ['begin', 'lang', 'p_id', 'name', 'user']
 
     def newObject(self):
-        return Piece(self.config)
+        return Place(self.config)
 
     def get_class_acronym(self):
         return 'place'
@@ -1474,11 +1474,11 @@ class AllSensors(AllObjects):
             if not sensor.fields['p_id'] == '':
                 pid = sensor.fields['p_id']
                 if not (self.config
-                            .AllPieces
+                            .AllPlaces
                             .elements[pid]
                             .fields['colorgraph'] == ''):
                     color = (self.config
-                                 .AllPieces
+                                 .AllPlaces
                                  .elements[pid]
                                  .fields['colorgraph'])
             elif not sensor.fields['c_id'] == '':
@@ -2730,13 +2730,13 @@ class GrFunction(Group):
         self.save(c, user)
 
 
-class Piece(ConfigurationObject):
+class Place(ConfigurationObject):
     def __init__(self, config):
         ConfigurationObject.__init__(self)
         self.config = config
 
     def __str__(self):
-        string = "\nPiece :"
+        string = "\nPlace :"
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
@@ -2765,10 +2765,10 @@ class Piece(ConfigurationObject):
         return listSensor
 
     def validate_form(self, data, configuration, lang):
-        return super(Piece, self).validate_form(data, configuration, lang)
+        return super(Place, self).validate_form(data, configuration, lang)
 
     def set_value_from_data(self, data, c, user):
-        super(Piece, self).set_value_from_data(data, c, user)
+        super(Place, self).set_value_from_data(data, c, user)
         self.fields['colorgraph'] = data['colorgraph']
         self.fields['gu_id'] = data['group']
         self.save(c, user)
@@ -3113,7 +3113,7 @@ class ExportData():
             if self.cond['acronym'] is True:
                 if elem.fields['p_id'] != '':
                     tmp['p_id'] = self.config \
-                                      .AllPieces \
+                                      .AllPlaces \
                                       .elements[elem.fields['p_id']] \
                                       .fields['acronym']
                 else:
@@ -3383,15 +3383,15 @@ class Alarm(ConfigurationObject):
             currObject = config.AllAlarmLogs.createObject()
             if not sensor.fields['p_id'] == '':
                 cpe = config.getMessage('place',lang)
-                elem = config.AllPieces.elements[sensor.fields['p_id']]
+                elem = config.AllPlaces.elements[sensor.fields['p_id']]
                 currObject.fields['cont_type'] = 'p'
             elif not sensor.fields['e_id'] == '':
                 cpe = config.getMessage('equipment',lang)
-                elem = config.AllPieces.elements[sensor.fields['e_id']]
+                elem = config.AllEquipments.elements[sensor.fields['e_id']]
                 currObject.fields['cont_type'] = 'e'
             elif not sensor.fields['c_id'] == '':
                 cpe = config.getMessage('container',lang)
-                elem = config.AllPieces.elements[sensor.fields['c_id']]
+                elem = config.AllContainers.elements[sensor.fields['c_id']]
                 currObject.fields['cont_type'] = 'c'
             currObject.fields['cont_id'] = elem.getID()
             currObject.fields['s_id'] = sensor.getID()
@@ -4125,7 +4125,7 @@ class Sensor(AlarmingObject):
 
     def get_component(self, config):
         if self.fields['p_id'] != '':
-            return config.AllPieces.elements[self.fields['p_id']]
+            return config.AllPlaces.elements[self.fields['p_id']]
         elif self.fields['e_id'] != '':
             return config.AllEquipments.elements[self.fields['e_id']]
         elif self.fields['c_id'] != '':

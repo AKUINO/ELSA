@@ -4,11 +4,11 @@ $var recursive : False
 $if id == 'new':
     $var location: list/p=place edit/p_new=add
     $var rmq :
-    $var title: $c.AllPieces.getName(self.lang)
+    $var title: $c.AllPlaces.getName(self.lang)
 $else:
     $var location: list/p=place edit/p_$(id)=edit
     $code:
-        elem = c.AllPieces.elements[id]
+        elem = c.AllPlaces.elements[id]
     $var rmq :  $elem.fields['remark']
     $var title: $elem.getName(self.lang)
 $if errormess != '':
@@ -36,7 +36,7 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputAcronym" class="col-sm-3 col-form-label">$:(c.getAllHalfling(c.AllPieces))$c.getMessage('acronym',self.lang)</label>
+	    <label for="inputAcronym" class="col-sm-3 col-form-label">$:(c.getAllHalfling(c.AllPlaces))$c.getMessage('acronym',self.lang)</label>
 	    <div class="col-sm-9">
 		<input name="acronym" type="text" class="form-control" id="inputAcronym" placeholder="$c.getMessage('acronym',self.lang)"
 		$if errormess != '':

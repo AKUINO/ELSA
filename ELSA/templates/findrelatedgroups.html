@@ -160,7 +160,7 @@ $elif type == 'h':
 $elif type == 'gu':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('place',self.lang) :</label>    
-	$for k,p in c.AllPieces.elements.items():
+	$for k,p in c.AllPlaces.elements.items():
 	    $if p.get_group() == id :
 		<script>
 		    $$(function(){

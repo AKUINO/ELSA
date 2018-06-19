@@ -48,12 +48,12 @@ $elif myID == 'component':
 		<select name = "component" class="form-control" id="langSelect">
 		    $if myID == 'new':
 			<optgroup label="$c.getMessage('place',self.lang)">
-			    $for k in c.AllPieces.elements.keys():
+			    $for k in c.AllPlaces.elements.keys():
 				<option value="p_$k"
 				    $if myID == 'component':
 					$if 'p' == elem.get_type() and k == elem.getID(): 
 					    selected
-				>$c.AllPieces.elements[k].fields['acronym'] - $c.AllPieces.elements[k].getName(self.lang) </option>
+				>$c.AllPlaces.elements[k].fields['acronym'] - $c.AllPlaces.elements[k].getName(self.lang) </option>
 			    </optgroup>
 			    <optgroup label="$c.getMessage('equipment',self.lang)">
 			    $for k in c.AllEquipments.elements.keys():
