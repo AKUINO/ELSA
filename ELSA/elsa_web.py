@@ -319,7 +319,7 @@ class WebList():
         mail = redirect_when_not_logged()
             
         user = c.connectedUsers.users[mail].cuser
-        data = web.input(placeImg={})
+        data = web.input()
         if 'quantity' in data:
             try:
                 if type == 'b':
@@ -364,7 +364,7 @@ class WebEdit():
         user = c.connectedUsers.users[mail].cuser
         currObject = c.getObject(id, type)
         infoCookie = mail + ',' + user.fields['password']
-        data = web.input(placeImg={})
+        data = web.input(placeImg={},linkedDocs={})
         method = data.get("method", "malformed")
         update_cookie(infoCookie)
         if currObject is None:
@@ -372,6 +372,19 @@ class WebEdit():
         cond = currObject.validate_form(data, c, user.fields['language'])
         if cond is True:
             currObject.set_value_from_data(data, c, user)
+            if data['linkedDocs'] != {}:
+                linkedDocs = web.webapi.rawinput().get('linkedDocs')
+                if not isinstance(linkedDocs,list):
+                    linkedDocs = [linkedDocs]
+                aDir = currObject.getDocumentDir(True)
+                for aDoc in linkedDocs:
+                    if aDoc.filename != '':
+                        filepath = aDoc.filename.replace('\\', '/')
+                        name = filepath.split('/')[-1]
+                        if name:
+                            with open(aDir+u'/'+name, 'w') as fout:
+                               fout.write(aDoc.file.read())
+
             if 'a_id' in data:
                 if len(data['a_id']) > 0:
                     c.AllAlarms.elements[data['a_id']
@@ -475,7 +488,7 @@ class WebControl():
         user = c.connectedUsers.users[mail].cuser
         infoCookie = mail + ',' + user.fields['password']
         update_cookie(infoCookie)
-        data = web.input(placeImg={})
+        data = web.input()
         method = data.get("method", "malformed")
         currObject = c.getObject(idcontrol, 'h')
         cond = currObject.validate_control(data, user.fields['language'])
@@ -502,7 +515,7 @@ class WebFind():
         user = c.connectedUsers.users[mail].cuser
         infoCookie = mail + ',' + user.fields['password']
         update_cookie(infoCookie)
-        data = web.input(placeImg={})
+        data = web.input()
         if 'checkpoint' in data and 'batch' in data:
           raise web.seeother('/control/b_'+data['batch'] +
                              '/h_'+data['checkpoint'])
@@ -635,23 +648,27 @@ class WebBarcode():
 
 class getRRD():
     def GET(self, filename):
-        try:
-            f = open(elsa.DIR_RRD + filename)
-            return f.read()
-        except IOError:
-            web.notfound()
-        finally:
-            f.close()
+        with open(elsa.DIR_RRD + filename) as f:
+            try:
+                return f.read()
+            except IOError:
+                web.notfound()
 
 class getCSV():
     def GET(self, filename):
-        try:
-            f = open(elsa.DIR_DATA_CSV + filename)
-            return f.read()
-        except IOError:
-            web.notfound()
-        finally:
-            f.close()
+        with open(elsa.DIR_DATA_CSV + filename) as f:
+            try:            
+                return f.read()
+            except IOError:
+                web.notfound()
+
+class getDoc():
+    def GET(self, filename):
+        with open(elsa.DIR_DOC + filename) as f:
+            try:
+                return f.read()
+            except IOError:
+                web.notfound()
 
 class WebMonitoring():
     def __init__(self):
@@ -691,7 +708,7 @@ class WebExport():
         user = c.connectedUsers.users[mail].cuser
         infoCookie = mail + ',' + user.fields['password']
         update_cookie(infoCookie)
-        data = web.input(placeImg={})
+        data = web.input()
         cond = {}
         cond['alarm'] = True if 'alarm' in data else False
         cond['manualdata'] = True if 'manualdata' in data else False
@@ -895,6 +912,7 @@ def main():
             '/monitoring/', 'WebMonitoring',
             '/rrd/(.+)', 'getRRD',
             '/csv/(.+)', 'getCSV',
+            '/doc/(.+)', 'getDoc',
             '/list/(.+)', 'WebList',
             '/graphic/(.+)_(.+)', 'WebGraphic',
             '/barcode/(.+)', 'WebBarcode',

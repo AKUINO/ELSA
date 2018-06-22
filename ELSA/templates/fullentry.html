@@ -32,6 +32,8 @@ $elif type == 'h':
                     $:(c.getAllHalfling(allElem))
             $else:
                 $:(c.getAllHalfling(allElem))
+	    $if elem.isImaged():
+		<img src="$(elem.getImageURL())" alt="?" height=48>
             </button>
 	 </div>
 	<div class="col-xs-3 vcenter">

@@ -27,10 +27,6 @@ $var title: MODAL
             <div class="modal-body">
                 <div class="container-fluid">
                     <div class="row">
-			$if elem.isImaged():
-			    <div class="col-xs-5">
-				<img src="/$(elem.getImagePath())" alt="Image not found" style="width:128px;height:128px;">
-			    </div>
 			<div id="modalinfo" class="col-xs-5">
 			    <strong>$elem.fields['acronym']</strong>
 			</div>
@@ -330,6 +326,24 @@ $var title: MODAL
                             <strong>$c.AllUsers.elements[elem.fields['user']].getName(self.lang) </strong> - <em>$elem.fields['begin']</em>
                         </div>
                     </div>
+                    $ i=0
+		    $for filename in elem.getDocumentList():
+                        <div class="row" style="margin-top:3px;">
+			    <div class="col-xs-3"></div>
+			    <div class="col-xs-1">
+                                $ i=i+1
+				($(i))
+			    </div>
+			    <div class="col-xs-8">
+				<a href="$elem.getDocumentURL(filename)" target="_blank">$filename</a>
+			    </div>
+			</div>
+		    $if elem.isImaged():
+                        <div class="row" style="margin-top:3px;">
+			    <div class="col-xs-12">
+				<img src="$(elem.getImageURL())" alt="Image not found">
+			    </div>
+			</div>
                 </div>
             </div>
             <div class="modal-footer">

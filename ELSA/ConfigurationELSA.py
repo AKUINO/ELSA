@@ -50,12 +50,13 @@ DIR_DEFAULT_CSV = os.path.join(DIR_APP_CSV, 'default/')
 # Defines default values for some .csv files
 # (ex: default user for a new installation)
 DIR_STATIC = os.path.join(DIR_BASE, 'static/')
+URL_STATIC = u'/static/'
 
 DIR_DATA_CSV = os.path.join(DIR_USER_DATA, 'csv/')
 DIR_RRD = os.path.join(DIR_USER_DATA, 'rrd/')
+DIR_DOC = os.path.join(DIR_USER_DATA, 'doc/')
 
-DIR_IMG = os.path.join(DIR_STATIC, 'static/img/')
-DIR_BARCODES = os.path.join(DIR_STATIC, 'img/barcodes/')
+URL_DOC = u'/doc/'
 DIR_WEB_TEMP = os.path.join(DIR_STATIC, 'temp/')
 
 TEMPLATES_DIR = os.path.join(DIR_BASE, 'templates/')
@@ -63,7 +64,7 @@ TEMPLATES_DIR = os.path.join(DIR_BASE, 'templates/')
 GROUPWEBUSERS = '_WEB'
 
 
-imagedTypes = [u'u', u'e', u'p', u'g', u'gf', u'gr', u'gu', u'c', u'b', u'h']
+imagedTypes = [u'u', u'e', u'p', u'g', u'gf', u'gr', u'gu', u'c', u'b', u'h', u's', u'm', u'a']
 
 _lock_socket = None
 
@@ -427,13 +428,60 @@ class ConfigurationObject(object):
         for field in fieldsname:
             self.fields[field] = ''
 
-    def getImagePath(self):
+    def getImagePath(self, ensure=False):
         thisType = self.get_type()
         if thisType in imagedTypes:
-            return os.path.join(DIR_IMG,
-                                thisType,
-                                thisType + u'_'+unicode(self.id) + u'.jpg')
+            directory = os.path.join(DIR_DOC,thisType)
+            if ensure:
+                if not os.path.exists(directory):
+                    try:
+                        os.makedirs(directory)
+                    except OSError as e:
+                        if e.errno != errno.EEXIST:
+                            traceback.print_exc()
+                            return None
+            return os.path.join(directory,thisType + u'_'+unicode(self.id) + u'.jpg')
         return None
+
+    def getImageURL(self):
+        thisType = self.get_type()
+        if thisType in imagedTypes:
+            return URL_DOC +thisType+u'/'+thisType+ u'_'+unicode(self.id) + u'.jpg'
+        return ""
+
+    def getDocumentDir(self, ensure=False):
+        thisType = self.get_type()
+        if thisType in imagedTypes:
+            directory = os.path.join(DIR_DOC,
+                                thisType,
+                                thisType + u'_'+unicode(self.id))
+            if ensure:
+                if not os.path.exists(directory):
+                    try:
+                        os.makedirs(directory)
+                    except OSError as e:
+                        if e.errno != errno.EEXIST:
+                            traceback.print_exc()
+                            return None
+            return directory
+        return None
+
+    def getDocumentList(self):
+        thisType = self.get_type()
+        if thisType in imagedTypes:
+            directory = os.path.join(DIR_DOC,
+                                thisType,
+                                thisType + u'_'+unicode(self.id))
+            if not os.path.exists(directory):
+                return []
+            return os.listdir(directory)
+        return []
+
+    def getDocumentURL(self,filename=u''):
+        thisType = self.get_type()
+        if thisType in imagedTypes:
+            return URL_DOC +thisType+u'/'+thisType+ u'_'+unicode(self.id) + u'/'+filename
+        return ""
 
     def isImaged(self):
         fileName = self.getImagePath()
@@ -546,11 +594,11 @@ class ConfigurationObject(object):
             if data.placeImg.filename != '':
                 filepath = data.placeImg.filename.replace('\\', '/')
                 ext = ((filepath.split('/')[-1]).split('.')[-1])
-                try:
-                    fout = open(self.getImagePath(), 'w')
-                    fout.write(data.placeImg.file.read())
-                finally:
-                    fout.close()
+                if ext and ext.lower() in [u'jpg',u'jpeg']:
+                    with open(self.getImagePath(True), 'w') as fout:
+                        fout.write(data.placeImg.file.read())
+        # linkedDocs is treated by caller because "web" object is needed...
+                        
         if 'code' in data:
             lenCode = len(data['code'])
             if lenCode < 14 and lenCode > 11:
@@ -4618,20 +4666,21 @@ class Barcode(ConfigurationObject):
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
 
-    def barcode_picture(self):
-        EAN = barcode.get_barcode_class('ean13')
-        self.fields['code'] = unicode(self.fields['code'])
-        ean = EAN(self.fields['code'])
-        # ean.save(os.path.join(DIR_BARCODES, self.fields['code']))
+##    def barcode_picture(self):
+##        EAN = barcode.get_barcode_class('ean13')
+##        self.fields['code'] = unicode(self.fields['code'])
+##        ean = EAN(self.fields['code'])
+##        # ean.save(os.path.join(DIR_BARCODES, self.fields['code']))
 
-    def get_picture_name(self):
-        return self.fields['code']+'.png'
+##    def get_picture_name(self):
+##        return self.fields['code']+'.png'
 
-    def get_picture(self):
-        location = os.path.join(DIR_BARCODES, self.fields['code'])
-        if not os.path.exists(location):
-            self.barcode_picture()
-        return location
+##Now created locally using Javascript
+##    def get_picture(self):
+##        location = os.path.join(DIR_BARCODES, self.fields['code'])
+##        if not os.path.exists(location):
+##            self.barcode_picture()
+##        return location
 
     def get_class_acronym(self):
         return 'barcode'

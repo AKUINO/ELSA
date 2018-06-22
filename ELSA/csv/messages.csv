@@ -202,10 +202,14 @@ Heure : {9}"	1
 2016-01-01 13:45:56	FR	export	Export	1
 2016-01-01 13:45:56	EN	exportdata	Export Data	1
 2016-01-01 13:45:56	FR	exportdata	Données exportées	1
-2016-01-01 13:45:56	DE	file	Datei	1
-2016-01-01 13:45:56	EN	file	File	1
-2016-01-01 13:45:56	FR	file	Fichier	1
-2016-01-01 13:45:56	NL	file	File	1
+2016-01-01 13:45:56	DE	file	Bild	1
+2016-01-01 13:45:56	EN	file	Picture	1
+2016-01-01 13:45:56	FR	file	Image	1
+2016-01-01 13:45:56	NL	file	Beeld	1
+2016-01-01 13:45:56	DE	document	Dokument	1
+2016-01-01 13:45:56	EN	document	Document	1
+2016-01-01 13:45:56	FR	document	Document	1
+2016-01-01 13:45:56	NL	document	Document	1
 2016-01-01 13:45:56	EN	floatrules	The value must be a number	1
 2016-01-01 13:45:56	FR	floatrules	La valeur doit être un nombre réel	1
 2016-01-01 13:45:56	EN	formula	Formula 	1
