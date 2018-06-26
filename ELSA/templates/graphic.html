@@ -43,9 +43,9 @@ $for k in sensors:
                 <div class="col-sm-12">
 			<form action="/rrdfetch/${k}">
 			    <select name="period">
-				<option value="">- - -</option>
-				<option value="300">5 mn</option>
-				<option value="1800">30 mn</option>
+				<option value="">- - - (1 month)</option>
+				<option value="300">5 mn (1 year)</option>
+				<option value="1800">30 mn (5 years)</option>
 			    </select>
 			    <input type="submit" value="CSV" class="btn btn-primary">
 			</form>

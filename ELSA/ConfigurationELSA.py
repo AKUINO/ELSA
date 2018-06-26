@@ -3864,11 +3864,16 @@ class Sensor(AlarmingObject):
 
     def fetchRRD(self,period=None):
         filename = str(DIR_RRD + self.getRRDName())
-        start = rrdtool.first(filename)
+        
+        start = "end-1month"
         if period:
-            result = rrdtool.fetch(filename, 'AVERAGE',"-s",str(start),"-r",str(period) )
+            if period == "300":
+                start ="end-1year"
+            elif period == "1800":
+                start = "end-5years"
+            result = rrdtool.fetch(filename, 'AVERAGE',"-s",start,"-r",str(period) )
         else:    
-            result = rrdtool.fetch(filename, 'LAST',"-s",str(start) )
+            result = rrdtool.fetch(filename, 'LAST',"-s",start )
         start,end,step = result[0]
         rows = result[2]
         out = u""
