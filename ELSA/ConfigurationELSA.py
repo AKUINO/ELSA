@@ -3867,12 +3867,11 @@ class Sensor(AlarmingObject):
         
         start = "end-1month"
         if period:
-            period = str(period)
             if period == "300":
-                start ="end-1year"
+                start ="end-360sdays"
             elif period == "1800":
                 start = "end-5years"
-            result = rrdtool.fetch(filename, 'AVERAGE',"-s",start,"-r", period)
+            result = rrdtool.fetch(filename, 'AVERAGE',"-s",start,"-r",str(period) )
         else:    
             result = rrdtool.fetch(filename, 'LAST',"-s",start )
         start,end,step = result[0]
