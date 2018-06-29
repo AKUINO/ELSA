@@ -2668,7 +2668,7 @@ class CheckPoint(Group):
                 tmp['dest'] = data['vm_dest_'+count]
                 tmp['src'] = batch.split('_')[1]
             tmp['quantity'] = data['vm_quantity_'+count]
-            tmp['remark'] = data['tm_remark_'+count]
+            tmp['remark'] = data['vm_remark_'+count]
         return tmp
 
     def write_control(self, type, id, user):
