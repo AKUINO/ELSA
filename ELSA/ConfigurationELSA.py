@@ -501,8 +501,11 @@ class ConfigurationObject(object):
             self.names[key] = newName
 
     def getName(self, lang):
-        lang = lang.upper()
-        if lang == 'disconnected':
+        if not lang:
+	    lang = 'EN'
+        else:
+            lang = lang.upper()
+        if lang == 'DISCONNECTED':
             lang = 'EN'
         if lang in self.names:
             return self.names[lang]['name']
@@ -519,6 +522,9 @@ class ConfigurationObject(object):
         else:
             print "Error Le nom n'existe pas pour cet objet"
             return "Error"
+
+    def getNameJS(self, lang):
+	return self.getName(lang).replace("'","\\'");
 
     def get_real_name(self, lang):
         if lang in self.names:
