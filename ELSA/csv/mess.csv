@@ -127,6 +127,7 @@ begin	message_id	default	user
 2016-01-01 13:45:56	valuetype	Value type 	1
 2016-01-01 13:45:56	channel	Channel 	1
 2016-01-01 13:45:56	graphic	Graphic 	1
+2016-01-01 13:45:56	map	Recipe Controls Map 	1
 2016-01-01 13:45:56	phone	Phone 	1
 2016-01-01 13:45:56	relay	Relay 	1
 2016-01-01 13:45:56	sound	Sound 	1

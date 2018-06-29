@@ -516,7 +516,9 @@ class WebFind():
         infoCookie = mail + ',' + user.fields['password']
         update_cookie(infoCookie)
         data = web.input()
-        if 'checkpoint' in data and 'batch' in data:
+        if 'action' in data and data['action']=='map':
+            raise web.seeother('/map/b_'+data['batch'])
+        elif 'checkpoint' in data and 'batch' in data:
           raise web.seeother('/control/b_'+data['batch'] +
                              '/h_'+data['checkpoint'])
         return self.getRender(type, id1, id2, mail)
@@ -558,6 +560,19 @@ class WebGraphic():
         objects = c.findAllFromType(type)
         if id in objects.elements.keys() and type in 'scpem':
             return render.graphic(mail, type, id)
+        return render.notfound()
+
+
+class WebMap():
+    def __init__(self):
+        self.name = u"WebMap"
+
+    def GET(self, type, id):
+        mail = redirect_when_not_logged()
+            
+        objects = c.findAllFromType(type)
+        if id in objects.elements.keys() and type in 'b':
+            return render.mapcontrol(mail, type, id)
         return render.notfound()
 
 
@@ -915,6 +930,7 @@ def main():
             '/doc/(.+)', 'getDoc',
             '/list/(.+)', 'WebList',
             '/graphic/(.+)_(.+)', 'WebGraphic',
+            '/map/(.+)_(.+)', 'WebMap',
             '/barcode/(.+)', 'WebBarcode',
             '/barcode/', 'WebBarcode',
             '/modal/(.+)_(.+)', 'WebModal',

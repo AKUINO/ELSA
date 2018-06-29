@@ -3,14 +3,14 @@ $def with (id, mail, errormess, data, context='')
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
 $var title : $c.AllTransferModels.getName(self.lang)
+$var rmq :
 $if id == 'new':
     $var location: list/tm=transfermodel edit/tm_new=add
-    $var rmq :
 $else:
     $var location: list/tm=transfermodel edit/tm_$(id)=edit
     $ transfer_model = c.AllTransferModels.elements[id]
-    $var rmq :  transfer_model.fields['remark']
-    $var title : transfer_model.getName(self.lang)
+    $var rmq : $transfer_model.fields['remark']
+    $var title : $transfer_model.getName(self.lang)
 $if errormess != '':
     $if 'remark' in data :
 	$var rmq : $data['remark']
