@@ -1,0 +1,137 @@
+$def with (mail, type, id)
+$code:
+    allowedcheckpoints = []
+    allobjects = c.findAllFromType(type)
+    elem = allobjects.elements[id]
+    keyID = allobjects.keyColumn
+    recipes = set()
+    recipe_id = elem.fields['gr_id']
+    recipe = None
+    if recipe_id and recipe_id in c.AllGrRecipe.elements.keys():
+        recipes.add(recipe_id)
+        recipe = c.AllGrRecipe.elements[recipe_id]
+        new_recipes = set(recipe.get_all_parents())
+        recipes = recipes | new_recipes
+    components = elem.get_actual_position_hierarchy(c)
+    usages = set()
+    for place in components:
+        gr_usage = place.get_group()
+        if gr_usage and gr_usage in c.AllGrUsage.elements.keys():
+            usages.add(gr_usage)
+	    usage = c.AllGrUsage.elements[gr_usage]
+            new_usages = set(usage.get_all_parents())
+	    usages = usages | new_usages
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$var recursive : True
+$code:
+  graph = ""
+  usage = None
+  place = None
+  if components and len(components) > 1:
+    place = components[1]
+    allPlaces = c.findAllFromObject(place)
+    gr_usage = place.get_group()
+    usage = c.AllGrUsage.elements[gr_usage]
+    usages_todo = [usage]
+    done = set()
+    while len(usages_todo) > 0:
+      prec = None
+      usage = usages_todo[0]
+      if not usage in done:
+	done = done | usage
+	usages_todo.remove(usage)
+	graph += hid+"[URL=\"/find/related/gu_"+usage.getID()+"\""
+	graph += ",label=\""+usage.getNameJS(self.lang)+"\""
+	graph += ",tooltip=\""+usage.fields['acronym']+"\""
+	graph += ",id=\"gu_"+usage.getID()+"\"];"
+        prec = "gu_"+usage.getID()
+        allowedcheckpoints = c.AllCheckPoints.get_checkpoints_for_recipe_usage(recipes,usage.get_all_parents())
+	for v in allowedcheckpoints:
+	    hid = "h_"+v.getID()
+	    graph += hid+"[URL=\"/find/related/"+hid+"\""
+	    graph += ",label=\""+("* " if v.getID() in elem.checkpoints else "")+v.getNameJS(self.lang)+"\""
+	    graph += ",tooltip=\""+v.fields['acronym']+"\""
+	    graph += ",id=\""+hid+"\"];"
+	    if prec:
+	        graph += prec+"->"+hid+";"
+	    prec = hid
+	    elems = v.get_model_sorted()
+	    for e in elems:
+		if e.get_type() == 'tm':
+		    if e.fields['gu_id']:
+		        nx_usage = c.AllGrUsage.elements[e.fields['gu_id']]
+			graf += hid+"->"+"gu_"+e.fields['gu_id']+";"
+		        usages_todo.append(nx_usage)
+
+<p style="background: white;">$graph</p>
+<div class="modal-body">
+  <div class="container-fluid" width="800px">
+    <div class="row">
+	<div id="modalinfo" class="col-xs-6">
+	    $:c.getAllHalfling(allobjects)$elem.fields['acronym'] <strong>$elem.getName(self.lang)</strong>
+	</div>
+	<div id="modalinfo" class="col-xs-6">
+        $if place:
+	    <a href="/find/related/$(place.get_type())_$(place.getID())">$:c.getAllHalfling(allPlaces)$place.fields['acronym'] <strong>$place.getName(self.lang)</strong></a></br>
+	</div>
+    </div>
+    <div class="row">
+	<div id="modalinfo" class="col-xs-6">
+        $if recipe:
+	    <a href="/find/related/gr_$recipe.getID()">$:c.getAllHalfling(c.AllGrRecipe)$recipe.fields['acronym'] <strong>$recipe.getName(self.lang)</strong></a>
+	</div>
+	<div id="modalinfo" class="col-xs-6">
+        $if usage:
+	    <a href="/find/related/gu_$usage.getID()">$:c.getAllHalfling(c.AllGrUsage)$usage.fields['acronym'] <strong>$usage.getName(self.lang)</strong></a>
+	</div>
+    </div>
+
+<svg class="row" width="100%">
+  <g/>
+</svg>
+
+  </div>
+</div>
+
+<script>
+var inputGraph = 'digraph{$:graph}';
+//window.alert("Input:"+inputGraph);
+
+// Set up zoom support
+var svg = d3.select("svg"),
+    inner = d3.select("svg g"),
+    zoom = d3.zoom().on("zoom", function() {
+      inner.attr("transform", d3.event.transform);
+    });
+svg.call(zoom);
+
+// Create and configure the renderer
+var render = dagreD3.render();
+
+  var g;
+function tryDraw() {
+    try {
+      g = graphlibDot.read(inputGraph);
+    } catch (e) {
+      window.alert("error reading "+inputGraph);
+      throw e;
+    }
+
+    // Set margins, if not present
+    if (!g.graph().hasOwnProperty("marginx") &&
+        !g.graph().hasOwnProperty("marginy")) {
+      g.graph().marginx = 20;
+      g.graph().marginy = 20;
+    }
+
+    g.graph().transition = function(selection) {
+      return selection.transition().duration(500);
+    };
+
+    // Render the graph into svg g
+    d3.select("svg g").call(render, g);
+}
+
+tryDraw();
+</script>
+
