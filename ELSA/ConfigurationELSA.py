@@ -2567,7 +2567,7 @@ class CheckPoint(Group):
                     self.vm.insert(i, model.getID())
                     break
             if insert is False:
-                self.vm.append(vm.getID())
+                self.vm.append(model.getID())
 
     def get_model_sorted(self):
         listdm = self.get_hierarchy_dm()
