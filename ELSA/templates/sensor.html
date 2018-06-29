@@ -304,6 +304,21 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >$(rmq)</textarea>
 	    </div>
 	</div>
+
+	<div class="form-group row">
+	    <label for="inputImage" class="col-sm-3 col-form-label">$c.getMessage('file',self.lang)</label>
+	    <label class="control-label col-sm-9">
+	        <input id="inputImage" name="placeImg" type="file" class="file file-loading" data-allowed-file-extensions='["jpg", "jpeg"]'>
+            </label>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputFile" class="col-sm-3 col-form-label">$c.getMessage('document',self.lang)</label>
+	    <label class="control-label col-sm-9">
+	        <input id="inputFile" name="linkedDocs" type="file" multiple class="file file-loading"'>
+            </label>
+	</div>
+
 	
 	<div class="form-group row">
 	    <label for="inputactive" class="col-sm-3 col-form-label">$c.getMessage('active',self.lang)</label>
