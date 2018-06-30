@@ -99,22 +99,40 @@ $elif type == 'h':
 			$:(c.getAllHalfling(groups))
 		    </div>
 		    $if elem.get_group() != '' :
-			<div class="col-xs-10 vcenter">
+			<div class="col-xs-4 vcenter">
 			    <a href="/item/$(allElem.get_key_group())_$elem.get_group()">$groups.elements[elem.get_group()].fields['acronym']</a>
 			</div>
 		    $else :
-			<div class="col-xs-10 vcenter">
+			<div class="col-xs-4 vcenter">
 			    -
 			</div>
-		</div>
-		<div class="row">
 		    <div class="col-xs-1 vcenter">
 			$:(c.getHalfling('scale'))
 		    </div>
-		    <div class="col-xs-10 vcenter">
+		    <div class="col-xs-4 vcenter">
 			$if elem.fields['m_id'] != '':
 			    $(elem.get_residual_quantity()) <a href="/item/m_$elem.fields['m_id']">$(c.AllMeasures.elements[elem.fields['m_id']].fields['unit'])</a>
 		    </div>
+		</div>
+		<div class="row">
+		    $code:
+			tmp = elem.get_actual_position()
+			if tmp is not None :
+			    pos = c.AllTransfers.elements[tmp].get_cont()
+			else :
+			    pos = None
+		    $if pos is not None :
+			<div class="col-xs-1 vcenter">
+			    $:(c.getAllHalfling(c.AllTransfers))
+			</div>
+			<div class="col-xs-9 vcenter">
+			    <a href="/item/$(pos.get_type())_$pos.getID()">$pos.fields['acronym']</a>
+			</div>
+		    $else:
+			<div class="col-xs-1 vcenter">
+			    -
+			</div>
+			<div class="col-xs-9 vcenter"> -</div>
 		</div>
 	$elif type in 'dmvmtm' and type not in 'mtvd':
 	        $code :

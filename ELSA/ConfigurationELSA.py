@@ -9,6 +9,7 @@ import sys
 import threading
 import os
 import os.path
+import cgi
 import rrdtool
 import pyownet
 import serial
@@ -519,12 +520,16 @@ class ConfigurationObject(object):
             return self.names.values()[0]['name']
         elif 'default' in self.fields:
             return self.fields['default']
+        elif 'acronym' in self.fields:
+            return self.fields['acronym']
         else:
-            print "Error Le nom n'existe pas pour cet objet"
-            return "Error"
+            return "Record "+unicode(self.id)+": no name"
 
     def getNameJS(self, lang):
 	return self.getName(lang).replace("'","\\'");
+
+    def getNameHTML(self, lang):
+	return cgi.escape(self.getName(lang),True).replace("'","&#39;");
 
     def get_real_name(self, lang):
         if lang in self.names:
@@ -702,17 +707,20 @@ class ConfigurationObject(object):
             return self.position[-1]
         return None
 
+    def get_actual_position_here(self,configuration):
+	currObj = None
+	tmp = self.get_actual_position()
+	if tmp is not None:
+	    tmp = configuration.AllTransfers.elements[tmp]
+            currObj = configuration.get_object (tmp.fields['cont_type'], tmp.fields['cont_id'])
+        return currObj
+
     def get_actual_position_hierarchy(self, configuration, result=[]):
         if not (self in result):
             result.append(self)
-            tmp = self.get_actual_position()
-            if tmp is not None:
-                tmp = configuration.AllTransfers.elements[tmp]
-                currObj = configuration.get_object(
-                    tmp.fields['cont_type'], tmp.fields['cont_id'])
-                if currObj:
-                    return currObj.get_actual_position_hierarchy(configuration,
-                                                                 result)
+            currObj = self.get_actual_position_here(configuration)
+            if currObj:
+                return currObj.get_actual_position_hierarchy(configuration, result)
         return result
 
     def is_actual_position(self, type, id, configuration):
@@ -2447,16 +2455,13 @@ class Group(ConfigurationObject):
                 if rel in self.related and k != self.getID():
                     self.siblings.append(k)
 
-    def get_all_parents(self, parents=None):
-        if parents == None:
-            parents = []
+    def get_all_parents(self,parents=[]):
         for e in self.parents:
-            parents.append(e)
-            self.config.findAllFromType(self.get_type()) \
-                                            .elements[e] \
-                                            .get_all_parents(parents)
+	    if not e in parents:
+	            parents.append(e)
+	            parents = self.config.findAllFromType(self.get_type()) \
+	                                   .elements[e].get_all_parents(parents)
         return parents
-
 
 class GrUsage(Group):
     def __init__(self, config):

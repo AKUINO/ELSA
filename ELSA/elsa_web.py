@@ -12,6 +12,7 @@ import backup
 import argparse
 import subprocess
 import json
+import cgi
 import rrd
 import time
 global c, render
@@ -47,6 +48,8 @@ def getLinkForLatestBackupArchive():
     else:
         return None
 
+def protectHTML(input):
+    return cgi.escape(input,True).replace("'","&#39;");
 
 def redirect_when_not_logged(redir=True):
     """
@@ -569,10 +572,98 @@ class WebMap():
 
     def GET(self, type, id):
         mail = redirect_when_not_logged()
-            
-        objects = c.findAllFromType(type)
-        if id in objects.elements.keys() and type in 'b':
-            return render.mapcontrol(mail, type, id)
+        lang = c.connectedUsers.users[mail].cuser.fields['language']
+        
+        allobjects = c.findAllFromType(type)
+        if id in allobjects.elements.keys() and type in 'b':
+            elem = allobjects.elements[id]
+            recipes = set()
+            recipe_id = elem.fields['gr_id']
+            recipe = None
+            if recipe_id and recipe_id in c.AllGrRecipe.elements.keys():
+                recipes.add(recipe_id)
+                recipe = c.AllGrRecipe.elements[recipe_id]
+                new_recipes = set(recipe.get_all_parents())
+                recipes = recipes | new_recipes
+            components = elem.get_actual_position_hierarchy(c)
+            usages_todo = []
+            recipes_todo = set()
+            for place in reversed(components):
+                gr_usage = place.get_group()
+                if gr_usage and gr_usage in c.AllGrUsage.elements.keys():
+                    usage = c.AllGrUsage.elements[gr_usage]
+                    for parent in reversed(usage.get_all_parents()):
+                        if parent and parent in c.AllGrUsage.elements.keys():
+                            usages_todo.append(c.AllGrUsage.elements[parent])
+                    usages_todo.append(usage)
+            graph = ""
+            done = set()
+            prec = None
+            while len(usages_todo) > 0:
+              usage = usages_todo[0]
+              usaID = "gu_"+usage.getID()
+              usages_todo.remove(usage)
+              if not usaID in done:
+                done.add(usaID)
+                if prec:
+                    graph += prec+"->"+usaID+"[style=\"stroke-dasharray:5,5\"];"
+                graph += usaID # +"[url=\"/find/related/"+usaID+"\""
+                graph += "[labelType=\"html\",label=\"<a href=/find/related/"+usaID+">"+usage.getNameHTML(lang)+"</a>\""
+                graph += ",tooltip=\""+usage.fields['acronym']+"\""
+                graph += ",id=\""+usaID+"\",shape=diamond,style=\"fill:#fff;stroke:1\"];"
+                prec = usaID
+                allowedcheckpoints = c.AllCheckPoints.get_checkpoints_for_recipe_usage(recipes,set([usage.getID()]))
+                for v in allowedcheckpoints:
+                    hid = "h_"+v.getID()
+                    graph += prec+"->"+hid+";"
+                    prec = hid
+                    elems = v.get_model_sorted()
+                    obs = ""
+                    for e in elems:
+                        if e.get_type() == 'tm':
+                            if e.fields['gu_id']:
+                                nx_usage = e.fields['gu_id']
+                                if nx_usage and nx_usage in c.AllGrUsage.elements.keys():
+                                    nx_usage = c.AllGrUsage.elements[nx_usage]
+                                    # graph += hid+"->"+"gu_"+e.fields['gu_id']+"[style=\"stroke-dasharray:5,5\"];"
+                                    for parent in reversed(nx_usage.get_all_parents()):
+                                        if parent and not parent in done and parent in c.AllGrUsage.elements.keys():
+                                            usages_todo.append(c.AllGrUsage.elements[parent])
+                                    usages_todo.append(nx_usage)
+                        elif e.get_type() == 'vm':
+                            if e.fields['dest']:
+                                nx_recipe = e.fields['dest']
+                                if nx_recipe and nx_recipe in c.AllGrRecipe.elements.keys():
+                                    dest_recipe = c.AllGrRecipe.elements[nx_recipe]
+                                    graph += hid+"->"+"gr_"+nx_recipe+"[style=\"stroke-width:3px\",label=\""+e.getNameJS(lang)+"\"];"
+                                    recipes_todo.add(dest_recipe)
+                            if e.fields['src']:
+                                nx_recipe = e.fields['src']
+                                if nx_recipe and nx_recipe in c.AllGrRecipe.elements.keys():
+                                    src_recipe = c.AllGrRecipe.elements[nx_recipe]
+                                    graph += "gr_"+nx_recipe+"->"+hid+"[style=\"stroke-width:3px\",label=\""+e.getNameJS(lang)+"\"];"
+                                    recipes_todo.add(src_recipe)
+                        elif e.get_type() == 'dm':
+                            obs += "<br>"+e.getNameHTML(lang)
+                            if e.fields['m_id']:
+                                measure = e.fields['m_id']
+                                if measure and measure in c.AllMeasures.elements.keys():
+                                    measure = c.AllMeasures.elements[measure]
+                                    if measure.fields['unit']:
+                                        obs += ": "+protectHTML(measure.get_select_str(lang))
+                    graph += hid # +"[url=\"/find/related/"+hid+"\""
+                    graph += "[labelType=\"html\",label=\"<a href=/find/related/"+hid+">"
+                    graph += ("* " if v.getID() in elem.checkpoints else "")+v.getNameHTML(lang)
+                    graph += "</a> <a href=/control/b_"+id+"/"+hid+"><big><strong>+</strong></big></a>"+obs+"\""
+                    graph += ",tooltip=\""+v.fields['acronym']+"\""
+                    graph += ",id=\""+hid+"\"];"
+            for recipe in recipes_todo:
+                grID = "gr_"+recipe.getID()
+                graph += grID
+                graph += "[labelType=\"html\",label=\"<a href=/find/related/"+grID+">"+recipe.getNameHTML(lang)+"</a>\""
+                graph += ",tooltip=\""+recipe.fields['acronym']+"\""
+                graph += ",id=\""+grID+"\",shape=circle,style=\"fill:#fff;stroke:1\"];"
+            return render.mapcontrol(mail, type, id, graph)
         return render.notfound()
 
 

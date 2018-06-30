@@ -1,78 +1,29 @@
-$def with (mail, type, id)
-$code:
-    allowedcheckpoints = []
-    allobjects = c.findAllFromType(type)
-    elem = allobjects.elements[id]
-    keyID = allobjects.keyColumn
-    recipes = set()
-    recipe_id = elem.fields['gr_id']
-    recipe = None
-    if recipe_id and recipe_id in c.AllGrRecipe.elements.keys():
-        recipes.add(recipe_id)
-        recipe = c.AllGrRecipe.elements[recipe_id]
-        new_recipes = set(recipe.get_all_parents())
-        recipes = recipes | new_recipes
-    components = elem.get_actual_position_hierarchy(c)
-    usages = set()
-    for place in components:
-        gr_usage = place.get_group()
-        if gr_usage and gr_usage in c.AllGrUsage.elements.keys():
-            usages.add(gr_usage)
-	    usage = c.AllGrUsage.elements[gr_usage]
-            new_usages = set(usage.get_all_parents())
-	    usages = usages | new_usages
+$def with (mail, type, id, graph)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : True
 $code:
-  graph = ""
-  usage = None
-  place = None
-  if components and len(components) > 1:
-    place = components[1]
-    allPlaces = c.findAllFromObject(place)
-    gr_usage = place.get_group()
-    usage = c.AllGrUsage.elements[gr_usage]
-    usages_todo = [usage]
-    done = set()
-    while len(usages_todo) > 0:
-      prec = None
-      usage = usages_todo[0]
-      if not usage in done:
-	done = done | usage
-	usages_todo.remove(usage)
-	graph += hid+"[URL=\"/find/related/gu_"+usage.getID()+"\""
-	graph += ",label=\""+usage.getNameJS(self.lang)+"\""
-	graph += ",tooltip=\""+usage.fields['acronym']+"\""
-	graph += ",id=\"gu_"+usage.getID()+"\"];"
-        prec = "gu_"+usage.getID()
-        allowedcheckpoints = c.AllCheckPoints.get_checkpoints_for_recipe_usage(recipes,usage.get_all_parents())
-	for v in allowedcheckpoints:
-	    hid = "h_"+v.getID()
-	    graph += hid+"[URL=\"/find/related/"+hid+"\""
-	    graph += ",label=\""+("* " if v.getID() in elem.checkpoints else "")+v.getNameJS(self.lang)+"\""
-	    graph += ",tooltip=\""+v.fields['acronym']+"\""
-	    graph += ",id=\""+hid+"\"];"
-	    if prec:
-	        graph += prec+"->"+hid+";"
-	    prec = hid
-	    elems = v.get_model_sorted()
-	    for e in elems:
-		if e.get_type() == 'tm':
-		    if e.fields['gu_id']:
-		        nx_usage = c.AllGrUsage.elements[e.fields['gu_id']]
-			graf += hid+"->"+"gu_"+e.fields['gu_id']+";"
-		        usages_todo.append(nx_usage)
-
-<p style="background: white;">$graph</p>
-<div class="modal-body">
-  <div class="container-fluid" width="800px">
+    allobjects = c.findAllFromType(type)
+    elem = allobjects.elements[id]
+    recipe_id = elem.fields['gr_id']
+    recipe = None
+    if recipe_id and recipe_id in c.AllGrRecipe.elements.keys():
+        recipe = c.AllGrRecipe.elements[recipe_id]
+    usage = None
+    place = elem.get_actual_position_here(c)
+    if place:
+	    gr_usage = place.get_group()
+	    if gr_usage and gr_usage in c.AllGrUsage.elements.keys():
+	        usage = c.AllGrUsage.elements[gr_usage]
+$#<p style="background: white;">$graph</p>
+<div class="modal-body" style="background: white;">
+  <div class="container-fluid">
     <div class="row">
 	<div id="modalinfo" class="col-xs-6">
 	    $:c.getAllHalfling(allobjects)$elem.fields['acronym'] <strong>$elem.getName(self.lang)</strong>
 	</div>
 	<div id="modalinfo" class="col-xs-6">
         $if place:
-	    <a href="/find/related/$(place.get_type())_$(place.getID())">$:c.getAllHalfling(allPlaces)$place.fields['acronym'] <strong>$place.getName(self.lang)</strong></a></br>
+	    <a href="/find/related/$(place.get_type())_$(place.getID())">$:c.getAllHalfling(c.AllPlaces)$place.fields['acronym'] <strong>$place.getName(self.lang)</strong></a></br>
 	</div>
     </div>
     <div class="row">
@@ -86,7 +37,7 @@ $code:
 	</div>
     </div>
 
-<svg class="row" width="100%">
+<svg class="row" width="100%" height="800px">
   <g/>
 </svg>
 

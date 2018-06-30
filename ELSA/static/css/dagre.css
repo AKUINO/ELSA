@@ -1,14 +1,19 @@
 svg {
   border: 1px solid #999;
   overflow: hidden;
-  background: white;
+  background: #C0C0C0;
 }
 
 .node {
   white-space: nowrap;
 }
 
+.label {
+  color: #000
+}
+
 .node rect,
+.node diamond,
 .node circle,
 .node ellipse {
   stroke: #333;
