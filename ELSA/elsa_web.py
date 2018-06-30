@@ -649,8 +649,7 @@ class WebMap():
                                 measure = e.fields['m_id']
                                 if measure and measure in c.AllMeasures.elements.keys():
                                     measure = c.AllMeasures.elements[measure]
-                                    if measure.fields['unit']:
-                                        obs += ": "+protectHTML(measure.get_select_str(lang))
+                                    obs += " / "+measure.getNameHTML(lang)+": ? "+protectHTML(measure.fields['unit'])
                     graph += hid # +"[url=\"/find/related/"+hid+"\""
                     graph += "[labelType=\"html\",label=\"<a href=/find/related/"+hid+">"
                     graph += ("* " if v.getID() in elem.checkpoints else "")+v.getNameHTML(lang)
