@@ -23,7 +23,7 @@ $elif type == 'h':
 	 <div class="col-xs-2 vcenter">
             $if '_'+type+'_' in '_h_gr_gu_gf_':
                 $ parents = elem.get_all_parents([])
-                $for p in parents:
+                $for p in reversed(parents):
                     <a href="/find/related/$(type)_$(p)"><strong><big>&#8662;</big></strong></a>
             <button type="button" class="btn $(btn_class) btn-md $(type)_$(id)" data-toggle="modal" data-target="#$(type)_$(id)modal">
             $if 'active' in elem.fields :
