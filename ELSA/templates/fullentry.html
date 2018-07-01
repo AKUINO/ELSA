@@ -21,7 +21,11 @@ $elif type == 'h':
 	border-left-style: solid;border-width: 6px;border-color:#337ab7;
 ">
 	 <div class="col-xs-2 vcenter">
-	    <button type="button" class="btn $(btn_class) btn-md $(type)_$(id)" data-toggle="modal" data-target="#$(type)_$(id)modal">
+            $if '_'+type+'_' in '_h_gr_gu_gf_':
+                $ parents = elem.get_all_parents([])
+                $for p in parents:
+                    <a href="/find/related/$(type)_$(p)"><strong><big>&#8662;</big></strong></a>
+            <button type="button" class="btn $(btn_class) btn-md $(type)_$(id)" data-toggle="modal" data-target="#$(type)_$(id)modal">
             $if 'active' in elem.fields :
                 $if elem.fields['active'] == '0' or  elem.fields['active'] == 0 :
                   <span class="icon-combine">

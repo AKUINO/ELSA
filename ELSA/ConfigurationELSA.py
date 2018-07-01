@@ -2455,12 +2455,14 @@ class Group(ConfigurationObject):
                 if rel in self.related and k != self.getID():
                     self.siblings.append(k)
 
-    def get_all_parents(self,parents=[]):
+    def get_all_parents(self,parents=[],allObj=None):
+        if not allObj:
+            allObj =  self.config.findAllFromType(self.get_type()) 
         for e in self.parents:
-	    if not e in parents:
-	            parents.append(e)
-	            parents = self.config.findAllFromType(self.get_type()) \
-	                                   .elements[e].get_all_parents(parents)
+	    if e and e not in parents:
+                parents.append(e)
+                if e in allObj.elements.keys():
+                    parents = allObj.elements[e].get_all_parents(parents, allObj)
         return parents
 
 class GrUsage(Group):
