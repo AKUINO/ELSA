@@ -298,8 +298,10 @@ class WebFullEntry():
         mail = isConnected()
         if mail is None:
             return ''
-
-        return render.fullentry(mail, type, id)
+        current = id[0] == '*'
+        if current:
+            id = id[1:]
+        return render.fullentry(mail, type, id, current)
 
 # List of all (active) elements of a Class
 class WebList():

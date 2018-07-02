@@ -9,7 +9,7 @@ $var location: list/$(type)=$(c.findAllFromType(type).get_class_acronym())
 $if not type in 'tdv':
 	<script>
 	    $$(function(){
-		$$("#includedMenu$(type)_$(id)").load("/fullentry/$(type)_$(id)");
+		$$("#includedMenu$(type)_$(id)").load("/fullentry/$(type)_*$(id)");
 		$$("#includedModal$(type)_$(id)").load("/modal/$(type)_$(id)?direct=1");
 	    });
 	</script>

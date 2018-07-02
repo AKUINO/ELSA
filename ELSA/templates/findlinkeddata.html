@@ -9,7 +9,7 @@ $var location: list/$(type)=$(allobjects.get_class_acronym()) find/d/$(type)_$(i
 $var title:  $c.getName(allobjects,self.lang) $elem.getName(self.lang)
 <script>
     $$(function(){
-	$$("#includedAllMenu$(type)_$(id)").load("/fullentry/$(type)_$(id)");
+	$$("#includedAllMenu$(type)_$(id)").load("/fullentry/$(type)_*$(id)");
     });
 </script>
 <div id="includedAllMenu$(type)_$(id)"></div>

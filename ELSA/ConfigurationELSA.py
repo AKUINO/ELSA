@@ -4480,17 +4480,24 @@ class PouringModel(ConfigurationObject):
                 self)
         super(PouringModel, self).set_value_from_data(data, c, user)
         self.fields['quantity'] = data['quantity']
-        if data['src'] != 'current':
-            self.fields['src'] = data['src']
+        self.fields['in'] = data['in']
+        if self.fields['in'] == '1':
+            self.fields['src'] = data['recipe']
+            self.fields['dest'] = ''
         else:
             self.fields['src'] = ''
-            self.fields['in'] = '0'
-        if data['dest'] != 'current':
-            self.fields['dest'] = data['dest']
-        else:
-            self.fields['dest'] = '1'
-            self.fields['in'] = ''
-        self.fields['h_id'] = data['checkpoint']
+            self.fields['dest'] = data['recipe']            
+##        if data['src'] != 'current':
+##            self.fields['src'] = data['src']
+##        else:
+##            self.fields['src'] = ''
+##            self.fields['in'] = '0'
+##        if data['dest'] != 'current':
+##            self.fields['dest'] = data['dest']
+##        else:
+##            self.fields['dest'] = '1'
+##            self.fields['in'] = ''
+##        self.fields['h_id'] = data['checkpoint']
         self.fields['rank'] = data['rank']
         if 'active' in data:
             self.config.AllCheckPoints.elements[self.fields['h_id']].add_vm(

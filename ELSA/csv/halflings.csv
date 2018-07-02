@@ -43,3 +43,5 @@ begin	classname	glyphname	user
 2017-03-21 14:08:46	disconnect	off	1
 2017-03-21 14:08:46	active	ok-circle	1
 2017-03-21 14:08:46	disabled	remove-circle	1
+2017-03-21 14:08:46	to	arrow-right	1
+2017-03-21 14:08:46	from	arrow-left	1

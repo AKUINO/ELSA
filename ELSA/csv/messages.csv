@@ -298,6 +298,10 @@ Heure : {9}"	1
 2016-01-01 13:45:56	FR	pouring	Versement	1
 2016-01-01 13:45:56	EN	pouringmodel	Model-Pouring Model	1
 2016-01-01 13:45:56	FR	pouringmodel	Versement-modèle	1
+2016-01-01 13:45:56	EN	pouringfrom	Pouring from	1
+2016-01-01 13:45:56	FR	pouringfrom	Versement depuis	1
+2016-01-01 13:45:56	EN	pouringto	Pouring to	1
+2016-01-01 13:45:56	FR	pouringto	Versement vers 	1
 2016-01-01 13:45:56	EN	production	Production	1
 2016-01-01 13:45:56	FR	production	Production	1
 2016-01-01 13:45:56	EN	quantity	Quantity	1

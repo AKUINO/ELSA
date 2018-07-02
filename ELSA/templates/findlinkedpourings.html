@@ -9,7 +9,7 @@ $var location: list/b=batch find/v/b_$(id)=pouring
 $var title : $elem.getName(self.lang)
 <script>
     $$(function(){
-	$$("#includedAllMenum_$(id)").load("/fullentry/b_$(id)");
+	$$("#includedAllMenum_$(id)").load("/fullentry/b_*$(id)");
     });
 </script>
 <div id="includedAllMenum_$(id)"></div>

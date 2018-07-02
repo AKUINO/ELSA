@@ -9,6 +9,8 @@ begin	message_id	default	user
 2016-01-01 13:45:56	errorbarcode	the following barcode is not attached to an item	1
 2016-01-01 13:45:56	pouring	Pouring	1
 2016-01-01 13:45:56	pouringmodel	Pouring Model	1
+2016-01-01 13:45:56	pouringfrom	Pouring from	1
+2016-01-01 13:45:56	pouringto	Pouring to	1
 2016-01-01 13:45:56	transfermodel	Transfer Model	1
 2016-01-01 13:45:56	production	Production	1
 2016-01-01 13:45:56	exportdata	Export data	1
