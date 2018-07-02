@@ -244,7 +244,7 @@ $elif type == 'h':
 		    if check_id:
 			checkPoint = c.AllCheckPoints.elements[check_id]
 			if checkPoint and checkPoint.fields['gu_id']:
-			    checkUsage = c.AllGrRecipe.elements[checkPoint.fields['gu_id']]
+			    checkUsage = c.AllGrUsage.elements[checkPoint.fields['gu_id']]
 		<div class="row">
 		    <div class="col-xs-1 vcenter">
 			$:(c.getAllHalfling(groups))
@@ -281,7 +281,7 @@ $elif type == 'h':
 	            <div class="col-xs-4 vcenter">
 	            $ usage = elem.fields['gu_id']
 		    $if usage :
-                         <a href="/item/gr_$(usage)">$(c.AllGrUsage.elements[usage].fields['acronym'])</a>
+                         <a href="/item/gu_$(usage)">$(c.AllGrUsage.elements[usage].fields['acronym'])</a>
                     </div>
 		</div>
 	$elif type == 'h':
