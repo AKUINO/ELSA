@@ -1335,9 +1335,9 @@ class AllGroups(AllObjects):
             cond2 = (g is not None and g.getID() in group.related)
             if cond1 or cond2:
                 myString.append(k)
-                myString.append('IN')
+                myString.append('>>')
                 self.get_hierarchy_str(group, myString)
-                myString.append('OUT')
+                myString.append('<<')
         return myString
 
     def get_group(self, acro):
@@ -2603,9 +2603,9 @@ class CheckPoint(Group):
                 self.vm.append(model.getID())
 
     def get_model_sorted(self):
-        listdm = self.get_hierarchy_dm()
-        listvm = self.get_hierarchy_vm()
-        listtm = self.get_hierarchy_tm()
+        listdm = self.get_hierarchy_dm([],self)
+        listvm = self.get_hierarchy_vm([],self)
+        listtm = self.get_hierarchy_tm([],self)
         tmp = []
         for e in listdm:
             tmp.append(self.config.AllManualDataModels.elements[e])
@@ -2752,11 +2752,11 @@ class CheckPoint(Group):
     def owns(self,type,id):
         elems = []
         if type == "dm":
-            elems = self.get_hierarchy_dm()
+            elems = self.get_hierarchy_dm([],self)
         elif type == "vm":
-            elems = self.get_hierarchy_vm()
+            elems = self.get_hierarchy_vm([],self)
         elif type == "tm":
-            elems = self.get_hierarchy_tm()
+            elems = self.get_hierarchy_tm([],self)
         return id in elems;
 
 class GrRecipe(Group):
