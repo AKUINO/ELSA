@@ -119,14 +119,14 @@ $elif type == 'h':
 	    if recipe_id and recipe_id in c.AllGrRecipe.elements:
 	        recipes.add(recipe_id)
 	        recipe = c.AllGrRecipe.elements[recipe_id]
-	        new_recipes = set(recipe.get_all_parents())
+	        new_recipes = set(recipe.get_all_parents([],None))
 	        recipes = recipes | new_recipes
 	    usages = set()
 	    gr_usage = elem.fields['gu_id']
 	    if gr_usage and gr_usage in c.AllGrUsage.elements:
 		usages.add(gr_usage)
 		usage = c.AllGrUsage.elements[gr_usage]
-		new_usages = set(usage.get_all_parents())
+		new_usages = set(usage.get_all_parents([],None))
 		usages = usages | new_usages
 	    allowedbatches = c.AllBatches.get_batches_for_recipe_usage(recipes,usages)
 
@@ -220,10 +220,10 @@ $elif type == 'gu':
 	    $if cp.fields['gu_id'] == id:
 		<script>
 		    $$(function(){
-			$$("#includedMenub_$(k)").load("/fullentry/h_$(k)");
+			$$("#includedMenuh_$(k)").load("/fullentry/h_$(k)");
 		    });
 		</script>
-		<div id="includedMenub_$(k)"></div>
+		<div id="includedMenuh_$(k)"></div>
     </div>
     <div class="row active" style="background-color:rgb(0, 21, 43);">
 	<div class="col-xs-5">
@@ -258,10 +258,10 @@ $elif type == 'gr':
 	    $if cp.fields['gr_id'] == id:
 		<script>
 		    $$(function(){
-			$$("#includedMenub_$(k)").load("/fullentry/h_$(k)");
+			$$("#includedMenuh_$(k)").load("/fullentry/h_$(k)");
 		    });
 		</script>
-		<div id="includedMenub_$(k)"></div>
+		<div id="includedMenuh_$(k)"></div>
     </div>
     <div class="row active" style="background-color:rgb(0, 21, 43);">
 	<div class="col-xs-5">

@@ -37,12 +37,12 @@ $if errormess != '':
 			    cindent = 9
 			$if len(groupList) > 0:
 			    $for group in groupList:
-				$if group == 'IN' :
+				$if group == '>>' :
 				    $code:
 					indent+=1
 					cindent-=1
 					tmp = ((indent-1)*4)*"_"
-				$elif group == 'OUT':
+				$elif group == '<<':
 				    $code:
 					indent-=1
 					cindent+=1
@@ -71,12 +71,12 @@ $if errormess != '':
 			    cindent = 9
 			$if len(groupList) > 0:
 			    $for group in groupList:
-				$if group == 'IN' :
+				$if group == '>>' :
 				    $code:
 					indent+=1
 					cindent-=1
 					tmp = ((indent-1)*4)*"_"
-				$elif group == 'OUT':
+				$elif group == '<<':
 				    $code:
 					indent-=1
 					cindent+=1

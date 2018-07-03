@@ -24,11 +24,11 @@ $if 'g' in type or type == 'h':
     </div>
     $if len(groupList) > 0:
 	$for group in groupList:
-	    $if group == 'IN' :
+	    $if group == '>>' :
 		$code:
 		    indent+=1
 		    cindent-=1
-	    $elif group == 'OUT':
+	    $elif group == '<<':
 		$code:
 		    indent-=1
 		    cindent+=1
@@ -70,16 +70,16 @@ $else:
 		<option value=''></option>
 		$if len(groupList) > 0:
 		    $for group in groupList:
-			$if group == 'IN' :
+			$if group == '>>' :
 			    $code:
 				indent+=1
 				cindent-=1
-				tmp = ((indent-1)*4)*"_"
-			$elif group == 'OUT':
+				tmp = ((indent-1)*4)*"&nbsp;"
+			$elif group == '<<':
 			    $code:
 				indent-=1
 				cindent+=1
-				tmp = ((indent-1)*4)*"_"
+				tmp = ((indent-1)*4)*"&nbsp;"
 			$else :
 			    <option value="$group"
 			    $if context != '':
@@ -88,7 +88,7 @@ $else:
 			    $elif id != 'new':
 				$if group == elements.elements[id].get_group() :
 				    selected
-			    >$tmp $groups.elements[group].fields['acronym'] - $groups.elements[group].getName(self.lang)</option>
+			    >$:tmp $groups.elements[group].fields['acronym'] - $groups.elements[group].getName(self.lang)</option>
 	    </select>
 	</div>
     </div>
