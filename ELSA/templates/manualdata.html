@@ -178,7 +178,7 @@ $for k in c.AllMeasures.elements.keys():
     $ aMeasure = c.AllMeasures.elements[k]
     mins[$k]=$(aMeasure.fields['min']);
     maxs[$k]=$(aMeasure.fields['max']);
-    steps[$k]=$(aMeasure.fields['step']);
+    steps[$k]=$(aMeasure.get_html_step());
 
 $$("#measureSelect").change(function() {
     $$("#measureSelect option:selected").each(function() {

@@ -138,7 +138,7 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		    <div class="col-xs-8 col-sm-7">
 			<input name="vm_quantity_$(countvm)" type="number" 
                         $if aMeasure:
-                            min="$(aMeasure.fields['min'])" max="$(aMeasure.fields['max'])" step="$(aMeasure.fields['step'])"
+                            min="$(aMeasure.fields['min'])" max="$(aMeasure.fields['max'])" step="$(aMeasure.get_html_step())"
                         class="form-control" id="inputValue" placeholder="$c.getMessage('value',self.lang)" value="$e.fields['quantity']"required >
 		    </div>
                     $if aMeasure:
