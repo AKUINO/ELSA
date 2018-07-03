@@ -2579,7 +2579,7 @@ class CheckPoint(Group):
                     self.dm.insert(i, model.getID())
                     break
             if insert is False:
-                self.dm.append(self.dm.getID())
+                self.dm.append(model.getID())
 
     def remove_vm(self, model):
         if model.fields['vm_id'] in self.vm:
