@@ -5,12 +5,12 @@ $var recursive : False
 $var title : $c.getMessage('add',self.lang)
 $if id == 'new':
     $var location: list/u=user edit/u_new=add
-    $var rmq :
-    
+    $var rmq :    
 $else:
+    $ elem = c.AllUsers.elements[id]
     $var location: list/u=user edit/u_$(id)=edit
-    $var rmq :  $c.AllUsers.elements[id].fields['remark']
-    $var title : $c.AllUsers.elements[id].getName(self.lang)
+    $var rmq :  $elem.fields['remark']
+    $var title : $elem.getName(self.lang)
 
 $if errormess != '':
     $if 'remark' in data :
@@ -44,7 +44,7 @@ $if errormess != '':
 		    $if 'acronym' in data :
 			value="$data['acronym']" 
 		$elif id != 'new':
-		    value="$c.AllUsers.elements[id].fields['acronym']"
+		    value="$elem.fields['acronym']"
 		$elif context != '':
 		    value = $(c.AllGrFunction.elements[context.split('_')[-1]].fields['acronym'])_
 		required="true">
@@ -59,7 +59,7 @@ $if errormess != '':
 		    $if 'EN' in data :
 			value="$data['EN']"
 		$elif id !='new':
-		    value="$c.AllUsers.elements[id].getName('EN')"
+		    value="$elem.getName('EN')"
 		required="true" >
 	    </div>
 	</div>
@@ -72,7 +72,7 @@ $if errormess != '':
 		    $if 'mail' in data :
 			value="$data['mail']"
 		$elif id !='new':
-		    value="$c.AllUsers.elements[id].fields['mail']"
+		    value="$elem.fields['mail']"
 		required="true" >
 	    </div>
 	</div>
@@ -85,7 +85,7 @@ $if errormess != '':
 		    $if 'phone' in data :
 			value="$data['phone']"
 		$elif id !='new':
-		    value="$c.AllUsers.elements[id].fields['phone']"
+		    value="$elem.fields['phone']"
 		>
 	    </div>
 	</div>
@@ -126,7 +126,7 @@ $if errormess != '':
 	    $code:
 		cond = (id == 'new')
 		if not cond :
-		    cond = (c.AllUsers.elements[id].fields['active'] == 1 or c.AllUsers.elements[id].fields['active'] == '1')
+		    cond = (elem.fields['active'] == 1 or elem.fields['active'] == '1')
 		if errormess != '' :
 		    if 'active' in data :
 			cond  = True
@@ -150,7 +150,7 @@ $if errormess != '':
 			    $if lg == data['language']:
 				selected
 		    $elif id !='new':
-			$if lg == c.AllUsers.elements[id].fields['language'] :
+			$if lg == elem.fields['language'] :
 			    selected
 		    >$lg</option>
 		</select>
@@ -167,7 +167,12 @@ $if errormess != '':
 	<div class="form-group row">
 	    <label for="inputFile" class="col-sm-3 col-form-label">$c.getMessage('document',self.lang)</label>
 	    <label class="control-label col-sm-9">
-	        <input id="inputFile" name="linkedDocs" type="file" multiple class="file file-loading"'>
+            $ i=0
+	    $if id != 'new':
+		    $for filename in elem.getDocumentList():
+		        $ i=i+1
+			($(i)) <a href="$elem.getDocumentURL(filename)" target="_blank">$filename</a><br/>
+	    <input id="inputFile" name="linkedDocs" type="file" multiple class="file file-loading"'>
             </label>
 	</div>
 

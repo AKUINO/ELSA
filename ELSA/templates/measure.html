@@ -147,7 +147,12 @@ $if errormess != '':
 	<div class="form-group row">
 	    <label for="inputFile" class="col-sm-3 col-form-label">$c.getMessage('document',self.lang)</label>
 	    <label class="control-label col-sm-9">
-	        <input id="inputFile" name="linkedDocs" type="file" multiple class="file file-loading"'>
+            $ i=0
+	    $if id != 'new':
+		    $for filename in elem.getDocumentList():
+		        $ i=i+1
+			($(i)) <a href="$elem.getDocumentURL(filename)" target="_blank">$filename</a><br/>
+	    <input id="inputFile" name="linkedDocs" type="file" multiple class="file file-loading"'>
             </label>
 	</div>
 	

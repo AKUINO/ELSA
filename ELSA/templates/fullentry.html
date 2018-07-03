@@ -334,7 +334,16 @@ $elif type == 'h':
 		$elem.get_select_str(self.lang)
 	</div>
 	<div class="col-xs-1 vcenter">
-	    <button type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#modal_menu_$(type)_$(id)">$:(c.getHalfling('menu'))</button>
+	    $ documentList = elem.getDocumentList()
+	    <button type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#modal_menu_$(type)_$(id)">
+		$if len(documentList) > 0 :
+                  <span class="icon-combine">
+                     $:(c.getHalfling('menu'))
+                     <span class="text-danger">$len(documentList)</span>
+                  </span>
+	        $else:
+		  $:(c.getHalfling('menu'))
+	    </button>
 	</div>
 </div>
 
@@ -484,7 +493,18 @@ $elif type == 'h':
 			<div class="col-xs-10">
 			    $(c.getMessage('update',self.lang))
 			</div>
-		    </div>			
+		    </div>
+                    $ i=0
+		    $for filename in documentList:
+                        <div class="row" style="margin-top:6px;">
+			    <div class="col-xs-2">
+                                $ i=i+1
+				($(i))
+			    </div>
+			    <div class="col-xs-10">
+				<a href="$elem.getDocumentURL(filename)" target="_blank"><strong>$filename</strong></a>
+			    </div>
+			</div>
                 </div>
             </div>
             <div class="modal-footer row">
