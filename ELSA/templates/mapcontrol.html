@@ -1,6 +1,8 @@
 $def with (mail, type, id, graph)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : True
+$var title : Map Controls
+$var location :
 $code:
     allobjects = c.findAllFromType(type)
     elem = allobjects.elements[id]
@@ -18,28 +20,32 @@ $#<p style="background: white;">$graph</p>
 <div class="modal-body" style="background: white;">
   <div class="container-fluid">
     <div class="row">
-	<div id="modalinfo" class="col-xs-6">
+	<div id="modalinfo" class="col-xs-5">
 	    $:c.getAllHalfling(allobjects)$elem.fields['acronym'] <strong>$elem.getName(self.lang)</strong>
 	</div>
-	<div id="modalinfo" class="col-xs-6">
+	<div id="modalinfo" class="col-xs-5">
         $if place:
 	    <a href="/find/related/$(place.get_type())_$(place.getID())">$:c.getAllHalfling(c.AllPlaces)$place.fields['acronym'] <strong>$place.getName(self.lang)</strong></a></br>
 	</div>
+        <div class="col-xs-2">
+	    <button onClick="printSVG()">$:c.getHalfling("print")</button>
+        </div>
     </div>
     <div class="row">
-	<div id="modalinfo" class="col-xs-6">
+	<div id="modalinfo" class="col-xs-5">
         $if recipe:
 	    <a href="/find/related/gr_$recipe.getID()">$:c.getAllHalfling(c.AllGrRecipe)$recipe.fields['acronym'] <strong>$recipe.getName(self.lang)</strong></a>
 	</div>
-	<div id="modalinfo" class="col-xs-6">
+	<div id="modalinfo" class="col-xs-5">
         $if usage:
 	    <a href="/find/related/gu_$usage.getID()">$:c.getAllHalfling(c.AllGrUsage)$usage.fields['acronym'] <strong>$usage.getName(self.lang)</strong></a>
 	</div>
     </div>
-
-<svg class="row" width="100%" height="800px">
+<div id="Controls">
+<svg id="SchemaSVG" class="row" style="background-color:#E5E5E7" width="100%" height="8000px">
   <g/>
 </svg>
+</div>
 
   </div>
 </div>
@@ -59,7 +65,8 @@ svg.call(zoom);
 // Create and configure the renderer
 var render = dagreD3.render();
 
-  var g;
+var g;
+
 function tryDraw() {
     try {
       g = graphlibDot.read(inputGraph);
@@ -84,5 +91,27 @@ function tryDraw() {
 }
 
 tryDraw();
+
+var printSVG = function()
+    {
+        var popUpAndPrint = function()
+        {
+            var container = $$('#Controls').html();
+	    // get all <links> and remove all the <script>'s from the header that could run on the new window
+	    var allLinks = $$('head').clone().find('script').remove().end().html();
+	    var SchemaSVG = $$('#SchemaSVG');
+            var width = parseFloat(SchemaSVG.naturalWidth);
+            var height = parseFloat(SchemaSVG.naturalHeight);
+            var printWindow = window.open('', 'PrintMap','width=' + width + ',height=' + height);
+	    // -webkit-print-color-adjust to keep colors for the printing version
+	    var keepColors = '<style>body {-webkit-print-color-adjust: exact !important; }</style>';
+	    // writing
+	    // onload="window.print()" to print straigthaway
+	    printWindow.document.write('<html><head>' + keepColors + allLinks + '</head><body onload="window.print()">' + container + '</body></html>');
+            printWindow.document.close();
+        };
+        setTimeout(popUpAndPrint, 500);
+    };
+
 </script>
 

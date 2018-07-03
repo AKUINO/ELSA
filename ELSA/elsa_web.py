@@ -585,24 +585,30 @@ class WebMap():
             if recipe_id and recipe_id in c.AllGrRecipe.elements.keys():
                 recipes.add(recipe_id)
                 recipe = c.AllGrRecipe.elements[recipe_id]
-                new_recipes = set(recipe.get_all_parents())
+                new_recipes = set(recipe.get_all_parents([],None))
                 recipes = recipes | new_recipes
+            #print "grs="+unicode(recipes)
             components = elem.get_actual_position_hierarchy(c)
             usages_todo = []
             recipes_todo = set()
             for place in reversed(components):
-                gr_usage = place.get_group()
-                if gr_usage and gr_usage in c.AllGrUsage.elements.keys():
-                    usage = c.AllGrUsage.elements[gr_usage]
-                    for parent in reversed(usage.get_all_parents()):
-                        if parent and parent in c.AllGrUsage.elements.keys():
-                            usages_todo.append(c.AllGrUsage.elements[parent])
-                    usages_todo.append(usage)
+                if place.get_type() in "pec":
+                    #print place
+                    gr_usage = place.get_group()
+                    #print "begu="+gr_usage
+                    if gr_usage and gr_usage in c.AllGrUsage.elements.keys():
+                        usage = c.AllGrUsage.elements[gr_usage]
+                        for parent in reversed(usage.get_all_parents([],None)):
+                            #print "begup="+parent
+                            if parent and parent in c.AllGrUsage.elements.keys():
+                                usages_todo.append(c.AllGrUsage.elements[parent])
+                        usages_todo.append(usage)
             graph = ""
             done = set()
             prec = None
             while len(usages_todo) > 0:
               usage = usages_todo[0]
+              #print "gu="+usage.getID()
               usaID = "gu_"+usage.getID()
               usages_todo.remove(usage)
               if not usaID in done:
@@ -616,6 +622,7 @@ class WebMap():
                 prec = usaID
                 allowedcheckpoints = c.AllCheckPoints.get_checkpoints_for_recipe_usage(recipes,set([usage.getID()]))
                 for v in allowedcheckpoints:
+                    #print "h="+v.getID()
                     hid = "h_"+v.getID()
                     graph += prec+"->"+hid+";"
                     prec = hid
@@ -625,10 +632,12 @@ class WebMap():
                         if e.get_type() == 'tm':
                             if e.fields['gu_id']:
                                 nx_usage = e.fields['gu_id']
+                                #print "nxu="+nx_usage
                                 if nx_usage and nx_usage in c.AllGrUsage.elements.keys():
                                     nx_usage = c.AllGrUsage.elements[nx_usage]
                                     # graph += hid+"->"+"gu_"+e.fields['gu_id']+"[style=\"stroke-dasharray:5,5\"];"
-                                    for parent in reversed(nx_usage.get_all_parents()):
+                                    for parent in reversed(nx_usage.get_all_parents([],None)):
+                                        #print "nxup="+parent
                                         if parent and not parent in done and parent in c.AllGrUsage.elements.keys():
                                             usages_todo.append(c.AllGrUsage.elements[parent])
                                     usages_todo.append(nx_usage)

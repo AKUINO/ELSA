@@ -1447,8 +1447,10 @@ class AllCheckPoints(AllGroups):
         checkpoints = []
         for k, e in self.elements.items():
             if e.fields['abstract'] == '0':
-                if not e.fields['gr_id'] or (e.fields['gr_id'] in recipes):
-                    if not e.fields['gu_id'] or (e.fields['gu_id'] in usages):
+##                if not e.fields['gr_id'] or (e.fields['gr_id'] in recipes):
+##                    if not e.fields['gu_id'] or (e.fields['gu_id'] in usages):
+                if e.fields['gr_id'] in recipes:
+                    if e.fields['gu_id'] in usages:
                         checkpoints.append(e)
         checkpoints.sort(key=lambda x: int(x.fields['rank']), reverse=False)
         return checkpoints
