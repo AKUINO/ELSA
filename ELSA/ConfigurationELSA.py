@@ -1069,8 +1069,9 @@ class AllObjects(object):
                                        key=lambda t: t[1].get_acronym())).keys()
 
     def get_sorted_hierarchy(self):
-        return collections.OrderedDict(sorted(self.elements.items(),
-                                       key=lambda t: t[1].get_acronym_hierarchy())).keys()
+        return sorted(self.elements,
+#                      key=lambda t: t[1].get_acronym_hierarchy() )
+                      key=lambda t: self.elements[t].get_acronym_hierarchy().upper() )
 
     def findAcronym(self, acronym):
         for k, element in self.elements.items():
@@ -2476,13 +2477,13 @@ class Group(ConfigurationObject):
         return parents
 
     def get_acronym_hierarchy(self):
-        parents = self.get_all_parents([],None)
-        result = ""
         allObj =  self.config.findAllFromType(self.get_type()) 
+        parents = self.get_all_parents([],allObj)
+        result = ""
         for key in reversed(parents):
             e = allObj.elements[key]    
-            result += e.get_acronym()
-        return result
+            result += e.get_acronym()+" "
+        return result+self.get_acronym()
 
 class GrUsage(Group):
     def __init__(self, config):

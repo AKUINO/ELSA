@@ -6,20 +6,22 @@ $code :
     elements = allObjects.get_sorted()
     keyID = allObjects.keyColumn
     permissionKey = type +'_'
-    key_elements = allObjects.get_sorted_hierarchy()
+    keys = allObjects.get_sorted_hierarchy()
 $var location: list/$(type)=$(allObjects.get_class_acronym())
 $var recursive : False
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var title: $c.getName(allObjects,self.lang)
 
-$for a in key_elements:
-    $if allObjects.elements[a].fields['active'] == '1' or id == 'all':
+$for ikey in keys:
+    $ a = allObjects.elements[ikey]
+    $if a.fields['active'] == '1' or id == 'all':
+	$ key = a.get_type()+"_"+a.getID()
 	<script>
 	    $$(function(){
-		$$("#includedMenu$(type)_$(a)").load("/fullentry/$(type)_$(a)");
+		$$("#includedMenu$(key)").load("/fullentry/$(key)");
 	    });
 	</script>
-	<div id="includedMenu$(type)_$(a)" ></div>    
+	<div id="includedMenu$(key)" ></div>    
 
 $if type == 'b' :    
     <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;">
