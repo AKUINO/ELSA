@@ -1434,7 +1434,7 @@ class AllCheckPoints(AllGroups):
                 if id:
                     currObject = self.config.findAllFromType(type).elements[id]
                     if currObject:
-                        currObject.add_checkpoint(row['h_id'])
+                        currObject.add_checkpoint(row['h_id'],row['time'] if 'time' in row else row['begin'] )
 
     def get_checkpoints_for_recipe(self, recipes):
         checkpoints = []
@@ -2671,7 +2671,7 @@ class CheckPoint(Group):
         id = data['batch'].split('_')[1]
         self.write_control(type, id, user)
         self.config.findAllFromType(
-            type).elements[id].add_checkpoint(self.getID())
+            type).elements[id].add_checkpoint(self.getID(),data['time'])
 
     def create_data(self, data, type, count):
         batch = data['batch']
@@ -4301,6 +4301,7 @@ class Batch(ConfigurationObject):
         self.source = []
         self.destination = []
         self.checkpoints = []
+        self.lastCheckPoint = None
 
     def __str__(self):
         string = "\nBatch :"
@@ -4383,9 +4384,10 @@ class Batch(ConfigurationObject):
         if pouring.getID() in self.destination:
             self.destination.remove(pouring.getID())
 
-    def add_checkpoint(self, cp):
+    def add_checkpoint(self, cp, now):
         if cp not in self.checkpoints and cp in self.config.AllCheckPoints.elements:
             self.checkpoints.append(cp)
+            self.lastCheckPoint = now
             aCP = self.config.AllCheckPoints.elements[cp]
             if self.id not in aCP.batches:
                 aCP.batches.append(self.id)
