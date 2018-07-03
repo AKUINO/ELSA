@@ -395,7 +395,8 @@ $elif type == 'h':
 				<strong><a href="/find/h/$(type)_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('checkpoint'))</a></strong>
 			    </div>
 			    <div class="col-xs-10">
-				<b>$len(c.AllBatches.elements[id].checkpoints)</b> $(c.getMessage('checkpoint',self.lang))(s) $c.AllBatches.elements[id].lastCheckPoint
+				<b>$len(c.AllBatches.elements[id].checkpoints)</b> $(c.getMessage('checkpoint',self.lang))(s)
+				<br/>$c.AllBatches.elements[id].lastCheckPoint
 			    </div>
 			</div>
 			<div class="row" style="margin-top:6px;">
