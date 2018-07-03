@@ -74,12 +74,12 @@ $else:
 			    $code:
 				indent+=1
 				cindent-=1
-				tmp = ((indent-1)*4)*"&nbsp;"
+				tmp = ((indent-1)*4)*"_"
 			$elif group == '<<':
 			    $code:
 				indent-=1
 				cindent+=1
-				tmp = ((indent-1)*4)*"&nbsp;"
+				tmp = ((indent-1)*4)*"_"
 			$else :
 			    <option value="$group"
 			    $if context != '':
