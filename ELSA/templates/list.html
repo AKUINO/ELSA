@@ -6,12 +6,13 @@ $code :
     elements = allObjects.get_sorted()
     keyID = allObjects.keyColumn
     permissionKey = type +'_'
+    key_elements = allObjects.get_sorted_hierarchy()
 $var location: list/$(type)=$(allObjects.get_class_acronym())
 $var recursive : False
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var title: $c.getName(allObjects,self.lang)
 
-$for a in elements:
+$for a in key_elements:
     $if allObjects.elements[a].fields['active'] == '1' or id == 'all':
 	<script>
 	    $$(function(){

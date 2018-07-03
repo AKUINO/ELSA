@@ -738,6 +738,10 @@ class ConfigurationObject(object):
     def get_acronym(self):
         return self.fields['acronym']
 
+    # overriden for groups !
+    def get_acronym_hierarchy(self):
+        return self.fields['acronym']
+
     def get_batch_in_component(self, configuration):
         batches = []
         type = self.get_type()
@@ -1062,7 +1066,11 @@ class AllObjects(object):
 
     def get_sorted(self):
         return collections.OrderedDict(sorted(self.elements.items(),
-                                       key=lambda t: t[1].fields['acronym'])).keys()
+                                       key=lambda t: t[1].get_acronym())).keys()
+
+    def get_sorted_hierarchy(self):
+        return collections.OrderedDict(sorted(self.elements.items(),
+                                       key=lambda t: t[1].get_acronym_hierarchy())).keys()
 
     def findAcronym(self, acronym):
         for k, element in self.elements.items():
@@ -2466,6 +2474,15 @@ class Group(ConfigurationObject):
                 if e in allObj.elements.keys():
                     parents = allObj.elements[e].get_all_parents(parents, allObj)
         return parents
+
+    def get_acronym_hierarchy(self):
+        parents = self.get_all_parents([],None)
+        result = ""
+        allObj =  self.config.findAllFromType(self.get_type()) 
+        for key in reversed(parents):
+            e = allObj.elements[key]    
+            result += e.get_acronym()
+        return result
 
 class GrUsage(Group):
     def __init__(self, config):
