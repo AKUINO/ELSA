@@ -30,7 +30,7 @@ $if errormess != '':
 		    <select name = "recipe" class="form-control" id="recipe" onchange="myRecipeChange()">
 			<option value=''></option>
 			$code :
-			    groupList = c.AllGrRecipe.get_hierarchy_str()
+			    groupList = c.AllGrRecipe.get_hierarchy_str(None,None)
 			    groups = c.AllGrRecipe
 			    tmp = ''
 			    indent = 1

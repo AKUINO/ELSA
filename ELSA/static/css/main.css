@@ -1,6 +1,6 @@
 .icon-combine {
   position: relative;
-  display: block;
+  display: inline-block;
 }
 
 .icon-combine .halflings:last-child {
@@ -373,6 +373,17 @@ ul.nav.nav-tabs {
 	padding-right:6px;
 }
 
+.map.top {
+    padding: 4px;
+    border: 1px solid #888;
+}
+
+.map.down {
+    padding: 4px;
+    border: 0px;
+    border-left: 5px solid #DDD;
+    margin-left: 20px;
+}
 
 /* Breadcrumbs from http://bootsnipp.com/snippets/featured/triangle-breadcrumbs-arrows */
 .btn-breadcrumb {

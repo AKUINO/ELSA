@@ -2,21 +2,21 @@ $def with (mail,type,id, context='')
 $# Template included in update forms and others where a group has to be chosen
 $var recursive : True
 $code :
-    elements = c.findAllFromType(type)
-    groups = c.get_group(elements.get_key_group())
+    allObjs = c.findAllFromType(type)
+    groups = c.get_group(allObjs.get_key_group())
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var title : permission
 $code:
-    groupList = groups.get_hierarchy_str()
+    groupList = groups.get_hierarchy_str(None,None)
     tmp = ''
     indent = 1
     cindent = 9
     if id != 'new':
-	if 'g' in elements.elements[id].get_type() or type == 'h':
-	    myid = elements.elements[id].getID()
+	if 'g' in allObjs.elements[id].get_type() or type == 'h':
+	    myid = allObjs.elements[id].getID()
 	    mygroup = groups.elements[id]
 	else:
-	    myid = elements.elements[id].get_group()
+	    myid = allObjs.elements[id].get_group()
 	    mygroup = []
 $if 'g' in type or type == 'h':
     <div class="form-group row">
@@ -86,7 +86,7 @@ $else:
 				$if context == group :
 				    selected
 			    $elif id != 'new':
-				$if group == elements.elements[id].get_group() :
+				$if group == allObjs.elements[id].get_group() :
 				    selected
 			    >$:tmp $groups.elements[group].fields['acronym'] - $groups.elements[group].getName(self.lang)</option>
 	    </select>

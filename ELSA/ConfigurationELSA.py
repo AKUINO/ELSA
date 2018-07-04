@@ -764,6 +764,13 @@ class ConfigurationObject(object):
                                     .elements[self.position[count-1]]
         return configuration.AllTransfers.elements[self.position[-1]]
 
+    def statusIcon(self, configuration):
+        allObjects = configuration.findAllFromObject(self)
+        result = configuration.getAllHalfling(allObjects)
+        if self.fields['active'] == '0':
+            result = '<span class="icon-combine">'+result+'<span class="halflings halflings-remove text-danger"></span></span>'
+        return result
+
 class UpdateThread(threading.Thread):
 
     def __init__(self, config):
@@ -1340,6 +1347,20 @@ class AllGroups(AllObjects):
                 myString.append('<<')
         return myString
 
+    def get_fullmap_str(self):
+        objMap = []
+        for k, group in self.elements.items():
+            parents = group.get_parents()
+            if not parents or len(parents) == 0:
+                objMap.append(group)
+        objMap = sorted(objMap,key=lambda t: t.get_acronym())
+        fullmap = []
+        for group in objMap:
+                k = group.getID()
+                fullmap.append(k)
+                fullmap += group.get_submap_str()
+        return fullmap
+
     def get_group(self, acro):
         for k, g in self.elements.items():
             if g.fields['acronym'] == GROUPWEBUSERS:
@@ -1347,7 +1368,6 @@ class AllGroups(AllObjects):
 
     def get_class_acronym(self):
         return 'group'
-
 
 class AllGrUsage(AllGroups):
     def __init__(self, config):
@@ -2484,6 +2504,25 @@ class Group(ConfigurationObject):
             e = allObj.elements[key]    
             result += e.get_acronym()+" "
         return result+self.get_acronym()
+
+    def get_submap_str(self):
+        children = self.get_children()
+        submap = []                      
+        submap.append('>>')
+        if children and len (children) > 0:
+            allObj =  self.config.findAllFromType(self.get_type())
+            childObj = []
+            for k in children:
+                if k and k in allObj.elements:
+                    childObj.append(allObj.elements[k])
+            if len(childObj):
+                childObj = sorted(childObj,key=lambda t: t.get_acronym())
+                for elem in childObj:
+                    k = elem.getID()
+                    submap.append(k)
+                    submap += elem.get_submap_str()
+        submap.append('<<')
+        return submap
 
 class GrUsage(Group):
     def __init__(self, config):

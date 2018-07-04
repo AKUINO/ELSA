@@ -568,17 +568,16 @@ class WebGraphic():
         return render.notfound()
 
 
-class WebMap():
+class WebMapControl():
     def __init__(self):
-        self.name = u"WebMap"
+        self.name = u"WebMapControl"
 
-    def GET(self, type, id):
+    def GET(self,id):
         mail = redirect_when_not_logged()
         lang = c.connectedUsers.users[mail].cuser.fields['language']
         
-        allobjects = c.findAllFromType(type)
-        if id in allobjects.elements.keys() and type in 'b':
-            elem = allobjects.elements[id]
+        if id in c.AllBatches.elements.keys():
+            elem = c.AllBatches.elements[id]
             recipes = set()
             recipe_id = elem.fields['gr_id']
             recipe = None
@@ -676,6 +675,14 @@ class WebMap():
             return render.mapcontrol(mail, type, id, graph)
         return render.notfound()
 
+class WebMapComponents():
+    def __init__(self):
+        self.name = u"WebMapComponents"
+
+    def GET(self):
+        mail = redirect_when_not_logged()
+        lang = c.connectedUsers.users[mail].cuser.fields['language']
+        return render.mapcomponents(mail)
 
 class WebRRDfetch():
     def __init__(self):
@@ -1031,7 +1038,8 @@ def main():
             '/doc/(.+)', 'getDoc',
             '/list/(.+)', 'WebList',
             '/graphic/(.+)_(.+)', 'WebGraphic',
-            '/map/(.+)_(.+)', 'WebMap',
+            '/map/gu', 'WebMapComponents',
+            '/map/b_(.+)', 'WebMapControl',
             '/barcode/(.+)', 'WebBarcode',
             '/barcode/', 'WebBarcode',
             '/modal/(.+)_(.+)', 'WebModal',
