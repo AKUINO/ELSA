@@ -1,0 +1,107 @@
+$def with (mail)
+$var title : ELSA Components Map
+$var location: list/gu=$(c.AllGrUsage.get_class_acronym())
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$var recursive : False
+$ done = set()
+$ listUsage = c.AllGrUsage.get_fullmap_str()
+<div class="container">
+$ level = 0
+$for kusage in listUsage:
+	$if kusage == '>>':
+		$ level += 1
+	$elif kusage == '<<':
+		$ level -= 1
+		</div>
+	$else:
+		$ elem = c.AllGrUsage.elements[kusage]
+		$if level == 0:
+			<div class="map top">
+		$else:
+			<div class="map down">
+		<a href="/find/related/gu_$kusage">$:(elem.statusIcon(c))</a>
+		$ acro = elem.fields['acronym']
+		$if ('gu_'+kusage) in done:
+			<a href="#gu_$acro">$acro</a>
+		$else:
+			<a name="gu_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>
+			$for kplace in c.AllPlaces.elements:
+				$ place = c.AllPlaces.elements[kplace]
+				$if place.get_group() == kusage :
+					<div class="map down" style="border-color:$(place.fields['colorgraph'])">
+					<a href="/find/related/p_$kplace">$:(place.statusIcon(c))</a>
+					$ acro = place.fields['acronym']
+					$if ('p_'+kplace) in done:
+						<a href="#p_$acro">$acro</a>
+					$else:
+						<a name="p_$acro"></a>$acro - <strong>$(place.getName(self.lang))</strong>
+						$for ksensor in place.get_sensors_in_component(c):
+							$ sensor = c.AllSensors.elements[ksensor]
+							<div class="map down">
+							<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c))</a>
+							$ acro = sensor.fields['acronym']
+							$if ('s_'+ksensor) in done:
+								<a href="#s_$acro">$acro</a>
+							$else:
+								<a name="s_$acro"></a>$acro - <strong>$(sensor.getName(self.lang))</strong>
+								<a href="/graphic/s_$ksensor">$:(c.getHalfling('graphic'))</a>
+								$ done.add('s_'+ksensor)
+							</div>
+						$ done.add('p_'+kplace)
+					</div>
+			$for kequipment in c.AllEquipments.elements:
+				$ equipment = c.AllEquipments.elements[kequipment]
+				$if equipment.get_group() == kusage :
+					<div class="map down" style="border-color:$(equipment.fields['colorgraph'])">
+					<a href="/find/related/p_$kequipment">$:(equipment.statusIcon(c))</a>
+					$ acro = equipment.fields['acronym']
+					$if ('e_'+kequipment) in done:
+						<a href="#p_$acro">$acro</a>
+					$else:
+						<a name="p_$acro"></a>$acro - <strong>$(equipment.getName(self.lang))</strong>
+						$ here = equipment.get_actual_position_here(c)
+						$if here:
+							<small>$:c.getHalfling('to')</small> <a href="/find/related/$(here.get_type())_$(here.getID())">$:(here.statusIcon(c))$(here.fields['acronym'])</a>
+						$for ksensor in equipment.get_sensors_in_component(c):
+							$ sensor = c.AllSensors.elements[ksensor]
+							<div class="map down">
+							<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c))</a>
+							$ acro = sensor.fields['acronym']
+							$if ('s_'+ksensor) in done:
+								<a href="#s_$acro">$acro</a>
+							$else:
+								<a name="s_$acro"></a>$acro - <strong>$(sensor.getName(self.lang))</strong>
+								<a href="/graphic/s_$ksensor">$:(c.getHalfling('graphic'))</a>
+								$ done.add('s_'+ksensor)
+							</div>
+						$ done.add('e_'+kequipment)
+					</div>
+			$for kcontainer in c.AllContainers.elements:
+				$ container = c.AllContainers.elements[kcontainer]
+				$if container.get_group() == kusage :
+					<div class="map down" style="border-color:$(container.fields['colorgraph'])">
+					<a href="/find/related/p_$kcontainer">$:(container.statusIcon(c))</a>
+					$ acro = container.fields['acronym']
+					$if ('c_'+kcontainer) in done:
+						<a href="#p_$acro">$acro</a>
+					$else:
+						<a name="p_$acro"></a>$acro - <strong>$(container.getName(self.lang))</strong>
+						$ here = container.get_actual_position_here(c)
+						$if here:
+							<small>$:c.getHalfling('to')</small> <a href="/find/related/$(here.get_type())_$(here.getID())">$:(here.statusIcon(c))$(here.fields['acronym'])</a>
+						$for ksensor in container.get_sensors_in_component(c):
+							$ sensor = c.AllSensors.elements[ksensor]
+							<div class="map down">
+							<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c))</a>
+							$ acro = sensor.fields['acronym']
+							$if ('s_'+ksensor) in done:
+								<a href="#s_$acro">$acro</a>
+							$else:
+								<a name="s_$acro"></a>$acro - <strong>$(sensor.getName(self.lang))</strong>
+								<a href="/graphic/s_$ksensor">$:(c.getHalfling('graphic'))</a>
+								$ done.add('s_'+ksensor)
+							</div>
+						$ done.add('c_'+kcontainer)
+					</div>
+			$ done.add('gu_'+kusage)
+</div>
