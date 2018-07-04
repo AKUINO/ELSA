@@ -1073,7 +1073,7 @@ class AllObjects(object):
 
     def get_sorted(self):
         return collections.OrderedDict(sorted(self.elements.items(),
-                                       key=lambda t: t[1].get_acronym())).keys()
+                                       key=lambda t: t[1].get_acronym().upper())).keys()
 
     def get_sorted_hierarchy(self):
         return sorted(self.elements,
@@ -1353,7 +1353,7 @@ class AllGroups(AllObjects):
             parents = group.get_parents()
             if not parents or len(parents) == 0:
                 objMap.append(group)
-        objMap = sorted(objMap,key=lambda t: t.get_acronym())
+        objMap = sorted(objMap,key=lambda t: t.get_acronym().upper())
         fullmap = []
         for group in objMap:
                 k = group.getID()
@@ -2516,7 +2516,7 @@ class Group(ConfigurationObject):
                 if k and k in allObj.elements:
                     childObj.append(allObj.elements[k])
             if len(childObj):
-                childObj = sorted(childObj,key=lambda t: t.get_acronym())
+                childObj = sorted(childObj,key=lambda t: t.get_acronym().upper())
                 for elem in childObj:
                     k = elem.getID()
                     submap.append(k)
@@ -2651,6 +2651,17 @@ class CheckPoint(Group):
         for e in listvm:
             tmp.append(self.config.AllPouringModels.elements[e])
         for e in listtm:
+            tmp.append(self.config.AllTransferModels.elements[e])
+        tmp.sort(key=lambda x: int(x.fields['rank']), reverse=False)
+        return tmp
+
+    def get_local_model_sorted(self):
+        tmp = []
+        for e in self.dm:
+            tmp.append(self.config.AllManualDataModels.elements[e])
+        for e in self.vm:
+            tmp.append(self.config.AllPouringModels.elements[e])
+        for e in self.tm:
             tmp.append(self.config.AllTransferModels.elements[e])
         tmp.sort(key=lambda x: int(x.fields['rank']), reverse=False)
         return tmp

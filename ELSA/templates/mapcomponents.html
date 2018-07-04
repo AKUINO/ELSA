@@ -35,7 +35,8 @@ $for kusage in listUsage:
 						<a href="#p_$acro">$acro</a>
 					$else:
 						<a name="p_$acro"></a>$acro - <strong>$(place.getName(self.lang))</strong>
-						$for ksensor in place.get_sensors_in_component(c):
+						$ sensors = place.get_sensors_in_component(c)
+						$for ksensor in sensors:
 							$ sensor = c.AllSensors.elements[ksensor]
 							<div class="map down">
 							<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c))</a>
@@ -62,7 +63,8 @@ $for kusage in listUsage:
 						$ here = equipment.get_actual_position_here(c)
 						$if here:
 							<small>$:c.getHalfling('to')</small> <a href="/find/related/$(here.get_type())_$(here.getID())">$:(here.statusIcon(c))$(here.fields['acronym'])</a>
-						$for ksensor in equipment.get_sensors_in_component(c):
+						$ sensors = equipment.get_sensors_in_component(c)
+						$for ksensor in sensors:
 							$ sensor = c.AllSensors.elements[ksensor]
 							<div class="map down">
 							<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c))</a>
@@ -89,7 +91,8 @@ $for kusage in listUsage:
 						$ here = container.get_actual_position_here(c)
 						$if here:
 							<small>$:c.getHalfling('to')</small> <a href="/find/related/$(here.get_type())_$(here.getID())">$:(here.statusIcon(c))$(here.fields['acronym'])</a>
-						$for ksensor in container.get_sensors_in_component(c):
+						$ sensors = container.get_sensors_in_component(c)
+						$for ksensor in sensors:
 							$ sensor = c.AllSensors.elements[ksensor]
 							<div class="map down">
 							<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c))</a>

@@ -10,6 +10,37 @@
   left: 0px;
 }
 
+div.leadot {
+   padding:0;
+   overflow-x: hidden;
+}
+
+div.leadot div:before {
+  flex: 1 0 auto;
+}
+
+div.leadot div:before {
+    float:left;
+    width:0;
+    white-space:nowrap;
+    content:
+    ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . "
+    ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . "
+    ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . "
+    ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ";
+}
+
+div.leadot span:first-child {
+    padding-right: 0.33em;
+    background:white;
+}
+
+div.leadot span + span {
+    float:right;
+    padding-left: 0.33em;
+    background:white;
+}
+
 /* ==========================================================================
    Author's custom styles
    ========================================================================== */

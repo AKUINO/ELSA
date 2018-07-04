@@ -684,6 +684,15 @@ class WebMapComponents():
         lang = c.connectedUsers.users[mail].cuser.fields['language']
         return render.mapcomponents(mail)
 
+class WebMapCheckPoints():
+    def __init__(self):
+        self.name = u"WebMapCheckPoints"
+
+    def GET(self):
+        mail = redirect_when_not_logged()
+        lang = c.connectedUsers.users[mail].cuser.fields['language']
+        return render.mapcheckpoints(mail)
+
 class WebRRDfetch():
     def __init__(self):
         self.name = u"WebRRDfetch"
@@ -1039,6 +1048,7 @@ def main():
             '/list/(.+)', 'WebList',
             '/graphic/(.+)_(.+)', 'WebGraphic',
             '/map/gu', 'WebMapComponents',
+            '/map/h', 'WebMapCheckPoints',
             '/map/b_(.+)', 'WebMapControl',
             '/barcode/(.+)', 'WebBarcode',
             '/barcode/', 'WebBarcode',
