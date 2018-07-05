@@ -574,81 +574,111 @@ class WebMapRecipe():
     def GET(self,id):
         mail = redirect_when_not_logged()
         lang = c.connectedUsers.users[mail].cuser.fields['language']
+        graph = ""
         
         if id in c.AllGrRecipe.elements.keys():
             elem = c.AllGrRecipe.elements[id]
-            #print "grs="+unicode(recipes)
-
-            graph = ""
+            summit = [id] + elem.get_supermap_str()
+            checkpoints = c.AllCheckPoints.get_checkpoints_for_recipe(summit)
             done = set()
-            prec = None
-            while False:
-              usage = usages_todo[0]
-              #print "gu="+usage.getID()
-              usaID = "gu_"+usage.getID()
-              usages_todo.remove(usage)
-              if not usaID in done:
-                done.add(usaID)
-                if prec:
-                    graph += prec+"->"+usaID+"[style=\"stroke-dasharray:5,5\"];"
-                graph += usaID # +"[url=\"/find/related/"+usaID+"\""
-                graph += "[labelType=\"html\",label=\"<a href=/find/related/"+usaID+">"+usage.getNameHTML(lang)+"</a>\""
-                graph += ",tooltip=\""+usage.fields['acronym']+"\""
-                graph += ",id=\""+usaID+"\",shape=diamond,style=\"fill:#fff;stroke:1\"];"
-                prec = usaID
-                allowedcheckpoints = c.AllCheckPoints.get_checkpoints_for_recipe_usage(recipes,set([usage.getID()]))
-                for v in allowedcheckpoints:
-                    #print "h="+v.getID()
-                    hid = "h_"+v.getID()
-                    graph += prec+"->"+hid+";"
-                    prec = hid
-                    elems = v.get_model_sorted()
-                    obs = ""
-                    for e in elems:
-                        if e.get_type() == 'tm':
-                            if e.fields['gu_id']:
-                                nx_usage = e.fields['gu_id']
-                                #print "nxu="+nx_usage
-                                if nx_usage and nx_usage in c.AllGrUsage.elements.keys():
-                                    nx_usage = c.AllGrUsage.elements[nx_usage]
-                                    # graph += hid+"->"+"gu_"+e.fields['gu_id']+"[style=\"stroke-dasharray:5,5\"];"
-                                    for parent in reversed(nx_usage.get_all_parents([],None)):
-                                        #print "nxup="+parent
-                                        if parent and not parent in done and parent in c.AllGrUsage.elements.keys():
-                                            usages_todo.append(c.AllGrUsage.elements[parent])
-                                    usages_todo.append(nx_usage)
-                        elif e.get_type() == 'vm':
-                            if e.fields['dest']:
-                                nx_recipe = e.fields['dest']
-                                if nx_recipe and nx_recipe in c.AllGrRecipe.elements.keys():
-                                    dest_recipe = c.AllGrRecipe.elements[nx_recipe]
-                                    graph += hid+"->"+"gr_"+nx_recipe+"[style=\"stroke-width:3px\",label=\""+e.getNameJS(lang)+"\"];"
-                                    recipes_todo.add(dest_recipe)
-                            if e.fields['src']:
-                                nx_recipe = e.fields['src']
-                                if nx_recipe and nx_recipe in c.AllGrRecipe.elements.keys():
-                                    src_recipe = c.AllGrRecipe.elements[nx_recipe]
-                                    graph += "gr_"+nx_recipe+"->"+hid+"[style=\"stroke-width:3px\",label=\""+e.getNameJS(lang)+"\"];"
-                                    recipes_todo.add(src_recipe)
-                        elif e.get_type() == 'dm':
-                            obs += "<br>"+e.getNameHTML(lang)
-                            if e.fields['m_id']:
-                                measure = e.fields['m_id']
-                                if measure and measure in c.AllMeasures.elements.keys():
-                                    measure = c.AllMeasures.elements[measure]
-                                    obs += " / "+measure.getNameHTML(lang)+": ? "+protectHTML(measure.fields['unit'])
-                    graph += hid # +"[url=\"/find/related/"+hid+"\""
-                    graph += "[labelType=\"html\",label=\"<a href=/find/related/"+hid+">"
-                    graph += ("* " if v.getID() in elem.checkpoints else "")+v.getNameHTML(lang)
-                    graph += "</a> <a href=/control/b_"+id+"/"+hid+"><big><strong>+</strong></big></a>"+obs+"\""
-                    graph += ",tooltip=\""+v.fields['acronym']+"\""
-                    graph += ",id=\""+hid+"\"];"
-            for recipe in elem.get_all_parents():
-                grID = "gr_"+recipe.getID()
-                graph += grID
-                graph += "[labelType=\"html\",label=\"<a href=/find/related/"+grID+">"+recipe.getNameHTML(lang)+"</a>\""
-                graph += ",tooltip=\""+recipe.fields['acronym']+"\""
-                graph += ",id=\""+grID+"\",shape=circle,style=\"fill:#fff;stroke:1\"];"
+            recipes_todo = set()
+            for checkpoint in checkpoints:
+                kusage = checkpoint.fields['gu_id']
+                if not kusage in done:
+                    if kusage and kusage in c.AllGrUsage.elements:
+                        done.add(kusage)
+                        usage = c.AllGrUsage.elements[kusage]
+                        usaID = 'gu_'+kusage
+                        allowed_checkpoints = c.AllCheckPoints.get_checkpoints_for_recipe_usage(summit,[kusage])
+                        prec_v = ""
+                        for v in allowed_checkpoints:
+                            #print "h="+v.getID()
+                            hid = "h_"+v.getID()
+                            if not prec_v:
+                                graph += usaID+'->'+hid+";gr_"+v.fields['gr_id']+'->'+hid+";"
+                            elems = v.get_model_sorted()
+                            obs = ""
+                            for e in elems:
+                                if e.get_type() == 'tm':
+                                    if e.fields['gu_id']:
+                                        nx_usage = e.fields['gu_id']
+                                        done.add(nx_usage)
+                                        graph += hid+"->"+"gu_"+nx_usage+"[style=\"stroke-dasharray:5,5\"];"
+                                elif e.get_type() == 'vm':
+                                    if e.fields['dest']:
+                                        nx_recipe = e.fields['dest']
+                                        if nx_recipe and nx_recipe in c.AllGrRecipe.elements.keys():
+                                            dest_recipe = c.AllGrRecipe.elements[nx_recipe]
+                                            graph += hid+"->"+"gr_"+nx_recipe+"[style=\"stroke-width:3px;stroke:\",label=\""+e.getNameJS(lang)+"\"];"
+                                            recipes_todo.add(dest_recipe)
+                                    if e.fields['src']:
+                                        nx_recipe = e.fields['src']
+                                        if nx_recipe and nx_recipe in c.AllGrRecipe.elements.keys():
+                                            src_recipe = c.AllGrRecipe.elements[nx_recipe]
+                                            graph += "gr_"+nx_recipe+"->"+hid+"[style=\"stroke-width:3px;stroke:#f07e26\",label=\""+e.getNameJS(lang)+"\"];"
+                                            recipes_todo.add(src_recipe)
+                                elif e.get_type() == 'dm':
+                                    obs += "<br>"+e.getNameHTML(lang)
+                                    if e.fields['m_id']:
+                                        measure = e.fields['m_id']
+                                        if measure and measure in c.AllMeasures.elements.keys():
+                                            measure = c.AllMeasures.elements[measure]
+                                            obs += " / "+measure.getNameHTML(lang)+": ? "+protectHTML(measure.fields['unit'])
+                            graph += hid # +"[url=\"/find/related/"+hid+"\""
+                            graph += "[labelType=\"html\",label=\"<a href=/find/related/"+hid+">"
+                            graph += v.getNameHTML(lang)
+                            graph += "</a> #"+v.fields['rank']+obs+"\""
+                            graph += ",tooltip=\""+v.fields['acronym']+"\""
+                            graph += ",id=\""+hid+"\"];"
+                            if prec_v:
+                                graph += "h_"+prec_v+'->'+hid+"[style=\"stroke-width:3px;stroke:#777\"]"
+                            prec_v = v.getID()
+            prec = ""
+            stack = []
+            for krecipe in summit:
+                if krecipe == '>>':
+                    stack.append(prec)
+                elif krecipe == '<<':
+                    prec = stack.pop()
+                else:
+                    if krecipe and krecipe in c.AllGrRecipe.elements:
+                        recipe = c.AllGrRecipe.elements[krecipe]
+                        if prec:
+                            graph += 'gr_'+krecipe+'->gr_'+prec+';'
+                        graph += 'gr_'+krecipe
+                        graph += "[labelType=\"html\",label=\"<a href=/find/related/gr_"+krecipe+">"+recipe.getNameHTML(lang)+"</a>\""
+                        graph += ",tooltip=\""+recipe.fields['acronym']+"\""
+                        graph += ",id=\"gr_"+krecipe+"\",shape=circle,style=\"fill:#fff;stroke:1\"];"
+                    prec = krecipe
+            for recipe in recipes_todo:
+                if not recipe.getID() in summit:
+                    grID = "gr_"+recipe.getID()
+                    for above in recipe.parents:
+                        if above in summit:
+                            graph += "gr_"+above+"->"+grID+";"
+                    graph += grID
+                    graph += "[labelType=\"html\",label=\"<a href=/find/related/"+grID+">"+recipe.getNameHTML(lang)+"</a>\""
+                    graph += ",tooltip=\""+recipe.fields['acronym']+"\""
+                    graph += ",id=\""+grID+"\",shape=circle,style=\"fill:#fff;stroke:1\"];"
+            for kusage in list(done):
+                    usage = c.AllGrUsage.elements[kusage]
+                    usaID = 'gu_'+kusage
+                    graph += usaID # +"[url=\"/find/related/"+usaID+"\""
+                    graph += "[labelType=\"html\",label=\"<a href=/find/related/"+usaID+">"+usage.getNameHTML(lang)+"</a>\""
+                    graph += ",tooltip=\""+usage.fields['acronym']+"\""
+                    graph += ",id=\""+usaID+"\",shape=diamond,style=\"fill:#fff;stroke:1\"];"
+            for kusage in list(done):
+                    usage = c.AllGrUsage.elements[kusage]
+                    usaID = 'gu_'+kusage
+                    for parent in usage.parents:
+                        if not parent in done:
+                            usage = c.AllGrUsage.elements[parent]
+                            aboveID = 'gu_'+parent
+                            graph += aboveID+"->"+usaID+";"
+                            graph += aboveID # +"[url=\"/find/related/"+usaID+"\""
+                            graph += "[labelType=\"html\",label=\"<a href=/find/related/"+aboveID+">"+usage.getNameHTML(lang)+"</a>\""
+                            graph += ",tooltip=\""+usage.fields['acronym']+"\""
+                            graph += ",id=\""+aboveID+"\",shape=diamond,style=\"fill:#fff;stroke:1\"];"
             return render.maprecipe(mail, type, id, graph)
         return render.notfound()
 

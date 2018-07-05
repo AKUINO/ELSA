@@ -2505,6 +2505,7 @@ class Group(ConfigurationObject):
             result += e.get_acronym()+" "
         return result+self.get_acronym()
 
+    # Looking DOWN
     def get_submap_str(self):
         children = self.get_children()
         submap = []                      
@@ -2521,6 +2522,26 @@ class Group(ConfigurationObject):
                     k = elem.getID()
                     submap.append(k)
                     submap += elem.get_submap_str()
+        submap.append('<<')
+        return submap
+
+    # Looking UP
+    def get_supermap_str(self):
+        children = self.get_parents()
+        submap = []                      
+        submap.append('>>')
+        if children and len (children) > 0:
+            allObj =  self.config.findAllFromType(self.get_type())
+            childObj = []
+            for k in children:
+                if k and k in allObj.elements:
+                    childObj.append(allObj.elements[k])
+            if len(childObj):
+                childObj = sorted(childObj,key=lambda t: t.get_acronym().upper())
+                for elem in childObj:
+                    k = elem.getID()
+                    submap.append(k)
+                    submap += elem.get_supermap_str()
         submap.append('<<')
         return submap
 
