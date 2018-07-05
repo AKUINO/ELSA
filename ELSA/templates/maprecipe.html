@@ -1,44 +1,22 @@
 $def with (mail, type, id, graph)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : True
-$var title : Map Controls
+$var title : Map Recipe
 $var location :
 $code:
-    elem = c.AllBatches.elements[id]
-    recipe_id = elem.fields['gr_id']
-    recipe = None
-    if recipe_id and recipe_id in c.AllGrRecipe.elements.keys():
-        recipe = c.AllGrRecipe.elements[recipe_id]
-    usage = None
-    place = elem.get_actual_position_here(c)
-    if place:
-	    gr_usage = place.get_group()
-	    if gr_usage and gr_usage in c.AllGrUsage.elements.keys():
-	        usage = c.AllGrUsage.elements[gr_usage]
+    elem = c.AllGrRecipe.elements[id]
 $#<p style="background: white;">$graph</p>
 <div class="modal-body" style="background: white;">
   <div class="container-fluid">
     <div class="row">
 	<div id="modalinfo" class="col-xs-5">
-	    $:c.getAllHalfling(c.AllBatches)$elem.fields['acronym'] <strong>$elem.getName(self.lang)</strong>
+	    $:c.getAllHalfling(c.AllGrRecipe)$elem.fields['acronym'] <strong>$elem.getName(self.lang)</strong>
 	</div>
 	<div id="modalinfo" class="col-xs-5">
-        $if place:
-	    <a href="/find/related/$(place.get_type())_$(place.getID())">$:c.getAllHalfling(c.AllPlaces)$place.fields['acronym'] <strong>$place.getName(self.lang)</strong></a></br>
 	</div>
         <div class="col-xs-2">
 	    <button onClick="printSVG()">$:c.getHalfling("print")</button>
         </div>
-    </div>
-    <div class="row">
-	<div id="modalinfo" class="col-xs-5">
-        $if recipe:
-	    <a href="/find/related/gr_$recipe.getID()">$:c.getAllHalfling(c.AllGrRecipe)$recipe.fields['acronym'] <strong>$recipe.getName(self.lang)</strong></a>
-	</div>
-	<div id="modalinfo" class="col-xs-5">
-        $if usage:
-	    <a href="/find/related/gu_$usage.getID()">$:c.getAllHalfling(c.AllGrUsage)$usage.fields['acronym'] <strong>$usage.getName(self.lang)</strong></a>
-	</div>
     </div>
 <div id="Controls">
 <svg id="SchemaSVG" class="row" style="background-color:#E5E5E7" width="100%" height="8000px">
