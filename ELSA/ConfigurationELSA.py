@@ -380,7 +380,7 @@ class ConfigurationObject(object):
         self.id = None
         self.created = None
         self.creator = None
-        self.position = []
+        self.transfers = []
         self.data = []
 
     def __repr__(self):
@@ -652,8 +652,8 @@ class ConfigurationObject(object):
         tmp = []
         first = True
         count = 0
-        while count < len(self.position):
-            t = self.config.AllTransfers.elements[self.position[count]]
+        while count < len(self.transfers):
+            t = self.config.AllTransfers.elements[self.transfers[count]]
             time = useful.date_to_timestamp(t.fields['time'])
             if begin < time and time < end:
                 if first is True:
@@ -662,12 +662,12 @@ class ConfigurationObject(object):
                         if useful.date_to_timestamp(self
                                 .config
                                 .AllTransfers
-                                .elements[self.position[count-1]]
+                                .elements[self.transfers[count-1]]
                                 .fields['time']) > begin:
-                            tmp.append(self.position[count - 1])
+                            tmp.append(self.transfers[count - 1])
                 tmp.append(t)
             elif time <= begin and (first is True
-                    or count == len(self.position)-1):
+                    or count == len(self.transfers)-1):
                 tmp.append(t)
                 first = False
             count += 1
@@ -683,33 +683,33 @@ class ConfigurationObject(object):
 
     def add_position(self, transfer):
         self.remove_position(transfer)
-        if len(self.position) == 0:
-            self.position.append(transfer.getID())
+        if len(self.transfers) == 0:
+            self.transfers.append(transfer.getID())
         else:
             time = useful.date_to_timestamp(transfer.fields['time'])
             insert = False
-            for i in range(len(self.position)):
-                tmp = self.config.AllTransfers.elements[self.position[i]]
+            for i in range(len(self.transfers)):
+                tmp = self.config.AllTransfers.elements[self.transfers[i]]
                 tmptime = useful.date_to_timestamp(tmp.fields['time'])
                 if time < tmptime:
                     insert = True
-                    self.position.insert(i, transfer.getID())
+                    self.transfers.insert(i, transfer.getID())
                     break
             if insert is False:
-                self.position.append(transfer.getID())
+                self.transfers.append(transfer.getID())
 
     def remove_position(self, transfer):
-        if transfer.getID() in self.position:
-            self.position.remove(transfer.getID())
+        if transfer.getID() in self.transfers:
+            self.transfers.remove(transfer.getID())
 
-    def get_actual_position(self):
-        if len(self.position) > 0:
-            return self.position[-1]
+    def get_last_transfer(self):
+        if len(self.transfers) > 0:
+            return self.transfers[-1]
         return None
 
     def get_actual_position_here(self,configuration):
 	currObj = None
-	tmp = self.get_actual_position()
+	tmp = self.get_last_transfer()
 	if tmp is not None:
 	    tmp = configuration.AllTransfers.elements[tmp]
             currObj = configuration.get_object (tmp.fields['cont_type'], tmp.fields['cont_id'])
@@ -724,7 +724,7 @@ class ConfigurationObject(object):
         return result
 
     def is_actual_position(self, type, id, configuration):
-        tmp = self.get_actual_position()
+        tmp = self.get_last_transfer()
         if tmp is not None:
             tmp = configuration.AllTransfers.elements[tmp]
             if type == tmp.fields['cont_type'] \
@@ -753,16 +753,16 @@ class ConfigurationObject(object):
 
     def get_position_on_time(self, configuration, time):
         time = useful.date_to_timestamp(time)
-        if self.position == []:
+        if self.transfers == []:
             return None
         count = 1
-        while count < len(self.position):
-            tmp = configuration.AllTransfers.elements[self.position[count]]
+        while count < len(self.transfers):
+            tmp = configuration.AllTransfers.elements[self.transfers[count]]
             tmptime = useful.date_to_timestamp(tmp.fields['time'])
             if time < tmptime:
                 return configuration.AllTransfers \
-                                    .elements[self.position[count-1]]
-        return configuration.AllTransfers.elements[self.position[-1]]
+                                    .elements[self.transfers[count-1]]
+        return configuration.AllTransfers.elements[self.transfers[-1]]
 
     def statusIcon(self, configuration):
         allObjects = configuration.findAllFromObject(self)
@@ -1662,7 +1662,7 @@ class AllBatches(AllObjects):
         for k, e in self.elements.items():
             if not e.fields['gr_id'] or (e.fields['gr_id'] in recipes):
                 #print "key="+k+", recipe=",e.fields['gr_id']
-                tmp = e.get_actual_position()
+                tmp = e.get_last_transfer()
                 if tmp is not None:
                     tmp = self.config.AllTransfers.elements[tmp]
                     currObj = self.config.get_object(tmp.fields['cont_type'], tmp.fields['cont_id'])
@@ -2904,7 +2904,7 @@ class Place(ConfigurationObject):
         checklist = []
         checklist.append(['p', self.id])
         for k, v in config.AllEquipments.elements.items():
-            transfer = v.get_actual_position()
+            transfer = v.get_last_transfer()
             if transfer is not None:
                 transfer = config.AllTransfers.elements[transfer]
                 if transfer.fields['cont_type'] == 'e' \
@@ -2981,13 +2981,13 @@ class ExportData():
         if component == None:
             self.transfers = []
             component = self.elem
-            if len(component.position) > 0:
+            if len(component.transfers) > 0:
                 begin = useful.date_to_timestamp(
                     self.config
                         .AllTransfers
-                        .elements[component.position[0]].fields['time'])
-                if len(component.position) > 1:
-                    end = component.position[1]
+                        .elements[component.transfers[0]].fields['time'])
+                if len(component.transfers) > 1:
+                    end = component.transfers[1]
                 else:
                     end = useful.get_timestamp()
             else:
@@ -3025,7 +3025,7 @@ class ExportData():
                         .append(self.transform_object_to_export_data(
                                 self.config.AllManualData.elements[data]))
             if self.cond['transfer'] is True:
-                for t in self.elem.position:
+                for t in self.elem.transfers:
                     self.elements \
                         .append(self.transform_object_to_export_data(
                                 self.config.AllTransfers.elements[t]))
@@ -4728,7 +4728,7 @@ class Transfer(ConfigurationObject):
             postype = data['position'].split('_')[0]
             posid = data['position'].split('_')[1]
             objet = configuration.get_object(objtype, objid)
-            if (objet.is_actual_position(postype, posid, configuration) is True and objet.get_actual_position() != self.id):
+            if (objet.is_actual_position(postype, posid, configuration) is True and objet.get_last_transfer() != self.id):
                 tmp += configuration.getMessage('transferrules',lang) + '\n'
             if (objtype == 'e' and postype != 'p') or(objtype == 'c' and postype not in 'ep'):
                 tmp += configuration.getMessage('transferhierarchy',lang) + '\n'

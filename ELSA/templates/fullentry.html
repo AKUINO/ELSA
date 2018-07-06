@@ -77,7 +77,7 @@ $elif type == 'h':
 		</div>
 		<div class="row">
 		    $code:
-			tmp = elem.get_actual_position()
+			tmp = elem.get_last_transfer()
 			if tmp is not None :
 			    pos = c.AllTransfers.elements[tmp].get_cont()
 			else :
@@ -120,7 +120,7 @@ $elif type == 'h':
 		</div>
 		<div class="row">
 		    $code:
-			tmp = elem.get_actual_position()
+			tmp = elem.get_last_transfer()
 			if tmp is not None :
 			    pos = c.AllTransfers.elements[tmp].get_cont()
 			else :
@@ -422,7 +422,7 @@ $elif type == 'h':
 				<strong><a href="/find/t/$(type)_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('transfer'))</a></strong>
 			    </div>
 			    <div class="col-xs-10">
-				<b>$len(c.findAllFromType(type).elements[id].position)</b> $(c.getMessage('mtransfer',self.lang))
+				<b>$len(c.findAllFromType(type).elements[id].transfers)</b> $(c.getMessage('mtransfer',self.lang))
 			    </div>
 			</div>
 		    <div class="row" style="margin-top:6px;">

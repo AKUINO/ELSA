@@ -25,7 +25,7 @@ $var title : $elem.getName(self.lang)
     <label class="col-sm-5">$c.getMessage('remark',self.lang)</label>
 </div>
 
-$for i in elem.position:
+$for i in elem.transfers:
     $code:
 	transfer = c.AllTransfers.elements[i]
     <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">

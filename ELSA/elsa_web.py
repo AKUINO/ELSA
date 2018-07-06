@@ -595,7 +595,9 @@ class WebMapRecipe():
                             #print "h="+v.getID()
                             hid = "h_"+v.getID()
                             if not prec_v:
-                                graph += usaID+'->'+hid+";gr_"+v.fields['gr_id']+'->'+hid+";"
+                                graph += usaID+'->'+hid+";"
+                                if v.fields['gr_id'] != id:
+                                    graph += "gr_"+v.fields['gr_id']+'->'+hid+";"
                             elems = v.get_model_sorted()
                             obs = ""
                             for e in elems:
@@ -603,13 +605,13 @@ class WebMapRecipe():
                                     if e.fields['gu_id']:
                                         nx_usage = e.fields['gu_id']
                                         done.add(nx_usage)
-                                        graph += hid+"->"+"gu_"+nx_usage+"[style=\"stroke-dasharray:5,5\"];"
+                                        graph += hid+"->"+"gu_"+nx_usage+"[style=\"stroke-dasharray:5,5;stroke:3px\"];"
                                 elif e.get_type() == 'vm':
                                     if e.fields['dest']:
                                         nx_recipe = e.fields['dest']
                                         if nx_recipe and nx_recipe in c.AllGrRecipe.elements.keys():
                                             dest_recipe = c.AllGrRecipe.elements[nx_recipe]
-                                            graph += hid+"->"+"gr_"+nx_recipe+"[style=\"stroke-width:3px;stroke:\",label=\""+e.getNameJS(lang)+"\"];"
+                                            graph += hid+"->"+"gr_"+nx_recipe+"[style=\"stroke-width:3px;stroke:#f07e26\",label=\""+e.getNameJS(lang)+"\"];"
                                             recipes_todo.add(dest_recipe)
                                     if e.fields['src']:
                                         nx_recipe = e.fields['src']
@@ -648,7 +650,7 @@ class WebMapRecipe():
                         graph += 'gr_'+krecipe
                         graph += "[labelType=\"html\",label=\"<a href=/find/related/gr_"+krecipe+">"+recipe.getNameHTML(lang)+"</a>\""
                         graph += ",tooltip=\""+recipe.fields['acronym']+"\""
-                        graph += ",id=\"gr_"+krecipe+"\",shape=circle,style=\"fill:#fff;stroke:1\"];"
+                        graph += ",id=\"gr_"+krecipe+"\",shape=ellipse,style=\"fill:"+("#fbcfaa" if krecipe == id else "#fff")+";stroke:1px;\"];"
                     prec = krecipe
             for recipe in recipes_todo:
                 if not recipe.getID() in summit:
@@ -659,14 +661,14 @@ class WebMapRecipe():
                     graph += grID
                     graph += "[labelType=\"html\",label=\"<a href=/find/related/"+grID+">"+recipe.getNameHTML(lang)+"</a>\""
                     graph += ",tooltip=\""+recipe.fields['acronym']+"\""
-                    graph += ",id=\""+grID+"\",shape=circle,style=\"fill:#fff;stroke:1\"];"
+                    graph += ",id=\""+grID+"\",shape=ellipse,style=\"fill:#fff;stroke:1px;\"];"
             for kusage in list(done):
                     usage = c.AllGrUsage.elements[kusage]
                     usaID = 'gu_'+kusage
                     graph += usaID # +"[url=\"/find/related/"+usaID+"\""
                     graph += "[labelType=\"html\",label=\"<a href=/find/related/"+usaID+">"+usage.getNameHTML(lang)+"</a>\""
                     graph += ",tooltip=\""+usage.fields['acronym']+"\""
-                    graph += ",id=\""+usaID+"\",shape=diamond,style=\"fill:#fff;stroke:1\"];"
+                    graph += ",id=\""+usaID+"\",shape=diamond,style=\"fill:#fff;stroke:1px;\"];"
             for kusage in list(done):
                     usage = c.AllGrUsage.elements[kusage]
                     usaID = 'gu_'+kusage
@@ -678,7 +680,7 @@ class WebMapRecipe():
                             graph += aboveID # +"[url=\"/find/related/"+usaID+"\""
                             graph += "[labelType=\"html\",label=\"<a href=/find/related/"+aboveID+">"+usage.getNameHTML(lang)+"</a>\""
                             graph += ",tooltip=\""+usage.fields['acronym']+"\""
-                            graph += ",id=\""+aboveID+"\",shape=diamond,style=\"fill:#fff;stroke:1\"];"
+                            graph += ",id=\""+aboveID+"\",shape=diamond,style=\"fill:#fff;stroke:1px;\"];"
             return render.maprecipe(mail, type, id, graph)
         return render.notfound()
 
@@ -731,7 +733,7 @@ class WebMapControl():
                 graph += usaID # +"[url=\"/find/related/"+usaID+"\""
                 graph += "[labelType=\"html\",label=\"<a href=/find/related/"+usaID+">"+usage.getNameHTML(lang)+"</a>\""
                 graph += ",tooltip=\""+usage.fields['acronym']+"\""
-                graph += ",id=\""+usaID+"\",shape=diamond,style=\"fill:#fff;stroke:1\"];"
+                graph += ",id=\""+usaID+"\",shape=diamond,style=\"fill:#fff;stroke:1px;\"];"
                 prec = usaID
                 allowedcheckpoints = c.AllCheckPoints.get_checkpoints_for_recipe_usage(recipes,set([usage.getID()]))
                 for v in allowedcheckpoints:
@@ -785,7 +787,7 @@ class WebMapControl():
                 graph += grID
                 graph += "[labelType=\"html\",label=\"<a href=/find/related/"+grID+">"+recipe.getNameHTML(lang)+"</a>\""
                 graph += ",tooltip=\""+recipe.fields['acronym']+"\""
-                graph += ",id=\""+grID+"\",shape=circle,style=\"fill:#fff;stroke:1\"];"
+                graph += ",id=\""+grID+"\",shape=ellipse,style=\"fill:#fff;stroke:1px;\"];"
             return render.mapcontrol(mail, 'b', id, graph)
         return render.notfound()
 
