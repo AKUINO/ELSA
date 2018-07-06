@@ -595,9 +595,9 @@ class WebMapRecipe():
                             #print "h="+v.getID()
                             hid = "h_"+v.getID()
                             if not prec_v:
-                                graph += usaID+'->'+hid+";"
+                                graph += usaID+'->'+hid+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
                                 if v.fields['gr_id'] != id:
-                                    graph += "gr_"+v.fields['gr_id']+'->'+hid+";"
+                                    graph += "gr_"+v.fields['gr_id']+'->'+hid+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
                             elems = v.get_model_sorted()
                             obs = ""
                             for e in elems:
@@ -605,7 +605,7 @@ class WebMapRecipe():
                                     if e.fields['gu_id']:
                                         nx_usage = e.fields['gu_id']
                                         done.add(nx_usage)
-                                        graph += hid+"->"+"gu_"+nx_usage+"[style=\"stroke-dasharray:5,5;stroke:3px\"];"
+                                        graph += hid+"->"+"gu_"+nx_usage+"[style=\"stroke-width:3px\"];"
                                 elif e.get_type() == 'vm':
                                     if e.fields['dest']:
                                         nx_recipe = e.fields['dest']
@@ -633,7 +633,7 @@ class WebMapRecipe():
                             graph += ",tooltip=\""+v.fields['acronym']+"\""
                             graph += ",id=\""+hid+"\"];"
                             if prec_v:
-                                graph += "h_"+prec_v+'->'+hid+"[style=\"stroke-width:3px;stroke:#777\"]"
+                                graph += "h_"+prec_v+'->'+hid+"[style=\"stroke-width:3px;stroke:#888\"]"
                             prec_v = v.getID()
             prec = ""
             stack = []
@@ -646,7 +646,7 @@ class WebMapRecipe():
                     if krecipe and krecipe in c.AllGrRecipe.elements:
                         recipe = c.AllGrRecipe.elements[krecipe]
                         if prec:
-                            graph += 'gr_'+krecipe+'->gr_'+prec+';'
+                            graph += 'gr_'+krecipe+'->gr_'+prec+'[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];'
                         graph += 'gr_'+krecipe
                         graph += "[labelType=\"html\",label=\"<a href=/find/related/gr_"+krecipe+">"+recipe.getNameHTML(lang)+"</a>\""
                         graph += ",tooltip=\""+recipe.fields['acronym']+"\""
@@ -657,7 +657,7 @@ class WebMapRecipe():
                     grID = "gr_"+recipe.getID()
                     for above in recipe.parents:
                         if above in summit:
-                            graph += "gr_"+above+"->"+grID+";"
+                            graph += "gr_"+above+"->"+grID+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
                     graph += grID
                     graph += "[labelType=\"html\",label=\"<a href=/find/related/"+grID+">"+recipe.getNameHTML(lang)+"</a>\""
                     graph += ",tooltip=\""+recipe.fields['acronym']+"\""
@@ -676,7 +676,7 @@ class WebMapRecipe():
                         if not parent in done:
                             usage = c.AllGrUsage.elements[parent]
                             aboveID = 'gu_'+parent
-                            graph += aboveID+"->"+usaID+";"
+                            graph += aboveID+"->"+usaID+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
                             graph += aboveID # +"[url=\"/find/related/"+usaID+"\""
                             graph += "[labelType=\"html\",label=\"<a href=/find/related/"+aboveID+">"+usage.getNameHTML(lang)+"</a>\""
                             graph += ",tooltip=\""+usage.fields['acronym']+"\""
