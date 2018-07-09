@@ -807,7 +807,7 @@ class RadioThread(threading.Thread):
             elaSerial = serial.Serial(
                 DIR_TTY, self.config.HardConfig.ela_bauds, timeout=0.1)
             time.sleep(0.1)
-            elaSerial.write(self.config.HardConfig.ela_reset)
+            elaSerial.write(str(self.config.HardConfig.ela_reset))
             line = None
             while self.config.isThreading is True:
                 try:
