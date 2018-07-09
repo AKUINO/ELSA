@@ -818,11 +818,11 @@ class RadioThread(threading.Thread):
                         if data == ']':
                             if len(line) == 10:
                                 now = useful.get_timestamp()
-                                RSS = int(line[0]+line[1], 16)
-                                HEX = line[2]+line[3]+line[4]
+                                RSS = int(line[0:1], 16)
+                                HEX = line[2:4]
                                 # ADDRESS = int(HEX,16)
-                                VAL = int(line[5]+line[6]+line[7], 16)
-                                # READER = int(line[8]+line[9],16)
+                                VAL = int(line[5:7], 16)
+                                # READER = int(line[8:9],16)
                                 print ("ELA="
                                         + HEX
                                         + ", RSS="
@@ -832,17 +832,18 @@ class RadioThread(threading.Thread):
                                 value = VAL
                                 for sensor in self.config.AllSensors.elements:
                                     currSensor = self.config.AllSensors.elements[sensor]
-                                    try:
-                                        if (unicode(currSensor.fields['sensor']).translate(noDots) == unicode(HEX).translate(noDots)):
-                                            if not currSensor.fields['formula'] == '':
-                                                value = unicode(
-                                                    eval(currSensor.fields['formula']))
-                                            print(
-                                                u"Sensor ELA-" + currSensor.fields['sensor'] + u": " + currSensor.fields['acronym'] + u" = "+unicode(value))
-                                            currSensor.update(now, value, self.config)
-                                    except:
-                                        traceback.print_exc()
-                                        print "Erreur dans la formule"
+                                    if currSensor.fields['active'] == '1':
+                                        try:
+                                            if (unicode(currSensor.fields['sensor']).translate(noDots) == unicode(HEX).translate(noDots)):
+                                                if not currSensor.fields['formula'] == '':
+                                                    value = unicode(
+                                                        eval(currSensor.fields['formula']))
+                                                print(
+                                                    u"Sensor ELA-" + currSensor.fields['sensor'] + u": " + currSensor.fields['acronym'] + u" = "+unicode(value))
+                                                currSensor.update(now, value, self.config)
+                                        except:
+                                            traceback.print_exc()
+                                            print "Error in formula, "+currSensor.fields['acronym']+": "+currSensor.fields['formula']
                             line = None
                         else:
                             line.append(data)
