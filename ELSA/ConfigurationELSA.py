@@ -821,7 +821,7 @@ class RadioThread(threading.Thread):
                                 RSS = int(line[0]+line[1], 16)
                                 HEX = line[2]+line[3]+line[4]
                                 # ADDRESS = int(HEX,16)
-                                VAL = int(line[5]+line[6], 16)
+                                VAL = int(line[5]+line[6]+line[7], 16)
                                 print ("ELA="
                                         + HEX
                                         + ", RSS="
@@ -861,6 +861,8 @@ class AllObjects(object):
         self.keyColumn = obj_type + "_id"
         self.config = config
         self.count = 0
+        #TODO: Strange, some classes do not list the fields they contain...
+        self.fieldnames = None
 
     def get_type(self):
         return self.obj_type
@@ -897,9 +899,26 @@ class AllObjects(object):
                 csvfile.write('\n')
 
     def loadFields(self):
+        conformant = None
+        conformantFile = None
+        conformantWriter = None
         with open(self.file_of_objects) as csvfile:
             reader = unicodecsv.DictReader(csvfile, delimiter="\t")
             for row in reader:
+                if conformant is None:
+                    if self.fieldnames is None:
+                        conformant = True
+                    else:
+                        conformant = self.fieldnames == reader.fieldnames
+                        if not conformant:
+                            conformantFile = open(self.file_of_objects+".NEW",'w')
+                            print (self.file_of_objects+" will be made conformant")
+                            conformantWriter = unicodecsv.DictWriter(conformantFile,
+                                                           delimiter='\t',
+                                                           fieldnames=self.fieldnames,
+                                                           encoding="utf-8")
+                if conformantWriter is not None:
+                    writer.writerow(row)
                 key = row[self.keyColumn]
                 currObject = self.newObject()
                 currObject.fields = row
@@ -999,6 +1018,9 @@ class AllObjects(object):
                                .remove_source(currObject)
                         objects.elements[currObject.fields['dest']] \
                                .remove_destination(currObject)
+        if conformantFile is not None:
+            conformantFile.close()
+            #TODO: Rename current file to timestamped one, rename .NEW to actual file...
 
     def loadNames(self):
         with open(self.file_of_names) as csvfile:
