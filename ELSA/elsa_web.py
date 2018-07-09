@@ -579,6 +579,18 @@ class WebMapRecipe():
         if id in c.AllGrRecipe.elements.keys():
             elem = c.AllGrRecipe.elements[id]
             summit = [id] + elem.get_supermap_str()
+            usages = c.AllGrUsage.get_usages_for_recipe(summit)
+            prec_u = ""
+            for usage in usages:
+                usaID = 'gu_'+usage.getID()
+                if prec_u:
+                    graph += prec_u+"->"+usaID+"[style=\"stroke-width:0px;stroke:#fff\"];"
+                prec_u = usaID
+                graph += usaID # +"[url=\"/find/related/"+usaID+"\""
+                graph += "[labelType=\"html\",label=\"<a href=/find/related/"+usaID+">"+usage.getNameHTML(lang)+"</a>\""
+                graph += ",tooltip=\""+usage.fields['acronym']+"\""
+                graph += ",id=\""+usaID+"\",shape=diamond,style=\"fill:#fff;stroke:1px;\"];"
+                
             checkpoints = c.AllCheckPoints.get_checkpoints_for_recipe(summit)
             done = set()
             recipes_todo = set()
@@ -662,25 +674,12 @@ class WebMapRecipe():
                     graph += "[labelType=\"html\",label=\"<a href=/find/related/"+grID+">"+recipe.getNameHTML(lang)+"</a>\""
                     graph += ",tooltip=\""+recipe.fields['acronym']+"\""
                     graph += ",id=\""+grID+"\",shape=ellipse,style=\"fill:#fff;stroke:1px;\"];"
-            for kusage in list(done):
-                    usage = c.AllGrUsage.elements[kusage]
-                    usaID = 'gu_'+kusage
-                    graph += usaID # +"[url=\"/find/related/"+usaID+"\""
-                    graph += "[labelType=\"html\",label=\"<a href=/find/related/"+usaID+">"+usage.getNameHTML(lang)+"</a>\""
-                    graph += ",tooltip=\""+usage.fields['acronym']+"\""
-                    graph += ",id=\""+usaID+"\",shape=diamond,style=\"fill:#fff;stroke:1px;\"];"
-            for kusage in list(done):
-                    usage = c.AllGrUsage.elements[kusage]
-                    usaID = 'gu_'+kusage
+            for usage in usages:
+                    usaID = 'gu_'+usage.getID()
                     for parent in usage.parents:
-                        if not parent in done:
-                            usage = c.AllGrUsage.elements[parent]
-                            aboveID = 'gu_'+parent
-                            graph += aboveID+"->"+usaID+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
-                            graph += aboveID # +"[url=\"/find/related/"+usaID+"\""
-                            graph += "[labelType=\"html\",label=\"<a href=/find/related/"+aboveID+">"+usage.getNameHTML(lang)+"</a>\""
-                            graph += ",tooltip=\""+usage.fields['acronym']+"\""
-                            graph += ",id=\""+aboveID+"\",shape=diamond,style=\"fill:#fff;stroke:1px;\"];"
+                        usage = c.AllGrUsage.elements[parent]
+                        aboveID = 'gu_'+parent
+                        graph += aboveID+"->"+usaID+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
             return render.maprecipe(mail, type, id, graph)
         return render.notfound()
 

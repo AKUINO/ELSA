@@ -764,6 +764,12 @@ class ConfigurationObject(object):
                                     .elements[self.transfers[count-1]]
         return configuration.AllTransfers.elements[self.transfers[-1]]
 
+    def isActive(self):
+        if not 'active' in self.fields:
+            return True
+        else:
+            return self.fields['active'] == '1'
+
     def statusIcon(self, configuration):
         allObjects = configuration.findAllFromObject(self)
         result = configuration.getAllHalfling(allObjects)
@@ -831,7 +837,7 @@ class RadioThread(threading.Thread):
                                 value = VAL
                                 for sensor in self.config.AllSensors.elements:
                                     currSensor = self.config.AllSensors.elements[sensor]
-                                    if currSensor.fields['active'] == '1':
+                                    if currSensor.isActive():
                                         try:
                                             if (unicode(currSensor.fields['sensor']).translate(noDots) == unicode(HEX).translate(noDots)):
                                                 if not currSensor.fields['formula'] == '':
@@ -917,8 +923,9 @@ class AllObjects(object):
                                                            delimiter='\t',
                                                            fieldnames=self.fieldnames,
                                                            encoding="utf-8")
+                            conformantWriter.writeheader()
                 if conformantWriter is not None:
-                    writer.writerow(row)
+                    conformantWriter.writerow(row)
                 key = row[self.keyColumn]
                 currObject = self.newObject()
                 currObject.fields = row
@@ -967,7 +974,7 @@ class AllObjects(object):
                 if currObject.get_type() == 't':
                     objects = self.config.findAllFromType(
                         currObject.fields['object_type'])
-                    if currObject.fields['active'] == '1':
+                    if currObject.isActive():
                         objects.elements[currObject.fields['object_id']] \
                                .add_position(currObject)
                     else:
@@ -976,7 +983,7 @@ class AllObjects(object):
                 elif currObject.get_type() == 'd':
                     objects = self.config \
                                   .findAllFromType(currObject.fields['object_type'])
-                    if currObject.fields['active'] == '1':
+                    if currObject.isActive():
                         objects.elements[currObject.fields['object_id']] \
                                .add_data(currObject)
                     else:
@@ -984,7 +991,7 @@ class AllObjects(object):
                                 .remove_data(currObject)
                 elif currObject.get_type() == 'dm':
                     objects = self.config.AllCheckPoints
-                    if currObject.fields['active'] == '1':
+                    if currObject.isActive():
                         objects.elements[currObject.fields['h_id']] \
                                .add_dm(currObject)
                     else:
@@ -992,7 +999,7 @@ class AllObjects(object):
                                .remove_dm(currObject)
                 elif currObject.get_type() == 'tm':
                     objects = self.config.AllCheckPoints
-                    if currObject.fields['active'] == '1':
+                    if currObject.isActive():
                         objects.elements[currObject.fields['h_id']] \
                                .add_tm(currObject)
                     else:
@@ -1000,7 +1007,7 @@ class AllObjects(object):
                                .remove_tm(currObject)
                 elif currObject.get_type() == 'vm':
                     objects = self.config.AllCheckPoints
-                    if currObject.fields['active'] == '1':
+                    if currObject.isActive():
                         objects.elements[currObject.fields['h_id']] \
                                .add_vm(currObject)
                     else:
@@ -1008,7 +1015,7 @@ class AllObjects(object):
                                .remove_vm(currObject)
                 elif currObject.get_type() == 'v':
                     objects = self.config.AllBatches
-                    if currObject.fields['active'] == '1':
+                    if currObject.isActive():
                         objects.elements[currObject.fields['src']] \
                                .add_source(currObject)
                         objects.elements[currObject.fields['dest']] \
@@ -1021,6 +1028,8 @@ class AllObjects(object):
         if conformantFile is not None:
             conformantFile.close()
             #TODO: Rename current file to timestamped one, rename .NEW to actual file...
+            os.rename(self.file_of_objects,self.file_of_objects+'.'+useful.timestamp_to_ISO(useful.get_timestamp()).translate(None," :./-"))
+            os.rename(self.file_of_objects+".NEW",self.file_of_objects)
 
     def loadNames(self):
         with open(self.file_of_names) as csvfile:
@@ -1397,7 +1406,7 @@ class AllGrUsage(AllGroups):
     def __init__(self, config):
         AllGroups.__init__(self, 'gu', config)
         self.fieldnames = ["begin", "gu_id",
-                           "active", "acronym", "remark", "user"]
+                           "active", "acronym", "rank", "remark", "user"]
         self.fieldtranslate = ['begin', 'lang', 'gu_id', 'name', 'user']
         self.file_of_relations = os.path.join(DIR_DATA_CSV, "GUrelations.csv")
 
@@ -1410,11 +1419,38 @@ class AllGrUsage(AllGroups):
     def get_key_group(self):
         return 'gu'
 
+    def get_usages_for_recipe(self, recipes):
+        usages = set()
+        for krecipe in recipes:
+            if krecipe in self.config.AllGrRecipe.elements:
+                recipe = self.config.AllGrRecipe.elements[krecipe]
+                if recipe.fields['gu_id'] in self.elements:
+                    usage = self.elements[recipe.fields['gu_id']]
+                    if usage.isActive():
+                        usages.add(usage)
+        checkpoints = self.config.AllCheckPoints.get_checkpoints_for_recipe(recipes)
+        for e in checkpoints:
+            if e.fields['gu_id'] in self.elements:
+                usage = self.elements[e.fields['gu_id']]
+                if usage.isActive():
+                    usages.add(usage)
+            listtm = e.get_hierarchy_tm([],None)
+            for t in listtm:
+                if t in self.config.AllTransferModels.elements:
+                    tm = self.config.AllTransferModels.elements[t];
+                    if tm.fields['gu_id'] in self.elements:
+                        usage = self.elements[tm.fields['gu_id']]
+                        if usage.isActive():
+                            usages.add(usage)
+        usages = list(usages)         
+        usages.sort(key=lambda x: int(x.fields['rank']), reverse=False)
+        return usages
 
 class AllGrRecipe(AllGroups):
     def __init__(self, config):
         AllGroups.__init__(self, 'gr', config)
-        self.fieldnames = ["begin", "gr_id",
+        self.fieldnames = ["begin", "gr_id", "gu_id", 
+                           "basicqt", "m_id", "cost", "fixed_cost",
                            "active", "acronym", "remark", "user"]
         self.fieldtranslate = ['begin', 'lang', 'gr_id', 'name', 'user']
         self.file_of_relations = os.path.join(DIR_DATA_CSV, "GRrelations.csv")
@@ -1483,7 +1519,7 @@ class AllCheckPoints(AllGroups):
     def get_checkpoints_for_recipe(self, recipes):
         checkpoints = []
         for k, e in self.elements.items():
-            if e.fields['gr_id'] in recipes and e.fields['abstract'] == '0':
+            if e.fields['gr_id'] in recipes and e.isActive() and e.fields['abstract'] == '0':
                 checkpoints.append(e)
         checkpoints.sort(key=lambda x: int(x.fields['rank']), reverse=False)
         return checkpoints
@@ -1491,7 +1527,7 @@ class AllCheckPoints(AllGroups):
     def get_checkpoints_for_usage(self, usages):
         checkpoints = []
         for k, e in self.elements.items():
-            if e.fields['gu_id'] in usages and e.fields['abstract'] == '0':
+            if e.fields['gu_id'] in usages and e.isActive() and e.fields['abstract'] == '0':
                 checkpoints.append(e)
         checkpoints.sort(key=lambda x: int(x.fields['rank']), reverse=False)
         return checkpoints
@@ -1499,7 +1535,7 @@ class AllCheckPoints(AllGroups):
     def get_checkpoints_for_recipe_usage(self, recipes, usages):
         checkpoints = []
         for k, e in self.elements.items():
-            if e.fields['abstract'] == '0':
+            if e.fields['abstract'] == '0' and e.isActive():
 ##                if not e.fields['gr_id'] or (e.fields['gr_id'] in recipes):
 ##                    if not e.fields['gu_id'] or (e.fields['gu_id'] in usages):
                 if e.fields['gr_id'] in recipes:
@@ -1648,7 +1684,7 @@ class AllSensors(AllObjects):
 
         for k, sensor in self.elements.items():
             if sensor.fields['channel'] in self._queryChannels \
-                                        and not sensor.fields['active'] == '0':
+                                        and sensor.isActive():
                 value, cache = sensor.get_value_sensor(self.config, get_cache(sensor))
                 if value is not None:
                     sensor.update(now, value, self.config)
@@ -1667,7 +1703,7 @@ class AllBatches(AllObjects):
     def __init__(self, config):
         AllObjects.__init__(self, 'b', config)
         self.fieldnames = ["begin", "b_id", "active", "acronym",
-                           "basicqt", "m_id", "time", "cost", "remark",
+                           "basicqt", "m_id", "time", "cost", "fixed_cost", "remark",
                            'gr_id', "user"]
         self.fieldtranslate = ['begin', 'lang', 'b_id', 'name', 'user']
 
@@ -2279,7 +2315,7 @@ class ManualData(AlarmingObject):
             alarmCode = self.get_alarm(model);
             if alarmCode:
                 c.AllAlarms.elements[alarmCode].launch_alarm(self, c)
-        if self.fields['active'] == '1':
+        if self.isActive():
             c.findAllFromType(self.fields['object_type']) \
              .elements[self.fields['object_id']] \
              .add_data(self)
@@ -2589,6 +2625,7 @@ class GrUsage(Group):
 
     def set_value_from_data(self, data, c, user):
         super(GrUsage, self).set_value_from_data(data, c, user)
+        self.fields['rank'] = data['rank']
         self.save(c, user)
 
 
@@ -2874,6 +2911,12 @@ class GrRecipe(Group):
 
     def set_value_from_data(self, data, c, user):
         super(GrRecipe, self).set_value_from_data(data, c, user)
+        self.fields['gu_id'] = data['usage']
+        self.fields['basicqt'] = data['basicqt']
+        self.fields['m_id'] = data['m_id']
+        self.fields['cost'] = data['cost']
+        self.fields['fixed_cost'] = data['fixed_cost']
+
         self.save(c, user)
 
 
@@ -4277,11 +4320,12 @@ class Sensor(AlarmingObject):
         if (debugging != ''):
             print(debugging) 
         try:
-            assert output_val != None 
+            assert output_val != None
         except AssertionError:
-            print("output_val has not been set for channel: "
-                  + self.fields['channel']
-                  + '. Ignoring.')
+            if self.fields['channel'] != 'radio':
+                print("output_val has not been set for channel: "
+                      + self.fields['channel']
+                      + '. Ignoring.')
             return None, None
         else:
             try:
@@ -4519,6 +4563,7 @@ class Batch(ConfigurationObject):
         b.fields['m_id'] = self.fields['m_id']
         b.fields['time'] = self.fields['time']
         b.fields['cost'] = self.fields['cost']
+        b.fields['fixed_cost'] = self.fields['fixed_cost']
         b.fields['remark'] = self.fields['remark']
         b.fields['gr_id'] = self.fields['gr_id']
         for lang in self.config.AllLanguages.elements:

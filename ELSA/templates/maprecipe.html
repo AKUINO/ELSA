@@ -28,7 +28,9 @@ $#<p style="background: white;">$graph</p>
 </div>
 
 <script>
-var inputGraph = 'digraph{rankdir=LR;$:graph}';
+// digraph not strict should be multigraph
+// a->b;a->b;a->b[label="1"];a->b[label="2"]; will all be displayed !
+var inputGraph = 'digraph{$:graph}';
 //window.alert("Input:"+inputGraph);
 
 // Set up zoom support
@@ -51,7 +53,6 @@ function tryDraw() {
       window.alert("error reading "+inputGraph);
       throw e;
     }
-    g.graph().setMultigraph(True);
 
     // Set margins, if not present
     if (!g.graph().hasOwnProperty("marginx") &&

@@ -53,13 +53,19 @@ $if errormess != '':
 					$if context.split('_')[-1] == group :
 					    selected
 				    $elif id != 'new':
-					$if group == AllObjects.elements[id].fields['gr_id'] :
+					$if group == elem.fields['gr_id'] :
 					    selected
 				    >$tmp $groups.elements[group].fields['acronym'] - $(groups.elements[group].getName(self.lang))</option>
 		    </select>
 		</div>
+	$if type == 'gr':
+	    <input type=hidden name="basicqt" value="">
+	    <input type=hidden name="m_id" value="">
+	    <input type=hidden name="cost" value="">
+	    <input type=hidden name="fixed_cost" value="">
+	$if type =='h' or type == 'gr':
 	    <div class="form-group row">
-		<label for="usage" class="col-sm-3 col-form-label">$:c.getAllHalfling(c.AllGrUsage) $c.getMessage('guse',self.lang) </label>
+		<label for="usage" class="col-sm-3 col-form-label">$:c.getAllHalfling(c.AllGrUsage) $c.getMessage(('guse' if type=='h' else 'target'),self.lang) </label>
 		<div class="col-sm-9" id = "divgroup">
 		    <select name = "usage" class="form-control" id="usage">
 			<option value=''></option>
@@ -87,13 +93,14 @@ $if errormess != '':
 					$if context.split('_')[-1] == group :
 					    selected
 				    $elif id != 'new':
-					$if group == AllObjects.elements[id].fields['gu_id'] :
+					$if group == elem.fields['gu_id'] :
 					    selected
-				    >$tmp $groups.elements[group].fields['acronym'] - $(groups.elements[group].getName(self.lang))</option>
+				    >$tmp $groups.elements[group].fields['acronym'] - $(groups.elements[group].getName(self.lang)) #$groups.elements[group].fields['rank']</option>
 		    </select>
 		</div>
 	    </div>
     
+	$if type =='h' or type == 'gu':
 	    <div class="form-group row">
 		<label for="rankinput" class="col-sm-3 col-form-label">$:(c.getHalfling('rank'))$(c.getMessage('rank',self.lang))</label>
 		<div class="col-sm-9">
@@ -102,7 +109,7 @@ $if errormess != '':
 			$if 'rank' in data :
 			    value="$data['rank']" 
 		    $elif id != 'new':
-			value="$c.AllCheckPoints.elements[id].fields['rank']"
+			value="$elem.fields['rank']"
 		    $else:
 			value="1"		
 		    id="rankinput">
@@ -168,7 +175,7 @@ $if errormess != '':
 		$code:
 		    cond = (id != 'new')
 		    if cond :
-			cond = (c.AllCheckPoints.elements[id].fields['abstract'] == 1 or c.AllCheckPoints.elements[id].fields['abstract'] == '1')
+			cond = (elem.fields['abstract'] == 1 or elem.fields['abstract'] == '1')
 		    if errormess != '' :
 			if 'abstract' in data :
 			    cond  = True
