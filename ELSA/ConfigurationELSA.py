@@ -799,7 +799,9 @@ class RadioThread(threading.Thread):
 
     def run(self):
         if self.config.HardConfig.ela != 'yes':
+            print "No Radio reception configured."
             return
+        print "Radio at "+unicode(self.config.HardConfig.ela_bauds)+" bauds on "+DIR_TTY
         noDots = {ord(' '): None, ord('.'): None}
         try:
             elaSerial = serial.Serial(
