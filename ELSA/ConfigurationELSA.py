@@ -818,11 +818,11 @@ class RadioThread(threading.Thread):
                         if data == ']':
                             if len(line) == 10:
                                 now = useful.get_timestamp()
-                                RSS = int(line[0:1], 16)
-                                HEX = line[2:4]
+                                RSS = int(line[0:2], 16)
+                                HEX = line[2:5]
                                 # ADDRESS = int(HEX,16)
-                                VAL = int(line[5:7], 16)
-                                # READER = int(line[8:9],16)
+                                VAL = int(line[5:8], 16)
+                                # READER = int(line[8:10],16)
                                 print ("ELA="
                                         + HEX
                                         + ", RSS="
@@ -4100,6 +4100,9 @@ class Sensor(AlarmingObject):
                 debugging = (u"Device=" + sensorAdress
                                         + u", Message="
                                         + traceback.format_exc())
+        elif self.fields['channel'] == 'radio':
+            # Look at RadioThread
+            pass
         elif self.fields['channel'] == 'cputemp':
             with open('/sys/class/thermal/thermal_zone0/temp', 'r') \
                     as sensorfile:
