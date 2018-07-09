@@ -818,11 +818,10 @@ class RadioThread(threading.Thread):
                         if data == ']':
                             if len(line) == 10:
                                 now = useful.get_timestamp()
-                                RSS = int(unicode(line[0:2]), 16)
-                                HEX = unicode(line[2:5])
+                                RSS = int(line[0]+line[1], 16)
+                                HEX = line[2]+line[3]+line[4]
                                 # ADDRESS = int(HEX,16)
-                                VAL = int(unicode(line[5:8]), 16)
-                                # READER = int(line[8:10],16)
+                                VAL = int(line[5]+line[6], 16)
                                 print ("ELA="
                                         + HEX
                                         + ", RSS="
