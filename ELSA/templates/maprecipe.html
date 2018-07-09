@@ -51,6 +51,7 @@ function tryDraw() {
       window.alert("error reading "+inputGraph);
       throw e;
     }
+    g.graph().setMultigraph(True);
 
     // Set margins, if not present
     if (!g.graph().hasOwnProperty("marginx") &&

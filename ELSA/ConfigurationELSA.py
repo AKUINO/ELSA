@@ -147,8 +147,8 @@ class Configuration():
 
         self.valueCategs = valueCategs
         self.sortedCategs = sorted(valueCategs)
-        self.csvCodes = os.path.join(DIR_DATA_CSV, 'codes.csv')
-        self.csvRelations = os.path.join(DIR_DATA_CSV, 'relations.csv')
+        self.file_of_codes = os.path.join(DIR_DATA_CSV, 'codes.csv')
+        self.file_of_relations = os.path.join(DIR_DATA_CSV, 'relations.csv')
         self.fieldcode = ['begin', 'type', 'idobject', 'code', 'user']
         self.AllUsers = AllUsers(self)
         self.AllLanguages = AllLanguages(self)
@@ -391,7 +391,7 @@ class ConfigurationObject(object):
         if anUser != "":
             self.fields["user"] = anUser.fields['u_id']
         allObjects = configuration.findAllFromObject(self)
-        with open(allObjects.fileobject, "a") as csvfile:
+        with open(allObjects.file_of_objects, "a") as csvfile:
             writer = unicodecsv.DictWriter(csvfile,
                                            delimiter='\t',
                                            fieldnames=allObjects.fieldnames,
@@ -403,7 +403,7 @@ class ConfigurationObject(object):
     def saveName(self, configuration, anUser):
         allObjects = configuration.findAllFromObject(self)
         for key in self.names:
-            with open(allObjects.filename, "a") as csvfile:
+            with open(allObjects.file_of_names, "a") as csvfile:
                 writer = unicodecsv.DictWriter(csvfile,
                                                delimiter='\t',
                                                fieldnames=allObjects.fieldtranslate,
@@ -412,7 +412,7 @@ class ConfigurationObject(object):
 
 ##    def saveCode(self, configuration, barcode, anUser):
 ##        allObjects = configuration.findAllFromObject(self)
-##        with open(configuration.csvCodes, "a") as csvfile:
+##        with open(configuration.file_of_codes, "a") as csvfile:
 ##            tmpCode = {}
 ##            tmpCode['begin'] = useful.now()
 ##            tmpCode['type'] = self.get_type()
@@ -548,7 +548,7 @@ class ConfigurationObject(object):
 
     def write_group(self, groupid, configuration, user, active):
         allObjects = configuration.findAllFromObject(self)
-        with open(configuration.csvRelations, "a") as csvfile:
+        with open(configuration.file_of_relations, "a") as csvfile:
             tmpCode = {}
             tmpCode['begin'] = useful.now()
             tmpCode['g_id'] = groupid
@@ -854,8 +854,8 @@ class AllObjects(object):
     def __init__(self, obj_type, config=None):
         self.obj_type = obj_type
         self.elements = {}
-        self.fileobject = os.path.join(DIR_DATA_CSV, obj_type.upper()) + ".csv"
-        self.filename = os.path.join(DIR_DATA_CSV, obj_type.upper()) + "names.csv"
+        self.file_of_objects = os.path.join(DIR_DATA_CSV, obj_type.upper()) + ".csv"
+        self.file_of_names = os.path.join(DIR_DATA_CSV, obj_type.upper()) + "names.csv"
         self.keyColumn = obj_type + "_id"
         self.config = config
         self.count = 0
@@ -864,10 +864,10 @@ class AllObjects(object):
         return self.obj_type
 
     def load(self):
-        self.check_csv(self.fileobject)
+        self.check_csv(self.file_of_objects)
         self.loadFields()
-        if self.filename is not None:
-            self.check_csv(self.filename)
+        if self.file_of_names is not None:
+            self.check_csv(self.file_of_names)
             self.loadNames()
 
     def check_csv(self, filename):
@@ -885,8 +885,8 @@ class AllObjects(object):
                 csvfile.write('\t'+self.fieldnames[tmp])
                 tmp = tmp + 1
             csvfile.write('\n')
-        if self.filename is not None:
-            with open(self.filename, 'w') as csvfile:
+        if self.file_of_names is not None:
+            with open(self.file_of_names, 'w') as csvfile:
                 csvfile.write(self.fieldtranslate[0])
                 tmp = 1
                 while tmp < len(self.fieldtranslate):
@@ -895,7 +895,7 @@ class AllObjects(object):
                 csvfile.write('\n')
 
     def loadFields(self):
-        with open(self.fileobject) as csvfile:
+        with open(self.file_of_objects) as csvfile:
             reader = unicodecsv.DictReader(csvfile, delimiter="\t")
             for row in reader:
                 key = row[self.keyColumn]
@@ -999,7 +999,7 @@ class AllObjects(object):
                                .remove_destination(currObject)
 
     def loadNames(self):
-        with open(self.filename) as csvfile:
+        with open(self.file_of_names) as csvfile:
             reader = unicodecsv.DictReader(csvfile, delimiter="\t")
             for row in reader:
                 keyObj = row[self.keyColumn]
@@ -1179,8 +1179,8 @@ class AllAlarmLogs(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'al', config)
-        self.fileobject = os.path.join(DIR_DATA_CSV, "alarmlogs.csv")
-        self.filename = None
+        self.file_of_objects = os.path.join(DIR_DATA_CSV, "alarmlogs.csv")
+        self.file_of_names = None
         self.fieldnames = ['begin', 'al_id', 'cont_id', 'cont_type',
                            's_id', 'value', 'typealarm', 'begintime',
                            'alarmtime', 'degree']
@@ -1206,8 +1206,8 @@ class AllHalflings(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, "halfling", config)
-        self.fileobject = os.path.join(DIR_APP_CSV, "halflings.csv")
-        self.filename = None
+        self.file_of_objects = os.path.join(DIR_APP_CSV, "halflings.csv")
+        self.file_of_names = None
         self.keyColumn = "classname"
         self.fieldnames = ['begin', 'classname', 'glyphname', 'user']
         self.fieldtranslate = None
@@ -1250,7 +1250,7 @@ class AllManualData(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'd', config)
-        self.filename = None
+        self.file_of_names = None
         self.fieldnames = ['begin', 'd_id', 'dm_id', 'object_id', 'object_type',
                            'time', 'h_id', 'remark', 'm_id', 'value', 'active',
                            'user']
@@ -1267,7 +1267,7 @@ class AllPourings(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'v', config)
-        self.filename = None
+        self.file_of_names = None
         self.fieldnames = ['begin', 'v_id', 'src', 'dest', 'time',
                            'h_id', 'quantity', 'm_id', 'remark',
                            'active', 'user']
@@ -1292,7 +1292,7 @@ class AllGroups(AllObjects):
         self.load_relation()
 
     def check_relation(self):
-        filename = self.csvRelations
+        filename = self.file_of_relations
         if not os.path.exists(filename):
             self.create_relation(filename)
 
@@ -1313,7 +1313,7 @@ class AllGroups(AllObjects):
         return children
 
     def load_relation(self):
-        with open(self.csvRelations) as csvfile:
+        with open(self.file_of_relations) as csvfile:
             reader = unicodecsv.DictReader(csvfile, delimiter="\t")
             for row in reader:
                 parent = row['parent_id']
@@ -1375,7 +1375,7 @@ class AllGrUsage(AllGroups):
         self.fieldnames = ["begin", "gu_id",
                            "active", "acronym", "remark", "user"]
         self.fieldtranslate = ['begin', 'lang', 'gu_id', 'name', 'user']
-        self.csvRelations = os.path.join(DIR_DATA_CSV, "GUrelations.csv")
+        self.file_of_relations = os.path.join(DIR_DATA_CSV, "GUrelations.csv")
 
     def newObject(self):
         return GrUsage(self.config)
@@ -1393,7 +1393,7 @@ class AllGrRecipe(AllGroups):
         self.fieldnames = ["begin", "gr_id",
                            "active", "acronym", "remark", "user"]
         self.fieldtranslate = ['begin', 'lang', 'gr_id', 'name', 'user']
-        self.csvRelations = os.path.join(DIR_DATA_CSV, "GRrelations.csv")
+        self.file_of_relations = os.path.join(DIR_DATA_CSV, "GRrelations.csv")
 
     def newObject(self):
         return GrRecipe(self.config)
@@ -1414,8 +1414,8 @@ class AllCheckPoints(AllGroups):
         self.fieldtranslate = ['begin', 'lang', 'h_id', 'name', 'user']
         self.fieldcontrols = ['begin', 'h_id',
                               'object_type', 'object_id', 'user']
-        self.csvRelations = os.path.join(DIR_DATA_CSV, "Hrelations.csv")
-        self.csvControls = os.path.join(DIR_DATA_CSV, "Hcontrols.csv")
+        self.file_of_relations = os.path.join(DIR_DATA_CSV, "Hrelations.csv")
+        self.file_of_controls = os.path.join(DIR_DATA_CSV, "Hcontrols.csv")
 
     def newObject(self):
         return CheckPoint(self.config)
@@ -1432,7 +1432,7 @@ class AllCheckPoints(AllGroups):
         self.load_controls()
 
     def check_controls(self):
-        filename = self.csvControls
+        filename = self.file_of_controls
         if not os.path.exists(filename):
             self.create_control(filename)
 
@@ -1446,7 +1446,7 @@ class AllCheckPoints(AllGroups):
             csvfile.write('\n')
 
     def load_controls(self):
-        with open(self.csvControls) as csvfile:
+        with open(self.file_of_controls) as csvfile:
             reader = unicodecsv.DictReader(csvfile, delimiter="\t")
             for row in reader:
                 type = row['object_type']
@@ -1491,7 +1491,7 @@ class AllGrFunction(AllGroups):
         self.fieldnames = ["begin", "gf_id",
                            "active", "acronym", "remark", "user"]
         self.fieldtranslate = ['begin', 'lang', 'gf_id', 'name', 'user']
-        self.csvRelations = os.path.join(DIR_DATA_CSV, "GFrelations.csv")
+        self.file_of_relations = os.path.join(DIR_DATA_CSV, "GFrelations.csv")
 
     def newObject(self):
         return GrFunction(self.config)
@@ -1524,6 +1524,7 @@ class AllSensors(AllObjects):
     
 # We dynamically append all [input.xxx] from hardconfig to _queryChannels
     _queryChannels = ['wire',
+                      'radio',
                       'http',
                       'json',
                       'cputemp',
@@ -1675,7 +1676,7 @@ class AllTransfers(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 't', config)
-        self.filename = None
+        self.file_of_names = None
         self.fieldnames = ["begin", "t_id", 'time', 'h_id', "cont_id",
                            "cont_type", "object_id", "object_type", "remark",
                            'active', "user"]
@@ -1749,8 +1750,8 @@ class AllBarcodes(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'barcode', config)
-        self.fileobject = os.path.join(DIR_DATA_CSV, "codes.csv")
-        self.filename = None
+        self.file_of_objects = os.path.join(DIR_DATA_CSV, "codes.csv")
+        self.file_of_names = None
         self.keyColumn = "code"
         self.fieldnames = ['begin', 'type',
                            'idobject', 'code', 'active', 'user']
@@ -1758,8 +1759,8 @@ class AllBarcodes(AllObjects):
         self.EAN = barcode.get_barcode_class('ean13')
 
     def load(self):
-        AllObjects.check_csv(self, self.fileobject)
-        with open(self.fileobject) as csvfile:
+        AllObjects.check_csv(self, self.file_of_objects)
+        with open(self.file_of_objects) as csvfile:
             reader = unicodecsv.DictReader(csvfile, delimiter="\t")
             for row in reader:
                 key = row[self.keyColumn]
@@ -1806,7 +1807,7 @@ class AllBarcodes(AllObjects):
         del self.elements[oldBarcode]
 
     def write_csv(self, some_code, active, user):
-        with open(self.fileobject, "a") as csvfile:
+        with open(self.file_of_objects, "a") as csvfile:
             tmpCode = self.create_fields(some_code, active, user)
             writer = unicodecsv.DictWriter(csvfile,
                                            delimiter='\t',
@@ -1920,8 +1921,8 @@ class AllLanguages(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'l', config)
-        self.fileobject = os.path.join(DIR_APP_CSV, "language.csv")
-        self.filename = None
+        self.file_of_objects = os.path.join(DIR_APP_CSV, "language.csv")
+        self.file_of_names = None
         self.nameColumn = "name"
 
     def newObject(self):
@@ -1940,8 +1941,8 @@ class AllMessages(AllObjects):
         AllObjects.__init__(self, 'message', config)
         self.elements = {}
         self.names = {}
-        self.fileobject = os.path.join(DIR_APP_CSV + "mess.csv")
-        self.filename = os.path.join(DIR_APP_CSV + "messages.csv")
+        self.file_of_objects = os.path.join(DIR_APP_CSV + "mess.csv")
+        self.file_of_names = os.path.join(DIR_APP_CSV + "messages.csv")
         self.nameColumn = "name"
 
     def newObject(self):
@@ -2404,7 +2405,7 @@ class Group(ConfigurationObject):
 
     def write_group(self, parentid, configuration, user, active):
         with open(configuration.findAllFromObject(self)
-                               .csvRelations, "a") as csvfile:
+                               .file_of_relations, "a") as csvfile:
             tmpCode = {}
             tmpCode['begin'] = useful.now()
             tmpCode['parent_id'] = parentid
@@ -2776,7 +2777,7 @@ class CheckPoint(Group):
         return tmp
 
     def write_control(self, type, id, user):
-        with open(self.config.findAllFromObject(self).csvControls, "a") \
+        with open(self.config.findAllFromObject(self).file_of_controls, "a") \
                 as csvfile:
             tmpCode = {}
             tmpCode['begin'] = useful.now()
