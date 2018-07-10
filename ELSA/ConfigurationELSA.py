@@ -1382,11 +1382,13 @@ class AllGroups(AllObjects):
 
     def get_fullmap_str(self):
         objMap = []
+        # find groups without parents
         for k, group in self.elements.items():
             parents = group.get_parents()
             if not parents or len(parents) == 0:
                 objMap.append(group)
         objMap = sorted(objMap,key=lambda t: t.get_acronym().upper())
+        # go down the hierarchy...
         fullmap = []
         for group in objMap:
                 k = group.getID()
@@ -2510,10 +2512,7 @@ class Group(ConfigurationObject):
     def remove_relation(self, group):
         self.related.remove(group.getID())
 
-    def load_parents(self, group=None):
-        if group == None:
-            group = self
-            self.parents = []
+    def load_parents(self):
         for i in self.related:
             if i not in self.parents:
                 self.parents.append(i)
@@ -2522,21 +2521,19 @@ class Group(ConfigurationObject):
                     .elements[i] \
                     .load_parents()
             else:
-                print "Error Group : GROUPE EN RELATION CIRCLAIRE"
+                print "Error Group "+self.get_type()+"_"+i+": GROUPE EN RELATION CIRCLAIRE DANS "+self.getID()
 
-    def load_children(self, g=None):
-        if g == None:
-            g = self
+    def load_children(self):
         for k, group in self.config \
                             .findAllFromType(self.get_type()) \
                             .elements \
                             .items():
             if self.getID() in group.related:
-                if group.getID() not in g.children:
-                    g.add_child(group)
-                    group.load_children(g)
+                if group.getID() not in self.children:
+                    self.add_child(group)
+                    group.load_children()
                 else:
-                    print "Error Group : GROUPE EN RELATION CIRCLAIRE"
+                    print "Error Group "+group.get_type()+"_"+group.getID()+": GROUPE EN RELATION CIRCLAIRE DANS "+self.getID()
 
     def load_siblings(self):
         for k, group in self.config \
@@ -2569,6 +2566,7 @@ class Group(ConfigurationObject):
     # Looking DOWN
     def get_submap_str(self):
         children = self.get_children()
+        print self.fields['acronym']+", children="+unicode(children)
         submap = []                      
         submap.append('>>')
         if children and len (children) > 0:
