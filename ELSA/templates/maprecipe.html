@@ -21,7 +21,7 @@ $for usageTop in usagesTop:
     <div class="map top">
 	<div class="row">
 	  <div class="col-xs-12">
-	    <a href="/find/related/gu_$(usageTop.getID())">$:(usageTop.statusIcon(c))$usageTop.fields['acronym'] <strong>$usageTop.getName(self.lang)</strong></a>
+	    <a href="/find/related/gu_$(usageTop.getID())">$:(usageTop.statusIcon(c))</a>$usageTop.fields['acronym'] #$usageTop.fields['rank'] <strong>$usageTop.getName(self.lang)</strong>
 	  </div>
 	</div>
     $ level = 0
