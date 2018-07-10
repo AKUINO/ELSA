@@ -1,0 +1,44 @@
+$def with (mail)
+$var title : ELSA Batches Recipes Map
+$var location: list/gr=$(c.AllGrRecipe.get_class_acronym())
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$var recursive : False
+$ done = set()
+$ listRecipe = c.AllGrRecipe.get_fullmap_str()
+<pre>
+    $listRecipe
+</pre>
+<div class="container">
+$ level = 0
+$for krecipe in listRecipe:
+	$if krecipe == '>>':
+		$ level += 1
+	$elif krecipe == '<<':
+		$ level -= 1
+		</div>
+	$else:
+		$ elem = c.AllGrRecipe.elements[krecipe]
+		$if level == 0:
+			<div class="map top">
+		$else:
+			<div class="map down">
+		<a href="/find/related/gr_$krecipe">$:(elem.statusIcon(c))</a>
+		$ acro = elem.fields['acronym']
+		$if ('gr_'+krecipe) in done:
+			<a href="#gr_$acro">$acro</a>
+		$else:
+			<a name="gr_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>
+			$for kbatch in c.AllBatches.elements:
+				$ batch = c.AllBatches.elements[kbatch]
+				$if batch.get_group() == krecipe :
+					<div class="map down">
+					<a href="/find/related/b_$kbatch">$:(batch.statusIcon(c))</a>
+					$ acro = batch.fields['acronym']
+					$if ('b_'+kbatch) in done:
+						<a href="#b_$acro">$acro</a>
+					$else:
+						<a name="b_$acro"></a>$acro - <strong>$(batch.getName(self.lang))</strong>
+						$ done.add('b_'+kbatch)
+					</div>
+			$ done.add('gr_'+krecipe)
+</div>
