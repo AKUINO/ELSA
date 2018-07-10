@@ -269,6 +269,7 @@ $elif type == 'gr':
 	    <a href="/create/h/$(type)_$(id)" class = "vcenter">$:c.getHalfling('add') $c.getMessage('checkpoint',self.lang)</a>
 	</div>
 	<div class="col-xs-5 vcenter">
+	    <strong><a href="/map/$(type)_$id" class="btn btn-warning" role="button">$:(c.getHalfling('datatable'))</a></strong>
 	    <button type="button" class="btn btn-primary btn-md map" data-toggle="modal" data-target="#mapmodal">$c.getMessage('map',self.lang)</button>
 	</div>
     </div> 

@@ -313,6 +313,19 @@ $elif type == 'h':
 			    
 		    </div>
 		</div>
+	$elif type == 'gu':
+		<div class="row">
+		    <div class="col-xs-1 vcenter">
+			$:(c.getHalfling('rank'))
+		    </div>
+		    <div class="col-xs-10 vcenter">
+			$if elem.fields['rank'] != '':
+			    $elem.fields['rank']
+			$else:
+			    -
+			    
+		    </div>
+		</div>
 	$elif type == 's':
 		<div class="row">
 		    <div class="col-xs-1 vcenter">
@@ -458,6 +471,15 @@ $elif type == 'h':
 			    </div>
 			    <div class="col-xs-10">
 				$(c.getMessage('graphic',self.lang))
+			    </div>
+			</div>
+		    $if type == 'gr' :
+			<div class="row" style="margin-top:6px;">
+			    <div class="col-xs-2" >
+				<strong><a href="/map/$(type)_$id" class="btn btn-warning" role="button">$:(c.getHalfling('datatable'))</a></strong>
+			    </div>
+			    <div class="col-xs-10">
+				$(c.getMessage('schema',self.lang))
 			    </div>
 			</div>
 		    $if type in 'cpesm' :
