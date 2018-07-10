@@ -713,12 +713,12 @@ class WebGraphRecipe():
                     graph += "[labelType=\"html\",label=\"<a href=/find/related/"+grID+">"+recipe.getNameHTML(lang)+"</a>\""
                     graph += ",tooltip=\""+recipe.fields['acronym']+"\""
                     graph += ",id=\""+grID+"\",shape=ellipse,style=\"fill:#fff;stroke:1px;\"];"
-            for usage in usages:
-                    usaID = 'gu_'+usage.getID()
-                    for parent in usage.parents:
-                        usage = c.AllGrUsage.elements[parent]
-                        aboveID = 'gu_'+parent
-                        graph += aboveID+"->"+usaID+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
+##            for usage in usages:
+##                    usaID = 'gu_'+usage.getID()
+##                    for parent in usage.parents:
+##                        usage = c.AllGrUsage.elements[parent]
+##                        aboveID = 'gu_'+parent
+##                        graph += aboveID+"->"+usaID+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
             return render.graphrecipe(mail, type, id, graph)
         return render.notfound()
 
