@@ -1718,6 +1718,15 @@ class AllBatches(AllObjects):
     def get_key_group(self):
         return 'gr'
 
+    def get_batches_for_recipes(self, recipes):
+        batches = []
+        #print recipes
+        #print usages
+        for k, e in self.elements.items():
+            if e.fields['gr_id'] in recipes:
+                batches.append(e)
+        return batches
+
     def get_batches_for_recipe_usage(self, recipes, usages):
         batches = []
         #print recipes
@@ -2520,8 +2529,8 @@ class Group(ConfigurationObject):
                     .findAllFromType(self.get_type()) \
                     .elements[i] \
                     .load_parents()
-            else:
-                print "Error Group "+self.get_type()+"_"+i+": GROUPE EN RELATION CIRCLAIRE DANS "+self.getID()
+##            else:
+##                print "Error Group "+self.get_type()+"_"+i+": GROUPE EN RELATION CIRCLAIRE DANS "+self.getID()
 
     def load_children(self):
         for k, group in self.config \
@@ -2532,8 +2541,8 @@ class Group(ConfigurationObject):
                 if group.getID() not in self.children:
                     self.add_child(group)
                     group.load_children()
-                else:
-                    print "Error Group "+group.get_type()+"_"+group.getID()+": GROUPE EN RELATION CIRCLAIRE DANS "+self.getID()
+##                else:
+##                    print "Error Group "+group.get_type()+"_"+group.getID()+": GROUPE EN RELATION CIRCLAIRE DANS "+self.getID()
 
     def load_siblings(self):
         for k, group in self.config \
