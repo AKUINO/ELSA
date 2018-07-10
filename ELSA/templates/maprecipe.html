@@ -1,0 +1,65 @@
+$def with (mail, type, id, graph)
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$var recursive : False
+$var title : Map Recipe
+$var location :
+$code:
+    elem = c.AllGrRecipe.elements[id]
+    summit = [id] + elem.get_supermap_str()
+    usagesTop = c.AllGrUsage.get_usages_for_recipe(summit)
+    done = set()
+<div class="container">
+    <div class="row">
+	<div class="col-xs-6">
+	    <a href="/find/related/gr_$id">$:(elem.statusIcon(c))$elem.fields['acronym'] <strong>$elem.getName(self.lang)</strong></a>
+	</div>
+	<div class="col-xs-5">
+            $:c.getAllHalfling(c.AllBatches)$len(c.AllBatches.get_batches_for_recipes([id]))
+	</div>
+    </div>
+$for usageTop in usagesTop:
+    <div class="map top">
+	<div class="row">
+	  <div class="col-xs-12">
+	    <a href="/find/related/gu_$(usageTop.getID())">$:(usageTop.statusIcon(c))$usageTop.fields['acronym'] <strong>$usageTop.getName(self.lang)</strong></a>
+	  </div>
+	</div>
+    $ level = 0
+    $ listCheckPoint = c.AllCheckPoints.get_checkpoints_for_recipe_usage(summit, [usageTop.getID()])
+    $for checkpoint in listCheckPoint:
+	<div class="map down">
+	        <a href="/find/related/h_$checkpoint.getID()">$:(checkpoint.statusIcon(c))</a>
+		$ acro = checkpoint.fields['acronym']
+		$if ('h_'+checkpoint.getID()) in done:
+		    <a href="#h_$acro">$acro</a> #$checkpoint.fields['rank']
+		$else:
+		    <a name="h_$acro"></a>$acro #$checkpoint.fields['rank'] - <strong>$(checkpoint.getName(self.lang))</strong>
+		    $ operations = checkpoint.get_local_model_sorted()
+		    $for operation in operations:
+			$ op_type = operation.get_type()
+  		        <div class="map down">
+			<a href="/find/related/$(op_type)_$(operation.getID())">$:operation.statusIcon(c)</a>
+			$operation.fields['acronym'] #$operation.fields['rank'] - <strong>$(operation.getName(self.lang))</strong>
+			$if op_type == 'tm':
+			    $ kusage = operation.fields['gu_id']
+			    $if kusage and kusage in c.AllGrUsage.elements:
+				$ usage = c.AllGrUsage.elements[kusage]
+				$:c.getHalfling('to')
+				<a href="/find/related/gu_$kusage">$:(usage.statusIcon(c))$(usage.fields['acronym'])</a>
+			$elif op_type == 'vm':
+				$ krecipe = ''
+				$if operation.fields['in']=='1':
+					$:c.getHalfling('from')
+					$ krecipe = operation.fields['src']
+				$else:
+					$:c.getHalfling('to')
+					$ krecipe = operation.fields['dest']
+				$if krecipe and krecipe in c.AllGrRecipe.elements:
+					$ recipe = c.AllGrRecipe.elements[krecipe]
+					<a href="/find/related/gr_$krecipe">$:(recipe.statusIcon(c))$(recipe.fields['acronym'])</a>
+				
+		        </div>
+		    $ done.add('h_'+checkpoint.getID())
+        </div>
+    </div>
+</div>
