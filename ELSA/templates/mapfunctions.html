@@ -1,0 +1,41 @@
+$def with (mail)
+$var title : ELSA Users Functions Map
+$var location: list/gf=$(c.AllGrFunction.get_class_acronym())
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$var recursive : False
+$ done = set()
+$ listFunction = c.AllGrFunction.get_fullmap_str()
+<div class="container">
+$ level = 0
+$for kfunction in listFunction:
+	$if kfunction == '>>':
+		$ level += 1
+	$elif kfunction == '<<':
+		$ level -= 1
+		</div>
+	$else:
+		$ elem = c.AllGrFunction.elements[kfunction]
+		$if level == 0:
+			<div class="map top">
+		$else:
+			<div class="map down">
+		<a href="/find/related/gf_$kfunction">$:(elem.statusIcon(c))</a>
+		$ acro = elem.fields['acronym']
+		$if ('gf_'+kfunction) in done:
+			<a href="#gf_$acro">$acro</a>
+		$else:
+			<a name="gf_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>
+			$for kuser in c.AllUsers.elements:
+				$ user = c.AllUsers.elements[kuser]
+				$if user.get_group() == kfunction :
+					<div class="map down">
+					<a href="/find/related/u_$kuser">$:(user.statusIcon(c))</a>
+					$ acro = user.fields['acronym']
+					$if ('u_'+kuser) in done:
+						<a href="#u_$acro">$acro</a>
+					$else:
+						<a name="u_$acro"></a>$acro - <strong>$(user.getName(self.lang))</strong>
+						$ done.add('u_'+kuser)
+					</div>
+			$ done.add('gf_'+kfunction)
+</div>

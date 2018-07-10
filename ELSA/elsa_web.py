@@ -580,6 +580,45 @@ class WebMapRecipe():
             elem = c.AllGrRecipe.elements[id]
             summit = [id] + elem.get_supermap_str()
             usages = c.AllGrUsage.get_usages_for_recipe(summit)
+            return render.maprecipe(mail, type, id, graph)
+        return render.notfound()
+
+class WebMapBatch():
+    def __init__(self):
+        self.name = u"WebMapBatch"
+
+    def GET(self,id):
+        mail = redirect_when_not_logged()
+        lang = c.connectedUsers.users[mail].cuser.fields['language']
+        
+        if id in c.AllBatches.elements.keys():
+            elem = c.AllBatches.elements[id]
+            recipes = set()
+            recipe_id = elem.fields['gr_id']
+            recipe = None
+            if recipe_id and recipe_id in c.AllGrRecipe.elements.keys():
+                recipes.add(recipe_id)
+                recipe = c.AllGrRecipe.elements[recipe_id]
+                new_recipes = set(recipe.get_all_parents([],None))
+                recipes = recipes | new_recipes
+            #print "grs="+unicode(recipes)
+            components = elem.get_actual_position_hierarchy(c)
+            return render.mapbatch(mail, type, id, graph)
+        return render.notfound()
+
+class WebGraphRecipe():
+    def __init__(self):
+        self.name = u"WebGraphRecipe"
+
+    def GET(self,id):
+        mail = redirect_when_not_logged()
+        lang = c.connectedUsers.users[mail].cuser.fields['language']
+        graph = ""
+        
+        if id in c.AllGrRecipe.elements.keys():
+            elem = c.AllGrRecipe.elements[id]
+            summit = [id] + elem.get_supermap_str()
+            usages = c.AllGrUsage.get_usages_for_recipe(summit)
             prec_u = ""
             for usage in usages:
                 usaID = 'gu_'+usage.getID()
@@ -680,12 +719,12 @@ class WebMapRecipe():
                         usage = c.AllGrUsage.elements[parent]
                         aboveID = 'gu_'+parent
                         graph += aboveID+"->"+usaID+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
-            return render.maprecipe(mail, type, id, graph)
+            return render.graphrecipe(mail, type, id, graph)
         return render.notfound()
 
-class WebMapControl():
+class WebGraphBatch():
     def __init__(self):
-        self.name = u"WebMapControl"
+        self.name = u"WebGraphBatch"
 
     def GET(self,id):
         mail = redirect_when_not_logged()
@@ -787,8 +826,17 @@ class WebMapControl():
                 graph += "[labelType=\"html\",label=\"<a href=/find/related/"+grID+">"+recipe.getNameHTML(lang)+"</a>\""
                 graph += ",tooltip=\""+recipe.fields['acronym']+"\""
                 graph += ",id=\""+grID+"\",shape=ellipse,style=\"fill:#fff;stroke:1px;\"];"
-            return render.mapcontrol(mail, 'b', id, graph)
+            return render.graphbatch(mail, 'b', id, graph)
         return render.notfound()
+
+class WebMapFunctions():
+    def __init__(self):
+        self.name = u"WebMapFunctions"
+
+    def GET(self):
+        mail = redirect_when_not_logged()
+        lang = c.connectedUsers.users[mail].cuser.fields['language']
+        return render.mapfunctions(mail)
 
 class WebMapComponents():
     def __init__(self):
@@ -1162,10 +1210,13 @@ def main():
             '/doc/(.+)', 'getDoc',
             '/list/(.+)', 'WebList',
             '/graphic/(.+)_(.+)', 'WebGraphic',
+            '/map/gf', 'WebMapFunctions',
             '/map/gu', 'WebMapComponents',
             '/map/h', 'WebMapCheckPoints',
-            '/map/b_(.+)', 'WebMapControl',
+            '/map/b_(.+)', 'WebMapBatch',
             '/map/gr_(.+)', 'WebMapRecipe',
+            '/graph/b_(.+)', 'WebGraphBatch',
+            '/graph/gr_(.+)', 'WebGraphRecipe',
             '/barcode/(.+)', 'WebBarcode',
             '/barcode/', 'WebBarcode',
             '/modal/(.+)_(.+)', 'WebModal',

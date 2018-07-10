@@ -199,7 +199,7 @@ $if type in 'b':
 	<script>
 		$$('.map').on("click",function(e){
 		    $$('#modal_map').modal('hide');
-		    $$("#modal_map").find(".modal-dialog").load("/map/$(type)_$(id)");
+		    $$("#modal_map").find(".modal-dialog").load("/graph/$(type)_$(id)");
 		    $$("#modal_map").modal('show');
 		});
 	</script>
