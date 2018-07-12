@@ -52,7 +52,10 @@ $for operation in events:
 	$ op_type = operation.get_type()
         <tr style="padding:3px">
 		<th style="padding:3px">$(operation.fields['time'])</th>		
-		<td style="padding:3px"><a href="/edit/$(op_type)_$(operation.getID())">$:operation.statusIcon(c)</a><a href="/find/related/$(op_type)m_$(operation.fields[op_type+'m_id'])" style="color:#28A4C9"><strong><big>M</big></strong></a></td><td>
+		<td style="padding:3px"><a href="/edit/$(op_type)_$(operation.getID())">$:operation.statusIcon(c)</a>
+		$if (operation.fields[op_type+'m_id']):
+			<a href="/find/related/$(op_type)m_$(operation.fields[op_type+'m_id'])" style="color:#28A4C9"><strong><big>M</big></strong></a>
+		</td><td>
 		$if op_type == 't':
 		    $ dest = operation.get_cont()
 		    $:c.getHalfling('to')
