@@ -66,7 +66,7 @@ $for i in elem.checkpoints:
 	    </div>
 	    <div class="col-sm-3">
 		<button type="submit" class="btn btn-primary btn-block">$c.getMessage('add',self.lang) $c.getMessage('checkpoint',self.lang)</button>
-                <button type="button" class="btn btn-primary btn-md map" data-toggle="modal" data-target="#mapmodal">$c.getMessage('map',self.lang)</button>
+                <strong><a href="/map/$(type)_$id" class="btn btn-warning" role="button">$:(c.getHalfling('datatable'))</a></strong><button type="button" class="btn btn-primary btn-md map" data-toggle="modal" data-target="#mapmodal">$c.getMessage('map',self.lang)</button>
 	    </div>
 	</div>
     </form>
@@ -75,7 +75,7 @@ $for i in elem.checkpoints:
 <script>
 	$$('.map').on("click",function(e){
 	    $$('#modal_map').modal('hide');
-	    $$("#modal_map").find(".modal-dialog").load("/map/$(type)_$(id)");
+	    $$("#modal_map").find(".modal-dialog").load("/graph/$(type)_$(id)");
 	    $$("#modal_map").modal('show');
 	});
 </script>

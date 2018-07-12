@@ -18,28 +18,32 @@ $var title : $elem.getName(self.lang)
 <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
     <label class="col-sm-12">$c.getMessage('batch',self.lang) $c.getMessage('source',self.lang) :</label>
     <label class="col-sm-3">$c.getMessage('time',self.lang)</label>
+    <label class="col-sm-2">$c.getMessage('checkpoint',self.lang)</label>
     <label class="col-sm-3">$c.getMessage('component',self.lang)</label>
-    <label class="col-sm-2">$c.getMessage('measure',self.lang)</label>    
-    <label class="col-sm-3">$c.getMessage('remark',self.lang)</label>    
+    <label class="col-sm-3">$c.getMessage('measure',self.lang) / $c.getMessage('remark',self.lang)</label>    
     $for k in elem.destination:
-	<div class="row active" style="color:#f07e26;">
+	$ pouring = c.AllPourings.elements[k];
+	<div class="row active">
 		<div class="col-xs-3" >
-		    $c.AllPourings.elements[k].fields['time']
+		    $pouring.fields['time']
 		</div>
-		<div class="col-xs-2">
-		    $c.AllBatches.elements[c.AllPourings.elements[k].fields['src']].getName(self.lang) 
-		    </div>	    
-		<div class="col-xs-1">
-		     <strong><a href="/find/v/b_$(c.AllPourings.elements[k].fields['src'])" class="btn btn-warning" role="button">$:c.getHalfling('input')</a></strong>
-		</div>	    
 		<div class="col-xs-2" >
-		    $c.AllPourings.elements[k].fields['quantity']  $c.AllMeasures.elements[c.AllPourings.elements[k].fields['m_id']].fields['unit']</a>
+		    $if pouring.fields['h_id'] != '' :
+		        <a href="/find/related/h_$(pouring.fields['h_id'])">$:c.getAllHalfling(c.AllCheckPoints) $c.AllCheckPoints.elements[pouring.fields['h_id']].fields['acronym']</a>
+		    $if pouring.fields['vm_id'] != '' :
+	                <a href="/find/related/vm_$(pouring.fields['vm_id'])" style="color:#28A4C9"><strong><big>M</big></strong></a>
 		</div>
+		<div class="col-xs-3">
+		    $c.AllBatches.elements[pouring.fields['src']].getName(self.lang) 
+		    <strong><a href="/find/v/b_$(pouring.fields['src'])" class="btn btn-warning" role="button">$:c.getHalfling('input')</a></strong>
+		</div>	    
 		<div class="col-xs-3" >
-		    $c.AllPourings.elements[k].fields['remark']
+		    $pouring.fields['quantity']  $c.AllMeasures.elements[pouring.fields['m_id']].fields['unit']</a>
+		    $if pouring.fields['remark']:
+			<br/>$pouring.fields['remark']
 		</div>
 		<div class="col-xs-1">
-		    <strong><a href="/edit/v_$(c.AllPourings.elements[k].fields['v_id'])" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
+		    <strong><a href="/edit/v_$(pouring.fields['v_id'])" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
 		</div>
 	    </div>
 </div>
@@ -55,25 +59,30 @@ $var title : $elem.getName(self.lang)
 <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
     <label class="col-sm-12">$c.getMessage('batch',self.lang) $c.getMessage('target',self.lang)</label>   
     <label class="col-sm-3">$c.getMessage('time',self.lang)</label>
+    <label class="col-sm-2">$c.getMessage('checkpoint',self.lang)</label>
     <label class="col-sm-3">$c.getMessage('component',self.lang)</label>
-    <label class="col-sm-2">$c.getMessage('measure',self.lang)</label>    
-    <label class="col-sm-3">$c.getMessage('remark',self.lang)</label>   
+    <label class="col-sm-3">$c.getMessage('measure',self.lang) / $c.getMessage('remark',self.lang)</label>   
     $for k in elem.source:
-	<div class="row active" style="color:#f07e26;">
+	<div class="row active">
 		<div class="col-xs-3" >
-		    $c.AllPourings.elements[k].fields['time']
+		    $pouring.fields['time']
 		</div>	
-		<div class="col-xs-3">
-		    <strong><a href="/find/v/b_$(c.AllPourings.elements[k].fields['dest'])" class="btn btn-warning" role="button">$:c.getHalfling('output')</a></strong>  $c.AllBatches.elements[c.AllPourings.elements[k].fields['dest']].getName(self.lang)
-		</div>    
 		<div class="col-xs-2" >
-		    $c.AllPourings.elements[k].fields['quantity']  $c.AllMeasures.elements[c.AllPourings.elements[k].fields['m_id']].fields['unit']</a>
+		    $if pouring.fields['h_id'] != '' :
+		        <a href="/find/related/h_$(pouring.fields['h_id'])">$:c.getAllHalfling(c.AllCheckPoints) $c.AllCheckPoints.elements[pouring.fields['h_id']].fields['acronym']</a>
+		    $if pouring.fields['vm_id'] != '' :
+	                <a href="/find/related/vm_$(pouring.fields['vm_id'])" style="color:#28A4C9"><strong><big>M</big></strong></a>
 		</div>
+		<div class="col-xs-3">
+		    <strong><a href="/find/v/b_$(pouring.fields['dest'])" class="btn btn-warning" role="button">$:c.getHalfling('output')</a></strong>  $c.AllBatches.elements[pouring.fields['dest']].getName(self.lang)
+		</div>    
 		<div class="col-xs-3" >
-		    $c.AllPourings.elements[k].fields['remark']
+		    $pouring.fields['quantity']  $c.AllMeasures.elements[pouring.fields['m_id']].fields['unit']</a>
+		    $if pouring.fields['remark']:
+		    	<br/>$pouring.fields['remark']
 		</div>
 		<div class="col-xs-1">
-		    <strong><a href="/edit/v_$(c.AllPourings.elements[k].fields['v_id'])" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
+		    <strong><a href="/edit/v_$(pouring.fields['v_id'])" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
 		</div>
 	    </div>
 </div>

@@ -539,6 +539,17 @@ class ConfigurationObject(object):
     def getID(self):
         return self.id
 
+    def getTimestamp(self):
+        # time = editable time fields
+        if 'time' in self.fields:
+            stamp = self.fields['time']
+        else: # begin = record creation
+            stamp = self.fields['begin']
+        if not stamp:
+            return 0
+        else:
+            return useful.date_to_timestamp(stamp)
+
     def get_hash_type(self):
         obj_type = self.get_type()
         hash = 10 * (ord(obj_type[0]) - ord('a'))
@@ -652,11 +663,11 @@ class ConfigurationObject(object):
         if len(self.manualdata) == 0:
             self.manualdata.append(manualdata.getID())
         else:
-            time = useful.date_to_timestamp(manualdata.fields['time'])
+            time = manualdata.getTimestamp()
             insert = False
             for i in range(len(self.manualdata)):
                 tmp = self.config.AllManualData.elements[self.manualdata[i]]
-                tmptime = useful.date_to_timestamp(tmp.fields['time'])
+                tmptime = tmp.getTimestamp()
                 if time < tmptime:
                     insert = True
                     self.manualdata.insert(i, manualdata.getID())
@@ -674,16 +685,12 @@ class ConfigurationObject(object):
         count = 0
         while count < len(self.transfers):
             t = self.config.AllTransfers.elements[self.transfers[count]]
-            time = useful.date_to_timestamp(t.fields['time'])
+            time = t.getTimestamp()
             if begin < time and time < end:
                 if first is True:
                     first = False
                     if count > 0:
-                        if useful.date_to_timestamp(self
-                                .config
-                                .AllTransfers
-                                .elements[self.transfers[count-1]]
-                                .fields['time']) > begin:
+                        if self.config.AllTransfers.elements[self.transfers[count-1]].getTimestamp() > begin:
                             tmp.append(self.transfers[count - 1])
                 tmp.append(t)
             elif time <= begin and (first is True
@@ -706,11 +713,11 @@ class ConfigurationObject(object):
         if len(self.transfers) == 0:
             self.transfers.append(transfer.getID())
         else:
-            time = useful.date_to_timestamp(transfer.fields['time'])
+            time = transfer.getTimestamp()
             insert = False
             for i in range(len(self.transfers)):
                 tmp = self.config.AllTransfers.elements[self.transfers[i]]
-                tmptime = useful.date_to_timestamp(tmp.fields['time'])
+                tmptime = tmp.getTimestamp()
                 if time < tmptime:
                     insert = True
                     self.transfers.insert(i, transfer.getID())
@@ -778,7 +785,7 @@ class ConfigurationObject(object):
         count = 1
         while count < len(self.transfers):
             tmp = configuration.AllTransfers.elements[self.transfers[count]]
-            tmptime = useful.date_to_timestamp(tmp.fields['time'])
+            tmptime = tmp.getTimestamp()
             if time < tmptime:
                 return configuration.AllTransfers \
                                     .elements[self.transfers[count-1]]
@@ -1246,7 +1253,7 @@ class AllAlarmLogs(AllObjects):
         logs = []
         for i in range(len(self.elements)):
             e = self.elements[unicode(i+1)]
-            time = useful.date_to_timestamp(e.fields['begin'])
+            time = e.getTimestamp()
             if id == e.fields['s_id']:
                 if time > begin and time < end:
                     logs.append(e)
@@ -1321,7 +1328,7 @@ class AllPourings(AllObjects):
     def __init__(self, config):
         AllObjects.__init__(self, 'v', config)
         self.file_of_names = None
-        self.fieldnames = ['begin', 'v_id', 'src', 'dest', 'time',
+        self.fieldnames = ['begin', 'v_id', 'vm_id', 'src', 'dest', 'time',
                            'h_id', 'quantity', 'm_id', 'remark',
                            'active', 'user']
         self.fieldtranslate = None
@@ -1768,7 +1775,7 @@ class AllTransfers(AllObjects):
     def __init__(self, config):
         AllObjects.__init__(self, 't', config)
         self.file_of_names = None
-        self.fieldnames = ["begin", "t_id", 'time', 'h_id', "cont_id",
+        self.fieldnames = ["begin", "t_id", 'tm_id', 'time', 'h_id', "cont_id",
                            "cont_type", "object_id", "object_type", "remark",
                            'active', "user"]
         self.fieldtranslate = None
@@ -2340,6 +2347,7 @@ class ManualData(AlarmingObject):
         else:
             self.fields['active'] = '0'
         if ('origin' in data) and data['origin']:
+            self.fields['dm_id'] = data['origin']
             model = c.AllManualDataModels.elements[data['origin']]
             typeAlarm, symbAlarm, self.colorAlarm = self.getTypeAlarm(data['value'],model)
             self.actualAlarm = typeAlarm
@@ -2418,6 +2426,8 @@ class Pouring(ConfigurationObject):
             self.fields['h_id'] = data['h_id']
         else:
             self.fields['h_id'] = ''
+        if ('origin' in data) and data['origin']:
+            self.fields['vm_id'] = data['origin']
         if 'active' in data:
             self.fields['active'] = '1'
         else:
@@ -3077,10 +3087,7 @@ class ExportData():
             self.transfers = []
             component = self.elem
             if len(component.transfers) > 0:
-                begin = useful.date_to_timestamp(
-                    self.config
-                        .AllTransfers
-                        .elements[component.transfers[0]].fields['time'])
+                begin = self.config.AllTransfers.elements[component.transfers[0]].getTimestamp()
                 if len(component.transfers) > 1:
                     end = component.transfers[1]
                 else:
@@ -3091,17 +3098,16 @@ class ExportData():
         tmp = component.get_transfers_in_time_interval(begin, end)
         count = 0
         while count < len(tmp):
-            begin = useful.date_to_timestamp(tmp[count].fields['time'])
+            begin = tmp[count].getTimestamp()
             if count < (len(tmp) - 1):
-                end = useful.date_to_timestamp(tmp[count+1].fields['time'])
+                end = tmp[count+1].getTimestamp()
             else:
                 end = tmpEND
             tmpComponent = tmp[count].get_cont()
             self.transfers.append(tmp[count])
             count += 1
             self.load_transfers(tmpComponent, begin, end)
-        self.transfers.sort(key=lambda x: int(
-            useful.date_to_timestamp(x.fields['time'])), reverse=False)
+        self.transfers.sort(key=lambda x: int(x.getTimestamp()), reverse=False)
         while self.transfers[0].fields['object_type'] != 'b':
             self.transfers.pop(0)
         return self.transfers
@@ -3139,12 +3145,11 @@ class ExportData():
             while count < (len(self.history)):
                 e = self.history[count]
                 if e.get_type() == 't':
-                    begin = useful.date_to_timestamp(e.fields['time'])
+                    begin = e.getTimestamp()
                     if self.countt > (len(self.transfers)-1):
                         end = int(time.time())
                     else:
-                        end = useful.date_to_timestamp(
-                            self.transfers[self.countt].fields['time'])
+                        end = self.transfers[self.countt].getTimestamp()
                     self.countt += 1
                 infos = None
                 tmp = self.transform_object_to_export_data(e)
@@ -3257,19 +3262,17 @@ class ExportData():
         count = 0
         while count < sum:
             if i < len(self.manualdata):
-                timed = useful.date_to_timestamp(self.manualdata[i].fields['time'])
+                timed = self.manualdata[i].getTimestamp()
             else:
                 timed = None
 
             if j < len(self.transfers):
-                timet = useful.date_to_timestamp(
-                    self.transfers[j].fields['time'])
+                timet = self.transfers[j].getTimestamp()
             else:
                 timet = None
 
             if k < len(self.pourings):
-                timev = useful.date_to_timestamp(
-                    self.pourings[k].fields['time'])
+                timev = self.pourings[k].getTimestamp()
             else:
                 timev = None
 
@@ -3331,10 +3334,8 @@ class ExportData():
 
         if elem.get_type() in 'bcpem':
             if elem.get_type() == 'b':
-                tmp['timestamp'] = useful.date_to_ISO(
-                      elem.fields['time'])
-                tmp['duration'] = self.get_duration(useful.date_to_timestamp(
-                        elem.fields['time']), useful.get_timestamp())
+                tmp['timestamp'] = useful.date_to_ISO(elem.fields['time'])
+                tmp['duration'] = self.get_duration(elem.getTimestamp(), useful.get_timestamp())
                 tmp['unit'] = self.config \
                                   .AllMeasures \
                                   .elements[elem.fields['m_id']].fields['unit']
@@ -4509,19 +4510,19 @@ class Batch(ConfigurationObject):
             qt = self.get_quantity_used()
             tmp = float(self.fields['basicqt']) - qt
             if tmp < 0:
-                return useful.date_to_timestamp(self.pourings.fields['time']) - useful.date_to_timestamp(self.fields['time'])
-        return useful.get_timestamp() - useful.date_to_timestamp(self.fields['time'])
+                return self.pourings.getTimestamp() - uself.getTimestamp()
+        return useful.get_timestamp() - self.getTimestamp()
 
     def add_source(self, pouring):
         self.remove_source(pouring)
         if len(self.source) == 0:
             self.source.append(pouring.getID())
         else:
-            time = useful.date_to_timestamp(pouring.fields['time'])
+            time = pouring.getTimestamp()
             insert = False
             for i in range(len(self.source)):
                 tmp = self.config.AllPourings.elements[self.source[i]]
-                tmptime = useful.date_to_timestamp(tmp.fields['time'])
+                tmptime = tmp.getTimestamp()
                 if time < tmptime:
                     insert = True
                     self.source.insert(i, pouring.getID())
@@ -4538,11 +4539,11 @@ class Batch(ConfigurationObject):
         if len(self.destination) == 0:
             self.destination.append(pouring.getID())
         else:
-            time = useful.date_to_timestamp(pouring.fields['time'])
+            time = pouring.getTimestamp()
             insert = False
             for i in range(len(self.destination)):
                 tmp = self.config.AllPourings.elements[self.destination[i]]
-                tmptime = useful.date_to_timestamp(tmp.fields['time'])
+                tmptime = tmp.getTimestamp()
                 if int(time) < int(tmptime):
                     insert = True
                     self.destination.insert(i, pouring.getID())
@@ -4856,6 +4857,8 @@ class Transfer(ConfigurationObject):
             self.fields['h_id'] = ''
         self.set_position(data['position'])
         self.set_object(data['object'])
+        if ('origin' in data) and data['origin']:
+            self.fields['tm_id'] = data['origin']
         if self.fields['active'] == '1':
             self.get_source().add_position(self)
         else:

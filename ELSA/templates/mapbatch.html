@@ -27,31 +27,32 @@ $code:
 		</div>
     </div>
 $ prev = ""
+$ prevtime=elem.getTimestamp()
 $ done = set()
-<div class="map top">
-<table style="border:0px padding:3px">
+<table style="padding:3px;border:1px solid #333;">
 $for operation in events:
 	$if operation.fields['h_id'] != prev:
+		<tr style="padding:3px"><td style="text-align:right;background-color:#EEE;padding:3px">$(useful.timestamp_to_time(operation.getTimestamp()-prevtime) )mn</td>
 		$ prev = operation.fields['h_id']
 		$if prev and prev in c.AllCheckPoints.elements:
 			$ checkpoint = c.AllCheckPoints.elements[prev]
-			<tr><td>&nbsp;</td>
-			        <td style="padding:3px"><a href="/find/related/h_$checkpoint.getID()">$:(checkpoint.statusIcon(c))</a></td>
-				<th style="padding:3px">
+			        <td style="padding:3px;border-top:1px solid #333;"><a href="/find/related/h_$checkpoint.getID()">$:(checkpoint.statusIcon(c))</a></td>
+				<th style="padding:3px;border-top:1px solid #333;">
 				$ acro = checkpoint.fields['acronym']
 				$if prev in done:
 				    <a href="#h_$acro">$acro</a> #$checkpoint.fields['rank']
 				$else:
 				    <a name="h_$acro"></a>$acro #$checkpoint.fields['rank'] - <strong>$(checkpoint.getName(self.lang))</strong>
 				    $ done.add(prev)
-			</th><td style="padding:3px">$(checkpoint.fields['remark'])</td></tr>
+			</th><td style="padding:3px;border-top:1px solid #333;">$(checkpoint.fields['remark'])</td></tr>
 		$else:
-			<tr><td>&nbsp;</td><td>&nbsp;</td><td colspan="2" style="padding:3px">- &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; -</td></th>
+			<td style="padding:3px;border-top:1px solid #333;">&nbsp;</td>
+			<td colspan="2" style="padding:3px;border-top:1px solid #333;">&nbsp;</td></th>
+		$ prevtime = operation.getTimestamp()
 	$ op_type = operation.get_type()
-        <tr>
-		<th style="padding:3px">$(operation.fields['time'])</th>
-		
-		<td style="padding:3px"><a href="/edit/$(op_type)_$(operation.getID())">$:operation.statusIcon(c)</a></td><td>
+        <tr style="padding:3px">
+		<th style="padding:3px">$(operation.fields['time'])</th>		
+		<td style="padding:3px"><a href="/edit/$(op_type)_$(operation.getID())">$:operation.statusIcon(c)</a><a href="/find/related/$(op_type)m_$(operation.fields[op_type+'m_id'])" style="color:#28A4C9"><strong><big>M</big></strong></a></td><td>
 		$if op_type == 't':
 		    $ dest = operation.get_cont()
 		    $:c.getHalfling('to')
@@ -81,5 +82,5 @@ $for operation in events:
 		</td>
 		<td style="padding:3px">$(operation.fields['remark'])</td>
         </tr>
-</table></div>
+</table>
 </div>
