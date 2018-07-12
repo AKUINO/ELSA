@@ -574,13 +574,9 @@ class WebMapRecipe():
     def GET(self,id):
         mail = redirect_when_not_logged()
         lang = c.connectedUsers.users[mail].cuser.fields['language']
-        graph = ""
         
         if id in c.AllGrRecipe.elements.keys():
-            elem = c.AllGrRecipe.elements[id]
-            summit = [id] + elem.get_supermap_str()
-            usages = c.AllGrUsage.get_usages_for_recipe(summit)
-            return render.maprecipe(mail, type, id, graph)
+            return render.maprecipe(mail, type, id)
         return render.notfound()
 
 class WebMapBatch():
@@ -592,18 +588,7 @@ class WebMapBatch():
         lang = c.connectedUsers.users[mail].cuser.fields['language']
         
         if id in c.AllBatches.elements.keys():
-            elem = c.AllBatches.elements[id]
-            recipes = set()
-            recipe_id = elem.fields['gr_id']
-            recipe = None
-            if recipe_id and recipe_id in c.AllGrRecipe.elements.keys():
-                recipes.add(recipe_id)
-                recipe = c.AllGrRecipe.elements[recipe_id]
-                new_recipes = set(recipe.get_all_parents([],None))
-                recipes = recipes | new_recipes
-            #print "grs="+unicode(recipes)
-            components = elem.get_actual_position_hierarchy(c)
-            return render.mapbatch(mail, type, id, graph)
+            return render.mapbatch(mail, type, id)
         return render.notfound()
 
 class WebGraphRecipe():

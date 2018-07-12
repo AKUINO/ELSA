@@ -1,0 +1,85 @@
+$def with (mail, type, id)
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$var recursive : False
+$var title : Map Recipe
+$var location :
+$code:
+    elem = c.AllBatches.elements[id]
+    krecipe = elem.get_group()
+    summit = []
+    usagesTop = []
+    recipe = None
+    if krecipe:
+	if krecipe in c.AllGrRecipe.elements:
+	    recipe = c.AllGrRecipe.elements[krecipe]
+	    summit = [krecipe] + recipe.get_supermap_str()
+	    usagesTop = c.AllGrUsage.get_usages_for_recipe(summit)
+    events = elem.get_events(c)
+    done = set()
+<div class="container">
+    <div class="row">
+	<div class="col-xs-6">
+	    <a href="/find/related/b_$id">$:(elem.statusIcon(c))$elem.fields['acronym'] <strong>$elem.getName(self.lang)</strong></a>
+	</div>
+	$if recipe:
+		<div class="col-xs-5">
+		    <a href="/find/related/gr_$krecipe">$:(recipe.statusIcon(c))$recipe.fields['acronym'] <strong>$recipe.getName(self.lang)</strong></a>
+		</div>
+    </div>
+$ prev = ""
+$ done = set()
+<div class="map top">
+<table style="border:0px padding:3px">
+$for operation in events:
+	$if operation.fields['h_id'] != prev:
+		$ prev = operation.fields['h_id']
+		$if prev and prev in c.AllCheckPoints.elements:
+			$ checkpoint = c.AllCheckPoints.elements[prev]
+			<tr><td>&nbsp;</td>
+			        <td style="padding:3px"><a href="/find/related/h_$checkpoint.getID()">$:(checkpoint.statusIcon(c))</a></td>
+				<th style="padding:3px">
+				$ acro = checkpoint.fields['acronym']
+				$if prev in done:
+				    <a href="#h_$acro">$acro</a> #$checkpoint.fields['rank']
+				$else:
+				    <a name="h_$acro"></a>$acro #$checkpoint.fields['rank'] - <strong>$(checkpoint.getName(self.lang))</strong>
+				    $ done.add(prev)
+			</th><td style="padding:3px">$(checkpoint.fields['remark'])</td></tr>
+		$else:
+			<tr><td>&nbsp;</td><td>&nbsp;</td><td colspan="2" style="padding:3px">- &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; - &nbsp; -</td></th>
+	$ op_type = operation.get_type()
+        <tr>
+		<th style="padding:3px">$(operation.fields['time'])</th>
+		
+		<td style="padding:3px"><a href="/edit/$(op_type)_$(operation.getID())">$:operation.statusIcon(c)</a></td><td>
+		$if op_type == 't':
+		    $ dest = operation.get_cont()
+		    $:c.getHalfling('to')
+		    <a href="/find/related/$dest.get_type()_$dest.getID()">$:(dest.statusIcon(c))$(dest.fields['acronym'])</a> $dest.getName(self.lang)
+		$elif op_type == 'v':
+			$ kbatch = ''
+			$if operation.fields['dest']==id:
+				$:c.getHalfling('from')
+				$ kbatch = operation.fields['src']
+			$else:
+				$:c.getHalfling('to')
+				$ kbatch = operation.fields['dest']
+			$if kbatch and kbatch in c.AllBatches.elements:
+				$ batch = c.AllBatches.elements[kbatch]
+				<a href="/find/related/b_$kbatch">$:(batch.statusIcon(c))$(batch.fields['acronym'])</a> $batch.getName(self.lang)
+			<strong>$(operation.fields['quantity'])</strong>
+			$ kmeasure = operation.fields['m_id']
+			$if kmeasure and kmeasure in c.AllMeasures.elements:
+				$ measure = c.AllMeasures.elements[kmeasure]
+				$measure.fields['unit'] ($(measure.getName(self.lang)))
+		$elif op_type == 'd':
+			<strong>$(operation.fields['value'])</strong>
+			$ kmeasure = operation.fields['m_id']
+			$if kmeasure and kmeasure in c.AllMeasures.elements:
+				$ measure = c.AllMeasures.elements[kmeasure]
+				$measure.fields['unit'] ($(measure.getName(self.lang)))
+		</td>
+		<td style="padding:3px">$(operation.fields['remark'])</td>
+        </tr>
+</table></div>
+</div>

@@ -381,7 +381,7 @@ class ConfigurationObject(object):
         self.created = None
         self.creator = None
         self.transfers = []
-        self.data = []
+        self.manualdata = []
 
     def __repr__(self):
         return self.get_type()+'_'+self.id+(' '+self.fields['acronym']) if 'acronym' in self.fields else ''
@@ -627,26 +627,46 @@ class ConfigurationObject(object):
             self.creator = user.fields['u_id']
             self.created = self.fields['begin']
 
+    def get_events(self,c):
+        events = []
+        if self.manualdata:
+            for kevent in self.manualdata:
+                if kevent in c.AllManualData.elements:
+                    events.append(c.AllManualData.elements[kevent])
+        if self.transfers:
+            for kevent in self.transfers:
+                if kevent in c.AllTransfers.elements:
+                    events.append(c.AllTransfers.elements[kevent])
+        if self.source:
+            for kevent in self.source:
+                if kevent in c.AllPourings.elements:
+                    events.append(c.AllPourings.elements[kevent])
+        if self.destination:
+            for kevent in self.destination:
+                if kevent in c.AllPourings.elements:
+                    events.append(c.AllPourings.elements[kevent])
+        return sorted(events, key=lambda t: t.fields['time'])
+
     def add_data(self, manualdata):
         self.remove_data(manualdata)
-        if len(self.data) == 0:
-            self.data.append(manualdata.getID())
+        if len(self.manualdata) == 0:
+            self.manualdata.append(manualdata.getID())
         else:
             time = useful.date_to_timestamp(manualdata.fields['time'])
             insert = False
-            for i in range(len(self.data)):
-                tmp = self.config.AllManualData.elements[self.data[i]]
+            for i in range(len(self.manualdata)):
+                tmp = self.config.AllManualData.elements[self.manualdata[i]]
                 tmptime = useful.date_to_timestamp(tmp.fields['time'])
                 if time < tmptime:
                     insert = True
-                    self.data.insert(i, manualdata.getID())
+                    self.manualdata.insert(i, manualdata.getID())
                     break
             if insert is False:
-                self.data.append(manualdata.getID())
+                self.manualdata.append(manualdata.getID())
 
     def remove_data(self, manualdata):
-        if manualdata.getID() in self.data:
-            self.data.remove(manualdata.getID())
+        if manualdata.getID() in self.manualdata:
+            self.manualdata.remove(manualdata.getID())
 
     def get_transfers_in_time_interval(self, begin, end):
         tmp = []
@@ -3038,7 +3058,7 @@ class ExportData():
             self.batches.append(self.elem)
         self.b = None
         self.user = user
-        self.data = []
+        self.manualdata = []
         self.transfers = []
         self.pourings = []
         self.elements = []
@@ -3049,8 +3069,8 @@ class ExportData():
         self.countt = 0
 
     def load_data(self):
-        for d in self.b.data:
-            self.data.append(self.config.AllManualData.elements[d])
+        for d in self.b.manualdata:
+            self.manualdata.append(self.config.AllManualData.elements[d])
 
     def load_transfers(self, component=None, begin=None, end=None):
         if component == None:
@@ -3095,7 +3115,7 @@ class ExportData():
     def create_export(self):
         if self.elem.get_type() != 'b':
             if self.cond['manualdata'] is True:
-                for data in self.elem.data:
+                for data in self.elem.manualdata:
                     self.elements \
                         .append(self.transform_object_to_export_data(
                                 self.config.AllManualData.elements[data]))
@@ -3230,14 +3250,14 @@ class ExportData():
 
     def load_hierarchy(self):
         self.history = []
-        sum = len(self.data) + len(self.transfers) + len(self.pourings)
+        sum = len(self.manualdata) + len(self.transfers) + len(self.pourings)
         i = 0
         j = 0
         k = 0
         count = 0
         while count < sum:
-            if i < len(self.data):
-                timed = useful.date_to_timestamp(self.data[i].fields['time'])
+            if i < len(self.manualdata):
+                timed = useful.date_to_timestamp(self.manualdata[i].fields['time'])
             else:
                 timed = None
 
@@ -3275,7 +3295,7 @@ class ExportData():
                     tmp = timev
 
             if cond == 'd':
-                self.history.append(self.data[i])
+                self.history.append(self.manualdata[i])
                 i += 1
             elif cond == 't':
                 self.history.append(self.transfers[j])
@@ -4778,12 +4798,14 @@ class Transfer(ConfigurationObject):
     def get_type(self):
         return 't'
 
+    # WHERE it is moved
     def get_type_container(self):
         return self.fields['cont_type']
 
     def get_id_container(self):
         return self.fields['cont_id']
 
+    # WHAT is moved
     def get_type_object(self):
         return self.fields['object_type']
 
@@ -4840,9 +4862,11 @@ class Transfer(ConfigurationObject):
             self.get_source().remove_position(self)
         self.save(c, user)
 
+    # WHAT is moved
     def get_source(self):
         return self.config.findAllFromType(self.fields['object_type']).elements[self.fields['object_id']]
 
+    # WHERE it is moved
     def get_cont(self):
         return self.config.findAllFromType(self.fields['cont_type']).elements[self.fields['cont_id']]
 

@@ -420,16 +420,16 @@ $elif type == 'h':
 				<b>$len(c.AllBatches.elements[id].source)</b> $(c.getMessage('mpouring',self.lang))
 			    </div>
 			</div>
-		    $if type in 'cpeb' :
+		    $if permissionKey in '_c_p_e_b_' :
 			<div class="row" style="margin-top:6px;">
 			    <div class="col-xs-2 justify-content-start">
 				<strong><a href="/find/d/$(type)_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('manualdata'))</a></strong>
 			    </div>
 			    <div class="col-xs-10">
-				<b>$len(c.findAllFromType(type).elements[id].data)</b> $(c.getMessage('mdata',self.lang))
+				<b>$len(c.findAllFromType(type).elements[id].manualdata)</b> $(c.getMessage('mdata',self.lang))
 			    </div>
 			</div>
-		    $if type in 'ceb' :
+		    $if permissionKey in '_c_e_b_' :
 			<div class="row" style="margin-top:6px;">
 			    <div class="col-xs-2 justify-content-start">
 				<strong><a href="/find/t/$(type)_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('transfer'))</a></strong>
@@ -455,7 +455,7 @@ $elif type == 'h':
 				<b>$len(c.AllCheckPoints.elements[id].batches)</b> $(c.getMessage('batch',self.lang))
 			    </div>
 			</div>
-		    $if type in 'cpemgugrgfh' and type not in 'u':
+		    $if permissionKey in '_cp_e_m_gu_gr_gf_h_':
 			<div class="row" style="margin-top:6px;">
 			    <div class="col-xs-2 justify-content-start">
 				<strong><a href="/find/related/$(type)_$id" class="btn btn-warning" role="button">$:(c.getHalfling('related'))</a></strong>
@@ -464,7 +464,7 @@ $elif type == 'h':
 				$(c.getMessage('related',self.lang))
 			    </div>
 			</div>
-		    $if type in 'cpesm' :
+		    $if permissionKey in '_c_p_e_s_m_' :
 			<div class="row" style="margin-top:6px;">
 			    <div class="col-xs-2" >
 				<strong><a href="/graphic/$(type)_$id" class="btn btn-warning" role="button">$:(c.getHalfling('graphic'))</a></strong>
@@ -473,7 +473,7 @@ $elif type == 'h':
 				$(c.getMessage('graphic',self.lang))
 			    </div>
 			</div>
-		    $if type == 'gr' :
+		    $if permissionKey in '_b_gr_' :
 			<div class="row" style="margin-top:6px;">
 			    <div class="col-xs-2" >
 				<strong><a href="/map/$(type)_$id" class="btn btn-warning" role="button">$:(c.getHalfling('datatable'))</a></strong>
@@ -482,7 +482,7 @@ $elif type == 'h':
 				$(c.getMessage('schema',self.lang))
 			    </div>
 			</div>
-		    $if type in 'cpesm' :
+		    $if permissionKey in '_c_p_e_s_m_' :
 			<div class="row" style="margin-top:6px;">
 			    <div class="col-xs-2" >
 				<strong><a href="#" class="btn btn-warning" role="button">$:(c.getHalfling('alarm'))</a></strong>
@@ -491,7 +491,7 @@ $elif type == 'h':
 				$(c.getMessage('alarmlog',self.lang))
 			    </div>
 			</div>
-		    $if type in 'cpeb' :
+		    $if permissionKey in '_c_p_e_b_' :
 			<div class="row" style="margin-top:6px;">
 			    <div class="col-xs-2" >
 				<strong><a href="/export/$(type)_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('exportdata'))</a></strong>
