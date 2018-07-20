@@ -16,8 +16,8 @@ begin	classname	glyphname	user
 2017-03-21 14:08:46	recipe	sortable	1
 2017-03-21 14:08:46	recipeStep	option-vertical	1
 2017-03-21 14:08:46	batch	inbox	1
-2017-03-21 14:08:46	transfer	transfer	1
-2017-03-21 14:08:46	transfermodel	transfer	1
+2017-03-21 14:08:46	transfer	share-alt	1
+2017-03-21 14:08:46	transfermodel	share-alt	1
 2017-03-21 14:08:46	ToDo	flag	1
 2017-03-21 14:08:46	group	group	1
 2017-03-21 14:08:46	guse	wrench	1

@@ -603,26 +603,24 @@ class WebGraphRecipe():
         if id in c.AllGrRecipe.elements.keys():
             elem = c.AllGrRecipe.elements[id]
             summit = [id] + elem.get_supermap_str()
-            usages = c.AllGrUsage.get_usages_for_recipe(summit)
+            usagesTop = c.AllGrUsage.get_usages_for_recipe(summit)
             prec_u = ""
-            for usage in usages:
-                usaID = 'gu_'+usage.getID()
+            done = set()
+            for usageTop in usagesTop:
+                usaID = 'gu_'+usageTop.getID()
                 if prec_u:
                     graph += prec_u+"->"+usaID+"[style=\"stroke-width:0px;stroke:#fff\"];"
                 prec_u = usaID
                 graph += usaID # +"[url=\"/find/related/"+usaID+"\""
-                graph += "[labelType=\"html\",label=\"<a href=/find/related/"+usaID+">"+usage.getNameHTML(lang)+"</a>\""
-                graph += ",tooltip=\""+usage.fields['acronym']+"\""
+                graph += "[labelType=\"html\",label=\"<a href=/find/related/"+usaID+">"+usageTop.getNameHTML(lang)+"</a>\""
+                graph += ",tooltip=\""+usageTop.fields['acronym']+"\""
                 graph += ",id=\""+usaID+"\",shape=diamond,style=\"fill:#fff;stroke:1px;\"];"
                 
-            checkpoints = c.AllCheckPoints.get_checkpoints_for_recipe(summit)
-            done = set()
-            recipes_todo = set()
-            for checkpoint in checkpoints:
-                kusage = checkpoint.fields['gu_id']
-                if not kusage in done:
+                checkpoints = c.AllCheckPoints.get_checkpoints_for_recipe_usage(summit, [usageTop.getID()])
+                recipes_todo = set()
+                for checkpoint in checkpoints:
+                    kusage = checkpoint.fields['gu_id']
                     if kusage and kusage in c.AllGrUsage.elements:
-                        done.add(kusage)
                         usage = c.AllGrUsage.elements[kusage]
                         usaID = 'gu_'+kusage
                         allowed_checkpoints = c.AllCheckPoints.get_checkpoints_for_recipe_usage(summit,[kusage])
@@ -634,13 +632,12 @@ class WebGraphRecipe():
                                 graph += usaID+'->'+hid+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
                                 if v.fields['gr_id'] != id:
                                     graph += "gr_"+v.fields['gr_id']+'->'+hid+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
-                            elems = v.get_model_sorted()
+                            elems = v.get_local_model_sorted()
                             obs = ""
                             for e in elems:
                                 if e.get_type() == 'tm':
                                     if e.fields['gu_id']:
                                         nx_usage = e.fields['gu_id']
-                                        done.add(nx_usage)
                                         graph += hid+"->"+"gu_"+nx_usage+"[style=\"stroke-width:3px\"];"
                                 elif e.get_type() == 'vm':
                                     if e.fields['dest']:
@@ -687,6 +684,8 @@ class WebGraphRecipe():
                         graph += "[labelType=\"html\",label=\"<a href=/find/related/gr_"+krecipe+">"+recipe.getNameHTML(lang)+"</a>\""
                         graph += ",tooltip=\""+recipe.fields['acronym']+"\""
                         graph += ",id=\"gr_"+krecipe+"\",shape=ellipse,style=\"fill:"+("#fbcfaa" if krecipe == id else "#fff")+";stroke:1px;\"];"
+                        if recipe.fields['gu_id']:
+                            graph += "gr_"+krecipe+"->gu_"+recipe.fields['gu_id']+"[style=\"stroke-width:3px;stroke:#3d3\"];"
                     prec = krecipe
             for recipe in recipes_todo:
                 if not recipe.getID() in summit:
