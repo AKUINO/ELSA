@@ -628,11 +628,11 @@ class WebGraphRecipe():
                         for v in allowed_checkpoints:
                             #print "h="+v.getID()
                             hid = "h_"+v.getID()
-                            if not prec_v:
-                                graph += usaID+'->'+hid+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
+                            if v.getID() not in done:
+                                if not prec_v:
+                                    graph += usaID+'->'+hid+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
 ##                                if v.fields['gr_id'] != id:
 ##                                    graph += "gr_"+v.fields['gr_id']+'->'+hid+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
-                            if v.getID() not in done:
                                 elems = v.get_local_model_sorted()
                                 obs = ""
                                 for e in elems:
