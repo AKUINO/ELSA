@@ -416,6 +416,10 @@ ul.nav.nav-tabs {
     margin-left: 20px;
 }
 
+.light {
+  color: #AAA;
+}
+
 /* Breadcrumbs from http://bootsnipp.com/snippets/featured/triangle-breadcrumbs-arrows */
 .btn-breadcrumb {
 	margin-top:6px;

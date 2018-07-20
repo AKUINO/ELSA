@@ -665,7 +665,7 @@ class WebGraphRecipe():
                         graph += hid # +"[url=\"/find/related/"+hid+"\""
                         graph += "[labelType=\"html\",label=\"<a href=/find/related/"+hid+">"
                         graph += v.getNameHTML(lang)
-                        graph += "</a> #"+v.fields['rank']+obs+"\""
+                        graph += "</a>"+obs+"\"" #+v.fields['rank']
                         graph += ",tooltip=\""+v.fields['acronym']+"\""
                         graph += ",id=\""+hid+"\"];"
                         if prec_v:
@@ -674,7 +674,7 @@ class WebGraphRecipe():
                         done.add(prec_v)
             for remain in next_usage:
                 points = remain.split(" ")
-                graph += points[0]+"->"+points[1]+"[style=\"stroke-width:0px;stroke:#fff\"];"
+                graph += points[0]+"->"+points[1]+"[style=\"stroke-width:1px;stroke-dasharray:2,8;\"];"
             prec = ""
             stack = []
             for krecipe in summit:
