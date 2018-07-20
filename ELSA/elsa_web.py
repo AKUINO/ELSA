@@ -630,8 +630,8 @@ class WebGraphRecipe():
                             hid = "h_"+v.getID()
                             if not prec_v:
                                 graph += usaID+'->'+hid+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
-                                if v.fields['gr_id'] != id:
-                                    graph += "gr_"+v.fields['gr_id']+'->'+hid+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
+##                                if v.fields['gr_id'] != id:
+##                                    graph += "gr_"+v.fields['gr_id']+'->'+hid+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
                             if v.getID() not in done:
                                 elems = v.get_local_model_sorted()
                                 obs = ""
@@ -666,8 +666,8 @@ class WebGraphRecipe():
                                 graph += "</a> #"+v.fields['rank']+obs+"\""
                                 graph += ",tooltip=\""+v.fields['acronym']+"\""
                                 graph += ",id=\""+hid+"\"];"
-                            if prec_v:
-                                graph += "h_"+prec_v+'->'+hid+"[style=\"stroke-width:3px;stroke:#888\"]"
+                                if prec_v:
+                                    graph += "h_"+prec_v+'->'+hid+"[style=\"stroke-width:3px;stroke:#888\"]"
                             prec_v = v.getID()
                             done.add(prec_v)
             prec = ""
