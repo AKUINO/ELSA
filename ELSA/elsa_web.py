@@ -604,16 +604,18 @@ class WebGraphRecipe():
             elem = c.AllGrRecipe.elements[id]
             summit = [id] + elem.get_supermap_str()
             usagesTop = c.AllGrUsage.get_usages_for_recipe(summit)
-            prec_u = ""
             recipes_todo = set()
             next_usage = []
             done = set()
+            prec_u = ""
             for usageTop in usagesTop:
                 usaTopID = 'gu_'+usageTop.getID()
                 if prec_u:
                     #graph += prec_u+"->"+usaTopID+"[style=\"stroke-width:0px;stroke:#fff\"];"
                     next_usage.append(prec_u+" "+usaTopID)
                 prec_u = usaTopID
+            for usageTop in usagesTop:
+                usaTopID = 'gu_'+usageTop.getID()
                 graph += usaTopID # +"[url=\"/find/related/"+usaTopID+"\""
                 graph += "[labelType=\"html\",label=\"<a href=/find/related/"+usaTopID+">"+usageTop.getNameHTML(lang)+"</a>\""
                 graph += ",tooltip=\""+usageTop.fields['acronym']+"\""
@@ -637,7 +639,7 @@ class WebGraphRecipe():
                                     nx_usage = e.fields['gu_id']
                                     graph += hid+"->"+"gu_"+nx_usage+"[style=\"stroke-width:3px\"];"
                                     points = usaTopID+" "+"gu_"+nx_usage
-                                    print points+" in "+unicode(next_usage)
+                                    #print points+" in "+unicode(next_usage)
                                     if points in next_usage:
                                         next_usage.remove(points)
                             elif e.get_type() == 'vm':
