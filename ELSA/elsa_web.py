@@ -642,7 +642,9 @@ class WebGraphRecipe():
                                         if e.fields['gu_id']:
                                             nx_usage = e.fields['gu_id']
                                             graph += hid+"->"+"gu_"+nx_usage+"[style=\"stroke-width:3px\"];"
-                                            next_usage.remove(usaID+" "+"gu_"+nx_usage)
+                                            points = usaID+" "+"gu_"+nx_usage
+                                            if points in next_usage:
+                                                next_usage.remove(points)
                                     elif e.get_type() == 'vm':
                                         if e.fields['dest']:
                                             nx_recipe = e.fields['dest']
