@@ -606,11 +606,13 @@ class WebGraphRecipe():
             usagesTop = c.AllGrUsage.get_usages_for_recipe(summit)
             prec_u = ""
             recipes_todo = set()
+            next_usage = []
             done = set()
             for usageTop in usagesTop:
                 usaID = 'gu_'+usageTop.getID()
                 if prec_u:
-                    graph += prec_u+"->"+usaID+"[style=\"stroke-width:0px;stroke:#fff\"];"
+                    #graph += prec_u+"->"+usaID+"[style=\"stroke-width:0px;stroke:#fff\"];"
+                    next_usage.append(prec_u+" "+usaID)
                 prec_u = usaID
                 graph += usaID # +"[url=\"/find/related/"+usaID+"\""
                 graph += "[labelType=\"html\",label=\"<a href=/find/related/"+usaID+">"+usageTop.getNameHTML(lang)+"</a>\""
@@ -640,6 +642,7 @@ class WebGraphRecipe():
                                         if e.fields['gu_id']:
                                             nx_usage = e.fields['gu_id']
                                             graph += hid+"->"+"gu_"+nx_usage+"[style=\"stroke-width:3px\"];"
+                                            next_usage.remove(usaID+" "+"gu_"+nx_usage)
                                     elif e.get_type() == 'vm':
                                         if e.fields['dest']:
                                             nx_recipe = e.fields['dest']
@@ -670,6 +673,9 @@ class WebGraphRecipe():
                                     graph += "h_"+prec_v+'->'+hid+"[style=\"stroke-width:3px;stroke:#888\"]"
                             prec_v = v.getID()
                             done.add(prec_v)
+            for remain in next_usage:
+                points = remain.split(" ")
+                graph += points[0]+"->"+points[1]+"[style=\"stroke-width:0px;stroke:#fff\"];"
             prec = ""
             stack = []
             for krecipe in summit:
