@@ -46,7 +46,7 @@ $var title: MODAL
 		         <div class="col-xs-10" style="color:black">
 			   $code:
 		               value, ignore = elem.get_value_sensor(c)
-			   <b><span style="background-color:#$(elem.colorAlarm);color:black">$(value)</span>
+			   <b><span style="background-color:#$(elem.colorAlarm);color:#$(elem.colorTextAlarm)">$(value)</span>
 		           $if elem.fields['m_id']:
 		               $(c.AllMeasures.elements[elem.fields['m_id']].fields['unit'])
 		           </b>

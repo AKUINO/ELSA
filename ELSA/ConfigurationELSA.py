@@ -75,7 +75,8 @@ color_green = "00FF00"
 color_orange = "FFFF00"
 color_red = "FF0000"
 color_grey = "808080"
-
+color_black = "000000"
+color_white = "FFFFFF"
 
 def copy_default_csv(filename):
     '''
@@ -98,18 +99,19 @@ def export_float(value):
 
 class valueCategory(object):
 
-    def __init__(self, level, name, acronym, color):
+    def __init__(self, level, name, acronym, color,text_color):
         self.level = level
         self.name = name
         self.acronym = acronym
         self.color = color
+        self.text_color = text_color
 
     def triple(self):
-        return self.name, self.acronym, self.color
+        return self.name, self.acronym, self.color, self.text_color
 
 
-valueCategs = {-2: valueCategory(-2, 'minmin', '---', color_violet), -1: valueCategory(-1, 'min', '--', color_blue), 0: valueCategory(
-    0, 'typical', '==', color_green), 1: valueCategory(1, 'max', '++', color_orange), 2: valueCategory(2, 'maxmax', '++', color_red), 3: valueCategory(3, 'none', '??', color_grey)}
+valueCategs = {-2: valueCategory(-2, 'minmin', '---', color_violet,color_white), -1: valueCategory(-1, 'min', '--', color_blue,color_white), 0: valueCategory(
+    0, 'typical', '==', color_green,color_black), 1: valueCategory(1, 'max', '++', color_orange,color_white), 2: valueCategory(2, 'maxmax', '++', color_red,color_white), 3: valueCategory(3, 'none', '??', color_grey,color_white)}
 
 
 class Configuration():
@@ -2218,6 +2220,7 @@ class AlarmingObject(ConfigurationObject):
         self.countActual = 0
         self.degreeAlarm = 0
         self.colorAlarm = valueCategs[0].color
+        self.colorTextAlarm = valueCategs[0].text_color
         self.lastvalue = None
         self.time = 0
     
@@ -2349,7 +2352,7 @@ class ManualData(AlarmingObject):
         if ('origin' in data) and data['origin']:
             self.fields['dm_id'] = data['origin']
             model = c.AllManualDataModels.elements[data['origin']]
-            typeAlarm, symbAlarm, self.colorAlarm = self.getTypeAlarm(data['value'],model)
+            typeAlarm, symbAlarm, self.colorAlarm,self.colorTextAlarm = self.getTypeAlarm(data['value'],model)
             self.actualAlarm = typeAlarm
             alarmCode = self.get_alarm(model);
             if alarmCode:
@@ -4047,7 +4050,7 @@ class Sensor(AlarmingObject):
                 pos = config.screen.show(pos, measure.fields['unit'])
 
         prvAlarm = self.actualAlarm
-        typeAlarm, symbAlarm, self.colorAlarm = self.getTypeAlarm(value)
+        typeAlarm, symbAlarm, self.colorAlarm,self.colorTextAlarm = self.getTypeAlarm(value)
 ##        if typeAlarm == 'typical':
 ##            self.setTypicalAlarm()
 ##        else:

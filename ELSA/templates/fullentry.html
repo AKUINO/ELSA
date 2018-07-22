@@ -340,7 +340,7 @@ $elif type == 'h':
 			$:(c.getHalfling('measure'))
 		    </div>
 		    <div class="col-xs-10 vcenter">
-			<span style="background-color:#$(elem.colorAlarm);color:black">$(elem.lastvalue)</span> <a href="/item/m_$elem.fields['m_id']">$(c.AllMeasures.elements[elem.fields['m_id']].fields['unit'])</a>
+			<span style="background-color:#$(elem.colorAlarm);color:#$(elem.colorTextAlarm)">$(elem.lastvalue)</span> <a href="/item/m_$elem.fields['m_id']">$(c.AllMeasures.elements[elem.fields['m_id']].fields['unit'])</a>
 		    </div>
 		</div>
 	$elif type == 'm':
