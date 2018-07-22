@@ -33,6 +33,7 @@ begin	classname	glyphname	user
 2017-03-21 14:08:46	add	plus	1
 2017-03-21 14:08:46	exportdata	floppy-save 1	
 2017-03-21 14:08:46	datatable	list 1	
+2017-03-21 14:08:46	schema	education 1	
 2017-03-21 14:08:46	pouring	filter	1
 2017-03-21 14:08:46	pouringmodel	filter 1
 2017-03-21 14:08:46	input	import	1

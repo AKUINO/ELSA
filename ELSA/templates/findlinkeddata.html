@@ -33,8 +33,8 @@ $for d in elem.manualdata:
 	<div class="col-xs-3" >
 	    $if dd.fields['h_id'] != '' :
 	        <a href="/find/related/h_$(dd.fields['h_id'])">$:c.getAllHalfling(c.AllCheckPoints) $c.AllCheckPoints.elements[dd.fields['h_id']].fields['acronym']</a>
-	    $if dd.fields['dm_id'] != '' :
-                <a href="/find/related/dm_$(dd.fields['dm_id'])" style="color:#28A4C9"><strong><big>M</big></strong></a>
+	    $if dd.fields['dm_id'] != '' :		
+                <br/><a href="/find/related/dm_$(dd.fields['dm_id'])" style="color:#28A4C9">- $c.AllManualDataModels.elements[dd.fields['dm_id']].fields['acronym']</a>
 	</div>
 	<div class="col-xs-5" >
             <strong>$dd.fields['value']</strong>

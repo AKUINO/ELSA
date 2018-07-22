@@ -76,35 +76,64 @@ $elif myID == 'component':
 		</select>
 	    </div>
 	</div>
-	
+
+	$code:
+	    recipe = None
+	    usages = None
+	    recipe_id = None
+	    if myID=='component' and ('gr_id' in elem.fields):
+		    recipe_id = elem.fields['gr_id']
+		    if recipe_id and recipe_id in c.AllGrRecipe.elements:
+		        recipe = c.AllGrRecipe.elements[recipe_id]
+		    if recipe:
+			gr_usage = recipe.fields['gu_id']
+		        if gr_usage and gr_usage in c.AllGrUsage.elements:
+			    usage = c.AllGrUsage.elements[gr_usage]
+			    usages = set(usage.children)
+			    usages.add(gr_usage)
+
 	<div class="form-group row">
 	    <label for="inputPosition" class="col-sm-3 col-form-label">$c.getMessage('target',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "position" class="form-control" id="inputPosition">
-		    <optgroup label="$c.getMessage('place',self.lang)">
-		    $for k in c.AllPlaces.elements.keys():
-			<option value="p_$k"
+		    $ first = True
+		    $for k,v in c.AllPlaces.elements.items():
+                        $ curr_group=v.fields['gu_id']
+			$if not usages or (curr_group and curr_group in usages):
+			    $if first:
+				<optgroup label="$c.getMessage('place',self.lang)">
+				$ first = False
+			    <option value="p_$k"
 			    $if myID == 'update':
 				$if 'p' == transfer.fields['cont_type'] and k == transfer.fields['cont_id'] :
 				    selected
-			>$c.AllPlaces.elements[k].fields['acronym'] - $c.AllPlaces.elements[k].getName(self.lang) </option>
+			    >$v.fields['acronym'] - $v.getName(self.lang) </option>
 		    $if not(myID == 'component' and  elem.get_type() == 'e'):
-			<optgroup label="$c.getMessage('equipment',self.lang)">
-			$for k in c.AllEquipments.elements.keys():
-			    <option value="e_$k"
-				$if myID == 'update':
-				    $if 'e' == transfer.fields['cont_type'] and k == transfer.fields['cont_id'] :
-					selected			
-			    >$c.AllEquipments.elements[k].fields['acronym'] - $c.AllEquipments.elements[k].getName(self.lang)</option>
-		    
+			    $ first = True
+			    $for k,v in c.AllEquipments.elements.items():
+                                $ curr_group=v.fields['gu_id']
+				$if not usages or (curr_group and curr_group in usages):
+				    $if first:
+					<optgroup label="$c.getMessage('equipment',self.lang)">
+					$ first = False
+				    <option value="e_$k" 
+				    $if myID == 'update':
+					$if 'e' == transfer.fields['cont_type'] and k == transfer.fields['cont_id'] :
+					    selected			
+				    >$v.fields['acronym'] - $v.getName(self.lang)</option>
 		    $if not(myID == 'component' and (elem.get_type() == 'c'or elem.get_type() == 'e')):
-			<optgroup label="$c.getMessage('container',self.lang)">
-			$for k in c.AllContainers.elements.keys():
-			    <option value="c_$k"
-				$if myID == 'update':
-				    $if 'c' == transfer.fields['cont_type'] and k == transfer.fields['cont_id'] :
-					selected
-			    >$c.AllContainers.elements[k].fields['acronym'] - $c.AllContainers.elements[k].getName(self.lang)</option>
+			    $ first = True
+			    $for k,v in c.AllContainers.elements.items():
+                                $ curr_group=v.fields['gu_id']
+				$if not usages or (curr_group and curr_group in usages):
+				    $if first:
+					<optgroup label="$c.getMessage('container',self.lang)">
+					$ first = False
+				    <option value="c_$k"
+				    $if myID == 'update':
+					$if 'c' == transfer.fields['cont_type'] and k == transfer.fields['cont_id'] :
+					    selected
+				    >$v.fields['acronym'] - $v.getName(self.lang)</option>
 		</select>
 	    </div>
 	</div>

@@ -64,9 +64,10 @@ $for i in elem.checkpoints:
 		    $v.fields['acronym'] - $v.getName(self.lang) </option>
 		</select>
 	    </div>
-	    <div class="col-sm-3">
+	    <div class="col-sm-6">
 		<button type="submit" class="btn btn-primary btn-block">$c.getMessage('add',self.lang) $c.getMessage('checkpoint',self.lang)</button>
-                <strong><a href="/map/$(type)_$id" class="btn btn-warning" role="button">$:(c.getHalfling('datatable'))</a></strong><button type="button" class="btn btn-primary btn-md map" data-toggle="modal" data-target="#mapmodal">$c.getMessage('map',self.lang)</button>
+                <strong><a href="/map/$(type)_$id" class="btn btn-warning" role="button">$:(c.getHalfling('datatable'))</a></strong>
+		<button type="button" class="btn btn-warning btn-md map" data-toggle="modal" data-target="#mapmodal">$:(c.getHalfling('schema'))</button>
 	    </div>
 	</div>
     </form>

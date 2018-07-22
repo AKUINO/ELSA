@@ -37,7 +37,7 @@ $for i in elem.transfers:
 	    $if transfer.fields['h_id'] != '' :
 	        <a href="/find/related/h_$(transfer.fields['h_id'])">$:c.getAllHalfling(c.AllCheckPoints) $c.AllCheckPoints.elements[transfer.fields['h_id']].fields['acronym']</a>
 	    $if transfer.fields['tm_id'] != '' :
-                <a href="/find/related/tm_$(transfer.fields['tm_id'])" style="color:#28A4C9"><strong><big>M</big></strong></a>
+                <br/><a href="/find/related/tm_$(transfer.fields['tm_id'])" style="color:#28A4C9">- $c.AllTransferModels.elements[transfer.fields['tm_id']].fields['acronym']</a>
 	</div>
 	$code :
 	    cont = c.findAllFromType(transfer.fields['cont_type']).elements[transfer.fields['cont_id']]

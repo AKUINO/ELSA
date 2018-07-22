@@ -280,6 +280,7 @@ class WebPermission():
             id = splitted[0]
         else:
             context = ''
+        print type+'-'+id+'-'+context
         return render.permission(mail, type, id, context)
 
 # Display of  a record within a list
@@ -674,7 +675,7 @@ class WebGraphRecipe():
                         done.add(prec_v)
             for remain in next_usage:
                 points = remain.split(" ")
-                graph += points[0]+"->"+points[1]+"[style=\"stroke-width:1px;stroke-dasharray:2,8;\"];"
+                graph += points[0]+"->"+points[1]+"[style=\"stroke-width:1px;stroke-dasharray:3,12;stroke:#888;\"];"
             prec = ""
             stack = []
             for krecipe in summit:

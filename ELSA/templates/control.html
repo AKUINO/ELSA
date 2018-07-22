@@ -4,7 +4,6 @@ $code:
     batch = c.AllBatches.elements[id1]
     cp = c.AllCheckPoints.elements[id2]
     elems = cp.get_model_sorted()
-    aMeasure = None
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var location: list/b=batch find/h/b_$(id1)=related control/b_$(id1)/h_$(id2)=checkpoint
 $var title : $batch.getName(self.lang): $cp.getName(self.lang)
@@ -40,29 +39,46 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 	    countdm = 1
 	    countvm = 1
 	$for e in elems:
+	    $ aMeasure = None
 	    $if e.get_type() == 'tm':
 		<div class="form-group row">
 		    <input type="hidden" name="tm_id_$(counttm)" value="$e.getID()"/>
 		    <label class="col-sm-12 col-form-label">$:c.getAllHalfling(c.AllTransfers) $e.getName(self.lang): <span class="text-danger">$e.fields['remark']<span></label>
 		</div>
+		$code:
+		   usages = None
+		   kusage = e.fields['gu_id']
+		   if kusage and kusage in c.AllGrUsage.elements:
+			usage = c.AllGrUsage.elements[kusage]
+			usages = set(usage.children)
+			usages.add(kusage)
 		<div class="form-group row">
 		    <label for="inputPosition" class="col-sm-3 col-form-label">$c.getMessage('target',self.lang)</label>
 		    <div class="col-sm-9">
 			<select name = "tm_position_$(counttm)" class="form-control" id="inputPosition">
-			    <optgroup label="$c.getMessage('place',self.lang)">
+			    $ first = True
 			    $for k,v in c.AllPlaces.elements.items():
                                 $ curr_group=v.fields['gu_id']
-				$if curr_group and (curr_group == e.fields['gu_id'] or curr_group in c.AllGrUsage.elements[curr_group].children) :
+				$if not usages or (curr_group and curr_group in usages):
+				    $if first:
+					<optgroup label="$c.getMessage('place',self.lang)">
+					$ first = False
 				    <option value="p_$k">$v.fields['acronym'] - $v.getName(self.lang) </option>
-			    <optgroup label="$c.getMessage('equipment',self.lang)">
+			    $ first = True
 			    $for k,v in c.AllEquipments.elements.items():
                                 $ curr_group=v.fields['gu_id']
-				$if curr_group and (curr_group == e.fields['gu_id'] or curr_group in c.AllGrUsage.elements[curr_group].children) :
+				$if not usages or (curr_group and curr_group in usages):
+				    $if first:
+					<optgroup label="$c.getMessage('equipment',self.lang)">
+					$ first = False
 				    <option value="e_$k" >$v.fields['acronym'] - $v.getName(self.lang)</option>
-			    <optgroup label="$c.getMessage('container',self.lang)">
+			    $ first = True
 			    $for k,v in c.AllContainers.elements.items():
                                 $ curr_group=v.fields['gu_id']
-				$if curr_group and (curr_group == e.fields['gu_id'] or curr_group in c.AllGrUsage.elements[curr_group].children) :
+				$if not usages or (curr_group and curr_group in usages):
+				    $if first:
+					<optgroup label="$c.getMessage('container',self.lang)">
+					$ first = False
 				    <option value="c_$k">$v.fields['acronym'] - $v.getName(self.lang)</option>
 			</select>
 		    </div>
@@ -77,8 +93,8 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		$code:
 		    counttm += 1
 	    $elif e.get_type() == 'dm':
-              $if e.fields['m_id'] and e.fields['m_id'] in c.AllMeasures.elements:
-		$ aMeasure=c.AllMeasures.elements[e.fields['m_id']]
+		$if e.fields['m_id'] and e.fields['m_id'] in c.AllMeasures.elements:
+		    $ aMeasure=c.AllMeasures.elements[e.fields['m_id']]
 		<div class="form-group row">
 		    <input type="hidden" name="dm_id_$(countdm)" value="$e.getID()"/>
 		    <label class="col-sm-12 col-form-label">$:c.getAllHalfling(c.AllManualData) $e.getName(self.lang): <span class="text-danger">$e.fields['remark']<span></label>
@@ -111,25 +127,31 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		$if e.fields['in'] != '0':
 		    <div class="form-group row">
                         $ aMeasure = None
+			$ aRecipe = None
+			$if e.fields['src'] and e.fields['src'] in c.AllGrRecipe.elements:
+				$ aRecipe = c.AllGrRecipe.elements[e.fields['src']]
+	                        $if aRecipe.fields['m_id'] and aRecipe.fields['m_id'] in c.AllMeasures.elements:
+	                            $ aMeasure = c.AllMeasures.elements[aRecipe.fields['m_id']]
 			<label for="b_id" class="col-sm-3 col-form-label">$c.getMessage('batch',self.lang) $c.getMessage('source',self.lang)</label>
-			<div class="col-sm-9" id = "divsrc">
-			    <select name="vm_src_$(countvm)" class="form-control" id="src">
-				$for k in c.AllBatches.elements.keys():
-				    $if not (k == batch.getID()):
-					<option value="$k">$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang) [= $c.AllBatches.elements[k].get_residual_quantity()] </option>
-			    </select>
-			</div>
+			$if aRecipe:
+				<div class="col-sm-9" id = "divsrc">
+				    <select name="vm_src_$(countvm)" class="form-control" id="src">
+					$for k in c.AllBatches.get_batches_for_recipes([aRecipe.getID()]+aRecipe.get_submap_str()):
+					    $if not (k.getID() == batch.getID()):
+						<option value="$k.getID()">$k.fields['acronym'] - $k.getName(self.lang) [= $k.get_residual_quantity()] </option>
+				    </select>
+				</div>
 		    </div>
-		$else :
+		$else:
 		    <div class="form-group row">
                         $if batch.fields['m_id'] and batch.fields['m_id'] in c.AllMeasures.elements:
                             $ aMeasure = c.AllMeasures.elements[batch.fields['m_id']]
 			<label for="b_id" class="col-sm-3 col-form-label">$c.getMessage('batch',self.lang) $c.getMessage('source',self.lang)</label>
 			<div class="col-sm-9" id = "divdest">
 			    <select name="vm_dest_$(countvm)" class="form-control" id="dest">
-				$for k in c.AllBatches.elements.keys():
-				    $if not (k == batch.getID()):
-					<option value="$k">$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang) [= $c.AllBatches.elements[k].get_residual_quantity()] </option>
+				$for k in c.AllBatches.get_batches_for_recipes([e.fields['dest']]):
+				    $if not (k.getID() == batch.getID()):
+					<option value="$k.getID()">$k.fields['acronym'] - $k.getName(self.lang) [= $k.get_residual_quantity()] </option>
 			    </select>
 			</div>
 		    </div>		

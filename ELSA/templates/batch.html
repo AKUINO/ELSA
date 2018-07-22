@@ -4,14 +4,22 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var title : $c.getMessage('add',self.lang) $c.getMessage('batch',self.lang)
 $var rmq :
 $var location: list/b=batch edit/b_new=add
+$ aRecipe = None
+$ precision = None
+$if context != '':
+    $ kRecipe = context.split('_')[-1]
+    $if kRecipe and kRecipe in c.AllGrRecipe.elements:
+	$ aRecipe = c.AllGrRecipe.elements[kRecipe]
 $if id != 'new':
     $var location: list/b=batch edit/b_$(id)=edit
     $ elem = c.AllBatches.elements[id]
     $ precision = elem.fields['m_id']
-    $if precision:
-	$ precision = c.AllMeasures.elements[precision]
     $var rmq :  $elem.fields['remark']
     $var title :  $c.AllBatches.getName(self.lang) $elem.fields['acronym']
+$elif aRecipe:
+    $ precision = aRecipe.fields['m_id']
+$if precision:
+    $ precision = c.AllMeasures.elements[precision]
 $if errormess != '':
     $var rmq : $data['remark']
 <div class="container">
@@ -22,9 +30,9 @@ $if errormess != '':
 		
 	<div class="form-group row">
 	    <script>
-		$if context != '':
+		$if aRecipe:
 		    $$(function(){
-			$$("#includedPermission").load("/permission/b_$(id)/$(context.split('_')[-1])");
+			$$("#includedPermission").load("/permission/b_$(id)/$(aRecipe.getID())");
 		    });
 		$else :
 		    $$(function(){
@@ -58,8 +66,8 @@ $if errormess != '':
 			value="$data['acronym']" 
 		$elif id != 'new':
 		    value="$elem.fields['acronym']"
-		$elif context != '':
-		    value = $(c.AllGrRecipe.elements[context.split('_')[-1]].fields['acronym'])_
+		$elif aRecipe:
+		    value="$(aRecipe.fields['acronym'])_"
 		required="true">
 	    </div>
 	</div>
@@ -93,6 +101,10 @@ $if errormess != '':
 	    <label for="measureSelect" class="col-sm-3 col-form-label">$c.getMessage('measure',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "measure" class="form-control" id="measureSelect">
+		$if aRecipe and aRecipe.fields['m_id']:
+		    $ aMeasure = c.AllMeasures.elements[aRecipe.fields['m_id']]
+		    <option value="m_$(aMeasure.getID())" selected>$(aMeasure.get_select_str(self.lang))</option>
+		$else:
 		    $for k in c.AllMeasures.elements.keys():
                         $ aMeasure = c.AllMeasures.elements[k]
 			<option value="m_$k"
@@ -115,10 +127,13 @@ $if errormess != '':
 		    $if errormess != '':
 			$if 'basicqt' in data :
 			    value="$data['basicqt']" 
-		    $elif id != 'new':
+		    $elif id == 'new':
+			$if aRecipe:
+				value="$aRecipe.fields['basicqt']"
+		    $else:
 			value="$elem.fields['basicqt']"
-			$if precision:
-			   min="$(precision.fields['min'])" max="$(precision.fields['max'])" step="$(precision.get_html_step())"
+		    $if precision:
+			min="$(precision.fields['min'])" max="$(precision.fields['max'])" step="$(precision.get_html_step())"
 		>
 	    </div>
 	</div>

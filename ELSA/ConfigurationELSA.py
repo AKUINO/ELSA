@@ -2950,7 +2950,7 @@ class GrRecipe(Group):
         super(GrRecipe, self).set_value_from_data(data, c, user)
         self.fields['gu_id'] = data['usage']
         self.fields['basicqt'] = data['basicqt']
-        self.fields['m_id'] = data['m_id']
+        self.fields['m_id'] = data['measure']
         self.fields['cost'] = data['cost']
         self.fields['fixed_cost'] = data['fixed_cost']
 

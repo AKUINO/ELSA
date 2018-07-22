@@ -4,6 +4,7 @@ $var recursive : False
 $var rmq :
 $var title : ELSA group
 $ AllObjects = c.findAllFromType(type)
+$ precision = None
 $if id == 'new':
     $var location: list/$(type)=$(AllObjects.get_class_acronym()) edit/$(type)_new=add
 $else:
@@ -59,8 +60,6 @@ $if errormess != '':
 		    </select>
 		</div>
 	$if type == 'gr':
-	    <input type=hidden name="basicqt" value="">
-	    <input type=hidden name="m_id" value="">
 	    <input type=hidden name="cost" value="">
 	    <input type=hidden name="fixed_cost" value="">
 	$if type =='h' or type == 'gr':
@@ -168,6 +167,46 @@ $if errormess != '':
 	    </div>
 	</div>
 	
+	$if type == 'gr':
+		<div class="form-group row">
+		    <label for="measureSelect" class="col-sm-3 col-form-label">$c.getMessage('measure',self.lang)</label>
+		    <div class="col-sm-9">
+			<select name = "measure" class="form-control" id="measureSelect">
+			    $for k in c.AllMeasures.elements.keys():
+	                        $ aMeasure = c.AllMeasures.elements[k]
+				<option value="$k"
+				$if errormess != '':
+				    $if 'measure' in data :
+					$if k == data['measure']:
+					    selected
+				$elif id !='new':
+					$if k == elem.fields['m_id'] :
+					    selected
+				>$(aMeasure.get_select_str(self.lang))</option>
+			</select>
+		    </div>
+		</div>
+		
+		$if id != 'new':
+			$ precision = elem.fields['m_id']
+			$if precision:
+			    $ precision = c.AllMeasures.elements[precision]
+		<div class="form-group row">
+		    <label for="inputQty" class="col-sm-3 col-form-label">$c.getMessage('quantity',self.lang)</label>
+		    <div class="col-sm-9">
+			<input name="basicqt" type="number" class="form-control" id="inputQty" placeholder="$c.getMessage('quantity',self.lang)" 
+			    $if errormess != '':
+				$if 'basicqt' in data :
+				    value="$data['basicqt']" 
+			    $elif id != 'new':
+				value="$elem.fields['basicqt']"
+				$if precision:
+				   min="$(precision.fields['min'])" max="$(precision.fields['max'])" step="$(precision.get_html_step())"
+			>
+		    </div>
+		</div>
+		
+
 	$if type == 'h':
 	    <div class="form-group row">
 		<label for="inputactive" class="col-sm-3 col-form-label">$c.getMessage('abstract',self.lang)</label>

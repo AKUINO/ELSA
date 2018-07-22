@@ -40,9 +40,9 @@ $for operation in events:
 				<th style="padding:3px;border-top:1px solid #333;">
 				$ acro = checkpoint.fields['acronym']
 				$if prev in done:
-				    <a href="#h_$acro">$acro</a> #$checkpoint.fields['rank']
+				    <a href="#h_$acro">$acro</a> <span class="light">#$checkpoint.fields['rank']</span>
 				$else:
-				    <a name="h_$acro"></a>$acro #$checkpoint.fields['rank'] - <strong>$(checkpoint.getName(self.lang))</strong>
+				    <a name="h_$acro"></a>$acro <span class="light">#$checkpoint.fields['rank']</span> - <strong>$(checkpoint.getName(self.lang))</strong>
 				    $ done.add(prev)
 			</th><td style="padding:3px;border-top:1px solid #333;">$(checkpoint.fields['remark'])</td></tr>
 		$else:
@@ -53,9 +53,12 @@ $for operation in events:
         <tr style="padding:3px">
 		<th style="padding:3px">$(operation.fields['time'])</th>		
 		<td style="padding:3px"><a href="/edit/$(op_type)_$(operation.getID())">$:operation.statusIcon(c)</a>
-		$if (operation.fields[op_type+'m_id']):
-			<a href="/find/related/$(op_type)m_$(operation.fields[op_type+'m_id'])" style="color:#28A4C9"><strong><big>M</big></strong></a>
 		</td><td>
+                $ sourceModel = None
+		$if (operation.fields[op_type+'m_id']):
+			$ sourceModel = c.getObject(operation.fields[op_type+'m_id'], op_type+"m")
+			$if sourceModel:
+				<a href="/find/related/$(op_type)m_$(operation.fields[op_type+'m_id'])" style="color:#28A4C9">$(sourceModel.fields['acronym'])</a> - <strong>$(sourceModel.getName(self.lang))</strong>
 		$if op_type == 't':
 		    $ dest = operation.get_cont()
 		    $:c.getHalfling('to')
@@ -71,17 +74,21 @@ $for operation in events:
 			$if kbatch and kbatch in c.AllBatches.elements:
 				$ batch = c.AllBatches.elements[kbatch]
 				<a href="/find/related/b_$kbatch">$:(batch.statusIcon(c))$(batch.fields['acronym'])</a> $batch.getName(self.lang)
-			<strong>$(operation.fields['quantity'])</strong>
+			: <strong>$(operation.fields['quantity'])</strong>
 			$ kmeasure = operation.fields['m_id']
 			$if kmeasure and kmeasure in c.AllMeasures.elements:
 				$ measure = c.AllMeasures.elements[kmeasure]
 				$measure.fields['unit'] ($(measure.getName(self.lang)))
 		$elif op_type == 'd':
-			<strong>$(operation.fields['value'])</strong>
 			$ kmeasure = operation.fields['m_id']
+			$ measure = None
 			$if kmeasure and kmeasure in c.AllMeasures.elements:
-				$ measure = c.AllMeasures.elements[kmeasure]
-				$measure.fields['unit'] ($(measure.getName(self.lang)))
+			     $ measure = c.AllMeasures.elements[kmeasure]
+                        $if not sourceModel and measure:
+			     $(measure.getName(self.lang))
+			: <strong>$(operation.fields['value'])</strong>
+			$if measure:
+			     $measure.fields['unit']
 		</td>
 		<td style="padding:3px">$(operation.fields['remark'])</td>
         </tr>
