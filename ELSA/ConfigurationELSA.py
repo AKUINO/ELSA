@@ -2608,7 +2608,7 @@ class Group(ConfigurationObject):
     # Looking DOWN
     def get_submap_str(self):
         children = self.get_children()
-        print self.fields['acronym']+", children="+unicode(children)
+        #print self.fields['acronym']+", children="+unicode(children)
         submap = []                      
         submap.append('>>')
         if children and len (children) > 0:
