@@ -7,8 +7,9 @@ $var recursive : False
     <label for="graphSelect" class="col-sm-3 col-form-label">$c.getMessage('selecttransfer',self.lang)</label>
     <div class="col-sm-9">
 	<select id="choice" onchange="fname_update()">
-	    $for k in c.AllBatches.elements.keys():
-		<option value="b_$k">$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang) </option>
+	    $for k,b in c.AllBatches.elements.items():
+	      $if b.isActive() and not b.isComplete():
+		<option value="b_$k">$b.fields['acronym'] - $b.getName(self.lang) </option>
 	</select>
 	<button>See</button>
     </div>

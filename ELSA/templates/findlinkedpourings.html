@@ -22,7 +22,7 @@ $var title : $elem.getName(self.lang)
     <label class="col-sm-3">$c.getMessage('component',self.lang)</label>
     <label class="col-sm-3">$c.getMessage('measure',self.lang) / $c.getMessage('remark',self.lang)</label>    
     $for k in elem.destination:
-	$ pouring = c.AllPourings.elements[k];
+	$ pouring = c.AllPourings.elements[k]
 	<div class="row active">
 		<div class="col-xs-3" >
 		    $pouring.fields['time']
@@ -63,6 +63,7 @@ $var title : $elem.getName(self.lang)
     <label class="col-sm-3">$c.getMessage('component',self.lang)</label>
     <label class="col-sm-3">$c.getMessage('measure',self.lang) / $c.getMessage('remark',self.lang)</label>   
     $for k in elem.source:
+	$ pouring = c.AllPourings.elements[k]
 	<div class="row active">
 		<div class="col-xs-3" >
 		    $pouring.fields['time']

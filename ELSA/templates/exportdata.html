@@ -16,33 +16,37 @@ $else:
             <div class="col-sm-9">
             <select name = "element" class="form-control" id="inputElement">
                 <optgroup label="$c.getMessage('place',self.lang)">
-                $for k in c.AllPlaces.elements.keys():
+                $for k,e in c.AllPlaces.elements.items():
+		  $if e.isActive():
                     <option value="p_$k"
                         $if type != 'new':
                             $if 'p' == type and k == id :
                                 selected
-                    >$c.AllPlaces.elements[k].fields['acronym'] - $c.AllPlaces.elements[k].getName(self.lang) </option>
+                    >$e.fields['acronym'] - $e.getName(self.lang) </option>
                 <optgroup label="$c.getMessage('equipment',self.lang)">
-                $for k in c.AllEquipments.elements.keys():
+                $for k,e in c.AllEquipments.elements.items():
+		  $if e.isActive():
                     <option value="e_$k"
                         $if type != 'new':
                             $if 'e' == type and k == id :
                                 selected			
-                    >$c.AllEquipments.elements[k].fields['acronym'] - $c.AllEquipments.elements[k].getName(self.lang)</option>
+                    >$e.fields['acronym'] - $e.getName(self.lang)</option>
                 <optgroup label="$c.getMessage('container',self.lang)">
-                $for k in c.AllContainers.elements.keys():
+                $for k,e in c.AllContainers.elements.items():
+		  $if e.isActive():
                     <option value="c_$k"
                         $if type != 'new':
                             $if 'c' == type and k == id :
                                 selected
-                    >$c.AllContainers.elements[k].fields['acronym'] - $c.AllContainers.elements[k].getName(self.lang)</option>
+                    >$e.fields['acronym'] - $e.getName(self.lang)</option>
                 <optgroup label="$c.getMessage('batch',self.lang)">
-                $for k in c.AllBatches.elements.keys():
+                $for k,b in c.AllBatches.elements.items():
+		  $if b.isActive():
                     <option value="b_$k"
                         $if type != 'new':
                             $if 'b' == type and k == id :
                                 selected
-                    >$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang)</option>
+                    >$b.fields['acronym'] - $b.getName(self.lang)</option>
                 </select>
             </div>
         </div>

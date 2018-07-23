@@ -67,15 +67,15 @@ function flip() {
 	    <div class="col-sm-9" id = "divsrc">
 		<select name="src" class="form-control" id="src">
 		    $if myID != 'out':
-			$for k in c.AllBatches.elements.keys():
-			    $if not (myID == 'in' and k == batch.getID()):
+			$for k,b in c.AllBatches.elements.items():
+			    $if b.isActive() and not b.isComplete() and not (myID == 'in' and k == batch.getID()):
 				<option value="$k"
 				$if myID == 'update':
 					    $if k == src.getID() :
 						selected
-				>$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang) [= $c.AllBatches.elements[k].get_residual_quantity()] </option>
+				>$b.fields['acronym'] - $b.getName(self.lang) [= $b.get_residual_quantity()] </option>
 		    $else:
-			<option value="$batch.getID()">$batch.fields['acronym'] - $batch.getName(self.lang) [= $batch.get_residual_quantity()] </option>
+			<option value="$batch.getID()" selected>$batch.fields['acronym'] - $batch.getName(self.lang) [= $batch.get_residual_quantity()] </option>
 		</select>
 	    </div>
 	</div>
@@ -84,13 +84,13 @@ function flip() {
 	    <div class="col-sm-9" id = "divdest">
 		<select name = "dest" class="form-control" id="dest">
 			$if myID != 'in' :
-			    $for k in c.AllBatches.elements.keys():
-				$if not (myID == 'out' and k == batch.getID()):
+			    $for k,b in c.AllBatches.elements.items():
+				$if b.isActive() and not b.isComplete() and not (myID == 'out' and k == batch.getID()):
 				    <option value="$k"
 				    $if myID == 'update':
 					$if k == dest.getID() :
 					    selected
-				    >$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang) [= $c.AllBatches.elements[k].get_residual_quantity()]</option>
+				    >$b.fields['acronym'] - $b.getName(self.lang) [= $b.get_residual_quantity()]</option>
 			$else:
 			    <option value="$batch.getID()">$batch.fields['acronym'] - $batch.getName(self.lang) [= $batch.get_residual_quantity()] </option>
 		</select>

@@ -25,17 +25,16 @@ $for krecipe in listRecipe:
 			<a href="#gr_$acro">$acro</a>
 		$else:
 			<a name="gr_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>
-			$for kbatch in c.AllBatches.elements:
-				$ batch = c.AllBatches.elements[kbatch]
-				$if batch.get_group() == krecipe :
+			$for batch in c.AllBatches.get_batches_for_recipes([krecipe]):
+				$if batch.isActive() and not batch.isComplete():
 					<div class="map down">
-					<a href="/find/related/b_$kbatch">$:(batch.statusIcon(c))</a>
+					<a href="/find/related/b_$batch.getID()">$:(batch.statusIcon(c))</a>
 					$ acro = batch.fields['acronym']
-					$if ('b_'+kbatch) in done:
+					$if ('b_'+batch.getID()) in done:
 						<a href="#b_$acro">$acro</a>
 					$else:
 						<a name="b_$acro"></a>$acro - <strong>$(batch.getName(self.lang))</strong>
-						$ done.add('b_'+kbatch)
+						$ done.add('b_'+batch.getID())
 					</div>
 			$ done.add('gr_'+krecipe)
 </div>

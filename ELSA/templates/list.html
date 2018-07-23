@@ -30,8 +30,9 @@ $if type == 'b' :
 		<label for="inputObject" class="col-sm-2 col-form-label">$c.getMessage('batch',self.lang) </label>
 		<div class="col-sm-4">
 		    <select name = "batch" class="form-control" id="inputPosition">
-		    $for k in c.AllBatches.elements.keys():
-			<option value="b_$k">$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang) </option>
+		    $for k,b in c.AllBatches.elements.items():
+		      $if b.isActive():
+			<option value="b_$k">$b.fields['acronym'] - $b.getName(self.lang) </option>
 		    </select>
 		</div>
 		<label for="inputLapse1" class="col-sm-2 col-form-label">$c.getMessage('quantity',self.lang)</label>

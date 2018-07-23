@@ -6,12 +6,14 @@ $if id == 'new' and context == '':
     $code :
 	myID = 'new'
 	rmq = ''
+	cond = True
     $var location: /find/m=manualdata create/m=add
 $elif id == 'new':
     $code:
 	myID = 'component'
 	elem = c.findAllFromType(context.split('_')[0]).elements[context.split('_')[-1]]
 	rmq = ''
+	cond = True
 $else :
     $code:
 	if not id.split('_')[0] in 'bcep':
@@ -19,6 +21,7 @@ $else :
 	    elem = c.findAllFromType(data.fields['object_type']).elements[data.fields['object_id']]
 	    myID = 'update'
 	    rmq = data.fields['remark']
+	    cond = (data.fields['active'] == 1 or data.fields['active'] == '1')
     $var title: $c.getMessage('update',self.lang) $c.getName(c.AllManualData,self.lang)
 $if myID == 'update':
     $var location: list/$(elem.get_type())=$(elem.get_class_acronym()) manualdata/$(elem.get_type())_$(elem.getID())=manualdata edit/m_$(data.getID())=edit
@@ -48,36 +51,40 @@ $elif myID == 'component':
 		<select name = "component" class="form-control" id="langSelect">
 		    $if myID == 'new':
 			<optgroup label="$c.getMessage('place',self.lang)">
-			    $for k in c.AllPlaces.elements.keys():
+			    $for k,e in c.AllPlaces.elements.items():
+			      $if e.isActive():
 				<option value="p_$k"
 				    $if myID == 'component':
 					$if 'p' == elem.get_type() and k == elem.getID(): 
 					    selected
-				>$c.AllPlaces.elements[k].fields['acronym'] - $c.AllPlaces.elements[k].getName(self.lang) </option>
+				>$e.fields['acronym'] - $e.getName(self.lang) </option>
 			    </optgroup>
 			    <optgroup label="$c.getMessage('equipment',self.lang)">
-			    $for k in c.AllEquipments.elements.keys():
+			    $for k,e in c.AllEquipments.elements.items():
+			      $if e.isActive():
 				<option value="e_$k"
 				    $if myID == 'component':
 					$if 'e' == elem.get_type() and k == elem.getID(): 
 					    selected			
-				>$c.AllEquipments.elements[k].fields['acronym'] - $c.AllEquipments.elements[k].getName(self.lang)</option>
+				>$e.fields['acronym'] - $e.getName(self.lang) </option>
 			    </optgroup>
 			    <optgroup label="$c.getMessage('container',self.lang)">
-			    $for k in c.AllContainers.elements.keys():
+			    $for k,e in c.AllContainers.elements.items():
+			      $if e.isActive():
 				<option value="c_$k"
 				    $if myID == 'component':
 					$if 'c' == elem.get_type() and k == elem.getID(): 
 					    selected
-				>$c.AllContainers.elements[k].fields['acronym'] - $c.AllContainers.elements[k].getName(self.lang)</option>
+				>$e.fields['acronym'] - $e.getName(self.lang) </option>
 			    </optgroup>
 			    <optgroup label="$c.getMessage('batch',self.lang)">
-			    $for k in c.AllBatches.elements.keys():
+			    $for k,e in c.AllBatches.elements.items():
+			      $if e.isActive() and not e.isComplete():
 				<option value="b_$k"
 				    $if myID == 'component':
 					$if 'b' == elem.get_type() and k == elem.getID(): 
 					    selected
-				>$c.AllBatches.elements[k].fields['acronym'] - $c.AllBatches.elements[k].getName(self.lang)</option>
+				>$e.fields['acronym'] - $e.getName(self.lang) </option>
 			    </optgroup>
 		    $else:
 			<option value="$(elem.get_type())_$(elem.getID())">$elem.fields['acronym'] - $elem.getName(self.lang) </option>
@@ -132,15 +139,6 @@ $elif myID == 'component':
 	<div class="form-group row">
 	    <label for="inputactive" class="col-sm-3 col-form-label">$c.getMessage('active',self.lang)</label>
 	    <span class="glyphicon glyphicon-remove-circle"> </span>
-	    $code:
-		cond = (id == 'new')
-		if not cond :
-		    cond = (data.fields['active'] == 1 or data.fields['active'] == '1')
-		if errormess != '' :
-		    if 'active' in data :
-			cond  = True
-		    else:
-			cond = False
 	    <label class="switch">
 		    <input id='inputactive' name="active" type="checkbox" value="1" $('checked' if cond else '')>
 		    <div class="slider round"></div>

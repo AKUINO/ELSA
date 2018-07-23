@@ -110,8 +110,8 @@ class valueCategory(object):
         return self.name, self.acronym, self.color, self.text_color
 
 
-valueCategs = {-2: valueCategory(-2, 'minmin', '---', color_violet,color_white), -1: valueCategory(-1, 'min', '--', color_blue,color_white), 0: valueCategory(
-    0, 'typical', '==', color_green,color_black), 1: valueCategory(1, 'max', '++', color_orange,color_white), 2: valueCategory(2, 'maxmax', '++', color_red,color_white), 3: valueCategory(3, 'none', '??', color_grey,color_white)}
+valueCategs = {-2: valueCategory(-2, 'minmin', '---', color_violet,color_black), -1: valueCategory(-1, 'min', '--', color_blue,color_white), 0: valueCategory(
+    0, 'typical', '==', color_green,color_black), 1: valueCategory(1, 'max', '++', color_orange,color_black), 2: valueCategory(2, 'maxmax', '++', color_red,color_white), 3: valueCategory(3, 'none', '??', color_grey,color_white)}
 
 
 class Configuration():
@@ -614,7 +614,7 @@ class ConfigurationObject(object):
         else:
             self.set_active('0')
 
-        if data['placeImg'] != {}:
+        if 'placeImg' in data and data['placeImg'] != {}:
             if data.placeImg.filename != '':
                 filepath = data.placeImg.filename.replace('\\', '/')
                 ext = ((filepath.split('/')[-1]).split('.')[-1])
@@ -1237,6 +1237,10 @@ class AllPlaces(AllObjects):
         return 'gu'
 
 
+#TODO: AlarmLog n'enregistre que les alarmes des senseurs.
+#TODO: Celles des Observations et des Versements devraient l'être aussi: il faut pouvoir les listers dans le contexte de leur lot.
+#TODO: durée de séjour d'un lot: aussi possibilité d'alarmes? les logger...
+#TODO: Notion d'ACTION CORRECTIVE enregistrée: remarque par qui, quand? Statut de cloture?
 class AllAlarmLogs(AllObjects):
 
     def __init__(self, config):
@@ -1244,19 +1248,19 @@ class AllAlarmLogs(AllObjects):
         self.file_of_objects = os.path.join(DIR_DATA_CSV, "alarmlogs.csv")
         self.file_of_names = None
         self.fieldnames = ['begin', 'al_id', 'cont_id', 'cont_type',
-                           's_id', 'value', 'typealarm', 'begintime',
-                           'alarmtime', 'degree']
+                           's_id', 's_type', 'value', 'typealarm', 'a_id', 'begintime',
+                           'alarmtime', 'degree', 'completedtime']
         self.fieldtranslate = None
 
     def newObject(self):
         return AlarmLog()
 
-    def get_alarmlog_component(self, id, begin, end):
+    def get_alarmlog_for_sensor(self, id, begin, end):
         logs = []
         for i in range(len(self.elements)):
             e = self.elements[unicode(i+1)]
             time = e.getTimestamp()
-            if id == e.fields['s_id']:
+            if (id == e.fields['s_id']) and ( not e.fields['s_type'] or (e.fields['s_type'] == 's') ):
                 if time > begin and time < end:
                     logs.append(e)
         return logs
@@ -1735,7 +1739,7 @@ class AllBatches(AllObjects):
         AllObjects.__init__(self, 'b', config)
         self.fieldnames = ["begin", "b_id", "active", "acronym",
                            "basicqt", "m_id", "time", "cost", "fixed_cost", "remark",
-                           'gr_id', "user"]
+                           'gr_id', 'completedtime', "user"]
         self.fieldtranslate = ['begin', 'lang', 'b_id', 'name', 'user']
 
     def newObject(self):
@@ -1761,7 +1765,7 @@ class AllBatches(AllObjects):
         #print recipes
         #print usages
         for k, e in self.elements.items():
-            if not e.fields['gr_id'] or (e.fields['gr_id'] in recipes):
+            if e.isActive() and (not e.fields['gr_id'] or (e.fields['gr_id'] in recipes)):
                 #print "key="+k+", recipe=",e.fields['gr_id']
                 tmp = e.get_last_transfer()
                 if tmp is not None:
@@ -2331,6 +2335,7 @@ class ManualData(AlarmingObject):
         return tmp
 
     def set_value_from_data(self, data, c, user):
+        #SUPER is NOT called, beware!
         if self.fields['object_type'] != '' \
                 and self.fields['object_id'] != '':
             c.findAllFromType(self.fields['object_type']) \
@@ -2349,14 +2354,20 @@ class ManualData(AlarmingObject):
             self.fields['active'] = '1'
         else:
             self.fields['active'] = '0'
+        alarmCode = ""
         if ('origin' in data) and data['origin']:
             self.fields['dm_id'] = data['origin']
             model = c.AllManualDataModels.elements[data['origin']]
             typeAlarm, symbAlarm, self.colorAlarm,self.colorTextAlarm = self.getTypeAlarm(data['value'],model)
             self.actualAlarm = typeAlarm
             alarmCode = self.get_alarm(model);
-            if alarmCode:
-                c.AllAlarms.elements[alarmCode].launch_alarm(self, c)
+        if ('a_id' in data) and data['a_id']:
+            #TODO: Manual Alarm, not so "typical"
+            if not self.actualAlarm:
+                self.actualAlarm = "typical"
+            alarmCode = data['a_id']
+        if alarmCode:
+            c.AllAlarms.elements[alarmCode].launch_alarm(self, c)
         if self.isActive():
             c.findAllFromType(self.fields['object_type']) \
              .elements[self.fields['object_id']] \
@@ -2370,7 +2381,7 @@ class ManualData(AlarmingObject):
     def get_class_acronym(self):
         return 'manualdata'
 
-
+#TODO: AlarmingObject and check on Quantity ?
 class Pouring(ConfigurationObject):
     def __init__(self):
         ConfigurationObject.__init__(self)
@@ -2418,6 +2429,7 @@ class Pouring(ConfigurationObject):
         return tmp
 
     def set_value_from_data(self, data, c, user):
+        #SUPER is NOT called, beware!
         if self.fields['src'] != '' and self.fields['dest'] != '':
             c.AllBatches.elements[self.fields['src']].remove_source(self)
             c.AllBatches.elements[self.fields['dest']].remove_destination(self)
@@ -2429,8 +2441,20 @@ class Pouring(ConfigurationObject):
             self.fields['h_id'] = data['h_id']
         else:
             self.fields['h_id'] = ''
+        alarmCode = ""
         if ('origin' in data) and data['origin']:
             self.fields['vm_id'] = data['origin']
+##            model = c.AllPouringModels.elements[data['origin']]
+##            typeAlarm, symbAlarm, self.colorAlarm,self.colorTextAlarm = self.getTypeAlarm(data['quantity'],model)
+##            self.actualAlarm = typeAlarm
+##            alarmCode = self.get_alarm(model);
+        if ('a_id' in data) and data['a_id']:
+            #TODO: Manual Alarm, not so "typical"
+            self.actualAlarm = "typical"
+            alarmCode = data['a_id']
+        if alarmCode:
+            c.AllAlarms.elements[alarmCode].launch_alarm(self, c)
+
         if 'active' in data:
             self.fields['active'] = '1'
         else:
@@ -3036,7 +3060,6 @@ class Place(ConfigurationObject):
     def get_group(self):
         return self.fields['gu_id']
 
-
 class AlarmLog(ConfigurationObject):
 
     def __init__(self):
@@ -3047,6 +3070,11 @@ class AlarmLog(ConfigurationObject):
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"
+
+    def isComplete(self):
+        if self.fields['completedtime'] != '':
+            return True
+        return False
 
     def get_type(self):
         return 'al'
@@ -3251,7 +3279,7 @@ class ExportData():
                 if self.cond['alarm'] is True:
                     logs = self.config \
                                .AllAlarmLogs \
-                               .get_alarmlog_component(a, begin, end)
+                               .get_alarmlog_for_sensor(a, begin, end)
                     for log in logs:
                         tmp = self.transform_object_to_export_data(log)
                         self.elements.append(tmp)
@@ -3625,208 +3653,192 @@ class Alarm(ConfigurationObject):
             self.fields[elem] = data[elem]
         self.save(c, user)
 
-    def get_alarm_message(self, sensor, config, lang):
-        if sensor.get_type() == 's':
+    def get_alarm_message(self, alarmedObject, config, lang):
+        currObject = config.AllAlarmLogs.createObject()
+        currObject.fields['s_id'] = alarmedObject.getID()
+        currObject.fields['s_type'] = alarmedObject.get_type()
+        currObject.fields['a_id'] = self.getID()
+        message = ''
+        specmess = self.getName(lang)
+        if alarmedObject.get_type() == 's':
             mess = config.getMessage('alarmmessage',lang)
-            specmess = self.getName(lang)
             cpe = ''
             elem = ''
-            currObject = config.AllAlarmLogs.createObject()
-            if not sensor.fields['p_id'] == '':
+            if not alarmedObject.fields['p_id'] == '':
                 cpe = config.getMessage('place',lang)
-                elem = config.AllPlaces.elements[sensor.fields['p_id']]
+                elem = config.AllPlaces.elements[alarmedObject.fields['p_id']]
                 currObject.fields['cont_type'] = 'p'
-            elif not sensor.fields['e_id'] == '':
+            elif not alarmedObject.fields['e_id'] == '':
                 cpe = config.getMessage('equipment',lang)
-                elem = config.AllEquipments.elements[sensor.fields['e_id']]
+                elem = config.AllEquipments.elements[alarmedObject.fields['e_id']]
                 currObject.fields['cont_type'] = 'e'
-            elif not sensor.fields['c_id'] == '':
+            elif not alarmedObject.fields['c_id'] == '':
                 cpe = config.getMessage('container',lang)
-                elem = config.AllContainers.elements[sensor.fields['c_id']]
+                elem = config.AllContainers.elements[alarmedObject.fields['c_id']]
                 currObject.fields['cont_type'] = 'c'
             currObject.fields['cont_id'] = elem.getID()
-            currObject.fields['s_id'] = sensor.getID()
-            currObject.fields['value'] = unicode(sensor.lastvalue)
-            currObject.fields['typealarm'] = unicode(sensor.actualAlarm)
-            currObject.fields['begintime'] = unicode(sensor.time)
+            currObject.fields['value'] = unicode(alarmedObject.lastvalue)
+            currObject.fields['typealarm'] = unicode(alarmedObject.actualAlarm)
+            currObject.fields['begintime'] = unicode(alarmedObject.time)
             currObject.fields['alarmtime'] = unicode(
-                int(sensor.time) * sensor.countActual)
-            currObject.fields['degree'] = unicode(sensor.degreeAlarm)
-            currObject.save(config)
-            return unicode.format(mess,
+                int(alarmedObject.time) * alarmedObject.countActual)
+            currObject.fields['degree'] = unicode(alarmedObject.degreeAlarm)
+            message = unicode.format(mess,
                                   config.HardConfig.hostname,
                                   specmess,
                                   cpe,
                                   elem.getName(lang),
                                   elem.fields['acronym'],
-                                  sensor.getName(lang),
-                                  sensor.fields['acronym'],
-                                  unicode(sensor.lastvalue),
-                                  sensor.actualAlarm,
-                                  useful.timestamp_to_date(sensor.time),
-                                  unicode(sensor.degreeAlarm))
-        elif sensor.get_type() == 'd':
+                                  alarmedObject.getName(lang),
+                                  alarmedObject.fields['acronym'],
+                                  unicode(alarmedObject.lastvalue),
+                                  alarmedObject.actualAlarm,
+                                  useful.timestamp_to_date(alarmedObject.time),
+                                  unicode(alarmedObject.degreeAlarm))
+        elif alarmedObject.get_type() == 'd':
             mess = config.getMessage('alarmmanual',lang)
             elem = config.findAllFromType(
-                sensor.fields['object_type']).elements[sensor.fields['object_id']]
+                alarmedObject.fields['object_type']).elements[alarmedObject.fields['object_id']]
             name = config.getMessage(elem.get_class_acronym(),lang)
-            if sensor.fields['m_id'] != '':
+            if alarmedObject.fields['m_id'] != '':
                 measure = (config.AllMeasures
-                                 .elements[sensor.fields['m_id']]
+                                 .elements[alarmedObject.fields['m_id']]
                                  .fields['unit'])
             else:
                 measure = ''
-            return unicode.format(mess,
+            currObject.fields['cont_type'] = elem.get_type()
+            currObject.fields['cont_id'] = elem.getID()
+            currObject.fields['value'] = unicode(alarmedObject.fields['value'])
+            currObject.fields['typealarm'] = unicode(alarmedObject.actualAlarm)
+            currObject.fields['begintime'] = unicode(alarmedObject.fields['time'])
+            currObject.fields['alarmtime'] = unicode(alarmedObject.fields['time'])
+            currObject.fields['degree'] = '2'
+            message = unicode.format(mess,
                                   config.HardConfig.hostname,
-                                  '',
+                                  specmess,
                                   name,
                                   elem.getName(lang),
                                   elem.fields['acronym'],
-                                  unicode(sensor.fields['value']),
+                                  unicode(alarmedObject.fields['value']),
                                   measure,
-                                  sensor.fields['remark'],
-                                  sensor.fields['time'])
-        elif sensor.get_type() == 'v':
+                                  alarmedObject.fields['remark'],
+                                  alarmedObject.fields['time'])
+        elif alarmedObject.get_type() == 'v':
             mess = config.getMessage('alarmpouring',lang)
-            elemin = config.AllBatches.elements[sensor.fields['src']]
-            elemout = config.AllBatches.elements[sensor.fields['dest']]
-            if sensor.fields['m_id'] != '':
+            elemid = ''
+            elemin = None
+            if alarmedObject.fields['src']:
+                elemid = alarmedObject.fields['src']
+                elemin = config.AllBatches.elements[elemid]
+            elemout = None
+            if alarmedObject.fields['dest']:
+                elemid = alarmedObject.fields['dest']
+                elemout = config.AllBatches.elements[elemid]
+            if alarmedObject.fields['m_id'] != '':
                 measure = (config.AllMeasures
-                                 .elements[sensor.fields['m_id']]
+                                 .elements[alarmedObject.fields['m_id']]
                                  .fields['unit'])
             else:
                 measure = ''
-            return unicode.format(mess,
+            currObject.fields['cont_type'] = 'b'
+            currObject.fields['cont_id'] = elemid
+            currObject.fields['value'] = unicode(alarmedObject.fields['quantity'])
+            #TODO: check quantities and automate alarm launch...
+            currObject.fields['typealarm'] = "typical"
+            currObject.fields['begintime'] = unicode(alarmedObject.fields['time'])
+            currObject.fields['alarmtime'] = unicode(alarmedObject.fields['time'])
+            currObject.fields['degree'] = '2'
+            message = unicode.format(mess,
                                   config.HardConfig.hostname,
-                                  '',
+                                  specmess,
                                   elemout.getName(lang),
                                   elemout.fields['acronym'],
                                   elemin.getName(lang),
                                   elemin.fields['acronym'],
-                                  unicode(sensor.fields['quantity']),
+                                  unicode(alarmedObject.fields['quantity']),
                                   measure,
-                                  sensor.fields['remark'],
-                                  sensor.fields['time'])
+                                  alarmedObject.fields['remark'],
+                                  alarmedObject.fields['time'])
+        currObject.save(config)        
+        return message
 
-    def get_alarm_title(self, sensor, config, lang):
-        if sensor.get_type() == 's':
+    def get_alarm_title(self, alarmedObject, config, lang):
+        if alarmedObject.get_type() == 's':
             title = config.getMessage('alarmtitle',lang)
             code = ''
             equal = ''
-            if sensor.actualAlarm == 'minmin':
+            if alarmedObject.actualAlarm == 'minmin':
                 code = '---'
                 equal = '<'
-            elif sensor.actualAlarm == 'min':
+            elif alarmedObject.actualAlarm == 'min':
                 code = '-'
                 equal = '<'
-            elif sensor.actualAlarm == 'max':
+            elif alarmedObject.actualAlarm == 'max':
                 code = '+'
                 equal = '>'
-            elif sensor.actualAlarm == 'maxmax':
+            elif alarmedObject.actualAlarm == 'maxmax':
                 code = '+++'
                 equal = '>'
-            elif sensor.actualAlarm == 'none':
+            elif alarmedObject.actualAlarm == 'none':
                 code = '???'
                 equal = '>'
             return unicode.format(title,
                                   code,
-                                  unicode(sensor.degreeAlarm),
-                                  sensor.fields['acronym'],
-                                  unicode(sensor.lastvalue),
+                                  unicode(alarmedObject.degreeAlarm),
+                                  alarmedObject.fields['acronym'],
+                                  unicode(alarmedObject.lastvalue),
                                   equal,
-                                  sensor.fields[sensor.actualAlarm],
+                                  alarmedObject.fields[alarmedObject.actualAlarm],
                                   config.AllMeasures
-                                        .elements[sensor.fields['m_id']]
+                                        .elements[alarmedObject.fields['m_id']]
                                         .fields['unit'],
-                                  sensor.getName(lang))
-        elif sensor.get_type() == 'd':
+                                  alarmedObject.getName(lang))
+        elif alarmedObject.get_type() == 'd':
             title = config.getMessage('alarmmanualtitle',lang)
             elem = config.findAllFromType(
-                sensor.fields['object_type']).elements[sensor.fields['object_id']]
-            if sensor.fields['m_id'] != '':
+                alarmedObject.fields['object_type']).elements[alarmedObject.fields['object_id']]
+            if alarmedObject.fields['m_id'] != '':
                 measure = (config.AllMeasures
-                                 .elements[sensor.fields['m_id']]
+                                 .elements[alarmedObject.fields['m_id']]
                                  .fields['unit'])
             else:
                 measure = ''
             return unicode.format(title,
-                                  sensor.fields['value'],
+                                  alarmedObject.fields['value'],
                                   measure,
                                   elem.getName(lang))
-        elif sensor.get_type() == 'v':
+        elif alarmedObject.get_type() == 'v':
             title = config.getMessage('alarmpouringtitle',lang)
-            elemin = config.AllBatches.elements[sensor.fields['src']]
-            elemout = config.AllBatches.elements[sensor.fields['dest']]
+            elemin = config.AllBatches.elements[alarmedObject.fields['src']]
+            elemout = config.AllBatches.elements[alarmedObject.fields['dest']]
             return unicode.format(title, elemout.fields['acronym'], elemout.getName(lang), elemin.fields['acronym'], elemin.getName(lang))
 
-    def launch_alarm(self, sensor, config):
-        if sensor.get_type() == 's':
-            level = sensor.degreeAlarm
+    def alarm_by_email(self, alarmedObject, e_mail, config):
+        if (e_mail == ''):
+            return
+        userlist = (config.AllGrFunction
+                          .elements[e_mail]
+                          .get_user_group())
+        for user in userlist:
+            lang = config.AllUsers.elements[user].fields['language']
+            mess = self.get_alarm_message(alarmedObject, config, lang)
+            title = self.get_alarm_title(alarmedObject, config, lang)
+            useful.send_email(config.AllUsers
+                                    .elements[user].fields['mail'],
+                                    title,
+                                    mess)
+        
+    def launch_alarm(self, alarmedObject, config):
+        if alarmedObject.get_type() == 's':
+            level = alarmedObject.degreeAlarm
             if level == 1:
-                e_mail = self.fields['o_email1']
-                if (e_mail == ''):
-                    return
-                userlist = (config.AllGrFunction
-                                  .elements[e_mail]
-                                  .get_user_group())
-                for user in userlist:
-                    lang = config.AllUsers.elements[user].fields['language']
-                    mess = self.get_alarm_message(sensor, config, lang)
-                    title = self.get_alarm_title(sensor, config, lang)
-                    useful.send_email(config.AllUsers
-                                            .elements[user].fields['mail'],
-                                            title,
-                                            mess)
+                self.alarm_by_email(alarmedObject, self.fields['o_email1'], config)
             elif level == 2:
-                e_mail = self.fields['o_email2']
-                if (e_mail == ''):
-                    return
-                userlist = (config.AllGrFunction
-                                  .elements[e_mail]
-                                  .get_user_group())
-                for user in userlist:
-                    lang = config.AllUsers.elements[user].fields['language']
-                    mess = self.get_alarm_message(sensor, config, lang)
-                    title = self.get_alarm_title(sensor, config, lang)
-                    useful.send_email(config.AllUsers
-                                            .elements[user].fields['mail'],
-                                            title,
-                                            mess)
-        elif sensor.get_type() == 'd':
-            e_mail = self.fields['o_email2']
-            if (e_mail == ''):
-                return
-            userlist = (config.AllGrFunction
-                              .elements[e_mail]
-                              .get_user_group())
-            for user in userlist:
-                lang = config.AllUsers.elements[user].fields['language']
-                mess = self.get_alarm_message(sensor, config, lang)
-                title = self.get_alarm_title(sensor, config, lang)
-                print 'Send mail depuis manuel data'
-                useful.send_email(
-                        config.AllUsers
-                              .elements[user]
-                              .fields['mail'],
-                        title,
-                        mess)
-        elif sensor.get_type() == 'v':
-            e_mail = self.fields['o_email2']
-            if (e_mail == ''):
-                return
-            userlist = (config.AllGrFunction
-                              .elements[e_mail]
-                              .get_user_group())
-            for user in userlist:
-                lang = config.AllUsers.elements[user].fields['language']
-                mess = self.get_alarm_message(sensor, config, lang)
-                title = self.get_alarm_title(sensor, config, lang)
-                print 'Send mail depuis versement'
-                useful.send_email(config.AllUsers
-                                        .elements[user]
-                                        .fields['mail'],
-                                  title,
-                                  mess)
+                self.alarm_by_email(alarmedObject, self.fields['o_email2'], config)
+        elif alarmedObject.get_type() == 'd':
+            self.alarm_by_email(alarmedObject, self.fields['o_email2'], config)
+        elif alarmedObject.get_type() == 'v':
+            self.alarm_by_email(alarmedObject, self.fields['o_email2'], config)
 
     def get_class_acronym(self):
         return 'alarm'
@@ -4515,6 +4527,11 @@ class Batch(ConfigurationObject):
             if tmp < 0:
                 return self.pourings.getTimestamp() - uself.getTimestamp()
         return useful.get_timestamp() - self.getTimestamp()
+
+    def isComplete(self):
+        if self.fields['completedtime'] != '':
+            return True
+        return False
 
     def add_source(self, pouring):
         self.remove_source(pouring)
