@@ -9,10 +9,10 @@ $if connected is True:
         : $c.getMessage('welcome',self.lang) <em>$c.connectedUsers.users[mail].cuser.getName(self.lang)</em>
 	</h4>
 	$code:
-	    allObjects = c.findAllFromType('b')
-	    elements = allObjects.get_sorted()
+	    elements = c.AllBatches.get_sorted()
 	$for a in elements:
-	    $if c.findAllFromType('b').elements[a].fields['active'] == '1' or id == 'all':
+	    $ elem = c.AllBatches.elements[a]
+	    $if id == 'all' or (elem.isActive() and not elem.isComplete()) :
 		<script>
 		    $$(function(){
 			$$("#includedMenub_$(a)").load("/fullentry/b_$(a)");

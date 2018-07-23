@@ -391,10 +391,10 @@ class WebEdit():
                             with open(aDir+u'/'+name, 'w') as fout:
                                fout.write(aDoc.file.read())
 
-            if 'a_id' in data:
-                if len(data['a_id']) > 0:
-                    c.AllAlarms.elements[data['a_id']
-                                         ].launch_alarm(currObject, c)
+##            if 'a_id' in data:
+##                if len(data['a_id']) > 0:
+##                    c.AllAlarms.elements[data['a_id']
+##                                         ].launch_alarm(currObject, c)
             if type not in 'tdv':
                 raise web.seeother('/item/'+type+'_'+currObject.getID())
             else:

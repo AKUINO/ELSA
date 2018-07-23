@@ -26,6 +26,7 @@ begin	message_id	default	user
 2016-01-01 13:45:56	specialvalue	Min Max Average 	1
 2016-01-01 13:45:56	monitoring	Monitoring 	1
 2016-01-01 13:45:56	time	Time	1
+2016-01-01 13:45:56	completedtime	Completed Time	1
 2016-01-01 13:45:56	rank	Rank	1
 2016-01-01 13:45:56	componentmove	Component to move	1
 2016-01-01 13:45:56	target	Target	1

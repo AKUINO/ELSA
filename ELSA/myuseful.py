@@ -46,6 +46,7 @@ def encrypt(password, salt):
 
 
 def send_email(recipient, subject, text):
+  print "Mail to "+recipient+" about "+subject+" : "+text
   try:
     smtpserver = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
     smtpserver.ehlo()
@@ -107,23 +108,35 @@ def date_to_timestamp(date):
     try:
         tmp = datetime.datetime.strptime(date, datetimeformat)
     except:  # old format ?
-        tmp = datetime.datetime.strptime(date, "%H:%M:%S  -  %d/%m/%y")
+        try:
+            tmp = datetime.datetime.strptime(date, "%H:%M:%S  -  %d/%m/%y")
+        except: # EPOCH timestamp?
+            tmp = datetime.datetime.fromtimestamp(int(date))
     return (tmp - datetime.datetime(1970, 1, 1)).total_seconds()
 
 def date_to_ISO(date):
     try:
         tmp = datetime.datetime.strptime(date, datetimeformat)
     except:  # old format ?
-        tmp = datetime.datetime.strptime(date, "%H:%M:%S  -  %d/%m/%y")
+        try:
+            tmp = datetime.datetime.strptime(date, "%H:%M:%S  -  %d/%m/%y")
+        except: # EPOCH timestamp?
+            tmp = datetime.datetime.fromtimestamp(int(date))
     return tmp.isoformat(sep=' ')
 
 
 def transform_date(date):
-    try:
-        tmp = datetime.datetime.strptime(date, datetimeformat).isoformat()
-    except:  # old format ?
-        tmp = datetime.datetime.strptime(
-            date, "%H:%M:%S  -  %d/%m/%y").isoformat()
+    if date:
+        try:
+            tmp = datetime.datetime.strptime(date, datetimeformat).isoformat()
+        except:  # old format ?
+            try:
+                tmp = datetime.datetime.strptime(
+                    date, "%H:%M:%S  -  %d/%m/%y").isoformat()
+            except: # EPOCH timestamp?
+                tmp = datetime.datetime.fromtimestamp(int(date)).isoformat()
+    else:
+        tmp = ''
     return tmp
 
 

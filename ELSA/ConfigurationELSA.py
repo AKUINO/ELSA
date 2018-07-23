@@ -3658,6 +3658,7 @@ class Alarm(ConfigurationObject):
         currObject.fields['s_id'] = alarmedObject.getID()
         currObject.fields['s_type'] = alarmedObject.get_type()
         currObject.fields['a_id'] = self.getID()
+        currObject.fields['alarmtime'] = useful.now()
         message = ''
         specmess = self.getName(lang)
         if alarmedObject.get_type() == 's':
@@ -3678,10 +3679,8 @@ class Alarm(ConfigurationObject):
                 currObject.fields['cont_type'] = 'c'
             currObject.fields['cont_id'] = elem.getID()
             currObject.fields['value'] = unicode(alarmedObject.lastvalue)
+            currObject.fields['begintime'] = alarmedObject.time
             currObject.fields['typealarm'] = unicode(alarmedObject.actualAlarm)
-            currObject.fields['begintime'] = unicode(alarmedObject.time)
-            currObject.fields['alarmtime'] = unicode(
-                int(alarmedObject.time) * alarmedObject.countActual)
             currObject.fields['degree'] = unicode(alarmedObject.degreeAlarm)
             message = unicode.format(mess,
                                   config.HardConfig.hostname,
@@ -3693,7 +3692,7 @@ class Alarm(ConfigurationObject):
                                   alarmedObject.fields['acronym'],
                                   unicode(alarmedObject.lastvalue),
                                   alarmedObject.actualAlarm,
-                                  useful.timestamp_to_date(alarmedObject.time),
+                                  alarmedObject.time,
                                   unicode(alarmedObject.degreeAlarm))
         elif alarmedObject.get_type() == 'd':
             mess = config.getMessage('alarmmanual',lang)
@@ -3706,12 +3705,11 @@ class Alarm(ConfigurationObject):
                                  .fields['unit'])
             else:
                 measure = ''
+            currObject.fields['begintime'] = alarmedObject.fields['time']
             currObject.fields['cont_type'] = elem.get_type()
             currObject.fields['cont_id'] = elem.getID()
             currObject.fields['value'] = unicode(alarmedObject.fields['value'])
             currObject.fields['typealarm'] = unicode(alarmedObject.actualAlarm)
-            currObject.fields['begintime'] = unicode(alarmedObject.fields['time'])
-            currObject.fields['alarmtime'] = unicode(alarmedObject.fields['time'])
             currObject.fields['degree'] = '2'
             message = unicode.format(mess,
                                   config.HardConfig.hostname,
@@ -3740,13 +3738,12 @@ class Alarm(ConfigurationObject):
                                  .fields['unit'])
             else:
                 measure = ''
+            currObject.fields['begintime'] = alarmedObject.fields['time']
             currObject.fields['cont_type'] = 'b'
             currObject.fields['cont_id'] = elemid
             currObject.fields['value'] = unicode(alarmedObject.fields['quantity'])
             #TODO: check quantities and automate alarm launch...
             currObject.fields['typealarm'] = "typical"
-            currObject.fields['begintime'] = unicode(alarmedObject.fields['time'])
-            currObject.fields['alarmtime'] = unicode(alarmedObject.fields['time'])
             currObject.fields['degree'] = '2'
             message = unicode.format(mess,
                                   config.HardConfig.hostname,
@@ -4010,7 +4007,7 @@ class Sensor(AlarmingObject):
         if self.degreeAlarm == 0:
             self.degreeAlarm = 1
             self.countAlarm = 0
-            self.time = now
+            self.time = useful.timestamp_to_date(now)
             alarmCode = self.get_alarm()
             if int(float(self.fields['lapse1'])) == 0:
                 if alarmCode:
@@ -4476,7 +4473,13 @@ class Sensor(AlarmingObject):
             self.fields[elem] = data[elem]
         self.add_component(data['component'])
         self.add_measure(data['measure'])
-        self.createRRD()
+
+        #self.createRRD()
+        # Check if RRD exists but do not erase all previous data without reason!
+        filename = os.path.join(DIR_RRD, self.getRRDName())
+        if not os.path.exists(filename):
+            self.createRRD()
+
         self.save(c, user)
 
 
@@ -4631,6 +4634,13 @@ class Batch(ConfigurationObject):
             traceback.print_exc()
             tmp += configuration.getMessage('timerules',lang) + '\n'
 
+##        if 'completedtime' in data and data['completedtime']:
+##            try:
+##                value = useful.transform_date(data['completedtime'])
+##            except:
+##                traceback.print_exc()
+##                tmp += configuration.getMessage('timerules',lang) + '\n'
+
         try:
             value = float(data['cost'])
             if value < 0.0:
@@ -4655,8 +4665,16 @@ class Batch(ConfigurationObject):
     def set_value_from_data(self, data, c, user):
         super(Batch, self).set_value_from_data(data, c, user)
         tmp = ['basicqt', 'time', 'cost']
+        
         for elem in tmp:
             self.fields[elem] = data[elem]
+
+        if 'completedtime' in data and data['completedtime']:
+            try:
+                self.fields['completedtime']= useful.transform_date(data['completedtime'])
+            except:
+                self.fields['completedtime']= useful.now()
+
         self.add_measure(data['measure'])
         self.fields['gr_id'] = data['group']
         self.save(c, user)

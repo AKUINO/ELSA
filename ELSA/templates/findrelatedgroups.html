@@ -236,6 +236,7 @@ $elif type == 'gr':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('batch',self.lang) :</label>    
 	$for b in c.AllBatches.get_batches_for_recipes([id]):
+	    $if not b.isComplete():
 		<script>
 		    $$(function(){
 			$$("#includedMenub_$(b.getID())").load("/fullentry/b_$(b.getID())");

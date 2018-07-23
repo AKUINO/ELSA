@@ -354,6 +354,8 @@ Heure : {9}"	1
 2016-01-01 13:45:56	FR	target	Destination	1
 2016-01-01 13:45:56	EN	time	Time	1
 2016-01-01 13:45:56	FR	time	Heure	1
+2016-01-01 13:45:56	EN	completedtime	Batch completed at	1
+2016-01-01 13:45:56	FR	completedtime	Lot complété à	1
 2016-01-01 13:45:56	EN	timerules	The time must be in this format Year-Month-Day Hour:Minute:Second	1
 2016-01-01 13:45:56	FR	timerules	La date/heure doit être au format Année-Mois-Jour Heure:Minute:Secondes	1
 2016-01-01 13:45:56	EN	transfer	Transfer	1
