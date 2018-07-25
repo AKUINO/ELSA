@@ -106,6 +106,7 @@ class valueCategory(object):
         self.color = color
         self.text_color = text_color
 
+    # triple returns 4 values for a given category !
     def triple(self):
         return self.name, self.acronym, self.color, self.text_color
 
@@ -805,6 +806,22 @@ class ConfigurationObject(object):
         if self.fields['active'] == '0':
             result = '<span class="icon-combine">'+result+'<span class="halflings halflings-remove text-danger"></span></span>'
         return result
+
+    def getTypeAlarm(self, value, model=None):
+        if (value == None) or (value==''):
+            return valueCategs[3].triple()
+        value = float(value)
+        bounds = model.fields if model else self.fields
+        if bounds['minmin'] and value <= float(bounds['minmin']):
+            return valueCategs[-2].triple()
+        elif bounds['min'] and value <= float(bounds['min']):
+            return valueCategs[-1].triple()
+        elif bounds['maxmax'] and value >= float(bounds['maxmax']):
+            return valueCategs[2].triple()
+        elif bounds['max'] and value >= float(bounds['max']):
+            return valueCategs[1].triple()
+        else:
+            return valueCategs[0].triple()
 
 class UpdateThread(threading.Thread):
 
@@ -2215,7 +2232,6 @@ class Container(ConfigurationObject):
     def get_group(self):
         return self.fields['gu_id']
 
-
 class AlarmingObject(ConfigurationObject):
 
     def __init__(self):
@@ -2259,23 +2275,6 @@ class AlarmingObject(ConfigurationObject):
             bounds['lapse2'] = 99999999
         if bounds['lapse3'] == '':
             bounds['lapse3'] = 99999999
-
-
-    def getTypeAlarm(self, value, model=None):
-        if (value == None) or (value==''):
-            return valueCategs[3].triple()
-        value = float(value)
-        bounds = model.fields if model else self.fields
-        if bounds['minmin'] and value <= float(bounds['minmin']):
-            return valueCategs[-2].triple()
-        elif bounds['min'] and value <= float(bounds['min']):
-            return valueCategs[-1].triple()
-        elif bounds['maxmax'] and value > float(bounds['maxmax']):
-            return valueCategs[2].triple()
-        elif bounds['max'] and value > float(bounds['max']):
-            return valueCategs[1].triple()
-        else:
-            return valueCategs[0].triple()
 
 class ManualData(AlarmingObject):
 
@@ -3862,6 +3861,28 @@ class Measure(ConfigurationObject):
         except:
             step_dec = 'any'
         return step_dec
+
+    def integers_count(self):
+        step = self.fields['step']
+        if not self.fields['min']:
+            return 0
+        if not self.fields['max']:
+            return 0
+        if not step or step=='0': # one by one
+            return int(self.fields['max'])-int(self.fields['min']) + 1
+        else:
+            return 0
+        
+    def valuesRange(self):
+        step = self.get_html_step()
+        if step != 'any':
+            if self.fields['min'] and self.fields['max']:
+                step = int(step)
+                i = int(self.fields['min'])
+                end = int(self.fields['max'])
+                while i <= end:
+                    yield i
+                    i+=step
     
     def get_select_str(self, lang):
         acr = self.fields['acronym']
