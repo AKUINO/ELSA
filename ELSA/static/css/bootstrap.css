@@ -193,8 +193,6 @@ th {
   *,
   *:before,
   *:after {
-    color: #000 !important;
-    text-shadow: none !important;
     background: transparent !important;
     -webkit-box-shadow: none !important;
             box-shadow: none !important;
@@ -204,10 +202,10 @@ th {
     text-decoration: underline;
   }
   a[href]:after {
-    content: " (" attr(href) ")";
+    content: "";
   }
   abbr[title]:after {
-    content: " (" attr(title) ")";
+    content: "";
   }
   a[href^="#"]:after,
   a[href^="javascript:"]:after {
@@ -249,19 +247,8 @@ th {
   .dropup > .btn > .caret {
     border-top-color: #000 !important;
   }
-  .label {
-    border: 1px solid #000;
-  }
   .table {
     border-collapse: collapse !important;
-  }
-  .table td,
-  .table th {
-    background-color: #fff !important;
-  }
-  .table-bordered th,
-  .table-bordered td {
-    border: 1px solid #ddd !important;
   }
 }
 @font-face {

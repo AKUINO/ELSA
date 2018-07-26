@@ -94,7 +94,7 @@ $for operation in events:
                        	$ average /= count
 			<tr style="padding:3px"><td></td><td style="text-align:right;background-color:#EEE;padding:3px">$(useful.timestamp_to_time(end-begin) )mn</td>
 				<td style="padding:3px"><a href="/graphic/s_$(sensorId)">$:sensor.statusIcon(c)</a>
-				</td><td>$(sensor.fields['acronym']) - <strong>$(sensor.getName(self.lang))</strong>
+				</td><td style="padding:3px" colspan="2">$(sensor.fields['acronym']) - <strong>$(sensor.getName(self.lang))</strong>
 					$code:
 					    kmeasure = sensor.fields['m_id']
 					    measure = None
