@@ -142,3 +142,12 @@ def transform_date(date):
 
 def now():
     return unicode(datetime.datetime.now().strftime(datetimeformat))
+
+def shorten_time(longTime, prevTime):
+    if not longTime:
+        return ""
+    elif longTime == prevTime:
+        return ' " " " '
+    elif longTime[:11] == prevTime[:11]:
+        return longTime[11:]
+    return longTime

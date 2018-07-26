@@ -5,6 +5,7 @@ import urllib
 import ConfigurationELSA as elsa
 import myuseful as useful
 import traceback
+import math as mathlibrary
 import sys
 import shutil
 import os
@@ -589,7 +590,8 @@ class WebMapBatch():
         lang = c.connectedUsers.users[mail].cuser.fields['language']
         
         if id in c.AllBatches.elements.keys():
-            return render.mapbatch(mail, type, id)
+            elem = c.AllBatches.elements[id]
+            return render.mapbatch(mail, elem)
         return render.notfound()
 
 class WebGraphRecipe():
@@ -1195,7 +1197,9 @@ def main():
             c = elsa.Configuration(None)
         c.load()
         web.template.Template.globals['c'] = c
+        web.template.Template.globals['str'] = str
         web.template.Template.globals['useful'] = useful
+        web.template.Template.globals['round'] = round
         web.template.Template.globals['subprocess'] = subprocess
         layout = web.template.frender(elsa.TEMPLATES_DIR+'/layout.html')
         render = web.template.render(elsa.TEMPLATES_DIR, base=layout)

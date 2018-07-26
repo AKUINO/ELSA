@@ -794,6 +794,20 @@ class ConfigurationObject(object):
                                     .elements[self.transfers[count-1]]
         return configuration.AllTransfers.elements[self.transfers[-1]]
 
+    def get_all_in_component(self, config, begin, end, infos=None):
+        if infos is None:
+            infos = {}
+        sensors = self.get_sensors_in_component(config)
+        tmp = self.get_transfers_in_time_interval(begin, end)
+        if len(tmp) > 0:
+            for t in tmp:
+                infos = t.get_cont().get_all_in_component(
+                    config, begin, end, infos)
+        for a in sensors:
+            if a not in infos.keys():
+                infos[a] = config.AllSensors.elements[a].fetch(begin, end)
+        return infos
+
     def isActive(self):
         if not 'active' in self.fields:
             return True
@@ -3193,7 +3207,7 @@ class ExportData():
                 if e.get_type() == 't':
                     e = self.config.getObject(
                         e.fields['cont_id'], e.fields['cont_type'])
-                    infos = self.get_all_in_component(e, begin, end)
+                    infos = e.get_all_in_component(self.config, begin, end, None)
                     lastSensor = e
                 if infos is not None:
                     self.add_value_from_sensors(infos)

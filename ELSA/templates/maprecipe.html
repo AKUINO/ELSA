@@ -57,7 +57,17 @@ $for usageTop in usagesTop:
 				$if krecipe and krecipe in c.AllGrRecipe.elements:
 					$ recipe = c.AllGrRecipe.elements[krecipe]
 					<a href="/find/related/gr_$krecipe">$:(recipe.statusIcon(c))$(recipe.fields['acronym'])</a>
-				
+			$elif op_type == 'dm':
+				$ kmeasure = operation.fields['m_id']
+				$ measure = None
+				$if kmeasure and kmeasure in c.AllMeasures.elements:
+				     $ measure = c.AllMeasures.elements[kmeasure]
+	                        $if measure:
+				     $(measure.getName(self.lang))
+				: <strong>$(operation.fields['typical'])</strong>
+				$if measure:
+				     $measure.fields['unit']
+			<div style="color:red;float:right;">$(operation.fields['remark'])</div>
 		        </div>
 		    $ done.add('h_'+checkpoint.getID())
         </div>

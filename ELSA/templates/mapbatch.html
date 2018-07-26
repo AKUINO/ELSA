@@ -1,10 +1,10 @@
-$def with (mail, type, id)
+$def with (mail, elem)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : False
 $var title : Map Recipe
 $var location :
 $code:
-    elem = c.AllBatches.elements[id]
+    id = elem.getID()
     krecipe = elem.get_group()
     summit = []
     usagesTop = []
@@ -15,6 +15,8 @@ $code:
 	    summit = [krecipe] + recipe.get_supermap_str()
 	    usagesTop = c.AllGrUsage.get_usages_for_recipe(summit)
     events = elem.get_events(c)
+    #pseudo event to signal END of events!
+    events.append(elem)
     done = set()
 <div class="container">
     <div class="row">
@@ -26,13 +28,18 @@ $code:
 		    <a href="/find/related/gr_$krecipe">$:(recipe.statusIcon(c))$recipe.fields['acronym'] <strong>$recipe.getName(self.lang)</strong></a>
 		</div>
     </div>
-$ prev = ""
-$ prevtime=elem.getTimestamp()
-$ done = set()
+$code:
+    prev = ""
+    prevtime=elem.getTimestamp()
+    beginT = prevtime
+    longTime = ""
+    done = set()
+    batch_location = None
 <table style="padding:3px;border:1px solid #333;">
 $for operation in events:
-	$if operation.fields['h_id'] != prev:
-		<tr style="padding:3px"><td style="text-align:right;background-color:#EEE;padding:3px">$(useful.timestamp_to_time(operation.getTimestamp()-prevtime) )mn</td>
+	$ op_type = operation.get_type()
+	$if op_type != 'b' and operation.fields['h_id'] != prev:
+		<tr style="padding:3px"><td></td><td style="text-align:right;background-color:#EEE;padding:3px">$(useful.timestamp_to_time(operation.getTimestamp()-prevtime) )mn</td>
 		$ prev = operation.fields['h_id']
 		$if prev and prev in c.AllCheckPoints.elements:
 			$ checkpoint = c.AllCheckPoints.elements[prev]
@@ -44,14 +51,83 @@ $for operation in events:
 				$else:
 				    <a name="h_$acro"></a>$acro <span class="light">#$checkpoint.fields['rank']</span> - <strong>$(checkpoint.getName(self.lang))</strong>
 				    $ done.add(prev)
-			</th><td style="padding:3px;border-top:1px solid #333;">$(checkpoint.fields['remark'])</td></tr>
+			</th><td style="padding:3px;border-top:1px solid #333;color:red;">$(checkpoint.fields['remark'])</td></tr>
 		$else:
 			<td style="padding:3px;border-top:1px solid #333;">&nbsp;</td>
 			<td colspan="2" style="padding:3px;border-top:1px solid #333;">&nbsp;</td></th>
 		$ prevtime = operation.getTimestamp()
-	$ op_type = operation.get_type()
-        <tr style="padding:3px">
-		<th style="padding:3px">$(operation.fields['time'])</th>		
+	$ endT = None
+	$if op_type == 't':
+	  $ endT = operation.getTimestamp()
+	$elif op_type == 'b':
+	  $ endT = useful.get_timestamp()
+	$if endT:
+	  $if batch_location:
+	    $ infos = batch_location.get_cont().get_all_in_component(c, beginT, endT)
+	    $for sensorId,sensorData in infos.items():
+		$ sensor = None
+	        $if sensorData:
+		    $ sensor = c.AllSensors.elements[sensorId]
+		    $if sensor.isActive():
+	              $code:
+			count = 0
+			average = 0
+			begin = sensorData[0][0]
+			min = None
+			max = None
+			timemin = begin
+			timemax = begin
+	                for value in sensorData:
+	                    tmp = value[1][0]
+			    if tmp is not None:
+				tmp = float(tmp)
+		                end = value[0]
+	                	count += 1
+	                	average += tmp
+	                	if min is None or (tmp < min):
+	                	    min = tmp
+	                            timemin = end
+	                	if max is None or (tmp > max):
+	                            max = tmp
+                                    timemax = end
+	              $if count > 0:
+                       	$ average /= count
+			<tr style="padding:3px"><td></td><td style="text-align:right;background-color:#EEE;padding:3px">$(useful.timestamp_to_time(end-begin) )mn</td>
+				<td style="padding:3px"><a href="/graphic/s_$(sensorId)">$:sensor.statusIcon(c)</a>
+				</td><td>$(sensor.fields['acronym']) - <strong>$(sensor.getName(self.lang))</strong>
+					$code:
+					    kmeasure = sensor.fields['m_id']
+					    measure = None
+					    if kmeasure and kmeasure in c.AllMeasures.elements:
+					         measure = c.AllMeasures.elements[kmeasure]
+					    if measure:
+					         step = int(measure.fields['step'])
+					         min = round(min,step)
+					         max = round(max,step)
+					         average = round(average,step)
+					    timemin = useful.timestamp_to_date(timemin)
+					: $(min)($useful.shorten_time(timemin,longTime))
+					&lt; <strong>$(average)
+					$if measure:
+					     $measure.fields['unit']
+					</strong> &lt; $(max)($useful.shorten_time(useful.timestamp_to_date(timemax),timemin))
+					$if measure:
+					     ($(measure.getName(self.lang)))
+				</td>
+			</tr>
+	  $ beginT = endT
+	  $if op_type == 't':
+		$ batch_location = operation
+	$if op_type != 'b':
+            <tr style="padding:3px">
+		$ user = operation.fields['user']
+		$if user in c.AllUsers.elements:
+		    $ user = c.AllUsers.elements[user]
+		    $if user.fields['acronym']:
+                        $ user = user.fields['acronym']
+		<th style="padding:3px">$(user)</th>		
+		<th style="padding:3px;text-align:right">$(useful.shorten_time(operation.fields['time'],longTime))</th>
+		$ longTime = operation.fields['time']
 		<td style="padding:3px"><a href="/edit/$(op_type)_$(operation.getID())">$:operation.statusIcon(c)</a>
 		</td><td>
                 $ sourceModel = None
@@ -90,7 +166,7 @@ $for operation in events:
 			$if measure:
 			     $measure.fields['unit']
 		</td>
-		<td style="padding:3px">$(operation.fields['remark'])</td>
-        </tr>
+		<td style="padding:3px;color:red;">$(operation.fields['remark'])</td>
+            </tr>
 </table>
 </div>
