@@ -14,7 +14,8 @@ $for krecipe in listRecipe:
 		$ level -= 1
 		</div>
 	$else:
-		$ elem = c.AllGrRecipe.elements[krecipe]
+	    $ elem = c.AllGrRecipe.elements[krecipe]
+	    $if elem.isActive():
 		$if level == 0:
 			<div class="map top">
 		$else:

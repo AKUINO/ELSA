@@ -35,27 +35,34 @@ $code:
     longTime = ""
     done = set()
     batch_location = None
+    row = False
 <table style="padding:3px;border:1px solid #333;">
+	$ prev_duration = -1
 $for operation in events:
 	$ op_type = operation.get_type()
 	$if op_type != 'b' and operation.fields['h_id'] != prev:
-		<tr style="padding:3px"><td></td><td style="text-align:right;background-color:#EEE;padding:3px">$(useful.timestamp_to_time(operation.getTimestamp()-prevtime) )mn</td>
+		$ duration = operation.getTimestamp()-prevtime
+		<tr style="padding:3px;border-top:1px solid #333;"><td></td><td style="text-align:right;padding:3px">$(useful.timestamp_to_time(duration) if prev_duration != duration else '" " " ')</td>
+		$ prev_duration = duration
 		$ prev = operation.fields['h_id']
 		$if prev and prev in c.AllCheckPoints.elements:
 			$ checkpoint = c.AllCheckPoints.elements[prev]
-			        <td style="padding:3px;border-top:1px solid #333;"><a href="/find/related/h_$checkpoint.getID()">$:(checkpoint.statusIcon(c))</a></td>
-				<th style="padding:3px;border-top:1px solid #333;">
-				$ acro = checkpoint.fields['acronym']
-				$if prev in done:
-				    <a href="#h_$acro">$acro</a> <span class="light">#$checkpoint.fields['rank']</span>
-				$else:
-				    <a name="h_$acro"></a>$acro <span class="light">#$checkpoint.fields['rank']</span> - <strong>$(checkpoint.getName(self.lang))</strong>
-				    $ done.add(prev)
-			</th><td style="padding:3px;border-top:1px solid #333;color:red;">$(checkpoint.fields['remark'])</td></tr>
+		        <td><a href="/find/related/h_$checkpoint.getID()">$:(checkpoint.statusIcon(c))</a></td>
+			<th>
+			$ acro = checkpoint.fields['acronym']
+			$if prev in done:
+			    <a href="#h_$acro">$acro</a>
+			$else:
+			    <a name="h_$acro"></a>$acro - <strong>$(checkpoint.getName(self.lang))</strong>
+			    $ done.add(prev)
+			$if checkpoint.fields['remark'] :
+			    <br/><span style="solid #333;color:red;">$(checkpoint.fields['remark'])</span>
+			</th><td style="text-align:right"><span class="light">#$checkpoint.fields['rank']</span></td></tr>
 		$else:
 			<td style="padding:3px;border-top:1px solid #333;">&nbsp;</td>
 			<td colspan="2" style="padding:3px;border-top:1px solid #333;">&nbsp;</td></th>
 		$ prevtime = operation.getTimestamp()
+		$ row = True
 	$ endT = None
 	$if op_type == 't':
 	  $ endT = operation.getTimestamp()
@@ -64,6 +71,7 @@ $for operation in events:
 	$if endT:
 	  $if batch_location:
 	    $ infos = batch_location.get_cont().get_all_in_component(c, beginT, endT)
+	    $ prev_duration = -1
 	    $for sensorId,sensorData in infos.items():
 		$ sensor = None
 	        $if sensorData:
@@ -92,9 +100,13 @@ $for operation in events:
                                     timemax = end
 	              $if count > 0:
                        	$ average /= count
-			<tr style="padding:3px"><td></td><td style="text-align:right;background-color:#EEE;padding:3px">$(useful.timestamp_to_time(end-begin) )mn</td>
+			$ Acolor = None
+			<tr style="padding:3px$(";background-color:#eee" if row else "")">
+				$ duration = end-begin
+				<td></td><td style="text-align:right;padding:3px">$(useful.timestamp_to_time(duration) if prev_duration != duration else '" " " ' )</td>
+				$ prev_duration = duration
 				<td style="padding:3px"><a href="/graphic/s_$(sensorId)">$:sensor.statusIcon(c)</a>
-				</td><td style="padding:3px" colspan="2">$(sensor.fields['acronym']) - <strong>$(sensor.getName(self.lang))</strong>
+				</td><td style="padding:3px">$(sensor.fields['acronym']) - <strong>$(sensor.getName(self.lang))</strong>
 					$code:
 					    kmeasure = sensor.fields['m_id']
 					    measure = None
@@ -105,21 +117,40 @@ $for operation in events:
 					         min = round(min,step)
 					         max = round(max,step)
 					         average = round(average,step)
+					         Aname, Aacronym, Acolor, Atext_color = sensor.getTypeAlarm(average,None)
+						 if Aname == 'typical':
+							Acolor = None
+					         MNname, MNacronym, MNcolor, MNtext_color = sensor.getTypeAlarm(min,None)
+						 if MNname == 'typical':
+							MNcolor = None
+					         MXname, MXacronym, MXcolor, MXtext_color = sensor.getTypeAlarm(max,None)
+						 if MXname == 'typical':
+							MXcolor = None
 					    timemin = useful.timestamp_to_date(timemin)
-					: $(min)($useful.shorten_time(timemin,longTime))
-					&lt; <strong>$(average)
+					<br/>
+					$if measure:
+					     $(measure.getName(self.lang)),
+					Min: <span style="$(("background-color:#"+str(MNcolor)+"; color:#"+str(MNtext_color)) if MNcolor else "");padding:4px">
+					$(min)</span>, 
+					Max: <span style="$(("background-color:#"+str(MXcolor)+"; color:#"+str(MXtext_color)) if MXcolor else "");padding:4px">
+					$(max)</span>
 					$if measure:
 					     $measure.fields['unit']
-					</strong> &lt; $(max)($useful.shorten_time(useful.timestamp_to_date(timemax),timemin))
+				</td>
+				<td style="text-align:right;padding:3px">
+					<span style="$(("background-color:#"+str(Acolor)+"; color:#"+str(Atext_color)) if Acolor else "");padding:4px">
+					<strong>$(average)
 					$if measure:
-					     ($(measure.getName(self.lang)))
+					     $measure.fields['unit']
+					</strong></span>
 				</td>
 			</tr>
+			$ row = not row
 	  $ beginT = endT
 	  $if op_type == 't':
 		$ batch_location = operation
 	$if op_type != 'b':
-            <tr style="padding:3px">
+            <tr style="padding:3px$(";background-color:#eee" if row else "")">
 		$ user = operation.fields['user']
 		$if user in c.AllUsers.elements:
 		    $ user = c.AllUsers.elements[user]
@@ -135,6 +166,7 @@ $for operation in events:
 			$ sourceModel = c.getObject(operation.fields[op_type+'m_id'], op_type+"m")
 			$if sourceModel:
 				<a href="/find/related/$(op_type)m_$(operation.fields[op_type+'m_id'])" style="color:#28A4C9">$(sourceModel.fields['acronym'])</a> - <strong>$(sourceModel.getName(self.lang))</strong>
+		$ measure = None
 		$if op_type == 't':
 		    $ dest = operation.get_cont()
 		    $:c.getHalfling('to')
@@ -150,23 +182,36 @@ $for operation in events:
 			$if kbatch and kbatch in c.AllBatches.elements:
 				$ batch = c.AllBatches.elements[kbatch]
 				<a href="/find/related/b_$kbatch">$:(batch.statusIcon(c))$(batch.fields['acronym'])</a> $batch.getName(self.lang)
-			: <strong>$(operation.fields['quantity'])</strong>
 			$ kmeasure = operation.fields['m_id']
 			$if kmeasure and kmeasure in c.AllMeasures.elements:
 				$ measure = c.AllMeasures.elements[kmeasure]
-				$measure.fields['unit'] ($(measure.getName(self.lang)))
+				<div style="float:right">$(measure.getName(self.lang)): </div>
 		$elif op_type == 'd':
-			$ kmeasure = operation.fields['m_id']
-			$ measure = None
-			$if kmeasure and kmeasure in c.AllMeasures.elements:
-			     $ measure = c.AllMeasures.elements[kmeasure]
-                        $if not sourceModel and measure:
-			     $(measure.getName(self.lang))
-			: <strong>$(operation.fields['value'])</strong>
+			$code:
+			    kmeasure = operation.fields['m_id']
+			    Acolor = None
+			    if kmeasure and kmeasure in c.AllMeasures.elements:
+			        measure = c.AllMeasures.elements[kmeasure]
+			    if sourceModel and operation.fields['value']:
+				qtity = int(operation.fields['value'])
+			        Aname, Aacronym, Acolor, Atext_color = sourceModel.getTypeAlarm(qtity,None)
+				if Aname == 'typical':
+				    Acolor = None
+		$if operation.fields['remark']:
+			<br/><span style="padding:3px;color:red;">$(operation.fields['remark'])</span>
+		</td><td style="text-align:right;padding:3px">
+		$if op_type == 'v':
+			<strong>$(operation.fields['quantity'])</strong>
 			$if measure:
-			     $measure.fields['unit']
+			    $measure.fields['unit']
+		$elif op_type == 'd':
+			<span style="$(("background-color:#"+str(Acolor)+"; color:#"+str(Atext_color)) if Acolor else "");padding:4px">
+			<strong>$(operation.fields['value'])</strong>
+			$if measure:
+			    $measure.fields['unit']
+			</span>
 		</td>
-		<td style="padding:3px;color:red;">$(operation.fields['remark'])</td>
             </tr>
+	    $ row = not row
 </table>
 </div>

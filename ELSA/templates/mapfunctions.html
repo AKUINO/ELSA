@@ -15,15 +15,16 @@ $for kfunction in listFunction:
 		</div>
 	$else:
 		$ elem = c.AllGrFunction.elements[kfunction]
-		$if level == 0:
+		$if elem.isActive():
+		    $if level == 0:
 			<div class="map top">
-		$else:
+		    $else:
 			<div class="map down">
-		<a href="/find/related/gf_$kfunction">$:(elem.statusIcon(c))</a>
-		$ acro = elem.fields['acronym']
-		$if ('gf_'+kfunction) in done:
+		    <a href="/find/related/gf_$kfunction">$:(elem.statusIcon(c))</a>
+		    $ acro = elem.fields['acronym']
+		    $if ('gf_'+kfunction) in done:
 			<a href="#gf_$acro">$acro</a>
-		$else:
+		    $else:
 			<a name="gf_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>
 			$for kuser in c.AllUsers.elements:
 				$ user = c.AllUsers.elements[kuser]

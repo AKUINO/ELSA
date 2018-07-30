@@ -14,7 +14,8 @@ $for kcheckpoint in listCheckPoint:
 		$ level -= 1
 		</div>
 	$else:
-		$ elem = c.AllCheckPoints.elements[kcheckpoint]
+	    $ elem = c.AllCheckPoints.elements[kcheckpoint]
+	    $if elem.isActive():
 		$if level == 0:
 			<div class="map top">
 		$else:

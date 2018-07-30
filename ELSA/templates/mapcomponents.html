@@ -14,7 +14,8 @@ $for kusage in listUsage:
 		$ level -= 1
 		</div>
 	$else:
-		$ elem = c.AllGrUsage.elements[kusage]
+	    $ elem = c.AllGrUsage.elements[kusage]
+	    $if elem.isActive():
 		$if level == 0:
 			<div class="map top">
 		$else:
