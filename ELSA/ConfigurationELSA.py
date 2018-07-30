@@ -2322,7 +2322,7 @@ class ManualData(AlarmingObject):
     def validate_form(self, data, configuration, lang):
         tmp = ''
         try:
-            value = useful.transform_date(data['time'])
+            value = useful.date_to_ISO(data['time'])
         except:
             traceback.print_exc()
             tmp += configuration.getMessage('timerules',lang) + '\n'
@@ -2415,7 +2415,7 @@ class Pouring(ConfigurationObject):
     def validate_form(self, data, configuration, lang):
         tmp = ''
         try:
-            value = useful.transform_date(data['time'])
+            value = useful.date_to_ISO(data['time'])
         except:
             tmp += configuration.getMessage('timerules',lang) + '\n'
         try:
@@ -2833,7 +2833,7 @@ class CheckPoint(Group):
         counttm = 1
         tmp = ''
         try:
-            value = useful.transform_date(data['time'])
+            value = useful.date_to_ISO(data['time'])
         except:
             traceback.print_exc()
             tmp += self.config.getMessage('timerules',lang) + '\n'
@@ -4664,14 +4664,14 @@ class Batch(ConfigurationObject):
         if tmp is True:
             tmp = ''
         try:
-            value = useful.transform_date(data['time'])
+            value = useful.date_to_ISO(data['time'])
         except:
             traceback.print_exc()
             tmp += configuration.getMessage('timerules',lang) + '\n'
 
 ##        if 'completedtime' in data and data['completedtime']:
 ##            try:
-##                value = useful.transform_date(data['completedtime'])
+##                value = useful.date_to_ISO(data['completedtime'])
 ##            except:
 ##                traceback.print_exc()
 ##                tmp += configuration.getMessage('timerules',lang) + '\n'
@@ -4704,11 +4704,19 @@ class Batch(ConfigurationObject):
         for elem in tmp:
             self.fields[elem] = data[elem]
 
+        completed = None
         if 'completedtime' in data and data['completedtime']:
             try:
-                self.fields['completedtime']= useful.transform_date(data['completedtime'])
+                completed= useful.date_to_ISO(data['completedtime'])
             except:
+                completed= useful.now()
+        if 'iscompleted' in data and data['iscompleted']:
+            if completed:
+                self.fields['completedtime']= completed
+            else:
                 self.fields['completedtime']= useful.now()
+        else:
+            self.fields['completedtime']= ""
 
         self.add_measure(data['measure'])
         self.fields['gr_id'] = data['group']

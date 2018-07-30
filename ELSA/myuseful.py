@@ -115,29 +115,18 @@ def date_to_timestamp(date):
     return (tmp - datetime.datetime(1970, 1, 1)).total_seconds()
 
 def date_to_ISO(date):
-    try:
-        tmp = datetime.datetime.strptime(date, datetimeformat)
-    except:  # old format ?
-        try:
-            tmp = datetime.datetime.strptime(date, "%H:%M:%S  -  %d/%m/%y")
-        except: # EPOCH timestamp?
-            tmp = datetime.datetime.fromtimestamp(int(date))
-    return tmp.isoformat(sep=' ')
-
-
-def transform_date(date):
     if date:
         try:
-            tmp = datetime.datetime.strptime(date, datetimeformat).isoformat()
+            tmp = datetime.datetime.strptime(date, datetimeformat)
         except:  # old format ?
             try:
                 tmp = datetime.datetime.strptime(
-                    date, "%H:%M:%S  -  %d/%m/%y").isoformat()
+                    date, "%H:%M:%S  -  %d/%m/%y")
             except: # EPOCH timestamp?
-                tmp = datetime.datetime.fromtimestamp(int(date)).isoformat()
+                tmp = datetime.datetime.fromtimestamp(int(date))
+        return tmp.isoformat(sep=' ')
     else:
-        tmp = ''
-    return tmp
+        return ''
 
 
 def now():

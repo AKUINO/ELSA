@@ -185,7 +185,6 @@ $for operation in events:
 			$ kmeasure = operation.fields['m_id']
 			$if kmeasure and kmeasure in c.AllMeasures.elements:
 				$ measure = c.AllMeasures.elements[kmeasure]
-				<div style="float:right">$(measure.getName(self.lang)): </div>
 		$elif op_type == 'd':
 			$code:
 			    kmeasure = operation.fields['m_id']
