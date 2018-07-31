@@ -20,7 +20,7 @@ $for krecipe in listRecipe:
 			<div class="map top">
 		$else:
 			<div class="map down">
-		<a href="/find/related/gr_$krecipe">$:(elem.statusIcon(c))</a>
+		<a href="/find/related/gr_$krecipe">$:(elem.statusIcon(c,True))</a>
 		$ acro = elem.fields['acronym']
 		$if ('gr_'+krecipe) in done:
 			<a href="#gr_$acro">$acro</a>
@@ -29,7 +29,7 @@ $for krecipe in listRecipe:
 			$for batch in c.AllBatches.get_batches_for_recipes([krecipe]):
 				$if batch.isActive() and not batch.isComplete():
 					<div class="map down">
-					<a href="/find/related/b_$batch.getID()">$:(batch.statusIcon(c))</a>
+					<a href="/find/related/b_$batch.getID()">$:(batch.statusIcon(c,True))</a>
 					$ acro = batch.fields['acronym']
 					$if ('b_'+batch.getID()) in done:
 						<a href="#b_$acro">$acro</a>

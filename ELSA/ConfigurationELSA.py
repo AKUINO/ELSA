@@ -814,11 +814,14 @@ class ConfigurationObject(object):
         else:
             return self.fields['active'] == '1'
 
-    def statusIcon(self, configuration):
+    def statusIcon(self, configuration, pic=None):
         allObjects = configuration.findAllFromObject(self)
         result = configuration.getAllHalfling(allObjects)
         if self.fields['active'] == '0':
             result = '<span class="icon-combine">'+result+'<span class="halflings halflings-remove text-danger"></span></span>'
+        if pic:
+	    if self.isImaged():
+		result += "<img src=\""+self.getImageURL()+"\" alt=\""+unicode(self)+"\" height=40>"
         return result
 
     def getTypeAlarm(self, value, model=None):
