@@ -22,6 +22,7 @@ SMTP_PORT = 587
 csvDir = "../ELSAcsv/csv/"
 
 datetimeformat = "%Y-%m-%d %H:%M:%S"
+shortformat = "%y%m%d"
 
 # Returns the value of the key if it exists in the string, None otherwise
 # Exemple : string = "?abc=123&def=456", key = "def", will return 456
@@ -131,6 +132,9 @@ def date_to_ISO(date):
 
 def now():
     return unicode(datetime.datetime.now().strftime(datetimeformat))
+
+def shortNow():
+    return unicode(datetime.datetime.now().strftime(shortformat))
 
 def shorten_time(longTime, prevTime):
     if not longTime:

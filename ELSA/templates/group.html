@@ -206,6 +206,21 @@ $if errormess != '':
 		    </div>
 		</div>
 		
+		<div class="form-group row">
+		    <label for="inputCost" class="col-sm-3 col-form-label">$c.getMessage('cost',self.lang)</label>
+		    <div class="col-sm-9">
+			<input name="cost" type="number" step="0.01" class="form-control" id="inputCost" placeholder="$c.getMessage('cost',self.lang)" 
+			    $if errormess != '':
+				$if 'cost' in data :
+				    value="$data['cost']" 
+			    $elif id == 'new':
+				$if aRecipe:
+					value="$aRecipe.fields['cost']"
+			    $else:
+				value="$elem.fields['cost']"
+			>
+		    </div>
+		</div>
 
 	$if type == 'h':
 	    <div class="form-group row">

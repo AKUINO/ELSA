@@ -339,7 +339,8 @@ class WebList():
                     except:
                         name = 0
                     while count <= borne:
-                        elem.clone(user, (name + count))
+                        if not elem.clone(user, (name + count)):
+                            break
                         count += 1
                 return self.getRender(type, mail)
             except:

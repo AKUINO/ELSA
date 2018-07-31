@@ -1128,9 +1128,10 @@ class AllObjects(object):
         currObject.fields["begin"] = useful.now()
         return currObject
 
-    def unique_acronym(self, acronym, myID):
+    def unique_acronym(self, acronym, myID ):
+        acronym = acronym.lower()
         for k, element in self.elements.items():
-            if element.fields['acronym'] == acronym \
+            if element.fields['acronym'].lower() == acronym \
                     and unicode(myID)!=unicode(element.fields[self.keyColumn]):
                 return False
         return True
@@ -1809,6 +1810,17 @@ class AllBatches(AllObjects):
                     if currObj.get_group() in usages:
                         batches.append(e)
         return batches
+
+    def findNextAcronym(self,prefix,totalLen,count=0):
+        while True:
+            tmp = totalLen - len(prefix) - len(unicode(count))
+            if tmp < 0:
+                return None
+            tmpname = prefix + ('0' * tmp) + unicode(count)
+            cond = self.unique_acronym(tmpname, -1)
+            if cond:
+                return tmpname
+            count += 1
 
 class AllTransfers(AllObjects):
 
@@ -2999,6 +3011,13 @@ class GrRecipe(Group):
 
         self.save(c, user)
 
+    def proposeBatchAcronym(self,configuration):
+        prefix = self.fields['acronym']+u"_"+useful.shortNow()+u"_"
+        acro = configuration.AllBatches.findNextAcronym(prefix,len(prefix)+2,1)
+        if acro:
+            return acro
+        else:
+            return prefix
 
 class GrFunction(Group):
     def __init__(self, config):
@@ -4634,19 +4653,13 @@ class Batch(ConfigurationObject):
     def clone(self, user, name=1):
         b = self.config.getObject('new', 'b')
         b.fields['active'] = self.fields['active']
-        tmp = len(self.fields['acronym']) - \
-            self.fields['acronym'].rfind('_')-1-len(unicode(name))
-        tmpname = self.fields['acronym'][0:self.fields['acronym'].rfind(
-            '_')+1] + '0' * tmp + unicode(name)
         allObjects = self.config.findAllFromObject(self)
-        cond = allObjects.unique_acronym(tmpname, self.id)
-        while not cond:
-            name += 1
-            tmp = len(self.fields['acronym']) - \
-                self.fields['acronym'].rfind('_')-1-len(unicode(name))
-            tmpname = self.fields['acronym'][0:self.fields['acronym'].rfind(
-                '_')+1] + '0' * tmp + str(name)
-            cond = allObjects.unique_acronym(tmpname, self.id)
+        posSuffix = self.fields['acronym'].rfind('_')+1
+        lenAcro = len(self.fields['acronym'])
+        prefix = self.fields['acronym'][0:posSuffix]
+        tmpname = allObjects.findNextAcronym(prefix,lenAcro,name)
+        if not tmpname:
+            return False
         b.fields['acronym'] = tmpname
         b.fields['basicqt'] = self.fields['basicqt']
         b.fields['m_id'] = self.fields['m_id']
@@ -4661,6 +4674,7 @@ class Batch(ConfigurationObject):
         b.creator = user.fields['u_id']
         b.created = b.fields['begin']
         b.save(self.config, user)
+        return True
 
     def validate_form(self, data, configuration, lang):
         tmp = super(Batch, self).validate_form(data, configuration, lang)
