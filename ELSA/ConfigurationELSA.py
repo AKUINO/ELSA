@@ -4276,8 +4276,8 @@ class Sensor(AlarmingObject):
                     cache = info
                     output_val = eval(self.fields['subsensor'])
                 except:
-                    debugging = u"URL="+url+u", code=" + \
-                        unicode(code)+u", Response="+info + \
+                    debugging = u"URL="+(url if url else "")+u", code=" + \
+                        (unicode(code) if code else "")+u", Response="+(info if info else "") + \
                         u", Message="+traceback.format_exc()
                 if sensorfile:
                     sensorfile.close()
@@ -4309,13 +4309,13 @@ class Sensor(AlarmingObject):
                     cache = info
                     output_val = eval(self.fields['subsensor'])
                 except:
-                    debugging = (u"URL=" + url
+                    debugging = (u"URL=" + (url if url else "")
                                          + u", code="
-                                         + unicode(code)
+                                         + (unicode(code) if code else "")
                                          + u", Response="
-                                         + unicode(info)
+                                         + (unicode(info) if info else "")
                                          + u", Subsensor="
-                                         + self.fields['subsensor']
+                                         + (self.fields['subsensor'] if self.fields['subsensor'] else "")
                                          + u", Message="
                                          + traceback.format_exc())
                 if sensorfile:

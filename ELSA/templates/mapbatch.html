@@ -21,11 +21,11 @@ $code:
 <div class="container">
     <div class="row">
 	<div class="col-xs-6">
-	    <a href="/find/related/b_$id">$:(elem.statusIcon(c))$elem.fields['acronym'] <strong>$elem.getName(self.lang)</strong></a>
+	    <a href="/find/related/b_$id">$:(elem.statusIcon(c,True))$elem.fields['acronym'] <strong>$elem.getName(self.lang)</strong></a>
 	</div>
 	$if recipe:
 		<div class="col-xs-5">
-		    <a href="/find/related/gr_$krecipe">$:(recipe.statusIcon(c))$recipe.fields['acronym'] <strong>$recipe.getName(self.lang)</strong></a>
+		    <a href="/find/related/gr_$krecipe">$:(recipe.statusIcon(c,True))$recipe.fields['acronym'] <strong>$recipe.getName(self.lang)</strong></a>
 		</div>
     </div>
 $code:
@@ -47,7 +47,7 @@ $for operation in events:
 		$ prev = operation.fields['h_id']
 		$if prev and prev in c.AllCheckPoints.elements:
 			$ checkpoint = c.AllCheckPoints.elements[prev]
-		        <td><a href="/find/related/h_$checkpoint.getID()">$:(checkpoint.statusIcon(c))</a></td>
+		        <td><a href="/find/related/h_$checkpoint.getID()">$:(checkpoint.statusIcon(c,True))</a></td>
 			<th>
 			$ acro = checkpoint.fields['acronym']
 			$if prev in done:
@@ -105,7 +105,7 @@ $for operation in events:
 				$ duration = end-begin
 				<td></td><td style="text-align:right;padding:3px">$(useful.timestamp_to_time(duration) if prev_duration != duration else '" " " ' )</td>
 				$ prev_duration = duration
-				<td style="padding:3px"><a href="/graphic/s_$(sensorId)">$:sensor.statusIcon(c)</a>
+				<td style="padding:3px"><a href="/graphic/s_$(sensorId)">$:sensor.statusIcon(c,True)</a>
 				</td><td style="padding:3px">$(sensor.fields['acronym']) - <strong>$(sensor.getName(self.lang))</strong>
 					$code:
 					    kmeasure = sensor.fields['m_id']
@@ -159,7 +159,7 @@ $for operation in events:
 		<th style="padding:3px">$(user)</th>		
 		<th style="padding:3px;text-align:right">$(useful.shorten_time(operation.fields['time'],longTime))</th>
 		$ longTime = operation.fields['time']
-		<td style="padding:3px"><a href="/edit/$(op_type)_$(operation.getID())">$:operation.statusIcon(c)</a>
+		<td style="padding:3px"><a href="/edit/$(op_type)_$(operation.getID())">$:operation.statusIcon(c,True)</a>
 		</td><td>
                 $ sourceModel = None
 		$if (operation.fields[op_type+'m_id']):
@@ -170,7 +170,7 @@ $for operation in events:
 		$if op_type == 't':
 		    $ dest = operation.get_cont()
 		    $:c.getHalfling('to')
-		    <a href="/find/related/$dest.get_type()_$dest.getID()">$:(dest.statusIcon(c))$(dest.fields['acronym'])</a> $dest.getName(self.lang)
+		    <a href="/find/related/$dest.get_type()_$dest.getID()">$:(dest.statusIcon(c,True))$(dest.fields['acronym'])</a> $dest.getName(self.lang)
 		$elif op_type == 'v':
 			$ kbatch = ''
 			$if operation.fields['dest']==id:
@@ -181,7 +181,7 @@ $for operation in events:
 				$ kbatch = operation.fields['dest']
 			$if kbatch and kbatch in c.AllBatches.elements:
 				$ batch = c.AllBatches.elements[kbatch]
-				<a href="/find/related/b_$kbatch">$:(batch.statusIcon(c))$(batch.fields['acronym'])</a> $batch.getName(self.lang)
+				<a href="/find/related/b_$kbatch">$:(batch.statusIcon(c,True))$(batch.fields['acronym'])</a> $batch.getName(self.lang)
 			$ kmeasure = operation.fields['m_id']
 			$if kmeasure and kmeasure in c.AllMeasures.elements:
 				$ measure = c.AllMeasures.elements[kmeasure]
