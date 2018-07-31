@@ -4266,9 +4266,9 @@ class Sensor(AlarmingObject):
                                          + traceback.format_exc())
                     traceback.print_exc()
             else:
-                try:
-                    sensorfile = urllib2.urlopen(
-                        self.fields['sensor'], None, 20)
+                sensorfile = None
+                try: #urlopen not usable with "with"
+                    sensorfile = urllib2.urlopen(self.fields['sensor'], None, 20)
                     info = sensorfile.read(80000)
                     cache = info
                     output_val = eval(self.fields['subsensor'])
@@ -4276,7 +4276,7 @@ class Sensor(AlarmingObject):
                     debugging = u"URL="+url+u", code=" + \
                         unicode(code)+u", Response="+info + \
                         u", Message="+traceback.format_exc()
-                finally:
+                if sensorfile:
                     sensorfile.close()
         elif self.fields['channel'] == 'json':
             url = self.fields['sensor']
@@ -4297,10 +4297,9 @@ class Sensor(AlarmingObject):
                                          + traceback.format_exc())
                     traceback.print_exc()
             else:
-                try:
-                    sensorfile = urllib2.urlopen(self.fields['sensor'],
-                                                 None,
-                                                 20)
+                sensorfile = None
+                try: # urlopen not compatible with "with"
+                    sensorfile = urllib2.urlopen(self.fields['sensor'], None, 20)
                     #print sensorfile.getcode()
                     info = sensorfile.read()
                     info = json.loads(info)
@@ -4316,7 +4315,7 @@ class Sensor(AlarmingObject):
                                          + self.fields['subsensor']
                                          + u", Message="
                                          + traceback.format_exc())
-                finally:
+                if sensorfile:
                     sensorfile.close()
         elif self.fields['channel'] == 'system':
             try:
@@ -4379,7 +4378,8 @@ class Sensor(AlarmingObject):
                     print('Tried to read several times back to back ?')
                     raise
                 finally:
-                    ser.close()
+                    if ser:
+                        ser.close()
             try:
                 output_val = float(cache[int(self.fields['subsensor'])])
             except ValueError:

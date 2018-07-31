@@ -358,6 +358,8 @@ Heure : {9}"	1
 2016-01-01 13:45:56	FR	completedtime	Lot complété	1
 2016-01-01 13:45:56	EN	timerules	The time must be in this format Year-Month-Day Hour:Minute:Second	1
 2016-01-01 13:45:56	FR	timerules	La date/heure doit être au format Année-Mois-Jour Heure:Minute:Secondes	1
+2016-01-01 13:45:56	EN	dateentry	Year-Month-Day Hour:Minute:Second	1
+2016-01-01 13:45:56	FR	dateentry	Année-Mois-Jour Heure:Minute:Secondes	1
 2016-01-01 13:45:56	EN	transfer	Transfer	1
 2016-01-01 13:45:56	FR	transfer	Transfert	1
 2016-01-01 13:45:56	EN	transferhierarchy	This object can't be moved to this component	1

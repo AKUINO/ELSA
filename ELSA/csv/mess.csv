@@ -150,6 +150,7 @@ begin	message_id	default	user
 2016-01-01 13:45:56	add	Add	1
 2016-01-01 13:45:56	edit	Edit	1
 2016-01-01 13:45:56	schema	Schema	1
+2016-01-01 13:45:56	dateentry	Year-Month-Day Hour:Minute:Second	1
 2016-01-01 13:45:56	alarmtitle	{0}  {1}    {2}    {3} {4} {5} {6}    {7}	1
 2016-01-01 13:45:56	alarmmanualtitle	ManualData : {0} {1} in {2}	1
 2016-01-01 13:45:56	alarmpouringtitle	Pouring from {0} {1} to {2} {3}	1
