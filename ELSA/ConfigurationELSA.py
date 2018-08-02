@@ -488,15 +488,15 @@ class ConfigurationObject(object):
         return ""
 
     def isImaged(self):
-        fileName = self.getImagePath(False,u"jpg")
+        fileName = self.getImagePath(False,u"png")
         if fileName is None:
             return None
         elif os.path.isfile(fileName):
-            return u"jpg"
+            return u"png"
         else:
-            fileName = self.getImagePath(False,u"png")
+            fileName = self.getImagePath(False,u"jpg")
             if os.path.isfile(fileName):
-                return u"png"
+                return u"jpg"
             else:
                 return None
                 
