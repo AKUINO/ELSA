@@ -824,7 +824,7 @@ class ConfigurationObject(object):
     def getImage(self, height=36):
         ext = self.isImaged()
         if ext:
-            return "<img src=\""+self.getImageURL(ext)+"\" alt=\""+unicode(self)+"\" height="+height+">"
+            return "<img src=\""+self.getImageURL(ext)+"\" alt=\""+unicode(self)+"\" height="+unicode(height)+">"
         else:
             return ""
 
