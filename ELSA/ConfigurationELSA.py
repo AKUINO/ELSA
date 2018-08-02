@@ -432,7 +432,7 @@ class ConfigurationObject(object):
         for field in fieldsname:
             self.fields[field] = ''
 
-    def getImagePath(self, ensure=False):
+    def getImagePath(self, ensure=False, ext="jpg"):
         thisType = self.get_type()
         if thisType in imagedTypes:
             directory = os.path.join(DIR_DOC,thisType)
@@ -444,13 +444,13 @@ class ConfigurationObject(object):
                         if e.errno != errno.EEXIST:
                             traceback.print_exc()
                             return None
-            return os.path.join(directory,thisType + u'_'+unicode(self.id) + u'.jpg')
+            return os.path.join(directory,thisType + u'_'+unicode(self.id) + u'.' +ext)
         return None
 
-    def getImageURL(self):
+    def getImageURL(self, ext="jpg"):
         thisType = self.get_type()
         if thisType in imagedTypes:
-            return URL_DOC +thisType+u'/'+thisType+ u'_'+unicode(self.id) + u'.jpg'
+            return URL_DOC +thisType+u'/'+thisType+ u'_'+unicode(self.id) + u'.' +ext
         return ""
 
     def getDocumentDir(self, ensure=False):
@@ -488,11 +488,18 @@ class ConfigurationObject(object):
         return ""
 
     def isImaged(self):
-        fileName = self.getImagePath()
+        fileName = self.getImagePath(False,u"jpg")
         if fileName is None:
-            return False
+            return None
+        elif os.path.isfile(fileName):
+            return u"jpg"
         else:
-            return os.path.isfile(fileName)
+            fileName = self.getImagePath(False,u"png")
+            if os.path.isfile(fileName):
+                return u"png"
+            else:
+                return None
+                
 
     def setName(self, key, value, user, keyColumn):
         if value != '' and value is not None:
@@ -619,8 +626,8 @@ class ConfigurationObject(object):
             if data.placeImg.filename != '':
                 filepath = data.placeImg.filename.replace('\\', '/')
                 ext = ((filepath.split('/')[-1]).split('.')[-1])
-                if ext and ext.lower() in [u'jpg',u'jpeg']:
-                    with open(self.getImagePath(True), 'w') as fout:
+                if ext and ext.lower() in [u'jpg',u'jpeg',u'png']:
+                    with open(self.getImagePath(True,ext=("png" if ext.lower() == u"png" else u"jpg")), 'w') as fout:
                         fout.write(data.placeImg.file.read())
         # linkedDocs is treated by caller because "web" object is needed...
                         
@@ -820,8 +827,10 @@ class ConfigurationObject(object):
         if self.fields['active'] == '0':
             result = '<span class="icon-combine">'+result+'<span class="halflings halflings-remove text-danger"></span></span>'
         if pic:
-	    if self.isImaged():
-		result += "<img src=\""+self.getImageURL()+"\" alt=\""+unicode(self)+"\" height=40>"
+	    ext = self.isImaged()
+	    print self.getID()+'='+unicode(ext)
+            if ext:
+		result += "<img src=\""+self.getImageURL(ext)+"\" alt=\""+unicode(self)+"\" height=40>"
         return result
 
     def getTypeAlarm(self, value, model=None):

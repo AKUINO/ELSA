@@ -338,10 +338,11 @@ $var title: MODAL
 				<a href="$elem.getDocumentURL(filename)" target="_blank">$filename</a>
 			    </div>
 			</div>
-		    $if elem.isImaged():
+		    $ ext = elem.isImaged()
+		    $if ext:
                         <div class="row" style="margin-top:3px;">
 			    <div class="col-xs-12">
-				<img src="$(elem.getImageURL())" alt="Image not found">
+				<img src="$(elem.getImageURL(ext=ext))" alt="Image not found">
 			    </div>
 			</div>
                 </div>
