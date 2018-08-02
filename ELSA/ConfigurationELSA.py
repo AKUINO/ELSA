@@ -4809,6 +4809,16 @@ class PouringModel(ConfigurationObject):
                 self)
         self.save(c, user)
 
+    def getQtyJS(self,c):
+        result = u'?'
+        if self.fields['quantity']:
+            result = self.fields['quantity']
+	if self.fields['m_id'] and self.fields['m_id'] in c.AllMeasures.elements:
+            aMeasure=c.AllMeasures.elements[self.fields['m_id']]
+            result += u' '++aMeasure.fields['unit']
+        if result == '?':
+            return ''
+        return result.replace("'","\\'")
 
 class ManualDataModel(ConfigurationObject):
     def __init__(self, config):

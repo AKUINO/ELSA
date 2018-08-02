@@ -653,13 +653,13 @@ class WebGraphRecipe():
                                     nx_recipe = e.fields['dest']
                                     if nx_recipe and nx_recipe in c.AllGrRecipe.elements.keys():
                                         dest_recipe = c.AllGrRecipe.elements[nx_recipe]
-                                        graph += hid+"->"+"gr_"+nx_recipe+"[style=\"stroke-width:3px;stroke:#f07e26\",label=\""+e.getNameJS(lang)+"\"];"
+                                        graph += hid+"->"+"gr_"+nx_recipe+"[style=\"stroke-width:3px;stroke:#f07e26\",label=\""+e.getQtyJS(lang)+"\"];"
                                         recipes_todo.add(dest_recipe)
                                 if e.fields['src']:
                                     nx_recipe = e.fields['src']
                                     if nx_recipe and nx_recipe in c.AllGrRecipe.elements.keys():
                                         src_recipe = c.AllGrRecipe.elements[nx_recipe]
-                                        graph += "gr_"+nx_recipe+"->"+hid+"[style=\"stroke-width:3px;stroke:#f07e26\",label=\""+e.getNameJS(lang)+"\"];"
+                                        graph += "gr_"+nx_recipe+"->"+hid+"[style=\"stroke-width:3px;stroke:#f07e26\",label=\""+e.getQtyJS(c)+"\"];"
                                         recipes_todo.add(src_recipe)
                             elif e.get_type() == 'dm':
                                 obs += "<br>"+e.getNameHTML(lang)
@@ -673,9 +673,9 @@ class WebGraphRecipe():
                                         obs += " / "+measure.getNameHTML(lang)+": "+target+" "+protectHTML(measure.fields['unit'])
                         graph += hid # +"[url=\"/find/related/"+hid+"\""
                         graph += "[labelType=\"html\",label=\"<a href=/find/related/"+hid+">"
-                        ext = v.isImaged()
-                        if ext:
-                            graph += "<IMG SRC='"+self.getImageURL(ext)+"' SCALE=BOTH>"
+##                        ext = v.isImaged()
+##                        if ext:
+##                            graph += "<img scale=both src="+self.getImageURL(ext)+">"
                         graph += v.getNameHTML(lang)
                         graph += "</a>"+obs+"\"" #+v.fields['rank']
                         graph += ",tooltip=\""+v.fields['acronym']+"\""
