@@ -673,7 +673,9 @@ class WebGraphRecipe():
                                         obs += " / "+measure.getNameHTML(lang)+": "+target+" "+protectHTML(measure.fields['unit'])
                         graph += hid # +"[url=\"/find/related/"+hid+"\""
                         graph += "[labelType=\"html\",label=\"<a href=/find/related/"+hid+">"
-                        graph += v.getImage(36)
+                        ext = v.isImaged()
+                        if ext:
+                            graph += "<IMG SRC='"+self.getImageURL(ext)+"' SCALE=BOTH>"
                         graph += v.getNameHTML(lang)
                         graph += "</a>"+obs+"\"" #+v.fields['rank']
                         graph += ",tooltip=\""+v.fields['acronym']+"\""
