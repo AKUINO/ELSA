@@ -213,10 +213,7 @@ $if errormess != '':
 			    $if errormess != '':
 				$if 'cost' in data :
 				    value="$data['cost']" 
-			    $elif id == 'new':
-				$if aRecipe:
-					value="$aRecipe.fields['cost']"
-			    $else:
+			    $elif id != 'new':
 				value="$elem.fields['cost']"
 			>
 		    </div>
