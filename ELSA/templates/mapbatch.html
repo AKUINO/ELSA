@@ -192,7 +192,7 @@ $for operation in events:
 			    if kmeasure and kmeasure in c.AllMeasures.elements:
 			        measure = c.AllMeasures.elements[kmeasure]
 			    if sourceModel and operation.fields['value']:
-				qtity = int(operation.fields['value'])
+				qtity = float(operation.fields['value'])
 			        Aname, Aacronym, Acolor, Atext_color = sourceModel.getTypeAlarm(qtity,None)
 				if Aname == 'typical':
 				    Acolor = None
