@@ -653,7 +653,7 @@ class WebGraphRecipe():
                                     nx_recipe = e.fields['dest']
                                     if nx_recipe and nx_recipe in c.AllGrRecipe.elements.keys():
                                         dest_recipe = c.AllGrRecipe.elements[nx_recipe]
-                                        graph += hid+"->"+"gr_"+nx_recipe+"[style=\"stroke-width:3px;stroke:#f07e26\",label=\""+e.getQtyJS(lang)+"\"];"
+                                        graph += hid+"->"+"gr_"+nx_recipe+"[style=\"stroke-width:3px;stroke:#f07e26\",label=\""+e.getQtyJS(c)+"\"];"
                                         recipes_todo.add(dest_recipe)
                                 if e.fields['src']:
                                     nx_recipe = e.fields['src']
