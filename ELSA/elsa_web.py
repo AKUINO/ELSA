@@ -384,14 +384,16 @@ class WebEdit():
                 linkedDocs = web.webapi.rawinput().get('linkedDocs')
                 if not isinstance(linkedDocs,list):
                     linkedDocs = [linkedDocs]
-                aDir = currObject.getDocumentDir(True)
+                aDir = None
                 for aDoc in linkedDocs:
                     if aDoc.filename != '':
                         filepath = aDoc.filename.replace('\\', '/')
                         name = filepath.split('/')[-1]
                         if name:
+                            if not aDir:
+                                aDir = currObject.getDocumentDir(True)
                             with open(aDir+u'/'+name, 'w') as fout:
-                               fout.write(aDoc.file.read())
+                                fout.write(aDoc.file.read())
 
 ##            if 'a_id' in data:
 ##                if len(data['a_id']) > 0:
@@ -661,13 +663,17 @@ class WebGraphRecipe():
                                         recipes_todo.add(src_recipe)
                             elif e.get_type() == 'dm':
                                 obs += "<br>"+e.getNameHTML(lang)
+                                target = "?"
+                                if e.fields['typical']:
+                                    target = e.fields['typical']
                                 if e.fields['m_id']:
                                     measure = e.fields['m_id']
                                     if measure and measure in c.AllMeasures.elements.keys():
                                         measure = c.AllMeasures.elements[measure]
-                                        obs += " / "+measure.getNameHTML(lang)+": ? "+protectHTML(measure.fields['unit'])
+                                        obs += " / "+measure.getNameHTML(lang)+": "+target+" "+protectHTML(measure.fields['unit'])
                         graph += hid # +"[url=\"/find/related/"+hid+"\""
                         graph += "[labelType=\"html\",label=\"<a href=/find/related/"+hid+">"
+                        graph += v.getImage(36)
                         graph += v.getNameHTML(lang)
                         graph += "</a>"+obs+"\"" #+v.fields['rank']
                         graph += ",tooltip=\""+v.fields['acronym']+"\""
