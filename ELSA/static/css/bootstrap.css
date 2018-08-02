@@ -193,7 +193,6 @@ th {
   *,
   *:before,
   *:after {
-    background: transparent !important;
     -webkit-box-shadow: none !important;
             box-shadow: none !important;
   }
