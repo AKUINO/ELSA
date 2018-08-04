@@ -52,6 +52,11 @@ def getLinkForLatestBackupArchive():
 def protectHTML(input):
     return cgi.escape(input,True).replace("'","&#39;");
 
+def protectJS(input):
+    if not input: # if input is None
+        return u''
+    return unicode(input).replace("'","\\'").replace("\\","\\\\")
+
 def redirect_when_not_logged(redir=True):
     """
     Should be used at the begining of every GET, POST, etc.
@@ -547,7 +552,7 @@ class WebFind():
                     return render.findlinkeddata(id1, id2, mail)
                 elif type == 't' and id1 in 'ceb':
                     return render.findlinkedtransfers(id1, id2, mail)
-                elif type == 'v' and id1 in 'ecb':
+                elif type == 'v' and id1 == 'b':
                     return render.findlinkedpourings(id2, mail)
                 elif type == 'h':
                     return render.findcontrol(id1, id2, mail)
@@ -559,6 +564,29 @@ class WebFind():
             traceback.print_exc()
             return render.notfound()
 
+class WebFindModel():
+    def GET(self, type, id1, id2, modelid):
+        mail = redirect_when_not_logged()
+            
+        data = web.input()
+	barcode = ''
+        if 'barcode' in data:
+	    barcode = data['barcode']
+        return self.getRender(type, id1, id2, modelid, mail, barcode)
+
+    def getRender(self, type, id1, id2, modelid, mail, barcode=''):
+        try:
+                if type == 'd'and id1 in 'pceb':
+                    return render.findlinkeddata(id1, id2, mail, modelid)
+                elif type == 't' and id1 in 'ceb':
+                    return render.findlinkedtransfers(id1, id2, mail, modelid)
+                elif type == 'v' and id1 == 'b':
+                    return render.findlinkedpourings(id2, mail, modelid)
+                else:
+                    return render.notfound()
+        except:
+            traceback.print_exc()
+            return render.notfound()
 
 class WebGraphic():
     def __init__(self):
@@ -601,11 +629,26 @@ class WebGraphRecipe():
     def __init__(self):
         self.name = u"WebGraphRecipe"
 
-    def GET(self,id):
+    def GET(self,type,id):
         mail = redirect_when_not_logged()
         lang = c.connectedUsers.users[mail].cuser.fields['language']
         graph = ""
-        
+
+        kusage = ''
+        if type == 'b':
+            if id in c.AllBatches.elements.keys():
+                batch = c.AllBatches.elements[id]
+                id = batch.get_group()
+                place = batch.get_actual_position_here(c)
+                if place:
+                    kusage = place.get_group()
+                    if kusage and kusage in c.AllGrUsage.elements.keys():
+                        usage = c.AllGrUsage.elements[kusage]
+        elif type == 'gr':
+            batch = None
+        else:
+            return render.notfound()
+
         if id in c.AllGrRecipe.elements.keys():
             elem = c.AllGrRecipe.elements[id]
             summit = [id] + elem.get_supermap_str()
@@ -625,7 +668,7 @@ class WebGraphRecipe():
                 graph += usaTopID # +"[url=\"/find/related/"+usaTopID+"\""
                 graph += "[labelType=\"html\",label=\"<a href=/find/related/"+usaTopID+">"+usageTop.getNameHTML(lang)+"</a>\""
                 graph += ",tooltip=\""+usageTop.fields['acronym']+"\""
-                graph += ",id=\""+usaTopID+"\",shape=diamond,style=\"fill:#fff;stroke:1px;\"];"
+                graph += ",id=\""+usaTopID+"\",shape=diamond,style=\"fill:"+("#fbcfaa" if kusage == usageTop.getID() else "#fff")+";stroke:1px;\"];"
                 
                 checkpoints = c.AllCheckPoints.get_checkpoints_for_recipe_usage(summit, [usageTop.getID()])
                 prec_v = ""
@@ -643,7 +686,12 @@ class WebGraphRecipe():
                             if e.get_type() == 'tm':
                                 if e.fields['gu_id']:
                                     nx_usage = e.fields['gu_id']
-                                    graph += hid+"->"+"gu_"+nx_usage+"[style=\"stroke-width:3px\"];"
+                                    graph += hid+"->"+"gu_"+nx_usage+"[style=\"stroke-width:3px\""
+                                    if batch:
+                                        events = batch.fromModel(c,e)
+                                        if len(events) > 0:
+                                            graph += ",labelType=\"html\",label=\"<a href=/find/t/b_"+batch.getID()+"/"+e.getID()+">"+unicode(len(events))+" x</a>\""
+                                    graph += "];"
                                     points = usaTopID+" "+"gu_"+nx_usage
                                     #print points+" in "+unicode(next_usage)
                                     if points in next_usage:
@@ -653,35 +701,57 @@ class WebGraphRecipe():
                                     nx_recipe = e.fields['dest']
                                     if nx_recipe and nx_recipe in c.AllGrRecipe.elements.keys():
                                         dest_recipe = c.AllGrRecipe.elements[nx_recipe]
-                                        graph += hid+"->"+"gr_"+nx_recipe+"[style=\"stroke-width:3px;stroke:#f07e26\",label=\""+e.getQtyJS(c)+"\"];"
+                                        graph += hid+"->"+"gr_"+nx_recipe+"[style=\"stroke-width:3px;stroke:#f07e26\""
+                                        events = []
+                                        if batch:
+                                            events = batch.fromModel(c,e)
+                                        if len(events) > 0:
+                                            graph += ",labelType=\"html\",label=\"<a href=/find/v/b_"+batch.getID()+"/"+e.getID()+">"+unicode(len(events))+" x</a>\""
+                                        else:
+                                            graph += ",label=\""+e.get_quantity()+' '+protectJS(e.get_unit_in_context(c,elem))+"\""
+                                        graph += "];"
                                         recipes_todo.add(dest_recipe)
                                 if e.fields['src']:
                                     nx_recipe = e.fields['src']
                                     if nx_recipe and nx_recipe in c.AllGrRecipe.elements.keys():
                                         src_recipe = c.AllGrRecipe.elements[nx_recipe]
-                                        graph += "gr_"+nx_recipe+"->"+hid+"[style=\"stroke-width:3px;stroke:#f07e26\",label=\""+e.getQtyJS(c)+"\"];"
+                                        graph += "gr_"+nx_recipe+"->"+hid+"[style=\"stroke-width:3px;stroke:#f07e26\""
+                                        events = []
+                                        if batch:
+                                            events = batch.fromModel(c,e)
+                                        if len(events) > 0:
+                                            graph += ",labelType=\"html\",label=\"<a href=/find/v/b_"+batch.getID()+"/"+e.getID()+">"+unicode(len(events))+" x</a>\""
+                                        else:
+                                            graph += ",label=\""+e.get_quantity()+' '+protectJS(e.get_unit_in_context(c,elem))+"\""
+                                        graph += "];"
                                         recipes_todo.add(src_recipe)
                             elif e.get_type() == 'dm':
                                 obs += "<br>"+e.getNameHTML(lang)
                                 target = "?"
                                 if e.fields['typical']:
                                     target = e.fields['typical']
-                                if e.fields['m_id']:
-                                    measure = e.fields['m_id']
-                                    if measure and measure in c.AllMeasures.elements.keys():
-                                        measure = c.AllMeasures.elements[measure]
-                                        obs += " / "+measure.getNameHTML(lang)+": "+target+" "+protectHTML(measure.fields['unit'])
+                                measure = e.get_measure(c)
+                                if measure:
+                                    obs += " / "+measure.getNameHTML(lang)+": "+target+" "+protectHTML(measure.fields['unit'])
+                                events = []
+                                if batch:
+                                    events = batch.fromModel(c,e)
+                                if len(events) > 0:
+                                    obs += " <a href=/find/d/b_"+batch.getID()+"/"+e.getID()+">"+unicode(len(events))+" x</a>"
+
                         graph += hid # +"[url=\"/find/related/"+hid+"\""
                         graph += "[labelType=\"html\",label=\"<a href=/find/related/"+hid+">"
 ##                        ext = v.isImaged()
 ##                        if ext:
 ##                            graph += "<img scale=both src="+self.getImageURL(ext)+">"
+                        if batch and v.getID() in batch.checkpoints:
+                            graph += "* "
                         graph += v.getNameHTML(lang)
                         graph += "</a>"+obs+"\"" #+v.fields['rank']
                         graph += ",tooltip=\""+v.fields['acronym']+"\""
                         graph += ",id=\""+hid+"\"];"
                         if prec_v:
-                            graph += "h_"+prec_v+'->'+hid+"[style=\"stroke-width:3px;stroke:#888\"]"
+                            graph += "h_"+prec_v+'->'+hid+"[style=\"stroke-width:3px;stroke:#888\"];"
                         prec_v = v.getID()
                         done.add(prec_v)
             for remain in next_usage:
@@ -722,115 +792,113 @@ class WebGraphRecipe():
 ##                        usage = c.AllGrUsage.elements[parent]
 ##                        aboveID = 'gu_'+parent
 ##                        graph += aboveID+"->"+usaID+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
-            return render.graphrecipe(mail, type, id, graph)
+            return render.graphrecipe(mail, batch, id, graph)
         return render.notfound()
 
-class WebGraphBatch():
-    def __init__(self):
-        self.name = u"WebGraphBatch"
-
-    def GET(self,id):
-        mail = redirect_when_not_logged()
-        lang = c.connectedUsers.users[mail].cuser.fields['language']
-        
-        if id in c.AllBatches.elements.keys():
-            elem = c.AllBatches.elements[id]
-            recipes = set()
-            recipe_id = elem.fields['gr_id']
-            recipe = None
-            if recipe_id and recipe_id in c.AllGrRecipe.elements.keys():
-                recipes.add(recipe_id)
-                recipe = c.AllGrRecipe.elements[recipe_id]
-                new_recipes = set(recipe.get_all_parents([],None))
-                recipes = recipes | new_recipes
-            #print "grs="+unicode(recipes)
-            components = elem.get_actual_position_hierarchy(c)
-            usages_todo = []
-            recipes_todo = set()
-            for place in reversed(components):
-                if place.get_type() in "pec":
-                    #print place
-                    gr_usage = place.get_group()
-                    #print "begu="+gr_usage
-                    if gr_usage and gr_usage in c.AllGrUsage.elements.keys():
-                        usage = c.AllGrUsage.elements[gr_usage]
-                        for parent in reversed(usage.get_all_parents([],None)):
-                            #print "begup="+parent
-                            if parent and parent in c.AllGrUsage.elements.keys():
-                                usages_todo.append(c.AllGrUsage.elements[parent])
-                        usages_todo.append(usage)
-            graph = ""
-            done = set()
-            prec = None
-            while len(usages_todo) > 0:
-              usage = usages_todo[0]
-              #print "gu="+usage.getID()
-              usaID = "gu_"+usage.getID()
-              usages_todo.remove(usage)
-              if not usaID in done:
-                done.add(usaID)
-                if prec:
-                    graph += prec+"->"+usaID+"[style=\"stroke-dasharray:5,5\"];"
-                graph += usaID # +"[url=\"/find/related/"+usaID+"\""
-                graph += "[labelType=\"html\",label=\"<a href=/find/related/"+usaID+">"+usage.getNameHTML(lang)+"</a>\""
-                graph += ",tooltip=\""+usage.fields['acronym']+"\""
-                graph += ",id=\""+usaID+"\",shape=diamond,style=\"fill:#fff;stroke:1px;\"];"
-                prec = usaID
-                allowedcheckpoints = c.AllCheckPoints.get_checkpoints_for_recipe_usage(recipes,set([usage.getID()]))
-                for v in allowedcheckpoints:
-                    #print "h="+v.getID()
-                    hid = "h_"+v.getID()
-                    graph += prec+"->"+hid+";"
-                    prec = hid
-                    elems = v.get_model_sorted()
-                    obs = ""
-                    for e in elems:
-                        if e.get_type() == 'tm':
-                            if e.fields['gu_id']:
-                                nx_usage = e.fields['gu_id']
-                                #print "nxu="+nx_usage
-                                if nx_usage and nx_usage in c.AllGrUsage.elements.keys():
-                                    nx_usage = c.AllGrUsage.elements[nx_usage]
-                                    # graph += hid+"->"+"gu_"+e.fields['gu_id']+"[style=\"stroke-dasharray:5,5\"];"
-                                    for parent in reversed(nx_usage.get_all_parents([],None)):
-                                        #print "nxup="+parent
-                                        if parent and not parent in done and parent in c.AllGrUsage.elements.keys():
-                                            usages_todo.append(c.AllGrUsage.elements[parent])
-                                    usages_todo.append(nx_usage)
-                        elif e.get_type() == 'vm':
-                            if e.fields['dest']:
-                                nx_recipe = e.fields['dest']
-                                if nx_recipe and nx_recipe in c.AllGrRecipe.elements.keys():
-                                    dest_recipe = c.AllGrRecipe.elements[nx_recipe]
-                                    graph += hid+"->"+"gr_"+nx_recipe+"[style=\"stroke-width:3px\",label=\""+e.getNameJS(lang)+"\"];"
-                                    recipes_todo.add(dest_recipe)
-                            if e.fields['src']:
-                                nx_recipe = e.fields['src']
-                                if nx_recipe and nx_recipe in c.AllGrRecipe.elements.keys():
-                                    src_recipe = c.AllGrRecipe.elements[nx_recipe]
-                                    graph += "gr_"+nx_recipe+"->"+hid+"[style=\"stroke-width:3px\",label=\""+e.getNameJS(lang)+"\"];"
-                                    recipes_todo.add(src_recipe)
-                        elif e.get_type() == 'dm':
-                            obs += "<br>"+e.getNameHTML(lang)
-                            if e.fields['m_id']:
-                                measure = e.fields['m_id']
-                                if measure and measure in c.AllMeasures.elements.keys():
-                                    measure = c.AllMeasures.elements[measure]
-                                    obs += " / "+measure.getNameHTML(lang)+": ? "+protectHTML(measure.fields['unit'])
-                    graph += hid # +"[url=\"/find/related/"+hid+"\""
-                    graph += "[labelType=\"html\",label=\"<a href=/find/related/"+hid+">"
-                    graph += ("* " if v.getID() in elem.checkpoints else "")+v.getNameHTML(lang)
-                    graph += "</a> <a href=/control/b_"+id+"/"+hid+"><big><strong>+</strong></big></a>"+obs+"\""
-                    graph += ",tooltip=\""+v.fields['acronym']+"\""
-                    graph += ",id=\""+hid+"\"];"
-            for recipe in recipes_todo:
-                grID = "gr_"+recipe.getID()
-                graph += grID
-                graph += "[labelType=\"html\",label=\"<a href=/find/related/"+grID+">"+recipe.getNameHTML(lang)+"</a>\""
-                graph += ",tooltip=\""+recipe.fields['acronym']+"\""
-                graph += ",id=\""+grID+"\",shape=ellipse,style=\"fill:#fff;stroke:1px;\"];"
-            return render.graphbatch(mail, 'b', id, graph)
-        return render.notfound()
+##class WebGraphBatch():
+##    def __init__(self):
+##        self.name = u"WebGraphBatch"
+##
+##    def GET(self,id):
+##        mail = redirect_when_not_logged()
+##        lang = c.connectedUsers.users[mail].cuser.fields['language']
+##        
+##        if id in c.AllBatches.elements.keys():
+##            elem = c.AllBatches.elements[id]
+##            recipes = set()
+##            recipe_id = elem.fields['gr_id']
+##            recipe = None
+##            if recipe_id and recipe_id in c.AllGrRecipe.elements.keys():
+##                recipes.add(recipe_id)
+##                recipe = c.AllGrRecipe.elements[recipe_id]
+##                new_recipes = set(recipe.get_all_parents([],None))
+##                recipes = recipes | new_recipes
+##            #print "grs="+unicode(recipes)
+##            components = elem.get_actual_position_hierarchy(c)
+##            usages_todo = []
+##            recipes_todo = set()
+##            for place in reversed(components):
+##                if place.get_type() in "pec":
+##                    #print place
+##                    gr_usage = place.get_group()
+##                    #print "begu="+gr_usage
+##                    if gr_usage and gr_usage in c.AllGrUsage.elements.keys():
+##                        usage = c.AllGrUsage.elements[gr_usage]
+##                        for parent in reversed(usage.get_all_parents([],None)):
+##                            #print "begup="+parent
+##                            if parent and parent in c.AllGrUsage.elements.keys():
+##                                usages_todo.append(c.AllGrUsage.elements[parent])
+##                        usages_todo.append(usage)
+##            graph = ""
+##            done = set()
+##            prec = None
+##            while len(usages_todo) > 0:
+##              usage = usages_todo[0]
+##              #print "gu="+usage.getID()
+##              usaID = "gu_"+usage.getID()
+##              usages_todo.remove(usage)
+##              if not usaID in done:
+##                done.add(usaID)
+##                if prec:
+##                    graph += prec+"->"+usaID+"[style=\"stroke-dasharray:5,5\"];"
+##                graph += usaID # +"[url=\"/find/related/"+usaID+"\""
+##                graph += "[labelType=\"html\",label=\"<a href=/find/related/"+usaID+">"+usage.getNameHTML(lang)+"</a>\""
+##                graph += ",tooltip=\""+usage.fields['acronym']+"\""
+##                graph += ",id=\""+usaID+"\",shape=diamond,style=\"fill:#fff;stroke:1px;\"];"
+##                prec = usaID
+##                allowedcheckpoints = c.AllCheckPoints.get_checkpoints_for_recipe_usage(recipes,set([usage.getID()]))
+##                for v in allowedcheckpoints:
+##                    #print "h="+v.getID()
+##                    hid = "h_"+v.getID()
+##                    graph += prec+"->"+hid+";"
+##                    prec = hid
+##                    elems = v.get_model_sorted()
+##                    obs = ""
+##                    for e in elems:
+##                        if e.get_type() == 'tm':
+##                            if e.fields['gu_id']:
+##                                nx_usage = e.fields['gu_id']
+##                                #print "nxu="+nx_usage
+##                                if nx_usage and nx_usage in c.AllGrUsage.elements.keys():
+##                                    nx_usage = c.AllGrUsage.elements[nx_usage]
+##                                    # graph += hid+"->"+"gu_"+e.fields['gu_id']+"[style=\"stroke-dasharray:5,5\"];"
+##                                    for parent in reversed(nx_usage.get_all_parents([],None)):
+##                                        #print "nxup="+parent
+##                                        if parent and not parent in done and parent in c.AllGrUsage.elements.keys():
+##                                            usages_todo.append(c.AllGrUsage.elements[parent])
+##                                    usages_todo.append(nx_usage)
+##                        elif e.get_type() == 'vm':
+##                            if e.fields['dest']:
+##                                nx_recipe = e.fields['dest']
+##                                if nx_recipe and nx_recipe in c.AllGrRecipe.elements.keys():
+##                                    dest_recipe = c.AllGrRecipe.elements[nx_recipe]
+##                                    graph += hid+"->"+"gr_"+nx_recipe+"[style=\"stroke-width:3px\",label=\""+protectJS(e.getName(lang))+"\"];"
+##                                    recipes_todo.add(dest_recipe)
+##                            if e.fields['src']:
+##                                nx_recipe = e.fields['src']
+##                                if nx_recipe and nx_recipe in c.AllGrRecipe.elements.keys():
+##                                    src_recipe = c.AllGrRecipe.elements[nx_recipe]
+##                                    graph += "gr_"+nx_recipe+"->"+hid+"[style=\"stroke-width:3px\",label=\""+protectJS(e.getName(lang))+"\"];"
+##                                    recipes_todo.add(src_recipe)
+##                        elif e.get_type() == 'dm':
+##                            obs += "<br>"+e.getNameHTML(lang)
+##                            measure = e.get_measure(c)
+##                            if measure:
+##                                obs += " / "+measure.getNameHTML(lang)+": ? "+protectHTML(measure.fields['unit'])
+##                    graph += hid # +"[url=\"/find/related/"+hid+"\""
+##                    graph += "[labelType=\"html\",label=\"<a href=/find/related/"+hid+">"
+##                    graph += ("* " if v.getID() in elem.checkpoints else "")+v.getNameHTML(lang)
+##                    graph += "</a> <a href=/control/b_"+id+"/"+hid+"><big><strong>+</strong></big></a>"+obs+"\""
+##                    graph += ",tooltip=\""+v.fields['acronym']+"\""
+##                    graph += ",id=\""+hid+"\"];"
+##            for recipe in recipes_todo:
+##                grID = "gr_"+recipe.getID()
+##                graph += grID
+##                graph += "[labelType=\"html\",label=\"<a href=/find/related/"+grID+">"+recipe.getNameHTML(lang)+"</a>\""
+##                graph += ",tooltip=\""+recipe.fields['acronym']+"\""
+##                graph += ",id=\""+grID+"\",shape=ellipse,style=\"fill:#fff;stroke:1px;\"];"
+##            return render.graphbatch(mail, 'b', id, graph)
+##        return render.notfound()
 
 class WebMapFunctions():
     def __init__(self):
@@ -1226,8 +1294,7 @@ def main():
             '/graphic/(.+)_(.+)', 'WebGraphic',
             '/map/b_(.+)', 'WebMapBatch',
             '/map/gr_(.+)', 'WebMapRecipe',
-            '/graph/b_(.+)', 'WebGraphBatch',
-            '/graph/gr_(.+)', 'WebGraphRecipe',
+            '/graph/(.+)_(.+)', 'WebGraphRecipe',
             '/map/gf', 'WebMapFunctions',
             '/map/gu', 'WebMapComponents',
             '/map/h', 'WebMapCheckPoints',
@@ -1241,6 +1308,7 @@ def main():
             '/export/(.+)_(.+)', 'WebExport',
             '/rrdfetch/(.+)', 'WebRRDfetch',
             '/datatable/(.+)_(.+)', 'WebDataTable',
+            '/find/(.+)/(.+)_(.+)/(.+)', 'WebFindModel',
             '/find/(.+)/(.+)_(.+)', 'WebFind',
             '/permission/(.+)_(.+)', 'WebPermission',
             '/control/b_(.+)/h_(.+)', 'WebControl',

@@ -188,9 +188,7 @@ $if errormess != '':
 		</div>
 		
 		$if id != 'new':
-			$ precision = elem.fields['m_id']
-			$if precision:
-			    $ precision = c.AllMeasures.elements[precision]
+			$ precision = elem.get_measure(c)
 		<div class="form-group row">
 		    <label for="inputQty" class="col-sm-3 col-form-label">$c.getMessage('quantity',self.lang)</label>
 		    <div class="col-sm-9">

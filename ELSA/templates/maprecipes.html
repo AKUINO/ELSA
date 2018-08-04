@@ -20,7 +20,7 @@ $for krecipe in listRecipe:
 			<div class="map top">
 		$else:
 			<div class="map down">
-		<a href="/find/related/gr_$krecipe">$:(elem.statusIcon(c,True))</a>
+		<a href="/find/related/gr_$krecipe">$:(elem.statusIcon(c,True,False))</a>
 		$ acro = elem.fields['acronym']
 		$if ('gr_'+krecipe) in done:
 			<a href="#gr_$acro">$acro</a>
@@ -29,12 +29,22 @@ $for krecipe in listRecipe:
 			$for batch in c.AllBatches.get_batches_for_recipes([krecipe]):
 				$if batch.isActive() and not batch.isComplete():
 					<div class="map down">
-					<a href="/find/related/b_$batch.getID()">$:(batch.statusIcon(c,True))</a>
+					<a href="/find/related/b_$batch.getID()">$:(batch.statusIcon(c,True,False))</a>
 					$ acro = batch.fields['acronym']
 					$if ('b_'+batch.getID()) in done:
 						<a href="#b_$acro">$acro</a>
 					$else:
 						<a name="b_$acro"></a>$acro - <strong>$(batch.getName(self.lang))</strong>
+						    $code:
+							pos = None
+							tmp = batch.get_last_transfer()
+							if tmp is not None :
+							    transfer = c.AllTransfers.elements[tmp]
+							    pos = c.AllTransfers.elements[tmp].get_cont()
+						    $if pos is not None :
+							    $:c.getHalfling('to')
+							    <a href="/item/$(pos.get_type())_$pos.getID()">$:(pos.statusIcon(c,True,False)) $pos.fields['acronym']</a>,
+							    $transfer.fields['time']
 						$ done.add('b_'+batch.getID())
 					</div>
 			$ done.add('gr_'+krecipe)

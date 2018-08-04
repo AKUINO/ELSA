@@ -137,7 +137,7 @@ $if errormess != '':
 		    $if 'quantity' in data :
 			value="$data['quantity']" 
 		$elif id != 'new':
-		    value="$elem.fields['quantity']"
+		    value="$elem.get_quantity()"
 		 required >
 	    </div>
 	</div>

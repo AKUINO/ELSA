@@ -11,7 +11,7 @@ $code:
 <div class="container">
     <div class="row">
 	<div class="col-xs-6">
-	    <a href="/find/related/gr_$id">$:(elem.statusIcon(c,True))$elem.fields['acronym'] <strong>$elem.getName(self.lang)</strong></a>
+	    <a href="/find/related/gr_$id">$:(elem.statusIcon(c,True,False))$elem.fields['acronym'] <strong>$elem.getName(self.lang)</strong></a>
 	</div>
 	<div class="col-xs-5">
             $:c.getAllHalfling(c.AllBatches)$len(c.AllBatches.get_batches_for_recipes([id]))
@@ -21,14 +21,14 @@ $for usageTop in usagesTop:
     <div class="map top">
 	<div class="row">
 	  <div class="col-xs-12">
-	    <a href="/find/related/gu_$(usageTop.getID())">$:(usageTop.statusIcon(c,True))</a>$usageTop.fields['acronym'] <span class="light">#$usageTop.fields['rank']</span> <strong>$usageTop.getName(self.lang)</strong>
+	    <a href="/find/related/gu_$(usageTop.getID())">$:(usageTop.statusIcon(c,True,False))</a>$usageTop.fields['acronym'] <span class="light">#$usageTop.fields['rank']</span> <strong>$usageTop.getName(self.lang)</strong>
 	  </div>
 	</div>
     $ level = 0
     $ listCheckPoint = c.AllCheckPoints.get_checkpoints_for_recipe_usage(summit, [usageTop.getID()])
     $for checkpoint in listCheckPoint:
 	<div class="map down">
-	        <a href="/find/related/h_$checkpoint.getID()">$:(checkpoint.statusIcon(c,True))</a>
+	        <a href="/find/related/h_$checkpoint.getID()">$:(checkpoint.statusIcon(c,True,False))</a>
 		$ acro = checkpoint.fields['acronym']
 		$if ('h_'+checkpoint.getID()) in done:
 		    <a href="#h_$acro">$acro</a> <span class="light">#$checkpoint.fields['rank']</span>
@@ -38,14 +38,14 @@ $for usageTop in usagesTop:
 		    $for operation in operations:
 			$ op_type = operation.get_type()
   		        <div class="map down">
-			<a href="/find/related/$(op_type)_$(operation.getID())">$:operation.statusIcon(c,True)</a>
+			<a href="/find/related/$(op_type)_$(operation.getID())">$:operation.statusIcon(c,True,False)</a>
 			$operation.fields['acronym'] <span class="light">#$operation.fields['rank']</span> - <strong>$(operation.getName(self.lang))</strong>
 			$if op_type == 'tm':
 			    $ kusage = operation.fields['gu_id']
 			    $if kusage and kusage in c.AllGrUsage.elements:
 				$ usage = c.AllGrUsage.elements[kusage]
 				$:c.getHalfling('to')
-				<a href="/find/related/gu_$kusage">$:(usage.statusIcon(c,True))$(usage.fields['acronym'])</a>
+				<a href="/find/related/gu_$kusage">$:(usage.statusIcon(c,True,False))$(usage.fields['acronym'])</a>
 			$elif op_type == 'vm':
 				$ krecipe = ''
 				$if operation.fields['in']=='1':
@@ -56,18 +56,17 @@ $for usageTop in usagesTop:
 					$ krecipe = operation.fields['dest']
 				$if krecipe and krecipe in c.AllGrRecipe.elements:
 					$ recipe = c.AllGrRecipe.elements[krecipe]
-					<a href="/find/related/gr_$krecipe">$:(recipe.statusIcon(c,True))$(recipe.fields['acronym'])</a>
+					<a href="/find/related/gr_$krecipe">$:(recipe.statusIcon(c,True,False))$(recipe.fields['acronym'])</a>
+				<strong>$operation.get_quantity()</strong> $operation.get_unit_in_context(c,elem)
 			$elif op_type == 'dm':
-				$ kmeasure = operation.fields['m_id']
-				$ measure = None
-				$if kmeasure and kmeasure in c.AllMeasures.elements:
-				     $ measure = c.AllMeasures.elements[kmeasure]
+				$ measure = operation.get_measure(c)
 	                        $if measure:
 				     $(measure.getName(self.lang))
 				: <strong>$(operation.fields['typical'])</strong>
 				$if measure:
 				     $measure.fields['unit']
-			<div style="color:red;float:right;">$(operation.fields['remark'])</div>
+			$if operation.fields['remark']:
+				<br/><span style="margin-left:24px" class="text-danger">$(operation.fields['remark'])</span>
 		        </div>
 		    $ done.add('h_'+checkpoint.getID())
         </div>

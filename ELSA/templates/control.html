@@ -93,8 +93,7 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		$code:
 		    counttm += 1
 	    $elif e.get_type() == 'dm':
-		$if e.fields['m_id'] and e.fields['m_id'] in c.AllMeasures.elements:
-		    $ aMeasure=c.AllMeasures.elements[e.fields['m_id']]
+		$ aMeasure = e.get_measure(c)
 		<div class="form-group row">
 		    <input type="hidden" name="dm_id_$(countdm)" value="$e.getID()"/>
                     <input type="hidden" name="dm_measure_$(countdm)" value="$e.fields['m_id']">
@@ -143,8 +142,8 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 			$ aRecipe = None
 			$if e.fields['src'] and e.fields['src'] in c.AllGrRecipe.elements:
 				$ aRecipe = c.AllGrRecipe.elements[e.fields['src']]
-	                        $if aRecipe.fields['m_id'] and aRecipe.fields['m_id'] in c.AllMeasures.elements:
-	                            $ aMeasure = c.AllMeasures.elements[aRecipe.fields['m_id']]
+				$if aRecipe:
+				    $ aMeasure = aRecipe.get_measure(c)
 			<label for="b_id" class="col-sm-3 col-form-label">$c.getMessage('batch',self.lang) $c.getMessage('source',self.lang)</label>
 			$if aRecipe:
 				<div class="col-sm-9" id = "divsrc">
@@ -157,8 +156,8 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		    </div>
 		$else:
 		    <div class="form-group row">
-                        $if batch.fields['m_id'] and batch.fields['m_id'] in c.AllMeasures.elements:
-                            $ aMeasure = c.AllMeasures.elements[batch.fields['m_id']]
+			$if batch:
+			    $ aMeasure = batch.get_measure(c)
 			<label for="b_id" class="col-sm-3 col-form-label">$c.getMessage('batch',self.lang) $c.getMessage('source',self.lang)</label>
 			<div class="col-sm-9" id = "divdest">
 			    <select name="vm_dest_$(countvm)" class="form-control" id="dest">
@@ -174,7 +173,7 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 			<input name="vm_quantity_$(countvm)" type="number" 
                         $if aMeasure:
                             min="$(aMeasure.fields['min'])" max="$(aMeasure.fields['max'])" step="$(aMeasure.get_html_step())"
-                        class="form-control" id="inputValue" placeholder="$c.getMessage('value',self.lang)" value="$e.fields['quantity']"required >
+                        class="form-control" id="inputValue" placeholder="$c.getMessage('value',self.lang)" value="$e.get_quantity()"required >
 		    </div>
                     $if aMeasure:
 		      <div class="col-xs-4 col-sm-2">

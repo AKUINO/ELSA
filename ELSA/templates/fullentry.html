@@ -1,22 +1,17 @@
 $def with (mail,type, id, current)	
 $var recursive : True
-$var title : "ELSA"
+$var lang : $(c.connectedUsers.users[mail].cuser.fields['language'])
 $code :
     allElem = c.findAllFromType(type)
     elem = allElem.elements[id]
     keyID = allElem.keyColumn
     permissionKey = '_'+type +'_'
-    btn_class="btn-warning"
-    if 'm' in type and type != 'm':
-        btn_class = "btn-info"
-
-$var lang : $(c.connectedUsers.users[mail].cuser.fields['language'])
 $var title : $(elem.getName(self.lang))
 
 <div class="row active" style="color:#f07e26;background-color:$("#D5D5D7" if current else "#E5E5E7" );margin-top:6px;margin-bottom:6px;padding:5px;
 $if 'colorgraph' in elem.fields.keys() :
     border-left-style: solid;border-width: 6px;border-color:$(elem.fields['colorgraph']);
-$elif type == 'h':
+$elif 'abstract' in elem.fields.keys() :
     $if elem.fields['abstract'] == '1' or elem.fields['abstract'] == 1 :
 	border-left-style: solid;border-width: 6px;border-color:#337ab7;
 $elif type == 'b':
@@ -28,8 +23,8 @@ $elif type == 'b':
                 $ parents = elem.get_all_parents([],None)
                 $for p in reversed(parents):
                     <a href="/find/related/$(type)_$(p)"><strong><big>&#8662;</big></strong></a>
-            <button type="button" class="btn $(btn_class) btn-md $(type)_$(id)" data-toggle="modal" data-target="#$(type)_$(id)modal">
-	        $:elem.statusIcon(c,True)
+            <button type="button" class="btn $("btn-info" if elem.isModeling() else "btn-warning") btn-md $(type)_$(id)" data-toggle="modal" data-target="#$(type)_$(id)modal">
+	        $:elem.statusIcon(c,True,True)
             </button>
 	 </div>
 	<div class="col-xs-3 vcenter">
@@ -107,16 +102,15 @@ $elif type == 'b':
 		    </div>
 		    <div class="col-xs-4 vcenter">
 			$if elem.fields['m_id'] != '':
-			    $(elem.get_residual_quantity()) <a href="/item/m_$elem.fields['m_id']">$(c.AllMeasures.elements[elem.fields['m_id']].fields['unit'])</a>
+			    $(elem.get_residual_quantity()) <a href="/item/m_$elem.fields['m_id']">$(elem.get_unit(c))</a>
 		    </div>
 		</div>
 		<div class="row">
 		    $code:
+			pos = None
 			tmp = elem.get_last_transfer()
 			if tmp is not None :
 			    pos = c.AllTransfers.elements[tmp].get_cont()
-			else :
-			    pos = None
 		    $if pos is not None :
 			<div class="col-xs-1 vcenter">
 			    $:(c.getAllHalfling(c.AllTransfers))
@@ -332,7 +326,7 @@ $elif type == 'b':
 			$:(c.getHalfling('measure'))
 		    </div>
 		    <div class="col-xs-10 vcenter">
-			<span style="padding:5px;background-color:#$(elem.colorAlarm);color:#$(elem.colorTextAlarm)">$(elem.lastvalue)</span> <a href="/item/m_$elem.fields['m_id']">$(c.AllMeasures.elements[elem.fields['m_id']].fields['unit'])</a>
+			<span style="padding:5px;background-color:#$(elem.colorAlarm);color:#$(elem.colorTextAlarm)">$(elem.lastvalue)</span> <a href="/item/m_$elem.fields['m_id']">$(elem.get_unit(c))</a>
 		    </div>
 		</div>
 	$elif type == 'm':

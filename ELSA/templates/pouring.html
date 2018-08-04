@@ -106,7 +106,7 @@ function flip() {
 	    <div class="col-sm-9">
 		<input name="quantity" type="text" class="form-control" id="inputValue" placeholder="$c.getMessage('value',self.lang)" 
 		$if myID == 'update':
-		    value="$pouring.fields['quantity']"
+		    value="$pouring.get_quantity()"
 		 required >
 	    </div>
 	</div>

@@ -20,7 +20,7 @@ $for kfunction in listFunction:
 			<div class="map top">
 		    $else:
 			<div class="map down">
-		    <a href="/find/related/gf_$kfunction">$:(elem.statusIcon(c,True))</a>
+		    <a href="/find/related/gf_$kfunction">$:(elem.statusIcon(c,True,False))</a>
 		    $ acro = elem.fields['acronym']
 		    $if ('gf_'+kfunction) in done:
 			<a href="#gf_$acro">$acro</a>
@@ -30,7 +30,7 @@ $for kfunction in listFunction:
 				$ user = c.AllUsers.elements[kuser]
 				$if user.get_group() == kfunction :
 					<div class="map down">
-					<a href="/find/related/u_$kuser">$:(user.statusIcon(c,True))</a>
+					<a href="/find/related/u_$kuser">$:(user.statusIcon(c,True,False))</a>
 					$ acro = user.fields['acronym']
 					$if ('u_'+kuser) in done:
 						<a href="#u_$acro">$acro</a>

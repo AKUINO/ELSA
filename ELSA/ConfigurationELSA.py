@@ -535,9 +535,6 @@ class ConfigurationObject(object):
         else:
             return "Record "+unicode(self.id)+": no name"
 
-    def getNameJS(self, lang):
-	return self.getName(lang).replace("'","\\'");
-
     def getNameHTML(self, lang):
 	return cgi.escape(self.getName(lang),True).replace("'","&#39;");
 
@@ -828,9 +825,12 @@ class ConfigurationObject(object):
         else:
             return ""
 
-    def statusIcon(self, configuration, pic=None):
+    def isModeling(self):
+        return None
+    
+    def statusIcon(self, configuration, pic=None,inButton=False):
         allObjects = configuration.findAllFromObject(self)
-        result = configuration.getAllHalfling(allObjects)
+        result = configuration.getAllHalfling(allObjects," text-info" if not inButton and self.isModeling() else "")
         if self.fields['active'] == '0':
             result = '<span class="icon-combine">'+result+'<span class="halflings halflings-remove text-danger"></span></span>'
         if pic:
@@ -852,6 +852,32 @@ class ConfigurationObject(object):
             return valueCategs[1].triple()
         else:
             return valueCategs[0].triple()
+
+    def get_quantity(self):
+        return "";
+
+    def get_measure(self,c):
+	if 'm_id' in self.fields and self.fields['m_id'] and self.fields['m_id'] in c.AllMeasures.elements:
+            return c.AllMeasures.elements[self.fields['m_id']]
+        return None;
+
+    def get_unit(self,c):
+        aMeasure = self.get_measure(c)
+        if aMeasure:
+            return aMeasure.fields['unit']
+        return "";
+        
+    def getQtyUnit(self,c):
+        result = u'?'
+        quantity = self.get_quantity()
+        if quantity:
+            result = quantity
+        unit = get_unit(c)
+	if unit:
+            result += u' '+unit
+        if result == '?':
+            return ''
+        return result
 
 class UpdateThread(threading.Thread):
 
@@ -956,6 +982,9 @@ class AllObjects(object):
             self.check_csv(self.file_of_names)
             self.loadNames()
 
+    def isModeling(self):
+        return None
+    
     def check_csv(self, filename):
         if not os.path.exists(filename):
             if not os.path.exists(os.path.dirname(filename)):
@@ -1799,6 +1828,9 @@ class AllBatches(AllObjects):
     def get_key_group(self):
         return 'gr'
 
+    def get_quantity(self):
+        return self.fields['basicqt']
+    
     def get_batches_for_recipes(self, recipes):
         batches = []
         #print recipes
@@ -1869,6 +1901,8 @@ class AllTransferModels(AllObjects):
     def get_key_group(self):
         return 'h'
 
+    def isModeling(self):
+        return "t"    
 
 class AllPouringModels(AllObjects):
 
@@ -1888,7 +1922,9 @@ class AllPouringModels(AllObjects):
     def get_key_group(self):
         return 'h'
 
-
+    def isModeling(self):
+        return "v"
+    
 class AllManualDataModels(AllObjects):
 
     def __init__(self, config):
@@ -1908,7 +1944,9 @@ class AllManualDataModels(AllObjects):
     def get_key_group(self):
         return 'h'
 
-
+    def isModeling(self):
+        return "d"
+    
 class AllBarcodes(AllObjects):
 
     def __init__(self, config):
@@ -2335,6 +2373,9 @@ class ManualData(AlarmingObject):
     def get_class_acronym(self):
         return 'observation'
 
+    def get_quantity(self):
+        return self.fields['value']
+
     def add_component(self, component):
         type = component.split('_')[0]
         id = component.split('_')[1]
@@ -2435,6 +2476,9 @@ class Pouring(ConfigurationObject):
 
     def get_type(self):
         return 'v'
+
+    def get_quantity(self):
+        return self.fields['quantity']
 
     def add_measure(self, measure):
         tmp = measure.split('_')
@@ -3008,6 +3052,9 @@ class GrRecipe(Group):
     def get_class_acronym(self):
         return 'grecipe'
 
+    def get_quantity(self):
+        return self.fields['basicqt']
+
     def validate_form(self, data, configuration, lang):
         tmp = super(GrRecipe, self).validate_form(data, configuration, lang)
         if tmp == '':
@@ -3415,18 +3462,13 @@ class ExportData():
             if elem.get_type() == 'b':
                 tmp['timestamp'] = useful.date_to_ISO(elem.fields['time'])
                 tmp['duration'] = self.get_duration(elem.getTimestamp(), useful.get_timestamp())
-                tmp['unit'] = self.config \
-                                  .AllMeasures \
-                                  .elements[elem.fields['m_id']].fields['unit']
-                tmp['value'] = export_float(elem.fields['basicqt'])
+                tmp['unit'] = elem.get_unit(self.config)
+                tmp['value'] = export_float(elem.get_quantity())
 
             if self.cond['acronym'] is True:
                 tmp[elem.get_type()+'_id'] = elem.fields['acronym']
                 if elem.get_type() == 'b':
-                    tmp['m_id'] = self.config \
-                                      .AllMeasures \
-                                      .elements[elem.fields['m_id']] \
-                                      .fields['acronym']
+                    tmp['m_id'] = elem.get_measure(self.config).fields['acronym']
             else:
                 tmp[elem.get_type()+'_id'] = elem.getID()
                 if elem.get_type() == 'b':
@@ -3460,20 +3502,14 @@ class ExportData():
                 else:
                     tmp['c_id'] = ''
                 tmp['sensor'] = elem.fields['acronym']
-                tmp['m_id'] = (self.config
-                                   .AllMeasures
-                                   .elements[elem.fields['m_id']]
-                                   .fields['acronym'])
+                tmp['m_id'] = elem.get_measure(self.config).fields['acronym']
             else:
                 tmp['p_id'] = elem.fields['p_id']
                 tmp['e_id'] = elem.fields['e_id']
                 tmp['c_id'] = elem.fields['c_id']
                 tmp['sensor'] = elem.fields['s_id']
                 tmp['m_id'] = elem.fields['m_id']
-            tmp['unit'] = (self.config
-                               .AllMeasures
-                               .elements[elem.fields['m_id']]
-                               .fields['unit'])
+            tmp['unit'] = elem.get_unit(self.config)
             tmp['remark'] = elem.fields['remark']
 
         elif elem.get_type() == 'al':
@@ -3488,13 +3524,7 @@ class ExportData():
                                      .AllSensors
                                      .elements[elem.fields['s_id']]
                                      .fields['acronym'])
-                tmp['m_id'] = (self.config
-                                   .AllMeasures
-                                   .elements[self.config
-                                                 .AllSensors
-                                                 .elements[elem.fields['s_id']]
-                                                 .fields['m_id']]
-                                                 .fields['acronym'])
+                tmp['m_id'] = self.config.AllSensors.elements[elem.fields['s_id']].get_measure(self.config).fields['acronym']
             else:
                 tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
                 tmp['sensor'] = elem.fields['s_id']
@@ -3503,10 +3533,7 @@ class ExportData():
                                                 useful.date_to_timestamp(elem.fields['begin']))
             tmp['category'] = elem.fields['degree']
             tmp['value'] = export_float(elem.fields['value'])
-            tmp['unit'] = (self.config
-                               .AllMeasures
-                               .elements[sensor.fields['m_id']]
-                               .fields['unit'])
+            tmp['unit'] = sensor.get_unit(self.config)
 
         elif elem.get_type() == 'd':
             tmp['type'] = 'MAN'
@@ -3519,23 +3546,14 @@ class ExportData():
                 tmp['h_id'] = elem.fields['h_id']
             tmp['timestamp'] = useful.date_to_ISO(elem.fields['time'])
             if elem.fields['m_id'] != '':
-                tmp['value'] = export_float(elem.fields['value'])
-                tmp['unit'] = (self.config
-                                   .AllMeasures
-                                   .elements[elem.fields['m_id']]
-                                   .fields['unit'])
+                tmp['value'] = export_float(elem.get_quantity())
+                tmp['unit'] = elem.get_unit(self.config)
                 if self.cond['acronym'] is True:
-                    tmp['m_id'] = (self.config
-                                       .AllMeasures
-                                       .elements[elem.fields['m_id']]
-                                       .fields['acronym'])
+                    tmp['m_id'] = elem.get_measure(self.config).fields['acronym']
                 else:
                     tmp['m_id'] = elem.fields['m_id']
             if self.cond['acronym'] is True and elem.fields['m_id'] != '':
-                tmp['m_id'] = (self.config
-                                   .AllMeasures
-                                   .elements[elem.fields['m_id']]
-                                   .fields['acronym'])
+                tmp['m_id'] = elem.get_measure(self.config).fields['acronym']
                 tmp[elem.fields['object_type']+'_id'] = self.config.findAllFromType(elem.fields['object_type']).elements[elem.fields['object_id']].fields['acronym']
             else:
                 tmp['m_id'] = elem.fields['m_id']
@@ -3595,10 +3613,8 @@ class ExportData():
                 tmp['h_id'] = elem.fields['h_id']
             tmp['timestamp'] = useful.date_to_ISO(elem.fields['time'])
             tmp['remark'] = elem.fields['remark']
-            tmp['value'] = export_float(elem.fields['quantity'])
-            tmp['unit'] = (self.config
-                               .AllMeasures
-                               .elements[elem.fields['m_id']].fields['unit'])
+            tmp['value'] = export_float(elem.get_quantity())
+            tmp['unit'] = elem.get_unit(self.config)
             if elem.fields['src'] == self.b.getID():
                 tmp['type'] += 'OUT'
                 if self.cond['acronym'] is True:
@@ -3606,10 +3622,7 @@ class ExportData():
                                        .AllBatches
                                        .elements[elem.fields['dest']]
                                        .fields['acronym'])
-                    tmp['m_id'] = (self.config
-                                       .AllMeasures
-                                       .elements[elem.fields['m_id']]
-                                       .fields['acronym'])
+                    tmp['m_id'] = elem.get_measure(self.config).fields['acronym']
                 else:
                     tmp['b_id'] = elem.fields['dest']
                     tmp['m_id'] = elem.fields['m_id']
@@ -3620,10 +3633,7 @@ class ExportData():
                                        .AllBatches
                                        .elements[elem.fields['src']]
                                        .fields['acronym'])
-                    tmp['m_id'] = (self.config
-                                       .AllMeasures
-                                       .elements[elem.fields['m_id']]
-                                       .fields['acronym'])
+                    tmp['m_id'] = elem.get_measure(self.config).fields['acronym']
                 else:
                     tmp['b_id'] = elem.fields['src']
                     tmp['m_id'] = elem.fields['m_id']
@@ -3747,12 +3757,7 @@ class Alarm(ConfigurationObject):
             elem = config.findAllFromType(
                 alarmedObject.fields['object_type']).elements[alarmedObject.fields['object_id']]
             name = config.getMessage(elem.get_class_acronym(),lang)
-            if alarmedObject.fields['m_id'] != '':
-                measure = (config.AllMeasures
-                                 .elements[alarmedObject.fields['m_id']]
-                                 .fields['unit'])
-            else:
-                measure = ''
+            unit_measure = alarmedObject.get_unit(config)
             currObject.fields['begintime'] = alarmedObject.fields['time']
             currObject.fields['cont_type'] = elem.get_type()
             currObject.fields['cont_id'] = elem.getID()
@@ -3766,7 +3771,7 @@ class Alarm(ConfigurationObject):
                                   elem.getName(lang),
                                   elem.fields['acronym'],
                                   unicode(alarmedObject.fields['value']),
-                                  measure,
+                                  unit_measure,
                                   alarmedObject.fields['remark'],
                                   alarmedObject.fields['time'])
         elif alarmedObject.get_type() == 'v':
@@ -3780,12 +3785,7 @@ class Alarm(ConfigurationObject):
             if alarmedObject.fields['dest']:
                 elemid = alarmedObject.fields['dest']
                 elemout = config.AllBatches.elements[elemid]
-            if alarmedObject.fields['m_id'] != '':
-                measure = (config.AllMeasures
-                                 .elements[alarmedObject.fields['m_id']]
-                                 .fields['unit'])
-            else:
-                measure = ''
+            unit_measure = alarmedObject.get_unit(config)
             currObject.fields['begintime'] = alarmedObject.fields['time']
             currObject.fields['cont_type'] = 'b'
             currObject.fields['cont_id'] = elemid
@@ -3801,7 +3801,7 @@ class Alarm(ConfigurationObject):
                                   elemin.getName(lang),
                                   elemin.fields['acronym'],
                                   unicode(alarmedObject.fields['quantity']),
-                                  measure,
+                                  unit_measure,
                                   alarmedObject.fields['remark'],
                                   alarmedObject.fields['time'])
         currObject.save(config)        
@@ -3834,23 +3834,16 @@ class Alarm(ConfigurationObject):
                                   unicode(alarmedObject.lastvalue),
                                   equal,
                                   alarmedObject.fields[alarmedObject.actualAlarm],
-                                  config.AllMeasures
-                                        .elements[alarmedObject.fields['m_id']]
-                                        .fields['unit'],
+                                  alarmedObject.get_unit(config),
                                   alarmedObject.getName(lang))
         elif alarmedObject.get_type() == 'd':
             title = config.getMessage('alarmmanualtitle',lang)
             elem = config.findAllFromType(
                 alarmedObject.fields['object_type']).elements[alarmedObject.fields['object_id']]
-            if alarmedObject.fields['m_id'] != '':
-                measure = (config.AllMeasures
-                                 .elements[alarmedObject.fields['m_id']]
-                                 .fields['unit'])
-            else:
-                measure = ''
+            unit_measure = alarmedObject.get_unit(config)
             return unicode.format(title,
                                   alarmedObject.fields['value'],
-                                  measure,
+                                  unit_measure,
                                   elem.getName(lang))
         elif alarmedObject.get_type() == 'v':
             title = config.getMessage('alarmpouringtitle',lang)
@@ -4041,6 +4034,11 @@ class Sensor(AlarmingObject):
     def get_class_acronym(self):
         return 'sensor'
 
+    def get_quantity(self):
+        if self.lastvalue is None:
+            return ""
+        return unicode(self.lastvalue)
+
     def getRRDName(self):
         name = 's_' + self.id
         name += '.rrd'
@@ -4121,12 +4119,9 @@ class Sensor(AlarmingObject):
             pos = (config.screen
                          .show(pos+2,
                                unicode(round(float(value), 1))))
-        if self.fields['m_id']:
-            id_measure = self.fields['m_id']
-            if id_measure in config.AllMeasures.elements \
-                                and config.screen is not None:
-                measure = config.AllMeasures.elements[id_measure]
-                pos = config.screen.show(pos, measure.fields['unit'])
+            unit_measure = self.get_unit(config)
+            if unit_measure:
+                pos = config.screen.show(pos, unit_measure)
 
         prvAlarm = self.actualAlarm
         typeAlarm, symbAlarm, self.colorAlarm,self.colorTextAlarm = self.getTypeAlarm(value)
@@ -4222,13 +4217,6 @@ class Sensor(AlarmingObject):
         output_gpio.write_pin(int(output['channel']), 0)
         return output_val
     
-    def get_mesure_for_sensor(self, config):
-        sensor_m_id = self.fields['m_id']
-        for i in config.AllMeasures.elements:
-            if config.AllMeasures.elements[i].fields['m_id'] == sensor_m_id:
-                return config.AllMeasures.elements[i]
-        raise KeyError('This m_id does not exist')
-
     def sanitize_reading(self, config, value):
         '''
         Rounds to the value of 'step'.
@@ -4238,7 +4226,7 @@ class Sensor(AlarmingObject):
             print('Received non number sensor reding for channel '
                   + self.fields['channel'] + '. Ignoring.')
             return None
-        measure = self.get_mesure_for_sensor(config)
+        measure = self.get_measure(config)
         minimum = int(measure.fields['min'])
         maximum = int(measure.fields['max'])
         step = int(measure.fields['step'])
@@ -4582,8 +4570,11 @@ class Batch(ConfigurationObject):
         self.fields['m_id'] = tmp[-1]
 
     def get_cost(self, quantity):
-        value = float(self.fields['cost'])/float(self.fields['basicqt'])
+        value = float(self.fields['cost'])/float(self.get_quantity())
         return value * float(quantity)
+
+    def get_quantity(self):
+        return self.fields['basicqt']
 
     def get_quantity_used(self):
         qt = 0
@@ -4596,7 +4587,7 @@ class Batch(ConfigurationObject):
             self.fields['basicqt'] = 0
         else:
             qt = self.get_quantity_used()
-            tmp = float(self.fields['basicqt']) - qt
+            tmp = float(self.get_quantity()) - qt
             if tmp < 0:
                 return self.pourings.getTimestamp() - uself.getTimestamp()
         return useful.get_timestamp() - self.getTimestamp()
@@ -4655,13 +4646,42 @@ class Batch(ConfigurationObject):
             aCP = self.config.AllCheckPoints.elements[cp]
             if self.id not in aCP.batches:
                 aCP.batches.append(self.id)
-            
+
+    def fromModel(self,c,model):
+        result = []
+        id = model.getID()
+        type = model.get_type()
+        if type == 'tm':
+            if self.transfers:
+                for t in self.transfers:
+                    if t in c.AllTransfers.elements:
+                        e = c.AllTransfers.elements[t]
+                        if id == e.fields['tm_id']:
+                            result.append(e)
+        elif type == 'dm':
+            if self.manualdata:
+                for t in self.manualdata:
+                    e = c.AllManualData.elements[t]
+                    if id == e.fields['dm_id']:
+                        result.append(e)
+        elif type == 'vm':
+            if self.destination:
+                for t in self.destination:
+                    e = c.AllPourings.elements[t]
+                    if id == e.fields['vm_id']:
+                        result.append(e)
+            if self.source:
+                for t in self.source:
+                    e = c.AllPourings.elements[t]
+                    if id == e.fields['vm_id']:
+                        result.append(e)
+        return sorted(result, key=lambda e: e.fields['time'])
 
     def get_residual_quantity(self):
         val = self.get_quantity_used()
         if self.fields['basicqt'] == '' or self.fields['basicqt'] == 0:
-            self.fields['basicqt'] = 0
-        return float(self.fields['basicqt']) - val
+            self.fields['basicqt'] = "0"
+        return float(self.get_quantity()) - val
 
     def clone(self, user, name=1):
         b = self.config.getObject('new', 'b')
@@ -4770,19 +4790,33 @@ class PouringModel(ConfigurationObject):
     def get_type(self):
         return 'vm'
 
+    def isModeling(self):
+        return "v"
+
     def get_class_acronym(self):
         return 'pouringmodel'
 
     def get_group(self):
         return self.fields['h_id']
 
+    def get_quantity(self):
+        return self.fields['quantity']
+
+    def get_unit_in_context(self,c, currObject):
+        if self.fields['src']:
+            if self.fields['src'] in c.AllGrRecipe.elements:
+                aRecipe = c.AllGrRecipe.elements[self.fields['src']]
+                return aRecipe.get_unit(c)
+        elif currObject:
+            return currObject.get_unit(c)
+        return ""
+
     def validate_form(self, data, configuration, lang):
         return super(PouringModel, self).validate_form(data, configuration, lang)
 
     def set_value_from_data(self, data, c, user):
         if self.fields['h_id'] != '':
-            self.config.AllCheckPoints.elements[self.fields['h_id']].remove_vm(
-                self)
+            self.config.AllCheckPoints.elements[self.fields['h_id']].remove_vm(self)
         super(PouringModel, self).set_value_from_data(data, c, user)
         self.fields['quantity'] = data['quantity']
         self.fields['in'] = data['in']
@@ -4802,23 +4836,11 @@ class PouringModel(ConfigurationObject):
 ##        else:
 ##            self.fields['dest'] = '1'
 ##            self.fields['in'] = ''
-##        self.fields['h_id'] = data['checkpoint']
+        self.fields['h_id'] = data['checkpoint']
         self.fields['rank'] = data['rank']
         if 'active' in data:
-            self.config.AllCheckPoints.elements[self.fields['h_id']].add_vm(
-                self)
+            self.config.AllCheckPoints.elements[self.fields['h_id']].add_vm(self)
         self.save(c, user)
-
-    def getQtyJS(self,c):
-        result = u'?'
-        if self.fields['quantity']:
-            result = self.fields['quantity']
-	if self.fields['m_id'] and self.fields['m_id'] in c.AllMeasures.elements:
-            aMeasure=c.AllMeasures.elements[self.fields['m_id']]
-            result += u' '++aMeasure.fields['unit']
-        if result == '?':
-            return ''
-        return result.replace("'","\\'")
 
 class ManualDataModel(ConfigurationObject):
     def __init__(self, config):
@@ -4844,11 +4866,17 @@ class ManualDataModel(ConfigurationObject):
     def get_type(self):
         return 'dm'
 
+    def isModeling(self):
+        return "d"
+
     def get_classe_acronym(self):
         return 'manualdatamodel'
 
     def get_group(self):
         return self.fields['h_id']
+
+    def get_quantity(self):
+        return self.fields['typical']
 
     def validate_form(self, data, configuration, lang):
         return super(ManualDataModel, self).validate_form(data, configuration, lang)
@@ -4868,7 +4896,6 @@ class ManualDataModel(ConfigurationObject):
                 self)
         self.save(c, user)
 
-
 class TransferModel(ConfigurationObject):
     def __init__(self, config):
         ConfigurationObject.__init__(self)
@@ -4882,6 +4909,9 @@ class TransferModel(ConfigurationObject):
 
     def get_type(self):
         return 'tm'
+
+    def isModeling(self):
+        return "t"
 
     def get_class_acronym(self):
         return 'transfermodel'

@@ -4,7 +4,7 @@ $code :
     allElem = c.findAllFromType(type)
     elem = allElem.elements[id]
     keyID = allElem.keyColumn
-    permissionKey = type +'_'
+    permissionKey = '_' + type +'_'
 
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var title: MODAL 
@@ -15,7 +15,7 @@ $var title: MODAL
 		<div class="modal-content">
                 <div class="modal-header row ">
 		<div class="col-xs-2" 
-		    $if 'm' in type and type != 'm':
+		    $if permissionKey '_tm_vm_dm_':
 			style="color : #337ab7"
 		>
 		    <strong>$:c.getAllHalfling(allElem)</strong>
@@ -46,10 +46,7 @@ $var title: MODAL
 		         <div class="col-xs-10" style="color:black">
 			   $code:
 		               value, ignore = elem.get_value_sensor(c)
-			   <b><span style="background-color:#$(elem.colorAlarm);color:#$(elem.colorTextAlarm)">$(value)</span>
-		           $if elem.fields['m_id']:
-		               $(c.AllMeasures.elements[elem.fields['m_id']].fields['unit'])
-		           </b>
+			   <span style="background-color:#$(elem.colorAlarm);color:#$(elem.colorTextAlarm)"><strong>$(value)</strong> $(elem.get_unit(c))</span>
                            $useful.timestamp_to_ISO(useful.get_timestamp())
 			 </div>
 		    </div>
@@ -93,9 +90,18 @@ $var title: MODAL
 			    </div>
 		    $if type in 'bce':
 			<div class="row">
-			    <div class="col-xs-3" >
+			    <div class="col-xs-4" >
 				<strong><a href="/find/t/$(type)_$id" class="btn btn-warning" role="button">$:c.getHalfling('transfer')</a></strong>
 			    </div>
+                            <div class="col-xs-8" id="modalinfo" >
+			    $code:
+				pos = None
+				tmp = elem.get_last_transfer()
+				if tmp is not None :
+				    pos = c.AllTransfers.elements[tmp].get_cont()
+			    $if pos is not None :
+				<a href="/item/$(pos.get_type())_$pos.getID()">$:pos.statusIcon(c,True,False) $pos.fields['acronym']</a>
+                            </div>
 			</div>	
 
                     $if type == 'm':
@@ -263,10 +269,7 @@ $var title: MODAL
                                 $c.getMessage('quantity',self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-				$if elem.fields['basicqt'] != '' :
-				    $elem.fields['basicqt']
-				$else :
-				    -
+				$elem.get_quantity()
                             </div>
                         </div>
 			<div class="row" style="margin-top:10px;">
