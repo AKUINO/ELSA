@@ -280,11 +280,6 @@ $elif type == 'gr':
 		    $$("#modal_map").find(".modal-dialog").load("/graph/$(type)_$(id)");
 		    $$("#modal_map").modal('show');
 		});
-		$$('.maphelp').on("click",function(e){
-		    $$('#modal_map').modal('hide');
-		    $$("#modal_map").find(".modal-dialog").load("/graphhelp/$(type)_$(id)");
-		    $$("#modal_map").modal('show');
-		});
 	</script>
 	
 	<div class="modal" id="modal_map" style="color:back;">

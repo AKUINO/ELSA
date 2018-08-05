@@ -8,7 +8,10 @@ $code:
     usage = None
     place = None
     if batch:
+	keyURL = 'b_'+batch.getID()
         place = batch.get_actual_position_here(c)
+    else:
+	keyURL = 'gr_'+id
     if place:
 	gr_usage = place.get_group()
         if gr_usage and gr_usage in c.AllGrUsage.elements.keys():
@@ -26,7 +29,7 @@ $#<p style="background: white;">$graph</p>
 	    <a href="/find/related/$(place.get_type())_$(place.getID())">$:c.getAllHalfling(c.AllPlaces)$place.fields['acronym'] <strong>$place.getName(self.lang)</strong></a></br>
 	</div>
         <div class="col-xs-2">
-	    <button onClick="printSVG()">$:c.getHalfling("print")</button>
+	    <button type="button" class="btn btn-info btn-md" onClick="printSVG()">$:c.getHalfling("print")</button>
         </div>
     </div>
     <div class="row">
@@ -38,7 +41,7 @@ $#<p style="background: white;">$graph</p>
 	    <a href="/find/related/gu_$usage.getID()">$:c.getAllHalfling(c.AllGrUsage)$usage.fields['acronym'] <strong>$usage.getName(self.lang)</strong></a>
 	</div>
         <div class="col-xs-2">
-	    <button type="button" class="btn btn-warning btn-md maphelp" data-toggle="modal" data-target="#mapmodal">$:(c.getHalfling('help'))</button>
+	    <button type="button" class="btn btn-info btn-md maphelp" data-toggle="modal" data-target="#mapmodal">$:(c.getHalfling('help'))</button>
         </div>
     </div>
 <div id="Controls">
@@ -114,3 +117,10 @@ var printSVG = function()
         };
         setTimeout(popUpAndPrint, 500);
     };
+
+$$('.maphelp').on("click",function(e){
+    $$('#modal_map').modal('hide');
+    $$("#modal_map").find(".modal-dialog").load("/graphhelp/$(keyURL)");
+    $$("#modal_map").modal('show');
+});
+
