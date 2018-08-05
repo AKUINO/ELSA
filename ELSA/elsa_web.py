@@ -549,11 +549,11 @@ class WebFind():
                     return render.findrelatedcomponents(id1, id2, mail, barcode)
             else:
                 if type == 'd'and id1 in 'pceb':
-                    return render.findlinkeddata(id1, id2, mail)
+                    return render.findlinkeddata(id1, id2, mail,None)
                 elif type == 't' and id1 in 'ceb':
-                    return render.findlinkedtransfers(id1, id2, mail)
+                    return render.findlinkedtransfers(id1, id2, mail,None)
                 elif type == 'v' and id1 == 'b':
-                    return render.findlinkedpourings(id2, mail)
+                    return render.findlinkedpourings(id2, mail,None)
                 elif type == 'h':
                     return render.findcontrol(id1, id2, mail)
                 elif type == 'b':
@@ -624,6 +624,16 @@ class WebMapBatch():
             elem = c.AllBatches.elements[id]
             return render.mapbatch(mail, elem)
         return render.notfound()
+
+class WebGraphHelp():
+    def __init__(self):
+        self.name = u"WebGraphHelp"
+
+    def GET(self, type, id):
+        mail = redirect_when_not_logged()
+            
+        objects = c.findAllFromType(type)
+        return render.graphhelp(mail, type, id)
 
 class WebGraphRecipe():
     def __init__(self):
@@ -1292,6 +1302,7 @@ def main():
             '/doc/(.+)', 'getDoc',
             '/list/(.+)', 'WebList',
             '/graphic/(.+)_(.+)', 'WebGraphic',
+            '/graphhelp/(.+)_(.+)', 'WebGraphHelp',
             '/map/b_(.+)', 'WebMapBatch',
             '/map/gr_(.+)', 'WebMapRecipe',
             '/graph/(.+)_(.+)', 'WebGraphRecipe',

@@ -16,16 +16,19 @@ $code:
 $#<p style="background: white;">$graph</p>
 <div class="modal-body" style="background: white;">
   <div class="container-fluid">
-    $if batch:
-      <div class="row">
+    <div class="row">
 	<div id="modalinfo" class="col-xs-5">
+        $if batch:
 	    $:c.getAllHalfling(c.AllBatches)$batch.fields['acronym'] <strong>$batch.getName(self.lang)</strong>
 	</div>
 	<div id="modalinfo" class="col-xs-5">
         $if place:
 	    <a href="/find/related/$(place.get_type())_$(place.getID())">$:c.getAllHalfling(c.AllPlaces)$place.fields['acronym'] <strong>$place.getName(self.lang)</strong></a></br>
 	</div>
-      </div>
+        <div class="col-xs-2">
+	    <button onClick="printSVG()">$:c.getHalfling("print")</button>
+        </div>
+    </div>
     <div class="row">
 	<div id="modalinfo" class="col-xs-5">
             <a href="/find/related/gr_$elem.getID()">$:c.getAllHalfling(c.AllGrRecipe)$elem.fields['acronym'] <strong>$elem.getName(self.lang)</strong></a>
@@ -35,7 +38,7 @@ $#<p style="background: white;">$graph</p>
 	    <a href="/find/related/gu_$usage.getID()">$:c.getAllHalfling(c.AllGrUsage)$usage.fields['acronym'] <strong>$usage.getName(self.lang)</strong></a>
 	</div>
         <div class="col-xs-2">
-	    <button onClick="printSVG()">$:c.getHalfling("print")</button>
+	    <button type="button" class="btn btn-warning btn-md maphelp" data-toggle="modal" data-target="#mapmodal">$:(c.getHalfling('help'))</button>
         </div>
     </div>
 <div id="Controls">
@@ -111,6 +114,3 @@ var printSVG = function()
         };
         setTimeout(popUpAndPrint, 500);
     };
-
-</script>
-

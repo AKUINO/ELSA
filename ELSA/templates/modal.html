@@ -15,7 +15,7 @@ $var title: MODAL
 		<div class="modal-content">
                 <div class="modal-header row ">
 		<div class="col-xs-2" 
-		    $if permissionKey '_tm_vm_dm_':
+		    $if elem.isModeling():
 			style="color : #337ab7"
 		>
 		    <strong>$:c.getAllHalfling(allElem)</strong>
@@ -70,7 +70,7 @@ $var title: MODAL
                             $elem.getName(self.lang)
                             </div>
                         </div>
-		    $if type in 'hcpebudmvmtm' and type not in 'mtvd':
+		    $if permissionKey in '_h_c_p_e_b_u_dm_vm_tm_':
 			$code :
 			    groups = c.get_group(allElem.get_key_group())
 			$if elem.get_group() != '' :
@@ -88,7 +88,7 @@ $var title: MODAL
 					<a href="/item/$(allElem.get_key_group())_$(elem.get_group())">$groups.elements[elem.get_group()].fields['acronym']</a>
 				</div>
 			    </div>
-		    $if type in 'bce':
+		    $if permissionKey in '_b_c_e_':
 			<div class="row">
 			    <div class="col-xs-4" >
 				<strong><a href="/find/t/$(type)_$id" class="btn btn-warning" role="button">$:c.getHalfling('transfer')</a></strong>
@@ -351,32 +351,32 @@ $var title: MODAL
                 </div>
             </div>
             <div class="modal-footer">
-		$if type in 'cpeb' :
+		$if permissionKey in '_c_p_e_b_' :
 		    <div class="col-xs-2" >
 			<strong><a href="/find/d/$(type)_$(id)" class="btn btn-warning" role="button">$:c.getHalfling('manualdata')</a></strong>
 		    </div>
 		$else :
 		    <div class="col-xs-2" >
 		    </div>
-		$if type in 'cpem':
+		$if permissionKey in '_c_p_e_m_':
 		    <div class="col-xs-2" >
 			<strong><a href="/find/related/$(type)_$id" class="btn btn-warning" role="button">$:c.getHalfling('related')</a></strong>
 		    </div>
-		$elif type in 'b' :
+		$elif type == 'b' :
 		    <div class="col-xs-2" >
 			<strong><a href="/find/v/$(type)_$id" class="btn btn-warning" role="button">$:c.getHalfling('pouring')</a></strong>
 		    </div>
 		$else :
 		    <div class="col-xs-2" >
 		    </div>
-		$if type in 'cpesm':
+		$if permissionKey in '_c_p_e_s_m_':
 		    <div class="col-xs-2" >
 			<strong><a href="/graphic/$(type)_$id" class="btn btn-warning" role="button">$:c.getHalfling('graphic')</a></strong>
 		    </div>
 		$else :
 		    <div class="col-xs-2" >
 		    </div>
-		$if type in 'cpeb':
+		$if permissionKey in '_c_p_e_b_':
 		    <div class="col-xs-2">
 			<strong><a href="/export/$(type)_$(id)" class="btn btn-warning" role="button">$:c.getHalfling('exportdata')</a></strong>
 		    </div>
