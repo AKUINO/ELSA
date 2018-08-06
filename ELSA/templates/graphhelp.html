@@ -1,0 +1,99 @@
+$def with (mail,type,id)
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$var recursive : True
+$var title : Graph Legend
+$var location :
+$#<p style="background: white;">$graph</p>
+<div class="modal-body" style="background: white;">
+  <div class="container-fluid">
+    <div class="row">
+	<div id="modalinfo" class="col-xs-5">
+	<button type="button" class="btn btn-warning btn-md map" data-toggle="modal" data-target="#mapmodal">$:(c.getHalfling('schema'))</button>
+	</div>
+    </div>
+<div id="Controls">
+<svg id="SchemaSVG" class="row" style="background-color:#E5E5E7" width="100%" height="8000px">
+  <g/>
+</svg>
+</div>
+
+  </div>
+</div>
+
+<script>
+// digraph not strict should be multigraph
+// a->b;a->b;a->b[label="1"];a->b[label="2"]; will all be displayed !
+var inputGraph =
+'digraph{'
++'recimain->recipe[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];'
++'recimain[labelType=\"html\",label=\"<a href=#>Groupe de Recettes</a>\",shape=ellipse,style=\"fill:#fff;stroke:1px;\"];'
++'recipe[labelType=\"html\",label=\"<a href=#>Recette (du lot)</a>\",shape=ellipse,style=\"fill:#fbcfaa;stroke:1px;\"];'
++'recipein[labelType=\"html\",label=\"<a href=#>Recette/Nature<br>d\'un intrant</a>\",shape=ellipse,style=\"fill:#fff;stroke:1px;\"];'
++'recipeout[labelType=\"html\",label=\"<a href=#>Recette/Nature<br>d\'un effluent</a>\",shape=ellipse,style=\"fill:#fff;stroke:1px;\"];'
++'recipe->ustart[style=\"stroke-width:3px;stroke:#3d3\",labelType=\"html\",label=\"Transfert<br>de Démarrage\"];'
++'utop->ustart[style=\"stroke-width:1px;stroke-dasharray:3,12;stroke:#888;\"];'
++'utop[labelType=\"html\",label=\"<a href=#>Groupe d\'Usages<br>d\'équipements<br>de l\'exploitation</a>\"'
++',shape=diamond,style=\"fill:#fff;stroke:1px;\"];'
++'ustart[labelType=\"html\",label=\"<a href=#>Usage<br>du 1er équipement<br>de production</a>\"'
++',shape=diamond,style=\"fill:#fff;stroke:1px;\"];'
++'ustart->hstart[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];'
++'hstart->u2[style=\"stroke-width:3px\",labelType=\"html\",label=\"Transfert<br>vers l\'équiment suivant\"];'
++'u2[labelType=\"html\",label=\"<a href=#>Usage<br>de l\'équipement<br>courant (pour un lot)</a>\"'
++',shape=diamond,style=\"fill:#fbcfaa;stroke:1px;\"];'
++'u2->h2[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];'
++'hstart[labelType=\"html\",label=\"<a href=#>* 1er Contrôle: déjà effectué</a><br> / Nombre de fromages: 5<br> / <i>Différentes observations</i>\"];'
++'h2[labelType=\"html\",label=\"<a href=#>* 2ième Contrôle: déjà effectué</a><br> / Caillé (OK): 1<br> / <i>Différentes observations</i>\"];'
++'h3[labelType=\"html\",label=\"<a href=#>3ième Contrôle (pas effectué)</a><br> / Nettoyage (OK): 1 / <br> / <i>Différentes observations</i>\"];'
++'h2->h3[style=\"stroke-width:3px;stroke:#888\"];'
++'recipein->h2[style=\"stroke-width:3px;stroke:#f07e26\",labelType=\"html\",label=\"Quantité<br>versée\"];'
++'h2->recipeout[style=\"stroke-width:3px;stroke:#f07e26\",labelType=\"html\",label=\"Quantité<br>versée\"];'
++'uend[labelType=\"html\",label=\"<a href=#>Usage<br>de l\'équipement<br>suivant...</a><br>etc!\"'
++',shape=diamond,style=\"fill:#fff;stroke:1px;\"];'
++'h3->uend[style=\"stroke-width:3px\",labelType=\"html\",label=\"Transfert<br>vers l\'équipement suivant\"];'
++'}';
+// window.alert("Input:"+inputGraph);
+
+// Set up zoom support
+var svg = d3.select("svg"),
+    inner = d3.select("svg g"),  
+    zoom = d3.zoom().on("zoom", function() {
+      inner.attr("transform", d3.event.transform);
+    });
+svg.call(zoom);
+
+// Create and configure the renderer
+var render = dagreD3.render();
+
+var g;
+
+function tryDraw() {
+    try {
+      g = graphlibDot.read(inputGraph);
+    } catch (e) {
+      window.alert("error reading "+inputGraph);
+      throw e;
+    }
+
+    // Set margins, if not present
+    if (!g.graph().hasOwnProperty("marginx") &&
+        !g.graph().hasOwnProperty("marginy")) {
+      g.graph().marginx = 20;
+      g.graph().marginy = 20;
+    }
+
+    g.graph().transition = function(selection) {
+      return selection.transition().duration(500);
+    };
+
+    // Render the graph into svg g
+    d3.select("svg g").call(render, g);
+}
+
+tryDraw();
+
+$$('.map').on("click",function(e){
+    $$('#modal_map').modal('hide');
+    $$("#modal_map").find(".modal-dialog").load("/graph/$(type)_$(id)");
+    $$("#modal_map").modal('show');
+});
+
