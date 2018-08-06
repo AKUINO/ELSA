@@ -21,6 +21,12 @@ $#<p style="background: white;">$graph</p>
 </div>
 
 <script>
+$$('.map').on("click",function(e){
+    $$('#modal_$(type)_$id').modal('hide');
+    $$("#modal_$(type)_$id").find(".modal-dialog").load("/graph/$(type)_$(id)");
+    $$("#modal_$(type)_$id").modal('show');
+});
+
 // digraph not strict should be multigraph
 // a->b;a->b;a->b[label="1"];a->b[label="2"]; will all be displayed !
 var inputGraph =
@@ -90,10 +96,3 @@ function tryDraw() {
 }
 
 tryDraw();
-
-$$('.map').on("click",function(e){
-    $$('#modal_map').modal('hide');
-    $$("#modal_map").find(".modal-dialog").load("/graph/$(type)_$(id)");
-    $$("#modal_map").modal('show');
-});
-

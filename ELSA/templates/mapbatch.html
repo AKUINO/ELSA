@@ -19,15 +19,12 @@ $code:
     events.append(elem)
     done = set()
 <div class="container">
-    <div class="row">
-	<div class="col-xs-6">
-	    <a href="/find/related/b_$id">$:(elem.statusIcon(c,True,False))$elem.fields['acronym'] <strong>$elem.getName(self.lang)</strong></a>
-	</div>
-	$if recipe:
-		<div class="col-xs-5">
-		    <a href="/find/related/gr_$krecipe">$:(recipe.statusIcon(c,True,False))$recipe.fields['acronym'] <strong>$recipe.getName(self.lang)</strong></a>
-		</div>
-    </div>
+<script>
+    $$(function(){
+	$$("#includedAllMenub_$(id)").load("/fullentry/b_*$(id)");
+    });
+</script>
+<div id="includedAllMenub_$(id)"></div>
 $code:
     prev = ""
     prevtime=elem.getTimestamp()
@@ -36,13 +33,15 @@ $code:
     done = set()
     batch_location = None
     row = False
-<table style="padding:3px;border:1px solid #333;">
+<table style="padding:3px;border:1px solid #333; border-left:4px solid #333; border-right:4px solid #333;">
 	$ prev_duration = -1
+	$ place = None
 $for operation in events:
 	$ op_type = operation.get_type()
 	$if op_type != 'b' and operation.fields['h_id'] != prev:
 		$ duration = operation.getTimestamp()-prevtime
-		<tr style="padding:3px;border-top:1px solid #333;"><td></td><td style="text-align:right;padding:3px">$(useful.timestamp_to_time(duration) if prev_duration != duration else '" " " ')</td>
+		<tr style="padding:3px;border-top:1px solid #333;$( (";border-left:4px solid "+place.fields['colorgraph']+";border-right:4px solid "+place.fields['colorgraph']) if place else "")">
+		<td></td><td style="text-align:right;padding:3px">$(useful.timestamp_to_time(duration) if prev_duration != duration else '" " " ')</td>
 		$ prev_duration = duration
 		$ prev = operation.fields['h_id']
 		$if prev and prev in c.AllCheckPoints.elements:
@@ -101,7 +100,7 @@ $for operation in events:
 	              $if count > 0:
                        	$ average /= count
 			$ Acolor = None
-			<tr style="padding:3px$(";background-color:#eee" if row else "")">
+			<tr style="padding:3px$(";background-color:#eee" if row else "")$( (";border-left:4px solid "+place.fields['colorgraph']+";border-right:4px solid "+place.fields['colorgraph']) if place else "")">
 				$ duration = end-begin
 				<td></td><td style="text-align:right;padding:3px">$(useful.timestamp_to_time(duration) if prev_duration != duration else '" " " ' )</td>
 				$ prev_duration = duration
@@ -147,7 +146,7 @@ $for operation in events:
 	  $if op_type == 't':
 		$ batch_location = operation
 	$if op_type != 'b':
-            <tr style="padding:3px$(";background-color:#eee" if row else "")">
+            <tr style="padding:3px$(";background-color:#eee" if row else "")$( (";border-left:4px solid "+place.fields['colorgraph']+";border-right:4px solid "+place.fields['colorgraph']) if place else "")">
 		$ user = operation.fields['user']
 		$if user in c.AllUsers.elements:
 		    $ user = c.AllUsers.elements[user]
@@ -168,6 +167,7 @@ $for operation in events:
 		    $ dest = operation.get_cont()
 		    $:c.getHalfling('to')
 		    <a href="/find/related/$dest.get_type()_$dest.getID()">$:(dest.statusIcon(c,True,False))$(dest.fields['acronym'])</a> $dest.getName(self.lang)
+		    $ place = dest
 		$elif op_type == 'v':
 			$ kbatch = ''
 			$if operation.fields['dest']==id:

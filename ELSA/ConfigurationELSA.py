@@ -1334,8 +1334,8 @@ class AllAlarmLogs(AllObjects):
 
     def get_alarmlog_for_sensor(self, id, begin, end):
         logs = []
-        for i in range(len(self.elements)):
-            e = self.elements[unicode(i+1)]
+        for kal in self.elements.keys():
+            e = self.elements[kal]
             time = e.getTimestamp()
             if (id == e.fields['s_id']) and ( not e.fields['s_type'] or (e.fields['s_type'] == 's') ):
                 if time > begin and time < end:

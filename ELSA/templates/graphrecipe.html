@@ -119,8 +119,8 @@ var printSVG = function()
     };
 
 $$('.maphelp').on("click",function(e){
-    $$('#modal_map').modal('hide');
-    $$("#modal_map").find(".modal-dialog").load("/graphhelp/$(keyURL)");
-    $$("#modal_map").modal('show');
+    $$('#modal_$keyURL').modal('hide');
+    $$("#modal_$keyURL").find(".modal-dialog").load("/graphhelp/$(keyURL)");
+    $$("#modal_$keyURL").modal('show');
 });
 

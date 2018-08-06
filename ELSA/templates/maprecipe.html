@@ -9,14 +9,12 @@ $code:
     usagesTop = c.AllGrUsage.get_usages_for_recipe(summit)
     done = set()
 <div class="container">
-    <div class="row">
-	<div class="col-xs-6">
-	    <a href="/find/related/gr_$id">$:(elem.statusIcon(c,True,False))$elem.fields['acronym'] <strong>$elem.getName(self.lang)</strong></a>
-	</div>
-	<div class="col-xs-5">
-            $:c.getAllHalfling(c.AllBatches)$len(c.AllBatches.get_batches_for_recipes([id]))
-	</div>
-    </div>
+<script>
+    $$(function(){
+	$$("#includedAllMenugr_$(id)").load("/fullentry/gr_*$(id)");
+    });
+</script>
+<div id="includedAllMenugr_$(id)"></div>
 $for usageTop in usagesTop:
     <div class="map top">
 	<div class="row">

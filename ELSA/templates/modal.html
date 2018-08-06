@@ -351,40 +351,42 @@ $var title: MODAL
                 </div>
             </div>
             <div class="modal-footer">
+		$ col = 0
 		$if permissionKey in '_c_p_e_b_' :
+		    $ col += 2
 		    <div class="col-xs-2" >
 			<strong><a href="/find/d/$(type)_$(id)" class="btn btn-warning" role="button">$:c.getHalfling('manualdata')</a></strong>
 		    </div>
-		$else :
-		    <div class="col-xs-2" >
-		    </div>
 		$if permissionKey in '_c_p_e_m_':
+		    $ col += 2
 		    <div class="col-xs-2" >
 			<strong><a href="/find/related/$(type)_$id" class="btn btn-warning" role="button">$:c.getHalfling('related')</a></strong>
 		    </div>
-		$elif type == 'b' :
+		$if type == 'b' :
+		    $ col += 2
 		    <div class="col-xs-2" >
 			<strong><a href="/find/v/$(type)_$id" class="btn btn-warning" role="button">$:c.getHalfling('pouring')</a></strong>
 		    </div>
-		$else :
-		    <div class="col-xs-2" >
-		    </div>
 		$if permissionKey in '_c_p_e_s_m_':
+		    $ col += 2
 		    <div class="col-xs-2" >
 			<strong><a href="/graphic/$(type)_$id" class="btn btn-warning" role="button">$:c.getHalfling('graphic')</a></strong>
 		    </div>
-		$else :
+		$if permissionKey in '_b_gr_' :
+		    $ col += 4
 		    <div class="col-xs-2" >
+			<strong><a href="/map/$(type)_$id" class="btn btn-warning" role="button">$:c.getHalfling('datatable')</a></strong>
+		    </div>
+		    <div class="col-xs-2" >
+			<button type="button" class="btn btn-warning btn-md map$(type)_$id" data-toggle="modal" data-target="#mapmodal">$:(c.getHalfling('schema'))</button>
 		    </div>
 		$if permissionKey in '_c_p_e_b_':
+		    $ col += 2
 		    <div class="col-xs-2">
 			<strong><a href="/export/$(type)_$(id)" class="btn btn-warning" role="button">$:c.getHalfling('exportdata')</a></strong>
 		    </div>
-		$else :
-		    <div class="col-xs-2" >
-		    </div>
 		$if not 'direct' in data:
-		        <div class="col-xs-2" ></div>
+		        <div class="col-xs-$(10-col)" ></div>
 			<button type="button" class="col-xs-2 btn btn-primary" data-dismiss="modal"><strong><big>&times;</big></strong></button>
             </div>
         </div>
@@ -396,3 +398,17 @@ $if not 'direct' in data:
 		});
 	    });
 	</script>
+<script>
+    $$(document).ready(function(){
+	$$('.$(type)_$(id)').on("click",function(e){
+	    $$('#modal_menu_$(type)_$(id)').modal('hide');
+	    $$("#modal_$(type)_$(id)").find(".modal-dialog").load("/modal/$(type)_$(id)");
+	    $$("#modal_$(type)_$(id)").modal('show');
+	});
+	$$('.map$(type)_$(id)').on("click",function(e){
+	    $$('#modal_menu_$(type)_$(id)').modal('hide');
+	    $$("#modal_$(type)_$(id)").find(".modal-dialog").load("/graph/$(type)_$(id)");
+	    $$("#modal_$(type)_$(id)").modal('show');
+	});
+    });
+</script>

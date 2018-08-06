@@ -358,6 +358,11 @@ $elif type == 'b':
 	    $$("#modal_$(type)_$(id)").find(".modal-dialog").load("/modal/$(type)_$(id)");
 	    $$("#modal_$(type)_$(id)").modal('show');
 	});
+	$$('.map$(type)_$(id)').on("click",function(e){
+	    $$('#modal_menu_$(type)_$(id)').modal('hide');
+	    $$("#modal_$(type)_$(id)").find(".modal-dialog").load("/graph/$(type)_$(id)");
+	    $$("#modal_$(type)_$(id)").modal('show');
+	});
     });
 </script>
 
@@ -463,6 +468,14 @@ $elif type == 'b':
 			<div class="row" style="margin-top:6px;">
 			    <div class="col-xs-2" >
 				<strong><a href="/map/$(type)_$id" class="btn btn-warning" role="button">$:(c.getHalfling('datatable'))</a></strong>
+			    </div>
+			    <div class="col-xs-10">
+				$(c.getMessage('datatable',self.lang))
+			    </div>
+			</div>
+			<div class="row" style="margin-top:6px;">
+			    <div class="col-xs-2" >
+				<button type="button" class="btn btn-warning btn-md map$(type)_$id" data-toggle="modal" data-target="#mapmodal">$:(c.getHalfling('schema'))</button>
 			    </div>
 			    <div class="col-xs-10">
 				$(c.getMessage('schema',self.lang))

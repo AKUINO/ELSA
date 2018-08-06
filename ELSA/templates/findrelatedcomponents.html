@@ -204,7 +204,7 @@ $if type in 'b':
 		    $if allowedcheckpoints:
 			<button type="submit" class="btn btn-primary btn-block">$c.getMessage('add',self.lang) $c.getMessage('checkpoint',self.lang)</button>
 		    <strong><a href="/map/$(type)_$id" class="btn btn-warning" role="button">$:(c.getHalfling('datatable'))</a></strong>
-		    <button type="button" class="btn btn-warning btn-md map" data-toggle="modal" data-target="#mapmodal">$:(c.getHalfling('schema'))</button>
+		    <button type="button" class="btn btn-warning btn-md map$(type)_$id" data-toggle="modal" data-target="#mapmodal">$:(c.getHalfling('schema'))</button>
 		    </div>
 		</div>
 	    </form>
@@ -220,19 +220,6 @@ $if type in 'b':
 			</a></strong>
 		</div>
 	    </div>
-
-	<script>
-		$$('.map').on("click",function(e){
-		    $$('#modal_map').modal('hide');
-		    $$("#modal_map").find(".modal-dialog").load("/graph/$(type)_$(id)");
-		    $$("#modal_map").modal('show');
-		});
-	</script>
-	
-	<div class="modal" id="modal_map" style="color:back;">
-	    <div class="modal-dialog">
-	    </div>
-	</div>
 
 $if barcode > '':
 	<div class="row">
