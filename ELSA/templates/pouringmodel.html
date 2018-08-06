@@ -117,7 +117,7 @@ $if errormess != '':
 		    <option value="0" $("" if pouring_from else "selected")>$c.getMessage('pouringto',self.lang)-&gt;</option>
 		</select>
 	    </div>
-	    <div class="col-sm-1">$:(c.getHalfling("to"))$:(c.getAllHalfling(c.AllGrRecipe))</div>
+	    <div class="col-sm-1">$:(c.getHalfling("from") if pouring_from else c.getHalfling("to"))$:(c.getAllHalfling(c.AllGrRecipe))</div>
 	    <div class="col-sm-8">
 		<select name = "recipe" class="form-control">
 			$for k in c.AllGrRecipe.elements.keys():

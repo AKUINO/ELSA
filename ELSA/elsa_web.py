@@ -707,48 +707,68 @@ class WebGraphRecipe():
                                     if points in next_usage:
                                         next_usage.remove(points)
                             elif e.get_type() == 'vm':
+                                v_recipe = None
                                 if e.fields['dest']:
                                     nx_recipe = e.fields['dest']
                                     if nx_recipe and nx_recipe in c.AllGrRecipe.elements.keys():
-                                        dest_recipe = c.AllGrRecipe.elements[nx_recipe]
-                                        graph += hid+"->"+"gr_"+nx_recipe+"[style=\"stroke-width:3px;stroke:#f07e26\""
-                                        events = []
-                                        if batch:
-                                            events = batch.fromModel(c,e)
-                                        if len(events) > 0:
-                                            graph += ",labelType=\"html\",label=\"<a href=/find/v/b_"+batch.getID()+"/"+e.getID()+">"+unicode(len(events))+" x</a>\""
-                                        else:
-                                            graph += ",label=\""+e.get_quantity()+' '+protectJS(e.get_unit_in_context(c,elem))+"\""
-                                        graph += "];"
-                                        recipes_todo.add(dest_recipe)
+                                        v_recipe = c.AllGrRecipe.elements[nx_recipe]
+                                        graph += hid+"->"+"gr_"+nx_recipe
                                 if e.fields['src']:
                                     nx_recipe = e.fields['src']
                                     if nx_recipe and nx_recipe in c.AllGrRecipe.elements.keys():
-                                        src_recipe = c.AllGrRecipe.elements[nx_recipe]
-                                        graph += "gr_"+nx_recipe+"->"+hid+"[style=\"stroke-width:3px;stroke:#f07e26\""
-                                        events = []
-                                        if batch:
-                                            events = batch.fromModel(c,e)
-                                        if len(events) > 0:
-                                            graph += ",labelType=\"html\",label=\"<a href=/find/v/b_"+batch.getID()+"/"+e.getID()+">"+unicode(len(events))+" x</a>\""
-                                        else:
-                                            graph += ",label=\""+e.get_quantity()+' '+protectJS(e.get_unit_in_context(c,elem))+"\""
-                                        graph += "];"
-                                        recipes_todo.add(src_recipe)
+                                        v_recipe = c.AllGrRecipe.elements[nx_recipe]
+                                        graph += "gr_"+nx_recipe+"->"+hid
+                                if v_recipe:
+                                    graph += "[style=\"stroke-width:3px;stroke:#f07e26\",labelType=\"html\",label=\""
+                                    events = []
+                                    if batch:
+                                        events = batch.fromModel(c,e)
+                                    if len(events) == 0:
+                                        graph += e.get_quantity()+' '+protectJS(e.get_unit_in_context(c,elem))
+                                    else:
+                                        first = True
+                                        for ev in events:
+                                            Acolor = None
+                                            qtity = ev.get_quantity()
+                                            if qtity:
+##                                                qt = float(qtity)
+##                                                Aname, Aacronym, Acolor, Atext_color = e.getTypeAlarm(qt,None)
+##                                                if Aname == 'typical':
+##                                                    Acolor = None
+                                                graph += ("" if first else ", ")
+                                                graph += "<a href=/edit/v_"+ev.getID()+">" + ("<font color="+Acolor+">" if Acolor else "")
+                                                graph += qtity+" "+protectHTML(ev.get_unit_in_context(c,elem))+("</font>" if Acolor else "")+"</a>"
+                                                first = False
+                                    graph += "\"];"
+                                    recipes_todo.add(v_recipe)
                             elif e.get_type() == 'dm':
-                                obs += "<br>"+e.getNameHTML(lang)
-                                target = "?"
-                                if e.fields['typical']:
-                                    target = e.fields['typical']
-                                measure = e.get_measure(c)
-                                if measure:
-                                    obs += " / "+measure.getNameHTML(lang)+": "+target+" "+protectHTML(measure.fields['unit'])
+                                obs += u"<br>"+e.getNameHTML(lang)
                                 events = []
                                 if batch:
                                     events = batch.fromModel(c,e)
-                                if len(events) > 0:
-                                    obs += " <a href=/find/d/b_"+batch.getID()+"/"+e.getID()+">"+unicode(len(events))+" x</a>"
-
+                                if len(events) == 0:
+                                    target = "?"
+                                    if e.fields['typical']:
+                                        target = e.fields['typical']
+                                    measure = e.get_measure(c)
+                                    if measure:
+                                        obs += u" / " + measure.getNameHTML(lang)+": "+target+" "+protectHTML(measure.fields['unit'])
+                                    else:
+                                        obs += ": " + target                                    
+                                else:
+                                    first = True
+                                    for edata in events:
+                            		Acolor = None
+                                        qtity = edata.get_quantity()
+                                        if qtity:
+                                            qt = float(qtity)
+                                            Aname, Aacronym, Acolor, Atext_color = e.getTypeAlarm(qt,None)
+                                            if Aname == 'typical':
+                                                Acolor = None
+                                            obs += (": " if first else ", ")
+                                            obs += "<a href=/edit/d_"+edata.getID()+">" + ("<font color="+Acolor+">" if Acolor else "")
+                                            obs += qtity+" "+protectHTML(edata.get_unit(c))+("</font>" if Acolor else "")+"</a>"
+                                            first = False
                         graph += hid # +"[url=\"/find/related/"+hid+"\""
                         graph += "[labelType=\"html\",label=\"<a href=/find/related/"+hid+">"
 ##                        ext = v.isImaged()

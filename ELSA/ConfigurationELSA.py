@@ -2513,6 +2513,15 @@ class Pouring(ConfigurationObject):
             return True
         return tmp
 
+    def get_unit_in_context(self,c, currObject):
+        if self.fields['src']:
+            if self.fields['src'] in c.AllBatches.elements:
+                aBatch = c.AllBatches.elements[self.fields['src']]
+                return aBatch.get_unit(c)
+        elif currObject:
+            return currObject.get_unit(c)
+        return ""
+
     def set_value_from_data(self, data, c, user):
         #SUPER is NOT called, beware!
         if self.fields['src'] != '' and self.fields['dest'] != '':
