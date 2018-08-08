@@ -347,16 +347,6 @@ class Configuration():
     def findAllFromType(self, aType):
         return self.findAllFromName(aType)
 
-    def get_group(self, key):
-        if key == 'gu':
-            return self.AllGrUsage
-        elif key == 'gr':
-            return self.AllGrRecipe
-        elif key == 'gf':
-            return self.AllGrFunction
-        elif key == 'h':
-            return self.AllCheckPoints
-
     def get_object(self, type, id):
         objects = self.findAllFromType(type)
         return objects.elements[id]
@@ -372,7 +362,11 @@ class Configuration():
     def get_time_format(self):
         return useful.datetimeformat
 
-
+    def triple(self,key):
+        for k,v in valueCategs.items():
+            if v.name == key or v.acronym == key:
+                return v.triple()
+        return None
 
 class ConfigurationObject(object):
 
@@ -805,7 +799,7 @@ class ConfigurationObject(object):
         tmp = self.get_transfers_in_time_interval(begin, end)
         if len(tmp) > 0:
             for t in tmp:
-                infos = t.get_cont().get_all_in_component(
+                infos = t.get_component(config).get_all_in_component(
                     config, begin, end, infos)
         for a in sensors:
             if a not in infos.keys():
@@ -831,7 +825,7 @@ class ConfigurationObject(object):
     def statusIcon(self, configuration, pic=None,inButton=False):
         allObjects = configuration.findAllFromObject(self)
         result = configuration.getAllHalfling(allObjects," text-info" if not inButton and self.isModeling() else "")
-        if self.fields['active'] == '0':
+        if 'active' in self.fields and self.fields['active'] == '0':
             result = '<span class="icon-combine">'+result+'<span class="halflings halflings-remove text-danger"></span></span>'
         if pic:
             result += self.getImage(36)
@@ -872,7 +866,7 @@ class ConfigurationObject(object):
         quantity = self.get_quantity()
         if quantity:
             result = quantity
-        unit = get_unit(c)
+        unit = self.get_unit(c)
 	if unit:
             result += u' '+unit
         if result == '?':
@@ -1256,7 +1250,7 @@ class AllUsers(AllObjects):
     def get_class_acronym(self):
         return 'user'
 
-    def get_key_group(self):
+    def get_group_type(self):
         return 'gf'
 
 
@@ -1274,7 +1268,7 @@ class AllEquipments(AllObjects):
     def get_class_acronym(self):
         return 'equipment'
 
-    def get_key_group(self):
+    def get_group_type(self):
         return 'gu'
 
 
@@ -1292,7 +1286,7 @@ class AllContainers(AllObjects):
     def get_class_acronym(self):
         return 'container'
 
-    def get_key_group(self):
+    def get_group_type(self):
         return 'gu'
 
 
@@ -1310,7 +1304,7 @@ class AllPlaces(AllObjects):
     def get_class_acronym(self):
         return 'place'
 
-    def get_key_group(self):
+    def get_group_type(self):
         return 'gu'
 
 
@@ -1332,18 +1326,51 @@ class AllAlarmLogs(AllObjects):
     def newObject(self):
         return AlarmLog()
 
-    def get_alarmlog_for_sensor(self, id, begin, end):
+    def get_logs_for_source(self, component, begin, end):
         logs = []
-        for kal in self.elements.keys():
-            e = self.elements[kal]
-            time = e.getTimestamp()
-            if (id == e.fields['s_id']) and ( not e.fields['s_type'] or (e.fields['s_type'] == 's') ):
-                if time > begin and time < end:
+        id = component.getID()
+        c_type = [component.get_type()]
+        if c_type == 's':
+            c_type.append('')
+        if begin or end:
+            for kal in self.elements.keys():
+                e = self.elements[kal]
+                time = e.getTimestamp()
+                if (id == e.fields['s_id']) and ( e.fields['s_type'] in c_type ):
+                    if ( not begin or (time >= begin) ) and ( not end or (time < end) ):
+                        logs.append(e)
+        else:
+            for kal in self.elements.keys():
+                e = self.elements[kal]
+                if (id == e.fields['s_id']) and ( e.fields['s_type'] in c_type ):
+                    logs.append(e)
+        return logs
+
+    def get_logs_for_component(self, component, begin, end):
+        logs = []
+        id = component.getID()
+        c_type = [component.get_type()]
+        if c_type == 's':
+            c_type.append('')
+        if begin or end:
+            for kal in self.elements.keys():
+                e = self.elements[kal]
+                time = e.getTimestamp()
+                if (id == e.fields['cont_id']) and ( e.fields['cont_type'] in c_type ):
+                    if ( not begin or (time >= begin) ) and ( not end or (time < end) ):
+                        logs.append(e)
+        else:
+            for kal in self.elements.keys():
+                e = self.elements[kal]
+                if (id == e.fields['cont_id']) and ( e.fields['cont_type'] in c_type ):
                     logs.append(e)
         return logs
 
     def get_class_acronym(self):
         return 'alarmlog'
+
+    def get_group_type(self):
+        return 'a'
 
 class AllHalflings(AllObjects):
 
@@ -1506,11 +1533,6 @@ class AllGroups(AllObjects):
                 fullmap += group.get_submap_str()
         return fullmap
 
-    def get_group(self, acro):
-        for k, g in self.elements.items():
-            if g.fields['acronym'] == GROUPWEBUSERS:
-                return k
-
     def get_class_acronym(self):
         return 'group'
 
@@ -1528,7 +1550,7 @@ class AllGrUsage(AllGroups):
     def get_class_acronym(self):
         return 'guse'
 
-    def get_key_group(self):
+    def get_group_type(self):
         return 'gu'
 
     def get_usages_for_recipe(self, recipes):
@@ -1573,7 +1595,7 @@ class AllGrRecipe(AllGroups):
     def get_class_acronym(self):
         return 'grecipe'
 
-    def get_key_group(self):
+    def get_group_type(self):
         return 'gr'
 
 
@@ -1595,7 +1617,7 @@ class AllCheckPoints(AllGroups):
     def get_class_acronym(self):
         return 'checkpoint'
 
-    def get_key_group(self):
+    def get_group_type(self):
         return 'h'
 
     def load(self):
@@ -1671,7 +1693,7 @@ class AllGrFunction(AllGroups):
     def get_class_acronym(self):
         return 'gfunction'
 
-    def get_key_group(self):
+    def get_group_type(self):
         return 'gf'
 
 
@@ -1825,7 +1847,7 @@ class AllBatches(AllObjects):
     def get_class_acronym(self):
         return 'batch'
 
-    def get_key_group(self):
+    def get_group_type(self):
         return 'gr'
 
     def get_quantity(self):
@@ -1898,7 +1920,7 @@ class AllTransferModels(AllObjects):
     def get_class_acronym(self):
         return 'transfermodel'
 
-    def get_key_group(self):
+    def get_group_type(self):
         return 'h'
 
     def isModeling(self):
@@ -1919,7 +1941,7 @@ class AllPouringModels(AllObjects):
     def get_class_acronym(self):
         return 'pouringmodel'
 
-    def get_key_group(self):
+    def get_group_type(self):
         return 'h'
 
     def isModeling(self):
@@ -1941,7 +1963,7 @@ class AllManualDataModels(AllObjects):
     def get_class_acronym(self):
         return 'manualdatamodel'
 
-    def get_key_group(self):
+    def get_group_type(self):
         return 'h'
 
     def isModeling(self):
@@ -2448,7 +2470,7 @@ class ManualData(AlarmingObject):
             if not self.actualAlarm:
                 self.actualAlarm = "typical"
             alarmCode = data['a_id']
-        if alarmCode:
+        if alarmCode and alarmCode in c.AllAlarms.elements:
             c.AllAlarms.elements[alarmCode].launch_alarm(self, c)
         if self.isActive():
             c.findAllFromType(self.fields['object_type']) \
@@ -2462,6 +2484,19 @@ class ManualData(AlarmingObject):
 
     def get_class_acronym(self):
         return 'manualdata'
+
+    # WHERE the observation was done
+    def get_component(self,config):
+        if not self.fields['object_id']:
+            return None
+        if self.fields['object_type']:
+            allObjs =config.findAllFromType(self.fields['object_type'])
+        else:
+            allObjs = config.AllBatches
+        if self.fields['object_id'] in allObjs.elements:
+            return allObjs.elements[self.fields['object_id']]
+        else:
+            return None
 
 #TODO: AlarmingObject and check on Quantity ?
 class Pouring(ConfigurationObject):
@@ -2513,6 +2548,15 @@ class Pouring(ConfigurationObject):
             return True
         return tmp
 
+    def get_measure_in_context(self,c, currObject):
+        if self.fields['src']:
+            if self.fields['src'] in c.AllBatches.elements:
+                aBatch = c.AllBatches.elements[self.fields['src']]
+                return aBatch.get_measure(c)
+        elif currObject:
+            return currObject.get_measure(c)
+        return ""
+
     def get_unit_in_context(self,c, currObject):
         if self.fields['src']:
             if self.fields['src'] in c.AllBatches.elements:
@@ -2546,7 +2590,7 @@ class Pouring(ConfigurationObject):
             #TODO: Manual Alarm, not so "typical"
             self.actualAlarm = "typical"
             alarmCode = data['a_id']
-        if alarmCode:
+        if alarmCode and alarmCode in c.AllAlarms.elements:
             c.AllAlarms.elements[alarmCode].launch_alarm(self, c)
 
         if 'active' in data:
@@ -2563,6 +2607,28 @@ class Pouring(ConfigurationObject):
 
     def get_class_acronym(self):
         return 'pouring'
+
+    # WHAT is moved
+    def get_source(self,config):
+        if not self.fields['src']:
+            return None
+        allObjs = config.AllBatches
+        if self.fields['src'] in allObjs.elements:
+            return allObjs.elements[self.fields['src']]
+        else:
+            return None
+
+    # WHERE it is moved
+    def get_component(self,config):
+        if not self.fields['dest']:
+            return None
+        allObjs = config.AllBatches
+        if self.fields['dest'] in allObjs.elements:
+            return allObjs.elements[self.fields['dest']]
+        return None
+
+    def get_class_acronym(self):
+        return 'transfer'
 
 
 class Group(ConfigurationObject):
@@ -2639,7 +2705,7 @@ class Group(ConfigurationObject):
                                            fieldnames=configuration.findAllFromObject(self).fieldrelations, encoding="utf-8")
             writer.writerow(tmpCode)
 
-    def get_group(self):
+    def get_related(self):
         return self.related
 
     def get_parents(self):
@@ -3186,6 +3252,35 @@ class AlarmLog(ConfigurationObject):
     def get_class_acronym(self):
         return 'alarmlog'
 
+    def get_group(self):
+        return self.fields['a_id']
+
+    # WHAT is moved
+    def get_source(self,config):
+        if not self.fields['s_id']:
+            return None
+        if self.fields['s_type']:
+            allObjs =config.findAllFromType(self.fields['s_type'])
+        else:
+            allObjs = config.AllSensors
+        if self.fields['s_id'] in allObjs.elements:
+            return allObjs.elements[self.fields['s_id']]
+        else:
+            return None
+
+    # WHERE it is moved
+    def get_component(self,config):
+        if not self.fields['cont_id']:
+            return None
+        if self.fields['cont_type']:
+            allObjs =config.findAllFromType(self.fields['cont_type'])
+            if self.fields['cont_id'] in allObjs.elements:
+                return allObjs.elements[self.fields['cont_id']]
+        return None
+
+    def get_class_acronym(self):
+        return 'transfer'
+
 class ExportData():
     def __init__(self, config, elem, cond, user):
         self.config = config
@@ -3238,7 +3333,7 @@ class ExportData():
                 end = tmp[count+1].getTimestamp()
             else:
                 end = tmpEND
-            tmpComponent = tmp[count].get_cont()
+            tmpComponent = tmp[count].get_component(self.config)
             self.transfers.append(tmp[count])
             count += 1
             self.load_transfers(tmpComponent, begin, end)
@@ -3322,71 +3417,69 @@ class ExportData():
 
     def add_value_from_sensors(self, infos):
         for a in infos.keys():
-            self.min = 99999999999
-            self.max = -99999999999
-            self.average = 0.0
-            timemin = ''
-            timemax = ''
-            self.count = 0
-            if infos[a] is not None:
-                begin = infos[a][0][0]
-                for value in infos[a]:
-                    tmp = value[1][0]
-                    sensor = self.transform_object_to_export_data(
-                        self.config.AllSensors.elements[a])
-                    sensor['remark'] = ''
-                    end = value[0]
-                    sensor['timestamp'] = useful.timestamp_to_ISO(end)
-                    sensor['value'] = export_float(tmp)
-                    sensor['type'] = 'MES'
-                    if tmp is not None:
-                        tmp = float(value[1][0])
-                        self.count += 1
-                        self.average += tmp
-                        if tmp < self.min:
-                            self.min = tmp
-                            timemin = end
-                        if tmp > self.max:
-                            self.max = tmp
-                            timemax = end
-                    # sensor['typevalue'] = 'DAT'
-                    if self.cond['valuesensor'] is True:
-                        self.elements.append(sensor)
-                if self.count > 0:
-                    self.average /= self.count
-                if self.cond['specialvalue'] is True and self.count > 0:
-                    sensor1 = self.transform_object_to_export_data(
-                            self.config.AllSensors.elements[a])
-                    sensor1['value'] = export_float(self.min)
-                    # sensor1['typevalue'] = 'MIN'
-                    sensor1['type'] = 'MIN'
-                    sensor1['timestamp'] = useful.timestamp_to_ISO(timemin)
-                    sensor1['remark'] = ''
-                    self.elements.append(sensor1)
-                    sensor2 = self.transform_object_to_export_data(
-                        self.config.AllSensors.elements[a])
-                    sensor2['value'] = export_float(self.max)
-                    # sensor2['typevalue'] = 'MAX'
-                    sensor2['type'] = 'MAX'
-                    sensor2['timestamp'] = useful.timestamp_to_ISO(timemax)
-                    sensor2['remark'] = ''
-                    self.elements.append(sensor2)
-                    sensor3 = self.transform_object_to_export_data(
-                        self.config.AllSensors.elements[a])
-                    sensor3['value'] = export_float(self.average)
-                    # sensor3['typevalue'] = 'AVG'
-                    sensor3['type'] = 'AVG'
-                    sensor3['timestamp'] = useful.timestamp_to_ISO(end)
-                    sensor3['duration'] = self.get_duration(begin, end)
-                    sensor3['remark'] = ''
-                    self.elements.append(sensor3)
-                if self.cond['alarm'] is True:
-                    logs = self.config \
-                               .AllAlarmLogs \
-                               .get_alarmlog_for_sensor(a, begin, end)
-                    for log in logs:
-                        tmp = self.transform_object_to_export_data(log)
-                        self.elements.append(tmp)
+            if a in self.config.AllSensors.elements:
+                sensorDefinition = self.config.AllSensors.elements[a]
+                self.min = 99999999999
+                self.max = -99999999999
+                self.average = 0.0
+                timemin = ''
+                timemax = ''
+                self.count = 0
+                if infos[a] is not None:
+                    begin = infos[a][0][0]
+                    for value in infos[a]:
+                        tmp = value[1][0]
+                        sensor = self.transform_object_to_export_data(sensorDefinition)
+                        sensor['remark'] = ''
+                        end = value[0]
+                        sensor['timestamp'] = useful.timestamp_to_ISO(end)
+                        sensor['value'] = export_float(tmp)
+                        sensor['type'] = 'MES'
+                        if tmp is not None:
+                            tmp = float(value[1][0])
+                            self.count += 1
+                            self.average += tmp
+                            if tmp < self.min:
+                                self.min = tmp
+                                timemin = end
+                            if tmp > self.max:
+                                self.max = tmp
+                                timemax = end
+                        # sensor['typevalue'] = 'DAT'
+                        if self.cond['valuesensor'] is True:
+                            self.elements.append(sensor)
+                    if self.count > 0:
+                        self.average /= self.count
+                    if self.cond['specialvalue'] is True and self.count > 0:
+                        sensor1 = self.transform_object_to_export_data(sensorDefinition)
+                        sensor1['value'] = export_float(self.min)
+                        # sensor1['typevalue'] = 'MIN'
+                        sensor1['type'] = 'MIN'
+                        sensor1['timestamp'] = useful.timestamp_to_ISO(timemin)
+                        sensor1['remark'] = ''
+                        self.elements.append(sensor1)
+                        sensor2 = self.transform_object_to_export_data(sensorDefinition)
+                        sensor2['value'] = export_float(self.max)
+                        # sensor2['typevalue'] = 'MAX'
+                        sensor2['type'] = 'MAX'
+                        sensor2['timestamp'] = useful.timestamp_to_ISO(timemax)
+                        sensor2['remark'] = ''
+                        self.elements.append(sensor2)
+                        sensor3 = self.transform_object_to_export_data(sensorDefinition)
+                        sensor3['value'] = export_float(self.average)
+                        # sensor3['typevalue'] = 'AVG'
+                        sensor3['type'] = 'AVG'
+                        sensor3['timestamp'] = useful.timestamp_to_ISO(end)
+                        sensor3['duration'] = self.get_duration(begin, end)
+                        sensor3['remark'] = ''
+                        self.elements.append(sensor3)
+                    if self.cond['alarm'] is True:
+                        logs = self.config \
+                                   .AllAlarmLogs \
+                                   .get_logs_for_component(sensorDefinition, begin, end)
+                        for log in logs:
+                            tmp = self.transform_object_to_export_data(log)
+                            self.elements.append(tmp)
 
     def load_hierarchy(self):
         self.history = []
@@ -3451,7 +3544,7 @@ class ExportData():
         if len(tmp) > 0:
             for t in tmp:
                 infos = self.get_all_in_component(
-                    t.get_cont(), begin, end, infos)
+                    t.get_component(self.config), begin, end, infos)
         for a in sensors:
             infos[a] = self.config.AllSensors.elements[a].fetch(begin, end)
         return infos
@@ -3594,22 +3687,22 @@ class ExportData():
                 tmp[elem.fields['cont_type']+'_id'] = self.config.findAllFromType(elem.fields['cont_type']).elements[elem.fields['cont_id']].fields['acronym']
                 if elem.fields['object_type'] != 'b':
                     tmp[elem.fields['object_type']+'_id'] = self.config.findAllFromType(elem.fields['object_type']).elements[elem.fields['object_id']].fields['acronym']
-                elemtmp = elem.get_cont().get_position_on_time(
+                elemtmp = elem.get_component(self.config).get_position_on_time(
                     self.config, elem.fields['time'])
                 while elemtmp is not None:
                     tmp[elemtmp.fields['cont_type']+'_id'] = self.config.findAllFromType(elemtmp.fields['cont_type']).elements[elemtmp.fields['cont_id']].fields['acronym']
-                    elemtmp = elemtmp.get_cont().get_position_on_time(
+                    elemtmp = elemtmp.get_component(self.config).get_position_on_time(
                         self.config, elemtmp.fields['time'])
             else:
                 tmp[elem.fields['cont_type']+'_id'] = elem.fields['cont_id']
                 if elem.fields['object_type'] != 'b':
                     tmp[elem.fields['object_type'] + '_id'] = elem.fields['object_id']
-                elemtmp = elem.get_cont().get_position_on_time(
+                elemtmp = elem.get_component(self.config).get_position_on_time(
                     self.config, elem.fields['time'])
                 while elemtmp is not None:
                     tmp[elemtmp.fields['cont_type'] +
                         '_id'] = elem.fields['object_id']
-                    elemtmp = elemtmp.get_cont().get_position_on_time(
+                    elemtmp = elemtmp.get_component(self.config).get_position_on_time(
                         self.config, elemtmp.fields['time'])
 
         elif elem.get_type() == 'v':
@@ -4023,6 +4116,12 @@ class Measure(ConfigurationObject):
             self.fields[elem] = data[elem]
         self.save(c, user)
 
+    def get_measure(self,c):
+	return self;
+
+    def get_unit(self,c):
+        return self.fields['unit']
+        
 class Sensor(AlarmingObject):
     def __init__(self):
         AlarmingObject.__init__(self)
@@ -4087,7 +4186,7 @@ class Sensor(AlarmingObject):
             self.time = useful.timestamp_to_date(now)
             alarmCode = self.get_alarm()
             if int(float(self.fields['lapse1'])) == 0:
-                if alarmCode:
+                if alarmCode and alarmCode in config.AllAlarms.elements:
                     config.AllAlarms.elements[alarmCode].launch_alarm(self, config)
                 self.degreeAlarm = 2
         else:
@@ -4095,20 +4194,20 @@ class Sensor(AlarmingObject):
             alarmCode = self.get_alarm()
             if self.degreeAlarm == 1 \
                     and self.countAlarm >= int(self.fields['lapse1']):
-                if alarmCode:
+                if alarmCode and alarmCode in config.AllAlarms.elements:
                     config.AllAlarms.elements[alarmCode].launch_alarm(self, config)
                 self.degreeAlarm = 2
                 self.countAlarm = 0
             elif self.degreeAlarm == 2 \
                     and self.countAlarm >= int(self.fields['lapse2']):
-                if alarmCode:
+                if alarmCode and alarmCode in config.AllAlarms.elements:
                     config.AllAlarms \
                         .elements[alarmCode].launch_alarm(self, config)
                 self.degreeAlarm = 3
                 self.countAlarm = 0
             elif self.degreeAlarm == 3 \
                     and self.countAlarm >= int(self.fields['lapse3']):
-                if alarmCode:
+                if alarmCode and alarmCode in config.AllAlarms.elements:
                     config.AllAlarms.elements[alarmCode].launch_alarm(self, config)
                 self.degreeAlarm = 4 # Do nothing after this!
         print 'Alarm ['+self.actualAlarm+'] level '+unicode(self.degreeAlarm)+' for ' + self.__repr__()
@@ -4460,12 +4559,13 @@ class Sensor(AlarmingObject):
         return False
 
     def get_component(self, config):
-        if self.fields['p_id'] != '':
+        if self.fields['p_id'] and self.fields['p_id'] in config.AllPlaces.elements:
             return config.AllPlaces.elements[self.fields['p_id']]
-        elif self.fields['e_id'] != '':
+        elif self.fields['e_id'] and self.fields['e_id'] in config.AllEquipments.elements != '':
             return config.AllEquipments.elements[self.fields['e_id']]
-        elif self.fields['c_id'] != '':
+        elif self.fields['c_id'] and self.fields['c_id'] in config.AllContainers.elements:
             return config.AllContainers.elements[self.fields['c_id']]
+        return None
 
     def get_sensors_in_component(self, config):
         tmp = []
@@ -5003,7 +5103,7 @@ class Transfer(ConfigurationObject):
 
     def set_value_from_data(self, data, c, user):
         if self.fields['object_type'] != '' and self.fields['object_id'] != '':
-            self.get_source().remove_position(self)
+            self.get_source(c).remove_position(self)
         tmp = ['time', 'remark']
         for elem in tmp:
             self.fields[elem] = data[elem]
@@ -5020,19 +5120,33 @@ class Transfer(ConfigurationObject):
         if ('origin' in data) and data['origin']:
             self.fields['tm_id'] = data['origin']
         if self.fields['active'] == '1':
-            self.get_source().add_position(self)
+            self.get_source(c).add_position(self)
         else:
-            self.get_source().remove_position(self)
+            self.get_source(c).remove_position(self)
         self.save(c, user)
 
     # WHAT is moved
-    def get_source(self):
-        return self.config.findAllFromType(self.fields['object_type']).elements[self.fields['object_id']]
+    def get_source(self,config):
+        if not self.fields['object_id']:
+            return None
+        if self.fields['object_type']:
+            allObjs =config.findAllFromType(self.fields['object_type'])
+        else:
+            allObjs = config.AllBatches
+        if self.fields['object_id'] in allObjs.elements:
+            return allObjs.elements[self.fields['object_id']]
+        else:
+            return None
 
     # WHERE it is moved
-    def get_cont(self):
-        return self.config.findAllFromType(self.fields['cont_type']).elements[self.fields['cont_id']]
-
+    def get_component(self,config):
+        if not self.fields['cont_id']:
+            return None
+        if self.fields['cont_type']:
+            allObjs =config.findAllFromType(self.fields['cont_type'])
+            if self.fields['cont_id'] in allObjs.elements:
+                return allObjs.elements[self.fields['cont_id']]
+        return None
     def get_class_acronym(self):
         return 'transfer'
 

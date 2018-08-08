@@ -1,0 +1,34 @@
+$def with (type, id, mail)
+$code:
+    allobjects = c.findAllFromType(type)
+    elem = allobjects.elements[id]
+    keyID = allobjects.keyColumn
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$var location: list/$(type)=$(allobjects.get_class_acronym()) find/al/$(type)_$(id)=alarmlog
+$var recursive : False
+$var title: $c.getName(allobjects,self.lang)
+
+<script>
+    $$(function(){
+	$$("#includedAllMenu$(type)_$(id)").load("/fullentry/$(type)_*$(id)");
+    });
+</script>
+<div id="includedAllMenu$(type)_$(id)"></div>
+
+
+$if type in ['s','d','v','t']:
+    $ logs = c.AllAlarmLogs.get_logs_for_source(elem,None,None)
+$else:
+    $ logs = c.AllAlarmLogs.get_logs_for_component(elem,None,None)
+<div class="row active">
+    <label class="col-sm-12">$len(logs) $c.getMessage('alarmlog',self.lang) :</label>
+</div>
+$for i in logs:
+        <script>
+        $$(function(){
+	    $$("#includedAllMenuAL_$(i.getID())").load("/fullentry/al_$(i.getID())");
+        });
+        </script>
+        <div id="includedAllMenuAL_$(i.getID())"></div>
+<div style="margin:15px;">
+</div>    

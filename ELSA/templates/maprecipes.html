@@ -40,10 +40,10 @@ $for krecipe in listRecipe:
 							tmp = batch.get_last_transfer()
 							if tmp is not None :
 							    transfer = c.AllTransfers.elements[tmp]
-							    pos = c.AllTransfers.elements[tmp].get_cont()
+							    pos = c.AllTransfers.elements[tmp].get_component(c)
 						    $if pos is not None :
 							    $:c.getHalfling('to')
-							    <a href="/item/$(pos.get_type())_$pos.getID()">$:(pos.statusIcon(c,True,False)) $pos.fields['acronym']</a>,
+							    <a href="/find/related/$(pos.get_type())_$pos.getID()">$:(pos.statusIcon(c,True,False)) $pos.fields['acronym']</a>,
 							    $transfer.fields['time']
 						$ done.add('b_'+batch.getID())
 					</div>

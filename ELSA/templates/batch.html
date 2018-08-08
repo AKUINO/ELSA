@@ -5,6 +5,7 @@ $var title : $c.getMessage('add',self.lang) $c.getMessage('batch',self.lang)
 $var rmq :
 $var location: list/b=batch edit/b_new=add
 $ aRecipe = None
+$ aMeasure = None
 $ precision = None
 $if context != '':
     $ kRecipe = context.split('_')[-1]
@@ -237,7 +238,7 @@ $if errormess != '':
 	    <div class="col-sm-2">
 		<a 
 		$if id != 'new' :
-		    href="/item/b_$(id)"
+		    href="/find/related/b_$(id)"
 		$else :
 		    href="/list/b"
 		class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>

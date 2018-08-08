@@ -46,7 +46,7 @@ $for i in elem.transfers:
 		    cont = c.findAllFromType(transfer.fields['cont_type']).elements[transfer.fields['cont_id']]
 		<div class="col-xs-3" >
 		    $:c.getHalfling(cont.get_class_acronym())
-		    <a href="/item/$(cont.get_type())_$(cont.getID())">$cont.fields['acronym'] - $cont.getName(self.lang)</a>
+		    <a href="/find/related/$(cont.get_type())_$(cont.getID())">$cont.fields['acronym'] - $cont.getName(self.lang)</a>
 		</div>
 		<div class="col-xs-3" >
 		    $transfer.fields['remark']

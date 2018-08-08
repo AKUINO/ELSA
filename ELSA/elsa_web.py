@@ -321,8 +321,10 @@ class WebList():
         data = web.input(nifile={})
         if 'status' in data:
             id = data['status']
-        
-        if type in 'abcpehsmugugrgftmdmvm' and type != 't' and type != 'f':
+
+        if type == 'al':
+            return render.listalarmlog(mail, type, id)
+        elif type in 'abcpehsmugugrgftmdmvm' and type != 't' and type != 'f':
             return self.getRender(type, mail, id)
         else:
             return render.notfound()
@@ -558,6 +560,8 @@ class WebFind():
                     return render.findcontrol(id1, id2, mail)
                 elif type == 'b':
                     return render.findbatch(id1, id2, mail)
+                elif type == 'al':
+                    return render.findalarmlog(id1, id2, mail)
                 else:
                     return render.notfound()
         except:

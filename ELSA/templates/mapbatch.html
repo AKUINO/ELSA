@@ -69,7 +69,7 @@ $for operation in events:
 	  $ endT = useful.get_timestamp()
 	$if endT:
 	  $if batch_location:
-	    $ infos = batch_location.get_cont().get_all_in_component(c, beginT, endT)
+	    $ infos = batch_location.get_component(c).get_all_in_component(c, beginT, endT)
 	    $ prev_duration = -1
 	    $for sensorId,sensorData in infos.items():
 		$ sensor = None
@@ -164,7 +164,7 @@ $for operation in events:
 				<a href="/find/related/$(op_type)m_$(operation.fields[op_type+'m_id'])" style="color:#28A4C9">$(sourceModel.fields['acronym'])</a> - <strong>$(sourceModel.getName(self.lang))</strong>
 		$ measure = None
 		$if op_type == 't':
-		    $ dest = operation.get_cont()
+		    $ dest = operation.get_component(c)
 		    $:c.getHalfling('to')
 		    <a href="/find/related/$dest.get_type()_$dest.getID()">$:(dest.statusIcon(c,True,False))$(dest.fields['acronym'])</a> $dest.getName(self.lang)
 		    $ place = dest

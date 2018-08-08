@@ -38,14 +38,16 @@ $if modelid:
 			    $if pouring.fields['vm_id'] != '' :
 		                <br/><a href="/find/related/vm_$(pouring.fields['vm_id'])" style="color:#28A4C9">- $c.AllPouringModels.elements[pouring.fields['vm_id']].fields['acronym']</a>
 			</div>
-			<div class="col-xs-3">
-			    $c.AllBatches.elements[pouring.fields['src']].getName(self.lang) 
-			    <strong><a href="/find/v/b_$(pouring.fields['src'])" class="btn btn-warning" role="button">$:c.getHalfling('input')</a></strong>
+			$ batch = c.AllBatches.elements[pouring.fields['src']]
+			<div class="col-xs-3 text-right">
+			    <a href="/find/v/b_$(pouring.fields['src'])" class="btn btn-warning" role="button" style="float:right">$:c.getHalfling('input')</a>
+			    <strong><a href="/find/v/b_$(pouring.fields['src'])">$batch.fields['acronym']</a></strong>
+			    <br>$batch.getName(self.lang)
 			</div>	    
 			<div class="col-xs-3" >
 			    $pouring.get_quantity() $pouring.get_unit(c)</a>
 			    $if pouring.fields['remark']:
-				<br/>$pouring.fields['remark']
+				<br/><span class="text-danger">$pouring.fields['remark']</span>
 			</div>
 			<div class="col-xs-1">
 			    <strong><a href="/edit/v_$(pouring.fields['v_id'])" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
@@ -80,13 +82,14 @@ $if modelid:
 		    $if pouring.fields['vm_id'] != '' :
 	                <br/><a href="/find/related/vm_$(pouring.fields['vm_id'])" style="color:#28A4C9">- $c.AllPouringModels.elements[pouring.fields['vm_id']].fields['acronym']</a>
 		</div>
+		$ batch = c.AllBatches.elements[pouring.fields['dest']]
 		<div class="col-xs-3">
-		    <strong><a href="/find/v/b_$(pouring.fields['dest'])" class="btn btn-warning" role="button">$:c.getHalfling('output')</a></strong>  $c.AllBatches.elements[pouring.fields['dest']].getName(self.lang)
+		    <strong><a href="/find/v/b_$(pouring.fields['dest'])"><span class="btn btn-warning" style="float:left" role="button">$:c.getHalfling('output')</span>$batch.fields['acronym']</a></strong><br>$batch.getName(self.lang)
 		</div>    
 		<div class="col-xs-3" >
-		    $pouring.get_quantity()  $pouring.get_unit(c)</a>
+		    $pouring.get_quantity()  $pouring.get_unit(c)
 		    $if pouring.fields['remark']:
-		    	<br/>$pouring.fields['remark']
+		    	<br/><span class="text-danger">$pouring.fields['remark']</span>
 		</div>
 		<div class="col-xs-1">
 		    <strong><a href="/edit/v_$(pouring.fields['v_id'])" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>

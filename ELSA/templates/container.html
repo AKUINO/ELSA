@@ -150,7 +150,7 @@ $if errormess != '':
 	    <div class="col-sm-2">
 		<a 
 		$if id != 'new' :
-		    href="/item/c_$(id)"
+		    href="/find/related/c_$(id)"
 		$else :
 		    href="/list/c"
 		class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>

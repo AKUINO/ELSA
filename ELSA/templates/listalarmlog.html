@@ -1,0 +1,26 @@
+$def with (mail, type, id)
+$code:
+    allobjects = c.AllAlarmLogs
+    keyID = allobjects.keyColumn
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$var location: list/$(type)=$(allobjects.get_class_acronym()) list/al=alarmlog
+$var recursive : False
+$var title: $c.getName(allobjects,self.lang)
+
+<div class="row active">
+    <label class="col-sm-12">$len(allobjects.elements) $c.getMessage('alarmlog',self.lang) :</label>
+</div>
+$ j = 20
+$for k,i in allobjects.elements.items():
+        <script>
+        $$(function(){
+	    $$("#includedAllMenuAL_$(i.getID())").load("/fullentry/al_$(i.getID())");
+        });
+        </script>
+        <div id="includedAllMenuAL_$(i.getID())"></div>
+	$code:
+		j -= 1
+		if j<=0:
+			break;
+<div style="margin:15px;">
+</div>    

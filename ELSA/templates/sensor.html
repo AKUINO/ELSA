@@ -348,7 +348,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 	    <div class="col-sm-2">
 		<a 
 		$if id != 'new' :
-		    href="/item/s_$(id)"
+		    href="/find/related/s_$(id)"
 		$else :
 		    href="/list/s"
 		class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>

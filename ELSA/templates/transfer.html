@@ -173,7 +173,7 @@ $elif myID == 'component':
 	    <div class="col-sm-2">
 		<a 
 		$if id != 'new' :
-		    href="/item/$(elem.get_type())_$(elem.getID())"
+		    href="/find/t/$(elem.get_type())_$(elem.getID())"
 		$else :
 		    href="/index"
 		class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>

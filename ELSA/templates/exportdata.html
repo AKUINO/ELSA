@@ -127,7 +127,7 @@ $else:
             
             <div class="col-sm-2">
                 $if type != 'new':
-                    <a href="/item/$(type)_$(id)" class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>
+                    <a href="/find/related/$(type)_$(id)" class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>
                 $else:
                     <a href="/" class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>
             </div>

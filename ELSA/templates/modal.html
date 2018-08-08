@@ -70,22 +70,28 @@ $var title: MODAL
                             $elem.getName(self.lang)
                             </div>
                         </div>
-		    $if permissionKey in '_h_c_p_e_b_u_dm_vm_tm_':
+		    $if type == 'h':
+			    <div class="row" id="listingMarge">
+				<div class="col-xs-3">
+				    $c.getMessage('group',self.lang) :
+				</div>
+				<div class="col-xs-9" id="modalinfo" >
+					$if 'gr_id' in elem.fields and elem.fields['gr_id'] != '' :
+					    <a href="/find/related/gr_$(elem.fields['gr_id'])">$c.AllGrRecipe.elements[elem.fields['gr_id']].fields['acronym']</a>
+					$if 'gu_id' in elem.fields and elem.fields['gu_id'] != '' :
+					    <a href="/find/related/gu_$(elem.fields['gu_id'])">$c.AllGrUsage.elements[elem.fields['gu_id']].fields['acronym']</a>
+				</div>
+			    </div>
+		    $if permissionKey in '_c_p_e_b_u_dm_vm_tm_':
 			$code :
-			    groups = c.get_group(allElem.get_key_group())
+			    groups = c.findAllFromType(allElem.get_group_type())
 			$if elem.get_group() != '' :
 			    <div class="row" id="listingMarge">
 				<div class="col-xs-3">
 				    $c.getMessage('group',self.lang) :
 				</div>
 				<div class="col-xs-9" id="modalinfo" >
-				    $if type == 'h':
-					$if 'gr_id' in elem.fields and elem.fields['gr_id'] != '' :
-					    <a href="/item/gr_$(elem.fields['gr_id'])">$c.AllGrRecipe.elements[elem.fields['gr_id']].fields['acronym']</a>
-					$if 'gu_id' in elem.fields and elem.fields['gu_id'] != '' :
-					    <a href="/item/gu_$(elem.fields['gu_id'])">$c.AllGrUsage.elements[elem.fields['gu_id']].fields['acronym']</a>
-				    $else :
-					<a href="/item/$(allElem.get_key_group())_$(elem.get_group())">$groups.elements[elem.get_group()].fields['acronym']</a>
+				<a href="/find/related/$(allElem.get_group_type())_$(elem.get_group())">$groups.elements[elem.get_group()].fields['acronym']</a>
 				</div>
 			    </div>
 		    $if permissionKey in '_b_c_e_':
@@ -98,9 +104,9 @@ $var title: MODAL
 				pos = None
 				tmp = elem.get_last_transfer()
 				if tmp is not None :
-				    pos = c.AllTransfers.elements[tmp].get_cont()
+				    pos = c.AllTransfers.elements[tmp].get_component(c)
 			    $if pos is not None :
-				<a href="/item/$(pos.get_type())_$pos.getID()">$:pos.statusIcon(c,True,False) $pos.fields['acronym']</a>
+				<a href="/find/related/$(pos.get_type())_$pos.getID()">$:pos.statusIcon(c,True,False) $pos.fields['acronym']</a>
                             </div>
 			</div>	
 
@@ -145,7 +151,7 @@ $var title: MODAL
                                 $c.getMessage('phone',self.lang) 1:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                <a href="/item/gf_$elem.fields['o_sms1']">$c.AllGrFunction.elements[elem.fields['o_sms1']].getName(self.lang)</a>
+                                <a href="/find/related/gf_$elem.fields['o_sms1']">$c.AllGrFunction.elements[elem.fields['o_sms1']].getName(self.lang)</a>
                                 </div>
                             </div>
                         $if elem.fields['o_email1'] != '':
@@ -154,7 +160,7 @@ $var title: MODAL
                                 $c.getMessage('mail',self.lang) 1:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                <a href="/item/gf_$elem.fields['o_email1']">$c.AllGrFunction.elements[elem.fields['o_email1']].getName(self.lang)</a>
+                                <a href="/find/related/gf_$elem.fields['o_email1']">$c.AllGrFunction.elements[elem.fields['o_email1']].getName(self.lang)</a>
                                 </div>
                             </div>
                         $if elem.fields['o_sound1'] != '':
@@ -163,7 +169,7 @@ $var title: MODAL
                                 $c.getMessage('sound',self.lang) 1:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                <a href="/item/gf_$elem.fields['o_sound1']">$c.AllGrFunction.elements[elem.fields['o_sound1']].getName(self.lang)</a>
+                                <a href="/find/related/gf_$elem.fields['o_sound1']">$c.AllGrFunction.elements[elem.fields['o_sound1']].getName(self.lang)</a>
                                 </div>
                             </div>
                         $if elem.fields['relay1'] != '':
@@ -181,7 +187,7 @@ $var title: MODAL
                                 $c.getMessage('phone',self.lang) 2:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                <a href="/item/gf_$elem.fields['o_sms2']">$c.AllGrFunction.elements[elem.fields['o_sms2']].getName(self.lang)</a>
+                                <a href="/find/related/gf_$elem.fields['o_sms2']">$c.AllGrFunction.elements[elem.fields['o_sms2']].getName(self.lang)</a>
                                 </div>
                             </div>
                         $if elem.fields['o_email2'] != '':
@@ -190,7 +196,7 @@ $var title: MODAL
                                 $c.getMessage('mail',self.lang) 2:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                <a href="/item/gf_$elem.fields['o_email2']">$c.AllGrFunction.elements[elem.fields['o_email2']].getName(self.lang)</a>
+                                <a href="/find/related/gf_$elem.fields['o_email2']">$c.AllGrFunction.elements[elem.fields['o_email2']].getName(self.lang)</a>
                                 </div>
                             </div>
                         $if elem.fields['o_sound2'] != '':
@@ -199,7 +205,7 @@ $var title: MODAL
                                 $c.getMessage('sound',self.lang) 1:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                <a href="/item/gf_$elem.fields['o_sound2']">$c.AllGrFunction.elements[elem.fields['o_sound2']].getName(self.lang)</a>
+                                <a href="/find/related/gf_$elem.fields['o_sound2']">$c.AllGrFunction.elements[elem.fields['o_sound2']].getName(self.lang)</a>
                                 </div>
                             </div>
                         $if elem.fields['relay2'] != '':
@@ -217,7 +223,7 @@ $var title: MODAL
                                 $c.getMessage('component',self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-                                <a href="/item/$elem.get_component(c).get_type()_$elem.get_component(c).getID()">$elem.get_component(c).fields['acronym']</a>
+                                <a href="/find/related/$elem.get_component(c).get_type()_$elem.get_component(c).getID()">$elem.get_component(c).fields['acronym']</a>
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">
@@ -225,7 +231,7 @@ $var title: MODAL
                                 $c.getMessage('measure',self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-                                <a href="/item/m_$(elem.fields['m_id'])">$c.AllMeasures.elements[elem.fields['m_id']].getName(self.lang)</a>
+                                <a href="/find/related/m_$(elem.fields['m_id'])">$c.AllMeasures.elements[elem.fields['m_id']].getName(self.lang)</a>
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">
@@ -259,7 +265,7 @@ $var title: MODAL
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
 				$if elem.fields['m_id'] != '' :
-				    <a href="/item/m_$elem.fields['m_id']">$c.AllMeasures.elements[elem.fields['m_id']].getName(self.lang)</a>
+				    <a href="/find/related/m_$elem.fields['m_id']">$c.AllMeasures.elements[elem.fields['m_id']].getName(self.lang)</a>
 				$else:
 				    -
                             </div>

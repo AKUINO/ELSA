@@ -116,7 +116,7 @@ def date_to_timestamp(date):
     return (tmp - datetime.datetime(1970, 1, 1)).total_seconds()
 
 def date_to_ISO(date):
-    if date:
+    if date and date != '0':
         try:
             tmp = datetime.datetime.strptime(date, datetimeformat)
         except:  # old format ?

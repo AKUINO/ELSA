@@ -103,11 +103,17 @@ function flip() {
 	
 	<div class="form-group row">
 	    <label for="inputValue" class="col-sm-3 col-form-label">$c.getMessage('quantity',self.lang)</label>
-	    <div class="col-sm-9">
-		<input name="quantity" type="text" class="form-control" id="inputValue" placeholder="$c.getMessage('value',self.lang)" 
+	    <div class="col-sm-6">
+		<input name="quantity" type="number" class="form-control" id="inputValue" placeholder="$c.getMessage('value',self.lang)" 
 		$if myID == 'update':
+		    $ aMeasure = pouring.get_measure_in_context(c,batch)
 		    value="$pouring.get_quantity()"
+		    min="$(aMeasure.fields['min'])" max="$(aMeasure.fields['max'])" step="$(aMeasure.get_html_step())" 
 		 required >
+	    </div>
+	    <div class="col-sm-3">
+		$if myID == 'update':
+			<strong>$pouring.get_unit_in_context(c,batch)</strong>
 	    </div>
 	</div>
 	
@@ -155,7 +161,7 @@ function flip() {
 		$if id == 'new' :
 		    <a href="/index" class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>
 		$else:
-		    <a href="/item/b_$(batch.getID())" class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>
+		    <a href="/find/v/b_$(batch.getID())" class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>
