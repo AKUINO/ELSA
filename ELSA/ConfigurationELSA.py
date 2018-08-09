@@ -1349,41 +1349,37 @@ class AllAlarmLogs(AllObjects):
 
     def get_logs_for_source(self, component, begin, end):
         logs = []
-        id = component.getID()
-        c_type = [component.get_type()]
-        if c_type == 's':
-            c_type.append('')
+        sid = component.getID()
+        stype = component.get_type()
         if begin or end:
             for kal in self.elements.keys():
                 e = self.elements[kal]
                 time = e.getTimestamp()
-                if (id == e.fields['s_id']) and ( e.fields['s_type'] in c_type ):
+                if (sid == e.fields['s_id']) and ( (e.fields['s_type'] ==  s_type) or (e.fields['s_type']=='' and stype=='s') ) :
                     if ( not begin or (time >= begin) ) and ( not end or (time < end) ):
                         logs.append(e)
         else:
             for kal in self.elements.keys():
                 e = self.elements[kal]
-                if (id == e.fields['s_id']) and ( e.fields['s_type'] in c_type ):
+                if (sid == e.fields['s_id']) and ( (e.fields['s_type'] ==  s_type) or (e.fields['s_type']=='' and stype=='s') ) :
                     logs.append(e)
         return logs
 
     def get_logs_for_component(self, component, begin, end):
         logs = []
-        id = component.getID()
-        c_type = [component.get_type()]
-        if c_type == 's':
-            c_type.append('')
+        sid = component.getID()
+        stype = component.get_type()
         if begin or end:
             for kal in self.elements.keys():
                 e = self.elements[kal]
                 time = e.getTimestamp()
-                if (id == e.fields['cont_id']) and ( e.fields['cont_type'] in c_type ):
+                if (sid == e.fields['cont_id']) and ( e.fields['cont_type'] == stype ):
                     if ( not begin or (time >= begin) ) and ( not end or (time < end) ):
                         logs.append(e)
         else:
             for kal in self.elements.keys():
                 e = self.elements[kal]
-                if (id == e.fields['cont_id']) and ( e.fields['cont_type'] in c_type ):
+                if (sid == e.fields['cont_id']) and ( e.fields['cont_type'] == stype ):
                     logs.append(e)
         return logs
 
