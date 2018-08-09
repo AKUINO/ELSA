@@ -47,7 +47,8 @@ $for i in elem.batches:
 <div style="margin:15px;">
 </div>    
  
-<div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+$if (" upd_d " in self.allowed) or (" upd_t " in self.allowed) or (" upd_v " in self.allowed):
+  <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
     <form  method="post" action="" enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	<div class="row active">
 	    <div class="col-sm-2">
@@ -67,4 +68,4 @@ $for i in elem.batches:
 	    </div>
 	</div>
     </form>
-</div>
+  </div>

@@ -103,6 +103,7 @@ $if modelid:
     <div class="col-xs-5">
     </div>
     <div class="col-xs-6" id="addItem">
-	<a href="/create/v/b_$(id)_out">$:c.getHalfling('add') $c.getMessage('pouring',self.lang)$:c.getAllHalfling(c.AllPourings," rotate180")</a>
+	$if ( " upd_v " ) in self.allowed:
+		<a href="/create/v/b_$(id)_out">$:c.getHalfling('add') $c.getMessage('pouring',self.lang)$:c.getAllHalfling(c.AllPourings," rotate180")</a>
     </div>
 </div> 

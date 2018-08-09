@@ -41,7 +41,7 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 	    countvm = 1
 	$for e in elems:
 	    $ aMeasure = None
-	    $if e.get_type() == 'tm':
+	    $if e.get_type() == 'tm' and " upd_t " in self.allowed:
 		<div class="form-group row">
 		    <input type="hidden" name="tm_id_$(counttm)" value="$e.getID()"/>
 		    <label class="col-sm-12 col-form-label">$:c.getAllHalfling(c.AllTransfers) $e.getName(self.lang): <span class="text-danger">$e.fields['remark']<span></label>
@@ -93,7 +93,7 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		<hr id = "hrform">
 		$code:
 		    counttm += 1
-	    $elif e.get_type() == 'dm':
+	    $elif e.get_type() == 'dm' and " upd_d " in self.allowed:
 		$ aMeasure = e.get_measure(c)
 		<div class="form-group row">
 		    <input type="hidden" name="dm_id_$(countdm)" value="$e.getID()"/>
@@ -132,7 +132,7 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		<hr id = "hrform">
 		$code:
 		    countdm += 1
-	    $elif e.get_type() == 'vm':		
+	    $elif e.get_type() == 'vm' and " upd_v " in self.allowed:		
 		<div class="form-group row">
 		    <input type="hidden" name="vm_id_$(countvm)" value="$e.getID()"/>
 		    <label class="col-sm-12 col-form-label">$:c.getAllHalfling(c.AllPourings) $e.getName(self.lang): <span class="text-danger">$e.fields['remark']<span></label>

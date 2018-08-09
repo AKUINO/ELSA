@@ -49,24 +49,27 @@ $for i in elem.checkpoints:
     
 <div style="margin:15px;">
 </div>    
- 
+
+$ add_allowed = (" upd_d " in self.allowed) or (" upd_t " in self.allowed) or (" upd_v " in self.allowed)
 <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
     <form  method="post" action=""  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	<div class="row active">
 	    <div class="col-sm-2">
 	    </div>
-	    <div class="col-sm-4">
-		<input type="hidden" name="batch" value="$id">
-		<select name = "checkpoint" class="form-control" id="inputPosition">
-		$for v in allowedcheckpoints:
-		    <option value="$v.getID()">
-		    $if v.getID() in elem.checkpoints :
-			*
-		    $v.fields['acronym'] - $v.getName(self.lang) </option>
-		</select>
-	    </div>
+	    $if add_allowed:
+		    <div class="col-sm-4">
+			<input type="hidden" name="batch" value="$id">
+			<select name = "checkpoint" class="form-control" id="inputPosition">
+			$for v in allowedcheckpoints:
+			    <option value="$v.getID()">
+			    $if v.getID() in elem.checkpoints :
+				*
+			    $v.fields['acronym'] - $v.getName(self.lang) </option>
+			</select>
+		    </div>
 	    <div class="col-sm-6">
-		<button type="submit" class="btn btn-primary btn-block">$c.getMessage('add',self.lang) $c.getMessage('checkpoint',self.lang)</button>
+		$if add_allowed:
+			<button type="submit" class="btn btn-primary btn-block">$c.getMessage('add',self.lang) $c.getMessage('checkpoint',self.lang)</button>
                 <strong><a href="/map/$(type)_$id" class="btn btn-warning" role="button">$:(c.getHalfling('datatable'))</a></strong>
 		<button type="button" class="btn btn-warning btn-md map" data-toggle="modal" data-target="#mapmodal">$:(c.getHalfling('schema'))</button>
 	    </div>

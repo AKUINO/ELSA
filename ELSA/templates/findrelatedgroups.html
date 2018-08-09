@@ -146,7 +146,8 @@ $elif type == 'h':
 	        <div id="includedAllMenub_$(i)"></div>
         </div>
 	 
-        <form method="post" action="" class="row active" enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
+	$if (" upd_d " in self.allowed) or (" upd_t " in self.allowed) or (" upd_v " in self.allowed):
+            <form method="post" action="" class="row active" enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 		<div class="col-sm-9">
 	        	<input type="hidden" name="checkpoint" value="$id">
 			<select name = "batch" class="form-control">
@@ -160,8 +161,7 @@ $elif type == 'h':
 		<div class="col-sm-3">
 			<button type="submit" class="btn btn-primary">$c.getMessage('add',self.lang) $c.getMessage('checkpoint',self.lang)</button>
                 </div>
-	</form>
-
+	    </form>
 $elif type == 'gu':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('place',self.lang) :</label>    

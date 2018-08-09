@@ -185,14 +185,15 @@ $if type in 'b':
 	</div>    
 	 
 	$if len(usages) > 0:
-	  <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+	    $ add_allowed = (" upd_d " in self.allowed) or (" upd_t " in self.allowed) or (" upd_v " in self.allowed)
+	    <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	    <form  method="post" action="" enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 		<input type="hidden" name="batch" value="$id">
 		<div class="row active">
 		    <div class="col-sm-2">
 		    </div>
 		    <div class="col-sm-4">
-		    $if allowedcheckpoints:
+		    $if allowedcheckpoints and add_allowed:
 			<select name = "checkpoint" class="form-control" id="inputPosition">
 			$for v in allowedcheckpoints:
 			    <option value="$v.getID()">
@@ -202,14 +203,14 @@ $if type in 'b':
 			</select>
 		    </div>
 		    <div class="col-sm-6">
-		    $if allowedcheckpoints:
+		    $if allowedcheckpoints and add_allowed:
 			<button type="submit" class="btn btn-primary btn-block">$c.getMessage('add',self.lang) $c.getMessage('checkpoint',self.lang)</button>
 		    <strong><a href="/map/$(type)_$id" class="btn btn-warning" role="button">$:(c.getHalfling('datatable'))</a></strong>
 		    <button type="button" class="btn btn-warning btn-md map$(type)_$id" data-toggle="modal" data-target="#mapmodal">$:(c.getHalfling('schema'))</button>
 		    </div>
 		</div>
 	    </form>
-	  </div>
+	    </div>
 	$else:
 	    <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 		<div class="col-sm-2">

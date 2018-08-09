@@ -554,8 +554,12 @@ class WebFind():
         if 'action' in data and data['action']=='map':
             raise web.seeother('/map/b_'+data['batch'])
         elif 'checkpoint' in data and 'batch' in data:
-          raise web.seeother('/control/b_'+data['batch'] +
-                             '/h_'+data['checkpoint'])
+            allowed = user.allowed(c)
+            if (" upd_d " in allowed) or (" upd_t " in allowed) or (" upd_v " in allowed):
+                raise web.seeother('/control/b_'+data['batch'] +
+                                   '/h_'+data['checkpoint'])
+            else:
+                return self.getRender(type, id1, id2, mail)
         return self.getRender(type, id1, id2, mail)
 
     def getRender(self, type, id1, id2, mail, barcode=''):
