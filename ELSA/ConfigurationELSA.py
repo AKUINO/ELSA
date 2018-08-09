@@ -1355,13 +1355,13 @@ class AllAlarmLogs(AllObjects):
             for kal in self.elements.keys():
                 e = self.elements[kal]
                 time = e.getTimestamp()
-                if (sid == e.fields['s_id']) and ( (e.fields['s_type'] ==  s_type) or (e.fields['s_type']=='' and stype=='s') ) :
+                if (sid == e.fields['s_id']) and ( (e.fields['s_type'] ==  stype) or (e.fields['s_type']=='' and stype=='s') ) :
                     if ( not begin or (time >= begin) ) and ( not end or (time < end) ):
                         logs.append(e)
         else:
             for kal in self.elements.keys():
                 e = self.elements[kal]
-                if (sid == e.fields['s_id']) and ( (e.fields['s_type'] ==  s_type) or (e.fields['s_type']=='' and stype=='s') ) :
+                if (sid == e.fields['s_id']) and ( (e.fields['s_type'] ==  stype) or (e.fields['s_type']=='' and stype=='s') ) :
                     logs.append(e)
         return logs
 
