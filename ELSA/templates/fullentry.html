@@ -539,7 +539,7 @@ $elif type == 'al':
 				<strong><a href="/find/al/$(type)_$id" class="btn btn-warning" role="button">$:(c.getHalfling('alarmlog'))</a></strong>
 			    </div>
 			    <div class="col-xs-10">
-				$(c.getMessage('alarmlog',self.lang))
+				<strong>$( unicode(elem.count_logs(c)) if type in 'sb' else u"")</strong> $(c.getMessage('alarmlog',self.lang))
 			    </div>
 			</div>
 		    $if permissionKey in '_c_p_e_b_' :

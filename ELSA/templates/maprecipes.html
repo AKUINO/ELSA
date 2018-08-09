@@ -38,6 +38,7 @@ $for krecipe in listRecipe:
 						<a name="b_$acro"></a>$acro - <strong>$(batch.getName(self.lang))</strong>
 						    $code:
 							pos = None
+							alarms = batch.count_logs(c)
 							tmp = batch.get_last_transfer()
 							if tmp is not None :
 							    transfer = c.AllTransfers.elements[tmp]
@@ -46,6 +47,9 @@ $for krecipe in listRecipe:
 							    $:c.getHalfling('to')
 							    <a href="/find/related/$(pos.get_type())_$pos.getID()">$:(pos.statusIcon(c,True,False)) $pos.fields['acronym']</a>,
 							    $transfer.fields['time']
+						    $if alarms > 0:
+							    <a href="/find/al/b_$batch.getID()">
+							    $:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
 						$ done.add('b_'+batch.getID())
 					</div>
 			$ done.add('gr_'+krecipe)

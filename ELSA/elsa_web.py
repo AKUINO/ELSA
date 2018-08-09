@@ -1020,7 +1020,6 @@ class WebIndex():
         mail = isConnected()
         if mail is None:
             return render.index(False, '')
-        
         return self.getRender(mail)
 
     def POST(self):
@@ -1039,11 +1038,11 @@ class WebIndex():
             if (redirect_url is not None):
                 raise web.seeother(redirect_url)
             else:
-                return render.index(True, unicode(data._username_).lower() )
+                return self.getRender( unicode(data._username_).lower() )
         return render.index(False, '')
 
     def getRender(self, mail):
-        return render.index(True, mail)
+        return render.maprecipes(mail)
 
 
 class WebBarcode():
@@ -1333,6 +1332,7 @@ def main():
         c.load()
         web.template.Template.globals['c'] = c
         web.template.Template.globals['str'] = str
+        web.template.Template.globals['unicode'] = unicode
         web.template.Template.globals['useful'] = useful
         web.template.Template.globals['round'] = round
         web.template.Template.globals['subprocess'] = subprocess

@@ -40,6 +40,7 @@ $for kusage in listUsage:
 						$ sensors = place.get_sensors_in_component(c)
 						$for ksensor in sensors:
 							$ sensor = c.AllSensors.elements[ksensor]
+							$ alarms = sensor.count_logs(c)
 							<div class="map down">
 							<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c,True,False))</a>
 							$ acro = sensor.fields['acronym']
@@ -48,6 +49,9 @@ $for kusage in listUsage:
 							$else:
 								<a name="s_$acro"></a>$acro - <strong>$(sensor.getName(self.lang))</strong>
 								<a href="/graphic/s_$ksensor">$:(c.getHalfling('graphic'))</a>
+							        $if alarms > 0:
+								    <a href="/find/al/s_$sensor.getID()">
+								    $:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
 								$ done.add('s_'+ksensor)
 							</div>
 						$ done.add('p_'+kplace)
@@ -68,6 +72,7 @@ $for kusage in listUsage:
 						$ sensors = equipment.get_sensors_in_component(c)
 						$for ksensor in sensors:
 							$ sensor = c.AllSensors.elements[ksensor]
+							$ alarms = sensor.count_logs(c)
 							<div class="map down">
 							<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c,True,False))</a>
 							$ acro = sensor.fields['acronym']
@@ -76,6 +81,9 @@ $for kusage in listUsage:
 							$else:
 								<a name="s_$acro"></a>$acro - <strong>$(sensor.getName(self.lang))</strong>
 								<a href="/graphic/s_$ksensor">$:(c.getHalfling('graphic'))</a>
+							        $if alarms > 0:
+								    <a href="/find/al/s_$sensor.getID()">
+								    $:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
 								$ done.add('s_'+ksensor)
 							</div>
 						$ done.add('e_'+kequipment)
@@ -96,6 +104,7 @@ $for kusage in listUsage:
 						$ sensors = container.get_sensors_in_component(c)
 						$for ksensor in sensors:
 							$ sensor = c.AllSensors.elements[ksensor]
+							$ alarms = sensor.count_logs(c)
 							<div class="map down">
 							<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c,True,False))</a>
 							$ acro = sensor.fields['acronym']
@@ -104,6 +113,9 @@ $for kusage in listUsage:
 							$else:
 								<a name="s_$acro"></a>$acro - <strong>$(sensor.getName(self.lang))</strong>
 								<a href="/graphic/s_$ksensor">$:(c.getHalfling('graphic'))</a>
+							        $if alarms > 0:
+								    <a href="/find/al/s_$sensor.getID()">
+								    $:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
 								$ done.add('s_'+ksensor)
 							</div>
 						$ done.add('c_'+kcontainer)

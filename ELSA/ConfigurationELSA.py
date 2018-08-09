@@ -4614,6 +4614,14 @@ class Sensor(AlarmingObject):
             return self.sanitize_reading(config, output_val), cache
         return None, None
 
+    def count_logs(self,c):
+        count = 0
+        sID = self.getID()
+        for kal,e in c.AllAlarmLogs.elements.items():
+            if (sID == e.fields['s_id']) and ( (e.fields['s_type'] == 's') or (e.fields['s_type'] == '') ):
+                count += 1
+        return count
+
     def is_in_component(self, type, id):
         if type == 'e':
             return id == self.fields['e_id']
@@ -4947,6 +4955,14 @@ class Batch(ConfigurationObject):
         self.add_measure(data['measure'])
         self.fields['gr_id'] = data['group']
         self.save(c, user)
+
+    def count_logs(self,c):
+        count = 0
+        bID = self.getID()
+        for kal,e in c.AllAlarmLogs.elements.items():
+            if (bID == e.fields['cont_id']) and ( e.fields['cont_type'] == 'b' ):
+                count += 1
+        return count
 
     def get_group(self):
         return self.fields['gr_id']
