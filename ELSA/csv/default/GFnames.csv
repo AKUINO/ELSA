@@ -1,0 +1,41 @@
+begin	lang	gf_id	name	user
+2018-08-09 09:46:46	FR	1	Administrateur de l'application ELSA	1
+2018-08-09 09:46:46	EN	1	ELSA application manager	1
+2018-08-09 09:47:47	FR	2	Mise à jour Alarmes	1
+2018-08-09 09:47:47	EN	2	Alarms Updates	1
+2018-08-09 09:48:24	FR	3	Mise à jour déclenchements d'Alarmes	1
+2018-08-09 10:37:27	FR	3	Mise à jour déclenchements d'Alarmes	1
+2018-08-09 10:39:54	FR	4	Mise à jour Lots	1
+2018-08-09 10:39:54	EN	4	Batch Updates	1
+2018-08-09 10:40:24	FR	5	Mise à jour Conteneurs	1
+2018-08-09 10:40:24	EN	5	Containers Updates	1
+2018-08-09 10:41:03	FR	6	Mise à jour Observations	1
+2018-08-09 10:41:03	EN	6	Updates to Manual Data	1
+2018-08-09 10:41:52	FR	7	Mise à jour de modèles d'Observations	1
+2018-08-09 10:41:52	EN	7	Updates to Manual Data Models	1
+2018-08-09 10:42:36	FR	8	Mise à jour Équipements	1
+2018-08-09 10:42:36	EN	8	Equipments Updates	1
+2018-08-09 10:43:46	FR	9	Mise à jour Groupes de Fonctions (Utilisateurs)	1
+2018-08-09 10:43:46	EN	9	Functions (Users) groups Updates	1
+2018-08-09 10:44:40	FR	10	Mise à jour Groupes de Recettes (Nature)	1
+2018-08-09 10:44:40	EN	10	Updates of Recipes Groups	1
+2018-08-09 10:45:22	FR	11	Mise à jour d'usages 	1
+2018-08-09 10:45:22	EN	11	Updates to groups of Uses	1
+2018-08-09 10:45:55	FR	12	Mise à jour Points de Contrôle	1
+2018-08-09 10:45:55	EN	12	Checkpoints Updates	1
+2018-08-09 10:46:54	FR	13	Mise à jour Mesures	1
+2018-08-09 10:46:54	EN	13	Measurements Updates	1
+2018-08-09 10:47:41	FR	14	Mise à jour Pièces (emplacements)	1
+2018-08-09 10:47:41	EN	14	Places (rooms) Updates	1
+2018-08-09 10:48:20	FR	15	Mise à jour Capteurs	1
+2018-08-09 10:48:20	EN	15	Sensors Updates	1
+2018-08-09 10:48:47	FR	16	Mise à jour Transferts	1
+2018-08-09 10:48:47	EN	16	Transfers Updates	1
+2018-08-09 10:50:35	FR	17	Mise-à-jour Modèles de Transfert	1
+2018-08-09 10:50:35	EN	17	Updates of Transfers Models	1
+2018-08-09 10:51:09	FR	18	Mise-à-jour Utilisateurs	1
+2018-08-09 10:51:09	EN	18	Users Updates	1
+2018-08-09 10:53:02	FR	19	Mise à jour Versements	1
+2018-08-09 10:53:02	EN	19	Pourings Updates	1
+2018-08-09 10:53:34	FR	20	Mise à jour Modèles de Versements	1
+2018-08-09 10:53:34	EN	20	Updates of Pouring Models	1
