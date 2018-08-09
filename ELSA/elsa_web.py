@@ -79,6 +79,12 @@ def redirect_when_not_logged(redir=True):
             raise web.seeother('/')
     return mail
 
+def redirect_when_not_allowed(type,redir=True):
+    return redirect_when_not_logged(redir)
+
+def redirect_when_not_admin(redir=True):
+    return redirect_when_not_logged(redir)
+
 class WebColor():
     def GET(self, type, id):
         mail = isConnected()
@@ -92,11 +98,11 @@ class WebBackup():
         self.name = u"WebBackup"
 
     def GET(self):
-        mail = redirect_when_not_logged()
+        mail = redirect_when_not_admin()
         return render.backup(mail, getLinkForLatestBackupArchive(),"")
     
     def POST(self):
-        mail = redirect_when_not_logged()
+        mail = redirect_when_not_admin()
         data = web.input()
         if data is None:
             return render.backup(mail, getLinkForLatestBackupArchive(),"")
@@ -120,11 +126,11 @@ class WebRestore():
         self.name = u"WebRestore"
 
     def GET(self):
-        mail = redirect_when_not_logged()            
+        mail = redirect_when_not_admin()            
         return render.backup(mail, getLinkForLatestBackupArchive(),"")
     
     def POST(self):
-        mail = redirect_when_not_logged()
+        mail = redirect_when_not_admin()
         
         data = web.input(zip_archive_to_restore={})
         if data is not None and 'zip_archive_to_restore' in data\
@@ -160,7 +166,7 @@ class WebUpdateELSA():
         self.name = u"WebUpdateELSA"
 
     def GET(self):
-        mail = redirect_when_not_logged()
+        mail = redirect_when_not_admin()
         
         subprocess.call(['git', 'remote', 'update'])
         git_status_out = subprocess.check_output(['git', 'status'])
@@ -175,7 +181,7 @@ class WebUpdateELSA():
         return render.updateELSA(mail, git_status_out)
     
     def POST(self):
-        mail = redirect_when_not_logged()
+        mail = redirect_when_not_admin()
         data = web.input()
         if mail is not None and data.start_elsa_update is not None:
             flags.set_check_update(True)
@@ -370,11 +376,11 @@ class WebItem():
 # UPDATE of Place, Equipment, Container, etc.
 class WebEdit():
     def GET(self, type, id):
-        mail = redirect_when_not_logged()
+        mail = redirect_when_not_allowed(type)
         return self.getRender(type, id, mail, '', '')
 
     def POST(self, type, id, context=None):
-        mail = redirect_when_not_logged()
+        mail = redirect_when_not_allowed(type)
             
         user = c.connectedUsers.users[mail].cuser
         currObject = c.getObject(id, type)
@@ -469,28 +475,30 @@ class WebEdit():
 
 class WebCreate(WebEdit):
     def GET(self, type):
-        mail = redirect_when_not_logged()
+        types = type.split('/')
+        mail = redirect_when_not_allowed(types[0])
             
-        if len(type.split('/')) == 1:
-            return self.getRender(type, 'new', mail, '', '')
+        if len(types) == 1:
+            return self.getRender(types[0], 'new', mail, '', '')
         else:
-            return self.getRender(type.split('/')[0],
+            return self.getRender(types[0],
                                   'new',
                                   mail,
                                   '',
                                   '',
-                                  type.split('/')[-1])
+                                  types[-1])
 
     def POST(self, type):
-        mail = redirect_when_not_logged()
+        types = type.split('/')
+        mail = redirect_when_not_allowed(types[0])
         
-        if len(type.split('_')) > 1:
+        if len(types) > 1:
             return WebEdit.POST(self,
-                                type.split('/')[0],
+                                types[0],
                                 'new',
-                                type.split('/')[-1])
+                                types[-1])
         else:
-            return WebEdit.POST(self, type.split('/')[0], 'new')
+            return WebEdit.POST(self, types[0], 'new')
 
 
 class WebControl():

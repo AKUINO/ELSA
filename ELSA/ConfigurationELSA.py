@@ -63,6 +63,7 @@ DIR_WEB_TEMP = os.path.join(DIR_STATIC, 'temp/')
 TEMPLATES_DIR = os.path.join(DIR_BASE, 'templates/')
 
 GROUPWEBUSERS = '_WEB'
+KEY_ADMIN = "admin" #Omnipotent user
 
 
 imagedTypes = [u'u', u'e', u'p', u'g', u'gf', u'gr', u'gu', u'c', u'b', u'h', u's', u'm', u'a']
@@ -873,6 +874,23 @@ class ConfigurationObject(object):
             return ''
         return result
 
+    def updateAllowed(self,user,c):
+        user_group = user.get_group()
+        if user_group and user_group in c.AllGrFunctions.elements:
+            key_upd = u"upd_"+self.get_type()
+            aGroup = c.AllGrFunctions.elements[user_group]
+            if aGroup.fields["acronym"].lower() == KEY_ADMIN:
+                return True
+            if aGroup.fields["acronym"].lower() == key_upd:
+                return True
+            for user_group in aGroup.get_all_parents([],c.AllGrFunctions):
+                bGroup = c.AllGrFunctions.elements[user_group]
+                if bGroup.fields["acronym"].lower() == KEY_ADMIN:
+                    return True
+                if bGroup.fields["acronym"].lower() == key_upd:
+                    return True
+        return False
+
 class UpdateThread(threading.Thread):
 
     def __init__(self, config):
@@ -1238,14 +1256,16 @@ class AllUsers(AllObjects):
         return User()
 
     def checkUser(self, mail, password):
-        for user in self.elements.value():
-            if user.fields['mail'] == mail:
-                return user.checkPassword(password)
+        user = self.getUser(mail)
+        if user:
+            return user.checkPassword(password)
+        return False
 
     def getUser(self, mail):
         for myId, user in self.elements.items():
             if user.fields['mail'] == mail:
                 return user
+        return None
 
     def get_class_acronym(self):
         return 'user'
