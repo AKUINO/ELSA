@@ -1,5 +1,6 @@
 $def with (id, mail, errormess, context='')
 $var recursive : False
+$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var title: $c.getMessage('add',self.lang) $c.getName(c.AllManualData,self.lang)
 $if id == 'new' and context == '':

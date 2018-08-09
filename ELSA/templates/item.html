@@ -3,6 +3,7 @@ $code :
     elem = c.findAllFromType(type).elements[id]
 $var recursive : False
 $var title : ELSA $(c.findAllFromType(type).get_class_acronym())
+$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var location: list/$(type)=$(c.findAllFromType(type).get_class_acronym())
 

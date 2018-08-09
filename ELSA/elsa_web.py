@@ -80,10 +80,20 @@ def redirect_when_not_logged(redir=True):
     return mail
 
 def redirect_when_not_allowed(type,redir=True):
-    return redirect_when_not_logged(redir)
+    mail = redirect_when_not_logged(redir)
+    if mail:
+        user = c.AllUsers.getUser(mail)
+        if user.updateAllowed(c,type):
+            return mail
+    raise web.seeother('/')
 
 def redirect_when_not_admin(redir=True):
-    return redirect_when_not_logged(redir)
+    mail = redirect_when_not_logged(redir)
+    if mail:
+        user = c.AllUsers.getUser(mail)
+        if user.adminAllowed(c):
+            return mail
+    raise web.seeother('/')
 
 class WebColor():
     def GET(self, type, id):
@@ -1025,7 +1035,7 @@ class WebIndex():
             if (redirect_url is not None):
                 raise web.seeother(redirect_url)
             else:
-                return render.index(True, data._username_)
+                return render.index(True, unicode(data._username_).lower() )
         return render.index(False, '')
 
     def getRender(self, mail):
@@ -1204,7 +1214,9 @@ def isConnected():
     
     infoCookie = infoCookie.split(',')
     if c.connectedUsers.isConnected(infoCookie[0], infoCookie[1]) is True:
-        return infoCookie[0]
+        return unicode(infoCookie[0]).lower()
+
+    return None
 
 
 def notfound():

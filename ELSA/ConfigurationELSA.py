@@ -876,15 +876,15 @@ class ConfigurationObject(object):
 
     def updateAllowed(self,user,c):
         user_group = user.get_group()
-        if user_group and user_group in c.AllGrFunctions.elements:
+        if user_group and user_group in c.AllGrFunction.elements:
             key_upd = u"upd_"+self.get_type()
-            aGroup = c.AllGrFunctions.elements[user_group]
+            aGroup = c.AllGrFunction.elements[user_group]
             if aGroup.fields["acronym"].lower() == KEY_ADMIN:
                 return True
             if aGroup.fields["acronym"].lower() == key_upd:
                 return True
-            for user_group in aGroup.get_all_parents([],c.AllGrFunctions):
-                bGroup = c.AllGrFunctions.elements[user_group]
+            for user_group in aGroup.get_all_parents([],c.AllGrFunction):
+                bGroup = c.AllGrFunction.elements[user_group]
                 if bGroup.fields["acronym"].lower() == KEY_ADMIN:
                     return True
                 if bGroup.fields["acronym"].lower() == key_upd:
@@ -1262,8 +1262,9 @@ class AllUsers(AllObjects):
         return False
 
     def getUser(self, mail):
+        mail = mail.lower()
         for myId, user in self.elements.items():
-            if user.fields['mail'] == mail:
+            if user.fields['mail'].lower() == mail:
                 return user
         return None
 
@@ -2129,7 +2130,7 @@ class AllConnectedUsers():
 
     def addUser(self, user):
         self.update()
-        mail = user.fields['mail']
+        mail = user.fields['mail'].lower()
         if mail not in self.users:
             self.users[mail] = ConnectedUser(user)
         else:
@@ -2143,6 +2144,7 @@ class AllConnectedUsers():
 
     def isConnected(self, mail, password):
         self.update()
+        mail = mail.lower()
         if mail in self.users:
             user = self.users[mail].cuser
             if user.fields['password'] == password:
@@ -2151,11 +2153,13 @@ class AllConnectedUsers():
         return False
 
     def getLanguage(self, mail):
+        mail = mail.lower()
         if mail in self.users:
             return self.users[mail].cuser.fields['language']
         return 'english'
 
     def disconnect(self, mail):
+        mail = mail.lower()
         if mail in self.users:
             del self.users[mail]
 
@@ -2274,6 +2278,49 @@ class User(ConfigurationObject):
 
     def get_group(self):
         return self.fields['gf_id']
+
+    def adminAllowed(self,c):
+        user_group = self.get_group()
+        if user_group and user_group in c.AllGrFunction.elements:
+            aGroup = c.AllGrFunction.elements[user_group]
+            if aGroup.fields["acronym"].lower() == KEY_ADMIN:
+                return True
+            for user_group in aGroup.get_all_parents([],c.AllGrFunction):
+                bGroup = c.AllGrFunction.elements[user_group]
+                if bGroup.fields["acronym"].lower() == KEY_ADMIN:
+                    return True
+        return False
+
+    def updateAllowed(self,c,type):
+        user_group = self.get_group()
+        if user_group and user_group in c.AllGrFunction.elements:
+            key_upd = u"upd_"+type
+            aGroup = c.AllGrFunction.elements[user_group]
+            if aGroup.fields["acronym"].lower() == KEY_ADMIN:
+                return True
+            if aGroup.fields["acronym"].lower() == key_upd:
+                return True
+            for user_group in aGroup.get_all_parents([],c.AllGrFunction):
+                bGroup = c.AllGrFunction.elements[user_group]
+                if bGroup.fields["acronym"].lower() == KEY_ADMIN:
+                    return True
+                if bGroup.fields["acronym"].lower() == key_upd:
+                    return True
+        return False
+
+    def allowed(self,c):
+        user_group = self.get_group()
+        result = " "
+        if user_group and user_group in c.AllGrFunction.elements:
+            key_upd = u"upd_"+self.get_type()
+            aGroup = c.AllGrFunction.elements[user_group]
+            result += aGroup.fields["acronym"].lower() + " "
+            for user_group in aGroup.get_all_parents([],c.AllGrFunction):
+                bGroup = c.AllGrFunction.elements[user_group]
+                result += bGroup.fields["acronym"].lower() + " "
+        if " admin " in result: # all is updatable then !
+            result += " upd_a upd_al upd_b upd_c upd_d upd_dm upd_e upd_gf upd_gr upd_gu upd_h upd_m upd_p upd_s upd_t upd_tm upd_u upd_v upd_vm "
+        return result
 
 
 class Equipment(ConfigurationObject):

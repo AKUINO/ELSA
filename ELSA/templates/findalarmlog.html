@@ -3,6 +3,7 @@ $code:
     allobjects = c.findAllFromType(type)
     elem = allobjects.elements[id]
     keyID = allobjects.keyColumn
+$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var location: list/$(type)=$(allobjects.get_class_acronym()) find/al/$(type)_$(id)=alarmlog
 $var recursive : False

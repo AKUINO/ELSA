@@ -1,5 +1,6 @@
 $def with (mail,type, id, current)	
 $var recursive : True
+$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $(c.connectedUsers.users[mail].cuser.fields['language'])
 $code :
     allElem = c.findAllFromType(type)
@@ -79,8 +80,10 @@ $elif type == 'al':
 		    <div class="col-xs-4 vcenter">
 			   $if 'acronym' in source.fields:
 				<a href="/find/related/$(source.get_type())_$(source.getID())">$source.fields['acronym']</a>
-			   $else:
+			   $elif ( " upd_"+source.get_type()+" " ) in self.allowed:
 				<a href="/edit/$(source.get_type())_$(source.getID())">$source.getQtyUnit(c)</a>
+			   $else:
+				$source.getQtyUnit(c)
 		    </div>
 	    <div class="col-xs-5 vcenter">
 		$useful.date_to_ISO(elem.fields['completedtime'])
@@ -556,15 +559,16 @@ $elif type == 'al':
 			    <div class="col-xs-10">
 				$(c.getMessage('barcode',self.lang))
 			    </div>
-			</div>			
-		    <div class="row" style="margin-top:6px;">
-			<div class="col-xs-2" >
-			    <strong><a href="/edit/$(type)_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('edit'))</a></strong>
 			</div>
-			<div class="col-xs-10">
-			    $(c.getMessage('update',self.lang))
+		    $if ( " upd_"+type+" " ) in self.allowed:
+			<div class="row" style="margin-top:6px;">
+				<div class="col-xs-2" >
+				    <strong><a href="/edit/$(type)_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('edit'))</a></strong>
+				</div>
+				<div class="col-xs-10">
+				    $(c.getMessage('update',self.lang))
+				</div>
 			</div>
-		    </div>
                     $ i=0
 		    $for filename in documentList:
                         <div class="row" style="margin-top:6px;">

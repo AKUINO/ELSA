@@ -4,6 +4,7 @@ $code:
     permissionKey = 'm_'
     elem = c.AllBatches.elements[id]
     keyID = 'b'
+$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var location: list/b=batch find/v/b_$(id)=pouring
 $var title : $elem.getName(self.lang)
@@ -49,9 +50,10 @@ $if modelid:
 			    $if pouring.fields['remark']:
 				<br/><span class="text-danger">$pouring.fields['remark']</span>
 			</div>
-			<div class="col-xs-1">
+			$if ( " upd_v " ) in self.allowed:
+			  <div class="col-xs-1">
 			    <strong><a href="/edit/v_$(pouring.fields['v_id'])" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
-			</div>
+			  </div>
 	    	</div>
 </div>
 
@@ -59,7 +61,8 @@ $if modelid:
     <div class="col-xs-5">
     </div>
     <div class="col-xs-6" id="addItem">
-	<a href="/create/v/b_$(id)_in">$:c.getHalfling('add') $c.getMessage('pouring',self.lang)$:c.getAllHalfling(c.AllPourings)</a>
+	$if ( " upd_v " ) in self.allowed:
+	    <a href="/create/v/b_$(id)_in">$:c.getHalfling('add') $c.getMessage('pouring',self.lang)$:c.getAllHalfling(c.AllPourings)</a>
     </div>
 </div> 
 

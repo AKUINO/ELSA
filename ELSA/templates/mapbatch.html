@@ -1,4 +1,5 @@
 $def with (mail, elem)
+$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : False
 $var title : Map Recipe
@@ -155,7 +156,10 @@ $for operation in events:
 		<th style="padding:3px">$(user)</th>		
 		<th style="padding:3px;text-align:right">$(useful.shorten_time(operation.fields['time'],longTime))</th>
 		$ longTime = operation.fields['time']
-		<td style="padding:3px"><a href="/edit/$(op_type)_$(operation.getID())">$:operation.statusIcon(c,True,False)</a>
+
+		<td style="padding:3px">
+			<a href="/$("edit" if ( " upd_"+op_type+" " ) in self.allowed else "find/related")/$(op_type)_$(operation.getID())">
+			$:operation.statusIcon(c,True,False)</a>
 		</td><td>
                 $ sourceModel = None
 		$if (operation.fields[op_type+'m_id']):

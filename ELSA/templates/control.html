@@ -4,6 +4,7 @@ $code:
     batch = c.AllBatches.elements[id1]
     cp = c.AllCheckPoints.elements[id2]
     elems = cp.get_model_sorted()
+$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var location: list/b=batch find/h/b_$(id1)=related control/b_$(id1)/h_$(id2)=checkpoint
 $var title : $batch.getName(self.lang): $cp.getName(self.lang)

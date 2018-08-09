@@ -6,6 +6,7 @@ $code:
     elem = allobjects.elements[id]
     keyID = allobjects.keyColumn
     
+$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var location: list/$(type)=$(elem.get_class_acronym()) find/related/$(type)_$(id)=related
 $var title : $(elem.getName(self.lang))
@@ -56,6 +57,7 @@ $if type == 'gf':
 	<div class="col-xs-5">
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
+	$if ( " upd_u " ) in self.allowed:
 	    <a href="/create/u/$(type)_$(id)" class = "vcenter">$:c.getHalfling('add') $c.getMessage('user',self.lang)</a>
 	</div>
     </div> 
@@ -74,6 +76,7 @@ $elif type == 'h':
 	<div class="col-xs-5">
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
+	$if ( " upd_dm " ) in self.allowed:
 	    <a href="/create/dm/$(type)_$(id)" class = "vcenter">$:c.getHalfling('add') $c.getMessage('manualdatamodel',self.lang)</a>
 	</div>
     </div> 
@@ -92,6 +95,7 @@ $elif type == 'h':
 	<div class="col-xs-5">
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
+	$if ( " upd_tm " ) in self.allowed:
 	    <a href="/create/tm/$(type)_$(id)" class = "vcenter">$:c.getHalfling('add') $c.getMessage('transfermodel',self.lang)</a>
 	</div>
     </div> 
@@ -110,6 +114,7 @@ $elif type == 'h':
 	<div class="col-xs-5">
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
+	$if ( " upd_vm " ) in self.allowed:
 	    <a href="/create/vm/$(type)_$(id)" class = "vcenter">$:c.getHalfling('add') $c.getMessage('pouringmodel',self.lang)</a>
 	</div>
     </div> 
@@ -173,6 +178,7 @@ $elif type == 'gu':
 	<div class="col-xs-5">
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
+	$if ( " upd_p " ) in self.allowed:
 	    <a href="/create/p/$(type)_$(id)" class = "vcenter">$:c.getHalfling('add') $c.getMessage('place',self.lang)</a>
 	</div>
     </div> 
@@ -192,6 +198,7 @@ $elif type == 'gu':
 	<div class="col-xs-5">
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
+	$if ( " upd_e " ) in self.allowed:
 	    <a href="/create/e/$(type)_$(id)" class = "vcenter">$:c.getHalfling('add') $c.getMessage('equipment',self.lang)</a>
 	</div>
     </div> 
@@ -211,6 +218,7 @@ $elif type == 'gu':
 	<div class="col-xs-5">
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
+	$if ( " upd_c " ) in self.allowed:
 	    <a href="/create/c/$(type)_$(id)" class = "vcenter">$:c.getHalfling('add') $c.getMessage('container',self.lang)</a>
 	</div>
     </div> 
@@ -229,6 +237,7 @@ $elif type == 'gu':
 	<div class="col-xs-5">
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
+	$if ( " upd_h " ) in self.allowed:
 	    <a href="/create/h/$(type)_$(id)" class = "vcenter">$:c.getHalfling('add') $c.getMessage('checkpoint',self.lang)</a>
 	</div>
     </div> 
@@ -248,6 +257,7 @@ $elif type == 'gr':
 	<div class="col-xs-5">
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
+	$if ( " upd_b " ) in self.allowed:
 	    <a href="/create/b/$(type)_$(id)" class = "vcenter">$:c.getHalfling('add') $c.getMessage('batch',self.lang)</a>
 	</div>
     </div> 
@@ -266,6 +276,7 @@ $elif type == 'gr':
     <div class="row active" style="background-color:rgb(0, 21, 43);">
 	<div class="col-xs-3"></div>
 	<div class="col-xs-5 vcenter" id="addItem">
+	$if ( " upd_h " ) in self.allowed:
 	    <a href="/create/h/$(type)_$(id)" class = "vcenter">$:c.getHalfling('add') $c.getMessage('checkpoint',self.lang)</a>
 	</div>
 	<div class="col-xs-2 vcenter">

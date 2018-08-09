@@ -1,6 +1,7 @@
 $def with (mail)
 $var title : ELSA Batches Recipes Map
 $var location: list/gr=$(c.AllGrRecipe.get_class_acronym())
+$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : False
 $ done = set()

@@ -1,4 +1,5 @@
 $def with (id, mail, errormess, data)
+$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
 $var title: $c.getMessage("add",self.lang) $c.AllAlarms.getName(self.lang)

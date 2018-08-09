@@ -1,4 +1,5 @@
 $def with (mail,barcode, errormess)
+$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : False
 $var title : ELSA BARCODE search

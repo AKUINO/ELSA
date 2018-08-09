@@ -1,10 +1,12 @@
 $def with (connected, mail)
 $var title : ELSA
 $var location : index
+$var allowed : nothing
 $var lang : disconnected
 $var recursive : False
 <h4> $useful.timestamp_to_ISO(useful.get_timestamp())
 $if connected is True:
+	$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 	$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
         : $c.getMessage('welcome',self.lang) <em>$c.connectedUsers.users[mail].cuser.getName(self.lang)</em>
 	</h4>
@@ -23,6 +25,7 @@ $if connected is True:
 	    <div class="col-sm-5">
 	    </div>
 	    <div class="col-sm-6" id="addItem">
+	    $if ( " upd_b " ) in self.allowed:
 		<a href="/create/b">$:c.getHalfling('add') $c.getName(c.AllBatches,self.lang)</a>
 	    </div>
 	</div>    

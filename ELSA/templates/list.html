@@ -9,6 +9,7 @@ $code :
     keys = allObjects.get_sorted_hierarchy()
 $var location: list/$(type)=$(allObjects.get_class_acronym())
 $var recursive : False
+$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var title: $c.getName(allObjects,self.lang)
 
@@ -55,7 +56,8 @@ $if type == 'b' :
 		href="/list/$(type)"
 	class="btn btn-default" >$:c.getHalfling('active')&nbsp;/&nbsp;$:c.getHalfling('disabled')</a>
     </div>
-    <div class="col-xs-6 vcenter" id="addItem">
+    $if ( " upd_"+type+" " ) in self.allowed:
+      <div class="col-xs-6 vcenter" id="addItem">
 	<a href="/create/$(type)" class = "vcenter">$:c.getHalfling('add') $c.getName(allObjects,self.lang)</a>
-    </div>
+      </div>
 </div>    

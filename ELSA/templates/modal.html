@@ -6,6 +6,7 @@ $code :
     keyID = allElem.keyColumn
     permissionKey = '_' + type +'_'
 
+$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var title: MODAL 
 
@@ -329,6 +330,7 @@ $var title: MODAL
                     </div>
                     <div class="row" style="margin-top:3px;">
                         <div class="col-xs-4">
+			$if ( " upd_"+type+" " ) in self.allowed:
                             <strong><a href="/edit/$(type)_$id" class="btn btn-warning" role="button">$:c.getHalfling('edit')</a></strong>
                         </div>
                         <div class="col-xs-8" id="modalinfo" >

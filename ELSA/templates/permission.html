@@ -4,6 +4,7 @@ $var recursive : True
 $code :
     allObjs = c.findAllFromType(type)
     groups = c.findAllFromType(allObjs.get_group_type())
+$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var title : permission
 $code:

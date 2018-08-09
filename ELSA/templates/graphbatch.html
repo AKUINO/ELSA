@@ -1,4 +1,5 @@
 $def with (mail, type, id, graph)
+$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : True
 $var title : Map Controls

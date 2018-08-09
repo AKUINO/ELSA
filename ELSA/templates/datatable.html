@@ -1,4 +1,5 @@
 $def with (mail, type,id)
+$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $code :
     elem = c.connectedUsers.users[mail].cuser.exportdata

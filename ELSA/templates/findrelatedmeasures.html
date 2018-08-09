@@ -4,6 +4,7 @@ $code:
     permissionKey = 'm_'
     elem = c.AllMeasures.elements[id]
     keyID = c.AllMeasures.keyColumn
+$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var location: list/m=$(c.findAllFromType('m').get_class_acronym()) find/d/m_$(id)=manualdata
 $var title : $elem.getName(self.lang)
@@ -67,9 +68,10 @@ $var title : $elem.getName(self.lang)
 		<div class="col-xs-3" >
 		    $data.fields['remark']
 		</div>
-		<div class="col-xs-1">
+		$if ( " upd_d " ) in self.allowed:
+		  <div class="col-xs-1">
 		    <strong><a href="/edit/d_$k" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
-		</div>
+		  </div>
 	    </div>
 </div>
 $if barcode > '':
