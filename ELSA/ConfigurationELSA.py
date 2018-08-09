@@ -1341,7 +1341,7 @@ class AllAlarmLogs(AllObjects):
         self.file_of_names = None
         self.fieldnames = ['begin', 'al_id', 'cont_id', 'cont_type',
                            's_id', 's_type', 'value', 'typealarm', 'a_id', 'begintime',
-                           'alarmtime', 'degree', 'completedtime']
+                           'alarmtime', 'degree', 'completedtime', 'remark', 'user']
         self.fieldtranslate = None
 
     def newObject(self):
@@ -3876,13 +3876,14 @@ class Alarm(ConfigurationObject):
             self.fields[elem] = data[elem]
         self.save(c, user)
 
-    def get_alarm_message(self, alarmedObject, config, lang):
+    def get_alarm_message(self, alarmedObject, config, lang, saveit):
         currObject = config.AllAlarmLogs.createObject()
         currObject.fields['s_id'] = alarmedObject.getID()
         currObject.fields['s_type'] = alarmedObject.get_type()
         currObject.fields['a_id'] = self.getID()
         currObject.fields['alarmtime'] = useful.now()
-        message = ''
+        currObject.fields['user'] = alarmedObject.fields['user']
+        currObject.fields['remark'] = ''
         specmess = self.getName(lang)
         if alarmedObject.get_type() == 's':
             mess = config.getMessage('alarmmessage',lang)
@@ -3905,7 +3906,7 @@ class Alarm(ConfigurationObject):
             currObject.fields['begintime'] = alarmedObject.time
             currObject.fields['typealarm'] = unicode(alarmedObject.actualAlarm)
             currObject.fields['degree'] = unicode(alarmedObject.degreeAlarm)
-            message = unicode.format(mess,
+            currObject.fields['remark'] = unicode.format(mess,
                                   config.HardConfig.hostname,
                                   specmess,
                                   cpe,
@@ -3929,7 +3930,7 @@ class Alarm(ConfigurationObject):
             currObject.fields['value'] = unicode(alarmedObject.fields['value'])
             currObject.fields['typealarm'] = unicode(alarmedObject.actualAlarm)
             currObject.fields['degree'] = '2'
-            message = unicode.format(mess,
+            currObject.fields['remark'] = unicode.format(mess,
                                   config.HardConfig.hostname,
                                   specmess,
                                   name,
@@ -3958,7 +3959,7 @@ class Alarm(ConfigurationObject):
             #TODO: check quantities and automate alarm launch...
             currObject.fields['typealarm'] = "typical"
             currObject.fields['degree'] = '2'
-            message = unicode.format(mess,
+            currObject.fields['remark'] = unicode.format(mess,
                                   config.HardConfig.hostname,
                                   specmess,
                                   elemout.getName(lang),
@@ -3969,8 +3970,9 @@ class Alarm(ConfigurationObject):
                                   unit_measure,
                                   alarmedObject.fields['remark'],
                                   alarmedObject.fields['time'])
-        currObject.save(config)        
-        return message
+        if saveit:
+            currObject.save(config)        
+        return currObject.fields['remark']
 
     def get_alarm_title(self, alarmedObject, config, lang):
         if alarmedObject.get_type() == 's':
@@ -4022,14 +4024,16 @@ class Alarm(ConfigurationObject):
         userlist = (config.AllGrFunction
                           .elements[e_mail]
                           .get_user_group())
+        first = True
         for user in userlist:
             lang = config.AllUsers.elements[user].fields['language']
-            mess = self.get_alarm_message(alarmedObject, config, lang)
+            mess = self.get_alarm_message(alarmedObject, config, lang, first)
             title = self.get_alarm_title(alarmedObject, config, lang)
             useful.send_email(config.AllUsers
                                     .elements[user].fields['mail'],
                                     title,
                                     mess)
+            first = False
         
     def launch_alarm(self, alarmedObject, config):
         if alarmedObject.get_type() == 's':

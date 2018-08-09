@@ -444,37 +444,38 @@ class WebEdit():
         return render.list(mail, type, id)
 
     def getRender(self, type, id, mail, errormess, data, context=''):
-        if type in 'hpebcsmagugrgfutmdmvm' and not type in 'dvtfg':
-            if type == 'p':
-                return render.place(id, mail, errormess, data, context)
-            elif type == 'e':
-                return render.equipment(id, mail, errormess, data, context)
-            elif type == 'b':
-                return render.batch(id, mail, errormess, data, context)
-            elif type == 'c':
-                return render.container(id, mail, errormess, data, context)
-            elif type == 's':
-                return render.sensor(id, mail, errormess, data)
-            elif type == 'm':
-                return render.measure(id, mail, errormess, data)
-            elif type == 'a':
-                return render.alarm(id, mail, errormess, data)
-            elif type == 'gu':
-                return render.group(type, id, mail, errormess, data)
-            elif type == 'gr':
-                return render.group(type, id, mail, errormess, data)
-            elif type == 'gf':
-                return render.group(type, id, mail, errormess, data)
-            elif type == 'h':
-                return render.group(type, id, mail, errormess, data, context)
-            elif type == 'u':
-                return render.user(id, mail, errormess, data, context)
-            elif type == 'tm':
-                return render.transfermodel(id, mail, errormess, data, context)
-            elif type == 'dm':
-                return render.manualdatamodel(id, mail, errormess, data, context)
-            elif type == 'vm':
-                return render.pouringmodel(id, mail, errormess, data, context)
+        if type == 'p':
+            return render.place(id, mail, errormess, data, context)
+        elif type == 'e':
+            return render.equipment(id, mail, errormess, data, context)
+        elif type == 'b':
+            return render.batch(id, mail, errormess, data, context)
+        elif type == 'c':
+            return render.container(id, mail, errormess, data, context)
+        elif type == 's':
+            return render.sensor(id, mail, errormess, data)
+        elif type == 'm':
+            return render.measure(id, mail, errormess, data)
+        elif type == 'a':
+            return render.alarm(id, mail, errormess, data)
+        elif type == 'al':
+            return render.alarmlog(id, mail, errormess, data)
+        elif type == 'gu':
+            return render.group(type, id, mail, errormess, data)
+        elif type == 'gr':
+            return render.group(type, id, mail, errormess, data)
+        elif type == 'gf':
+            return render.group(type, id, mail, errormess, data)
+        elif type == 'h':
+            return render.group(type, id, mail, errormess, data, context)
+        elif type == 'u':
+            return render.user(id, mail, errormess, data, context)
+        elif type == 'tm':
+            return render.transfermodel(id, mail, errormess, data, context)
+        elif type == 'dm':
+            return render.manualdatamodel(id, mail, errormess, data, context)
+        elif type == 'vm':
+            return render.pouringmodel(id, mail, errormess, data, context)
         elif type == 't':
             return render.transfer(id, mail, errormess, context)
         elif type == 'd':
@@ -569,6 +570,8 @@ class WebFind():
                     return render.findrelatedmeasures(id2, mail, barcode)
                 elif ('g' in id1 or id1 == 'h'):
                     return render.findrelatedgroups(id1, id2, mail, barcode)
+                elif (id1 == 'al'):
+                    return render.findrelatedlogs(id1, id2, mail, barcode)
                 else:
                     return render.findrelatedcomponents(id1, id2, mail, barcode)
             else:

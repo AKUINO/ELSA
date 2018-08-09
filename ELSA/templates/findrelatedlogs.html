@@ -1,0 +1,29 @@
+$def with (type,id,mail,barcode='')
+$code:
+    allobjects = c.findAllFromType(type)
+    elem = allobjects.elements[id]
+    keyID = c.findAllFromObject(elem).keyColumn    
+$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$var recursive : False
+$var location: list/$(type)=$(c.findAllFromType(type).get_class_acronym()) find/related/$(type)_$(id)=related
+$var title: $elem.getName(self.lang)
+<script>
+    $$(function(){
+        $$("#includedAllMenu$(type)_$(id)").load("/fullentry/$(type)_*$(id)");
+    });
+</script>
+<div id="includedAllMenu$(type)_$(id)"></div>
+    
+$if barcode > '':
+	<div class="row">
+	    <svg id='barcode'></svg>
+	</div>
+	<div class="form-group row" id="error2">
+	        $c.getMessage('barcoderules',self.lang) [$(barcode)]
+	</div>
+	<script>
+	if (generateBarcode('#barcode', $barcode)) {
+	        jQuery('div#error2').css('display', 'none')
+	    }
+	</script>
