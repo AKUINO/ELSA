@@ -24,7 +24,7 @@ $else:
 <div class="row active">
     <label class="col-sm-12">$len(logs) $c.getMessage('alarmlog',self.lang) :</label>
 </div>
-$for i in logs:
+$for i in reversed(logs):
         <script>
         $$(function(){
 	    $$("#includedAllMenuAL_$(i.getID())").load("/fullentry/al_$(i.getID())");

@@ -50,7 +50,11 @@ $elif type == 'al':
 	  <div class="col-xs-3 vcenter">
 	    <div class="row">
 		$ source = elem.get_source(c)
-		<a href="/find/related/$(source.get_type())_$(source.getID())">$:(c.getHalfling(source.get_class_acronym()))
+		$if source.get_type() in 'dtv':
+			<a href="/edit/$(source.get_type())_$(source.getID())">
+		$else:
+			<a href="/find/related/$(source.get_type())_$(source.getID())">
+		$:(c.getHalfling(source.get_class_acronym()))
 		$if 'acronym' in source.fields:
 			$source.fields['acronym']
 		</a><span style="padding:5px;background-color:#$(Acolor);color:#$(Atext_color)">$source.getQtyUnit(c)</span>
@@ -64,8 +68,11 @@ $elif type == 'al':
 	    $ compo = elem.get_component(c)
 	    <div class="row">
 	    $if compo:
-		<a href="/find/related/$(compo.get_type())_$(compo.getID())">$:(c.getHalfling(compo.get_class_acronym()))</a>
-		<a href="/find/related/$(compo.get_type())_$(compo.getID())">$compo.fields['acronym']</a>
+		<a href="/find/related/$(compo.get_type())_$(compo.getID())">$:(c.getHalfling(compo.get_class_acronym()))$compo.fields['acronym']</a>
+	    &nbsp;
+	    $if elem.fields['a_id'] and elem.fields['a_id'] in c.AllAlarms.elements:
+		$ alarm = c.AllAlarms.elements[elem.fields['a_id']]
+		<a href="/find/related/a_$(alarm.getID())">$:(c.getAllHalfling(c.AllAlarms))$alarm.fields['acronym']</a>
 	    </div>
 	    <div class="row">
 		<strong>#$(elem.fields['degree'])</strong>:$useful.date_to_ISO(elem.fields['alarmtime'])

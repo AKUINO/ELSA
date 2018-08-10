@@ -14,7 +14,35 @@ $var title: $elem.getName(self.lang)
     });
 </script>
 <div id="includedAllMenu$(type)_$(id)"></div>
-    
+
+$if elem.fields['a_id'] and elem.fields['a_id'] in c.AllAlarms.elements:
+  $ alarm = c.AllAlarms.elements[elem.fields['a_id']]
+	<script>
+	    $$(function(){
+	        $$("#includedAllMenua_$(alarm.getID())").load("/fullentry/a_*$(alarm.getID())");
+	    });
+	</script>
+	<div id="includedAllMenua_$(alarm.getID())"></div>
+
+$ source = elem.get_source(c)
+$if source and source.get_type() not in 'dtv':
+	<script>
+	    $$(function(){
+	        $$("#includedAllMenu$(source.get_type())_$(source.getID())").load("/fullentry/$(source.get_type())_*$(source.getID())");
+	    });
+	</script>
+	<div id="includedAllMenu$(source.get_type())_$(source.getID())"></div>
+
+$ compo = elem.get_component(c)
+$if compo:
+	<script>
+	    $$(function(){
+	        $$("#includedAllMenu$(compo.get_type())_$(compo.getID())").load("/fullentry/$(compo.get_type())_*$(compo.getID())");
+	    });
+	</script>
+	<div id="includedAllMenu$(compo.get_type())_$(compo.getID())"></div>
+
+  
 $if barcode > '':
 	<div class="row">
 	    <svg id='barcode'></svg>

@@ -110,7 +110,7 @@ $if content.recursive == 'False' :
 				<li><a href="/list/e" tabindex="-2">$:c.getHalfling('equipment')&nbsp;$c.getMessage('equipment',content.lang)</a></li>
 				<li><a href="/list/c" tabindex="-3">$:c.getHalfling('container')&nbsp;$c.getMessage('container',content.lang)</a></li>
 				<li><a href="/list/gu" tabindex="-4">$:c.getHalfling('guse')&nbsp;$c.getMessage('guse',content.lang)</a></li>				
-				<li><a href="/map/gu" tabindex="-5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('datatable')&nbsp;$c.getMessage('schema',content.lang)</a></li>				
+				<li><a href="/map/gu" tabindex="-5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('datatable')&nbsp;$c.getMessage('datatable',content.lang)</a></li>				
 			    </ul>
 			</li>
 			<li class="dropdown" data-show-icon="true">
@@ -126,7 +126,7 @@ $if content.recursive == 'False' :
 			    <a href="#" class="dropdown-toggle" data-toggle="dropdown">$c.getMessage('checkpoint',content.lang)<b class="caret"></b></a>
 			    <ul class="dropdown-menu">
 				<li><a href="/list/h" tabindex="-1" class="blue">$:c.getHalfling('checkpoint')&nbsp;$c.getMessage('checkpoint',content.lang)</a></li>
-				<li><a href="/map/h" tabindex="-2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('datatable')&nbsp;$c.getMessage('schema',content.lang)</a></li>				
+				<li><a href="/map/h" tabindex="-2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('datatable')&nbsp;$c.getMessage('datatable',content.lang)</a></li>				
 				<li><a href="/list/dm" tabindex="-3" class="blue">$:c.getHalfling('manualdatamodel')&nbsp;$c.getMessage('manualdatamodel',content.lang)</a></li>
 				<li><a href="/list/tm" tabindex="-4" class="blue">$:c.getHalfling('transfermodel')&nbsp;$c.getMessage('transfermodel',content.lang)</a></li>
 				<li><a href="/list/vm" tabindex="-5">$:c.getHalfling('pouringmodel')&nbsp;$c.getMessage('pouringmodel',content.lang)</a></li>
@@ -137,7 +137,7 @@ $if content.recursive == 'False' :
 			    <ul class="dropdown-menu">
 				<li><a href="/list/b" tabindex="-1">$:c.getHalfling('batch')&nbsp;$c.getMessage('batch',content.lang)</a></li>
 				<li><a href="/list/gr" tabindex="-2">$:c.getHalfling('grecipe')&nbsp;$c.getMessage('grecipe',content.lang)</a></li>
-				<li><a href="/map/gr" tabindex="-3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('datatable')&nbsp;$c.getMessage('schema',content.lang)</a></li>				
+				<li><a href="/map/gr" tabindex="-3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('datatable')&nbsp;$c.getMessage('datatable',content.lang)</a></li>				
 				<li$:('' if " upd_d "in content.allowed else ' class="disabled"')><a href="$("/create/d" if " upd_d "in content.allowed else "#")" tabindex="-4">$:c.getHalfling('manualdata')&nbsp;$c.getMessage('manualdata',content.lang)</a></li>
 				<li$:('' if " upd_t "in content.allowed else ' class="disabled"')><a href="$("/create/t" if " upd_t "in content.allowed else "#")" tabindex="-5">$:c.getHalfling('transfer')&nbsp;$c.getMessage('transfer',content.lang)</a></li>
 				<li$:('' if " upd_v "in content.allowed else ' class="disabled"')><a href="$("/create/v" if " upd_v "in content.allowed else "#")" tabindex="-6">$:c.getHalfling('pouring')&nbsp;$c.getMessage('pouring',content.lang)</a></li>
@@ -148,7 +148,7 @@ $if content.recursive == 'False' :
 			    <ul class="dropdown-menu">
 				<li><a href="/list/u" tabindex="-1">$:c.getHalfling('user')&nbsp;$c.getMessage('user',content.lang)</a></li>
 				<li><a href="/list/gf" tabindex="-2">$:c.getHalfling('gfunction')&nbsp;&nbsp;$c.getMessage('gfunction',content.lang)</a></li>
-				<li><a href="/map/gf" tabindex="-5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('datatable')&nbsp;$c.getMessage('schema',content.lang)</a></li>				
+				<li><a href="/map/gf" tabindex="-5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('datatable')&nbsp;$c.getMessage('datatable',content.lang)</a></li>				
 				<li$:('' if " admin "in content.allowed else ' class="disabled"')><a href="$("/backup" if " admin "in content.allowed else "#")" tabindex="-3">$:c.getHalfling('backup')&nbsp;$c.getMessage('backup',content.lang)</a></li>
 				$if self.tmp == 'connected':
 				    <li><a href="/disconnect" tabindex="-4">$:c.getHalfling('disconnect')&nbsp;$c.getMessage('disconnect',content.lang)</a></li>

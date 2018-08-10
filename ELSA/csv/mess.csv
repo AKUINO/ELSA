@@ -18,6 +18,7 @@ begin	message_id	default	user
 2016-01-01 13:45:56	cancel	Cancel	1
 2016-01-01 13:45:56	datatable	Data Table	1
 2016-01-01 13:45:56	quantity	Quantity	1
+2016-01-01 13:45:56	degree	Degree	1
 2016-01-01 13:45:56	duplicate	Duplicate	1
 2016-01-01 13:45:56	save	Save	1
 2016-01-01 13:45:56	cost	Cost	1
@@ -26,6 +27,7 @@ begin	message_id	default	user
 2016-01-01 13:45:56	specialvalue	Min Max Average 	1
 2016-01-01 13:45:56	monitoring	Monitoring 	1
 2016-01-01 13:45:56	time	Time	1
+2016-01-01 13:45:56	alarmtime	Alarm Time	1
 2016-01-01 13:45:56	completedtime	Completed Time	1
 2016-01-01 13:45:56	rank	Rank	1
 2016-01-01 13:45:56	componentmove	Component to move	1

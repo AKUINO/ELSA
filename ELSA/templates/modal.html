@@ -73,6 +73,91 @@ $var title: MODAL
                             </div>
                             </div>
 
+		    $if type == 'al':
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
+                            $c.getMessage('degree',self.lang) :
+                            </div>
+                            <div class="col-xs-8" id="modalinfo" >
+				$elem.fields['degree']
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
+                            $c.getMessage('time',self.lang) :
+                            </div>
+                            <div class="col-xs-8" id="modalinfo" >
+				$elem.fields['begintime']
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
+                            $c.getMessage('alarmtime',self.lang) :
+                            </div>
+                            <div class="col-xs-8" id="modalinfo" >
+				$elem.fields['alarmtime']
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
+                            $c.getMessage('completedtime',self.lang) :
+                            </div>
+                            <div class="col-xs-8" id="modalinfo" >
+				$elem.fields['completedtime']
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
+                            $c.getMessage('source',self.lang) :
+                            </div>
+                            <div class="col-xs-8" id="modalinfo" >
+                            $ source = elem.get_source(c)
+			    $if source:
+				$if source.get_type() in 'dtv':
+					<a href="/edit/$(source.get_type())_$(source.getID())">
+				$else:
+					<a href="/find/related/$(source.get_type())_$(source.getID())">
+				$:(c.getHalfling(source.get_class_acronym()))
+				$if 'acronym' in source.fields:
+					$source.fields['acronym']
+			    	</a>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
+                            $c.getMessage('value',self.lang) :
+                            </div>
+                            <div class="col-xs-8" id="modalinfo" >
+                            $if source:
+				$source.getQtyUnit(c)
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
+                            $c.getMessage('component',self.lang) :
+                            </div>
+                            <div class="col-xs-8" id="modalinfo" >
+			    $ compo = elem.get_component(c)
+			    $if compo:
+				<a href="/find/related/$(compo.get_type())_$(compo.getID())">
+				$:(c.getHalfling(compo.get_class_acronym()))
+				$if 'acronym' in compo.fields:
+					$compo.fields['acronym']
+			    	</a>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
+                            $c.getMessage('alarm',self.lang) :
+                            </div>
+                            <div class="col-xs-8" id="modalinfo" >
+			    $if elem.fields['a_id'] and elem.fields['a_id'] in c.AllAlarms.elements:
+				$ alarm = c.AllAlarms.elements[elem.fields['a_id']]
+				<a href="/find/related/a_$(alarm.getID())">
+				$:(c.getHalfling(alarm.get_class_acronym()))
+			    	</a>
+                            </div>
+                        </div>
 		    $if type == 'h':
 			    <div class="row" id="listingMarge">
 				<div class="col-xs-3">

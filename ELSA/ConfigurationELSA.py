@@ -68,6 +68,9 @@ KEY_ADMIN = "admin" #Omnipotent user
 
 imagedTypes = [u'u', u'e', u'p', u'g', u'gf', u'gr', u'gu', u'c', u'b', u'h', u's', u'm', u'a']
 
+alarm_fields_for_groups = ['o_sms1', 'o_sms2', 'o_email1', 'o_email2', 'o_sound1', 'o_sound2']
+
+
 _lock_socket = None
 
 color_violet = "FF00FF"
@@ -1363,7 +1366,7 @@ class AllAlarmLogs(AllObjects):
                 e = self.elements[kal]
                 if (sid == e.fields['s_id']) and ( (e.fields['s_type'] ==  stype) or (e.fields['s_type']=='' and stype=='s') ) :
                     logs.append(e)
-        return logs
+        return sorted(logs, key=lambda t: t.fields['begintime'])
 
     def get_logs_for_component(self, component, begin, end):
         logs = []
@@ -1381,7 +1384,7 @@ class AllAlarmLogs(AllObjects):
                 e = self.elements[kal]
                 if (sid == e.fields['cont_id']) and ( e.fields['cont_type'] == stype ):
                     logs.append(e)
-        return logs
+        return sorted(logs, key=lambda t: t.fields['begintime'])
 
     def get_class_acronym(self):
         return 'alarmlog'
@@ -2455,9 +2458,6 @@ class ManualData(AlarmingObject):
     def get_type(self):
         return 'd'
 
-    def get_class_acronym(self):
-        return 'observation'
-
     def get_quantity(self):
         return self.fields['value']
 
@@ -2689,9 +2689,6 @@ class Pouring(ConfigurationObject):
         if self.fields['dest'] in allObjs.elements:
             return allObjs.elements[self.fields['dest']]
         return None
-
-    def get_class_acronym(self):
-        return 'transfer'
 
 
 class Group(ConfigurationObject):
@@ -3341,9 +3338,6 @@ class AlarmLog(ConfigurationObject):
                 return allObjs.elements[self.fields['cont_id']]
         return None
 
-    def get_class_acronym(self):
-        return 'transfer'
-
 class ExportData():
     def __init__(self, config, elem, cond, user):
         self.config = config
@@ -3870,20 +3864,19 @@ class Alarm(ConfigurationObject):
 
     def set_value_from_data(self, data, c, user):
         super(Alarm, self).set_value_from_data(data, c, user)
-        tmp = ['o_sms1', 'o_sms2', 'o_email1', 'o_email2',
-               'o_sound1', 'o_sound2', 'relay1', 'relay2']
+        tmp = alarm_fields_for_groups + ['relay1', 'relay2']
         for elem in tmp:
             self.fields[elem] = data[elem]
         self.save(c, user)
 
     def get_alarm_message(self, alarmedObject, config, lang, saveit):
-        currObject = config.AllAlarmLogs.createObject()
-        currObject.fields['s_id'] = alarmedObject.getID()
-        currObject.fields['s_type'] = alarmedObject.get_type()
-        currObject.fields['a_id'] = self.getID()
-        currObject.fields['alarmtime'] = useful.now()
-        currObject.fields['user'] = alarmedObject.fields['user']
-        currObject.fields['remark'] = ''
+        newFields = {}
+        newFields['s_id'] = alarmedObject.getID()
+        newFields['s_type'] = alarmedObject.get_type()
+        newFields['a_id'] = self.getID()
+        newFields['alarmtime'] = useful.now()
+        newFields['user'] = alarmedObject.fields['user']
+        newFields['remark'] = ''
         specmess = self.getName(lang)
         if alarmedObject.get_type() == 's':
             mess = config.getMessage('alarmmessage',lang)
@@ -3892,21 +3885,21 @@ class Alarm(ConfigurationObject):
             if not alarmedObject.fields['p_id'] == '':
                 cpe = config.getMessage('place',lang)
                 elem = config.AllPlaces.elements[alarmedObject.fields['p_id']]
-                currObject.fields['cont_type'] = 'p'
+                newFields['cont_type'] = 'p'
             elif not alarmedObject.fields['e_id'] == '':
                 cpe = config.getMessage('equipment',lang)
                 elem = config.AllEquipments.elements[alarmedObject.fields['e_id']]
-                currObject.fields['cont_type'] = 'e'
+                newFields['cont_type'] = 'e'
             elif not alarmedObject.fields['c_id'] == '':
                 cpe = config.getMessage('container',lang)
                 elem = config.AllContainers.elements[alarmedObject.fields['c_id']]
-                currObject.fields['cont_type'] = 'c'
-            currObject.fields['cont_id'] = elem.getID()
-            currObject.fields['value'] = unicode(alarmedObject.lastvalue)
-            currObject.fields['begintime'] = alarmedObject.time
-            currObject.fields['typealarm'] = unicode(alarmedObject.actualAlarm)
-            currObject.fields['degree'] = unicode(alarmedObject.degreeAlarm)
-            currObject.fields['remark'] = unicode.format(mess,
+                newFields['cont_type'] = 'c'
+            newFields['cont_id'] = elem.getID()
+            newFields['value'] = unicode(alarmedObject.lastvalue)
+            newFields['begintime'] = alarmedObject.time
+            newFields['typealarm'] = unicode(alarmedObject.actualAlarm)
+            newFields['degree'] = unicode(alarmedObject.degreeAlarm)
+            newFields['remark'] = unicode.format(mess,
                                   config.HardConfig.hostname,
                                   specmess,
                                   cpe,
@@ -3924,13 +3917,13 @@ class Alarm(ConfigurationObject):
                 alarmedObject.fields['object_type']).elements[alarmedObject.fields['object_id']]
             name = config.getMessage(elem.get_class_acronym(),lang)
             unit_measure = alarmedObject.get_unit(config)
-            currObject.fields['begintime'] = alarmedObject.fields['time']
-            currObject.fields['cont_type'] = elem.get_type()
-            currObject.fields['cont_id'] = elem.getID()
-            currObject.fields['value'] = unicode(alarmedObject.fields['value'])
-            currObject.fields['typealarm'] = unicode(alarmedObject.actualAlarm)
-            currObject.fields['degree'] = '2'
-            currObject.fields['remark'] = unicode.format(mess,
+            newFields['begintime'] = alarmedObject.fields['time']
+            newFields['cont_type'] = elem.get_type()
+            newFields['cont_id'] = elem.getID()
+            newFields['value'] = unicode(alarmedObject.fields['value'])
+            newFields['typealarm'] = unicode(alarmedObject.actualAlarm)
+            newFields['degree'] = '2'
+            newFields['remark'] = unicode.format(mess,
                                   config.HardConfig.hostname,
                                   specmess,
                                   name,
@@ -3952,14 +3945,14 @@ class Alarm(ConfigurationObject):
                 elemid = alarmedObject.fields['dest']
                 elemout = config.AllBatches.elements[elemid]
             unit_measure = alarmedObject.get_unit(config)
-            currObject.fields['begintime'] = alarmedObject.fields['time']
-            currObject.fields['cont_type'] = 'b'
-            currObject.fields['cont_id'] = elemid
-            currObject.fields['value'] = unicode(alarmedObject.fields['quantity'])
+            newFields['begintime'] = alarmedObject.fields['time']
+            newFields['cont_type'] = 'b'
+            newFields['cont_id'] = elemid
+            newFields['value'] = unicode(alarmedObject.fields['quantity'])
             #TODO: check quantities and automate alarm launch...
-            currObject.fields['typealarm'] = "typical"
-            currObject.fields['degree'] = '2'
-            currObject.fields['remark'] = unicode.format(mess,
+            newFields['typealarm'] = "typical"
+            newFields['degree'] = '2'
+            newFields['remark'] = unicode.format(mess,
                                   config.HardConfig.hostname,
                                   specmess,
                                   elemout.getName(lang),
@@ -3971,8 +3964,10 @@ class Alarm(ConfigurationObject):
                                   alarmedObject.fields['remark'],
                                   alarmedObject.fields['time'])
         if saveit:
+            currObject = config.AllAlarmLogs.createObject()
+            currObject.fields.update(newFields)
             currObject.save(config)        
-        return currObject.fields['remark']
+        return newFields['remark']
 
     def get_alarm_title(self, alarmedObject, config, lang):
         if alarmedObject.get_type() == 's':
@@ -4019,21 +4014,18 @@ class Alarm(ConfigurationObject):
             return unicode.format(title, elemout.fields['acronym'], elemout.getName(lang), elemin.fields['acronym'], elemin.getName(lang))
 
     def alarm_by_email(self, alarmedObject, e_mail, config):
-        if (e_mail == ''):
-            return
-        userlist = (config.AllGrFunction
-                          .elements[e_mail]
-                          .get_user_group())
-        first = True
-        for user in userlist:
-            lang = config.AllUsers.elements[user].fields['language']
-            mess = self.get_alarm_message(alarmedObject, config, lang, first)
-            title = self.get_alarm_title(alarmedObject, config, lang)
-            useful.send_email(config.AllUsers
-                                    .elements[user].fields['mail'],
-                                    title,
-                                    mess)
-            first = False
+        if (e_mail != '') and e_mail in config.AllGrFunction.elements:
+            userlist = config.AllGrFunction.elements[e_mail].get_user_group()
+            first = True
+            for user in userlist:
+                lang = config.AllUsers.elements[user].fields['language']
+                mess = self.get_alarm_message(alarmedObject, config, lang, first)
+                title = self.get_alarm_title(alarmedObject, config, lang)
+                useful.send_email(config.AllUsers
+                                        .elements[user].fields['mail'],
+                                        title,
+                                        mess)
+                first = False
         
     def launch_alarm(self, alarmedObject, config):
         if alarmedObject.get_type() == 's':
@@ -4046,6 +4038,13 @@ class Alarm(ConfigurationObject):
             self.alarm_by_email(alarmedObject, self.fields['o_email2'], config)
         elif alarmedObject.get_type() == 'v':
             self.alarm_by_email(alarmedObject, self.fields['o_email2'], config)
+
+    def get_user_groups(self,model=None):
+        groups = []
+        for gr in alarm_fields_for_groups:
+            if not self.fields[gr] in groups:
+                groups.append(self.fields[gr])
+        return groups
 
     def get_class_acronym(self):
         return 'alarm'

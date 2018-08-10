@@ -63,6 +63,19 @@ $if type in 'pe':
 		</script>
 		<div id="includedC_$(k)"></div>
     </div>
+$if type == 'a':
+    <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+	<label class="col-sm-12">$c.getMessage('gfunction',self.lang) :</label>    
+
+    $for gr in elem.get_user_groups():
+                <script>
+                    $$(function(){
+                        $$("#includedgf_$(gr)").load("/fullentry/gf_$(gr)");
+                    });
+                </script>
+                <div id="includedgf_$(gr)"></div>
+    </div>
+
 $if type in 'ampec':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('sensor',self.lang) :</label>    
