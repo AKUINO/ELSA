@@ -7,7 +7,7 @@ $if type == 'new':
     $var title : $c.getMessage('export',self.lang)
 $else:
     $code:
-        elem = c.findAllFromType(type).elements[id]
+        elem = c.get_object(type,id)
     $var location: list/$(type)=$(elem.get_class_acronym()) exportdata/$(type)_$(id)=exportdata
     $var title : $elem.getName(self.lang)
 <div class="container">

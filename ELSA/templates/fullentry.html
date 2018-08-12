@@ -3,8 +3,8 @@ $var recursive : True
 $var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $(c.connectedUsers.users[mail].cuser.fields['language'])
 $code :
-    allElem = c.findAllFromType(type)
-    elem = allElem.elements[id]
+    allElem = c.findAll(type)
+    elem = allElem.get(id)
     keyID = allElem.keyColumn
     permissionKey = '_'+type +'_'
 $var title : $(elem.getName(self.lang))
@@ -70,8 +70,8 @@ $elif type == 'al':
 	    $if compo:
 		<a href="/find/related/$(compo.get_type())_$(compo.getID())">$:(c.getHalfling(compo.get_class_acronym()))$compo.fields['acronym']</a>
 	    &nbsp;
-	    $if elem.fields['a_id'] and elem.fields['a_id'] in c.AllAlarms.elements:
-		$ alarm = c.AllAlarms.elements[elem.fields['a_id']]
+	    $ alarm = c.AllAlarms.get(elem.fields['a_id'])
+	    $if alarm:
 		<a href="/find/related/a_$(alarm.getID())">$:(c.getAllHalfling(c.AllAlarms))$alarm.fields['acronym']</a>
 	    </div>
 	    <div class="row">
@@ -81,20 +81,20 @@ $elif type == 'al':
 	    </div>
 	$elif permissionKey in '_p_u_' :
 	        $code :
-		    groups = c.findAllFromType(allElem.get_group_type())
+		    groups = c.findAll(allElem.get_group_type())
 		$:(c.getAllHalfling(groups))
 	        $if elem.get_group() != '' :
-		    <a href="/find/related/$(allElem.get_group_type())_$elem.get_group()">$groups.elements[elem.get_group()].fields['acronym']</a>
+		    <a href="/find/related/$(allElem.get_group_type())_$elem.get_group()">$groups.get(elem.get_group()).fields['acronym']</a>
 	$elif permissionKey in '_e_c_':
 		<div class="row">
 		    $code :
-			groups = c.findAllFromType(allElem.get_group_type())
+			groups = c.findAll(allElem.get_group_type())
 		    <div class="col-xs-1 vcenter">
 			$:(c.getAllHalfling(groups))
 		    </div>
 		    $if elem.get_group() != '' :
 			<div class="col-xs-2 vcenter">
-			       <a href="/find/related/$(allElem.get_group_type())_$elem.get_group()">$groups.elements[elem.get_group()].fields['acronym']</a>
+			       <a href="/find/related/$(allElem.get_group_type())_$elem.get_group()">$groups.get(elem.get_group()).fields['acronym']</a>
 			</div>
 		    $else :
 			<div class="col-xs-2 vcenter">
@@ -105,7 +105,7 @@ $elif type == 'al':
 		    $code:
 			tmp = elem.get_last_transfer()
 			if tmp is not None :
-			    pos = c.AllTransfers.elements[tmp].get_component(c)
+			    pos = c.AllTransfers.get(tmp).get_component(c)
 			else :
 			    pos = None
 		    $if pos is not None :
@@ -123,14 +123,14 @@ $elif type == 'al':
 		</div>
 	$elif type == 'b':
 	        $code :
-		    groups = c.findAllFromType(allElem.get_group_type())
+		    groups = c.findAll(allElem.get_group_type())
 		<div class="row">
 		    <div class="col-xs-1 vcenter">
 			$:(c.getAllHalfling(groups))
 		    </div>
 		    $if elem.get_group() != '' :
 			<div class="col-xs-4 vcenter">
-			    <a href="/find/related/$(allElem.get_group_type())_$elem.get_group()">$groups.elements[elem.get_group()].fields['acronym']</a>
+			    <a href="/find/related/$(allElem.get_group_type())_$elem.get_group()">$groups.get(elem.get_group()).fields['acronym']</a>
 			</div>
 		    $else :
 			<div class="col-xs-4 vcenter">
@@ -141,7 +141,11 @@ $elif type == 'al':
 		    </div>
 		    <div class="col-xs-4 vcenter">
 			$if elem.fields['m_id'] != '':
-			    $(elem.get_residual_quantity()) <a href="/find/related/m_$elem.fields['m_id']">$(elem.get_unit(c))</a>
+			    $unicode(elem.get_residual_quantity()) <a href="/find/related/m_$elem.fields['m_id']">$(elem.get_unit(c))</a>
+			$ cost = elem.get_total_cost()
+			$if cost != 0.0:
+			    $cost $c.currency
+
 		    </div>
 		</div>
 		<div class="row">
@@ -149,7 +153,7 @@ $elif type == 'al':
 			pos = None
 			tmp = elem.get_last_transfer()
 			if tmp is not None :
-			    pos = c.AllTransfers.elements[tmp].get_component(c)
+			    pos = c.AllTransfers.get(tmp).get_component(c)
 		    $if pos is not None :
 			<div class="col-xs-1 vcenter">
 			    $:(c.getAllHalfling(c.AllTransfers))
@@ -165,14 +169,14 @@ $elif type == 'al':
 		</div>
 	$elif permissionKey in '_dm_':
 	        $code :
-		    groups = c.findAllFromType(allElem.get_group_type())
+		    groups = c.findAll(allElem.get_group_type())
 		<div class="row">
 		    <div class="col-xs-1 vcenter">
 			$:(c.getAllHalfling(groups))
 		    </div>
 		    $if elem.get_group() != '' :
 			<div class="col-xs-4 vcenter">
-			       <a href="/find/related/$(allElem.get_group_type())_$elem.get_group()">$groups.elements[elem.get_group()].fields['acronym']</a>
+			       <a href="/find/related/$(allElem.get_group_type())_$elem.get_group()">$groups.get(elem.get_group()).fields['acronym']</a>
 			</div>
 		    $else :
 			<div class="col-xs-4 vcenter">
@@ -190,33 +194,34 @@ $elif type == 'al':
 		</div>
 		$code:
 		    check_id = elem.get_group()
-		    checkPoint = c.AllCheckPoints.elements[check_id]
-		<div class="row">
-		    <div class="col-xs-1 vcenter">
-			$:(c.getAllHalfling(c.AllGrRecipe))
-		    </div>
-	            <div class="col-xs-4 vcenter">
-		    $if checkPoint.fields['gr_id'] :
-			 <a href="/find/related/gr_$checkPoint.fields['gr_id']">$(c.AllGrRecipe.elements[checkPoint.fields['gr_id']].fields['acronym'])</a>
-                    </div>
-		    <div class="col-xs-1 vcenter">
-			$:(c.getAllHalfling(c.AllGrUsage))
-		    </div>
-		    $if checkPoint.fields['gu_id'] :
-	                <div class="col-xs-4 vcenter">
-			    <a href="/find/related/gu_$checkPoint.fields['gu_id']">$(c.AllGrUsage.elements[checkPoint.fields['gu_id']].fields['acronym'])</a>
-		        </div>
-		</div>
+		    checkPoint = c.AllCheckPoints.get(check_id)
+		$if checkPoint:
+			<div class="row">
+			    <div class="col-xs-1 vcenter">
+				$:(c.getAllHalfling(c.AllGrRecipe))
+			    </div>
+		            <div class="col-xs-4 vcenter">
+			    $if checkPoint.fields['gr_id'] :
+				 <a href="/find/related/gr_$checkPoint.fields['gr_id']">$(c.AllGrRecipe.get(checkPoint.fields['gr_id']).fields['acronym'])</a>
+	                    </div>
+			    <div class="col-xs-1 vcenter">
+				$:(c.getAllHalfling(c.AllGrUsage))
+			    </div>
+			    $if checkPoint.fields['gu_id'] :
+		                <div class="col-xs-4 vcenter">
+				    <a href="/find/related/gu_$checkPoint.fields['gu_id']">$(c.AllGrUsage.get(checkPoint.fields['gu_id']).fields['acronym'])</a>
+			        </div>
+			</div>
 	$elif permissionKey in '_vm_':
 	        $code :
-		    groups = c.findAllFromType(allElem.get_group_type())
+		    groups = c.findAll(allElem.get_group_type())
 		    check_id = elem.get_group()
 		    checkPoint = None
 		    checkRecipe = None
 		    if check_id:
-			checkPoint = c.AllCheckPoints.elements[check_id]
+			checkPoint = c.AllCheckPoints.get(check_id)
 			if checkPoint and checkPoint.fields['gr_id']:
-			    checkRecipe = c.AllGrRecipe.elements[checkPoint.fields['gr_id']]
+			    checkRecipe = c.AllGrRecipe.get(checkPoint.fields['gr_id'])
 		<div class="row">
 		    <div class="col-xs-1 vcenter">
 			$:(c.getAllHalfling(groups))
@@ -257,19 +262,19 @@ $elif type == 'al':
 		    </div>
 	            <div class="col-xs-4 vcenter">
 		    $if recipe :
-                         <a href="/find/related/gr_$(recipe)">$(c.AllGrRecipe.elements[recipe].fields['acronym'])</a>
+                         <a href="/find/related/gr_$(recipe)">$(c.AllGrRecipe.get(recipe).fields['acronym'])</a>
                     </div>
 		</div>
 	$elif permissionKey in '_tm_':
 	        $code :
-		    groups = c.findAllFromType(allElem.get_group_type())
+		    groups = c.findAll(allElem.get_group_type())
 		    check_id = elem.get_group()
 		    checkPoint = None
 		    checkUsage = None
 		    if check_id:
-			checkPoint = c.AllCheckPoints.elements[check_id]
+			checkPoint = c.AllCheckPoints.get(check_id)
 			if checkPoint and checkPoint.fields['gu_id']:
-			    checkUsage = c.AllGrUsage.elements[checkPoint.fields['gu_id']]
+			    checkUsage = c.AllGrUsage.get(checkPoint.fields['gu_id'])
 		<div class="row">
 		    <div class="col-xs-1 vcenter">
 			$:(c.getAllHalfling(groups))
@@ -306,7 +311,7 @@ $elif type == 'al':
 	            <div class="col-xs-4 vcenter">
 	            $ usage = elem.fields['gu_id']
 		    $if usage :
-                         <a href="/find/related/gu_$(usage)">$(c.AllGrUsage.elements[usage].fields['acronym'])</a>
+                         <a href="/find/related/gu_$(usage)">$(c.AllGrUsage.get(usage).fields['acronym'])</a>
                     </div>
 		</div>
 	$elif type == 'h':
@@ -316,14 +321,14 @@ $elif type == 'al':
 		    </div>
 	            <div class="col-xs-4 vcenter">
 		    $if elem.fields['gr_id'] :
-			 <a href="/find/related/gr_$elem.fields['gr_id']">$(c.AllGrRecipe.elements[elem.fields['gr_id']].fields['acronym'])</a>
+			 <a href="/find/related/gr_$elem.fields['gr_id']">$(c.AllGrRecipe.get(elem.fields['gr_id']).fields['acronym'])</a>
                     </div>
 		    <div class="col-xs-1 vcenter">
 			$:(c.getAllHalfling(c.AllGrUsage))
 		    </div>
 		    $if elem.fields['gu_id'] :
 	                <div class="col-xs-4 vcenter">
-			    <a href="/find/related/gu_$elem.fields['gu_id']">$(c.AllGrUsage.elements[elem.fields['gu_id']].fields['acronym'])</a>
+			    <a href="/find/related/gu_$elem.fields['gu_id']">$(c.AllGrUsage.get(elem.fields['gu_id']).fields['acronym'])</a>
 		        </div>
 		</div>
 		<div class="row">
@@ -428,7 +433,7 @@ $elif type == 'al':
 		    $if 'm' in type and 'm' != type:
 			<div class="row" style="margin-top:6px;">
 			    <div class="col-xs-2 justify-content-start">
-				<strong><a href="/find/related/h_$(allElem.elements[id].fields['h_id'])" class="btn btn-warning" role="button">$:(c.getHalfling('checkpoint'))</a></strong>
+				<strong><a href="/find/related/h_$(elem.fields['h_id'])" class="btn btn-warning" role="button">$:(c.getHalfling('checkpoint'))</a></strong>
 			    </div>
 			    <div class="col-xs-10">
 				$(c.getMessage('checkpoint',self.lang))
@@ -440,8 +445,8 @@ $elif type == 'al':
 				<strong><a href="/find/h/$(type)_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('checkpoint'))</a></strong>
 			    </div>
 			    <div class="col-xs-10">
-				<b>$len(c.AllBatches.elements[id].checkpoints)</b> $(c.getMessage('checkpoint',self.lang))(s)
-				<br/>$c.AllBatches.elements[id].lastCheckPoint
+				<b>$len(elem.checkpoints)</b> $(c.getMessage('checkpoint',self.lang))(s)
+				<br/>$elem.lastCheckPoint
 			    </div>
 			</div>
 			<div class="row" style="margin-top:6px;">
@@ -449,7 +454,7 @@ $elif type == 'al':
 				<strong><a href="/find/v/$(type)_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('pouring'))</a></strong>
 			    </div>
 			    <div class="col-xs-10">
-				<b>$len(c.AllBatches.elements[id].source)</b> $(c.getMessage('mpouring',self.lang))
+				<b>$len(elem.source)</b> $(c.getMessage('mpouring',self.lang))
 			    </div>
 			</div>
 		    $if permissionKey in '_c_p_e_b_' :
@@ -458,7 +463,7 @@ $elif type == 'al':
 				<strong><a href="/find/d/$(type)_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('manualdata'))</a></strong>
 			    </div>
 			    <div class="col-xs-10">
-				<b>$len(c.findAllFromType(type).elements[id].manualdata)</b> $(c.getMessage('mdata',self.lang))
+				<b>$len(elem.manualdata)</b> $(c.getMessage('mdata',self.lang))
 			    </div>
 			</div>
 		    $if permissionKey in '_c_e_b_' :
@@ -467,7 +472,7 @@ $elif type == 'al':
 				<strong><a href="/find/t/$(type)_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('transfer'))</a></strong>
 			    </div>
 			    <div class="col-xs-10">
-				<b>$len(c.findAllFromType(type).elements[id].transfers)</b> $(c.getMessage('mtransfer',self.lang))
+				<b>$len(elem.transfers)</b> $(c.getMessage('mtransfer',self.lang))
 			    </div>
 			</div>
 		    <div class="row" style="margin-top:6px;">
@@ -484,7 +489,7 @@ $elif type == 'al':
 				<strong><a href="/find/b/h_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('batch'))</a></strong>
 			    </div>
 			    <div class="col-xs-10">
-				<b>$len(c.AllCheckPoints.elements[id].batches)</b> $(c.getMessage('batch',self.lang))
+				<b>$len(elem.batches)</b> $(c.getMessage('batch',self.lang))
 			    </div>
 			</div>
 		    $if permissionKey in '_cp_e_m_gu_gr_gf_h_':

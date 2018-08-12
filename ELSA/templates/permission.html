@@ -2,8 +2,8 @@ $def with (mail,type,id, context='')
 $# Template included in update forms and others where a group has to be chosen
 $var recursive : True
 $code :
-    allObjs = c.findAllFromType(type)
-    groups = c.findAllFromType(allObjs.get_group_type())
+    allObjs = c.findAll(type)
+    groups = c.findAll(allObjs.get_group_type())
 $var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var title : permission
@@ -13,11 +13,11 @@ $code:
     indent = 1
     cindent = 9
     if id != 'new':
-	if 'g' in allObjs.elements[id].get_type() or type == 'h':
-	    myid = allObjs.elements[id].getID()
-	    mygroup = groups.elements[id]
+	if 'g' in type or type == 'h':
+	    myid = id
+	    mygroup = groups.get(id)
 	else:
-	    myid = allObjs.elements[id].get_group()
+	    myid = allObjs.get(id).get_group()
 	    mygroup = []
 $if 'g' in type or type == 'h':
     <div class="form-group row">
@@ -40,7 +40,7 @@ $if 'g' in type or type == 'h':
 			$if id != 'new':
 			    $if group == myid:
 				style="background-color:black;"	    
-			>$groups.elements[group].getName(self.lang)</label>
+			>$groups.get(group).getName(self.lang)</label>
 		    $if 'g' in type or type == 'h':
 			$if id != 'new' and group in mygroup.related:
 			    <label class="col-sm-2 col-form-label">
@@ -82,14 +82,15 @@ $else:
 				cindent+=1
 				tmp = ((indent-1)*4)*"_"
 			$else :
+			    $ aGroup = groups.get(group)
 			    <option value="$group"
 			    $if context != '':
 				$if context == group :
 				    selected
 			    $elif id != 'new':
-				$if group == allObjs.elements[id].get_group() :
+				$if group == myid :
 				    selected
-			    >$:tmp $groups.elements[group].fields['acronym'] - $groups.elements[group].getName(self.lang)</option>
+			    >$:tmp $aGroup.fields['acronym'] - $aGroup.getName(self.lang)</option>
 	    </select>
 	</div>
     </div>

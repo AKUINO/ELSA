@@ -6,7 +6,7 @@ $var title : ELSA BARCODE search
 $if errormess == '' :
     $code:
 	elem  = c.AllBarcodes.barcode_to_item(barcode)
-    $var location: list/$(elem.get_type())=$(c.findAllFromType(elem.get_type()).get_class_acronym()) barcode/$(barcode)=barcode
+    $var location: list/$(elem.get_type())=$(c.findAll(elem.get_type()).get_class_acronym()) barcode/$(barcode)=barcode
      
     <script>
 	$$(function(){

@@ -1,12 +1,12 @@
 $def with (mail,type,id)
 $var recursive : False
-$var location: list/$(type)=$(c.findAllFromType(type).get_class_acronym()) graphic/$(type)_$(id)=graphic
+$var location: list/$(type)=$(c.findAll(type).get_class_acronym()) graphic/$(type)_$(id)=graphic
 $var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $code:
-    allobjects = c.findAllFromType(type)
-    elem = allobjects.elements[id]
-    keyID = c.findAllFromObject(elem).keyColumn
+    allobjects = c.findAll(type)
+    elem = allobjects.get(id)
+    keyID = allobjects.keyColumn
 $var title : $elem.getName(self.lang)
 
 <script type="text/javascript" src="/static/js/jquery.flot.min.js"></script>
@@ -35,9 +35,8 @@ $code:
 </script>
 <div id="includedAllMenu$(type)_$(id)"></div>
 $for k in sensors:
-	$code:
-	    currSensor = c.AllSensors.elements[k]
-	$if currSensor and (currSensor.fields['active'] == '1' or currSensor.fields['active'] == 1):
+	$ currSensor = c.AllSensors.get(k)
+	$if currSensor and currSensor.isActive():
 	    <h1 id="title"><a href="/graphic/s_$currSensor.id">$:c.getHalfling('sensor') $currSensor.getName(self.lang)</a></h1>
 	    <div class="row" id="mygraph$(k)"></div>
             <div class="row">

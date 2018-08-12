@@ -1,7 +1,7 @@
 $def with (type, id, mail, modelid=None)
 $code:
-    allobjects = c.findAllFromType(type)
-    elem = allobjects.elements[id]
+    allobjects = c.findAll(type)
+    elem = allobjects.get(id)
     keyID = c.findAllFromObject(elem).keyColumn    
 $var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
@@ -29,8 +29,7 @@ $if modelid:
 </div>
 
 $for d in elem.manualdata:
-    $code:
-        dd = c.AllManualData.elements[d]
+    $ dd = c.AllManualData.get(d)
     $if not modelid or dd.fields['dm_id']==modelid:
 	    <div class="row active" style="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 		<div class="col-xs-3" >
@@ -38,12 +37,12 @@ $for d in elem.manualdata:
 		</div>	    
 		<div class="col-xs-3" >
 		    $if dd.fields['h_id'] != '' :
-		        <a href="/find/related/h_$(dd.fields['h_id'])">$:c.getAllHalfling(c.AllCheckPoints) $c.AllCheckPoints.elements[dd.fields['h_id']].fields['acronym']</a>
+		        <a href="/find/related/h_$(dd.fields['h_id'])">$:c.getAllHalfling(c.AllCheckPoints) $c.AllCheckPoints.get(dd.fields['h_id']).fields['acronym']</a>
 		    $if dd.fields['dm_id'] != '' :		
-	                <br/><a href="/find/related/dm_$(dd.fields['dm_id'])" style="color:#28A4C9">- $c.AllManualDataModels.elements[dd.fields['dm_id']].fields['acronym']</a>
+	                <br/><a href="/find/related/dm_$(dd.fields['dm_id'])" style="color:#28A4C9">- $c.AllManualDataModels.get(dd.fields['dm_id']).fields['acronym']</a>
 		</div>
 		<div class="col-xs-5" >
-	            <strong>$(dd.get_quantity())</strong> $(dd.get_unit(c))
+	            <strong>$unicode(dd.get_quantity())</strong> $(dd.get_unit(c))
 		    $if (dd.fields['remark']):
 			<br/>$(dd.fields['remark'])
 		</div>

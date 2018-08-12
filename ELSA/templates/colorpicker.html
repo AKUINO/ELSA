@@ -2,8 +2,7 @@ $def with (mail,type, id)
 $var recursive : True
 $code :
     if id != 'new':
-	allElem = c.findAllFromType(type)
-	color = allElem.elements[id].fields['colorgraph']
+	color = c.get_object(type,id).fields['colorgraph']
     else:
 	color = ''
 

@@ -2,7 +2,7 @@ $def with (id,mail,modelid=None)
 $var recursive : False
 $code:
     permissionKey = 'm_'
-    elem = c.AllBatches.elements[id]
+    elem = c.AllBatches.get(id)
     keyID = 'b'
 $var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
@@ -26,8 +26,7 @@ $if modelid:
     <label class="col-sm-2">$c.getMessage('checkpoint',self.lang)</label>
     <label class="col-sm-3">$c.getMessage('component',self.lang)</label>
     <label class="col-sm-3">$c.getMessage('measure',self.lang) / $c.getMessage('remark',self.lang)</label>    
-    $for k in elem.destination:
-	$ pouring = c.AllPourings.elements[k]
+    $for k,pouring in elem.destination.items():
 	$if not modelid or pouring.fields['vm_id']==modelid:
 		<div class="row active">
 			<div class="col-xs-3" >
@@ -35,18 +34,18 @@ $if modelid:
 			</div>
 			<div class="col-xs-2" >
 			    $if pouring.fields['h_id'] != '' :
-			        <a href="/find/related/h_$(pouring.fields['h_id'])">$:c.getAllHalfling(c.AllCheckPoints) $c.AllCheckPoints.elements[pouring.fields['h_id']].fields['acronym']</a>
+			        <a href="/find/related/h_$(pouring.fields['h_id'])">$:c.getAllHalfling(c.AllCheckPoints) $c.AllCheckPoints.get(pouring.fields['h_id']).fields['acronym']</a>
 			    $if pouring.fields['vm_id'] != '' :
-		                <br/><a href="/find/related/vm_$(pouring.fields['vm_id'])" style="color:#28A4C9">- $c.AllPouringModels.elements[pouring.fields['vm_id']].fields['acronym']</a>
+		                <br/><a href="/find/related/vm_$(pouring.fields['vm_id'])" style="color:#28A4C9">- $c.AllPouringModels.get(pouring.fields['vm_id']).fields['acronym']</a>
 			</div>
-			$ batch = c.AllBatches.elements[pouring.fields['src']]
+			$ batch = c.AllBatches.get(pouring.fields['src'])
 			<div class="col-xs-3 text-right">
 			    <a href="/find/v/b_$(pouring.fields['src'])" class="btn btn-warning" role="button" style="float:right">$:c.getHalfling('input')</a>
 			    <strong><a href="/find/v/b_$(pouring.fields['src'])">$batch.fields['acronym']</a></strong>
 			    <br>$batch.getName(self.lang)
 			</div>	    
 			<div class="col-xs-3" >
-			    $pouring.get_quantity() $pouring.get_unit(c)</a>
+			    $unicode(pouring.get_quantity())) $pouring.get_unit(c)</a>
 			    $if pouring.fields['remark']:
 				<br/><span class="text-danger">$pouring.fields['remark']</span>
 			</div>
@@ -72,8 +71,7 @@ $if modelid:
     <label class="col-sm-2">$c.getMessage('checkpoint',self.lang)</label>
     <label class="col-sm-3">$c.getMessage('component',self.lang)</label>
     <label class="col-sm-3">$c.getMessage('measure',self.lang) / $c.getMessage('remark',self.lang)</label>   
-    $for k in elem.source:
-	$ pouring = c.AllPourings.elements[k]
+    $for k,pouring in elem.source.items():
 	$if not modelid or pouring.fields['vm_id']==modelid:
 	    <div class="row active">
 		<div class="col-xs-3" >
@@ -81,11 +79,11 @@ $if modelid:
 		</div>	
 		<div class="col-xs-2" >
 		    $if pouring.fields['h_id'] != '' :
-		        <a href="/find/related/h_$(pouring.fields['h_id'])">$:c.getAllHalfling(c.AllCheckPoints) $c.AllCheckPoints.elements[pouring.fields['h_id']].fields['acronym']</a>
+		        <a href="/find/related/h_$(pouring.fields['h_id'])">$:c.getAllHalfling(c.AllCheckPoints) $c.AllCheckPoints.get(pouring.fields['h_id']).fields['acronym']</a>
 		    $if pouring.fields['vm_id'] != '' :
-	                <br/><a href="/find/related/vm_$(pouring.fields['vm_id'])" style="color:#28A4C9">- $c.AllPouringModels.elements[pouring.fields['vm_id']].fields['acronym']</a>
+	                <br/><a href="/find/related/vm_$(pouring.fields['vm_id'])" style="color:#28A4C9">- $c.AllPouringModels.get(pouring.fields['vm_id']).fields['acronym']</a>
 		</div>
-		$ batch = c.AllBatches.elements[pouring.fields['dest']]
+		$ batch = c.AllBatches.get(pouring.fields['dest'])
 		<div class="col-xs-3">
 		    <strong><a href="/find/v/b_$(pouring.fields['dest'])"><span class="btn btn-warning" style="float:left" role="button">$:c.getHalfling('output')</span>$batch.fields['acronym']</a></strong><br>$batch.getName(self.lang)
 		</div>    

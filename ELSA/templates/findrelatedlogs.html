@@ -1,12 +1,12 @@
 $def with (type,id,mail,barcode='')
 $code:
-    allobjects = c.findAllFromType(type)
-    elem = allobjects.elements[id]
+    allobjects = c.findAll(type)
+    elem = allobjects.get(id)
     keyID = c.findAllFromObject(elem).keyColumn    
 $var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : False
-$var location: list/$(type)=$(c.findAllFromType(type).get_class_acronym()) find/related/$(type)_$(id)=related
+$var location: list/$(type)=$(c.findAll(type).get_class_acronym()) find/related/$(type)_$(id)=related
 $var title: $elem.getName(self.lang)
 <script>
     $$(function(){
@@ -15,8 +15,8 @@ $var title: $elem.getName(self.lang)
 </script>
 <div id="includedAllMenu$(type)_$(id)"></div>
 
-$if elem.fields['a_id'] and elem.fields['a_id'] in c.AllAlarms.elements:
-  $ alarm = c.AllAlarms.elements[elem.fields['a_id']]
+$ alarm = c.AllAlarms.get(elem.fields['a_id'])
+$if alarm:
 	<script>
 	    $$(function(){
 	        $$("#includedAllMenua_$(alarm.getID())").load("/fullentry/a_*$(alarm.getID())");

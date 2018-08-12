@@ -1,11 +1,11 @@
 $def with (type, id, mail, modelid)
 $code:
-    allobjects = c.findAllFromType(type)
-    elem = allobjects.elements[id]
+    allobjects = c.findAll(type)
+    elem = allobjects.get(id)
     keyID = c.findAllFromObject(elem).keyColumn
 $var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
-$var location: list/$(type)=$(c.findAllFromType(type).get_class_acronym()) find/t/$(type)_$(id)=transfer
+$var location: list/$(type)=$(c.findAll(type).get_class_acronym()) find/t/$(type)_$(id)=transfer
 $var recursive : False
 $var title : $elem.getName(self.lang)
 
@@ -29,9 +29,7 @@ $if modelid:
     <label class="col-sm-3">$c.getMessage('remark',self.lang)</label>
 </div>
 
-$for i in elem.transfers:
-    $code:
-	transfer = c.AllTransfers.elements[i]
+$for i,transfer in elem.transfers:
     $if not modelid or transfer.fields['tm_id']==modelid:
 	    <div class="row active" style="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 		<div class="col-xs-3" >
@@ -39,12 +37,11 @@ $for i in elem.transfers:
 		</div>
 		<div class="col-xs-2" >
 		    $if transfer.fields['h_id'] != '' :
-		        <a href="/find/related/h_$(transfer.fields['h_id'])">$:c.getAllHalfling(c.AllCheckPoints) $c.AllCheckPoints.elements[transfer.fields['h_id']].fields['acronym']</a>
+		        <a href="/find/related/h_$(transfer.fields['h_id'])">$:c.getAllHalfling(c.AllCheckPoints) $c.AllCheckPoints.get(transfer.fields['h_id']).fields['acronym']</a>
 		    $if transfer.fields['tm_id'] != '' :
-	                <br/><a href="/find/related/tm_$(transfer.fields['tm_id'])" style="color:#28A4C9">- $c.AllTransferModels.elements[transfer.fields['tm_id']].fields['acronym']</a>
+	                <br/><a href="/find/related/tm_$(transfer.fields['tm_id'])" style="color:#28A4C9">- $c.AllTransferModels.get(transfer.fields['tm_id']).fields['acronym']</a>
 		</div>
-		$code :
-		    cont = c.findAllFromType(transfer.fields['cont_type']).elements[transfer.fields['cont_id']]
+		$ cont = c.findAll(transfer.fields['cont_type']).get(transfer.fields['cont_id'])
 		<div class="col-xs-3" >
 		    $:c.getHalfling(cont.get_class_acronym())
 		    <a href="/find/related/$(cont.get_type())_$(cont.getID())">$cont.fields['acronym'] - $cont.getName(self.lang)</a>

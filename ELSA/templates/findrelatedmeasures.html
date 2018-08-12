@@ -2,11 +2,11 @@ $def with (id,mail,barcode='')
 $var recursive : False
 $code:
     permissionKey = 'm_'
-    elem = c.AllMeasures.elements[id]
+    elem = c.AllMeasures.get(id)
     keyID = c.AllMeasures.keyColumn
 $var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
-$var location: list/m=$(c.findAllFromType('m').get_class_acronym()) find/d/m_$(id)=manualdata
+$var location: list/m=$(c.findAll('m').get_class_acronym()) find/d/m_$(id)=manualdata
 $var title : $elem.getName(self.lang)
 
 <script>
@@ -60,7 +60,7 @@ $var title : $elem.getName(self.lang)
 		</div>	    
 		<div class="col-xs-2" >
 		    $if data.fields['h_id'] != '' :
-		        <a href="/find/related/h_$(data.fields['h_id'])">$:c.getAllHalfling(c.AllCheckPoints) $c.AllCheckPoints.elements[data.fields['h_id']].fields['acronym']</a>
+		        <a href="/find/related/h_$(data.fields['h_id'])">$:c.getAllHalfling(c.AllCheckPoints) $c.AllCheckPoints.get(data.fields['h_id']).fields['acronym']</a>
 		</div>
 		<div class="col-xs-3" >
 			<strong>$data.fields['value']</strong>  $elem.fields['unit']</a>

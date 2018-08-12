@@ -15,8 +15,8 @@ $for kcheckpoint in listCheckPoint:
 		$ level -= 1
 		</div>
 	$else:
-	    $ elem = c.AllCheckPoints.elements[kcheckpoint]
-	    $if elem.isActive():
+	    $ elem = c.AllCheckPoints.get(kcheckpoint)
+	    $if elem and elem.isActive():
 		$if level == 0:
 			<div class="map top">
 		$else:
@@ -32,12 +32,12 @@ $for kcheckpoint in listCheckPoint:
 		    <a name="h_$acro"></a>$acro #$elem.fields['rank'] - <strong>$(elem.getName(self.lang))</strong></span>
 		    <span>
 		    $ kusage = elem.fields['gu_id']
-		    $if kusage and kusage in c.AllGrUsage.elements:
-			$ usage = c.AllGrUsage.elements[kusage]
+		    $ usage = c.AllGrUsage.get(kusage)
+		    $if usage:
 			<a href="/find/related/gu_$kusage">$:(usage.statusIcon(c,True,False))$(usage.fields['acronym'])</a>
 		    $ krecipe = elem.fields['gr_id']
-		    $if krecipe and krecipe in c.AllGrRecipe.elements:
-			$ recipe = c.AllGrRecipe.elements[krecipe]
+		    $ recipe = c.AllGrRecipe.get(krecipe)
+		    $if recipe:
 			<a href="/find/related/gr_$krecipe">$:(recipe.statusIcon(c,True,False))$(recipe.fields['acronym'])</a>
 		    </span></div></div>
 		    $ operations = elem.get_local_model_sorted()
@@ -48,8 +48,8 @@ $for kcheckpoint in listCheckPoint:
 			$operation.fields['acronym'] #$operation.fields['rank'] - <strong>$(operation.getName(self.lang))</strong>
 			$if op_type == 'tm':
 			    $ kusage = operation.fields['gu_id']
-			    $if kusage and kusage in c.AllGrUsage.elements:
-				$ usage = c.AllGrUsage.elements[kusage]
+			    $ usage = c.AllGrUsage.get(kusage)
+			    $if usage:
 				$:c.getHalfling('to')
 				<a href="/find/related/gu_$kusage">$:(usage.statusIcon(c,True,False))$(usage.fields['acronym'])</a>
 			$elif op_type == 'vm':
@@ -60,8 +60,8 @@ $for kcheckpoint in listCheckPoint:
 				$else:
 					$:c.getHalfling('to')
 					$ krecipe = operation.fields['dest']
-				$if krecipe and krecipe in c.AllGrRecipe.elements:
-					$ recipe = c.AllGrRecipe.elements[krecipe]
+				$ recipe = c.AllGrRecipe.get(krecipe)
+				$if recipe:
 					<a href="/find/related/gr_$krecipe">$:(recipe.statusIcon(c,True,False))$(recipe.fields['acronym'])</a>
 				
 		        </div>

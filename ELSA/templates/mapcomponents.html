@@ -15,8 +15,8 @@ $for kusage in listUsage:
 		$ level -= 1
 		</div>
 	$else:
-	    $ elem = c.AllGrUsage.elements[kusage]
-	    $if elem.isActive():
+	    $ elem = c.AllGrUsage.get(kusage)
+	    $if elem and elem.isActive():
 		$if level == 0:
 			<div class="map top">
 		$else:
@@ -27,8 +27,7 @@ $for kusage in listUsage:
 			<a href="#gu_$acro">$acro</a>
 		$else:
 			<a name="gu_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>
-			$for kplace in c.AllPlaces.elements:
-				$ place = c.AllPlaces.elements[kplace]
+			$for kplace,place in c.AllPlaces.elements.items():
 				$if place.get_group() == kusage :
 					<div class="map down" style="border-color:$(place.fields['colorgraph'])">
 					<a href="/find/related/p_$kplace">$:(place.statusIcon(c,True,False))</a>
@@ -39,7 +38,8 @@ $for kusage in listUsage:
 						<a name="p_$acro"></a>$acro - <strong>$(place.getName(self.lang))</strong>
 						$ sensors = place.get_sensors_in_component(c)
 						$for ksensor in sensors:
-							$ sensor = c.AllSensors.elements[ksensor]
+						    $ sensor = c.AllSensors.get(ksensor)
+						    $if sensor:
 							$ alarms = sensor.count_logs(c)
 							<div class="map down">
 							<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c,True,False))</a>
@@ -56,8 +56,7 @@ $for kusage in listUsage:
 							</div>
 						$ done.add('p_'+kplace)
 					</div>
-			$for kequipment in c.AllEquipments.elements:
-				$ equipment = c.AllEquipments.elements[kequipment]
+			$for kequipment,equipment in c.AllEquipments.elements.items():
 				$if equipment.get_group() == kusage :
 					<div class="map down" style="border-color:$(equipment.fields['colorgraph'])">
 					<a href="/find/related/p_$kequipment">$:(equipment.statusIcon(c,True,False))</a>
@@ -71,7 +70,8 @@ $for kusage in listUsage:
 							<small>$:c.getHalfling('to')</small> <a href="/find/related/$(here.get_type())_$(here.getID())">$:(here.statusIcon(c,True,False))$(here.fields['acronym'])</a>
 						$ sensors = equipment.get_sensors_in_component(c)
 						$for ksensor in sensors:
-							$ sensor = c.AllSensors.elements[ksensor]
+						    $ sensor = c.AllSensors.get(ksensor)
+						    $if sensor:
 							$ alarms = sensor.count_logs(c)
 							<div class="map down">
 							<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c,True,False))</a>
@@ -88,8 +88,7 @@ $for kusage in listUsage:
 							</div>
 						$ done.add('e_'+kequipment)
 					</div>
-			$for kcontainer in c.AllContainers.elements:
-				$ container = c.AllContainers.elements[kcontainer]
+			$for kcontainer,container in c.AllContainers.elements.items():
 				$if container.get_group() == kusage :
 					<div class="map down" style="border-color:$(container.fields['colorgraph'])">
 					<a href="/find/related/p_$kcontainer">$:(container.statusIcon(c,True,False))</a>
@@ -103,7 +102,8 @@ $for kusage in listUsage:
 							<small>$:c.getHalfling('to')</small> <a href="/find/related/$(here.get_type())_$(here.getID())">$:(here.statusIcon(c,True,False))$(here.fields['acronym'])</a>
 						$ sensors = container.get_sensors_in_component(c)
 						$for ksensor in sensors:
-							$ sensor = c.AllSensors.elements[ksensor]
+						    $ sensor = c.AllSensors.get(ksensor)
+						    $if sensor:
 							$ alarms = sensor.count_logs(c)
 							<div class="map down">
 							<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c,True,False))</a>

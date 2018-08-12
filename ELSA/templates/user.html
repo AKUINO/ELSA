@@ -8,7 +8,7 @@ $if id == 'new':
     $var location: list/u=user edit/u_new=add
     $var rmq :    
 $else:
-    $ elem = c.AllUsers.elements[id]
+    $ elem = c.AllUsers.get(id)
     $var location: list/u=user edit/u_$(id)=edit
     $var rmq :  $elem.fields['remark']
     $var title : $elem.getName(self.lang)
@@ -47,7 +47,7 @@ $if errormess != '':
 		$elif id != 'new':
 		    value="$elem.fields['acronym']"
 		$elif context != '':
-		    value = $(c.AllGrFunction.elements[context.split('_')[-1]].fields['acronym'])_
+		    value ="$(c.AllGrFunction.get(context.split('_')[-1]).proposedMemberAcronym(c))"
 		required="true">
 	    </div>
 	</div>
@@ -127,7 +127,7 @@ $if errormess != '':
 	    $code:
 		cond = (id == 'new')
 		if not cond :
-		    cond = (elem.fields['active'] == 1 or elem.fields['active'] == '1')
+		    cond = elem.isActive()
 		if errormess != '' :
 		    if 'active' in data :
 			cond  = True

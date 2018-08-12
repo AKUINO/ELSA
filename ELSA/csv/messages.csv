@@ -137,6 +137,10 @@ Heure : {9}"	1
 2016-01-01 13:45:56	NL	container	Houder	1
 2016-01-01 13:45:56	EN	cost	Cost	1
 2016-01-01 13:45:56	FR	cost	Coût	1
+2016-01-01 13:45:56	EN	fixedcost	Fixed Cost	1
+2016-01-01 13:45:56	FR	fixedcost	Coût fixe	1
+2016-01-01 13:45:56	EN	unitcost	Unit Cost	1
+2016-01-01 13:45:56	FR	unitcost	Coût unitaire	1
 2016-01-01 13:45:56	EN	costrules	The cost must be a positive real nomber	1
 2016-01-01 13:45:56	FR	costrules	Le coût doit être un nombre réel positif	1
 2016-01-01 13:45:56	DE	createa	Schaffe eine neue Alarm	1
@@ -188,6 +192,8 @@ Heure : {9}"	1
 2016-01-01 13:45:56	FR	datarules	Si vous indiquez une valeur, indiquez un type de mesure	1
 2016-01-01 13:45:56	EN	datatable	Data Table	1
 2016-01-01 13:45:56	FR	datatable	Tableau des Données	1
+2016-01-01 13:45:56	EN	days	days 	1
+2016-01-01 13:45:56	FR	days	jours 	1
 2016-01-01 13:45:56	EN	disconnect	Disconnect	1
 2016-01-01 13:45:56	FR	disconnect	Déconnexion	1
 2016-01-01 13:45:56	EN	degree	Degree	1
@@ -202,6 +208,8 @@ Heure : {9}"	1
 2016-01-01 13:45:56	EN	equipment	Equipment	1
 2016-01-01 13:45:56	FR	equipment	Équipement	1
 2016-01-01 13:45:56	NL	equipment	uitrusting	1
+2016-01-01 13:45:56	EN	expirationdate	Expiration date	1
+2016-01-01 13:45:56	FR	expirationdate	Date limite d'utilisation	1
 2016-01-01 13:45:56	EN	export	Export	1
 2016-01-01 13:45:56	FR	export	Export	1
 2016-01-01 13:45:56	EN	exportdata	Export Data	1
@@ -245,6 +253,8 @@ Heure : {9}"	1
 2016-01-01 13:45:56	NL	lang	Taal	1
 2016-01-01 13:45:56	EN	lapse	Lapse	1
 2016-01-01 13:45:56	FR	lapse	Délai	1
+2016-01-01 13:45:56	EN	lifespan	Lifespan	1
+2016-01-01 13:45:56	FR	lifespan	Durée de vie	1
 2016-01-01 13:45:56	DE	mail	E-Mail	1
 2016-01-01 13:45:56	EN	mail	E-mail	1
 2016-01-01 13:45:56	FR	mail	Email	1
@@ -357,7 +367,7 @@ Heure : {9}"	1
 2016-01-01 13:45:56	EN	time	Time	1
 2016-01-01 13:45:56	FR	time	Heure	1
 2016-01-01 13:45:56	EN	alarmtime	Alarm Time	1
-2016-01-01 13:45:56	FR	alarmtime	Heure de l'alarm	1
+2016-01-01 13:45:56	FR	alarmtime	Heure de l'alarme	1
 2016-01-01 13:45:56	EN	completedtime	Batch completed	1
 2016-01-01 13:45:56	FR	completedtime	Lot complété	1
 2016-01-01 13:45:56	EN	timerules	The time must be in this format Year-Month-Day Hour:Minute:Second	1

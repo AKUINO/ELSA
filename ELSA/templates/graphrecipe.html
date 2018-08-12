@@ -5,7 +5,7 @@ $var recursive : True
 $var title : Graph Schema of Recipe
 $var location :
 $code:
-    elem = c.AllGrRecipe.elements[id]
+    elem = c.AllGrRecipe.get(id)
     usage = None
     place = None
     if batch:
@@ -15,8 +15,7 @@ $code:
 	keyURL = 'gr_'+id
     if place:
 	gr_usage = place.get_group()
-        if gr_usage and gr_usage in c.AllGrUsage.elements.keys():
-	    usage = c.AllGrUsage.elements[gr_usage]
+	usage = c.AllGrUsage.get(gr_usage)
 $#<p style="background: white;">$graph</p>
 <div class="modal-body" style="background: white;">
   <div class="container-fluid">

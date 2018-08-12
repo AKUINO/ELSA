@@ -10,11 +10,10 @@ $ aMeasure = None
 $ precision = None
 $if context != '':
     $ kRecipe = context.split('_')[-1]
-    $if kRecipe and kRecipe in c.AllGrRecipe.elements:
-	$ aRecipe = c.AllGrRecipe.elements[kRecipe]
+    $ aRecipe = c.AllGrRecipe.get(kRecipe)
 $if id != 'new':
     $var location: list/b=batch edit/b_$(id)=edit
-    $ elem = c.AllBatches.elements[id]
+    $ elem = c.AllBatches.get(id)
     $ precision = elem.get_measure(c)
     $var rmq :  $elem.fields['remark']
     $var title :  $c.AllBatches.getName(self.lang) $elem.fields['acronym']
@@ -67,7 +66,7 @@ $if errormess != '':
 		$elif id != 'new':
 		    value="$elem.fields['acronym']"
 		$elif aRecipe:
-		    value="$(aRecipe.proposeBatchAcronym(c))"
+		    value="$(aRecipe.proposedMemberAcronym(c))"
 		required="true">
 	    </div>
 	</div>
@@ -101,13 +100,10 @@ $if errormess != '':
 	    <label for="measureSelect" class="col-sm-3 col-form-label">$c.getMessage('measure',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "measure" class="form-control" id="measureSelect">
-		$if aRecipe:
-		    $ aMeasure = aRecipe.get_measure()
-		$if aMeasure:
-		    <option value="m_$(aMeasure.getID())" selected>$(aMeasure.get_select_str(self.lang))</option>
+		$if precision:
+		    <option value="m_$(precision.getID())" selected>$(precision.get_select_str(self.lang))</option>
 		$else:
-		    $for k in c.AllMeasures.elements.keys():
-                        $ aMeasure = c.AllMeasures.elements[k]
+		    $for k,aMeasure in c.AllMeasures.elements.items():
 			<option value="m_$k"
 			$if errormess != '':
 			    $if 'measure' in data :
@@ -132,16 +128,16 @@ $if errormess != '':
 			$if aRecipe:
 				value="$aRecipe.fields['basicqt']"
 		    $else:
-			value="$elem.get_quantity()"
+			value="$unicode(elem.get_quantity())"
 		    $if precision:
 			min="$(precision.fields['min'])" max="$(precision.fields['max'])" step="$(precision.get_html_step())"
 		>
 	    </div>
 	</div>
-	
+		
 	<div class="form-group row">
-	    <label for="inputCost" class="col-sm-3 col-form-label">$c.getMessage('cost',self.lang)</label>
-	    <div class="col-sm-9">
+	    <label for="inputCost" class="col-sm-3 col-form-label">$c.getMessage('unitcost',self.lang)</label>
+	    <div class="col-xs-8">
 		<input name="cost" type="number" step="0.01" class="form-control" id="inputCost" placeholder="$c.getMessage('cost',self.lang)" 
 		    $if errormess != '':
 			$if 'cost' in data :
@@ -153,8 +149,29 @@ $if errormess != '':
 			value="$elem.fields['cost']"
 		>
 	    </div>
+	    <div class="col-xs-1">
+		<big>$c.currency</big>
+	    </div>
 	</div>
 	
+	<div class="form-group row">
+	    <label for="inputFixedCost" class="col-sm-3 col-form-label">$c.getMessage('fixedcost',self.lang)</label>
+	    <div class="col-xs-8">
+		<input name="fixed_cost" type="number" step="0.01" class="form-control" id="inputFixedCost" placeholder="$c.getMessage('cost',self.lang)" 
+		    $if errormess != '':
+			$if 'fixed_cost' in data :
+			    value="$data['fixed_cost']" 
+		    $elif id == 'new':
+			$if aRecipe:
+				value="$aRecipe.fields['fixed_cost']"
+		    $else:
+			value="$elem.fields['fixed_cost']"
+		>
+	    </div>
+	    <div class="col-xs-1">
+		<big>$c.currency</big>
+	    </div>
+	</div>
 	<div class="form-group row">
 	    <label for="inputBarcode" class="col-sm-3 col-form-label">$:c.getHalfling('barcode') $c.getMessage('code',self.lang)</label>
 	    <div class="col-sm-9">
@@ -175,6 +192,22 @@ $if errormess != '':
 	    </div>
 	</div>
 
+	<div class="form-group row">
+	<div class="col-sm-3">
+	    <label for="expirationDate" class="form-label">$c.getMessage('expirationdate',self.lang)</label>
+	</div>
+	    $code:
+		    compTime = None
+		    if errormess != '':
+			if 'expirationdate' in data :
+			    compTime = data['expirationdate']
+		    elif id != 'new':
+		    	compTime = elem.fields['expirationdate']
+	<div class="col-sm-6">
+	    <input name="expirationdate" type="text" class="form-control" id="expirationDate" placeholder="$c.getMessage('dateentry',self.lang)" value="$compTime">
+	</div>
+	</div>
+	
 	<div class="form-group row">
 	<div class="col-sm-3">
 	    <label for="completedTime" class="form-label">$c.getMessage('completedtime',self.lang)</label>
@@ -200,7 +233,7 @@ $if errormess != '':
 	    $code:
 		cond = (id == 'new')
 		if not cond :
-		    cond = (elem.fields['active'] == 1 or elem.fields['active'] == '1')
+		    cond = elem.isActive()
 		if errormess != '' :
 		    if 'active' in data :
 			cond  = True
@@ -273,8 +306,7 @@ $if errormess != '':
 var mins = [];
 var maxs = [];
 var steps = [];
-$for k in c.AllMeasures.elements.keys():
-    $ aMeasure = c.AllMeasures.elements[k]
+$for k,aMeasure in c.AllMeasures.elements.items():
     mins[$k]=$(aMeasure.fields['min']);
     maxs[$k]=$(aMeasure.fields['max']);
     steps[$k]='$(aMeasure.get_html_step())';

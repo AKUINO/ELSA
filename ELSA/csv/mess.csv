@@ -1,5 +1,6 @@
 begin	message_id	default	user
 2016-01-01 13:45:56	name	Name	1
+2016-01-01 13:45:56	days	days	1
 2016-01-01 13:45:56	disconnect	Disconnect	1
 2016-01-01 13:45:56	parent	Generic(s)	1
 2016-01-01 13:45:56	child	Specific(s)	1
@@ -22,6 +23,8 @@ begin	message_id	default	user
 2016-01-01 13:45:56	duplicate	Duplicate	1
 2016-01-01 13:45:56	save	Save	1
 2016-01-01 13:45:56	cost	Cost	1
+2016-01-01 13:45:56	unitcost	Unit Cost	1
+2016-01-01 13:45:56	fixedcost	Fixed Cost	1
 2016-01-01 13:45:56	valuesensor	Values from sensor	1
 2016-01-01 13:45:56	value	Value 	1
 2016-01-01 13:45:56	specialvalue	Min Max Average 	1
@@ -152,6 +155,8 @@ begin	message_id	default	user
 2016-01-01 13:45:56	add	Add	1
 2016-01-01 13:45:56	edit	Edit	1
 2016-01-01 13:45:56	schema	Table	1
+2016-01-01 13:45:56	expirationdate	Expiration date	1
+2016-01-01 13:45:56	lifespan	Lifespan	1
 2016-01-01 13:45:56	dateentry	Year-Month-Day Hour:Minute:Second	1
 2016-01-01 13:45:56	alarmtitle	{0}  {1}    {2}    {3} {4} {5} {6}    {7}	1
 2016-01-01 13:45:56	alarmmanualtitle	ManualData : {0} {1} in {2}	1

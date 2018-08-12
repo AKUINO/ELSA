@@ -5,7 +5,7 @@ $var recursive : False
 $var title : Map Recipe
 $var location :
 $code:
-    elem = c.AllGrRecipe.elements[id]
+    elem = c.AllGrRecipe.get(id)
     summit = [id] + elem.get_supermap_str()
     usagesTop = c.AllGrUsage.get_usages_for_recipe(summit)
     done = set()
@@ -41,8 +41,8 @@ $for usageTop in usagesTop:
 			$operation.fields['acronym'] <span class="light">#$operation.fields['rank']</span> - <strong>$(operation.getName(self.lang))</strong>
 			$if op_type == 'tm':
 			    $ kusage = operation.fields['gu_id']
-			    $if kusage and kusage in c.AllGrUsage.elements:
-				$ usage = c.AllGrUsage.elements[kusage]
+			    $ usage = c.AllGrUsage.get(kusage)
+			    $if usage:
 				$:c.getHalfling('to')
 				<a href="/find/related/gu_$kusage">$:(usage.statusIcon(c,True,False))$(usage.fields['acronym'])</a>
 			$elif op_type == 'vm':
@@ -53,10 +53,10 @@ $for usageTop in usagesTop:
 				$else:
 					$:c.getHalfling('to')
 					$ krecipe = operation.fields['dest']
-				$if krecipe and krecipe in c.AllGrRecipe.elements:
-					$ recipe = c.AllGrRecipe.elements[krecipe]
+				$ recipe = c.AllGrRecipe.get(krecipe)
+				$if recipe:
 					<a href="/find/related/gr_$krecipe">$:(recipe.statusIcon(c,True,False))$(recipe.fields['acronym'])</a>
-				<strong>$operation.get_quantity()</strong> $operation.get_unit_in_context(c,elem)
+				<strong>$unicode(operation.get_quantity())</strong> $operation.get_unit_in_context(c,elem)
 			$elif op_type == 'dm':
 				$ measure = operation.get_measure(c)
 	                        $if measure:

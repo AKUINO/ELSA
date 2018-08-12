@@ -9,7 +9,7 @@ $if id == 'new':
     $var location: list/tm=transfermodel edit/tm_new=add
 $else:
     $var location: list/tm=transfermodel edit/tm_$(id)=edit
-    $ transfer_model = c.AllTransferModels.elements[id]
+    $ transfer_model = c.AllTransferModels.get(id)
     $var rmq : $transfer_model.fields['remark']
     $var title : $transfer_model.getName(self.lang)
 $if errormess != '':
@@ -26,7 +26,7 @@ $if errormess != '':
 	    <label for="inputPosition" class="col-sm-3 col-form-label">$:(c.getAllHalfling(c.AllCheckPoints))$c.getMessage('checkpoint',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "checkpoint" class="form-control" id="inputPosition">
-		    $for k in c.AllCheckPoints.elements.keys():
+		    $for k,cp in c.AllCheckPoints.elements.items():
 			<option value="$k"
 			    $if context != '':
 				$if  k == context.split('_')[-1] :
@@ -34,7 +34,7 @@ $if errormess != '':
 			    $elif id != 'new':
 				$if  k == transfer_model.fields['h_id'] :
 				    selected
-			>$c.AllCheckPoints.elements[k].fields['acronym'] - $c.AllCheckPoints.elements[k].getName(self.lang) </option>
+			>$cp.fields['acronym'] - $cp.getName(self.lang) </option>
 		</select>
 	    </div>
 	</div>
@@ -47,7 +47,7 @@ $if errormess != '':
 		    $if 'acronym' in data :
 			value="$data['acronym']"
 		$elif context != '':
-		    value="$(c.AllCheckPoints.elements[context.split('_')[-1]].fields['acronym'])_"
+		    value="$(c.AllCheckPoints.get(context.split('_')[-1]).proposedMemberAcronym(c))"
 		$elif id != 'new':
 		    value="$transfer_model.fields['acronym']"
 		required="true">
@@ -97,12 +97,12 @@ $if errormess != '':
 	    <label for="inputPosition" class="col-sm-3 col-form-label">$c.getMessage('target',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "position" class="form-control" id="inputPosition">
-		    $for k in c.AllGrUsage.elements.keys():
+		    $for k,aUse in c.AllGrUsage.elements.items():
 			<option value="$k"
 			    $if id != 'new':
 				$if  k == transfer_model.fields['gu_id'] :
 				    selected
-			>$c.AllGrUsage.elements[k].fields['acronym'] - $c.AllGrUsage.elements[k].getName(self.lang) </option>
+			>$aUse.fields['acronym'] - $aUse.getName(self.lang) </option>
 		</select>
 	    </div>
 	</div>
@@ -120,7 +120,7 @@ $if errormess != '':
 	    $code:
 		cond = (id == 'new')
 		if not cond :
-		    cond = (transfer_model.fields['active'] == 1 or transfer_model.fields['active'] == '1')
+		    cond = transfer_model.isActive()
 		if errormess != '' :
 		    if 'active' in data :
 			cond  = True

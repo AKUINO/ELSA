@@ -9,7 +9,7 @@ $if id == 'new':
     $ aDataModel = None
 $else:
     $var location: list/dm=manualdatamodel edit/dm_$(id)=edit
-    $ aDataModel = c.AllManualDataModels.elements[id]
+    $ aDataModel = c.AllManualDataModels.get(id)
     $ rmq = aDataModel.fields['remark']
     $var title : $aDataModel.getName(self.lang)
 $if errormess != '':
@@ -26,8 +26,7 @@ $if errormess != '':
 	    <label for="inputPosition" class="col-sm-3 col-form-label">$:(c.getAllHalfling(c.AllCheckPoints))$c.getMessage('checkpoint',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "checkpoint" class="form-control" id="inputPosition">
-		    $for k in c.AllCheckPoints.elements.keys():
-                        $ aCheck = c.AllCheckPoints.elements[k]
+		    $for k,aCheck in c.AllCheckPoints.elements.items():
 			<option value="$k"
 			    $if context != '':
 				$if  k == context.split('_')[-1] :
@@ -48,7 +47,7 @@ $if errormess != '':
 		    $if 'acronym' in data :
 			value="$data['acronym']" 
 		$elif context != '':
-		    value="$(c.AllCheckPoints.elements[context.split('_')[-1]].fields['acronym'])_"
+		    value="$(c.AllCheckPoints.get(context.split('_')[-1]).proposedMemberAcronym(c))"
 		$elif id != 'new':
 		    value="$aDataModel.fields['acronym']"
 		required="true">
@@ -98,8 +97,7 @@ $if errormess != '':
 	    <label for="inputPosition" class="col-sm-3 col-form-label">$:(c.getAllHalfling(c.AllMeasures))$c.getMessage('measure',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "measure" class="form-control" id="inputPosition">
-		    $for k in c.AllMeasures.elements.keys():
-                        $ currMeasure = c.AllMeasures.elements[k]
+		    $for k, currMeasusre in c.AllMeasures.elements.items():
 			<option value="$k"
 			    $if id != 'new':
 				$if  k == aDataModel.fields['m_id'] :
@@ -131,7 +129,7 @@ $if errormess != '':
 		<div class="col-sm-9">
 		    <select name = "a_$(aname)" class="form-control" id="a$(aname)Select">
 			<option value=''></option>
-			$for k in c.AllAlarms.elements.keys():
+			$for k,alarm in c.AllAlarms.elements.items():
 			    <option value="$k"
 				$if errormess != '' :
 				    $if ('a_'+aname) in data:
@@ -140,7 +138,7 @@ $if errormess != '':
 				$elif id != 'new':
 				    $if k == aDataModel.fields['a_'+aname] :
 					selected
-			    >$c.AllAlarms.elements[k].fields['acronym'] - $c.AllAlarms.elements[k].getName(self.lang) </option>
+			    >$alarm.fields['acronym'] - $alarm.getName(self.lang) </option>
 		    </select>
 		</div>
 	  </div>
@@ -159,7 +157,7 @@ $if errormess != '':
 	    $code:
 		cond = (id == 'new')
 		if not cond :
-		    cond = (aDataModel.fields['active'] == 1 or aDataModel.fields['active'] == '1')
+		    cond = aDataModel.isActive()
 		if errormess != '' :
 		    if 'active' in data :
 			cond  = True

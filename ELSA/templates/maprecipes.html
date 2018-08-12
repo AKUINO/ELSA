@@ -15,8 +15,8 @@ $for krecipe in listRecipe:
 		$ level -= 1
 		</div>
 	$else:
-	    $ elem = c.AllGrRecipe.elements[krecipe]
-	    $if elem.isActive():
+	    $ elem = c.AllGrRecipe.get(krecipe)
+	    $if elem and elem.isActive():
 		$if level == 0:
 			<div class="map top">
 		$else:
@@ -40,9 +40,9 @@ $for krecipe in listRecipe:
 							pos = None
 							alarms = batch.count_logs(c)
 							tmp = batch.get_last_transfer()
-							if tmp is not None :
-							    transfer = c.AllTransfers.elements[tmp]
-							    pos = c.AllTransfers.elements[tmp].get_component(c)
+							transfer = c.AllTransfers.get(tmp)
+							if transfer:
+								pos = transfer.get_component(c)
 						    $if pos is not None :
 							    $:c.getHalfling('to')
 							    <a href="/find/related/$(pos.get_type())_$pos.getID()">$:(pos.statusIcon(c,True,False)) $pos.fields['acronym']</a>,

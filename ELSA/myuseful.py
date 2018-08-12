@@ -105,15 +105,22 @@ def get_ip_address(ifname):
     )[20:24])
 
 
-def date_to_timestamp(date):
+def string_to_date(input):
+    tmp = None
     try:
-        tmp = datetime.datetime.strptime(date, datetimeformat)
+        tmp = datetime.datetime.strptime(input, datetimeformat)
     except:  # old format ?
         try:
-            tmp = datetime.datetime.strptime(date, "%H:%M:%S  -  %d/%m/%y")
+            tmp = datetime.datetime.strptime(input, "%H:%M:%S  -  %d/%m/%y")
         except: # EPOCH timestamp?
-            tmp = datetime.datetime.fromtimestamp(int(date))
-    return (tmp - datetime.datetime(1970, 1, 1)).total_seconds()
+            tmp = datetime.datetime.fromtimestamp(int(input))
+    return tmp
+
+def date_to_timestamp(input):
+    tmp = string_to_date(input)
+    if tmp:
+        return (tmp - datetime.datetime(1970, 1, 1)).total_seconds()
+    return 0
 
 def date_to_ISO(date):
     if date and date != '0':

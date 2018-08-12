@@ -1,7 +1,7 @@
 $def with (type, id, mail)
 $code:
-    allobjects = c.findAllFromType(type)
-    elem = allobjects.elements[id]
+    allobjects = c.findAll(type)
+    elem = allobjects.get(id)
     keyID = allobjects.keyColumn
 $var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']

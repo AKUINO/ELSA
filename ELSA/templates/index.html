@@ -12,7 +12,7 @@ $if connected is True:
 	</h4>
 	$ elements = c.AllBatches.get_sorted()
 	$for a in elements:
-	    $ elem = c.AllBatches.elements[a]
+	    $ elem = c.AllBatches.get(a)
 	    $if id == 'all' or (elem.isActive() and not elem.isComplete()) :
 		<script>
 		    $$(function(){

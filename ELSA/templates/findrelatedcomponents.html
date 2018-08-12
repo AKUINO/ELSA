@@ -1,12 +1,12 @@
 $def with (type,id,mail,barcode='')
 $code:
-    allobjects = c.findAllFromType(type)
-    elem = allobjects.elements[id]
+    allobjects = c.findAll(type)
+    elem = allobjects.get(id)
     keyID = c.findAllFromObject(elem).keyColumn    
 $var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : False
-$var location: list/$(type)=$(c.findAllFromType(type).get_class_acronym()) find/related/$(type)_$(id)=related
+$var location: list/$(type)=$(c.findAll(type).get_class_acronym()) find/related/$(type)_$(id)=related
 $var title: $elem.getName(self.lang)
 <script>
     $$(function(){
@@ -19,22 +19,20 @@ $code:
     t = elem.get_last_transfer()    
 	
 $if t is not None :
-    $code:
-        pos = c.findAllFromType(c.AllTransfers.elements[t].fields['cont_type'])
-        p = pos.elements[c.AllTransfers.elements[t].fields['cont_id']]
-    <div class="row active" style ="margin-top:10px;margin-bottom:10px;background-color:#E5E5E7;padding:15px;" >
-	<label class="col-sm-12">$c.getMessage('actualposition',self.lang) :</label>   
-	<script>
-            $$(function(){
-                $$("#includedT$(c.AllTransfers.elements[t].fields['cont_type'])_$(c.AllTransfers.elements[t].fields['cont_id'])").load("/fullentry/$(c.AllTransfers.elements[t].fields['cont_type'])_$(c.AllTransfers.elements[t].fields['cont_id'])");
-            });
-	</script>
-	<div id="includedT$(c.AllTransfers.elements[t].fields['cont_type'])_$(c.AllTransfers.elements[t].fields['cont_id'])"></div>
-    </div>
-    
-
-$code:
-    toCheck =[[type,id]]
+    $ aTransfer = c.AllTransfers.get(t)
+    $if aTransfer:
+        $ pos = c.findAll(aTransfer.fields['cont_type'])
+        $ p = pos.get(aTransfer.fields['cont_id'])
+	    <div class="row active" style ="margin-top:10px;margin-bottom:10px;background-color:#E5E5E7;padding:15px;" >
+		<label class="col-sm-12">$c.getMessage('actualposition',self.lang) :</label>   
+		<script>
+	            $$(function(){
+	                $$("#includedT$(aTransfer.fields['cont_type'])_$(aTransfer.fields['cont_id'])").load("/fullentry/$(aTransfer.fields['cont_id'])");
+	            });
+		</script>
+		<div id="includedT$(aTransfer.fields['cont_type'])_$(aTransfer.fields['cont_id'])"></div>
+	    </div>
+$ toCheck =[[type,id]]
 $if type in 'p' :
     <div class="row active" style ="margin-top:10px;margin-bottom:10px;background-color:#E5E5E7;padding:15px;" >
 	<label class="col-sm-12">$c.getMessage('equipment',self.lang) :</label>
@@ -158,10 +156,9 @@ $if type in 'b':
 	$code:
 	    recipes = set()
 	    recipe_id = elem.fields['gr_id']
-	    recipe = None
-	    if recipe_id and recipe_id in c.AllGrRecipe.elements:
+	    recipe = c.AllGrRecipe.get(recipe_id)
+	    if recipe:
 	        recipes.add(recipe_id)
-	        recipe = c.AllGrRecipe.elements[recipe_id]
 	        new_recipes = set(recipe.get_all_parents([],None))
 	        recipes = recipes | new_recipes
 	    allowedcheckpoints = None
@@ -172,16 +169,15 @@ $if type in 'b':
 		    for place in components:
 			if place.get_type() in 'pec':
 			        gr_usage = place.get_group()
-			        if gr_usage and gr_usage in c.AllGrUsage.elements:
+				usage = c.AllGrUsage.get(gr_usage)
+			        if usage:
 			            usages.add(gr_usage)
-				    usage = c.AllGrUsage.elements[gr_usage]
 			            new_usages = set(usage.get_all_parents([],None))
 				    usages = usages | new_usages
 		    allowedcheckpoints = c.AllCheckPoints.get_checkpoints_for_recipe_usage(recipes,usages)
 	    if recipe and len(usages) == 0:
 		gr_usage = recipe.fields['gu_id']
-	        if gr_usage and gr_usage in c.AllGrUsage.elements:
-		    usage = c.AllGrUsage.elements[gr_usage]
+		usage = c.AllGrUsage.get(gr_usage)
 
 	<div class="row active">
 	    <label class="col-sm-12">$c.getMessage('checkpoint',self.lang) :</label>

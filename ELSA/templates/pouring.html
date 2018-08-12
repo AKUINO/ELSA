@@ -10,16 +10,17 @@ $if id == 'new' and context == '':
     $var location: pourings=pouring pourings/new/new=add
 $elif id == 'new':
     $code:
-	myID = context.split('_')[2]
-	batch = c.findAllFromType(context.split('_')[0]).elements[context.split('_')[1]]
+	splits = context.split('_')
+	myID = splits[2]
+	batch = c.get_object(splits[0],splits[1])
 	rmq = ''
 $else :
     $code:
         pouring = None
 	if not id.split('_')[0] == 'b':
-	    pouring = c.AllPourings.elements[id]
-	    src = c.AllBatches.elements[pouring.fields['src']]
-	    dest = c.AllBatches.elements[pouring.fields['dest']]
+	    pouring = c.AllPourings.get(id)
+	    src = c.AllBatches.get(pouring.fields['src'])
+	    dest = c.AllBatches.get(pouring.fields['dest'])
 	    batch = dest
 	    myID = 'update'
 	    rmq = pouring.fields['remark']
@@ -74,9 +75,9 @@ function flip() {
 				$if myID == 'update':
 					    $if k == src.getID() :
 						selected
-				>$b.fields['acronym'] - $b.getName(self.lang) [= $b.get_residual_quantity()] </option>
+				>$b.fields['acronym'] - $b.getName(self.lang) [= $unicode(b.get_residual_quantity())] </option>
 		    $else:
-			<option value="$batch.getID()" selected>$batch.fields['acronym'] - $batch.getName(self.lang) [= $batch.get_residual_quantity()] </option>
+			<option value="$batch.getID()" selected>$batch.fields['acronym'] - $batch.getName(self.lang) [= $unicode(batch.get_residual_quantity())] </option>
 		</select>
 	    </div>
 	</div>
@@ -91,9 +92,9 @@ function flip() {
 				    $if myID == 'update':
 					$if k == dest.getID() :
 					    selected
-				    >$b.fields['acronym'] - $b.getName(self.lang) [= $b.get_residual_quantity()]</option>
+				    >$b.fields['acronym'] - $b.getName(self.lang) [= $unicode(b.get_residual_quantity())]</option>
 			$else:
-			    <option value="$batch.getID()">$batch.fields['acronym'] - $batch.getName(self.lang) [= $batch.get_residual_quantity()] </option>
+			    <option value="$batch.getID()">$batch.fields['acronym'] - $batch.getName(self.lang) [= $unicode(batch.get_residual_quantity())] </option>
 		</select>
 	    </div>
 	</div>
@@ -108,7 +109,7 @@ function flip() {
 		<input name="quantity" type="number" class="form-control" id="inputValue" placeholder="$c.getMessage('value',self.lang)" 
 		$if myID == 'update':
 		    $ aMeasure = pouring.get_measure_in_context(c,batch)
-		    value="$pouring.get_quantity()"
+		    value="$unicode(pouring.get_quantity())"
 		    min="$(aMeasure.fields['min'])" max="$(aMeasure.fields['max'])" step="$(aMeasure.get_html_step())" 
 		 required >
 	    </div>
@@ -123,8 +124,8 @@ function flip() {
 	    <div class="col-sm-9">
 		<select name = "a_id" class="form-control" id="alarmSelect">
 		    <option value=""></option>
-		    $for k in c.AllAlarms.elements.keys():
-			<option value="$k">$c.AllAlarms.elements[k].fields['acronym'] - $c.AllAlarms.elements[k].getName(self.lang) </option>
+		    $for k,alarm in c.AllAlarms.elements.items():
+			<option value="$k">$alarm.fields['acronym'] - $alarm.getName(self.lang) </option>
 		</select>
 	    </div>
 	</div>
@@ -142,7 +143,7 @@ function flip() {
 	    $code:
 		cond = (id == 'new')
 		if not cond :
-		    cond = (pouring.fields['active'] == 1 or pouring.fields['active'] == '1')
+		    cond = pouring.isActive()
 		if errormess != '' :
 		    if 'active' in data :
 			cond  = True

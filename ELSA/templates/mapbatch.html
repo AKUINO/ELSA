@@ -6,15 +6,13 @@ $var title : Map Recipe
 $var location :
 $code:
     id = elem.getID()
-    krecipe = elem.get_group()
     summit = []
     usagesTop = []
-    recipe = None
-    if krecipe:
-	if krecipe in c.AllGrRecipe.elements:
-	    recipe = c.AllGrRecipe.elements[krecipe]
-	    summit = [krecipe] + recipe.get_supermap_str()
-	    usagesTop = c.AllGrUsage.get_usages_for_recipe(summit)
+    krecipe = elem.get_group()
+    recipe = c.AllGrRecipe.get(krecipe)
+    if recipe:
+	summit = [krecipe] + recipe.get_supermap_str()
+	usagesTop = c.AllGrUsage.get_usages_for_recipe(summit)
     events = elem.get_events(c)
     #pseudo event to signal END of events!
     events.append(elem)
@@ -45,8 +43,8 @@ $for operation in events:
 		<td></td><td style="text-align:right;padding:3px">$(useful.timestamp_to_time(duration) if prev_duration != duration else '" " " ')</td>
 		$ prev_duration = duration
 		$ prev = operation.fields['h_id']
-		$if prev and prev in c.AllCheckPoints.elements:
-			$ checkpoint = c.AllCheckPoints.elements[prev]
+		$ checkpoint = c.AllCheckPoints.get(prev)
+		$if checkpoint:
 		        <td><a href="/find/related/h_$checkpoint.getID()">$:(checkpoint.statusIcon(c,True,False))</a></td>
 			<th>
 			$ acro = checkpoint.fields['acronym']
@@ -75,7 +73,7 @@ $for operation in events:
 	    $for sensorId,sensorData in infos.items():
 		$ sensor = None
 	        $if sensorData:
-		    $ sensor = c.AllSensors.elements[sensorId]
+		    $ sensor = c.AllSensors.get(sensorId)
 		    $if sensor.isActive():
 	              $code:
 			count = 0
@@ -148,11 +146,11 @@ $for operation in events:
 		$ batch_location = operation
 	$if op_type != 'b':
             <tr style="padding:3px$(";background-color:#eee" if row else "")$( (";border-left:4px solid "+place.fields['colorgraph']+";border-right:4px solid "+place.fields['colorgraph']) if place else "")">
-		$ user = operation.fields['user']
-		$if user in c.AllUsers.elements:
-		    $ user = c.AllUsers.elements[user]
-		    $if user.fields['acronym']:
+		$ user = c.AllUsers.get(operation.fields['user'])
+		$if user and user.fields['acronym']:
                         $ user = user.fields['acronym']
+		$else:
+		    $ user = ""
 		<th style="padding:3px">$(user)</th>		
 		<th style="padding:3px;text-align:right">$(useful.shorten_time(operation.fields['time'],longTime))</th>
 		$ longTime = operation.fields['time']
@@ -180,15 +178,14 @@ $for operation in events:
 			$else:
 				$:c.getHalfling('to')
 				$ kbatch = operation.fields['dest']
-			$if kbatch and kbatch in c.AllBatches.elements:
-				$ batch = c.AllBatches.elements[kbatch]
+			$ batch = c.AllBatches.get(kbatch)
+			$if batch:
 				<a href="/find/related/b_$kbatch">$:(batch.statusIcon(c,True,False))$(batch.fields['acronym'])</a> $batch.getName(self.lang)
 		$elif op_type == 'd':
 			$code:
 			    Acolor = None
 			    qtity = operation.get_quantity()
-			    if sourceModel and qtity:
-				qtity = float(qtity)
+			    if sourceModel:
 			        Aname, Aacronym, Acolor, Atext_color = sourceModel.getTypeAlarm(qtity,None)
 				if Aname == 'typical':
 				    Acolor = None
@@ -196,7 +193,7 @@ $for operation in events:
 			<br/><span class="text-danger">$(operation.fields['remark'])</span>
 		</td><td style="text-align:right;padding:3px">
 		$if op_type == 'v':
-			<strong>$(operation.get_quantity())</strong> $(operation.get_unit(c))
+			<strong>$unicode(operation.get_quantity())</strong> $(operation.get_unit(c))
 		$elif op_type == 'd':
 			<span style="$(("background-color:#"+str(Acolor)+"; color:#"+str(Atext_color)) if Acolor else "");padding:4px">
 			<strong>$(operation.fields['value'])</strong> $(operation.get_unit(c))

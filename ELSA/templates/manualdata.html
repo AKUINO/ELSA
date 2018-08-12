@@ -12,17 +12,18 @@ $if id == 'new' and context == '':
 $elif id == 'new':
     $code:
 	myID = 'component'
-	elem = c.findAllFromType(context.split('_')[0]).elements[context.split('_')[-1]]
+	splits = context.split('_')
+	elem = c.get_object(splits[0],splits[-1])
 	rmq = ''
 	cond = True
 $else :
     $code:
 	if not id.split('_')[0] in 'bcep':
-	    data = c.AllManualData.elements[id]
-	    elem = c.findAllFromType(data.fields['object_type']).elements[data.fields['object_id']]
+	    data = c.AllManualData.get(id)
+	    elem = c.get_object(data.fields['object_type'],data.fields['object_id'])
 	    myID = 'update'
 	    rmq = data.fields['remark']
-	    cond = (data.fields['active'] == 1 or data.fields['active'] == '1')
+	    cond = data.isActive()
     $var title: $c.getMessage('update',self.lang) $c.getName(c.AllManualData,self.lang)
 $if myID == 'update':
     $var location: list/$(elem.get_type())=$(elem.get_class_acronym()) manualdata/$(elem.get_type())_$(elem.getID())=manualdata edit/m_$(data.getID())=edit
@@ -98,8 +99,7 @@ $elif myID == 'component':
 	    <div class="col-sm-9">
 		<select name = "measure" class="form-control" id="measureSelect">
                     $ aMeasure = None
-		    $for k in c.AllMeasures.elements.keys():
-                        $ currMeasure = c.AllMeasures.elements[k]
+		    $for k, currMeasure in c.AllMeasures.elements.items():
 			<option value="$k"
 			    $if myID == "update":
 				$if k == data.fields['m_id']:
@@ -124,8 +124,8 @@ $elif myID == 'component':
 	    <div class="col-sm-9">
 		<select name = "a_id" class="form-control" id="alarmSelect">
 		    <option value=""></option>
-		    $for k in c.AllAlarms.elements.keys():
-			<option value="$k">$c.AllAlarms.elements[k].fields['acronym'] - $c.AllAlarms.elements[k].getName(self.lang) </option>
+		    $for k,alarm in c.AllAlarms.elements.items():
+			<option value="$k">$alarm.fields['acronym'] - $alarm.getName(self.lang) </option>
 		</select>
 	    </div>
 	</div>
@@ -173,8 +173,7 @@ $elif myID == 'component':
 var mins = [];
 var maxs = [];
 var steps = [];
-$for k in c.AllMeasures.elements.keys():
-    $ aMeasure = c.AllMeasures.elements[k]
+$for k,aMeasure in c.AllMeasures.elements.items():
     mins[$k]=$(aMeasure.fields['min']);
     maxs[$k]=$(aMeasure.fields['max']);
     steps[$k]='$(aMeasure.get_html_step())';

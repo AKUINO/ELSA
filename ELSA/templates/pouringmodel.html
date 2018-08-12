@@ -4,6 +4,7 @@ $var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var recursive : False
 $var title : $c.AllPouringModels.getName(self.lang)
+$ splits = context.split('_')
 $if id == 'new':
     $var location: list/vm=pouringmodel edit/vm_new=add
     $var rmq :
@@ -12,12 +13,12 @@ $if id == 'new':
 	recipe = ""
         checkpoint = ""
 	if context != '':
-	    checkpoint = context.split('_')[-1]
+	    checkpoint = splits[-1]
         checkpoint_elem = None
 $else:
     $var location: list/vm=pouringmodel edit/vm_$(id)=edit
     $code:
-        elem = c.AllPouringModels.elements[id]
+        elem = c.AllPouringModels.get(id)
         checkpoint = elem.get_group()
 	pouring_from = elem.fields['in'] == '1' or elem.fields['in'] == 1
 	if pouring_from:
@@ -48,11 +49,11 @@ $if errormess != '':
 	    <label for="inputPosition" class="col-sm-3 col-form-label">$:(c.getAllHalfling(c.AllCheckPoints))$c.getMessage('checkpoint',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "checkpoint" class="form-control" id="inputPosition">
-		    $for k in c.AllCheckPoints.elements.keys():
+		    $for k,cp in c.AllCheckPoints.elements.items():
 			<option value="$k"
 			    $if  k == checkpoint :
 				    selected
-			>$c.AllCheckPoints.elements[k].fields['acronym'] - $c.AllCheckPoints.elements[k].getName(self.lang) </option>
+			>$cp.fields['acronym'] - $cp.getName(self.lang) </option>
 		</select>
 	    </div>
 	</div>
@@ -65,7 +66,7 @@ $if errormess != '':
 		    $if 'acronym' in data :
 			value="$data['acronym']" 
 		$elif context != '':
-		    value="$(c.AllCheckPoints.elements[context.split('_')[-1]].fields['acronym'])_"
+		    value="$(c.AllCheckPoints.get(splits[-1]).proposedMemberAcronym(c))"
 		$elif id != 'new':
 		    value="$elem.fields['acronym']"
 		required="true">
@@ -121,11 +122,11 @@ $if errormess != '':
 	    <div class="col-sm-1">$:(c.getHalfling("from") if pouring_from else c.getHalfling("to"))$:(c.getAllHalfling(c.AllGrRecipe))</div>
 	    <div class="col-sm-8">
 		<select name = "recipe" class="form-control">
-			$for k in c.AllGrRecipe.elements.keys():
+			$for k,grec in c.AllGrRecipe.elements.items():
 			    <option value="$k"
 				$if k == recipe:
 				    selected
-			    >$c.AllGrRecipe.elements[k].fields['acronym'] - $c.AllGrRecipe.elements[k].getName(self.lang) </option>
+			    >$grec.fields['acronym'] - $grec.getName(self.lang) </option>
 		</select>
 	    </div>
 	</div>
@@ -138,7 +139,7 @@ $if errormess != '':
 		    $if 'quantity' in data :
 			value="$data['quantity']" 
 		$elif id != 'new':
-		    value="$elem.get_quantity()"
+		    value="$elem.fields['quantity']"
 		 required >
 	    </div>
 	</div>
@@ -156,7 +157,7 @@ $if errormess != '':
 	    $code:
 		cond = (id == 'new')
 		if not cond :
-		    cond = (elem.fields['active'] == 1 or elem.fields['active'] == '1')
+		    cond = elem.isActive()
 		if errormess != '' :
 		    if 'active' in data :
 			cond  = True

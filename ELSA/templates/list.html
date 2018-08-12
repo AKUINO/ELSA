@@ -2,7 +2,7 @@ $def with (mail,type, id)
 $code :
     if type == 'v' :
 	type = 'b'	
-    allObjects = c.findAllFromType(type)
+    allObjects = c.findAll(type)
     elements = allObjects.get_sorted()
     keyID = allObjects.keyColumn
     permissionKey = type +'_'
@@ -14,8 +14,8 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var title: $c.getName(allObjects,self.lang)
 
 $for ikey in keys:
-    $ a = allObjects.elements[ikey]
-    $if a.fields['active'] == '1' or id == 'all':
+    $ a = allObjects.get(ikey)
+    $if a.isActive() or id == 'all':
 	$ key = a.get_type()+"_"+a.getID()
 	<script>
 	    $$(function(){

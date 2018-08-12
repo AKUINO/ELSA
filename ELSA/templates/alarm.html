@@ -8,7 +8,7 @@ $if id == 'new':
     $var rmq :    
 $else:
     $var location: list/a=alarm edit/a_$(id)=edit
-    $ alarmdef = c.AllAlarms.elements[id]
+    $ alarmdef = c.AllAlarms.get(id)
     $var rmq :  $alarmdef.fields['remark']
     $var title: $c.getMessage("update",self.lang) $alarmdef.getName(self.lang) 
 $if errormess != '':
@@ -63,7 +63,7 @@ $if errormess != '':
 	    <div class="col-sm-9">
 		<select name = "o_sms1" class="form-control" id="inputSms1">
 		    <option value=""></option>
-		    $for k in c.AllGrFunction.elements.keys():
+		    $for k,fun in c.AllGrFunction.elements.items():
 			<option value="$k"
                         $if errormess != '' :
 			    $if 'o_sms1' in data:
@@ -72,7 +72,7 @@ $if errormess != '':
 			$elif id != 'new':
                             $if alarmdef.fields["o_sms1"] == k:
 				selected
-			>$c.AllGrFunction.elements[k].fields['acronym'] - $c.AllGrFunction.elements[k].getName(self.lang) </option>
+			>$fun.fields['acronym'] - $fun.getName(self.lang) </option>
 		</select>
 	    </div>
 	</div>
@@ -82,7 +82,7 @@ $if errormess != '':
 	    <div class="col-sm-9">
 		<select name = "o_email1" class="form-control" id="inputMail1">
 		    <option value=""></option>
-		    $for k in c.AllGrFunction.elements.keys():
+		    $for k,fun in c.AllGrFunction.elements.items():
 			<option value="$k"
                          $if errormess != '' :
 			    $if 'o_email1' in data:
@@ -91,7 +91,7 @@ $if errormess != '':
 			$elif id != 'new':
                             $if alarmdef.fields["o_email1"] == k:
 				selected
-			>$c.AllGrFunction.elements[k].fields['acronym'] - $c.AllGrFunction.elements[k].getName(self.lang) </option>
+			>$fun.fields['acronym'] - $fun.getName(self.lang) </option>
 		</select>
 	    </div>
 	</div>
@@ -101,7 +101,7 @@ $if errormess != '':
 	    <div class="col-sm-9">
 		<select name = "o_sound1" class="form-control" id="inputSound1">
 		    <option value=""></option>
-		    $for k in c.AllGrFunction.elements.keys():
+		    $for k,fun in c.AllGrFunction.elements.items():
 			<option value="$k"
                          $if errormess != '' :
 			    $if 'o_sound1' in data:
@@ -110,7 +110,7 @@ $if errormess != '':
 			$elif id != 'new':
                             $if alarmdef.fields["o_sound1"] == k:
 				selected
-			>$c.AllGrFunction.elements[k].fields['acronym'] - $c.AllGrFunction.elements[k].getName(self.lang) </option>
+			>$fun.fields['acronym'] - $fun.getName(self.lang) </option>
 		</select>
 	    </div>
 	</div>
@@ -121,7 +121,7 @@ $if errormess != '':
 	    <div class="col-sm-9">
 		<select name = "o_sms2" class="form-control" id="inputSms2">
 		    <option value=""></option>
-		    $for k in c.AllGrFunction.elements.keys():
+		    $for k,fun in c.AllGrFunction.elements.items():
 			<option value="$k"
                          $if errormess != '' :
 			    $if 'o_sms2' in data:
@@ -130,7 +130,7 @@ $if errormess != '':
 			$elif id != 'new':
                             $if alarmdef.fields["o_sms2"] == k:
 				selected
-			>$c.AllGrFunction.elements[k].fields['acronym'] - $c.AllGrFunction.elements[k].getName(self.lang) </option>
+			>$fun.fields['acronym'] - $fun.getName(self.lang) </option>
 		</select>
 	    </div>
 	</div>
@@ -140,7 +140,7 @@ $if errormess != '':
 	    <div class="col-sm-9">
 		<select name = "o_email2" class="form-control" id="inputMail2">
 		    <option value=""></option>
-		    $for k in c.AllGrFunction.elements.keys():
+		    $for k,fun in c.AllGrFunction.elements.items():
 			<option value="$k"
                          $if errormess != '' :
 			    $if 'o_email2' in data:
@@ -149,7 +149,7 @@ $if errormess != '':
 			$elif id != 'new':
                             $if alarmdef.fields["o_email2"] == k:
 				selected
-			>$c.AllGrFunction.elements[k].fields['acronym'] - $c.AllGrFunction.elements[k].getName(self.lang) </option>
+			>$fun.fields['acronym'] - $fun.getName(self.lang) </option>
 		</select>
 	    </div>
 	</div>
@@ -159,7 +159,7 @@ $if errormess != '':
 	    <div class="col-sm-9">
 		<select name = "o_sound2" class="form-control" id="inputSound2">
 		    <option value=""></option>
-		    $for k in c.AllGrFunction.elements.keys():
+		    $for k,fun in c.AllGrFunction.elements.items():
 			<option value="$k"
                          $if errormess != '' :
 			    $if 'o_sound2' in data:
@@ -168,7 +168,7 @@ $if errormess != '':
 			$elif id != 'new':
                             $if alarmdef.fields["o_sound2"] == k:
 				selected
-			>$c.AllGrFunction.elements[k].fields['acronym'] - $c.AllGrFunction.elements[k].getName(self.lang) </option>
+			>$fun.fields['acronym'] - $fun.getName(self.lang) </option>
 		</select>
 	    </div>
 	</div>	
@@ -226,7 +226,7 @@ $if errormess != '':
 	    $code:
 		cond = (id == 'new')
 		if not cond :
-		    cond = (alarmdef.fields['active'] == 1 or alarmdef.fields['active'] == '1')
+		    cond = alarmdef.isActive()
 		if errormess != '' :
 		    if 'active' in data :
 			cond  = True

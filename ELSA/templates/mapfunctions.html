@@ -15,8 +15,8 @@ $for kfunction in listFunction:
 		$ level -= 1
 		</div>
 	$else:
-		$ elem = c.AllGrFunction.elements[kfunction]
-		$if elem.isActive():
+		$ elem = c.AllGrFunction.get(kfunction)
+		$if elem and elem.isActive():
 		    $if level == 0:
 			<div class="map top">
 		    $else:
@@ -27,8 +27,7 @@ $for kfunction in listFunction:
 			<a href="#gf_$acro">$acro</a>
 		    $else:
 			<a name="gf_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>
-			$for kuser in c.AllUsers.elements:
-				$ user = c.AllUsers.elements[kuser]
+			$for kuser,user in c.AllUsers.elements.items():
 				$if user.get_group() == kfunction :
 					<div class="map down">
 					<a href="/find/related/u_$kuser">$:(user.statusIcon(c,True,False))</a>

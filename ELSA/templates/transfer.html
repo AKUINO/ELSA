@@ -3,6 +3,7 @@ $var recursive : False
 $var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var title : $c.getMessage('add',self.lang) $c.getMessage('transfer',self.lang)
+$ splits = context.split('_')
 $if id == 'new':
     $code :
 	myID = 'new'
@@ -10,9 +11,10 @@ $if id == 'new':
     $var location: transfers=transfer transfers/new/new=add
 $else :
     $code:
-	if not id.split('_')[0] in 'bec':
-	    transfer = c.AllTransfers.elements[id]
-	    elem = c.findAllFromType(transfer.fields['object_type']).elements[transfer.fields['object_id']]
+	idType = id.split('_')[0]
+	if not idType in 'bec':
+	    transfer = c.AllTransfers.get(id)
+	    elem = c.get_object(transfer.fields['object_type'],transfer.fields['object_id'])
 	    myID = 'update'
 	    rmq = transfer.fields['remark']
     $var title :  $c.getMessage('transfer',self.lang) $id
@@ -20,12 +22,12 @@ $else :
 $if context != '' :
     $code:
 	myID = 'component'
-	elem = c.findAllFromType(context.split('_')[0]).elements[context.split('_')[-1]]
+	elem = c.get_object(splits[0],splits[-1])
 	rmq = '' 
 $if myID == 'update':
     $var location: list/$(elem.get_type())=$(elem.get_class_acronym()) transfers/$(elem.get_type())_$(elem.getID())=transfer edit/t_$(transfer.getID())=edit
 $elif myID == 'component':
-    $var location: list/$(id.split('_')[-0])=$(elem.get_class_acronym()) transfers/$(id.split('_')[0])_$(elem.getID())=transfer transfers/$(id.split('_')[0])_$(elem.getID())/new=add
+    $var location: list/$(idType)=$(elem.get_class_acronym()) transfers/$(idType)_$(elem.getID())=transfer transfers/$(idType)_$(elem.getID())/new=add
 
 
 <div class="container">
@@ -87,12 +89,11 @@ $elif myID == 'component':
 	    recipe_id = None
 	    if myID=='component' and ('gr_id' in elem.fields):
 		    recipe_id = elem.fields['gr_id']
-		    if recipe_id and recipe_id in c.AllGrRecipe.elements:
-		        recipe = c.AllGrRecipe.elements[recipe_id]
+		    recipe = c.AllGrRecipe.get(recipe_id)
 		    if recipe:
 			gr_usage = recipe.fields['gu_id']
-		        if gr_usage and gr_usage in c.AllGrUsage.elements:
-			    usage = c.AllGrUsage.elements[gr_usage]
+			usage = c.AllGrUsage.get(gr_usage)
+		        if usage:
 			    usages = set(usage.children)
 			    usages.add(gr_usage)
 
@@ -156,7 +157,7 @@ $elif myID == 'component':
 		    $code:
 			cond = (id == 'new')
 			if not cond :
-			    cond = (transfer.fields['active'] == 1 or transfer.fields['active'] == '1')
+			    cond = transfer.isActive()
 			if errormess != '' :
 			    if 'active' in data :
 				cond  = True

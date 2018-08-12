@@ -1,4 +1,5 @@
 $def with (id, mail, errormess, context='')
+$# 'value', 'typealarm', 'degree'
 $var recursive : False
 $var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
@@ -11,8 +12,10 @@ $if id == 'new':
 $else :
     $code:
 	if not id.split('_')[0] in 'bec':
-	    alarmlog = c.AllAlarmLogs.elements[id]
-	    elem = c.findAllFromType(alarmlog.fields['cont_type']).elements[alarmlog.fields['cont_id']]
+	    alarmlog = c.AllAlarmLogs.get(id)
+	    alarm = c.AllAlarms.get(alarmlog.fields['a_id'])
+	    compo = alarmlog.get_component(c)
+	    src = alarmlog.get_source(c)
 	    myID = 'update'
 	    rmq = alarmlog.fields['remark']
     $var title :  $c.getMessage('alarmlog',self.lang) $id
@@ -20,12 +23,14 @@ $else :
 $if context != '' :
     $code:
 	myID = 'component'
-	elem = c.findAllFromType(context.split('_')[0]).elements[context.split('_')[-1]]
+	splits = context.split('_')
+	elem = c.get_object(splits[0],splits[-1])
 	rmq = '' 
 $if myID == 'update':
     $var location: list/$(elem.get_type())=$(elem.get_class_acronym()) alarmlogs/$(elem.get_type())_$(elem.getID())=alarmlog edit/t_$(alarmlog.getID())=edit
 $elif myID == 'component':
-    $var location: list/$(id.split('_')[-0])=$(elem.get_class_acronym()) alarmlogs/$(id.split('_')[0])_$(elem.getID())=alarmlog alarmlogs/$(id.split('_')[0])_$(elem.getID())/new=add
+    $ aType = id.split('_')[0]
+    $var location: list/$(aType)=$(elem.get_class_acronym()) alarmlogs/$(aType)_$(elem.getID())=alarmlog alarmlogs/$(aType)_$(elem.getID())/new=add
 
 
 <div class="container">
@@ -39,7 +44,7 @@ $elif myID == 'component':
 	    <div class="col-sm-9">
 		<input name="time" type="text" class="form-control" id="inputTime" placeholder="$c.getMessage('dateentry',self.lang)" 
 		$if myID == 'update':
-		    value="$alarmlog.fields['time']"
+		    value="$alarmlog.fields['begintime']"
 		$else :
 		    value ="$c.get_time()"
 		>
@@ -47,101 +52,66 @@ $elif myID == 'component':
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputObject" class="col-sm-3 col-form-label">$c.getMessage('componentmove',self.lang) </label>
+	    <label for="Source" class="col-sm-3 col-form-label">$c.getMessage('source',self.lang) </label>
 	    <div class="col-sm-9">
-		<select name = "object" class="form-control" id="inputPosition">
-		    $if myID == 'new':
-			<optgroup label="$c.getMessage('batch',self.lang)">
-			$for k,e in c.AllBatches.elements.items():
-			  $if e.isActive() and not e.isComplete(): 
-			    <option value="b_$k"
-				$if not myID == 'new':
-				    $if 'b' == elem.get_type() and k == elem.getID() :
-					selected
-			    >$e.fields['acronym'] - $e.getName(self.lang) </option>
-			<optgroup label="$c.getMessage('equipment',self.lang)">
-			$for k,e in c.AllEquipments.elements.items():
-			  $if e.isActive(): 
-			    <option value="e_$k"
-				$if not myID == 'new':
-				    $if 'e' == elem.get_type() and k == elem.getID() :
-					selected	
-			    >$e.fields['acronym'] - $e.getName(self.lang) </option>
-			<optgroup label="$c.getMessage('container',self.lang)">
-			$for k,e in c.AllContainers.elements.items():
-			  $if e.isActive(): 
-			    <option value="c_$k"
-				$if not myID == 'new':
-				    $if 'c' == elem.get_type() and k == elem.getID() :
-					selected
-			    >$e.fields['acronym'] - $e.getName(self.lang) </option>
-		    $else:
-			<option value="$(elem.get_type())_$(elem.getID())" selected>$elem.fields['acronym'] - $elem.getName(self.lang) </option>
+		<select name = "object" class="form-control" id="Source">
+		$if src:
+			<option value="$(src.get_type())_$(src.getID())" selected>$src.fields['acronym'] - $src.getName(self.lang) </option>
 		</select>
 	    </div>
 	</div>
 
-	$code:
-	    recipe = None
-	    usages = None
-	    recipe_id = None
-	    if myID=='component' and ('gr_id' in elem.fields):
-		    recipe_id = elem.fields['gr_id']
-		    if recipe_id and recipe_id in c.AllGrRecipe.elements:
-		        recipe = c.AllGrRecipe.elements[recipe_id]
-		    if recipe:
-			gr_usage = recipe.fields['gu_id']
-		        if gr_usage and gr_usage in c.AllGrUsage.elements:
-			    usage = c.AllGrUsage.elements[gr_usage]
-			    usages = set(usage.children)
-			    usages.add(gr_usage)
+	<div class="form-group row">
+	    <label for="Alarm" class="col-sm-3 col-form-label">$c.getMessage('alarm',self.lang) </label>
+	    <div class="col-sm-9">
+		<select name = "object" class="form-control" id="Alarm">
+		$if alarm:
+			<option value="$(alarm.get_type())_$(alarm.getID())" selected>$alarm.fields['acronym'] - $alarm.getName(self.lang) </option>
+		</select>
+	    </div>
+	</div>
 
 	<div class="form-group row">
-	    <label for="inputPosition" class="col-sm-3 col-form-label">$c.getMessage('target',self.lang)</label>
+	    <label for="alarmTime" class="col-sm-3 col-form-label">$c.getMessage('alarmtime',self.lang)</label>
 	    <div class="col-sm-9">
-		<select name = "position" class="form-control" id="inputPosition">
-		    $ first = True
-		    $for k,v in c.AllPlaces.elements.items():
-                        $ curr_group=v.fields['gu_id']
-			$if v.isActive() and not usages or (curr_group and curr_group in usages):
-			    $if first:
-				<optgroup label="$c.getMessage('place',self.lang)">
-				$ first = False
-			    <option value="p_$k"
-			    $if myID == 'update':
-				$if 'p' == alarmlog.fields['cont_type'] and k == alarmlog.fields['cont_id'] :
-				    selected
-			    >$v.fields['acronym'] - $v.getName(self.lang) </option>
-		    $if not(myID == 'component' and  elem.get_type() == 'e'):
-			    $ first = True
-			    $for k,v in c.AllEquipments.elements.items():
-                                $ curr_group=v.fields['gu_id']
-				$if v.isActive() and not usages or (curr_group and curr_group in usages):
-				    $if first:
-					<optgroup label="$c.getMessage('equipment',self.lang)">
-					$ first = False
-				    <option value="e_$k" 
-				    $if myID == 'update':
-					$if 'e' == alarmlog.fields['cont_type'] and k == alarmlog.fields['cont_id'] :
-					    selected			
-				    >$v.fields['acronym'] - $v.getName(self.lang)</option>
-		    $if not(myID == 'component' and (elem.get_type() == 'c'or elem.get_type() == 'e')):
-			    $ first = True
-			    $for k,v in c.AllContainers.elements.items():
-                                $ curr_group=v.fields['gu_id']
-				$if v.isActive() and not usages or (curr_group and curr_group in usages):
-				    $if first:
-					<optgroup label="$c.getMessage('container',self.lang)">
-					$ first = False
-				    <option value="c_$k"
-				    $if myID == 'update':
-					$if 'c' == alarmlog.fields['cont_type'] and k == alarmlog.fields['cont_id'] :
-					    selected
-				    >$v.fields['acronym'] - $v.getName(self.lang)</option>
-		</select>
+		<input name="time" type="text" class="form-control" id="alarmTime" placeholder="$c.getMessage('dateentry',self.lang)" 
+		$if myID == 'update':
+		    value="$alarmlog.fields['alarmtime']"
+		$else :
+		    value ="$c.get_time()"
+		>
 	    </div>
 	</div>
 	
+	<div class="form-group row">
+	    <label for="Component" class="col-sm-3 col-form-label">$c.getMessage('component',self.lang) </label>
+	    <div class="col-sm-9">
+		<select name = "object" class="form-control" id="Component">
+		$if compo:
+			<option value="$(compo.get_type())_$(compo.getID())" selected>$compo.fields['acronym'] - $compo.getName(self.lang) </option>
+		</select>
+	    </div>
+	</div>
+
+	<div class="form-group row">
+	<div class="col-sm-3">
+	    <label for="completedTime" class="form-label">$c.getMessage('completedtime',self.lang)</label>
+	</div>
+	    $code:
+		    compTime = None
+		    if errormess != '':
+			if 'completedtime' in data :
+			    compTime = data['completedtime'] 
+		    elif id != 'new':
+		    	compTime = alarmlog.fields['completedtime']
+	<div class="col-sm-2">
+	    <input name="iscompleted" type="checkbox" class="form-control" value="1" id="isCompleted" $("checked" if compTime else "")>
+	</div>
+	<div class="col-sm-6">
+	    <input name="completedtime" type="text" class="form-control" id="completedTime" placeholder="$c.getMessage('dateentry',self.lang)" value="$compTime">
+	</div>
+	</div>
+
 	<div class="form-group row">
 	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 	    <div class="col-sm-9">
@@ -156,7 +126,7 @@ $elif myID == 'component':
 		    $code:
 			cond = (id == 'new')
 			if not cond :
-			    cond = (alarmlog.fields['active'] == 1 or alarmlog.fields['active'] == '1')
+			    cond = alarmlog.isActive()
 			if errormess != '' :
 			    if 'active' in data :
 				cond  = True

@@ -201,13 +201,13 @@ class WebUpdateELSA():
         
 def get_list_of_active_sensors_acronyms(lang):
     list = []
-    for i in c.AllSensors.elements:
-        if c.AllSensors.elements[i].fields['active'] == '1':
-            acronym = c.AllSensors.elements[i].get_acronym()
+    for i,s in c.AllSensors.elements.items():
+        if s.fields['active'] == '1':
+            acronym = s.get_acronym()
             if lang is None:
                 list.append(acronym)
             else:
-                list.append(c.AllSensors.elements[i].getName(lang)
+                list.append(s.getName(lang)
                             + u' [' + acronym + u']')
     return list
 
@@ -355,10 +355,10 @@ class WebList():
                 if type == 'b':
                     count = 1
                     borne = int(data['quantity'])
-                    elem = c.AllBatches.elements[data['batch'].split('_')[1]]
+                    elem = c.AllBatches.get(data['batch'].split('_')[1])
                     try:
-                        name = int(
-                            elem.fields['acronym'][elem.fields['acronym'].rfind('_')+1:])
+                        acro = elem.fields['acronym']
+                        name = int(acro[acro.rfind('_')+1:])
                     except:
                         name = 0
                     while count <= borne:
@@ -623,10 +623,10 @@ class WebGraphic():
 
     def GET(self, type, id):
         mail = redirect_when_not_logged()
-            
-        objects = c.findAllFromType(type)
-        if id in objects.elements.keys() and type in 'scpem':
-            return render.graphic(mail, type, id)
+        if type in 'scpem':
+            objects = c.findAll(type)
+            if objects and id and id in objects.elements.keys():
+                return render.graphic(mail, type, id)
         return render.notfound()
 
 class WebMapRecipe():
@@ -637,7 +637,7 @@ class WebMapRecipe():
         mail = redirect_when_not_logged()
         lang = c.connectedUsers.users[mail].cuser.fields['language']
         
-        if id in c.AllGrRecipe.elements.keys():
+        if id and id in c.AllGrRecipe.elements.keys():
             return render.maprecipe(mail, type, id)
         return render.notfound()
 
@@ -648,9 +648,9 @@ class WebMapBatch():
     def GET(self,id):
         mail = redirect_when_not_logged()
         lang = c.connectedUsers.users[mail].cuser.fields['language']
-        
-        if id in c.AllBatches.elements.keys():
-            elem = c.AllBatches.elements[id]
+
+        elem = c.AllBatches.get(id)
+        if elem:
             return render.mapbatch(mail, elem)
         return render.notfound()
 
@@ -661,7 +661,7 @@ class WebGraphHelp():
     def GET(self, type, id):
         mail = redirect_when_not_logged()
             
-        objects = c.findAllFromType(type)
+        objects = c.findAll(type)
         return render.graphhelp(mail, type, id)
 
 class WebGraphRecipe():
@@ -675,21 +675,19 @@ class WebGraphRecipe():
 
         kusage = ''
         if type == 'b':
-            if id in c.AllBatches.elements.keys():
-                batch = c.AllBatches.elements[id]
+            batch = c.AllBatches.get(id)
+            if batch:
                 id = batch.get_group()
                 place = batch.get_actual_position_here(c)
                 if place:
                     kusage = place.get_group()
-                    if kusage and kusage in c.AllGrUsage.elements.keys():
-                        usage = c.AllGrUsage.elements[kusage]
         elif type == 'gr':
             batch = None
         else:
             return render.notfound()
 
-        if id in c.AllGrRecipe.elements.keys():
-            elem = c.AllGrRecipe.elements[id]
+        elem = c.AllGrRecipe.get(id)
+        if elem:
             summit = [id] + elem.get_supermap_str()
             usagesTop = c.AllGrUsage.get_usages_for_recipe(summit)
             recipes_todo = set()
@@ -739,13 +737,13 @@ class WebGraphRecipe():
                                 v_recipe = None
                                 if e.fields['dest']:
                                     nx_recipe = e.fields['dest']
-                                    if nx_recipe and nx_recipe in c.AllGrRecipe.elements.keys():
-                                        v_recipe = c.AllGrRecipe.elements[nx_recipe]
+                                    v_recipe = c.AllGrRecipe.get(nx_recipe)
+                                    if v_recipe:
                                         graph += hid+"->"+"gr_"+nx_recipe
                                 if e.fields['src']:
                                     nx_recipe = e.fields['src']
-                                    if nx_recipe and nx_recipe in c.AllGrRecipe.elements.keys():
-                                        v_recipe = c.AllGrRecipe.elements[nx_recipe]
+                                    v_recipe = c.AllGrRecipe.get(nx_recipe)
+                                    if v_recipe:
                                         graph += "gr_"+nx_recipe+"->"+hid
                                 if v_recipe:
                                     graph += "[style=\"stroke-width:3px;stroke:#f07e26\",labelType=\"html\",label=\""
@@ -753,7 +751,7 @@ class WebGraphRecipe():
                                     if batch:
                                         events = batch.fromModel(c,e)
                                     if len(events) == 0:
-                                        graph += e.get_quantity()+' '+protectJS(e.get_unit_in_context(c,elem))
+                                        graph += unicode(e.get_quantity())+' '+protectJS(e.get_unit_in_context(c,elem))
                                     else:
                                         first = True
                                         for ev in events:
@@ -766,7 +764,7 @@ class WebGraphRecipe():
 ##                                                    Acolor = None
                                                 graph += ("" if first else ", ")
                                                 graph += "<a href=/edit/v_"+ev.getID()+">" + ("<font color="+Acolor+">" if Acolor else "")
-                                                graph += qtity+" "+protectHTML(ev.get_unit_in_context(c,elem))+("</font>" if Acolor else "")+"</a>"
+                                                graph += unicode(qtity)+" "+protectHTML(ev.get_unit_in_context(c,elem))+("</font>" if Acolor else "")+"</a>"
                                                 first = False
                                     graph += "\"];"
                                     recipes_todo.add(v_recipe)
@@ -790,13 +788,13 @@ class WebGraphRecipe():
                             		Acolor = None
                                         qtity = edata.get_quantity()
                                         if qtity:
-                                            qt = float(qtity)
-                                            Aname, Aacronym, Acolor, Atext_color = e.getTypeAlarm(qt,None)
+                                            #qt = float(qtity) 
+                                            Aname, Aacronym, Acolor, Atext_color = e.getTypeAlarm(qtity,None)
                                             if Aname == 'typical':
                                                 Acolor = None
                                             obs += (": " if first else ", ")
                                             obs += "<a href=/edit/d_"+edata.getID()+">" + ("<font color="+Acolor+">" if Acolor else "")
-                                            obs += qtity+" "+protectHTML(edata.get_unit(c))+("</font>" if Acolor else "")+"</a>"
+                                            obs += unicode(qtity)+" "+protectHTML(edata.get_unit(c))+("</font>" if Acolor else "")+"</a>"
                                             first = False
                         graph += hid # +"[url=\"/find/related/"+hid+"\""
                         graph += "[labelType=\"html\",label=\"<a href=/find/related/"+hid+">"
@@ -824,8 +822,8 @@ class WebGraphRecipe():
                 elif krecipe == '<<':
                     prec = stack.pop()
                 else:
-                    if krecipe and krecipe in c.AllGrRecipe.elements:
-                        recipe = c.AllGrRecipe.elements[krecipe]
+                    recipe = c.AllGrRecipe.get(krecipe)
+                    if recipe:
                         if prec:
                             graph += 'gr_'+krecipe+'->gr_'+prec+'[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];'
                         graph += 'gr_'+krecipe
@@ -1006,8 +1004,8 @@ class WebRRDfetch():
         if 'period' in data:
             period = data['period']
             
-        if id in c.AllSensors.elements:
-            currSensor = c.AllSensors.elements[id]
+        currSensor = c.AllSensors.get(id)
+        if currSensor:
             web.header('Content-Disposition',
                        'attachment; filename="s_'+str(id)+'.csv"')
             web.header('Content-type', 'text/tab-separated-values')
@@ -1151,8 +1149,8 @@ class WebExport():
         cond['valuesensor'] = True if 'valuesensor' in data else False
         cond['acronym'] = True if 'acronym' in data else False
         method = data.get("method", "malformed")
-        elem = c.findAllFromType(data['element'].split(
-            '_')[0]).elements[data['element'].split('_')[1]]
+        splits = data['element'].split('_')
+        elem = c.get_object(splits[0],splits[1])
         tmp = elsa.ExportData(c, elem, cond, user)
         tmp.create_export()
         if "download" in data:

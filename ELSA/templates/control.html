@@ -151,7 +151,7 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 				    <select name="vm_src_$(countvm)" class="form-control" id="src">
 					$for k in c.AllBatches.get_batches_for_recipes([aRecipe.getID()]+aRecipe.get_submap_str()):
 					    $if not (k.getID() == batch.getID()):
-						<option value="$k.getID()">$k.fields['acronym'] - $k.getName(self.lang) [= $k.get_residual_quantity()] </option>
+						<option value="$k.getID()">$k.fields['acronym'] - $k.getName(self.lang) [= $unicode(k.get_residual_quantity())] </option>
 				    </select>
 				</div>
 		    </div>
@@ -164,7 +164,7 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 			    <select name="vm_dest_$(countvm)" class="form-control" id="dest">
 				$for k in c.AllBatches.get_batches_for_recipes([e.fields['dest']]):
 				    $if not (k.getID() == batch.getID()):
-					<option value="$k.getID()">$k.fields['acronym'] - $k.getName(self.lang) [= $k.get_residual_quantity()] </option>
+					<option value="$k.getID()">$k.fields['acronym'] - $k.getName(self.lang) [= $unicode(k.get_residual_quantity())] </option>
 			    </select>
 			</div>
 		    </div>		
@@ -174,7 +174,7 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 			<input name="vm_quantity_$(countvm)" type="number" 
                         $if aMeasure:
                             min="$(aMeasure.fields['min'])" max="$(aMeasure.fields['max'])" step="$(aMeasure.get_html_step())"
-                        class="form-control" id="inputValue" placeholder="$c.getMessage('value',self.lang)" value="$e.get_quantity()"required >
+                        class="form-control" id="inputValue" placeholder="$c.getMessage('value',self.lang)" value="$unicode(e.get_quantity())"required >
 		    </div>
                     $if aMeasure:
 		      <div class="col-xs-4 col-sm-2">

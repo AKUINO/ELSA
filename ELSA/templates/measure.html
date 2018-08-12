@@ -9,7 +9,7 @@ $if id == 'new':
 $else:
     $var location: list/m=measure edit/m_$(id)=edit
     $code:
-        elem = c.AllMeasures.elements[id]
+        elem = c.AllMeasures.get(id)
     $var rmq :  $elem.fields['remark']
     $var title : $elem.getName(self.lang)
 $if errormess != '':
@@ -125,7 +125,7 @@ $if errormess != '':
 	    $code:
 		cond = (id == 'new')
 		if not cond :
-		    cond = (elem.fields['active'] == 1 or elem.fields['active'] == '1')
+		    cond = elem.isActive()
 		if errormess != '' :
 		    if 'active' in data :
 			cond  = True

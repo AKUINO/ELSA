@@ -1,8 +1,8 @@
 $def with (mail,type, id, data)	
 $var recursive : True
 $code :
-    allElem = c.findAllFromType(type)
-    elem = allElem.elements[id]
+    allElem = c.findAll(type)
+    elem = allElem.get(id)
     keyID = allElem.keyColumn
     permissionKey = '_' + type +'_'
 
@@ -33,7 +33,7 @@ $var title: MODAL
 			    <strong>$elem.fields['acronym']</strong>
 			</div>
 			<div class="col-xs-1">
-			    $if elem.fields['active'] == '1' or elem.fields['active'] == 1 :
+			    $if elem.isActive():
 				<span class="glyphicon glyphicon-ok-circle"> </span>
 			    $else :
 				<span class="glyphicon glyphicon-remove-circle"> </span>		    
@@ -55,10 +55,10 @@ $var title: MODAL
 		    
                     $if type == 'u':
                         <div class="row" id="listingMarge">
-                            <div class="col-xs-3">
+                            <div class="col-xs-4">
                             $c.getMessage('name',self.lang) :
                             </div>
-                            <div class="col-xs-9" id="modalinfo" >
+                            <div class="col-xs-8" id="modalinfo" >
                             $elem.getName(self.lang)
                             </div>
                         </div>
@@ -151,35 +151,43 @@ $var title: MODAL
                             $c.getMessage('alarm',self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-			    $if elem.fields['a_id'] and elem.fields['a_id'] in c.AllAlarms.elements:
-				$ alarm = c.AllAlarms.elements[elem.fields['a_id']]
+			    $ alarm = c.AllAlarms.get(elem.fields['a_id'])
+			    $if alarm:
 				<a href="/find/related/a_$(alarm.getID())">
-				$:(c.getHalfling(alarm.get_class_acronym()))
+				$:(c.getHalfling(alarm.get_class_acronym()))$alarm.fields['acronym']
 			    	</a>
                             </div>
                         </div>
 		    $if type == 'h':
 			    <div class="row" id="listingMarge">
-				<div class="col-xs-3">
-				    $c.getMessage('group',self.lang) :
+				<div class="col-xs-4">
+				    $c.getMessage('grecipe',self.lang) :
 				</div>
-				<div class="col-xs-9" id="modalinfo" >
-					$if 'gr_id' in elem.fields and elem.fields['gr_id'] != '' :
-					    <a href="/find/related/gr_$(elem.fields['gr_id'])">$c.AllGrRecipe.elements[elem.fields['gr_id']].fields['acronym']</a>
-					$if 'gu_id' in elem.fields and elem.fields['gu_id'] != '' :
-					    <a href="/find/related/gu_$(elem.fields['gu_id'])">$c.AllGrUsage.elements[elem.fields['gu_id']].fields['acronym']</a>
+				<div class="col-xs-8" id="modalinfo" >
+				$if 'gr_id' in elem.fields and elem.fields['gr_id'] != '' :
+				    <a href="/find/related/gr_$(elem.fields['gr_id'])">$c.AllGrRecipe.get(elem.fields['gr_id']).fields['acronym']</a>
 				</div>
 			    </div>
-		    $if permissionKey in '_c_p_e_b_u_dm_vm_tm_al_':
-			$code :
-			    groups = c.findAllFromType(allElem.get_group_type())
-			$if elem.get_group() != '' :
 			    <div class="row" id="listingMarge">
-				<div class="col-xs-3">
+				<div class="col-xs-4">
+				    $c.getMessage('guse',self.lang) :
+				</div>
+				<div class="col-xs-8" id="modalinfo" >
+				$if 'gu_id' in elem.fields and elem.fields['gu_id'] != '' :
+				    <a href="/find/related/gu_$(elem.fields['gu_id'])">$c.AllGrUsage.get(elem.fields['gu_id']).fields['acronym']</a>
+				</div>
+			    </div>
+		    $if permissionKey in '_c_p_e_b_u_dm_vm_tm_':
+			$code :
+			    groups = c.findAll(allElem.get_group_type())
+			    kgroup = elem.get_group()
+			$if kgroup :
+			    <div class="row" id="listingMarge">
+				<div class="col-xs-4">
 				    $c.getMessage('group',self.lang) :
 				</div>
-				<div class="col-xs-9" id="modalinfo" >
-				<a href="/find/related/$(allElem.get_group_type())_$(elem.get_group())">$groups.elements[elem.get_group()].fields['acronym']</a>
+				<div class="col-xs-8" id="modalinfo" >
+				<a href="/find/related/$(allElem.get_group_type())_$(kgroup)">$groups.get(kgroup).fields['acronym']</a>
 				</div>
 			    </div>
 		    $if permissionKey in '_b_c_e_':
@@ -189,11 +197,11 @@ $var title: MODAL
 			    </div>
                             <div class="col-xs-8" id="modalinfo" >
 			    $code:
-				pos = None
 				tmp = elem.get_last_transfer()
-				if tmp is not None :
-				    pos = c.AllTransfers.elements[tmp].get_component(c)
-			    $if pos is not None :
+				pos = c.AllTransfers.get(tmp)
+				if pos:
+					pos = pos.get_component(c)
+			    $if pos:
 				<a href="/find/related/$(pos.get_type())_$pos.getID()">$:pos.statusIcon(c,True,False) $pos.fields['acronym']</a>
                             </div>
 			</div>	
@@ -274,14 +282,14 @@ $var title: MODAL
                             </div>
                         </div>
                         
-                    $elif type == 'a':
+                    $if type == 'a':
                         $if elem.fields['o_sms1'] != '':
                             <div class="row" style="margin-top:10px;">
                                 <div class="col-xs-4">
                                 $c.getMessage('phone',self.lang) 1:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                <a href="/find/related/gf_$elem.fields['o_sms1']">$c.AllGrFunction.elements[elem.fields['o_sms1']].getName(self.lang)</a>
+                                <a href="/find/related/gf_$elem.fields['o_sms1']">$c.AllGrFunction.get(elem.fields['o_sms1']).getName(self.lang)</a>
                                 </div>
                             </div>
                         $if elem.fields['o_email1'] != '':
@@ -290,7 +298,7 @@ $var title: MODAL
                                 $c.getMessage('mail',self.lang) 1:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                <a href="/find/related/gf_$elem.fields['o_email1']">$c.AllGrFunction.elements[elem.fields['o_email1']].getName(self.lang)</a>
+                                <a href="/find/related/gf_$elem.fields['o_email1']">$c.AllGrFunction.get(elem.fields['o_email1']).getName(self.lang)</a>
                                 </div>
                             </div>
                         $if elem.fields['o_sound1'] != '':
@@ -299,7 +307,7 @@ $var title: MODAL
                                 $c.getMessage('sound',self.lang) 1:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                <a href="/find/related/gf_$elem.fields['o_sound1']">$c.AllGrFunction.elements[elem.fields['o_sound1']].getName(self.lang)</a>
+                                <a href="/find/related/gf_$elem.fields['o_sound1']">$c.AllGrFunction.get(elem.fields['o_sound1']).getName(self.lang)</a>
                                 </div>
                             </div>
                         $if elem.fields['relay1'] != '':
@@ -317,7 +325,7 @@ $var title: MODAL
                                 $c.getMessage('phone',self.lang) 2:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                <a href="/find/related/gf_$elem.fields['o_sms2']">$c.AllGrFunction.elements[elem.fields['o_sms2']].getName(self.lang)</a>
+                                <a href="/find/related/gf_$elem.fields['o_sms2']">$c.AllGrFunction.get(elem.fields['o_sms2']).getName(self.lang)</a>
                                 </div>
                             </div>
                         $if elem.fields['o_email2'] != '':
@@ -326,7 +334,7 @@ $var title: MODAL
                                 $c.getMessage('mail',self.lang) 2:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                <a href="/find/related/gf_$elem.fields['o_email2']">$c.AllGrFunction.elements[elem.fields['o_email2']].getName(self.lang)</a>
+                                <a href="/find/related/gf_$elem.fields['o_email2']">$c.AllGrFunction.get(elem.fields['o_email2']).getName(self.lang)</a>
                                 </div>
                             </div>
                         $if elem.fields['o_sound2'] != '':
@@ -335,7 +343,7 @@ $var title: MODAL
                                 $c.getMessage('sound',self.lang) 1:
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
-                                <a href="/find/related/gf_$elem.fields['o_sound2']">$c.AllGrFunction.elements[elem.fields['o_sound2']].getName(self.lang)</a>
+                                <a href="/find/related/gf_$elem.fields['o_sound2']">$c.AllGrFunction.get(elem.fields['o_sound2']).getName(self.lang)</a>
                                 </div>
                             </div>
                         $if elem.fields['relay2'] != '':
@@ -347,7 +355,7 @@ $var title: MODAL
                                 $elem.fields['relay2']
                                 </div>
                             </div>
-                    $elif type == 's':
+                    $if type == 's':
                         <div class="row" style="margin-top:10px;">
                             <div class="col-xs-4">
                                 $c.getMessage('component',self.lang) :
@@ -361,7 +369,7 @@ $var title: MODAL
                                 $c.getMessage('measure',self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-                                <a href="/find/related/m_$(elem.fields['m_id'])">$c.AllMeasures.elements[elem.fields['m_id']].getName(self.lang)</a>
+                                <a href="/find/related/m_$(elem.fields['m_id'])">$c.AllMeasures.get(elem.fields['m_id']).getName(self.lang)</a>
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">
@@ -388,14 +396,44 @@ $var title: MODAL
                                 $elem.fields['subsensor']
                             </div>
                         </div>
-		    $elif type == 'b':
+
+		    $if type == 'b':
+			<div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
+                                $c.getMessage('expirationdate',self.lang) :
+                            </div>
+                            <div class="col-xs-8" id="modalinfo" >
+				$ lifespan = elem.lifespan(c)
+				<span
+				$if elem.fields['expirationdate'] and elem.fields['expirationdate'] < useful.now()[:10]:
+					class="text-danger"
+				>
+				$elem.fields['expirationdate']
+				$if lifespan:
+				 ($unicode(lifespan) $(c.getMessage('days',self.lang)))
+				</span>
+                            </div>
+                        </div>
+		    $if type == 'gr':
+			<div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
+                                $c.getMessage('lifespan',self.lang) :
+                            </div>
+                            <div class="col-xs-8" id="modalinfo" >
+				$ lifespan = elem.lifespan(c)
+				$if not elem.fields['lifespan']:
+				    <big>&#8662;</big>
+				$unicode(lifespan) $(c.getMessage('days',self.lang))
+                            </div>
+                        </div>
+		    $if permissionKey in '_b_gr_':
 			<div class="row" style="margin-top:10px;">
                             <div class="col-xs-4">
                                 $c.getMessage('measure',self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
 				$if elem.fields['m_id'] != '' :
-				    <a href="/find/related/m_$elem.fields['m_id']">$c.AllMeasures.elements[elem.fields['m_id']].getName(self.lang)</a>
+				    <a href="/find/related/m_$elem.fields['m_id']">$c.AllMeasures.get(elem.fields['m_id']).getName(self.lang)</a>
 				$else:
 				    -
                             </div>
@@ -405,7 +443,7 @@ $var title: MODAL
                                 $c.getMessage('quantity',self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-				$elem.get_quantity()
+				$unicode(elem.get_quantity())
                             </div>
                         </div>
 			<div class="row" style="margin-top:10px;">
@@ -417,6 +455,28 @@ $var title: MODAL
 				    $elem.fields['cost']
 				$else :
 				    -
+				$c.currency
+                            </div>
+                        </div>
+			<div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
+                                $c.getMessage('fixedcost',self.lang) :
+                            </div>
+                            <div class="col-xs-8" id="modalinfo" >
+                                $if elem.fields['fixed_cost'] != '' :
+				    $elem.fields['fixed_cost']
+				$else :
+				    -
+				$c.currency
+                            </div>
+                        </div>
+			<div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
+                                Total :
+                            </div>
+                            <div class="col-xs-8" id="modalinfo" >
+                                $unicode(elem.get_total_cost())
+				$c.currency
                             </div>
                         </div>
 		    $code :
@@ -454,8 +514,9 @@ $var title: MODAL
                             $c.getMessage('createdby',self.lang) :
                         </div>
                         <div class="col-xs-8" id="modalinfo" >
-			    $if elem.creator and elem.creator in c.AllUsers.elements:
-                                <strong>$c.AllUsers.elements[elem.creator].getName(self.lang) </strong> - <em>$elem.created</em>
+			    $ user = c.AllUsers.get(elem.creator)
+			    $if user:
+                                <strong>$user.getName(self.lang) </strong> - <em>$elem.created</em>
                         </div>
                     </div>
                     <div class="row" style="margin-top:3px;">
@@ -464,8 +525,9 @@ $var title: MODAL
                             <strong><a href="/edit/$(type)_$id" class="btn btn-warning" role="button">$:c.getHalfling('edit')</a></strong>
                         </div>
                         <div class="col-xs-8" id="modalinfo" >
-			    $if elem.fields['user'] and elem.fields['user'] in c.AllUsers.elements:
-                                <strong>$c.AllUsers.elements[elem.fields['user']].getName(self.lang) </strong> - <em>$elem.fields['begin']</em>
+			    $ user = c.AllUsers.get(elem.fields['user'])
+			    $if user:
+                                <strong>$user.getName(self.lang) </strong> - <em>$elem.fields['begin']</em>
                         </div>
                     </div>
                     $ i=0
