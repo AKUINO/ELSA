@@ -29,8 +29,9 @@ $if modelid:
     <label class="col-sm-3">$c.getMessage('remark',self.lang)</label>
 </div>
 
-$for i,transfer in elem.transfers:
-    $if not modelid or transfer.fields['tm_id']==modelid:
+$for i in elem.transfers:
+    $ transfer = c.AllTransfer.get(i)
+    $if transfer and (not modelid or transfer.fields['tm_id']==modelid):
 	    <div class="row active" style="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 		<div class="col-xs-3" >
 		    $transfer.fields['time']

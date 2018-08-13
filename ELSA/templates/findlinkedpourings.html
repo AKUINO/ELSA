@@ -72,8 +72,9 @@ $if modelid:
     <label class="col-sm-2">$c.getMessage('checkpoint',self.lang)</label>
     <label class="col-sm-3">$c.getMessage('component',self.lang)</label>
     <label class="col-sm-3">$c.getMessage('measure',self.lang) / $c.getMessage('remark',self.lang)</label>   
-    $for k,pouring in elem.source.items():
-	$if not modelid or pouring.fields['vm_id']==modelid:
+    $for k in elem.source:
+	$ pouring = c.AllPourings.get(k)
+	$if pouring and (not modelid or pouring.fields['vm_id']==modelid):
 	    <div class="row active">
 		<div class="col-xs-3" >
 		    $pouring.fields['time']

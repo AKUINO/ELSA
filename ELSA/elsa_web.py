@@ -477,11 +477,11 @@ class WebEdit():
         elif type == 'vm':
             return render.pouringmodel(id, mail, errormess, data, context)
         elif type == 't':
-            return render.transfer(id, mail, errormess, context)
+            return render.transfer(id, mail, errormess, data, context)
         elif type == 'd':
-            return render.manualdata(id, mail, errormess, context)
+            return render.manualdata(id, mail, errormess, data, context)
         elif type == 'v':
-            return render.pouring(id, mail, errormess, context)
+            return render.pouring(id, mail, errormess, data, context)
 
 
 class WebCreate(WebEdit):
