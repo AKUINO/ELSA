@@ -4897,11 +4897,10 @@ class Batch(ConfigurationObject):
         expdate = ""
         if 'expirationdate' in data and data['expirationdate']:
             try:
-                expdate= useful.date_to_ISO(data['expirationdate'])
+                expdate= useful.date_to_ISO(data['expirationdate'])[:10]
             except:
-                expdate= (useful.string_to_date(self.fields['time'])+datetime.timedelta(days=self.lifespan(c))).isoformat()
-            finally:
-                expdate=expdate[:10]
+                if self.fields['time']:
+                    expdate= (useful.string_to_date(self.fields['time'])+datetime.timedelta(days=self.lifespan(c))).isoformat()[:10]
         self.fields['expirationdate']= expdate
 
         self.add_measure(data['measure'])
