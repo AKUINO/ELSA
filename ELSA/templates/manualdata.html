@@ -1,4 +1,4 @@
-$def with (id, mail, errormess, context='')
+$def with (id, mail, errormess, data, context='')
 $var recursive : False
 $var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
@@ -19,14 +19,14 @@ $elif id == 'new':
 $else :
     $code:
 	if not id.split('_')[0] in 'bcep':
-	    data = c.AllManualData.get(id)
-	    elem = c.get_object(data.fields['object_type'],data.fields['object_id'])
+	    manudata = c.AllManualData.get(id)
+	    elem = c.get_object(manudata.fields['object_type'],manudata.fields['object_id'])
 	    myID = 'update'
-	    rmq = data.fields['remark']
-	    cond = data.isActive()
+	    rmq = manudata.fields['remark']
+	    cond = manudata.isActive()
     $var title: $c.getMessage('update',self.lang) $c.getName(c.AllManualData,self.lang)
 $if myID == 'update':
-    $var location: list/$(elem.get_type())=$(elem.get_class_acronym()) manualdata/$(elem.get_type())_$(elem.getID())=manualdata edit/m_$(data.getID())=edit
+    $var location: list/$(elem.get_type())=$(elem.get_class_acronym()) manualdata/$(elem.get_type())_$(elem.getID())=manualdata edit/m_$(manudata.getID())=edit
 $elif myID == 'component':
     $var location: list/$(id.split('_')[-0])=$(elem.get_class_acronym()) manualdata/$(id.split('_')[0])_$(elem.getID())=manualdata transfers/$(id.split('_')[0])_$(elem.getID())/new=add
 <div class="container">
@@ -40,7 +40,7 @@ $elif myID == 'component':
 	    <div class="col-sm-9">
 		<input name="time" type="text" class="form-control" id="inputTime" placeholder="$c.getMessage('dateentry',self.lang)" 
 		$if myID == 'update':
-		    value="$data.fields['time']"
+		    value="$manudata.fields['time']"
 		$else :
 		    value ="$c.get_time()"
 		required ="true">
@@ -102,7 +102,7 @@ $elif myID == 'component':
 		    $for k, currMeasure in c.AllMeasures.elements.items():
 			<option value="$k"
 			    $if myID == "update":
-				$if k == data.fields['m_id']:
+				$if k == manudata.fields['m_id']:
 				    selected			
 			>$(currMeasure.get_select_str(self.lang))</option>
 		</select>
@@ -114,7 +114,7 @@ $elif myID == 'component':
 	    <div class="col-sm-9">
 		<input name="value" type="number" class="form-control" id="inputValue" placeholder="$c.getMessage('value',self.lang)" 
 		$if myID == 'update':
-		    value="$data.fields['value']"
+		    value="$manudata.fields['value']"
 		>
 	    </div>
 	</div>

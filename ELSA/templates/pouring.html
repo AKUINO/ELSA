@@ -1,4 +1,4 @@
-$def with (id, mail, errormess, context='')
+$def with (id, mail, errormess, data, context='')
 $var recursive : False
 $var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
