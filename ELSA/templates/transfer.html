@@ -23,6 +23,7 @@ $if context != '' :
     $code:
 	myID = 'component'
 	elem = c.get_object(splits[0],splits[-1])
+	idType = elem.get_type()
 	rmq = '' 
 $if myID == 'update':
     $var location: list/$(elem.get_type())=$(elem.get_class_acronym()) transfers/$(elem.get_type())_$(elem.getID())=transfer edit/t_$(transfer.getID())=edit
