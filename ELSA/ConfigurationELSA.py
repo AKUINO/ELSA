@@ -5151,7 +5151,7 @@ class Transfer(ConfigurationObject):
         else:
             self.get_source(c).remove_position(self)
         self.save(c, user)
-        if data['expirationdate'] and self.get_type_container() == 'b':
+        if 'expirationdate' in data and data['expirationdate'] and self.get_type_container() == 'b':
             kbatch = self.get_id_container;
             if kbatch and kbatch in c.AllBatches.elements:
                 batch = c.AllBatches.elements[kbatch]
