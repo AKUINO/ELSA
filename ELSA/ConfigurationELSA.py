@@ -1812,9 +1812,6 @@ class AllBatches(AllObjects):
     def get_group_type(self):
         return 'gr'
 
-    def isExpired(self):
-        return self.fields['expirationdate'] and (self.fields['expirationdate'] < (useful.now()[:10]))
-
     def get_batches_for_recipes(self, recipes):
         batches = []
         #print recipes
@@ -4690,6 +4687,9 @@ class Batch(ConfigurationObject):
 
     def get_class_acronym(self):
         return 'batch'
+
+    def isExpired(self):
+        return self.fields['expirationdate'] and (self.fields['expirationdate'] < (useful.now()[:10]))
 
     def add_measure(self, data):
         tmp = data.split('_')

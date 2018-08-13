@@ -21,16 +21,15 @@ $code:
 $if t is not None :
     $ aTransfer = c.AllTransfers.get(t)
     $if aTransfer:
-        $ pos = c.findAll(aTransfer.fields['cont_type'])
-        $ p = pos.get(aTransfer.fields['cont_id'])
+        $ key=aTransfer.fields['cont_type']+"_"+aTransfer.fields['cont_id']
 	    <div class="row active" style ="margin-top:10px;margin-bottom:10px;background-color:#E5E5E7;padding:15px;" >
 		<label class="col-sm-12">$c.getMessage('actualposition',self.lang) :</label>   
 		<script>
 	            $$(function(){
-	                $$("#includedT$(aTransfer.fields['cont_type'])_$(aTransfer.fields['cont_id'])").load("/fullentry/$(aTransfer.fields['cont_id'])");
+	                $$("#includedT$(key)").load("/fullentry/$(key)");
 	            });
 		</script>
-		<div id="includedT$(aTransfer.fields['cont_type'])_$(aTransfer.fields['cont_id'])"></div>
+		<div id="includedT$(key)"></div>
 	    </div>
 $ toCheck =[[type,id]]
 $if type in 'p' :
