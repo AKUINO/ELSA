@@ -27,7 +27,7 @@ $if modelid:
     <label class="col-sm-3">$c.getMessage('component',self.lang)</label>
     <label class="col-sm-3">$c.getMessage('measure',self.lang) / $c.getMessage('remark',self.lang)</label>    
     $for k in elem.destination:
-	$ pouring = c.AllPouring.get(k)
+	$ pouring = c.AllPourings.get(k)
 	$if pouring and (not modelid or pouring.fields['vm_id']==modelid):
 		<div class="row active">
 			<div class="col-xs-3" >
