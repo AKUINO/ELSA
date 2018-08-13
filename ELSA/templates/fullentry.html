@@ -29,7 +29,7 @@ $elif type == 'al':
                 $ parents = elem.get_all_parents([],None)
                 $for p in reversed(parents):
                     <a href="/find/related/$(type)_$(p)"><strong><big>&#8662;</big></strong></a>
-            <button type="button" class="btn $("btn-info" if elem.isModeling() else "btn-warning") btn-md $(type)_$(id)" data-toggle="modal" data-target="#$(type)_$(id)modal">
+            <button type="button" class="btn $("btn-info" if elem.isModeling() else ("btn-danger" if elem.isExpired() else "btn-warning")) btn-md $(type)_$(id)" data-toggle="modal" data-target="#$(type)_$(id)modal">
 	        $:elem.statusIcon(c,True,True)
             </button>
 	 </div>
@@ -144,7 +144,7 @@ $elif type == 'al':
 			    $unicode(elem.get_residual_quantity()) <a href="/find/related/m_$elem.fields['m_id']">$(elem.get_unit(c))</a>
 			$ cost = elem.get_total_cost()
 			$if cost != 0.0:
-			    $cost $c.currency
+			    <br/>$cost&nbsp;$c.currency
 
 		    </div>
 		</div>

@@ -97,7 +97,7 @@ $if errormess != '':
 	    <label for="inputPosition" class="col-sm-3 col-form-label">$:(c.getAllHalfling(c.AllMeasures))$c.getMessage('measure',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "measure" class="form-control" id="inputPosition">
-		    $for k, currMeasusre in c.AllMeasures.elements.items():
+		    $for k, currMeasure in c.AllMeasures.elements.items():
 			<option value="$k"
 			    $if id != 'new':
 				$if  k == aDataModel.fields['m_id'] :

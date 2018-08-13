@@ -188,7 +188,7 @@ $if errormess != '':
 				   $if parent:
 					   $ lifespan = parent.lifespan(c)
 					   $if lifespan:
-						<a href="/find/related/gr_$p.getID()"><big>&#8662;</big>$parent.fields['acronym']</a>:$unicode(lifespan)
+						<a href="/find/related/gr_$parent.getID()"><big>&#8662;</big>$parent.fields['acronym']</a>:$unicode(lifespan)
 			$c.getMessage('days',self.lang)
 		    </div>
 		</div>

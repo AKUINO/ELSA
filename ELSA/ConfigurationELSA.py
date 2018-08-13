@@ -755,13 +755,21 @@ class ConfigurationObject(object):
     def isModeling(self):
         return None
     
+    def isExpired(self):
+        return None
+    
     def statusIcon(self, configuration, pic=None,inButton=False):
         allObjects = configuration.findAllFromObject(self)
-        result = configuration.getAllHalfling(allObjects," text-info" if not inButton and self.isModeling() else "")
+        supp_classes = ""
+        if not inButton:
+            if self.isModeling():
+                supp_classes = " text-info"
+            elif self.isExpired():
+                supp_classes = " text-danger"
+        result = configuration.getAllHalfling(allObjects,supp_classes)
         if 'active' in self.fields and self.fields['active'] == '0':
             result = '<span class="icon-combine">'+result+'<span class="halflings halflings-remove text-danger"></span></span>'
-        elif 'expirationdate' in self.fields and self.fields['expirationdate'] and self.fields['expirationdate'] < useful.now()[:10]:
-            result = '<span class="icon-combine">'+result+'<span class="halflings halflings-time text-danger"></span></span>'
+        #result = '<span class="icon-combine">'+result+'<span class="halflings halflings-time text-danger"></span></span>'
         if pic:
             result += self.getImage(36)
         return result
@@ -1803,6 +1811,9 @@ class AllBatches(AllObjects):
 
     def get_group_type(self):
         return 'gr'
+
+    def isExpired(self):
+        return self.fields['expirationdate'] and (self.fields['expirationdate'] < (useful.now()[:10]))
 
     def get_batches_for_recipes(self, recipes):
         batches = []
