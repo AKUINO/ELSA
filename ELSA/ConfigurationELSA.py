@@ -3148,6 +3148,7 @@ class GrRecipe(Group):
                     days = recipe.lifespan(c)
                     if days:
                         return days
+            return 0
 
 class GrFunction(Group):
     def __init__(self, config):
