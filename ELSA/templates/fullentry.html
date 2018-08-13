@@ -32,6 +32,8 @@ $elif type == 'al':
             <button type="button" class="btn $("btn-info" if elem.isModeling() else ("btn-danger" if elem.isExpired() else "btn-warning")) btn-md $(type)_$(id)" data-toggle="modal" data-target="#$(type)_$(id)modal">
 	        $:elem.statusIcon(c,True,True)
             </button>
+	    $if elem.isAlarmed(c):
+		<a href="/find/al/$(type)_$(id)">$:c.getAllHalfling(c.AllAlarmLogs)</a>
 	 </div>
 	$if 'acronym' in elem.fields:
 	  <div class="col-xs-3 vcenter">

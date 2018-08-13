@@ -47,6 +47,8 @@ $if modelid:
 			</div>	    
 			<div class="col-xs-3" >
 			    $unicode(pouring.get_quantity())) $pouring.get_unit(c)</a>
+			    $if pouring.fields['al_id'] :
+			        <a href="/edit/al_$(pouring.fields['al_id'])">$:c.getAllHalfling(c.AllAlarmLogs)</a>
 			    $if pouring.fields['remark']:
 				<br/><span class="text-danger">$pouring.fields['remark']</span>
 			</div>

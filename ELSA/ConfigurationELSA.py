@@ -743,7 +743,7 @@ class ConfigurationObject(object):
         if not 'active' in self.fields:
             return True
         else:
-            return self.fields['active'] == '1'
+            return self.fields['active'] != '0'
 
     def getImage(self, height=36):
         ext = self.isImaged()
@@ -757,6 +757,27 @@ class ConfigurationObject(object):
     
     def isExpired(self):
         return None
+    
+    def isAlarmed(self,c):
+        if 'al_id' in self.fields:
+            if self.fields['al_id']:
+                if self.get_type() != 'al':
+                    allog = c.AllAlarmLogs.get(self.fields['al_id'])
+                    if allog and allog.isActive() and not allog.isComplete():
+                        return True
+            return False
+        #TODO: Check this when implementing alarms for timed transfers and for incorrect pourings...
+        if self.transfers:
+            for k in self.transfers:
+                t = c.AllTransfers.get(k)
+                if t and t.isAlarmed(c):
+                    return True
+        if self.manualdata:
+            for k in self.manualdata:
+                dd = c.AllManualData.get(k)
+                if dd and dd.isAlarmed(c):
+                    return True
+        return False
     
     def statusIcon(self, configuration, pic=None,inButton=False):
         allObjects = configuration.findAllFromObject(self)
@@ -1385,7 +1406,7 @@ class AllManualData(AllObjects):
         AllObjects.__init__(self, 'd', ManualData.__name__, config)
         self.file_of_names = None
         self.fieldnames = ['begin', 'd_id', 'dm_id', 'object_id', 'object_type',
-                           'time', 'h_id', 'remark', 'm_id', 'value', 'active',
+                           'time', 'h_id', 'remark', 'm_id', 'value', 'al_id', 'active',
                            'user']
         self.fieldtranslate = None
 
@@ -1402,7 +1423,7 @@ class AllPourings(AllObjects):
         AllObjects.__init__(self, 'v', Pouring.__name__, config)
         self.file_of_names = None
         self.fieldnames = ['begin', 'v_id', 'vm_id', 'src', 'dest', 'time',
-                           'h_id', 'quantity', 'm_id', 'remark',
+                           'h_id', 'quantity', 'm_id', 'remark', 'al_id',
                            'active', 'user']
         self.fieldtranslate = None
 
@@ -1855,7 +1876,7 @@ class AllTransfers(AllObjects):
         self.file_of_names = None
         self.fieldnames = ["begin", "t_id", 'tm_id', 'time', 'h_id', "cont_id",
                            "cont_type", "object_id", "object_type", "remark",
-                           'active', "user"]
+                           'al_id', 'active', "user"]
         self.fieldtranslate = None
 
     def newObject(self):
@@ -2287,6 +2308,12 @@ class Equipment(ConfigurationObject):
                 listSensor.append(k)
         return listSensor
 
+    def isAlarmed(self,c):
+        for kSensor,aSensor in c.AllSensors.elements.items():
+            if aSensor.isAlarmed(c) and aSensor.is_in_component('e',self.id):
+                return True
+        return False
+
     def validate_form(self, data, configuration, lang):
         return super(Equipment, self).validate_form(data, configuration, lang)
 
@@ -2325,6 +2352,12 @@ class Container(ConfigurationObject):
                 listSensor.append(k)
         return listSensor
 
+    def isAlarmed(self,c):
+        for kSensor,aSensor in c.AllSensors.elements.items():
+            if aSensor.isAlarmed(c) and aSensor.is_in_component('c',self.id):
+                return True
+        return False
+
     def validate_form(self, data, configuration, lang):
         return super(Container, self).validate_form(data, configuration, lang)
 
@@ -2348,7 +2381,7 @@ class AlarmingObject(ConfigurationObject):
         self.colorTextAlarm = valueCategs[0].text_color
         self.lastvalue = None
         self.time = 0
-    
+
     def get_alarm(self,model=None):
         bounds = model.fields if model else self.fields
 	if self.actualAlarm == 'typical':
@@ -2462,7 +2495,7 @@ class ManualData(AlarmingObject):
                 self.actualAlarm = "typical"
             alarmCode = data['a_id']
         if alarmCode and alarmCode in c.AllAlarms.elements:
-            c.AllAlarms.elements[alarmCode].launch_alarm(self, c)
+            self.fields['al_id'] = c.AllAlarms.elements[alarmCode].launch_alarm(self, c)
         if self.isActive():
             c.get_object(self.fields['object_type'],self.fields['object_id']) \
              .add_data(self)
@@ -2580,7 +2613,7 @@ class Pouring(ConfigurationObject):
             self.actualAlarm = "typical"
             alarmCode = data['a_id']
         if alarmCode and alarmCode in c.AllAlarms.elements:
-            c.AllAlarms.elements[alarmCode].launch_alarm(self, c)
+            self.fields['al_id'] = c.AllAlarms.elements[alarmCode].launch_alarm(self, c)
 
         if 'active' in data:
             self.fields['active'] = '1'
@@ -3222,6 +3255,12 @@ class Place(ConfigurationObject):
                     listSensor.append(k)
         return listSensor
 
+    def isAlarmed(self,c):
+        for kSensor,aSensor in c.AllSensors.elements.items():
+            if aSensor.isAlarmed(c) and aSensor.is_in_component('p',self.id):
+                return True
+        return False
+
     def validate_form(self, data, configuration, lang):
         return super(Place, self).validate_form(data, configuration, lang)
 
@@ -3277,6 +3316,71 @@ class AlarmLog(ConfigurationObject):
             allObjs =config.findAll(self.fields['cont_type'])
             return allObjs.get(self.fields['cont_id'])
         return None
+
+##        self.fieldnames = ['begin', 'al_id', 'cont_id', 'cont_type',
+##                           's_id', 's_type', 'value', 'typealarm', 'a_id', 'begintime',
+##                           'alarmtime', 'degree', 'completedtime', 'remark', 'active', 'user']
+
+##    def validate_form(self, data, configuration, lang):
+##        tmp = ''
+##        try:
+##            value = useful.date_to_ISO(data['begintime'])
+##        except:
+##            traceback.print_exc()
+##            tmp += configuration.getMessage('timerules',lang) + '\n'
+##
+##        try:
+##            aType = data['component'].split('_')[0]
+##            anId = data['component'].split('_')[1]
+##            if not configuration.is_component(aType):
+##                tmp += configuration.getMessage('componentrules',lang) + ' '+data['component']+'\n'
+##        except:
+##            tmp += configuration.getMessage('componentrules',lang) + '\n'
+##
+##        if tmp == '':
+##            return True
+##        return tmp
+##
+##    def set_value_from_data(self, data, c, user):
+##        #SUPER is NOT called, beware!
+##        if self.fields['object_type'] != '' \
+##                and self.fields['object_id'] != '':
+##            c.get_object(self.fields['object_type'],self.fields['object_id']) \
+##             .remove_data(self)
+##        tmp = ['time', 'value', 'remark']
+##        for elem in tmp:
+##            self.fields[elem] = data[elem]
+##        self.add_component(data['component'])
+##        self.add_measure(data['measure'])
+##        if 'h_id' in data:
+##            self.fields['h_id'] = data['h_id']
+##        else:
+##            self.fields['h_id'] = ''
+##        if 'active' in data:
+##            self.fields['active'] = '1'
+##        else:
+##            self.fields['active'] = '0'
+##        alarmCode = ""
+##        if ('origin' in data) and data['origin']:
+##            self.fields['dm_id'] = data['origin']
+##            model = c.AllManualDataModels.elements[data['origin']]
+##            typeAlarm, symbAlarm, self.colorAlarm,self.colorTextAlarm = self.getTypeAlarm(data['value'],model)
+##            self.actualAlarm = typeAlarm
+##            alarmCode = self.get_alarm(model);
+##        if ('a_id' in data) and data['a_id']:
+##            #TODO: Manual Alarm, not so "typical"
+##            if not self.actualAlarm:
+##                self.actualAlarm = "typical"
+##            alarmCode = data['a_id']
+##        if alarmCode and alarmCode in c.AllAlarms.elements:
+##            self.fields['al_id'] = c.AllAlarms.elements[alarmCode].launch_alarm(self, c)
+##        if self.isActive():
+##            c.get_object(self.fields['object_type'],self.fields['object_id']) \
+##             .add_data(self)
+##        else:
+##            c.get_object(self.fields['object_type'],self.fields['object_id']) \
+##             .remove_data(self)
+##        self.save(c, user)
 
 class ExportData():
     def __init__(self, config, elem, cond, user):
@@ -3817,6 +3921,7 @@ class Alarm(ConfigurationObject):
         newFields['alarmtime'] = useful.now()
         newFields['user'] = alarmedObject.fields['user']
         newFields['remark'] = ''
+        newFields['active'] = '1'
         specmess = self.getName(lang)
         if alarmedObject.get_type() == 's':
             mess = config.getMessage('alarmmessage',lang)
@@ -3890,7 +3995,7 @@ class Alarm(ConfigurationObject):
             newFields['cont_id'] = elemid
             newFields['value'] = unicode(alarmedObject.get_quantity())
             #TODO: check quantities and automate alarm launch...
-            newFields['typealarm'] = "typical"
+            newFields['typealarm'] = 'typical'
             newFields['degree'] = '2'
             newFields['remark'] = unicode.format(mess,
                                   config.HardConfig.hostname,
@@ -3907,7 +4012,9 @@ class Alarm(ConfigurationObject):
             currObject = config.AllAlarmLogs.createObject()
             currObject.fields.update(newFields)
             currObject.save(config)        
-        return newFields['remark']
+            return currObject.fields
+        else:
+            return newFields
 
     def get_alarm_title(self, alarmedObject, config, lang):
         if alarmedObject.get_type() == 's':
@@ -3947,6 +4054,7 @@ class Alarm(ConfigurationObject):
                                   alarmedObject.fields['value'],
                                   unit_measure,
                                   elem.getName(lang))
+        #TODO: timed transfers...
         elif alarmedObject.get_type() == 'v':
             title = config.getMessage('alarmpouringtitle',lang)
             elemin = config.AllBatches.elements[alarmedObject.fields['src']]
@@ -3954,30 +4062,38 @@ class Alarm(ConfigurationObject):
             return unicode.format(title, elemout.fields['acronym'], elemout.getName(lang), elemin.fields['acronym'], elemin.getName(lang))
 
     def alarm_by_email(self, alarmedObject, e_mail, config):
+        alid = ""
         if (e_mail != '') and e_mail in config.AllGrFunction.elements:
             userlist = config.AllGrFunction.elements[e_mail].get_user_group()
             first = True
             for user in userlist:
                 lang = config.AllUsers.elements[user].fields['language']
-                mess = self.get_alarm_message(alarmedObject, config, lang, first)
+                allog = self.get_alarm_message(alarmedObject, config, lang, first)
+                if first:
+                    alid = allog['al_id']
                 title = self.get_alarm_title(alarmedObject, config, lang)
                 useful.send_email(config.AllUsers
                                         .elements[user].fields['mail'],
                                         title,
-                                        mess)
+                                        allog['remark'])
                 first = False
+        return alid
         
     def launch_alarm(self, alarmedObject, config):
+        alid = ""
         if alarmedObject.get_type() == 's':
             level = alarmedObject.degreeAlarm
             if level == 1:
-                self.alarm_by_email(alarmedObject, self.fields['o_email1'], config)
+                alid = self.alarm_by_email(alarmedObject, self.fields['o_email1'], config)
             elif level == 2:
-                self.alarm_by_email(alarmedObject, self.fields['o_email2'], config)
+                alid = self.alarm_by_email(alarmedObject, self.fields['o_email2'], config)
         elif alarmedObject.get_type() == 'd':
-            self.alarm_by_email(alarmedObject, self.fields['o_email2'], config)
+            alid = self.alarm_by_email(alarmedObject, self.fields['o_email2'], config)
+##        elif alarmedObject.get_type() == 't':
+##            alid = self.alarm_by_email(alarmedObject, self.fields['o_email2'], config)
         elif alarmedObject.get_type() == 'v':
-            self.alarm_by_email(alarmedObject, self.fields['o_email2'], config)
+            alid = self.alarm_by_email(alarmedObject, self.fields['o_email2'], config)
+        return alid
 
     def get_user_groups(self,model=None):
         groups = []
@@ -4184,6 +4300,7 @@ class Sensor(AlarmingObject):
         self.fields['h_id'] = data
 
     def nextAlarm(self, config, now, no_change):
+        alid = ""
         if not no_change: # Alarm just changed !
             self.degreeAlarm = 0
         if self.degreeAlarm == 0:
@@ -4193,7 +4310,7 @@ class Sensor(AlarmingObject):
             alarmCode = self.get_alarm()
             if int(self.floats('lapse1')) == 0:
                 if alarmCode and alarmCode in config.AllAlarms.elements:
-                    config.AllAlarms.elements[alarmCode].launch_alarm(self, config)
+                    alid = config.AllAlarms.elements[alarmCode].launch_alarm(self, config)
                 self.degreeAlarm = 2
         else:
             self.countAlarm = self.countAlarm + 1
@@ -4201,22 +4318,22 @@ class Sensor(AlarmingObject):
             if self.degreeAlarm == 1 \
                     and self.countAlarm >= int(self.fields['lapse1']):
                 if alarmCode and alarmCode in config.AllAlarms.elements:
-                    config.AllAlarms.elements[alarmCode].launch_alarm(self, config)
+                    alid = config.AllAlarms.elements[alarmCode].launch_alarm(self, config)
                 self.degreeAlarm = 2
                 self.countAlarm = 0
             elif self.degreeAlarm == 2 \
                     and self.countAlarm >= int(self.fields['lapse2']):
                 if alarmCode and alarmCode in config.AllAlarms.elements:
-                    config.AllAlarms \
+                    alid = config.AllAlarms \
                         .elements[alarmCode].launch_alarm(self, config)
                 self.degreeAlarm = 3
                 self.countAlarm = 0
             elif self.degreeAlarm == 3 \
                     and self.countAlarm >= int(self.fields['lapse3']):
                 if alarmCode and alarmCode in config.AllAlarms.elements:
-                    config.AllAlarms.elements[alarmCode].launch_alarm(self, config)
+                    alid = config.AllAlarms.elements[alarmCode].launch_alarm(self, config)
                 self.degreeAlarm = 4 # Do nothing after this!
-        print 'Alarm ['+self.actualAlarm+'] level '+unicode(self.degreeAlarm)+' for ' + self.__repr__()
+        print 'Alarm #'+alid+' ['+self.actualAlarm+'] level '+unicode(self.degreeAlarm)+' for ' + self.__repr__()
 
     def update(self, now, value, config):
         self.lastvalue = value
@@ -4561,25 +4678,21 @@ class Sensor(AlarmingObject):
                 count += 1
         return count
 
+    def isAlarmed(self,c):
+        return self.actualAlarm != 'typical'
+
     def is_in_component(self, type, id):
-        if type == 'e':
-            return id == self.fields['e_id']
-        elif type == 'p':
-            return id == self.fields['p_id']
-        elif type == 'c':
-            return id == self.fields['c_id']
-        elif type == 'm':
-            return id == self.fields['m_id']
+        if type in 'pecm':
+            return id == self.fields[type+'_id']
         return False
 
     def get_component(self, config):
-        if self.fields['p_id'] and self.fields['p_id'] in config.AllPlaces.elements:
-            return config.AllPlaces.elements[self.fields['p_id']]
-        elif self.fields['e_id'] and self.fields['e_id'] in config.AllEquipments.elements != '':
-            return config.AllEquipments.elements[self.fields['e_id']]
-        elif self.fields['c_id'] and self.fields['c_id'] in config.AllContainers.elements:
-            return config.AllContainers.elements[self.fields['c_id']]
-        return None
+        compo = config.AllPlaces.get(self.fields['p_id'])
+        if not compo:
+            compo = config.AllEquipments.get(self.fields['e_id'])
+            if not compo:
+                compo = config.AllContainers.get(self.fields['c_id'])
+        return compo
 
     def get_sensors_in_component(self, config):
         tmp = []
@@ -5161,6 +5274,7 @@ class Transfer(ConfigurationObject):
             self.get_source(c).add_position(self)
         else:
             self.get_source(c).remove_position(self)
+        #TODO: Alarms should be checked and recorded in fields['al_id']
         self.save(c, user)
         if 'expirationdate' in data and data['expirationdate'] and self.get_type_container() == 'b':
             kbatch = self.get_id_container;

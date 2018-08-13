@@ -27,7 +27,7 @@ $if context != '' :
 	elem = c.get_object(splits[0],splits[-1])
 	rmq = '' 
 $if myID == 'update':
-    $var location: list/$(elem.get_type())=$(elem.get_class_acronym()) alarmlogs/$(elem.get_type())_$(elem.getID())=alarmlog edit/t_$(alarmlog.getID())=edit
+    $var location: list/$(compo.get_type())=$(compo.get_class_acronym()) alarmlogs/$(compo.get_type())_$(compo.getID())=alarmlog edit/al_$(alarmlog.getID())=edit
 $elif myID == 'component':
     $ aType = id.split('_')[0]
     $var location: list/$(aType)=$(elem.get_class_acronym()) alarmlogs/$(aType)_$(elem.getID())=alarmlog alarmlogs/$(aType)_$(elem.getID())/new=add
@@ -56,7 +56,10 @@ $elif myID == 'component':
 	    <div class="col-sm-9">
 		<select name = "object" class="form-control" id="Source">
 		$if src:
-			<option value="$(src.get_type())_$(src.getID())" selected>$src.fields['acronym'] - $src.getName(self.lang) </option>
+			<option value="$(src.get_type())_$(src.getID())" selected>
+			$if src.get_type() == 's':
+				$src.fields['acronym'] - $src.getName(self.lang)
+			</option>
 		</select>
 	    </div>
 	</div>
@@ -144,7 +147,7 @@ $elif myID == 'component':
 	    <div class="col-sm-2">
 		<a 
 		$if id != 'new' :
-		    href="/find/t/$(elem.get_type())_$(elem.getID())"
+		    href="/find/al/$(compo.get_type())_$(compo.getID())"
 		$else :
 		    href="/index"
 		class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>

@@ -48,6 +48,8 @@ $for i in elem.transfers:
 		    <a href="/find/related/$(cont.get_type())_$(cont.getID())">$cont.fields['acronym'] - $cont.getName(self.lang)</a>
 		</div>
 		<div class="col-xs-3" >
+		    $if transfer.fields['al_id'] :
+		        <a href="/edit/al_$(transfer.fields['al_id'])">$:c.getAllHalfling(c.AllAlarmLogs)</a>
 		    $transfer.fields['remark']
 		</div>
 		$if ( " upd_t " ) in self.allowed:

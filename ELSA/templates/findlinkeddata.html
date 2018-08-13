@@ -43,6 +43,8 @@ $for d in elem.manualdata:
 		</div>
 		<div class="col-xs-5" >
 	            <strong>$unicode(dd.get_quantity())</strong> $(dd.get_unit(c))
+		    $if dd.fields['al_id'] :
+		        <a href="/edit/al_$(dd.fields['al_id'])">$:c.getAllHalfling(c.AllAlarmLogs)</a>
 		    $if (dd.fields['remark']):
 			<br/>$(dd.fields['remark'])
 		</div>
