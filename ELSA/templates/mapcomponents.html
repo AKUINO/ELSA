@@ -6,6 +6,7 @@ $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : False
 $ done = set()
 $ listUsage = c.AllGrUsage.get_fullmap_str()
+$ listUsage.append('')
 <div class="container">
 $ level = 0
 $for kusage in listUsage:
@@ -15,20 +16,21 @@ $for kusage in listUsage:
 		$ level -= 1
 		</div>
 	$else:
-	    $ elem = c.AllGrUsage.get(kusage)
-	    $if elem and elem.isActive():
+	    $ elem = None if kusage == '' else c.AllGrUsage.get(kusage)
+	    $if not elem or elem.isActive():
 		$if level == 0:
 			<div class="map top">
 		$else:
 			<div class="map down">
-		<a href="/find/related/gu_$kusage">$:(elem.statusIcon(c,True,False))</a>
-		$ acro = elem.fields['acronym']
-		$if ('gu_'+kusage) in done:
-			<a href="#gu_$acro">$acro</a>
-		$else:
-			<a name="gu_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>
-			$for kplace,place in c.AllPlaces.elements.items():
-				$if place.get_group() == kusage :
+		$if elem:
+			<a href="/find/related/gu_$kusage">$:(elem.statusIcon(c,True,False))</a>
+			$ acro = elem.fields['acronym']
+			$if ('gu_'+kusage) in done:
+				<a href="#gu_$acro">$acro</a>
+				$continue
+			<a name="gu_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>			
+		$for kplace,place in c.AllPlaces.elements.items():
+			$if place.get_group() == kusage :
 					<div class="map down" style="border-color:$(place.fields['colorgraph'])">
 					<a href="/find/related/p_$kplace">$:(place.statusIcon(c,True,False))</a>
 					$ acro = place.fields['acronym']
@@ -48,6 +50,7 @@ $for kusage in listUsage:
 								<a href="#s_$acro">$acro</a>
 							$else:
 								<a name="s_$acro"></a>$acro - <strong>$(sensor.getName(self.lang))</strong>
+								<span style="padding:5px;background-color:#$(sensor.colorAlarm);color:#$(sensor.colorTextAlarm)">$(sensor.lastvalue)</span> <a href="/find/related/m_$sensor.fields['m_id']">$(sensor.get_unit(c))</a>
 								<a href="/graphic/s_$ksensor">$:(c.getHalfling('graphic'))</a>
 							        $if alarms > 0:
 								    <a href="/find/al/s_$sensor.getID()">
@@ -56,8 +59,8 @@ $for kusage in listUsage:
 							</div>
 						$ done.add('p_'+kplace)
 					</div>
-			$for kequipment,equipment in c.AllEquipments.elements.items():
-				$if equipment.get_group() == kusage :
+		$for kequipment,equipment in c.AllEquipments.elements.items():
+			$if equipment.get_group() == kusage :
 					<div class="map down" style="border-color:$(equipment.fields['colorgraph'])">
 					<a href="/find/related/p_$kequipment">$:(equipment.statusIcon(c,True,False))</a>
 					$ acro = equipment.fields['acronym']
@@ -80,6 +83,7 @@ $for kusage in listUsage:
 								<a href="#s_$acro">$acro</a>
 							$else:
 								<a name="s_$acro"></a>$acro - <strong>$(sensor.getName(self.lang))</strong>
+								<span style="padding:5px;background-color:#$(sensor.colorAlarm);color:#$(sensor.colorTextAlarm)">$(sensor.lastvalue)</span> <a href="/find/related/m_$sensor.fields['m_id']">$(sensor.get_unit(c))</a>
 								<a href="/graphic/s_$ksensor">$:(c.getHalfling('graphic'))</a>
 							        $if alarms > 0:
 								    <a href="/find/al/s_$sensor.getID()">
@@ -88,8 +92,8 @@ $for kusage in listUsage:
 							</div>
 						$ done.add('e_'+kequipment)
 					</div>
-			$for kcontainer,container in c.AllContainers.elements.items():
-				$if container.get_group() == kusage :
+		$for kcontainer,container in c.AllContainers.elements.items():
+			$if container.get_group() == kusage :
 					<div class="map down" style="border-color:$(container.fields['colorgraph'])">
 					<a href="/find/related/p_$kcontainer">$:(container.statusIcon(c,True,False))</a>
 					$ acro = container.fields['acronym']
@@ -112,6 +116,7 @@ $for kusage in listUsage:
 								<a href="#s_$acro">$acro</a>
 							$else:
 								<a name="s_$acro"></a>$acro - <strong>$(sensor.getName(self.lang))</strong>
+								<span style="padding:5px;background-color:#$(sensor.colorAlarm);color:#$(sensor.colorTextAlarm)">$(sensor.lastvalue)</span> <a href="/find/related/m_$sensor.fields['m_id']">$(sensor.get_unit(c))</a>
 								<a href="/graphic/s_$ksensor">$:(c.getHalfling('graphic'))</a>
 							        $if alarms > 0:
 								    <a href="/find/al/s_$sensor.getID()">
