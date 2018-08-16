@@ -320,6 +320,11 @@ class ConfigurationObject(object):
         self.fields["begin"] = useful.now()
         if anUser != "":
             self.fields["user"] = anUser.fields['u_id']
+
+        if self.creator is None:
+            self.creator = self.fields['user']
+            self.created = self.fields['begin']
+
         allObjects = configuration.findAllFromObject(self)
         with open(allObjects.file_of_objects, "a") as csvfile:
             writer = unicodecsv.DictWriter(csvfile,
@@ -568,10 +573,6 @@ class ConfigurationObject(object):
 
         self.fields['remark'] = data['remark']
 
-        if self.creator is None:
-            self.creator = user.fields['u_id']
-            self.created = self.fields['begin']
-
     def get_events(self,c):
         events = []
         if self.manualdata:
@@ -812,7 +813,10 @@ class ConfigurationObject(object):
             return valueCategs[0].triple()
 
     def get_quantity(self):
-        return 0.0;
+        return float(self.get_quantity_string())
+    
+    def get_quantity_string(self):
+        return "0";
 
     def get_measure(self,c):
 	if 'm_id' in self.fields and self.fields['m_id'] and self.fields['m_id'] in c.AllMeasures.elements:
@@ -827,12 +831,14 @@ class ConfigurationObject(object):
         
     def getQtyUnit(self,c):
         result = u'?'
-        quantity = self.get_quantity()
+        measure = self.get_measure(c)
+        quantity = self.get_quantity_string()
         if quantity:
+            if measure.fields['step'] == '0':
+                quantity = int(quantity)
             result = unicode(quantity)
-        unit = self.get_unit(c)
-	if unit:
-            result += u' '+unit
+        if measure:
+            result += ' '+measure.fields['unit']
         if result == '?':
             return ''
         return result
@@ -1015,6 +1021,7 @@ class AllObjects(object):
                 currObject = self.newObject()
                 currObject.fields = row
                 currObject.id = key
+                currObject.fields['begin'] = useful.date_to_ISO(currObject.fields['begin'])
                 if key in self.elements:
                     tmp = self.elements[key]
                     currObject.created = tmp.created
@@ -1194,7 +1201,7 @@ class AllObjects(object):
                                        key=lambda t: t[1].get_acronym().upper())).keys()
 
     def get_sorted_hierarchy(self):
-        return sorted(self.elements,
+        return sorted(self.elements.keys(),
 #                      key=lambda t: t[1].get_acronym_hierarchy() )
                       key=lambda t: self.elements[t].get_acronym_hierarchy().upper() )
 
@@ -1216,7 +1223,7 @@ class AllUsers(AllObjects):
         AllObjects.__init__(self, 'u', User.__name__, config)
         self.fieldnames = ['begin', 'u_id', 'active', 'acronym', 'remark',
                            'registration', 'phone', 'mail', 'password',
-                           'language', 'gf_id', 'user']
+                           'language', 'gf_id', 'donotdisturb', 'user']
         self.fieldtranslate = ['begin', 'lang', 'u_id', 'name', 'user']
 
     def newObject(self):
@@ -1330,7 +1337,7 @@ class AllAlarmLogs(AllObjects):
                 e = self.elements[kal]
                 if (sid == e.fields['s_id']) and ( (e.fields['s_type'] ==  stype) or (e.fields['s_type']=='' and stype=='s') ) :
                     logs.append(e)
-        return sorted(logs, key=lambda t: t.fields['begintime'])
+        return sorted(logs, key=lambda t: t.fields['begin'], reverse=True)
 
     def get_logs_for_component(self, component, begin, end):
         logs = []
@@ -1348,7 +1355,17 @@ class AllAlarmLogs(AllObjects):
                 e = self.elements[kal]
                 if (sid == e.fields['cont_id']) and ( e.fields['cont_type'] == stype ):
                     logs.append(e)
-        return sorted(logs, key=lambda t: t.fields['begintime'])
+        return sorted(logs, key=lambda t: t.fields['begin'], reverse=True)
+
+    def get_sorted(self):
+        return collections.OrderedDict(sorted(self.elements.items(),
+                                       key=lambda t: t[1].fields['begin'],
+                                       reverse=True )).keys()
+
+    def get_sorted_hierarchy(self):
+        return sorted(self.elements.keys(),
+                      key=lambda t: self.elements[t].fields['begin'],
+                      reverse=True)
 
     def get_class_acronym(self):
         return 'alarmlog'
@@ -2212,8 +2229,6 @@ class User(ConfigurationObject):
         tmp = super(User, self).validate_form(data, configuration, lang)
         if tmp is True:
             tmp = ''
-        if tmp is True:
-            tmp = ''
         if data['password'] and len(data['password']) < 8:
             tmp += configuration.getMessage('passwordrules',lang) + '\n'
 
@@ -2226,10 +2241,16 @@ class User(ConfigurationObject):
         tmp = ['phone', 'mail', 'language']
         for elem in tmp:
             self.fields[elem] = data[elem]
-        self.fields['registration'] = self.created
+        if not self.fields['registration']:
+            self.fields['registration'] = useful.now()
         if data['password']:
             self.fields['password'] = useful.encrypt(
                 data['password'], self.fields['registration'])
+        if 'donotdisturb' in data:
+            self.fields['donotdisturb'] = '1'
+        else:
+            self.fields['donotdisturb'] = '0'
+
         self.fields['gf_id'] = data['group']
         self.save(c, user)
 
@@ -2420,8 +2441,8 @@ class ManualData(AlarmingObject):
     def get_type(self):
         return 'd'
 
-    def get_quantity(self):
-        return self.floats('value')
+    def get_quantity_string(self):
+        return self.fields['value']
 
     def add_component(self, component):
         type = component.split('_')[0]
@@ -2534,8 +2555,8 @@ class Pouring(ConfigurationObject):
     def get_type(self):
         return 'v'
 
-    def get_quantity(self):
-        return self.floats('quantity')
+    def get_quantity_string(self):
+        return self.fields['quantity']
 
     def add_measure(self, measure):
         tmp = measure.split('_')
@@ -3148,8 +3169,8 @@ class GrRecipe(Group):
     def get_class_acronym(self):
         return 'grecipe'
 
-    def get_quantity(self):
-        return self.floats('basicqt')
+    def get_quantity_string(self):
+        return self.fields['basicqt']
 
     def get_total_cost(self):
         return self.floats('fixed_cost')+ (self.floats('cost')*self.floats('basicqt'))
@@ -3368,9 +3389,6 @@ class AlarmLog(ConfigurationObject):
         else:
             self.fields['completedtime']= ""
 
-        if self.creator is None:
-            self.creator = user.fields['u_id']
-            self.created = self.fields['begin']
         self.save(c, user)
 
 class ExportData():
@@ -3569,7 +3587,7 @@ class ExportData():
                         logs = self.config \
                                    .AllAlarmLogs \
                                    .get_logs_for_component(sensorDefinition, begin, end)
-                        for log in logs:
+                        for log in reversed(logs):
                             tmp = self.transform_object_to_export_data(log)
                             self.elements.append(tmp)
 
@@ -3943,7 +3961,7 @@ class Alarm(ConfigurationObject):
                                   elem.fields['acronym'],
                                   alarmedObject.getName(lang),
                                   alarmedObject.fields['acronym'],
-                                  unicode(alarmedObject.lastvalue),
+                                  alarmedObject.getQtyUnit(config),
                                   alarmedObject.actualAlarm,
                                   alarmedObject.time,
                                   unicode(alarmedObject.degreeAlarm))
@@ -3965,8 +3983,7 @@ class Alarm(ConfigurationObject):
                                   name,
                                   elem.getName(lang),
                                   elem.fields['acronym'],
-                                  unicode(alarmedObject.fields['value']),
-                                  unit_measure,
+                                  alarmedObject.getQtyUnit(config),
                                   alarmedObject.fields['remark'],
                                   alarmedObject.fields['time'])
         elif alarmedObject.get_type() == 'v':
@@ -3984,7 +4001,7 @@ class Alarm(ConfigurationObject):
             newFields['begintime'] = alarmedObject.fields['time']
             newFields['cont_type'] = 'b'
             newFields['cont_id'] = elemid
-            newFields['value'] = unicode(alarmedObject.get_quantity())
+            newFields['value'] = alarmedObject.get_quantity_string()
             #TODO: check quantities and automate alarm launch...
             newFields['typealarm'] = 'typical'
             newFields['degree'] = '2'
@@ -3995,8 +4012,7 @@ class Alarm(ConfigurationObject):
                                   elemout.fields['acronym'],
                                   elemin.getName(lang),
                                   elemin.fields['acronym'],
-                                  unicode(alarmedObject.get_quantity()),
-                                  unit_measure,
+                                  alarmedObject.getQtyUnit(config),
                                   alarmedObject.fields['remark'],
                                   alarmedObject.fields['time'])
         if saveit:
@@ -4058,16 +4074,19 @@ class Alarm(ConfigurationObject):
             userlist = config.AllGrFunction.elements[e_mail].get_user_group()
             first = True
             for user in userlist:
-                lang = config.AllUsers.elements[user].fields['language']
-                allog = self.get_alarm_message(alarmedObject, config, lang, first)
-                if first:
-                    alid = allog['al_id']
-                title = self.get_alarm_title(alarmedObject, config, lang)
-                useful.send_email(config.AllUsers
-                                        .elements[user].fields['mail'],
-                                        title,
-                                        allog['remark'])
-                first = False
+                anUser = config.AllUsers.elements[user]
+                if anUser.isActive():
+                    lang = anUser.fields['language']
+                    allog = self.get_alarm_message(alarmedObject, config, lang, first)
+                    if first:
+                        alid = allog['al_id']
+                        first = False
+                    title = self.get_alarm_title(alarmedObject, config, lang)
+                    if anUser.fields['donotdisturb'] != '1':
+                        useful.send_email(config.AllUsers
+                                                .elements[user].fields['mail'],
+                                                title,
+                                                allog['remark'])
         return alid
         
     def launch_alarm(self, alarmedObject, config):
@@ -4255,10 +4274,10 @@ class Sensor(AlarmingObject):
     def get_class_acronym(self):
         return 'sensor'
 
-    def get_quantity(self):
+    def get_quantity_string(self):
         if self.lastvalue is None:
-            return 0.0
-        return self.lastvalue
+            return ""
+        return unicode(self.lastvalue)
 
     def getRRDName(self):
         name = 's_' + self.id
@@ -4802,8 +4821,8 @@ class Batch(ConfigurationObject):
     def get_total_cost(self):
         return self.floats('fixed_cost')+ (self.floats('cost')*self.floats('basicqt'))
 
-    def get_quantity(self):
-        return self.floats('basicqt')
+    def get_quantity_string(self):
+        return self.fields['basicqt']
 
     def get_quantity_used(self):
         qt = 0
@@ -5058,8 +5077,8 @@ class PouringModel(ConfigurationObject):
     def get_group(self):
         return self.fields['h_id']
 
-    def get_quantity(self):
-        return self.floats('quantity')
+    def get_quantity_string(self):
+        return self.fields['quantity']
 
     def get_unit_in_context(self,c, currObject):
         if self.fields['src']:
@@ -5127,8 +5146,8 @@ class ManualDataModel(ConfigurationObject):
     def get_group(self):
         return self.fields['h_id']
 
-    def get_quantity(self):
-        return self.floats('typical')
+    def get_quantity_string(self):
+        return self.fields['typical']
 
     def validate_form(self, data, configuration, lang):
         return super(ManualDataModel, self).validate_form(data, configuration, lang)

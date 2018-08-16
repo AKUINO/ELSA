@@ -10,8 +10,8 @@ $if connected is True:
 	$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
         : $c.getMessage('welcome',self.lang) <em>$c.connectedUsers.users[mail].cuser.getName(self.lang)</em>
 	</h4>
-	$ elements = c.AllBatches.get_sorted()
-	$for a in elements:
+	$ keys = c.AllBatches.get_sorted()
+	$for a in keys:
 	    $ elem = c.AllBatches.get(a)
 	    $if id == 'all' or (elem.isActive() and not elem.isComplete()) :
 		<script>

@@ -1,4 +1,5 @@
 begin	message_id	default	user
+2016-01-01 13:45:56	all	All	1
 2016-01-01 13:45:56	name	Name	1
 2016-01-01 13:45:56	days	days	1
 2016-01-01 13:45:56	disconnect	Disconnect	1
@@ -75,6 +76,7 @@ begin	message_id	default	user
 2016-01-01 13:45:56	gfunction	Group Function	1
 2016-01-01 13:45:56	grecipe	Group Recipe	1
 2016-01-01 13:45:56	active	Active	1
+2016-01-01 13:45:56	donotdisturb	Do not disturb	1
 2016-01-01 13:45:56	acronym	Acronym	1
 2016-01-01 13:45:56	createBackup	Create backup	1
 2016-01-01 13:45:56	downloadBackup	Download backup	1

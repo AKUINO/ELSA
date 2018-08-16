@@ -49,44 +49,44 @@ begin	lang	message_id	name	user
 2016-01-01 13:45:56	FR	alarmlog	Déclenchements d'Alarme	1
 2016-01-01 13:45:56	EN	alarmmanual	"Observation for {0}, {1}
 {2} : ({4}) {3}
-Observation : {5} {6}
-     Remark : {7}
-Time : {8}"	1
+Observation : {5}
+     Remark : {6}
+Time : {7}"	1
 2016-01-01 13:45:56	FR	alarmmanual	"Observation pour {0}, {1}
 {2} : ({4}) {3}
-Observation : {5} {6}
-     Remarque : {7}
-Heure : {8}"	1
+Observation : {5}
+     Remarque : {6}
+Heure : {7}"	1
 2016-01-01 13:45:56		alarmmanualtitle	ManualData : {0} {1} in {2}	1
 2016-01-01 13:45:56		alarmmanualtitle	ManualData : {0} {1} in {2}	1
 2016-01-01 13:45:56	EN	alarmmessage	"Alarm from {0}, {1}
 {2} : ({4}) {3}
-Sensor : ({6}) {5} = {7}
-     Type of Alarm : {8}
+Sensor : ({6}) {5} = {7} {8}
 Time : {9}
 Degree : {10}"	1
 2016-01-01 13:45:56	FR	alarmmessage	"Alarme pour {0}, {1}
 {2} : ({4}) {3}
-Senseur : ({6}) {5} = {7}
-     Type d'Alarme : {8}
+Senseur : ({6}) {5} = {7} {8}
 Heure : {9}
 Degré : {10}"	1
 2016-01-01 13:45:56	EN	alarmpouring	"Alarm from {0}, {1}
 Pouring from Batch : ({3}) {2}
 into Batch : ({5}) {4}
-Quantity : {6} {7}
-Remark : {8}
-Time : {9}"	1
+Quantity : {6}
+Remark : {7}
+Time : {8}"	1
 2016-01-01 13:45:56	FR	alarmpouring	"Alarme pour {0}, {1}
 Versement depuis le Lot : ({3}) {2}
 vers le Lot : ({5}) {4}
-Quantité : {6} {7}
-Remarque : {8}
-Heure : {9}"	1
+Quantité : {6}
+Remarque : {7}
+Heure : {8}"	1
 2016-01-01 13:45:56	EN	alarmpouringtitle	Pouring from {0} {1} to {2} {3}	1
 2016-01-01 13:45:56	FR	alarmpouringtitle	Versement depuis {0} {1} vers {2} {3}	1
 2016-01-01 13:45:56	EN	alarmtitle	{0}  {1}    {2}    {3} {4} {5} {6}    {7}	1
 2016-01-01 13:45:56	FR	alarmtitle	{0}  {1}    {2}    {3} {4} {5} {6}    {7}	1
+2016-01-01 13:45:56	EN	all	All	1
+2016-01-01 13:45:56	FR	all	Tout	1
 2016-01-01 13:45:56	DE	barcode	Strichcode	1
 2016-01-01 13:45:56	EN	barcode	Barcode	1
 2016-01-01 13:45:56	FR	barcode	Code Barre	1
@@ -198,6 +198,8 @@ Heure : {9}"	1
 2016-01-01 13:45:56	FR	disconnect	Déconnexion	1
 2016-01-01 13:45:56	EN	degree	Degree	1
 2016-01-01 13:45:56	FR	degree	Degré	1
+2016-01-01 13:45:56	EN	donotdisturb	Do not disturb	1
+2016-01-01 13:45:56	FR	donotdisturb	Ne pas déranger	1
 2016-01-01 13:45:56	EN	duplicate	Duplicate	1
 2016-01-01 13:45:56	FR	duplicate	Dupliquer	1
 2016-01-01 13:45:56	EN	edit	Edit	1
@@ -368,8 +370,8 @@ Heure : {9}"	1
 2016-01-01 13:45:56	FR	time	Heure	1
 2016-01-01 13:45:56	EN	alarmtime	Alarm Time	1
 2016-01-01 13:45:56	FR	alarmtime	Heure de l'alarme	1
-2016-01-01 13:45:56	EN	completedtime	Batch completed	1
-2016-01-01 13:45:56	FR	completedtime	Lot complété	1
+2016-01-01 13:45:56	EN	completedtime	Completed	1
+2016-01-01 13:45:56	FR	completedtime	Complété	1
 2016-01-01 13:45:56	EN	timerules	The time must be in this format Year-Month-Day Hour:Minute:Second	1
 2016-01-01 13:45:56	FR	timerules	La date/heure doit être au format Année-Mois-Jour Heure:Minute:Secondes	1
 2016-01-01 13:45:56	EN	dateentry	Year-Month-Day Hour:Minute:Second	1

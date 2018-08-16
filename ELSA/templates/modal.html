@@ -87,7 +87,7 @@ $var title: MODAL
                             $c.getMessage('time',self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-				$elem.fields['begintime']
+				$useful.date_to_ISO(elem.fields['begintime'])
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">
@@ -95,7 +95,7 @@ $var title: MODAL
                             $c.getMessage('alarmtime',self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-				$elem.fields['alarmtime']
+				$useful.date_to_ISO(elem.fields['alarmtime'])
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">
@@ -103,7 +103,7 @@ $var title: MODAL
                             $c.getMessage('completedtime',self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-				$elem.fields['completedtime']
+				$useful.date_to_ISO(elem.fields['completedtime'])
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">
@@ -248,6 +248,28 @@ $var title: MODAL
                             </div>
                         </div>
 
+                    $if permissionKey in '_u_':
+                        $if elem.fields['mail'] != '':
+                            <div class="row" style="margin-top:10px;">
+                                <div class="col-xs-4">
+                                $c.getMessage('mail',self.lang) 1:
+                                </div>
+                                <div class="col-xs-8" id="modalinfo" >
+                                <a href="mailto:$(elem.fields['mail'])">$(elem.fields['mail'])</a>
+	                        $if elem.fields['donotdisturb'] == '1':
+					<br><span class="text-danger"><strong>$c.getMessage('donotdisturb',self.lang)</strong></span>
+                                </div>
+                            </div>
+
+                        $if elem.fields['phone'] != '':
+                            <div class="row" style="margin-top:10px;">
+                                <div class="col-xs-4">
+                                $c.getMessage('phone',self.lang)
+                                </div>
+                                <div class="col-xs-8" id="modalinfo" >
+                                $(elem.fields['phone'])
+                                </div>
+                            </div>
                     $if permissionKey in '_m_':
                         <div class="row" style="margin-top:10px;">
                             <div class="col-xs-4">
@@ -516,7 +538,8 @@ $var title: MODAL
                         <div class="col-xs-8" id="modalinfo" >
 			    $ user = c.AllUsers.get(elem.creator)
 			    $if user:
-                                <strong>$user.getName(self.lang) </strong> - <em>$elem.created</em>
+                                <strong>$user.getName(self.lang) </strong>
+			    - <em>$elem.created</em>
                         </div>
                     </div>
                     <div class="row" style="margin-top:3px;">
@@ -527,7 +550,8 @@ $var title: MODAL
                         <div class="col-xs-8" id="modalinfo" >
 			    $ user = c.AllUsers.get(elem.fields['user'])
 			    $if user:
-                                <strong>$user.getName(self.lang) </strong> - <em>$elem.fields['begin']</em>
+                                <strong>$user.getName(self.lang) </strong>
+			    - <em>$elem.fields['begin']</em>
                         </div>
                     </div>
                     $ i=0

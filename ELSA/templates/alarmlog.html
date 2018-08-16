@@ -44,7 +44,7 @@ $elif myID == 'component':
 	    <div class="col-sm-9">
 		<input name="begintime" type="text" class="form-control" id="inputTime" placeholder="$c.getMessage('dateentry',self.lang)" 
 		$if myID == 'update':
-		    value="$alarmlog.fields['begintime']"
+		    value="$useful.date_to_ISO(alarmlog.fields['begintime'])"
 		$else :
 		    value ="$c.get_time()"
 		>
@@ -79,7 +79,7 @@ $elif myID == 'component':
 	    <div class="col-sm-9">
 		<input name="time" type="text" class="form-control" id="alarmTime" placeholder="$c.getMessage('dateentry',self.lang)" 
 		$if myID == 'update':
-		    value="$alarmlog.fields['alarmtime']"
+		    value="$useful.date_to_ISO(alarmlog.fields['alarmtime'])"
 		$else :
 		    value ="$c.get_time()"
 		readlonly>

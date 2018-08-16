@@ -333,15 +333,16 @@ class WebList():
     
     def GET(self, type):
         mail = redirect_when_not_logged()
-        id = ''
+        status = ''
         data = web.input(nifile={})
         if 'status' in data:
-            id = data['status']
+            status = data['status']
+        allRec = type[0] == '*'
+        if allRec:
+            type = type[1:]
 
-        if type == 'al':
-            return render.listalarmlog(mail, type, id)
-        elif type in 'abcpehsmugugrgftmdmvm' and type != 't' and type != 'f':
-            return self.getRender(type, mail, id)
+        if type in 'albcpehsmugugrgftmdmvm' and not type in 'dftv':
+            return self.getRender(mail, ('*' if allRec else '') + type, status)
         else:
             return render.notfound()
 
@@ -357,6 +358,7 @@ class WebList():
                     borne = int(data['quantity'])
                     elem = c.AllBatches.get(data['batch'].split('_')[1])
                     try:
+                        recipe = elem.get_group()
                         acro = elem.fields['acronym']
                         name = int(acro[acro.rfind('_')+1:])
                     except:
@@ -365,13 +367,14 @@ class WebList():
                         if not elem.clone(user, (name + count)):
                             break
                         count += 1
-                return self.getRender(type, mail)
+                    raise web.seeother('/find/related/gr_'+recipe)
+                raise render.notfound()
             except:
                 raise render.notfound()
         raise web.seeother('/')
 
-    def getRender(self, type, mail, id=''):
-        return render.list(mail, type, id)
+    def getRender(self, mail, type, status=''):
+        return render.list(mail, type, status)
 
 # Display of one item
 class WebItem():

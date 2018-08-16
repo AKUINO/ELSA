@@ -82,11 +82,21 @@ $elif type == 'al':
 		   -> $useful.date_to_ISO(elem.fields['completedtime'])
 	    </div>
 	$elif permissionKey in '_p_u_' :
+		<div class="row">
 	        $code :
 		    groups = c.findAll(allElem.get_group_type())
-		$:(c.getAllHalfling(groups))
+		<div class="col-xs-1 vcenter">
+			$:(c.getAllHalfling(groups))
+		</div>
 	        $if elem.get_group() != '' :
+		    <div class="col-xs-2 vcenter">
 		    <a href="/find/related/$(allElem.get_group_type())_$elem.get_group()">$groups.get(elem.get_group()).fields['acronym']</a>
+		    </div>
+	        $if 'donotdisturb'in elem.fields and elem.fields['donotdisturb'] == '1' :
+		    <div class="col-xs-2 vcenter">
+			<span class="icon-combine">$:(c.getAllHalfling(c.AllUsers))<span class="halflings halflings-remove text-danger"></span></span>
+		    </div>
+		</div>
 	$elif permissionKey in '_e_c_':
 		<div class="row">
 		    $code :
