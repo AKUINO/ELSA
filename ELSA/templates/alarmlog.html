@@ -42,7 +42,7 @@ $elif myID == 'component':
 	<div class="form-group row">
 	    <label for="inputTime" class="col-sm-3 col-form-label">$c.getMessage('time',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="time" type="text" class="form-control" id="inputTime" placeholder="$c.getMessage('dateentry',self.lang)" 
+		<input name="begintime" type="text" class="form-control" id="inputTime" placeholder="$c.getMessage('dateentry',self.lang)" 
 		$if myID == 'update':
 		    value="$alarmlog.fields['begintime']"
 		$else :
@@ -54,7 +54,7 @@ $elif myID == 'component':
 	<div class="form-group row">
 	    <label for="Source" class="col-sm-3 col-form-label">$c.getMessage('source',self.lang) </label>
 	    <div class="col-sm-9">
-		<select name = "object" class="form-control" id="Source">
+		<select name = "object" class="form-control" id="Source" readonly>
 		$if src:
 			<option value="$(src.get_type())_$(src.getID())" selected>
 			$if src.get_type() == 's':
@@ -67,7 +67,7 @@ $elif myID == 'component':
 	<div class="form-group row">
 	    <label for="Alarm" class="col-sm-3 col-form-label">$c.getMessage('alarm',self.lang) </label>
 	    <div class="col-sm-9">
-		<select name = "object" class="form-control" id="Alarm">
+		<select name = "object" class="form-control" id="Alarm" readonly>
 		$if alarm:
 			<option value="$(alarm.get_type())_$(alarm.getID())" selected>$alarm.fields['acronym'] - $alarm.getName(self.lang) </option>
 		</select>
@@ -82,14 +82,14 @@ $elif myID == 'component':
 		    value="$alarmlog.fields['alarmtime']"
 		$else :
 		    value ="$c.get_time()"
-		>
+		readlonly>
 	    </div>
 	</div>
 	
 	<div class="form-group row">
 	    <label for="Component" class="col-sm-3 col-form-label">$c.getMessage('component',self.lang) </label>
 	    <div class="col-sm-9">
-		<select name = "object" class="form-control" id="Component">
+		<select name = "object" class="form-control" id="Component" readonly>
 		$if compo:
 			<option value="$(compo.get_type())_$(compo.getID())" selected>$compo.fields['acronym'] - $compo.getName(self.lang) </option>
 		</select>
@@ -141,6 +141,28 @@ $elif myID == 'component':
 	    <span class="glyphicon glyphicon-ok-circle"> </span>
 	</div>
 	
+	<div class="form-group row">
+	    <label for="inputImage" class="col-sm-3 col-form-label">$c.getMessage('file',self.lang)</label>
+	    <label class="control-label col-sm-9">
+	    $if id != 'new':
+		$ ext = alarmlog.isImaged()
+		$if ext:
+			<a href="$alarmlog.getImageURL(ext)" target="_blank">$ext</a>
+	    <input id="inputImage" name="placeImg" multiple type="file" class="file file-loading" data-allowed-file-extensions='["jpg", "jpeg", "png"]'>
+	    </label>
+	</div>
+	<div class="form-group row">
+	    <label for="inputFile" class="col-sm-3 col-form-label">$c.getMessage('document',self.lang)</label>
+	    <label class="control-label col-sm-9">
+            $ i=0
+	    $if id != 'new':
+		    $for filename in alarmlog.getDocumentList():
+		        $ i=i+1
+			($(i)) <a href="$alarmlog.getDocumentURL(filename)" target="_blank">$filename</a><br/>
+	    <input id="inputFile" name="linkedDocs" type="file" multiple class="file file-loading"'>
+            </label>
+	</div>
+
 	<div class="form-group row">
 	    <div class="col-sm-3">
 	    </div>

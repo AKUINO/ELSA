@@ -66,7 +66,7 @@ GROUPWEBUSERS = '_WEB'
 KEY_ADMIN = "admin" #Omnipotent user
 
 
-imagedTypes = [u'u', u'e', u'p', u'g', u'gf', u'gr', u'gu', u'c', u'b', u'h', u's', u'm', u'a']
+imagedTypes = [u'u', u'e', u'p', u'g', u'gf', u'gr', u'gu', u'c', u'b', u'h', u's', u'm', u'a', u'al']
 
 alarm_fields_for_groups = ['o_sms1', 'o_sms2', 'o_email1', 'o_email2', 'o_sound1', 'o_sound2']
 
@@ -3317,70 +3317,61 @@ class AlarmLog(ConfigurationObject):
             return allObjs.get(self.fields['cont_id'])
         return None
 
-##        self.fieldnames = ['begin', 'al_id', 'cont_id', 'cont_type',
-##                           's_id', 's_type', 'value', 'typealarm', 'a_id', 'begintime',
-##                           'alarmtime', 'degree', 'completedtime', 'remark', 'active', 'user']
+    def validate_form(self, data, configuration, lang):
+        tmp = ''
+        try:
+            value = useful.date_to_ISO(data['begintime'])
+        except:
+            traceback.print_exc()
+            tmp += configuration.getMessage('timerules',lang) + '\n'
+        if tmp == '':
+            return True
+        return tmp
 
-##    def validate_form(self, data, configuration, lang):
-##        tmp = ''
-##        try:
-##            value = useful.date_to_ISO(data['begintime'])
-##        except:
-##            traceback.print_exc()
-##            tmp += configuration.getMessage('timerules',lang) + '\n'
-##
-##        try:
-##            aType = data['component'].split('_')[0]
-##            anId = data['component'].split('_')[1]
-##            if not configuration.is_component(aType):
-##                tmp += configuration.getMessage('componentrules',lang) + ' '+data['component']+'\n'
-##        except:
-##            tmp += configuration.getMessage('componentrules',lang) + '\n'
-##
-##        if tmp == '':
-##            return True
-##        return tmp
-##
-##    def set_value_from_data(self, data, c, user):
-##        #SUPER is NOT called, beware!
-##        if self.fields['object_type'] != '' \
-##                and self.fields['object_id'] != '':
-##            c.get_object(self.fields['object_type'],self.fields['object_id']) \
-##             .remove_data(self)
-##        tmp = ['time', 'value', 'remark']
-##        for elem in tmp:
-##            self.fields[elem] = data[elem]
-##        self.add_component(data['component'])
-##        self.add_measure(data['measure'])
-##        if 'h_id' in data:
-##            self.fields['h_id'] = data['h_id']
-##        else:
-##            self.fields['h_id'] = ''
-##        if 'active' in data:
-##            self.fields['active'] = '1'
-##        else:
-##            self.fields['active'] = '0'
-##        alarmCode = ""
-##        if ('origin' in data) and data['origin']:
-##            self.fields['dm_id'] = data['origin']
-##            model = c.AllManualDataModels.elements[data['origin']]
-##            typeAlarm, symbAlarm, self.colorAlarm,self.colorTextAlarm = self.getTypeAlarm(data['value'],model)
-##            self.actualAlarm = typeAlarm
-##            alarmCode = self.get_alarm(model);
-##        if ('a_id' in data) and data['a_id']:
-##            #TODO: Manual Alarm, not so "typical"
-##            if not self.actualAlarm:
-##                self.actualAlarm = "typical"
-##            alarmCode = data['a_id']
-##        if alarmCode and alarmCode in c.AllAlarms.elements:
-##            self.fields['al_id'] = c.AllAlarms.elements[alarmCode].launch_alarm(self, c)
-##        if self.isActive():
-##            c.get_object(self.fields['object_type'],self.fields['object_id']) \
-##             .add_data(self)
-##        else:
-##            c.get_object(self.fields['object_type'],self.fields['object_id']) \
-##             .remove_data(self)
-##        self.save(c, user)
+## READ ONLY:
+##        'begin', 'al_id', 'cont_id', 'cont_type',
+##        's_id', 's_type', 'value', 'typealarm', 'a_id', 
+##        'alarmtime', 'degree'
+## May be edited:
+##    'begintime','completedtime', 'remark', 'active' and 'user' is set automatcally
+
+    def set_value_from_data(self, data, c, user):
+        if 'active'in data:
+            self.set_active('1')
+        else:
+            self.set_active('0')
+
+        if 'placeImg' in data and data['placeImg'] != {}:
+            if data.placeImg.filename != '':
+                filepath = data.placeImg.filename.replace('\\', '/')
+                ext = ((filepath.split('/')[-1]).split('.')[-1])
+                if ext and ext.lower() in [u'jpg',u'jpeg',u'png']:
+                    with open(self.getImagePath(True,ext=("png" if ext.lower() == u"png" else u"jpg")), 'w') as fout:
+                        fout.write(data.placeImg.file.read())
+        # linkedDocs is treated by caller because "web" object is needed...
+                        
+        tmp = ['begintime', 'remark']
+        for elem in tmp:
+            self.fields[elem] = data[elem]
+
+        completed = None
+        if 'completedtime' in data and data['completedtime']:
+            try:
+                completed= useful.date_to_ISO(data['completedtime'])
+            except:
+                completed= useful.now()
+        if 'iscompleted' in data and data['iscompleted']:
+            if completed:
+                self.fields['completedtime']= completed
+            else:
+                self.fields['completedtime']= useful.now()
+        else:
+            self.fields['completedtime']= ""
+
+        if self.creator is None:
+            self.creator = user.fields['u_id']
+            self.created = self.fields['begin']
+        self.save(c, user)
 
 class ExportData():
     def __init__(self, config, elem, cond, user):
