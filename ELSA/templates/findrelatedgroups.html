@@ -284,6 +284,17 @@ $elif type == 'gr':
 	    <button type="button" class="btn btn-warning btn-md map$(type)_$id" data-toggle="modal" data-target="#mapmodal">$:(c.getHalfling('schema'))</button>
 	</div>
     </div> 
+    <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
+	<label class="col-sm-12">$c.getMessage('pouringmodel',self.lang) :</label>    
+	$for k,cp in c.AllPouringModels.elements.items():
+	    $if (cp.fields['src'] == id) or (cp.fields['dest'] == id):
+		<script>
+		    $$(function(){
+			$$("#includedMenuvm_$(k)").load("/fullentry/vm_$(k)");
+		    });
+		</script>
+		<div id="includedMenuvm_$(k)"></div>
+    </div>
 
 $if barcode > '':
 	<div class="row">
