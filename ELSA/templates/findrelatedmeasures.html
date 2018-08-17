@@ -52,8 +52,10 @@ $var title : $elem.getName(self.lang)
     <label class="col-sm-3">$c.getMessage('remark',self.lang)</label>
 </div>
 <div class="row active" style ="background-color:#E5E5E7;margin-top:0px;margin-bottom:10px;padding:15px;">
-    $for k,data in c.AllManualData.elements.items():
-	$if data.fields['m_id'] == id :
+    $ j=30
+    $for k in c.AllManualData.get_sorted_hierarchy():
+	$ data = c.AllManualData.elements[k]
+	$if data and data.fields['m_id'] == id :
 	    <div class="row active" style="color:#f07e26;">
 		<div class="col-xs-3" >
 		    $data.fields['time']
@@ -73,6 +75,9 @@ $var title : $elem.getName(self.lang)
 		    <strong><a href="/edit/d_$k" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
 		  </div>
 	    </div>
+	    $ j -= 1
+            $if j <= 0:
+		$break
 </div>
 $if barcode > '':
 	<div class="row">

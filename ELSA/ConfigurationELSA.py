@@ -1433,6 +1433,15 @@ class AllManualData(AllObjects):
     def get_class_acronym(self):
         return 'manualdata'
 
+    def get_sorted(self):
+        return collections.OrderedDict(sorted(self.elements.items(),
+                                       key=lambda t: t[1].fields['time'],
+                                       reverse=True )).keys()
+
+    def get_sorted_hierarchy(self):
+        return sorted(self.elements.keys(),
+                      key=lambda t: self.elements[t].fields['time'],
+                      reverse=True)
 
 class AllPourings(AllObjects):
 
@@ -1449,6 +1458,16 @@ class AllPourings(AllObjects):
 
     def get_class_acronym(self):
         return 'pouring'
+
+    def get_sorted(self):
+        return collections.OrderedDict(sorted(self.elements.items(),
+                                       key=lambda t: t[1].fields['time'],
+                                       reverse=True )).keys()
+
+    def get_sorted_hierarchy(self):
+        return sorted(self.elements.keys(),
+                      key=lambda t: self.elements[t].fields['time'],
+                      reverse=True)
 
 
 class AllGroups(AllObjects):
@@ -1901,6 +1920,17 @@ class AllTransfers(AllObjects):
 
     def get_class_acronym(self):
         return 'transfer'
+
+    def get_sorted(self):
+        return collections.OrderedDict(sorted(self.elements.items(),
+                                       key=lambda t: t[1].fields['time'],
+                                       reverse=True )).keys()
+
+    def get_sorted_hierarchy(self):
+        return sorted(self.elements.keys(),
+                      key=lambda t: self.elements[t].fields['time'],
+                      reverse=True)
+
 
 
 class AllTransferModels(AllObjects):
@@ -2541,6 +2571,9 @@ class ManualData(AlarmingObject):
         else:
             return None
 
+    def get_model(self,config):
+        return config.AllManualDataModels.get(self.fields['dm_id'])
+
 #TODO: AlarmingObject and check on Quantity ?
 class Pouring(ConfigurationObject):
     def __init__(self):
@@ -2670,6 +2703,8 @@ class Pouring(ConfigurationObject):
             return allObjs.elements[self.fields['dest']]
         return None
 
+    def get_model(self,config):
+        return config.AllPouringModels.get(self.fields['vm_id'])
 
 class Group(ConfigurationObject):
     def __init__(self, config):
@@ -5309,6 +5344,10 @@ class Transfer(ConfigurationObject):
     # WHERE it is moved
     def get_component(self,config):
         return config.get_object(self.fields['cont_type'],self.fields['cont_id'])
+
+
+    def get_model(self,config):
+        return config.AllTransferModels.get(self.fields['tm_id'])
 
     def get_class_acronym(self):
         return 'transfer'

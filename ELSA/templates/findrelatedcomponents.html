@@ -2,7 +2,10 @@ $def with (type,id,mail,barcode='')
 $code:
     allobjects = c.findAll(type)
     elem = allobjects.get(id)
-    keyID = c.findAllFromObject(elem).keyColumn    
+    keyID = c.findAllFromObject(elem).keyColumn
+    subtype = elem.isModeling()
+    allModeled = c.findAll(subtype) if subtype else None
+	
 $var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : False
@@ -32,7 +35,7 @@ $if t is not None :
 		<div id="includedT$(key)"></div>
 	    </div>
 $ toCheck =[[type,id]]
-$if type in 'p' :
+$if type == 'p' :
     <div class="row active" style ="margin-top:10px;margin-bottom:10px;background-color:#E5E5E7;padding:15px;" >
 	<label class="col-sm-12">$c.getMessage('equipment',self.lang) :</label>
 	$for k,equipment in c.AllEquipments.elements.items():
@@ -108,7 +111,7 @@ $if type in 'amh':
                 <div id="includedDM_$(k)"></div>
     </div>
 
-$if type in 'sdm':
+$if (' '+type+' ') in ' s dm ':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('alarm',self.lang) :</label>    
 
@@ -137,8 +140,8 @@ $if type in 'pec':
 			</script>
 			<div id="includedB_$(k)"></div>
 	</div>
-$if (type+' ') in 'dm tm vm ':
-	<div class="row active"style = "background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+$if subtype:
+	<div class="row active" style = "background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	    <label class="col-sm-12">$c.getMessage('checkpoint',self.lang) :</label>
 	    $for k,checkpoint in c.AllCheckPoints.elements.items():
 	        $for t, i in toCheck:
@@ -150,6 +153,25 @@ $if (type+' ') in 'dm tm vm ':
 			</script>
 			<div id="includedCK_$(k)"></div>
 	</div>
+
+    <div class="row active" style ="background-color:#E5E5E7;margin-top:0px;margin-bottom:10px;padding:15px;">
+    $ biglist = allModeled.get_sorted_hierarchy()
+    <label class="col-sm-12">$c.getMessage(allModeled.get_class_acronym(),self.lang) :</label>
+    $ j=30
+    $for k in biglist:
+	$ data = allModeled.elements[k]
+	$if data and data.isActive() and data.fields[keyID] == id :
+            <script>
+	        $$(function(){
+	            $$("#included$(subtype)_$(k)").load("/fullentry/$(subtype)_$(k)");
+	        });
+	    </script>
+	    <div id="included$(subtype)_$(k)"></div>
+	    $ j -= 1
+            $if j <= 0:
+		<div class="row active">... <strong>$len(biglist)</strong> $c.getMessage(allModeled.get_class_acronym(),self.lang)</div>
+		$break
+    </div>
 
 $if type in 'b':
 	$code:

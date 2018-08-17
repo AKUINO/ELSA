@@ -7,6 +7,8 @@ $code :
     elem = allElem.get(id)
     keyID = allElem.keyColumn
     permissionKey = '_'+type +'_'
+    Atext_color = "000"
+    Acolor = "DDD"
 $var title : $(elem.getName(self.lang))
 
 <div class="row active" style="color:#f07e26;background-color:$("#D5D5D7" if current else "#E5E5E7" );margin-top:6px;margin-bottom:6px;padding:5px;
@@ -23,8 +25,13 @@ $elif type == 'al':
     $if elem.fields['typealarm'] :
 	$ Aname, Aacronym, Acolor, Atext_color = c.triple(elem.fields['typealarm'])
 	border-left-style: solid;border-width: 6px;border-color:#$(Acolor);
+$elif permissionKey in '_d_t_v_':
+    $ model = elem.get_model(c)
+    $if model and 'maxmax'in model.fields:
+	$ Aname, Aacronym, Acolor, Atext_color = elem.getTypeAlarm(elem.get_quantity(),model)
+	border-left-style: solid;border-width: 6px;border-color:#$(Acolor);
 ">
-	 <div class="col-xs-2 vcenter">
+	<div class="col-xs-2 vcenter">
             $if permissionKey in '_h_gr_gu_gf_':
                 $ parents = elem.get_all_parents([],None)
                 $for p in reversed(parents):
@@ -34,9 +41,9 @@ $elif type == 'al':
             </button>
 	    $if elem.isAlarmed(c):
 		<a href="/find/al/$(type)_$(id)">$:c.getAllHalfling(c.AllAlarmLogs)</a>
-	 </div>
+	</div>
+	<div class="col-xs-3 vcenter">
 	$if 'acronym' in elem.fields:
-	  <div class="col-xs-3 vcenter">
 	    <div class="row">
 		<a href="/find/related/$(type)_$(id)">
 		$elem.fields['acronym'] 
@@ -46,13 +53,13 @@ $elif type == 'al':
 		<a href="/find/related/$(type)_$(id)">
 		<strong>$elem.getName(self.lang)</strong>
 		</a>
-	   </div>
-	  </div>
-	$elif type == 'al':
-	  <div class="col-xs-3 vcenter">
+	    </div>
+	$elif type=='al':
 	    <div class="row">
-		$ source = elem.get_source(c)
+	    $ source = elem.get_source(c)
+	    $if source:
 		$if source.get_type() in 'dtv':
+		    $if ( " upd_"+source.get_type()+" " ) in self.allowed:
 			<a href="/edit/$(source.get_type())_$(source.getID())">
 		$else:
 			<a href="/find/related/$(source.get_type())_$(source.getID())">
@@ -63,10 +70,24 @@ $elif type == 'al':
 	    </div>
 	    <div class="row">
 		$useful.date_to_ISO(elem.fields['begintime'])
-	   </div>
-	  </div>
+	    </div>
+	$else:
+	    $code:
+		if permissionKey in '_v_t_':
+		    about = elem.get_source(c)
+		else:
+		    about = elem.get_component(c)
+	    <div class="row">
+	    $if about:
+		<a href="/find/related/$(about.get_type())_$(about.getID())">
+		$:(c.getHalfling(about.get_class_acronym()))
+		$about.fields['acronym']
+		</a><span style="padding:5px;background-color:#$(Acolor);color:#$(Atext_color)">$elem.getQtyUnit(c)</span>
+	    </div>
+	    <div class="row">$useful.date_to_ISO(elem.fields['time'])</div>
+	</div>
 	<div class="col-xs-5 vcenter">
-	$if type == 'al':
+	$if permissionKey in '_al_':
 	    $ compo = elem.get_component(c)
 	    <div class="row">
 	    $if compo:
@@ -80,6 +101,24 @@ $elif type == 'al':
 		<strong>#$(elem.fields['degree'])</strong>:$useful.date_to_ISO(elem.fields['alarmtime'])
 		$if elem.isComplete():
 		   -> $useful.date_to_ISO(elem.fields['completedtime'])
+	    </div>
+	$elif permissionKey in '_d_t_v_':
+	    $ compo = elem.get_component(c)
+	    $if type != 'd':
+	        <div class="row">
+		    $if compo:
+			<a href="/find/related/$(compo.get_type())_$(compo.getID())">$:(c.getHalfling(compo.get_class_acronym()))$compo.fields['acronym']</a>
+		    	&nbsp;
+		    $if 'a_id' in elem.fields:
+			$alarm = c.AllAlarms.get(elem.fields['a_id'])
+		        $if alarm:
+			    <a href="/find/related/a_$(alarm.getID())">$:(c.getAllHalfling(c.AllAlarms))$alarm.fields['acronym']</a>
+		</div>
+	    <div class="row">
+	    $if elem.fields['h_id'] != '' :
+		<a href="/find/related/h_$(elem.fields['h_id'])">$:c.getAllHalfling(c.AllCheckPoints) $c.AllCheckPoints.get(elem.fields['h_id']).fields['acronym']</a>
+	    $if model:
+		<a href="/find/related/$(model.get_type())_$(model.getID())" style="color:#28A4C9">- $(model.fields['acronym'])</a>
 	    </div>
 	$elif permissionKey in '_p_u_' :
 		<div class="row">
