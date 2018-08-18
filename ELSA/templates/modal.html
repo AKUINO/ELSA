@@ -198,8 +198,7 @@ $var title: MODAL
 			    </div>
                             <div class="col-xs-8" id="modalinfo" >
 			    $code:
-				tmp = elem.get_last_transfer()
-				pos = c.AllTransfers.get(tmp)
+				pos = elem.get_last_transfer(c)
 				if pos:
 					pos = pos.get_component(c)
 			    $if pos:
@@ -207,13 +206,13 @@ $var title: MODAL
                             </div>
 			</div>	
 
-		    $if permissionKey in '_s_dm_':
+		    $if permissionKey in '_s_dm_tm_vm_':
                         <div class="row" style="margin-top:10px;">
                             <div class="col-xs-4">
                             $c.getMessage('minmin',self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-                            $elem.fields['minmin']
+                            $elem.fields['minmin'] : $:c.linkedAcronym(c.AllAlarms,elem.fields['a_minmin'],False)
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">
@@ -221,7 +220,7 @@ $var title: MODAL
                             $c.getMessage('min',self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-                            $elem.fields['min']
+                            $elem.fields['min'] : $:c.linkedAcronym(c.AllAlarms,elem.fields['a_min'],False)
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">
@@ -229,7 +228,7 @@ $var title: MODAL
                             $c.getMessage('typical',self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-                            $elem.fields['typical']
+                            $elem.fields['typical'] : $:c.linkedAcronym(c.AllAlarms,elem.fields['a_typical'],False)
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">
@@ -237,7 +236,7 @@ $var title: MODAL
                             $c.getMessage('max',self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-                            $elem.fields['max']
+                            $elem.fields['max'] : $:c.linkedAcronym(c.AllAlarms,elem.fields['a_max'],False)
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">
@@ -245,7 +244,15 @@ $var title: MODAL
                             $c.getMessage('maxmax',self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-                            $elem.fields['maxmax']
+                            $elem.fields['maxmax'] : $:c.linkedAcronym(c.AllAlarms,elem.fields['a_maxmax'],False)
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
+                            $c.getMessage('none',self.lang) :
+                            </div>
+                            <div class="col-xs-8" id="modalinfo" >
+                             : $:c.linkedAcronym(c.AllAlarms,elem.fields['a_none'],False)
                             </div>
                         </div>
 

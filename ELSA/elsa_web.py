@@ -573,7 +573,7 @@ class WebFind():
                     return render.findrelatedmeasures(id2, mail, barcode)
                 elif ('g' in id1 or id1 == 'h'):
                     return render.findrelatedgroups(id1, id2, mail, barcode)
-                elif (id1 == 'al'):
+                elif id1 == 'al':
                     return render.findrelatedlogs(id1, id2, mail, barcode)
                 else:
                     return render.findrelatedcomponents(id1, id2, mail, barcode)

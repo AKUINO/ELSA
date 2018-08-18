@@ -92,10 +92,8 @@ $elif permissionKey in '_d_t_v_':
 	    <div class="row">
 	    $if compo:
 		<a href="/find/related/$(compo.get_type())_$(compo.getID())">$:(c.getHalfling(compo.get_class_acronym()))$compo.fields['acronym']</a>
-	    &nbsp;
-	    $ alarm = c.AllAlarms.get(elem.fields['a_id'])
-	    $if alarm:
-		<a href="/find/related/a_$(alarm.getID())">$:(c.getAllHalfling(c.AllAlarms))$alarm.fields['acronym']</a>
+	        &nbsp;
+	    $:c.linkedAcronym(c.AllAlarms,elem.fields['a_id'],True)
 	    </div>
 	    <div class="row">
 		<strong>#$(elem.fields['degree'])</strong>:$useful.date_to_ISO(elem.fields['alarmtime'])
@@ -110,83 +108,56 @@ $elif permissionKey in '_d_t_v_':
 			<a href="/find/related/$(compo.get_type())_$(compo.getID())">$:(c.getHalfling(compo.get_class_acronym()))$compo.fields['acronym']</a>
 		    	&nbsp;
 		    $if 'a_id' in elem.fields:
-			$alarm = c.AllAlarms.get(elem.fields['a_id'])
-		        $if alarm:
-			    <a href="/find/related/a_$(alarm.getID())">$:(c.getAllHalfling(c.AllAlarms))$alarm.fields['acronym']</a>
+		        $:c.linkedAcronym(c.AllAlarms,elem.fields['a_id'],True)
 		</div>
 	    <div class="row">
-	    $if elem.fields['h_id'] != '' :
-		<a href="/find/related/h_$(elem.fields['h_id'])">$:c.getAllHalfling(c.AllCheckPoints) $c.AllCheckPoints.get(elem.fields['h_id']).fields['acronym']</a>
+	    $:c.linkedAcronym(c.AllCheckPoints,elem.fields['h_id'],True)
 	    $if model:
 		<a href="/find/related/$(model.get_type())_$(model.getID())" style="color:#28A4C9">- $(model.fields['acronym'])</a>
 	    </div>
 	$elif permissionKey in '_p_u_' :
 		<div class="row">
-	        $code :
-		    groups = c.findAll(allElem.get_group_type())
-		<div class="col-xs-1 vcenter">
-			$:(c.getAllHalfling(groups))
+	        $ groups = c.findAll(allElem.get_group_type())
+		<div class="col-xs-5 vcenter">
+		    $:c.linkedAcronym(groups,elem.get_group(),True)
 		</div>
-	        $if elem.get_group() != '' :
-		    <div class="col-xs-2 vcenter">
-		    <a href="/find/related/$(allElem.get_group_type())_$elem.get_group()">$groups.get(elem.get_group()).fields['acronym']</a>
-		    </div>
 	        $if 'donotdisturb'in elem.fields and elem.fields['donotdisturb'] == '1' :
-		    <div class="col-xs-2 vcenter">
+		    <div class="col-xs-1 vcenter">
 			<span class="icon-combine">$:(c.getAllHalfling(c.AllUsers))<span class="halflings halflings-remove text-danger"></span></span>
 		    </div>
 		</div>
 	$elif permissionKey in '_e_c_':
 		<div class="row">
-		    $code :
-			groups = c.findAll(allElem.get_group_type())
-		    <div class="col-xs-1 vcenter">
-			$:(c.getAllHalfling(groups))
+		    $ groups = c.findAll(allElem.get_group_type())
+		    <div class="col-xs-5 vcenter">
+		    $:c.linkedAcronym(groups,elem.get_group(),True)
 		    </div>
-		    $if elem.get_group() != '' :
-			<div class="col-xs-2 vcenter">
-			       <a href="/find/related/$(allElem.get_group_type())_$elem.get_group()">$groups.get(elem.get_group()).fields['acronym']</a>
-			</div>
-		    $else :
-			<div class="col-xs-2 vcenter">
-			    -
-			</div>
 		</div>
 		<div class="row">
 		    $code:
-			tmp = elem.get_last_transfer()
+			pos = None
+			tmp = elem.get_last_transfer(c)
 			if tmp is not None :
-			    pos = c.AllTransfers.get(tmp).get_component(c)
-			else :
-			    pos = None
+			    pos = tmp.get_component(c)
 		    $if pos is not None :
 			<div class="col-xs-1 vcenter">
 			    $:(c.getAllHalfling(c.AllTransfers))
 			</div>
-			<div class="col-xs-10 vcenter">
-			    <a href="/find/related/$(pos.get_type())_$pos.getID()">$pos.fields['acronym']</a>
+			<div class="col-xs-9 vcenter">
+			    <a href="/find/related/$(pos.get_type())_$pos.getID()">$:pos.statusIcon(c,False,False)$pos.fields['acronym']</a>
 			</div>
 		    $else:
 			<div class="col-xs-1 vcenter">
 			    -
 			</div>
-			<div class="col-xs-10 vcenter"> -</div>
+			<div class="col-xs-9 vcenter"> -</div>
 		</div>
 	$elif type == 'b':
-	        $code :
-		    groups = c.findAll(allElem.get_group_type())
+	        $ groups = c.findAll(allElem.get_group_type())
 		<div class="row">
-		    <div class="col-xs-1 vcenter">
-			$:(c.getAllHalfling(groups))
+		    <div class="col-xs-5 vcenter">
+		    $:c.linkedAcronym(groups,elem.get_group(),True)
 		    </div>
-		    $if elem.get_group() != '' :
-			<div class="col-xs-4 vcenter">
-			    <a href="/find/related/$(allElem.get_group_type())_$elem.get_group()">$groups.get(elem.get_group()).fields['acronym']</a>
-			</div>
-		    $else :
-			<div class="col-xs-4 vcenter">
-			    -
-			</div>
 		    <div class="col-xs-1 vcenter">
 			$:(c.getHalfling('scale'))
 		    </div>
@@ -196,21 +167,20 @@ $elif permissionKey in '_d_t_v_':
 			$ cost = elem.get_total_cost()
 			$if cost != 0.0:
 			    <br/>$cost&nbsp;$c.currency
-
 		    </div>
 		</div>
 		<div class="row">
 		    $code:
 			pos = None
-			tmp = elem.get_last_transfer()
+			tmp = elem.get_last_transfer(c)
 			if tmp is not None :
-			    pos = c.AllTransfers.get(tmp).get_component(c)
+			    pos = tmp.get_component(c)
 		    $if pos is not None :
 			<div class="col-xs-1 vcenter">
 			    $:(c.getAllHalfling(c.AllTransfers))
 			</div>
 			<div class="col-xs-9 vcenter">
-			    <a href="/find/related/$(pos.get_type())_$pos.getID()">$pos.fields['acronym']</a>
+			    <a href="/find/related/$(pos.get_type())_$pos.getID()">$:pos.statusIcon(c,False,False)$pos.fields['acronym']</a>
 			</div>
 		    $else:
 			<div class="col-xs-1 vcenter">
@@ -219,20 +189,11 @@ $elif permissionKey in '_d_t_v_':
 			<div class="col-xs-9 vcenter"> -</div>
 		</div>
 	$elif permissionKey in '_dm_':
-	        $code :
-		    groups = c.findAll(allElem.get_group_type())
+	        $ groups = c.findAll(allElem.get_group_type())
 		<div class="row">
-		    <div class="col-xs-1 vcenter">
-			$:(c.getAllHalfling(groups))
+		    <div class="col-xs-5 vcenter">
+			$:c.linkedAcronym(groups,elem.get_group(),True)
 		    </div>
-		    $if elem.get_group() != '' :
-			<div class="col-xs-4 vcenter">
-			       <a href="/find/related/$(allElem.get_group_type())_$elem.get_group()">$groups.get(elem.get_group()).fields['acronym']</a>
-			</div>
-		    $else :
-			<div class="col-xs-4 vcenter">
-			    -
-			</div>
 		    <div class="col-xs-1 vcenter">
 			$:(c.getHalfling('rank'))
 		    </div>
@@ -245,46 +206,27 @@ $elif permissionKey in '_d_t_v_':
 		</div>
 		$code:
 		    check_id = elem.get_group()
-		    checkPoint = c.AllCheckPoints.get(check_id)
+		    checkPoint = groups.get(check_id)
 		$if checkPoint:
 			<div class="row">
-			    <div class="col-xs-1 vcenter">
-				$:(c.getAllHalfling(c.AllGrRecipe))
+			    <div class="col-xs-5 vcenter">
+		    		$:c.linkedAcronym(c.AllGrRecipe,checkPoint.fields['gr_id'],True)
 			    </div>
-		            <div class="col-xs-4 vcenter">
-			    $if checkPoint.fields['gr_id'] :
-				 <a href="/find/related/gr_$checkPoint.fields['gr_id']">$(c.AllGrRecipe.get(checkPoint.fields['gr_id']).fields['acronym'])</a>
-	                    </div>
-			    <div class="col-xs-1 vcenter">
-				$:(c.getAllHalfling(c.AllGrUsage))
+			    <div class="col-xs-5 vcenter">
+		    		$:c.linkedAcronym(c.AllGrUsage,checkPoint.fields['gu_id'],True)
 			    </div>
-			    $if checkPoint.fields['gu_id'] :
-		                <div class="col-xs-4 vcenter">
-				    <a href="/find/related/gu_$checkPoint.fields['gu_id']">$(c.AllGrUsage.get(checkPoint.fields['gu_id']).fields['acronym'])</a>
-			        </div>
 			</div>
 	$elif permissionKey in '_vm_':
 	        $code :
 		    groups = c.findAll(allElem.get_group_type())
 		    check_id = elem.get_group()
 		    checkPoint = None
-		    checkRecipe = None
 		    if check_id:
 			checkPoint = c.AllCheckPoints.get(check_id)
-			if checkPoint and checkPoint.fields['gr_id']:
-			    checkRecipe = c.AllGrRecipe.get(checkPoint.fields['gr_id'])
 		<div class="row">
-		    <div class="col-xs-1 vcenter">
-			$:(c.getAllHalfling(groups))
+		    <div class="col-xs-5 vcenter">
+			$:c.linkedAcronym(groups,check_id,True)
 		    </div>
-		    $if check_id != '' :
-			<div class="col-xs-4 vcenter">
-			       <a href="/find/related/$(allElem.get_group_type())_$check_id">$checkPoint.fields['acronym']</a>
-			</div>
-		    $else :
-			<div class="col-xs-4 vcenter">
-			    -
-			</div>
 		    <div class="col-xs-1 vcenter">
 			$:(c.getHalfling('rank'))
 		    </div>
@@ -296,13 +238,9 @@ $elif permissionKey in '_d_t_v_':
 		    </div>
 		</div>
 		<div class="row">
-		    <div class="col-xs-1 vcenter">
-			$:(c.getAllHalfling(c.AllGrRecipe))
+		    <div class="col-xs-5 vcenter">
+			$:c.linkedAcronym(c.AllGrRecipe,checkPoint.fields['gr_id'] if checkPoint else None,True)
 		    </div>
-	            <div class="col-xs-4 vcenter">
-		    $if checkPoint.fields['gr_id'] :
-			 <a href="/find/related/gr_$(checkRecipe.getID())">$(checkRecipe.fields['acronym'])</a>
-                    </div>
 		    <div class="col-xs-1 vcenter">
 		    $if elem.fields['in']=='1':
                          $:c.getHalfling('from')
@@ -313,7 +251,7 @@ $elif permissionKey in '_d_t_v_':
 		    </div>
 	            <div class="col-xs-4 vcenter">
 		    $if recipe :
-                         <a href="/find/related/gr_$(recipe)">$(c.AllGrRecipe.get(recipe).fields['acronym'])</a>
+			$:c.linkedAcronym(c.AllGrRecipe,recipe,True)
                     </div>
 		</div>
 	$elif permissionKey in '_tm_':
@@ -321,23 +259,12 @@ $elif permissionKey in '_d_t_v_':
 		    groups = c.findAll(allElem.get_group_type())
 		    check_id = elem.get_group()
 		    checkPoint = None
-		    checkUsage = None
 		    if check_id:
-			checkPoint = c.AllCheckPoints.get(check_id)
-			if checkPoint and checkPoint.fields['gu_id']:
-			    checkUsage = c.AllGrUsage.get(checkPoint.fields['gu_id'])
+			checkPoint = groups.get(check_id)
 		<div class="row">
-		    <div class="col-xs-1 vcenter">
-			$:(c.getAllHalfling(groups))
+		    <div class="col-xs-5 vcenter">
+			$:c.linkedAcronym(groups,check_id,True)
 		    </div>
-		    $if check_id != '' :
-			<div class="col-xs-4 vcenter">
-			       <a href="/find/related/$(allElem.get_group_type())_$check_id">$checkPoint.fields['acronym']</a>
-			</div>
-		    $else :
-			<div class="col-xs-4 vcenter">
-			    -
-			</div>
 		    <div class="col-xs-1 vcenter">
 			$:(c.getHalfling('rank'))
 		    </div>
@@ -349,38 +276,24 @@ $elif permissionKey in '_d_t_v_':
 		    </div>
 		</div>
 		<div class="row">
-		    <div class="col-xs-1 vcenter">
-			$:(c.getAllHalfling(c.AllGrUsage))
+		    <div class="col-xs-5 vcenter">
+			$:c.linkedAcronym(c.AllGrUsage,checkPoint.fields['gu_id'] if checkPoint else None,True)
 		    </div>
-	            <div class="col-xs-4 vcenter">
-		    $if checkPoint.fields['gu_id'] :
-			 <a href="/find/related/gu_$(checkUsage.getID())">$(checkUsage.fields['acronym'])</a>
-                    </div>
 		    <div class="col-xs-1 vcenter">
                          $:c.getHalfling('to')
 		    </div>
 	            <div class="col-xs-4 vcenter">
-	            $ usage = elem.fields['gu_id']
-		    $if usage :
-                         <a href="/find/related/gu_$(usage)">$(c.AllGrUsage.get(usage).fields['acronym'])</a>
+			$:c.linkedAcronym(c.AllGrUsage,elem.fields['gu_id'],True)
                     </div>
 		</div>
 	$elif type == 'h':
 		<div class = "row">
-		    <div class="col-xs-1 vcenter">
-			$:(c.getAllHalfling(c.AllGrRecipe))
-		    </div>
-	            <div class="col-xs-4 vcenter">
-		    $if elem.fields['gr_id'] :
-			 <a href="/find/related/gr_$elem.fields['gr_id']">$(c.AllGrRecipe.get(elem.fields['gr_id']).fields['acronym'])</a>
+		    <div class="col-xs-5 vcenter">
+			$:c.linkedAcronym(c.AllGrRecipe,elem.fields['gr_id'],True)
                     </div>
-		    <div class="col-xs-1 vcenter">
-			$:(c.getAllHalfling(c.AllGrUsage))
-		    </div>
-		    $if elem.fields['gu_id'] :
-	                <div class="col-xs-4 vcenter">
-			    <a href="/find/related/gu_$elem.fields['gu_id']">$(c.AllGrUsage.get(elem.fields['gu_id']).fields['acronym'])</a>
-		        </div>
+		    <div class="col-xs-5 vcenter">
+			$:c.linkedAcronym(c.AllGrUsage,elem.fields['gu_id'],True)
+	            </div>
 		</div>
 		<div class="row">
 		    <div class="col-xs-1 vcenter">

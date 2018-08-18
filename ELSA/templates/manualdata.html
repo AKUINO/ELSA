@@ -31,6 +31,8 @@ $elif myID == 'component':
     $var location: list/$(id.split('_')[-0])=$(elem.get_class_acronym()) manualdata/$(id.split('_')[0])_$(elem.getID())=manualdata transfers/$(id.split('_')[0])_$(elem.getID())/new=add
 <div class="container">
     <form  method="post" action="" id="modifyManualData"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
+        $if myID == 'update':
+		<input type="hidden" name="origin" value="$manudata.fields['dm_id']"/>
 	<div class="col-sm-12" >
 	    <p id="error">$errormess</p>
 	</div>

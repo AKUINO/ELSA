@@ -107,6 +107,44 @@ $if errormess != '':
 	    </div>
 	</div>
 	
+
+	$for alarm in c.sortedCategs:
+          $ aname = c.valueCategs[alarm].name
+          $ acolor = c.valueCategs[alarm].color
+	  <div  class="form-group row" style="border:5px solid #$(acolor);margin-bottom:10px;padding-top:5px">
+	  <div class="form-group row">
+		<label for="$(aname)Select" class="col-sm-3 col-form-label">$(c.getMessage(aname,self.lang))</label>
+          	$if aname != 'none':
+		  <div class="col-sm-9">
+		    <input name="$(aname)" type="text" class="form-control" id="$(aname)Select" placeholder="$(c.getMessage('alarm',self.lang))" 
+			$if errormess != '' :
+			    $if 'alarm' in data:
+				value = data['alarm']
+			$elif id != 'new':
+			    value="$transfer_model.fields[aname]"
+		    >
+		  </div>
+	  </div>
+          <div class="form-group row" style="border-color:#$(acolor)">
+		<label for="a$(aname)Select" class="col-sm-3 col-form-label">$:(c.getAllHalfling(c.AllAlarms)) $c.getMessage('alarm',self.lang)</label>
+		<div class="col-sm-9">
+		    <select name = "a_$(aname)" class="form-control" id="a$(aname)Select">
+			<option value=''></option>
+			$for k,alarm in c.AllAlarms.elements.items():
+			    <option value="$k"
+				$if errormess != '' :
+				    $if ('a_'+aname) in data:
+					$if k == data['a_'+aname]:
+					    selected
+				$elif id != 'new':
+				    $if k == transfer_model.fields['a_'+aname] :
+					selected
+			    >$alarm.fields['acronym'] - $alarm.getName(self.lang) </option>
+		    </select>
+		</div>
+	  </div>
+            </div>
+	
 	<div class="form-group row">
 	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 	    <div class="col-sm-9">

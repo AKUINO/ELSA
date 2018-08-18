@@ -39,8 +39,7 @@ $for krecipe in listRecipe:
 						    $code:
 							pos = None
 							alarms = batch.count_logs(c)
-							tmp = batch.get_last_transfer()
-							transfer = c.AllTransfers.get(tmp)
+							transfer = batch.get_last_transfer(c)
 							if transfer:
 								pos = transfer.get_component(c)
 						    $if pos is not None :

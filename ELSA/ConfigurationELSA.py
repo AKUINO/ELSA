@@ -68,6 +68,8 @@ KEY_ADMIN = "admin" #Omnipotent user
 
 imagedTypes = [u'u', u'e', u'p', u'g', u'gf', u'gr', u'gu', u'c', u'b', u'h', u's', u'm', u'a', u'al']
 
+alarmFields = [ 'minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', \
+                'a_min', 'a_typical', 'a_max', 'a_maxmax', 'a_none' ]
 alarm_fields_for_groups = ['o_sms1', 'o_sms2', 'o_email1', 'o_email2', 'o_sound1', 'o_sound2']
 
 
@@ -290,6 +292,14 @@ class Configuration():
             if v.name == key or v.acronym == key:
                 return v.triple()
         return None
+
+    def linkedAcronym(self,allobj,key,icon):
+        elem = allobj.get(key)
+        if elem and 'acronym' in elem.fields:
+            return "<a href=\"/find/related/"+allobj.get_type()+"_"+key+"\">" \
+                   +(elem.statusIcon(self,False,False) if icon else "")+elem.fields['acronym']+"</a>"
+        else:
+            return ""
 
 class ConfigurationObject(object):
 
@@ -664,16 +674,16 @@ class ConfigurationObject(object):
         if transfer.getID() in self.transfers:
             self.transfers.remove(transfer.getID())
 
-    def get_last_transfer(self):
+    def get_last_transfer(self,configuration):
         if len(self.transfers) > 0:
-            return self.transfers[-1]
+            key = self.transfers[-1]
+            return configuration.AllTransfers.get(key)
         return None
 
     def get_actual_position_here(self,configuration):
 	currObj = None
-	tmp = self.get_last_transfer()
+	tmp = self.get_last_transfer(configuration)
 	if tmp is not None:
-	    tmp = configuration.AllTransfers.elements[tmp]
             currObj = configuration.get_object (tmp.fields['cont_type'], tmp.fields['cont_id'])
         return currObj
 
@@ -686,9 +696,8 @@ class ConfigurationObject(object):
         return result
 
     def is_actual_position(self, type, id, configuration):
-        tmp = self.get_last_transfer()
+        tmp = self.get_last_transfer(configuration)
         if tmp is not None:
-            tmp = configuration.AllTransfers.elements[tmp]
             if type == tmp.fields['cont_type'] \
                     and unicode(id) == tmp.fields['cont_id']:
                 return True
@@ -834,7 +843,7 @@ class ConfigurationObject(object):
         measure = self.get_measure(c)
         quantity = self.get_quantity_string()
         if quantity:
-            if measure.fields['step'] == '0':
+            if measure and measure.fields['step'] == '0':
                 quantity = int(quantity)
             result = unicode(quantity)
         if measure:
@@ -1745,12 +1754,11 @@ class AllSensors(AllObjects):
     
     def __init__(self, config):
         AllObjects.__init__(self, 's', Sensor.__name__, config)
-        self.fieldnames = ['begin', 's_id', 'c_id', 'p_id', 'e_id', 'm_id',
-                           'active', 'acronym', 'remark', 'channel', 'sensor',
-                           'subsensor', 'valuetype', 'formula', 'minmin',
-                           'min', 'typical', 'max', 'maxmax', 'a_minmin',
-                           'a_min', 'a_typical', 'a_max', 'a_maxmax', 'lapse1',
-                           'lapse2', 'lapse3', 'a_none', 'user']
+        self.fieldnames = ['begin', 's_id', 'c_id', 'p_id', 'e_id', 'm_id', \
+                           'active', 'acronym', 'remark', 'channel', 'sensor', \
+                           'subsensor', 'valuetype', 'formula', \
+                           'lapse1', 'lapse2', 'lapse3'] \
+                           + alarmFields + ['user']
         self.fieldtranslate = ['begin', 'lang', 's_id', 'name', 'user']
         self.add_query_channels_from_hardconfig()
 
@@ -1839,8 +1847,7 @@ class AllSensors(AllObjects):
             if sensor.fields['channel'] in self._queryChannels \
                                         and sensor.isActive():
                 value, cache = sensor.get_value_sensor(self.config, get_cache(sensor))
-                if value is not None:
-                    sensor.update(now, value, self.config)
+                sensor.update(now, value, self.config)
                 if cache is not None:
                     set_cache(sensor, cache)
 
@@ -1885,9 +1892,8 @@ class AllBatches(AllObjects):
         for k, e in self.elements.items():
             if e.isActive() and (not e.fields['gr_id'] or (e.fields['gr_id'] in recipes)):
                 #print "key="+k+", recipe=",e.fields['gr_id']
-                tmp = e.get_last_transfer()
+                tmp = e.get_last_transfer(configuration)
                 if tmp is not None:
-                    tmp = self.config.AllTransfers.elements[tmp]
                     currObj = self.config.get_object(tmp.fields['cont_type'], tmp.fields['cont_id'])
                     #print currObj.__repr__()+"="+currObj.get_group()
                     if currObj.get_group() in usages:
@@ -1937,8 +1943,9 @@ class AllTransferModels(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'tm', TransferModel.__name__, config)
-        self.fieldnames = ["begin", "tm_id", 'acronym',
-                           'gu_id', 'h_id', 'rank', "remark", 'active', "user"]
+        self.fieldnames = ["begin", "tm_id", 'acronym', \
+                           'gu_id', 'h_id', 'rank', "remark", 'active'] \
+                            + alarmFields + ["user"]
         self.fieldtranslate = ['begin', 'lang', 'tm_id', 'name', 'user']
 
     def newObject(self):
@@ -1957,9 +1964,9 @@ class AllPouringModels(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'vm', PouringModel.__name__, config)
-        self.fieldnames = ["begin", "vm_id", 'acronym', 'src', 'dest',
-                           'quantity', 'h_id', 'rank', "in", "remark", 'active',
-                           "user"]
+        self.fieldnames = ["begin", "vm_id", 'acronym', 'src', 'dest', \
+                           'quantity', 'h_id', 'rank', "in", "remark", 'active'] \
+                            + alarmFields + ["user"]
         self.fieldtranslate = ['begin', 'lang', 'vm_id', 'name', 'user']
 
     def newObject(self):
@@ -1978,10 +1985,8 @@ class AllManualDataModels(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'dm', ManualDataModel.__name__, config)
-        self.fieldnames = ["begin", "dm_id", 'acronym', 'm_id', 'h_id', 'rank',
-                           "remark", 'active', 'minmin',
-                           'min', 'typical', 'max', 'maxmax', 'a_minmin',
-                           'a_min', 'a_typical', 'a_max', 'a_maxmax', 'a_none', "user"]
+        self.fieldnames = ["begin", "dm_id", 'acronym', 'm_id', 'h_id', 'rank', \
+                           "remark", 'active'] + alarmFields + ["user"]
         self.fieldtranslate = ['begin', 'lang', 'dm_id', 'name', 'user']
 
     def newObject(self):
@@ -2446,7 +2451,7 @@ class AlarmingObject(ConfigurationObject):
 	elif self.actualAlarm == 'maxmax':
 	    return bounds['a_maxmax']
 	elif self.actualAlarm == 'none':
-	    return bounds['a_none'] #TODO:a_none field would be better
+	    return bounds['a_none']
 
     def setCorrectAlarmValue(self,model=None):
         bounds = model.fields if model else self.fields
@@ -2545,8 +2550,9 @@ class ManualData(AlarmingObject):
             if not self.actualAlarm:
                 self.actualAlarm = "typical"
             alarmCode = data['a_id']
-        if alarmCode and alarmCode in c.AllAlarms.elements:
-            self.fields['al_id'] = c.AllAlarms.elements[alarmCode].launch_alarm(self, c)
+        anAlarm = c.AllAlarms.get(alarmCode)
+        if anAlarm:
+            self.fields['al_id'] = anAlarm.launch_alarm(self, c)
         if self.isActive():
             c.get_object(self.fields['object_type'],self.fields['object_id']) \
              .add_data(self)
@@ -2574,10 +2580,9 @@ class ManualData(AlarmingObject):
     def get_model(self,config):
         return config.AllManualDataModels.get(self.fields['dm_id'])
 
-#TODO: AlarmingObject and check on Quantity ?
-class Pouring(ConfigurationObject):
+class Pouring(AlarmingObject):
     def __init__(self):
-        ConfigurationObject.__init__(self)
+        AlarmingObject.__init__(self)
 
     def __str__(self):
         string = "\nPouring :"
@@ -2658,16 +2663,18 @@ class Pouring(ConfigurationObject):
         alarmCode = ""
         if ('origin' in data) and data['origin']:
             self.fields['vm_id'] = data['origin']
-##            model = c.AllPouringModels.elements[data['origin']]
-##            typeAlarm, symbAlarm, self.colorAlarm,self.colorTextAlarm = self.getTypeAlarm(data['quantity'],model)
-##            self.actualAlarm = typeAlarm
-##            alarmCode = self.get_alarm(model);
-        if ('a_id' in data) and data['a_id']:
+            model = c.AllPouringModels.get(data['origin'])
+            if model:
+                typeAlarm, symbAlarm, self.colorAlarm,self.colorTextAlarm = self.getTypeAlarm(data['quantity'],model)
+                self.actualAlarm = typeAlarm
+                alarmCode = self.get_alarm(model);
+        if  ('a_id' in data) and data['a_id']:
             #TODO: Manual Alarm, not so "typical"
             self.actualAlarm = "typical"
             alarmCode = data['a_id']
-        if alarmCode and alarmCode in c.AllAlarms.elements:
-            self.fields['al_id'] = c.AllAlarms.elements[alarmCode].launch_alarm(self, c)
+        anAlarm = c.AllAlarms.get(alarmCode)
+        if anAlarm:
+            self.fields['al_id'] = anAlarm.launch_alarm(self, c)
 
         if 'active' in data:
             self.fields['active'] = '1'
@@ -3299,9 +3306,8 @@ class Place(ConfigurationObject):
         checklist = []
         checklist.append(['p', self.id])
         for k, v in config.AllEquipments.elements.items():
-            transfer = v.get_last_transfer()
+            transfer = v.get_last_transfer(config)
             if transfer is not None:
-                transfer = config.AllTransfers.elements[transfer]
                 if transfer.fields['cont_type'] == 'e' \
                         and transfer.fields['cont_id'] == self.id:
                     checklist.append(['e', k])
@@ -3970,20 +3976,20 @@ class Alarm(ConfigurationObject):
         if alarmedObject.get_type() == 's':
             mess = config.getMessage('alarmmessage',lang)
             cpe = ''
-            elem = ''
-            if not alarmedObject.fields['p_id'] == '':
-                cpe = config.getMessage('place',lang)
-                elem = config.AllPlaces.elements[alarmedObject.fields['p_id']]
-                newFields['cont_type'] = 'p'
-            elif not alarmedObject.fields['e_id'] == '':
-                cpe = config.getMessage('equipment',lang)
-                elem = config.AllEquipments.elements[alarmedObject.fields['e_id']]
-                newFields['cont_type'] = 'e'
-            elif not alarmedObject.fields['c_id'] == '':
+            elem = config.AllContainers.get(alarmedObject.fields['c_id'])
+            if elem:
                 cpe = config.getMessage('container',lang)
-                elem = config.AllContainers.elements[alarmedObject.fields['c_id']]
-                newFields['cont_type'] = 'c'
-            newFields['cont_id'] = elem.getID()
+            else:
+                elem = config.AllEquipments.get(alarmedObject.fields['e_id'])
+                if elem:
+                    cpe = config.getMessage('equipment',lang)
+                else:
+                    elem = config.AllPlaces.get(alarmedObject.fields['p_id'])
+                    if elem:
+                        cpe = config.getMessage('place',lang)
+            if elem:
+                newFields['cont_type'] = elem.get_type()
+                newFields['cont_id'] = elem.getID()
             newFields['value'] = unicode(alarmedObject.lastvalue)
             newFields['begintime'] = alarmedObject.time
             newFields['typealarm'] = unicode(alarmedObject.actualAlarm)
@@ -3992,8 +3998,8 @@ class Alarm(ConfigurationObject):
                                   config.HardConfig.hostname,
                                   specmess,
                                   cpe,
-                                  elem.getName(lang),
-                                  elem.fields['acronym'],
+                                  elem.getName(lang) if elem else "",
+                                  elem.fields['acronym'] if elem else "",
                                   alarmedObject.getName(lang),
                                   alarmedObject.fields['acronym'],
                                   alarmedObject.getQtyUnit(config),
@@ -4002,13 +4008,12 @@ class Alarm(ConfigurationObject):
                                   unicode(alarmedObject.degreeAlarm))
         elif alarmedObject.get_type() == 'd':
             mess = config.getMessage('alarmmanual',lang)
-            elem = config.get_object(
-                alarmedObject.fields['object_type'],alarmedObject.fields['object_id'])
+            elem = alarmedObject.get_component(config)
             name = config.getMessage(elem.get_class_acronym(),lang)
-            unit_measure = alarmedObject.get_unit(config)
             newFields['begintime'] = alarmedObject.fields['time']
-            newFields['cont_type'] = elem.get_type()
-            newFields['cont_id'] = elem.getID()
+            if elem:
+                newFields['cont_type'] = elem.get_type()
+                newFields['cont_id'] = elem.getID()
             newFields['value'] = unicode(alarmedObject.fields['value'])
             newFields['typealarm'] = unicode(alarmedObject.actualAlarm)
             newFields['degree'] = '2'
@@ -4016,9 +4021,30 @@ class Alarm(ConfigurationObject):
                                   config.HardConfig.hostname,
                                   specmess,
                                   name,
-                                  elem.getName(lang),
-                                  elem.fields['acronym'],
+                                  elem.getName(lang) if elem else "",
+                                  elem.fields['acronym'] if elem else "",
                                   alarmedObject.getQtyUnit(config),
+                                  alarmedObject.fields['remark'],
+                                  alarmedObject.fields['time'])
+        elif alarmedObject.get_type() == 't':
+            mess = config.getMessage('alarmmanual',lang)
+            elem = alarmedObject.get_source(config)
+            compo = alarmedObject.get_component(config)
+            name = config.getMessage(elem.get_class_acronym(),lang)
+            newFields['begintime'] = alarmedObject.fields['time']
+            if compo:
+                newFields['cont_type'] = compo.get_type()
+                newFields['cont_id'] = compo.getID()
+            newFields['value'] = unicode((useful.string_to_date(newFields['alarmtime'])-useful.string_to_date(alarmedObject.fields['time'])).total_seconds()//60)
+            newFields['typealarm'] = unicode(alarmedObject.actualAlarm)
+            newFields['degree'] = '2'
+            newFields['remark'] = unicode.format(mess,
+                                  config.HardConfig.hostname,
+                                  specmess,
+                                  name,
+                                  elem.getName(lang) if elem else "",
+                                  elem.fields['acronym'] if elem else "",
+                                  (newFields['value']+" mn"),
                                   alarmedObject.fields['remark'],
                                   alarmedObject.fields['time'])
         elif alarmedObject.get_type() == 'v':
@@ -4027,12 +4053,11 @@ class Alarm(ConfigurationObject):
             elemin = None
             if alarmedObject.fields['src']:
                 elemid = alarmedObject.fields['src']
-                elemin = config.AllBatches.elements[elemid]
+                elemin = config.AllBatches.get(elemid)
             elemout = None
             if alarmedObject.fields['dest']:
                 elemid = alarmedObject.fields['dest']
-                elemout = config.AllBatches.elements[elemid]
-            unit_measure = alarmedObject.get_unit(config)
+                elemout = config.AllBatches.get(elemid)
             newFields['begintime'] = alarmedObject.fields['time']
             newFields['cont_type'] = 'b'
             newFields['cont_id'] = elemid
@@ -4043,10 +4068,10 @@ class Alarm(ConfigurationObject):
             newFields['remark'] = unicode.format(mess,
                                   config.HardConfig.hostname,
                                   specmess,
-                                  elemout.getName(lang),
-                                  elemout.fields['acronym'],
-                                  elemin.getName(lang),
-                                  elemin.fields['acronym'],
+                                  elemout.getName(lang) if elemout else "",
+                                  elemout.fields['acronym'] if elemout else "",
+                                  elemin.getName(lang) if elemin else "",
+                                  elemin.fields['acronym'] if elemin else "",
                                   alarmedObject.getQtyUnit(config),
                                   alarmedObject.fields['remark'],
                                   alarmedObject.fields['time'])
@@ -4134,8 +4159,8 @@ class Alarm(ConfigurationObject):
                 alid = self.alarm_by_email(alarmedObject, self.fields['o_email2'], config)
         elif alarmedObject.get_type() == 'd':
             alid = self.alarm_by_email(alarmedObject, self.fields['o_email2'], config)
-##        elif alarmedObject.get_type() == 't':
-##            alid = self.alarm_by_email(alarmedObject, self.fields['o_email2'], config)
+        elif alarmedObject.get_type() == 't':
+            alid = self.alarm_by_email(alarmedObject, self.fields['o_email2'], config)
         elif alarmedObject.get_type() == 'v':
             alid = self.alarm_by_email(alarmedObject, self.fields['o_email2'], config)
         return alid
@@ -4382,14 +4407,15 @@ class Sensor(AlarmingObject):
 
     def update(self, now, value, config):
         self.lastvalue = value
-        self.updateRRD(now, value)
+        if value is not None:
+            self.updateRRD(now, value)
 
-        minutes = int(now / 60)
-        # GMT + DST
-        hours = (int(minutes / 60) % 24)+100 + 2
-        minutes = (minutes % 60)+100
-        strnow = unicode(hours)[1:3]+":"+unicode(minutes)[1:3]
         if config.screen is not None:
+            minutes = int(now / 60)
+            # GMT + DST
+            hours = (int(minutes / 60) % 24)+100 + 2
+            minutes = (minutes % 60)+100
+            strnow = unicode(hours)[1:3]+":"+unicode(minutes)[1:3]
             pos = config.screen.show(config.screen.begScreen, strnow)
             pos = config.screen.showBW(pos+2, self.get_acronym())
             pos = (config.screen
@@ -4401,12 +4427,6 @@ class Sensor(AlarmingObject):
 
         prvAlarm = self.actualAlarm
         typeAlarm, symbAlarm, self.colorAlarm,self.colorTextAlarm = self.getTypeAlarm(value)
-##        if typeAlarm == 'typical':
-##            self.setTypicalAlarm()
-##        else:
-##            if not ((typeAlarm == 'min' and self.actualAlarm == 'minmin')
-##                    or (typeAlarm == 'max'
-##                                and self.actualAlarm == 'maxmax')):
         self.actualAlarm = typeAlarm
         self.nextAlarm(config, now, prvAlarm == self.actualAlarm)
 
@@ -4806,8 +4826,7 @@ class Sensor(AlarmingObject):
 
     def set_value_from_data(self, data, c, user):
         super(Sensor, self).set_value_from_data(data, c, user)
-        tmp = ['channel', 'sensor', 'subsensor', 'valuetype', 'formula', 'minmin', 'min', 'typical', 'max',
-               'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax', 'lapse1', 'lapse2', 'lapse3', 'a_none']
+        tmp = ['channel', 'sensor', 'subsensor', 'valuetype', 'formula','lapse1', 'lapse2', 'lapse3'] + alarmFields
         for elem in tmp:
             self.fields[elem] = data[elem]
         self.add_component(data['component'])
@@ -5131,8 +5150,10 @@ class PouringModel(ConfigurationObject):
         if self.fields['h_id'] != '':
             self.config.AllCheckPoints.elements[self.fields['h_id']].remove_vm(self)
         super(PouringModel, self).set_value_from_data(data, c, user)
-        self.fields['quantity'] = data['quantity']
-        self.fields['in'] = data['in']
+        tmp = ['quantity', 'in', 'rank'] + alarmFields
+        for elem in tmp:
+            self.fields[elem] = data[elem]
+
         if self.fields['in'] == '1':
             self.fields['src'] = data['recipe']
             self.fields['dest'] = ''
@@ -5150,7 +5171,6 @@ class PouringModel(ConfigurationObject):
 ##            self.fields['dest'] = '1'
 ##            self.fields['in'] = ''
         self.fields['h_id'] = data['checkpoint']
-        self.fields['rank'] = data['rank']
         if 'active' in data:
             self.config.AllCheckPoints.elements[self.fields['h_id']].add_vm(self)
         self.save(c, user)
@@ -5192,7 +5212,7 @@ class ManualDataModel(ConfigurationObject):
             self.config.AllCheckPoints.elements[self.fields['h_id']].remove_dm(
                 self)
         super(ManualDataModel, self).set_value_from_data(data, c, user)
-	tmp = ['rank', 'minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', 'a_min', 'a_typical', 'a_max', 'a_maxmax', 'a_none']
+	tmp = ['rank'] +alarmFields
 	for elem in tmp:
 	    self.fields[elem] = data[elem]
         self.fields['m_id'] = data['measure']
@@ -5230,6 +5250,9 @@ class TransferModel(ConfigurationObject):
             self.config.AllCheckPoints.elements[self.fields['h_id']].remove_tm(
                 self)
         super(TransferModel, self).set_value_from_data(data, c, user)
+        for elem in alarmFields:
+            self.fields[elem] = data[elem]
+
         self.fields['gu_id'] = data['position']
         self.fields['h_id'] = data['checkpoint']
         self.fields['rank'] = data['rank']
@@ -5242,9 +5265,9 @@ class TransferModel(ConfigurationObject):
         return self.fields['h_id']
 
 
-class Transfer(ConfigurationObject):
+class Transfer(AlarmingObject):
     def __init__(self, config):
-        ConfigurationObject.__init__(self)
+        AlarmingObject.__init__(self)
         self.config = config
 
     def __str__(self):
@@ -5270,6 +5293,15 @@ class Transfer(ConfigurationObject):
     def get_id_object(self):
         return self.fields['object_id']
 
+    def get_quantity_string(self):
+        return unicode((useful.string_to_date(useful.now())-useful.string_to_date(self.fields['time'])).total_seconds()//60)
+
+    def get_unit(self,c):
+        return "mn"
+
+    def getQtyUnit(self,c):
+        return self.get_quantity_string()+" mn"
+
     def set_position(self, pos):
         self.fields['cont_type'] = pos.split('_')[0]
         self.fields['cont_id'] = pos.split('_')[1]
@@ -5287,8 +5319,10 @@ class Transfer(ConfigurationObject):
             postype = data['position'].split('_')[0]
             posid = data['position'].split('_')[1]
             objet = configuration.get_object(objtype, objid)
-            if (objet.is_actual_position(postype, posid, configuration) is True and objet.get_last_transfer() != self.id):
-                tmp += configuration.getMessage('transferrules',lang) + '\n'
+            if objet.is_actual_position(postype, posid, configuration):
+                transfer = objet.get_last_transfer(configuration)
+                if transfer and (transfer.getID() != self.id):
+                    tmp += configuration.getMessage('transferrules',lang) + '\n'
             if (objtype == 'e' and postype != 'p') or(objtype == 'c' and postype not in 'ep'):
                 tmp += configuration.getMessage('transferhierarchy',lang) + '\n'
         else:
@@ -5313,13 +5347,25 @@ class Transfer(ConfigurationObject):
             self.fields['h_id'] = ''
         self.set_position(data['position'])
         self.set_object(data['object'])
-        if ('origin' in data) and data['origin']:
-            self.fields['tm_id'] = data['origin']
         if self.fields['active'] == '1':
             self.get_source(c).add_position(self)
         else:
             self.get_source(c).remove_position(self)
-        #TODO: Alarms should be checked and recorded in fields['al_id']
+        alarmCode = ""
+        if ('origin' in data) and data['origin']:
+            self.fields['tm_id'] = data['origin']
+            model = c.AllTransferModels.elements[data['origin']]
+            typeAlarm, symbAlarm, self.colorAlarm,self.colorTextAlarm = self.getTypeAlarm(self.get_quantity_str(),model)
+            self.actualAlarm = typeAlarm
+            alarmCode = self.get_alarm(model);
+##        if ('a_id' in data) and data['a_id']:
+##            #TODO: Manual Alarm, not so "typical"
+##            if not self.actualAlarm:
+##                self.actualAlarm = "typical"
+##            alarmCode = data['a_id']
+        anAlarm = c.AllAlarms.get(alarmCode)
+        if anAlarm:
+            self.fields['al_id'] = anAlarm.launch_alarm(self, c)
         self.save(c, user)
         if 'expirationdate' in data and data['expirationdate'] and self.get_type_container() == 'b':
             kbatch = self.get_id_container;

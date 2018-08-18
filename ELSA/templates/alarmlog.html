@@ -59,6 +59,8 @@ $elif myID == 'component':
 			<option value="$(src.get_type())_$(src.getID())" selected>
 			$if src.get_type() == 's':
 				$src.fields['acronym'] - $src.getName(self.lang)
+			$else:
+				$c.getMessage(src.get_class_acronym()) #$(src.getID())
 			</option>
 		</select>
 	    </div>

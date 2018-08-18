@@ -48,6 +48,8 @@ function flip() {
 
 <div class="container">
     <form  method="post" action="" id="modifyPouring"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
+        $if myID == 'update':
+		<input type="hidden" name="origin" value="$pouring.fields['vm_id']"/>
 	<div class="col-sm-12" >
 	    <p id="error">$errormess</p>
 	</div>

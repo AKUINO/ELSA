@@ -18,12 +18,8 @@ $var title: $elem.getName(self.lang)
 </script>
 <div id="includedAllMenu$(type)_$(id)"></div>
     
-$code:
-    t = elem.get_last_transfer()    
-	
-$if t is not None :
-    $ aTransfer = c.AllTransfers.get(t)
-    $if aTransfer:
+$ aTransfer = elem.get_last_transfer(c)    
+$if aTransfer:
         $ key=aTransfer.fields['cont_type']+"_"+aTransfer.fields['cont_id']
 	    <div class="row active" style ="margin-top:10px;margin-bottom:10px;background-color:#E5E5E7;padding:15px;" >
 		<label class="col-sm-12">$c.getMessage('actualposition',self.lang) :</label>   
@@ -109,6 +105,37 @@ $if type in 'amh':
                     });
                 </script>
                 <div id="includedDM_$(k)"></div>
+    </div>
+
+    <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+	<label class="col-sm-12">$c.getMessage('pouringmodel',self.lang) :</label>    
+
+    $for k,dataModel in c.AllPouringModels.elements.items():
+        $if (type=='a'):
+            $ OK = (type=='a') and ( (dataModel.fields['a_min'] == id) or (dataModel.fields['a_minmin'] == id) or (dataModel.fields['a_max'] == id) or (dataModel.fields['a_maxmax'] == id) or (dataModel.fields['a_typical'] == id) )
+        $else:
+            $ OK = dataModel.fields[type+'_id'] == id
+        $if OK:
+                <script>
+                    $$(function(){
+                        $$("#includedVM_$(k)").load("/fullentry/vm_$(k)");
+                    });
+                </script>
+                <div id="includedVM_$(k)"></div>
+    </div>
+
+    $for k,dataModel in c.AllTransferModels.elements.items():
+        $if (type=='a'):
+            $ OK = (type=='a') and ( (dataModel.fields['a_min'] == id) or (dataModel.fields['a_minmin'] == id) or (dataModel.fields['a_max'] == id) or (dataModel.fields['a_maxmax'] == id) or (dataModel.fields['a_typical'] == id) )
+        $else:
+            $ OK = dataModel.fields[type+'_id'] == id
+        $if OK:
+                <script>
+                    $$(function(){
+                        $$("#includedTM_$(k)").load("/fullentry/tm_$(k)");
+                    });
+                </script>
+                <div id="includedTM_$(k)"></div>
     </div>
 
 $if (' '+type+' ') in ' s dm ':
