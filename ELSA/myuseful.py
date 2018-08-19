@@ -95,7 +95,6 @@ def get_time():
     now = int(time.time())
     return datetime.datetime.fromtimestamp(now).strftime(datetimeformat)
 
-
 def get_ip_address(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     return socket.inet_ntoa(fcntl.ioctl(

@@ -4,6 +4,12 @@ $code:
     batch = c.AllBatches.elements[id1]
     cp = c.AllCheckPoints.elements[id2]
     elems = cp.get_model_sorted()
+    here = batch.get_absolute_position_here(c)
+    here_id = None
+    here_type = None
+    if here:
+	here_id = here.getID()
+	here_type = here.get_type()
 $var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var location: list/b=batch find/h/b_$(id1)=related control/b_$(id1)/h_$(id2)=checkpoint
@@ -46,6 +52,12 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		    <input type="hidden" name="tm_id_$(counttm)" value="$e.getID()"/>
 		    <label class="col-sm-12 col-form-label">$:c.getAllHalfling(c.AllTransfers) $e.getName(self.lang): <span class="text-danger">$e.fields['remark']<span></label>
 		</div>
+		$ minutes = e.fields['typical']
+		$if minutes:
+		    <div class="form-group row">
+			<div class="col-xs-11"><strong>$(minutes+" mn")</strong></div>
+		    </div>
+	
 		$code:
 		   usages = None
 		   kusage = e.fields['gu_id']
@@ -64,7 +76,10 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 				    $if first:
 					<optgroup label="$c.getMessage('place',self.lang)">
 					$ first = False
-				    <option value="p_$k">$v.fields['acronym'] - $v.getName(self.lang) </option>
+				    <option value="p_$k"
+					$if here_type=='p' and here_id==k:
+					    selected
+				    >$v.fields['acronym'] - $v.getName(self.lang) </option>
 			    $ first = True
 			    $for k,v in c.AllEquipments.elements.items():
                                 $ curr_group=v.fields['gu_id']
@@ -72,7 +87,10 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 				    $if first:
 					<optgroup label="$c.getMessage('equipment',self.lang)">
 					$ first = False
-				    <option value="e_$k" >$v.fields['acronym'] - $v.getName(self.lang)</option>
+				    <option value="e_$k"
+					$if here_type=='e' and here_id==k:
+					    selected
+				    >$v.fields['acronym'] - $v.getName(self.lang)</option>
 			    $ first = True
 			    $for k,v in c.AllContainers.elements.items():
                                 $ curr_group=v.fields['gu_id']
@@ -80,7 +98,10 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 				    $if first:
 					<optgroup label="$c.getMessage('container',self.lang)">
 					$ first = False
-				    <option value="c_$k">$v.fields['acronym'] - $v.getName(self.lang)</option>
+				    <option value="c_$k"
+					$if here_type=='c' and here_id==k:
+					    selected
+				    >$v.fields['acronym'] - $v.getName(self.lang)</option>
 			</select>
 		    </div>
 		</div>

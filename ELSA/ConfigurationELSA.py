@@ -190,6 +190,8 @@ class Configuration():
         self.UpdateThread = UpdateThread(self)
         self.RadioThread = RadioThread(self)
         self.RadioThread.daemon = True
+        self.TimerThread = TimerThread(self)
+        self.TimerThread.daemon = True
         self.screen = None
         self.owproxy = None
         self.batteryVoltage = 0.0
@@ -233,6 +235,7 @@ class Configuration():
         self.AllAlarmLogs.load()
         self.UpdateThread.start()
         self.RadioThread.start()
+        self.TimerThread.start()
 
     def findAll(self, identifier):
         if identifier in self.registry:
@@ -488,12 +491,19 @@ class ConfigurationObject(object):
     def getID(self):
         return self.id
 
-    def getTimestamp(self):
-        # time = editable time fields
-        if 'time' in self.fields:
+    def getTimestring(self):
+        stamp = ""
+        if 'begintime' in self.fields:
+            stamp = self.fields['begintime']
+        elif 'time' in self.fields:
             stamp = self.fields['time']
         else: # begin = record creation
             stamp = self.fields['begin']
+        return stamp
+
+    def getTimestamp(self):
+        # time = editable time fields
+        stamp = self.getTimestring()
         if not stamp:
             return 0
         else:
@@ -653,26 +663,43 @@ class ConfigurationObject(object):
         if 'active' in self.fields:
             self.fields['active'] = active
 
-    def add_position(self, transfer):
+    def add_position(self, transfer,user):
         self.remove_position(transfer)
-        if len(self.transfers) == 0:
-            self.transfers.append(transfer.getID())
-        else:
-            time = transfer.getTimestamp()
+        if self.isActive() and transfer.isActive():
+            time = transfer.getTimestring()
             insert = False
+            tmp = None
             for i in range(len(self.transfers)):
                 tmp = self.config.AllTransfers.elements[self.transfers[i]]
-                tmptime = tmp.getTimestamp()
+                tmptime = tmp.getTimestring()
                 if time < tmptime:
                     insert = True
                     self.transfers.insert(i, transfer.getID())
+                    transfer.completed = tmptime
                     break
             if insert is False:
+                if tmp:
+                    tmp.completed = time
+                    if user and tmp.checkTimerAlarm(self.config):
+                        tmp.save(self.config,user)
                 self.transfers.append(transfer.getID())
+                transfer.completed = None
 
     def remove_position(self, transfer):
-        if transfer.getID() in self.transfers:
+        try:
+            pos = self.transfers.index(transfer.getID())
+            if pos > 0:
+                prev = self.config.AllTransfers.get(self.transfers[pos-1])
+                if prev:
+                    prev.completed = None
+                    if pos < (len(self.transfers) - 1):
+                        nxt = self.config.AllTransfers.get(self.transfers[pos+1])
+                        if nxt:
+                            prev.completed = nxt.getTimestring()
             self.transfers.remove(transfer.getID())
+        except:
+            pass
+        transfer.completed = None
 
     def get_last_transfer(self,configuration):
         if len(self.transfers) > 0:
@@ -949,6 +976,26 @@ class RadioThread(threading.Thread):
         except:
             traceback.print_exc()
 
+class TimerThread(threading.Thread):
+
+    def __init__(self, config):
+        threading.Thread.__init__(self)
+        self.config = config
+    
+    def run(self):
+        while self.config.isThreading is True:
+            timer = 0
+            now = useful.get_timestamp()
+            for k,b in self.config.AllBatches.elements.items():
+                if b.isActive() and not b.isComplete():
+                    t = b.get_last_transfer(self.config)
+                    if t and not t.completed:
+                        if t.checkTimerAlarm(self.config):
+                            t.save(self.config,"")
+            while self.config.isThreading is True and timer < 60:
+                time.sleep(1)           
+                timer = timer + 1
+
 class AllObjects(object):
 
     def __init__(self, obj_type, obj_name, config):
@@ -1070,7 +1117,7 @@ class AllObjects(object):
                     if currObject.isActive():
                         self.config.get_object(currObject.fields['object_type'], \
                                 currObject.fields['object_id']) \
-                               .add_position(currObject)
+                               .add_position(currObject,None)
                     else:
                         self.config.get_object(currObject.fields['object_type'], \
                                 currObject.fields['object_id']) \
@@ -2528,6 +2575,8 @@ class ManualData(AlarmingObject):
         tmp = ['time', 'value', 'remark']
         for elem in tmp:
             self.fields[elem] = data[elem]
+        if not self.fields['time']:
+            self.fields['time'] = useful.now()
         self.add_component(data['component'])
         self.add_measure(data['measure'])
         if 'h_id' in data:
@@ -2655,6 +2704,8 @@ class Pouring(AlarmingObject):
         tmp = ['time', 'remark', 'src', 'dest', 'quantity']
         for elem in tmp:
             self.fields[elem] = data[elem]
+        if not self.fields['time']:
+            self.fields['time'] = useful.now()
         self.fields['m_id'] = c.AllBatches.elements[data['src']].fields['m_id']
         if 'h_id' in data:
             self.fields['h_id'] = data['h_id']
@@ -2674,7 +2725,9 @@ class Pouring(AlarmingObject):
             alarmCode = data['a_id']
         anAlarm = c.AllAlarms.get(alarmCode)
         if anAlarm:
-            self.fields['al_id'] = anAlarm.launch_alarm(self, c)
+            alid = anAlarm.launch_alarm(self, c)
+            if alid:
+                self.fields['al_id'] = alid
 
         if 'active' in data:
             self.fields['active'] = '1'
@@ -3415,6 +3468,8 @@ class AlarmLog(ConfigurationObject):
         tmp = ['begintime', 'remark']
         for elem in tmp:
             self.fields[elem] = data[elem]
+        if not self.fields['begintime']:
+            self.fields['begintime'] = useful.now()
 
         completed = None
         if 'completedtime' in data and data['completedtime']:
@@ -4035,7 +4090,7 @@ class Alarm(ConfigurationObject):
             if compo:
                 newFields['cont_type'] = compo.get_type()
                 newFields['cont_id'] = compo.getID()
-            newFields['value'] = unicode((useful.string_to_date(newFields['alarmtime'])-useful.string_to_date(alarmedObject.fields['time'])).total_seconds()//60)
+            newFields['value'] = alarmedObject.get_quantity_string()
             newFields['typealarm'] = unicode(alarmedObject.actualAlarm)
             newFields['degree'] = '2'
             newFields['remark'] = unicode.format(mess,
@@ -4118,10 +4173,17 @@ class Alarm(ConfigurationObject):
                 alarmedObject.fields['object_type'],alarmedObject.fields['object_id'])
             unit_measure = alarmedObject.get_unit(config)
             return unicode.format(title,
-                                  alarmedObject.fields['value'],
+                                  alarmedObject.get_quantity_string(),
                                   unit_measure,
                                   elem.getName(lang))
-        #TODO: timed transfers...
+        elif alarmedObject.get_type() == 't':
+            title = config.getMessage('alarmmanualtitle',lang)
+            elem = config.get_object(
+                alarmedObject.fields['object_type'],alarmedObject.fields['object_id'])
+            return unicode.format(title,
+                                  alarmedObject.get_quantity_string(),
+                                  "mn",
+                                  elem.getName(lang))
         elif alarmedObject.get_type() == 'v':
             title = config.getMessage('alarmpouringtitle',lang)
             elemin = config.AllBatches.elements[alarmedObject.fields['src']]
@@ -5065,9 +5127,10 @@ class Batch(ConfigurationObject):
     def set_value_from_data(self, data, c, user):
         super(Batch, self).set_value_from_data(data, c, user)
         tmp = ['basicqt', 'time', 'cost', 'fixed_cost']
-        
         for elem in tmp:
             self.fields[elem] = data[elem]
+        if not self.fields['time']:
+            self.fields['time'] = useful.now()
 
         completed = None
         if 'completedtime' in data and data['completedtime']:
@@ -5269,6 +5332,7 @@ class Transfer(AlarmingObject):
     def __init__(self, config):
         AlarmingObject.__init__(self)
         self.config = config
+        self.completed = None
 
     def __str__(self):
         string = "\nBatchTransfer :"
@@ -5294,7 +5358,9 @@ class Transfer(AlarmingObject):
         return self.fields['object_id']
 
     def get_quantity_string(self):
-        return unicode((useful.string_to_date(useful.now())-useful.string_to_date(self.fields['time'])).total_seconds()//60)
+        if self.completed:
+            return unicode(int((useful.string_to_date(self.completed)-useful.string_to_date(self.getTimestring())).total_seconds()//60))
+        return unicode(int((useful.string_to_date(useful.now())-useful.string_to_date(self.getTimestring())).total_seconds()//60))
 
     def get_unit(self,c):
         return "mn"
@@ -5306,10 +5372,38 @@ class Transfer(AlarmingObject):
         self.fields['cont_type'] = pos.split('_')[0]
         self.fields['cont_id'] = pos.split('_')[1]
 
-    def set_object(self, obj):
-        self.fields['object_type'] = obj.split('_')[0]
-        self.fields['object_id'] = obj.split('_')[1]
-        objects = self.config.get_object(self.fields['object_type'],self.fields['object_id']).add_position(self)
+    def set_object(self, objkey, user):
+        obj = self.config.get_object(self.fields['object_type'],self.fields['object_id'])
+        if obj:
+            obj.remove_position(self)
+        self.fields['object_type'] = objkey.split('_')[0]
+        self.fields['object_id'] = objkey.split('_')[1]
+        obj = self.config.get_object(self.fields['object_type'],self.fields['object_id'])
+        if obj:
+            obj.add_position(self,user)
+
+    def checkTimerAlarm(self,config):
+        model = self.get_model(config)
+        if model:
+            elapsed = self.get_quantity_string()
+            typeAlarm, symbAlarm, self.colorAlarm,self.colorTextAlarm = self.getTypeAlarm(elapsed,model)
+            if typeAlarm and typeAlarm != self.actualAlarm:
+                self.actualAlarm = typeAlarm
+                alarmCode = self.get_alarm(model);
+                anAlarm = config.AllAlarms.get(alarmCode)
+                if anAlarm:
+                    newAlarm = True
+                    if self.fields['al_id']:
+                        aLog = config.AllAlarmLogs.get(self.fields['al_id'])
+                        if aLog:
+                            if typeAlarm == aLog.fields['typealarm']:
+                                newAlarm = False
+                    if newAlarm:
+                        alid = anAlarm.launch_alarm(self, config)
+                        if alid:
+                            self.fields['al_id'] = alid
+                            return True
+        return False
 
     def validate_form(self, data, configuration, lang):
         tmp = ''
@@ -5319,10 +5413,12 @@ class Transfer(AlarmingObject):
             postype = data['position'].split('_')[0]
             posid = data['position'].split('_')[1]
             objet = configuration.get_object(objtype, objid)
-            if objet.is_actual_position(postype, posid, configuration):
-                transfer = objet.get_last_transfer(configuration)
-                if transfer and (transfer.getID() != self.id):
-                    tmp += configuration.getMessage('transferrules',lang) + '\n'
+            # Transfer can be in the past: validating position is very difficult...
+            # And timed transfers may not change current position!
+##            if objet.is_actual_position(postype, posid, configuration):
+##                transfer = objet.get_last_transfer(configuration)
+##                if transfer and (transfer.getID() != self.id):
+##                    tmp += configuration.getMessage('transferrules',lang) + '\n'
             if (objtype == 'e' and postype != 'p') or(objtype == 'c' and postype not in 'ep'):
                 tmp += configuration.getMessage('transferhierarchy',lang) + '\n'
         else:
@@ -5337,6 +5433,8 @@ class Transfer(AlarmingObject):
         tmp = ['time', 'remark']
         for elem in tmp:
             self.fields[elem] = data[elem]
+        if not self.fields['time']:
+            self.fields['time'] = useful.now()
         if 'active' in data:
             self.fields['active'] = '1'
         else:
@@ -5345,27 +5443,10 @@ class Transfer(AlarmingObject):
             self.fields['h_id'] = data['h_id']
         else:
             self.fields['h_id'] = ''
-        self.set_position(data['position'])
-        self.set_object(data['object'])
-        if self.fields['active'] == '1':
-            self.get_source(c).add_position(self)
-        else:
-            self.get_source(c).remove_position(self)
-        alarmCode = ""
         if ('origin' in data) and data['origin']:
             self.fields['tm_id'] = data['origin']
-            model = c.AllTransferModels.elements[data['origin']]
-            typeAlarm, symbAlarm, self.colorAlarm,self.colorTextAlarm = self.getTypeAlarm(self.get_quantity_str(),model)
-            self.actualAlarm = typeAlarm
-            alarmCode = self.get_alarm(model);
-##        if ('a_id' in data) and data['a_id']:
-##            #TODO: Manual Alarm, not so "typical"
-##            if not self.actualAlarm:
-##                self.actualAlarm = "typical"
-##            alarmCode = data['a_id']
-        anAlarm = c.AllAlarms.get(alarmCode)
-        if anAlarm:
-            self.fields['al_id'] = anAlarm.launch_alarm(self, c)
+        self.set_position(data['position'])
+        self.set_object(data['object'],user)
         self.save(c, user)
         if 'expirationdate' in data and data['expirationdate'] and self.get_type_container() == 'b':
             kbatch = self.get_id_container;
@@ -5376,6 +5457,11 @@ class Transfer(AlarmingObject):
                     if lifedays:
                         batch.fields['expirationdate'] = (useful.string_to_date(self.fields['time'])+timedelta(days=lifedays)).isoformat()[:10]
                         batch.save(c, user)
+
+    def isComplete(self):
+        if self.completed:
+            return True
+        return False
 
     # WHAT is moved
     def get_source(self,config):
@@ -5390,7 +5476,6 @@ class Transfer(AlarmingObject):
     # WHERE it is moved
     def get_component(self,config):
         return config.get_object(self.fields['cont_type'],self.fields['cont_id'])
-
 
     def get_model(self,config):
         return config.AllTransferModels.get(self.fields['tm_id'])

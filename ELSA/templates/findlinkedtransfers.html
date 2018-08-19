@@ -40,7 +40,7 @@ $for i in elem.transfers:
 		    $if transfer.fields['h_id'] != '' :
 		        <a href="/find/related/h_$(transfer.fields['h_id'])">$:c.getAllHalfling(c.AllCheckPoints) $c.AllCheckPoints.get(transfer.fields['h_id']).fields['acronym']</a>
 		    $if transfer.fields['tm_id'] != '' :
-	                <br/><a href="/find/related/tm_$(transfer.fields['tm_id'])" style="color:#28A4C9">- $c.AllTransferModels.get(transfer.fields['tm_id']).fields['acronym']</a>
+	                <br/>- $:c.linkedAcronym(c.AllTransferModels,transfer.fields['tm_id'],False)
 		</div>
 		$ cont = c.findAll(transfer.fields['cont_type']).get(transfer.fields['cont_id'])
 		<div class="col-xs-3" >

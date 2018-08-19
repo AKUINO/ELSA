@@ -3,30 +3,27 @@ $var recursive : False
 $var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var title : $c.AllPourings.getName(self.lang)
-$if id == 'new' and context == '':
-    $code :
-	myID = 'new'
-	rmq = ''
-    $var location: pourings=pouring pourings/new/new=add
-$elif id == 'new':
-    $code:
-	splits = context.split('_')
-	myID = splits[2]
-	batch = c.get_object(splits[0],splits[1])
-	rmq = ''
-$else :
-    $code:
-        pouring = None
+$var location: pourings=pouring pourings/new/new=add
+$code:
+    pouring = None
+    rmq = data['remark'] if (data and 'remark' in data) else '' 
+    if id == 'new':
+        if context == '':
+	    myID = 'new'
+        else:
+	    splits = context.split('_')
+	    myID = splits[2]
+	    batch = c.get_object(splits[0],splits[1])
+    else :
 	if not id.split('_')[0] == 'b':
 	    pouring = c.AllPourings.get(id)
 	    src = c.AllBatches.get(pouring.fields['src'])
 	    dest = c.AllBatches.get(pouring.fields['dest'])
 	    batch = dest
 	    myID = 'update'
-	    rmq = pouring.fields['remark']
-    $if pouring:
-	$var title : $pouring.getName(self.lang)
-
+            if pouring:
+	        rmq = pouring.fields['remark']
+	        self.title = pouring.getName(self.lang)
 $if myID == 'update':
     $var location: list/b=batch find/v/b_$(dest.getID())=pouring edit/v_$(dest.getID())=edit
 $elif myID == 'in' or myID == 'out':

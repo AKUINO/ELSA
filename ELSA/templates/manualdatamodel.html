@@ -112,10 +112,10 @@ $if errormess != '':
           $ acolor = c.valueCategs[alarm].color
 	  <div  class="form-group row" style="border:5px solid #$(acolor);margin-bottom:10px;padding-top:5px">
 	  <div class="form-group row">
-		<label for="$(aname)Select" class="col-sm-3 col-form-label">$(c.getMessage(aname,self.lang))</label>
+		<label for="$(aname)val" class="col-sm-3 col-form-label">$(c.getMessage(aname,self.lang))</label>
           	$if aname != 'none':
 		  <div class="col-sm-9">
-		    <input name="$(aname)" type="text" class="form-control" id="$(aname)Select" placeholder="$(c.getMessage('alarm',self.lang))" 
+		    <input name="$(aname)" type="number" class="form-control" id="$(aname)val" placeholder="$(c.getMessage('alarm',self.lang))" 
 			$if errormess != '' :
 			    $if 'alarm' in data:
 				value = data['alarm']

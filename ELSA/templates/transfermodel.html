@@ -116,7 +116,7 @@ $if errormess != '':
 		<label for="$(aname)Select" class="col-sm-3 col-form-label">$(c.getMessage(aname,self.lang))</label>
           	$if aname != 'none':
 		  <div class="col-sm-9">
-		    <input name="$(aname)" type="text" class="form-control" id="$(aname)Select" placeholder="$(c.getMessage('alarm',self.lang))" 
+		    <input name="$(aname)" type="number" min="0" step="1" class="form-control" id="$(aname)Select" placeholder="$(c.getMessage('alarm',self.lang))" 
 			$if errormess != '' :
 			    $if 'alarm' in data:
 				value = data['alarm']

@@ -24,7 +24,7 @@ $if context != '' :
 	myID = 'component'
 	elem = c.get_object(splits[0],splits[-1])
 	idType = elem.get_type()
-	rmq = '' 
+	rmq = data['remark'] if (data and 'remark' in data) else '' 
 $if myID == 'update':
     $var location: list/$(elem.get_type())=$(elem.get_class_acronym()) transfers/$(elem.get_type())_$(elem.getID())=transfer edit/t_$(transfer.getID())=edit
 $elif myID == 'component':
@@ -59,27 +59,15 @@ $elif myID == 'component':
 			<optgroup label="$c.getMessage('batch',self.lang)">
 			$for k,e in c.AllBatches.elements.items():
 			  $if e.isActive() and not e.isComplete(): 
-			    <option value="b_$k"
-				$if not myID == 'new':
-				    $if 'b' == elem.get_type() and k == elem.getID() :
-					selected
-			    >$e.fields['acronym'] - $e.getName(self.lang) </option>
+			    <option value="b_$k">$e.fields['acronym'] - $e.getName(self.lang) </option>
 			<optgroup label="$c.getMessage('equipment',self.lang)">
 			$for k,e in c.AllEquipments.elements.items():
 			  $if e.isActive(): 
-			    <option value="e_$k"
-				$if not myID == 'new':
-				    $if 'e' == elem.get_type() and k == elem.getID() :
-					selected	
-			    >$e.fields['acronym'] - $e.getName(self.lang) </option>
+			    <option value="e_$k">$e.fields['acronym'] - $e.getName(self.lang) </option>
 			<optgroup label="$c.getMessage('container',self.lang)">
 			$for k,e in c.AllContainers.elements.items():
 			  $if e.isActive(): 
-			    <option value="c_$k"
-				$if not myID == 'new':
-				    $if 'c' == elem.get_type() and k == elem.getID() :
-					selected
-			    >$e.fields['acronym'] - $e.getName(self.lang) </option>
+			    <option value="c_$k">$e.fields['acronym'] - $e.getName(self.lang) </option>
 		    $else:
 			<option value="$(elem.get_type())_$(elem.getID())" selected>$elem.fields['acronym'] - $elem.getName(self.lang) </option>
 		</select>
@@ -99,6 +87,17 @@ $elif myID == 'component':
 		        if usage:
 			    usages = set(usage.children)
 			    usages.add(gr_usage)
+
+        $if myID == 'update' and transfer.fields['tm_id']:
+	    $code:
+		model = transfer.get_model(c)
+		minutes = None
+		if model:
+		    minutes = model.fields['typical']
+	    $if minutes:
+		<div class="form-group row">
+		    <div class="col-xs-11"><strong>$(minutes+" mn")</strong></div>
+		</div>
 
 	<div class="form-group row">
 	    <label for="inputPosition" class="col-sm-3 col-form-label">$c.getMessage('target',self.lang)</label>

@@ -60,7 +60,7 @@ $elif myID == 'component':
 			$if src.get_type() == 's':
 				$src.fields['acronym'] - $src.getName(self.lang)
 			$else:
-				$c.getMessage(src.get_class_acronym()) #$(src.getID())
+				$c.getMessage(src.get_class_acronym(),self.lang) #$(src.getID())
 			</option>
 		</select>
 	    </div>

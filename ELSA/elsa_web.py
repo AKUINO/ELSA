@@ -1394,6 +1394,7 @@ def main():
             c.isThreading = False
             c.UpdateThread.join()
             c.RadioThread.join()
+            c.TimerThread.join()
         
         flags.launch_end_activities()
 
