@@ -8,11 +8,11 @@ $code:
     done = set()
     listRecipe = c.AllGrRecipe.get_fullmap_str()
 <div class="container">
-<table>
-<tr><th colspan="7" class="text-center">$refDate[:7]</th></tr>
-<tr>
+<table style="border:1px solid black">
+<tr style="border:1px solid black"><th colspan="7" class="text-center">$refDate[:7]</th></tr>
+<tr style="border:1px solid black">
 $for d in range(7):
-    <th class="text-center" style="padding:5px">$(c.getMessage("w"+unicode(d), self.lang))</th>
+    <th class="text-center" style="padding:5px;border:1px solid black">$(c.getMessage("w"+unicode(d), self.lang))</th>
 </tr>
 $:calendarContent
 </table>

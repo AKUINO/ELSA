@@ -661,9 +661,10 @@ class WebCalendar():
         for k in sortedKeys[i:j]:
             pieces = k.split('/')
             if len(pieces) >= 3:
+                print pieces
                 if pieces[1] != prv_use:
                     if opened:
-                        cal+=u") "
+                        cal+=u")<br/>"
                     prv_use = pieces[1]
                     cal+= c.getHalfling(before) if before else u''
                     if pieces[1]:
@@ -685,7 +686,7 @@ class WebCalendar():
                 for b in elements[k]:
                     cal+= "<a href=\"/find/related/b_"+b.getID()+"\" alt=\""+b.fields['acronym']+"\">"+b.statusIcon(c)+"</a>"
         if opened:
-            cal+=u") "
+            cal+=u")<br/>"
         return cal
 
     def GET(self):
@@ -716,6 +717,7 @@ class WebCalendar():
                     if where:
                         use += where.getTypeId()
                     use += recipe
+                    print "use="+use
                     beg = t.getTimestring()
                     if beg:
                         beg = beg[:10]
@@ -729,23 +731,26 @@ class WebCalendar():
                             if not end+use in quots:
                                 quots[end+use] = set()
                             quots[end+use].add(b)
+                            print "quots+"+end+use
                     elif beg:
                         if beg[:7] == rac:
                             if not beg+use in begs:
                                 begs[beg+use] = set()
                             begs[beg+use].add(b)
+                            print "begs+"+beg+use
                         if end and end[:7] == rac:
                             if not end+use in ends:
                                 ends[end+use] = set()
                             ends[end+use].add(b)
+                            print "ends+"+end+use
                 dlc = b.fields['expirationdate']
                 if dlc:
                     dlc = dlc[:10]
                     if dlc[:7] == rac:
-                        if dlc+u'/'+recipe in dlcs:
-                            dlcs[dlc+u'/'+recipe].add(b)
-                        else:
-                            dlcs[dlc+u'/'+recipe] = set().add(b)
+                        if not dlc+u'/'+recipe in dlcs:
+                            dlcs[dlc+u'/'+recipe] = set()
+                        dlcs[dlc+u'/'+recipe].add(b)
+                        print "dlcs+"+dlc+'/'+recipe
         dlcK = dlcs.keys()
         dlcK.sort()
         begK = begs.keys()
@@ -756,14 +761,15 @@ class WebCalendar():
         quotK.sort()
         cal = u""
         for w in calendarObject.monthdays2calendar(int(year),int(month)):
-            cal += u"<tr>"
+            cal += u"<tr style=\"border:1px solid black\">"
             for d in w:
-                cal += "<td class=\"text-center\">"
+                cal += "<td class=\"text-center\" style=\"border:1px solid black\">"
                 if not d[0]:
                     cal += u"&nbsp;"
                 else:
-                    today = rac+('0' if d[0] < 10 else '')+unicode(d[0])
-                    after = rac+('0' if d[0] < 9 else '')+unicode(d[0]+1)
+                    cal += unicode(d[0])+"<br/>"
+                    today = rac+('0' if d[0] < 10 else '')+"-"+unicode(d[0])
+                    after = rac+('0' if d[0] < 9 else '')+"-"+unicode(d[0]+1)
                     cal += self.makeMyDay(today,after,endK,ends,'from','')
                     cal += self.makeMyDay(today,after,quotK,quots,'to','from')
                     cal += self.makeMyDay(today,after,begK,begs,'','to')
