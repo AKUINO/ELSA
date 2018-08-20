@@ -105,6 +105,8 @@ Heure : {8}"	1
 2016-01-01 13:45:56	EN	begin	Begin	1
 2016-01-01 13:45:56	FR	begin	Début	1
 2016-01-01 13:45:56	NL	begin	Begin	1
+2017-03-21 14:08:46	EN	calendar	Calendar	1
+2017-03-21 14:08:46	FR	calendar	Calendrier	1
 2016-01-01 13:45:56	EN	cancel	Cancel	1
 2016-01-01 13:45:56	FR	cancel	Annuler	1
 2016-01-01 13:45:56	EN	channel	Channel 	1
@@ -420,3 +422,17 @@ Heure : {8}"	1
 2016-01-01 13:45:56	EN	welcome	Welcome	1
 2016-01-01 13:45:56	FR	welcome	Bienvenue	1
 2016-01-01 13:45:56	NL	welcome	Welcom	1
+2016-01-01 13:45:56	EN	w0	Mon	1
+2016-01-01 13:45:56	EN	w1	Tue	1
+2016-01-01 13:45:56	EN	w2	Wed	1
+2016-01-01 13:45:56	EN	w3	Thu	1
+2016-01-01 13:45:56	EN	w4	Fri	1
+2016-01-01 13:45:56	EN	w5	Sat	1
+2016-01-01 13:45:56	EN	w6	Sun	1
+2016-01-01 13:45:56	FR	w0	Lun	1
+2016-01-01 13:45:56	FR	w1	Mar	1
+2016-01-01 13:45:56	FR	w2	Mer	1
+2016-01-01 13:45:56	FR	w3	Jeu	1
+2016-01-01 13:45:56	FR	w4	Ven	1
+2016-01-01 13:45:56	FR	w5	Sam	1
+2016-01-01 13:45:56	FR	w6	Dim	1

@@ -1,0 +1,70 @@
+$def with (mail,calendar,refDate)
+$var title : Production Calendar
+$var location: calendar
+$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
+$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$var recursive : False
+$code:
+    done = set()
+    listRecipe = c.AllGrRecipe.get_fullmap_str()
+    month = refDate[5:7]
+    year = refDate[:4]
+<div class="container">
+<table>
+<tr><th colspan="7" class="text-center">$refDate[:7]</th></tr>
+<tr>
+$for d in range(7):
+    <th class="text-center" style="padding:5px">$(c.getMessage("w"+unicode(d), self.lang))</th>
+</tr>
+$for w in calendar.monthdays2calendar(int(year),int(month)):
+    <tr>
+    $for d in w:
+	<td class="text-center">$:(d[0] if d[0] else "&nbsp;")</td>
+    </tr>
+</table>
+$ level = 0
+$for krecipe in listRecipe:
+	$if krecipe == '>>':
+		$ level += 1
+	$elif krecipe == '<<':
+		$ level -= 1
+		</div>
+	$else:
+	    $ elem = c.AllGrRecipe.get(krecipe)
+	    $if elem and elem.isActive():
+		$if level == 0:
+			<div class="map top">
+		$else:
+			<div class="map down">
+		<a href="/find/related/gr_$krecipe">$:(elem.statusIcon(c,True,False))</a>
+		$ acro = elem.fields['acronym']
+		$if ('gr_'+krecipe) in done:
+			<a href="#gr_$acro">$acro</a>
+		$else:
+			<a name="gr_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>
+			$for batch in c.AllBatches.get_batches_for_recipes([krecipe]):
+				$if batch.isActive() and not batch.isComplete():
+					<div class="map down">
+					<a href="/find/related/b_$batch.getID()">$:(batch.statusIcon(c,True,False))</a>
+					$ acro = batch.fields['acronym']
+					$if ('b_'+batch.getID()) in done:
+						<a href="#b_$acro">$acro</a>
+					$else:
+						<a name="b_$acro"></a>$acro - <strong>$(batch.getName(self.lang))</strong>
+						    $code:
+							pos = None
+							alarms = batch.count_logs(c)
+							transfer = batch.get_last_transfer(c)
+							if transfer:
+								pos = transfer.get_component(c)
+						    $if pos is not None :
+							    $:c.getHalfling('to')
+							    <a href="/find/related/$(pos.get_type())_$pos.getID()">$:(pos.statusIcon(c,True,False)) $pos.fields['acronym']</a>,
+							    $transfer.fields['time']
+						    $if alarms > 0:
+							    <a href="/find/al/b_$batch.getID()">
+							    $:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
+						$ done.add('b_'+batch.getID())
+					</div>
+			$ done.add('gr_'+krecipe)
+</div>

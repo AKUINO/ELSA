@@ -138,9 +138,10 @@ $if content.recursive == 'False' :
 				<li><a href="/list/b" tabindex="-1">$:c.getHalfling('batch')&nbsp;$c.getMessage('batch',content.lang)</a></li>
 				<li><a href="/list/gr" tabindex="-2">$:c.getHalfling('grecipe')&nbsp;$c.getMessage('grecipe',content.lang)</a></li>
 				<li><a href="/map/gr" tabindex="-3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('datatable')&nbsp;$c.getMessage('datatable',content.lang)</a></li>				
-				<li$:('' if " upd_d "in content.allowed else ' class="disabled"')><a href="$("/create/d" if " upd_d "in content.allowed else "#")" tabindex="-4">$:c.getHalfling('manualdata')&nbsp;$c.getMessage('manualdata',content.lang)</a></li>
-				<li$:('' if " upd_t "in content.allowed else ' class="disabled"')><a href="$("/create/t" if " upd_t "in content.allowed else "#")" tabindex="-5">$:c.getHalfling('transfer')&nbsp;$c.getMessage('transfer',content.lang)</a></li>
-				<li$:('' if " upd_v "in content.allowed else ' class="disabled"')><a href="$("/create/v" if " upd_v "in content.allowed else "#")" tabindex="-6">$:c.getHalfling('pouring')&nbsp;$c.getMessage('pouring',content.lang)</a></li>
+				<li><a href="/calendar" tabindex="-4">$:c.getHalfling('calendar')&nbsp;$c.getMessage('calendar',content.lang)</a></li>
+				<li$:('' if " upd_d "in content.allowed else ' class="disabled"')><a href="$("/create/d" if " upd_d "in content.allowed else "#")" tabindex="-5">$:c.getHalfling('manualdata')&nbsp;$c.getMessage('manualdata',content.lang)</a></li>
+				<li$:('' if " upd_t "in content.allowed else ' class="disabled"')><a href="$("/create/t" if " upd_t "in content.allowed else "#")" tabindex="-6">$:c.getHalfling('transfer')&nbsp;$c.getMessage('transfer',content.lang)</a></li>
+				<li$:('' if " upd_v "in content.allowed else ' class="disabled"')><a href="$("/create/v" if " upd_v "in content.allowed else "#")" tabindex="-7">$:c.getHalfling('pouring')&nbsp;$c.getMessage('pouring',content.lang)</a></li>
 			    </ul>
 			</li>
 			<li class="dropdown" data-show-icon="true">

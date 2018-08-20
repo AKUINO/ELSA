@@ -4,7 +4,7 @@ $code:
     batch = c.AllBatches.elements[id1]
     cp = c.AllCheckPoints.elements[id2]
     elems = cp.get_model_sorted()
-    here = batch.get_absolute_position_here(c)
+    here = batch.get_actual_position_here(c)
     here_id = None
     here_type = None
     if here:

@@ -16,6 +16,7 @@ import json
 import cgi
 import rrd
 import time
+import calendar
 global c, render
 
 def manage_cmdline_arguments():
@@ -643,6 +644,22 @@ class WebMapRecipe():
         if id and id in c.AllGrRecipe.elements.keys():
             return render.maprecipe(mail, type, id)
         return render.notfound()
+
+class WebCalendar():
+    def __init__(self):
+        self.name = u"WebCalendar"
+
+    def GET(self):
+        mail = redirect_when_not_logged()
+        lang = c.connectedUsers.users[mail].cuser.fields['language']
+        
+        data = web.input()
+        if 'date' in data:
+            refDate = date['date']
+        else:
+            refDate = useful.now()
+        calendarObject = calendar.HTMLCalendar(calendar.MONDAY) #Locale is bugged
+        return render.calendar(mail, calendarObject, refDate)
 
 class WebMapBatch():
     def __init__(self):
@@ -1362,6 +1379,7 @@ def main():
             '/map/gu', 'WebMapComponents',
             '/map/h', 'WebMapCheckPoints',
             '/map/gr', 'WebMapRecipes',
+            '/calendar', 'WebCalendar',
             '/barcode/(.+)', 'WebBarcode',
             '/barcode/', 'WebBarcode',
             '/modal/(.+)_(.+)', 'WebModal',
