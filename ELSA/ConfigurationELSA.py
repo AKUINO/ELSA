@@ -1167,6 +1167,12 @@ class AllObjects(object):
                                .remove_source(currObject)
                         objects.elements[currObject.fields['dest']] \
                                .remove_destination(currObject)
+                elif currObject.get_type() == 'al':
+                    if currObject.isActive():
+                        oType = currObject.fields['s_type']
+                        self.config.get_object( (oType if oType else 's'), \
+                                currObject.fields['s_id']) \
+                               .set_alarm(self.config, currObject)
         if conformantFile is not None:
             conformantFile.close()
             #TODO: Rename current file to timestamped one, rename .NEW to actual file...
@@ -1358,11 +1364,6 @@ class AllPlaces(AllObjects):
     def get_group_type(self):
         return 'gu'
 
-
-#TODO: AlarmLog n'enregistre que les alarmes des senseurs.
-#TODO: Celles des Observations et des Versements devraient l'être aussi: il faut pouvoir les listers dans le contexte de leur lot.
-#TODO: durée de séjour d'un lot: aussi possibilité d'alarmes? les logger...
-#TODO: Notion d'ACTION CORRECTIVE enregistrée: remarque par qui, quand? Statut de cloture?
 class AllAlarmLogs(AllObjects):
 
     def __init__(self, config):
@@ -1939,7 +1940,7 @@ class AllBatches(AllObjects):
         for k, e in self.elements.items():
             if e.isActive() and (not e.fields['gr_id'] or (e.fields['gr_id'] in recipes)):
                 #print "key="+k+", recipe=",e.fields['gr_id']
-                tmp = e.get_last_transfer(configuration)
+                tmp = e.get_last_transfer(self.config)
                 if tmp is not None:
                     currObj = self.config.get_object(tmp.fields['cont_type'], tmp.fields['cont_id'])
                     #print currObj.__repr__()+"="+currObj.get_group()
@@ -2478,12 +2479,12 @@ class AlarmingObject(ConfigurationObject):
     def __init__(self):
         ConfigurationObject.__init__(self)
         self.actualAlarm = 'typical'
-        self.countActual = 0
         self.degreeAlarm = 0
+        self.countAlarm = 0
         self.colorAlarm = valueCategs[0].color
         self.colorTextAlarm = valueCategs[0].text_color
         self.lastvalue = None
-        self.time = 0
+        self.time = ""
 
     def get_alarm(self,model=None):
         bounds = model.fields if model else self.fields
@@ -2509,6 +2510,16 @@ class AlarmingObject(ConfigurationObject):
         if bounds['lapse3'] == '':
             bounds['lapse3'] = "99999999"
 
+    def set_alarm(self, c, alarmlog):
+        self.actualAlarm = alarmlog.fields['typealarm']
+        try:
+            self.degreeAlarm = int(alarmlog.fields['degree'])
+        except:
+            self.degreeAlarm = 0
+	Aname, Aacronym, self.colorAlarm, self.colorTextAlarm = c.triple(alarmlog.fields['typealarm'])
+        self.lastvalue = alarmlog.fields['value']
+        self.time = alarmlog.fields['alarmtime']
+        
 class ManualData(AlarmingObject):
 
     def __init__(self):
@@ -4386,7 +4397,6 @@ class Sensor(AlarmingObject):
             string = string + "\n" + field + \
                 " : " + unicode(self.fields[field])
         string = string + ' Actual Alarm : ' + self.actualAlarm
-        string = string + ' Count Actual : ' + unicode(self.countActual)
         string = string + ' Degree Alarm : ' + unicode(self.degreeAlarm)
         return string + "\n"
 
@@ -4488,7 +4498,7 @@ class Sensor(AlarmingObject):
                 pos = config.screen.show(pos, unit_measure)
 
         prvAlarm = self.actualAlarm
-        typeAlarm, symbAlarm, self.colorAlarm,self.colorTextAlarm = self.getTypeAlarm(value)
+        typeAlarm, symbAlarm, self.colorAlarm,self.colorTextAlarm = self.getTypeAlarm(value,self)
         self.actualAlarm = typeAlarm
         self.nextAlarm(config, now, prvAlarm == self.actualAlarm)
 

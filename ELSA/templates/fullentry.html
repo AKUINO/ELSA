@@ -66,7 +66,7 @@ $elif permissionKey in '_d_t_v_':
 		$:(c.getHalfling(source.get_class_acronym()))
 		$if 'acronym' in source.fields:
 			$source.fields['acronym']
-		</a><span style="padding:5px;background-color:#$(Acolor);color:#$(Atext_color)">$source.getQtyUnit(c)</span>
+		</a><span style="padding:5px;background-color:#$(Acolor);color:#$(Atext_color)">$elem.fields['value'] $source.get_unit(c)</span>
 	    </div>
 	    <div class="row">
 		$useful.date_to_ISO(elem.fields['begintime'])
