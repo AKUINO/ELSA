@@ -158,9 +158,9 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		    <input type="hidden" name="vm_id_$(countvm)" value="$e.getID()"/>
 		    <label class="col-sm-12 col-form-label">$:c.getAllHalfling(c.AllPourings) $e.getName(self.lang): <span class="text-danger">$e.fields['remark']<span></label>
 		</div>
+                $ aMeasure = None
 		$if e.fields['in'] != '0':
 		    <div class="form-group row">
-                        $ aMeasure = None
 			$ aRecipe = None
 			$if e.fields['src'] and e.fields['src'] in c.AllGrRecipe.elements:
 				$ aRecipe = c.AllGrRecipe.elements[e.fields['src']]

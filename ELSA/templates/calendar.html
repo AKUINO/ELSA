@@ -1,6 +1,6 @@
 $def with (mail,calendar,refDate)
 $var title : Production Calendar
-$var location: calendar
+$var location: calendar=calendar
 $var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
 $var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : False
