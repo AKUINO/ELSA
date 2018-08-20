@@ -725,10 +725,10 @@ class WebCalendar():
                             dBeg = useful.date_to_timestamp(beg+" 00:00:00")
                             end = useful.timestamp_to_ISO(dBeg+planned)[:10]
                     if end and beg == end:
-                        if quot[:7] == rac:
-                            if not quot+use in quots:
-                                quots[quot+use] = set()
-                            quots[quot+use].add(b)
+                        if beg[:7] == rac:
+                            if not end+use in quots:
+                                quots[end+use] = set()
+                            quots[end+use].add(b)
                     elif beg:
                         if beg[:7] == rac:
                             if not beg+use in begs:
