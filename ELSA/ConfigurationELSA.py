@@ -103,6 +103,12 @@ def export_float(value):
     else:
         return unicode(value).replace('.',',',1)
 
+def splitId(string):
+    if not string:
+        return '',''
+    splits = string.split(u'_')
+    return splits[0] if len(splits) > 0 else '', splits[1] if len(splits) > 1 else ''
+
 class valueCategory(object):
 
     def __init__(self, level, name, acronym, color,text_color):
@@ -317,7 +323,7 @@ class ConfigurationObject(object):
         self.manualdata = []
 
     def __repr__(self):
-        return self.get_type()+'_'+self.id+(' '+self.fields['acronym']) if 'acronym' in self.fields else ''
+        return self.getTypeId()+(' '+self.fields['acronym']) if 'acronym' in self.fields else ''
 
     def floats(self, field):
         v = self.fields[field]
@@ -490,6 +496,9 @@ class ConfigurationObject(object):
 
     def getID(self):
         return self.id
+
+    def getTypeId(self):
+        return self.get_type()+u'_'+unicode(self.id)
 
     def getTimestring(self):
         stamp = ""
@@ -2538,8 +2547,7 @@ class ManualData(AlarmingObject):
         return self.fields['value']
 
     def add_component(self, component):
-        type = component.split('_')[0]
-        id = component.split('_')[1]
+        type,id = splitId(component)
         self.fields['object_id'] = id
         self.fields['object_type'] = type
 
@@ -2565,14 +2573,11 @@ class ManualData(AlarmingObject):
                 value = float(data['value'])
             except:
                 tmp += configuration.getMessage('floatrules',lang) + ' '+data['value']+'\n'
-        try:
-            aType = data['component'].split('_')[0]
-            anId = data['component'].split('_')[1]
-            if not configuration.is_component(aType):
-                tmp += configuration.getMessage('componentrules',lang) + ' '+data['component']+'\n'
-        except:
+        aType,anId = splitId(data['component'])
+        if not aType or not anId:
             tmp += configuration.getMessage('componentrules',lang) + '\n'
-
+        elif not configuration.is_component(aType):
+            tmp += configuration.getMessage('componentrules',lang) + ' '+data['component']+'\n'
         if tmp == '':
             return True
         return tmp
@@ -3173,8 +3178,7 @@ class CheckPoint(Group):
                 countvm += 1
             if tmp:
                 currObject.set_value_from_data(tmp, self.config, user)
-        type = data['batch'].split('_')[0]
-        id = data['batch'].split('_')[1]
+        type,id = splitId(data['batch'])
         self.write_control(type, id, user)
         self.config.get_object(type,id).add_checkpoint(self.getID(),data['time'])
 
@@ -5379,16 +5383,16 @@ class Transfer(AlarmingObject):
         return self.get_quantity_string()+" mn"
 
     def set_position(self, pos):
-        self.fields['cont_type'] = pos.split('_')[0]
-        self.fields['cont_id'] = pos.split('_')[1]
+        self.fields['cont_type'],self.fields['cont_id'] = splitId(pos)
 
     def set_object(self, objkey, user):
         obj = self.config.get_object(self.fields['object_type'],self.fields['object_id'])
         if obj:
             obj.remove_position(self)
-        self.fields['object_type'] = objkey.split('_')[0]
-        self.fields['object_id'] = objkey.split('_')[1]
-        obj = self.config.get_object(self.fields['object_type'],self.fields['object_id'])
+        type,id = splitId(objkey)
+        self.fields['object_type'] = type
+        self.fields['object_id'] = id
+        obj = self.config.get_object(type,id)
         if obj:
             obj.add_position(self,user)
 
@@ -5418,10 +5422,8 @@ class Transfer(AlarmingObject):
     def validate_form(self, data, configuration, lang):
         tmp = ''
         if 'position' in data:
-            objtype = data['object'].split('_')[0]
-            objid = data['object'].split('_')[1]
-            postype = data['position'].split('_')[0]
-            posid = data['position'].split('_')[1]
+            objtype,objid = splitId(data['object'])
+            postype,posid = splitId(data['position'])
             objet = configuration.get_object(objtype, objid)
             # Transfer can be in the past: validating position is very difficult...
             # And timed transfers may not change current position!

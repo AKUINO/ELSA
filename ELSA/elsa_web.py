@@ -17,6 +17,8 @@ import cgi
 import rrd
 import time
 import calendar
+import bisect
+
 global c, render
 
 def manage_cmdline_arguments():
@@ -649,17 +651,126 @@ class WebCalendar():
     def __init__(self):
         self.name = u"WebCalendar"
 
+    def makeMyDay(self,today, afterToday, sortedKeys,elements,before,after):
+        cal = u""
+        i = bisect.bisect(sortedKeys,today)
+        j = bisect.bisect(sortedKeys,afterToday)
+        prv_use = None
+        prv_recipe = None
+        opened = False
+        for k in sortedKeys[i:j]:
+            pieces = k.split('/')
+            if len(pieces) >= 3:
+                if pieces[1] != prv_use:
+                    if opened:
+                        cal+=u") "
+                    prv_use = pieces[1]
+                    cal+= c.getHalfling(before) if before else u''
+                    if pieces[1]:
+                        use = pieces[1].split('_')
+                        #useAll = c.findAll(use[0])
+                        #cal+=c.linkedAcronym(useAll,use[1])
+                        usage = c.get_object(use[0],use[1])
+                        cal+= usage.statusIcon(c,None,False)
+                        cal+= usage.fields['acronym']
+                        cal+= c.getHalfling(after) if after else u''
+                        cal+=u"("
+                        opened = True
+                if pieces[2] != prv_recipe:
+                    prv_recipe = pieces[2]
+                    if pieces[2]:
+                        recipe = c.AllGrRecipe.get(pieces[2])
+                        if recipe:
+                            cal+= recipe.fields['acronym']
+                for b in elements[k]:
+                    cal+= "<a href=\"/find/related/b_"+b.getID()+"\" alt=\""+b.fields['acronym']+"\">"+b.statusIcon(c)+"</a>"
+        if opened:
+            cal+=u") "
+        return cal
+
     def GET(self):
         mail = redirect_when_not_logged()
         lang = c.connectedUsers.users[mail].cuser.fields['language']
         
+        calendarObject = calendar.HTMLCalendar(calendar.MONDAY) #Locale is bugged
+
         data = web.input()
         if 'date' in data:
-            refDate = date['date']
+            refDate = data['date']
         else:
             refDate = useful.now()
-        calendarObject = calendar.HTMLCalendar(calendar.MONDAY) #Locale is bugged
-        return render.calendar(mail, calendarObject, refDate)
+        month = refDate[5:7]
+        year = refDate[:4]
+        rac = refDate[:7]
+        quots = {}
+        begs = {}
+        ends = {}
+        dlcs = {}
+        for k,b in c.AllBatches.elements.items():
+            if b.isActive() and not b.isComplete():
+                recipe = "/"+b.get_group()
+                t = b.get_last_transfer(c)
+                use = "/"
+                if t:
+                    where = t.get_component(c)
+                    if where:
+                        use += where.getTypeId()
+                    use += recipe
+                    beg = t.getTimestring()
+                    if beg:
+                        beg = beg[:10]
+                        planned = t.get_quantity_string() #minutes
+                        if planned:
+                            planned = int(planned)*60
+                            dBeg = useful.date_to_timestamp(beg+" 00:00:00")
+                            end = useful.timestamp_to_ISO(dBeg+planned)[:10]
+                    if end and beg == end:
+                        if quot[:7] == rac:
+                            if not quot+use in quots:
+                                quots[quot+use] = set()
+                            quots[quot+use].add(b)
+                    elif beg:
+                        if beg[:7] == rac:
+                            if not beg+use in begs:
+                                begs[beg+use] = set()
+                            begs[beg+use].add(b)
+                        if end and end[:7] == rac:
+                            if not end+use in ends:
+                                ends[end+use] = set()
+                            ends[end+use].add(b)
+                dlc = b.fields['expirationdate']
+                if dlc:
+                    dlc = dlc[:10]
+                    if dlc[:7] == rac:
+                        if dlc+u'/'+recipe in dlcs:
+                            dlcs[dlc+u'/'+recipe].add(b)
+                        else:
+                            dlcs[dlc+u'/'+recipe] = set().add(b)
+        dlcK = dlcs.keys()
+        dlcK.sort()
+        begK = begs.keys()
+        begK.sort()
+        endK = ends.keys()
+        endK.sort()
+        quotK = quots.keys()
+        quotK.sort()
+        cal = u""
+        for w in calendarObject.monthdays2calendar(int(year),int(month)):
+            cal += u"<tr>"
+            for d in w:
+                cal += "<td class=\"text-center\">"
+                if not d[0]:
+                    cal += u"&nbsp;"
+                else:
+                    today = rac+('0' if d[0] < 10 else '')+unicode(d[0])
+                    after = rac+('0' if d[0] < 9 else '')+unicode(d[0]+1)
+                    cal += self.makeMyDay(today,after,endK,ends,'from','')
+                    cal += self.makeMyDay(today,after,quotK,quots,'to','from')
+                    cal += self.makeMyDay(today,after,begK,begs,'','to')
+                    cal += self.makeMyDay(today,after,dlcK,dlcs,'time','')
+                cal += u"</td>"
+            cal += u"</tr>"
+        return render.calendar(mail, calendarObject, refDate, cal)
 
 class WebMapBatch():
     def __init__(self):
@@ -1355,6 +1466,7 @@ def main():
         web.template.Template.globals['str'] = str
         web.template.Template.globals['unicode'] = unicode
         web.template.Template.globals['useful'] = useful
+        web.template.Template.globals['bisect'] = bisect
         web.template.Template.globals['round'] = round
         web.template.Template.globals['subprocess'] = subprocess
         layout = web.template.frender(elsa.TEMPLATES_DIR+'/layout.html')
