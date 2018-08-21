@@ -62,7 +62,7 @@ $if errormess != '':
 					    >$tmp $aGroup.fields['acronym'] - $(aGroup.getName(self.lang))</option>
 		    </select>
 		</div>
-	$if type =='h' or type == 'gr':
+	$if type =='h':
 	    <div class="form-group row">
 		<label for="usage" class="col-sm-3 col-form-label">$:c.getAllHalfling(c.AllGrUsage) $c.getMessage(('guse' if type=='h' else 'target'),self.lang) </label>
 		<div class="col-sm-9" id = "divgroup">
@@ -92,6 +92,9 @@ $if errormess != '':
 					    <option value="$group"
 					    $if context != '':
 						$if context.split('_')[-1] == group :
+						    selected
+					    $elif id == 'new' and data and 'usage' in data:
+						$if group == data['usage'] :
 						    selected
 					    $elif id != 'new':
 						$if group == elem.fields['gu_id'] :
@@ -170,6 +173,46 @@ $if errormess != '':
 	</div>
 	
 	$if type == 'gr':
+		<div class="form-group row">
+		<label for="usage" class="col-sm-3 col-form-label">$:c.getAllHalfling(c.AllTransfers)$:c.getAllHalfling(c.AllGrUsage) $c.getMessage('startup'),self.lang) </label>
+		<div class="col-sm-9" id = "divgroup">
+		    <select name = "usage" class="form-control" id="usage">
+			<option value=''></option>
+			$code :
+			    groupList = c.AllGrUsage.get_hierarchy_str()
+			    groups = c.AllGrUsage
+			    tmp = ''
+			    indent = 1
+			    cindent = 9
+			$if len(groupList) > 0:
+			    $for group in groupList:
+				$if group == '>>' :
+				    $code:
+					indent+=1
+					cindent-=1
+					tmp = ((indent-1)*4)*"_"
+				$elif group == '<<':
+				    $code:
+					indent-=1
+					cindent+=1
+					tmp = ((indent-1)*4)*"_"
+				$else :
+				    $ aGroup = groups.get(group)
+				    $if aGroup:
+					    <option value="$group"
+					    $if context != '':
+						$if context.split('_')[-1] == group :
+						    selected
+					    $elif id == 'new' and data and 'usage' in data:
+						$if group == data['usage'] :
+						    selected
+					    $elif id != 'new':
+						$if group == elem.fields['gu_id'] :
+						    selected
+					    >$tmp $aGroup.fields['acronym'] - $(aGroup.getName(self.lang)) #$aGroup.fields['rank']</option>
+		    </select>
+		</div>
+		</div>
 		<div class="form-group row">
 		    <label for="inputLifespan" class="col-sm-3 col-form-label">$c.getMessage('lifespan',self.lang)</label>
 		    <div class="col-sm-4">
