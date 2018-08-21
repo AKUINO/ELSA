@@ -174,7 +174,7 @@ $if errormess != '':
 	
 	$if type == 'gr':
 		<div class="form-group row">
-		<label for="usage" class="col-sm-3 col-form-label">$:c.getAllHalfling(c.AllTransfers)$:c.getAllHalfling(c.AllGrUsage) $c.getMessage('startup'),self.lang) </label>
+		<label for="usage" class="col-sm-3 col-form-label">$:c.getAllHalfling(c.AllTransfers)$:c.getAllHalfling(c.AllGrUsage) $c.getMessage('startup',self.lang) </label>
 		<div class="col-sm-9" id = "divgroup">
 		    <select name = "usage" class="form-control" id="usage">
 			<option value=''></option>
