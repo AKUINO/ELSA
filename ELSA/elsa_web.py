@@ -656,7 +656,6 @@ class WebCalendar():
         i = bisect.bisect(sortedKeys,today)
         j = bisect.bisect(sortedKeys,afterToday)
         prv_use = None
-        prv_recipe = None
         opened = False
         for k in sortedKeys[i:j]:
             pieces = k.split('/')
@@ -666,6 +665,7 @@ class WebCalendar():
                     if opened:
                         cal+=u")<br/>"
                     prv_use = pieces[1]
+                    prv_recipe = None
                     cal+= c.getHalfling(before) if before else u''
                     if pieces[1]:
                         use = pieces[1].split('_')
@@ -761,9 +761,9 @@ class WebCalendar():
         quotK.sort()
         cal = u""
         for w in calendarObject.monthdays2calendar(int(year),int(month)):
-            cal += u"<tr style=\"border:1px solid black\">"
+            cal += u"<tr>"
             for d in w:
-                cal += "<td class=\"text-center\" style=\"border:1px solid black\">"
+                cal += "<td class=\"text-center\">"
                 if not d[0]:
                     cal += u"&nbsp;"
                 else:
@@ -776,7 +776,7 @@ class WebCalendar():
                     cal += self.makeMyDay(today,after,dlcK,dlcs,'time','')
                 cal += u"</td>"
             cal += u"</tr>"
-        return render.calendar(mail, calendarObject, refDate, cal)
+        return render.calendar(mail, calendarObject, int(year), int(month), cal)
 
 class WebMapBatch():
     def __init__(self):
