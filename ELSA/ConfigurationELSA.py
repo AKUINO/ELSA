@@ -65,6 +65,7 @@ TEMPLATES_DIR = os.path.join(DIR_BASE, 'templates/')
 GROUPWEBUSERS = '_WEB'
 KEY_ADMIN = "admin" #Omnipotent user
 
+CONNECTION_TIMEOUT = 900 #seconds = 15 minutes before reasking password
 
 imagedTypes = [u'u', u'e', u'p', u'g', u'gf', u'gr', u'gu', u'c', u'b', u'h', u's', u'm', u'a', u'al']
 
@@ -689,7 +690,7 @@ class ConfigurationObject(object):
             if insert is False:
                 if tmp:
                     tmp.completed = time
-                    if user and tmp.checkTimerAlarm(self.config):
+                    if user and tmp.checkTimerAlarm(self.config,False):
                         tmp.save(self.config,user)
                 self.transfers.append(transfer.getID())
                 transfer.completed = None
@@ -879,8 +880,8 @@ class ConfigurationObject(object):
         measure = self.get_measure(c)
         quantity = self.get_quantity_string()
         if quantity:
-            if measure and measure.fields['step'] == '0':
-                quantity = int(quantity)
+            if measure and measure.fields['step']:
+                quantity = round(float(quantity),int(measure.fields['step']))
             result = unicode(quantity)
         if measure:
             result += ' '+measure.fields['unit']
@@ -999,7 +1000,7 @@ class TimerThread(threading.Thread):
                 if b.isActive() and not b.isComplete():
                     t = b.get_last_transfer(self.config)
                     if t and not t.completed:
-                        if t.checkTimerAlarm(self.config):
+                        if t.checkTimerAlarm(self.config,True):
                             t.save(self.config,"")
             while self.config.isThreading is True and timer < 60:
                 time.sleep(1)           
@@ -1292,7 +1293,9 @@ class AllUsers(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'u', User.__name__, config)
-        self.fieldnames = ['begin', 'u_id', 'active', 'acronym', 'remark',
+#TODO: contact, addr1, addr2, addr3, vat, accesslevel
+        self.fieldnames = ['begin', 'u_id', 'active', 'acronym',
+                           'remark',
                            'registration', 'phone', 'mail', 'password',
                            'language', 'gf_id', 'donotdisturb', 'user']
         self.fieldtranslate = ['begin', 'lang', 'u_id', 'name', 'user']
@@ -1919,6 +1922,7 @@ class AllBatches(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'b', Batch.__name__, config)
+#TODO: provider, buyer, reference; Transfers to parameterize "orderdate", "deliverydate"
         self.fieldnames = ["begin", "b_id", "active", "acronym",
                            "basicqt", "m_id", "time", "cost", "fixed_cost", "remark",
                            'gr_id', 'expirationdate', 'completedtime', "user"]
@@ -2181,6 +2185,7 @@ class ConnectedUser():
     def __init__(self, user):
         self.cuser = user
         self.datetime = time.time()
+        self.initial = self.datetime
 
     def update(self):
         self.datetime = time.time()
@@ -2205,7 +2210,7 @@ class AllConnectedUsers():
     def update(self):
         updatetime = time.time()
         for mail, connecteduser in self.users.items():
-            if (updatetime - connecteduser.datetime) > 900:
+            if (updatetime - connecteduser.datetime) > CONNECTION_TIMEOUT:
                 del self.users[mail]
 
     def isConnected(self, mail, password):
@@ -2392,6 +2397,12 @@ class User(ConfigurationObject):
             result += " upd_a upd_al upd_b upd_c upd_d upd_dm upd_e upd_gf upd_gr upd_gu upd_h upd_m upd_p upd_s upd_t upd_tm upd_u upd_v upd_vm "
         return result
 
+    def connectedSince(self, c):
+        if self.fields['mail']:
+            if self.fields['mail'] in c.connectedUsers.users:
+                connexion = c.connectedUsers.users[self.fields['mail']]
+                return useful.date_to_ISO(connexion.initial)
+        return ""
 
 class Equipment(ConfigurationObject):
 
@@ -4114,7 +4125,7 @@ class Alarm(ConfigurationObject):
                                   name,
                                   elem.getName(lang) if elem else "",
                                   elem.fields['acronym'] if elem else "",
-                                  (newFields['value']+" mn"),
+                                  alarmedObject.getQtyUnit(config),
                                   alarmedObject.fields['remark'],
                                   alarmedObject.fields['time'])
         elif alarmedObject.get_type() == 'v':
@@ -4186,18 +4197,15 @@ class Alarm(ConfigurationObject):
             title = config.getMessage('alarmmanualtitle',lang)
             elem = config.get_object(
                 alarmedObject.fields['object_type'],alarmedObject.fields['object_id'])
-            unit_measure = alarmedObject.get_unit(config)
             return unicode.format(title,
-                                  alarmedObject.get_quantity_string(),
-                                  unit_measure,
+                                  alarmedObject.getQtyUnit(config),
                                   elem.getName(lang))
         elif alarmedObject.get_type() == 't':
             title = config.getMessage('alarmmanualtitle',lang)
             elem = config.get_object(
                 alarmedObject.fields['object_type'],alarmedObject.fields['object_id'])
             return unicode.format(title,
-                                  alarmedObject.get_quantity_string(),
-                                  "mn",
+                                  alarmedObject.getQtyUnit(config),
                                   elem.getName(lang))
         elif alarmedObject.get_type() == 'v':
             title = config.getMessage('alarmpouringtitle',lang)
@@ -5319,6 +5327,31 @@ class TransferModel(ConfigurationObject):
     def get_class_acronym(self):
         return 'transfermodel'
 
+    def get_quantity(self):
+        result = self.get_quantity_string()
+        if result:
+            return float(result)
+        return -1.0
+
+    def get_quantity_string(self):
+        if self.fields['typical']:
+            return self.fields['typical']
+        if self.fields['min']:
+            return self.fields['min']
+        if self.fields['max']:
+            return self.fields['max']
+        if self.fields['minmin']:
+            return self.fields['minmin']
+        if self.fields['maxmax']:
+            return self.fields['maxmax']
+        return ""
+
+    def getQtyUnit(self,c):
+        delay = self.get_quantity()
+        if delay >= 0:
+            return useful.seconds_to_string(int(delay)*60)
+        return ""
+
     def validate_form(self, data, configuration, lang):
         return super(TransferModel, self).validate_form(data, configuration, lang)
 
@@ -5371,16 +5404,29 @@ class Transfer(AlarmingObject):
     def get_id_object(self):
         return self.fields['object_id']
 
+    def getQtyUnit(self,c):
+        delay = self.get_quantity()
+        if delay >= 0:
+            return useful.seconds_to_string(int(delay)*60)
+        return ""
+
     def get_quantity_string(self):
         if self.completed:
             return unicode(int((useful.string_to_date(self.completed)-useful.string_to_date(self.getTimestring())).total_seconds()//60))
         return unicode(int((useful.string_to_date(useful.now())-useful.string_to_date(self.getTimestring())).total_seconds()//60))
 
+    def get_planned_duration(self,c):
+        if self.completed:
+            return int((useful.string_to_date(self.completed)-useful.string_to_date(self.getTimestring())).total_seconds()//60)
+        tm = self.get_model(c)
+        if tm:
+            minutes = tm.get_quantity_string()
+            if minutes:
+                return int(minutes)
+        return -1
+
     def get_unit(self,c):
         return "mn"
-
-    def getQtyUnit(self,c):
-        return self.get_quantity_string()+" mn"
 
     def set_position(self, pos):
         self.fields['cont_type'],self.fields['cont_id'] = splitId(pos)
@@ -5396,12 +5442,14 @@ class Transfer(AlarmingObject):
         if obj:
             obj.add_position(self,user)
 
-    def checkTimerAlarm(self,config):
+    def checkTimerAlarm(self,config,MaxOnly):
         model = self.get_model(config)
         if model:
             elapsed = self.get_quantity_string()
             typeAlarm, symbAlarm, self.colorAlarm,self.colorTextAlarm = self.getTypeAlarm(elapsed,model)
             if typeAlarm and typeAlarm != self.actualAlarm:
+                if MaxOnly and not 'max' in typeAlarm:
+                    return False
                 self.actualAlarm = typeAlarm
                 alarmCode = self.get_alarm(model);
                 anAlarm = config.AllAlarms.get(alarmCode)

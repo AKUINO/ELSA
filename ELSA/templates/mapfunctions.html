@@ -36,6 +36,11 @@ $for kfunction in listFunction:
 						<a href="#u_$acro">$acro</a>
 					$else:
 						<a name="u_$acro"></a>$acro - <strong>$(user.getName(self.lang))</strong>
+						$if user.fields['donotdisturb'] == '1':
+							<span class="icon-combine">$:(c.getAllHalfling(c.AllUsers))<span class="halflings halflings-remove text-danger"></span></span>
+						$ since = user.connectedSince(c)
+						$if since:
+							$:c.getHalfling('disconnect')$since
 						$ done.add('u_'+kuser)
 					</div>
 			$ done.add('gf_'+kfunction)

@@ -78,6 +78,22 @@ def send_email(recipient, subject, text):
     traceback.print_exc()
     return False
 
+def seconds_to_string(seconds):
+    mn = seconds // 60
+    hh = mn // 60
+    dd = hh // 24
+    seconds = seconds % 60
+    mn = mn % 60
+    hh = hh % 24
+    result = ( (" "+unicode(dd)+"d") if dd else "") \
+		 + ( (" "+unicode(hh)+"h") if hh else "") \
+		 + ( (" "+unicode(mn)+"mn") if mn else "") \
+		 + ( (" "+unicode(seconds)+"s") if seconds else "")
+    if result:
+	return result[1:]
+    else:
+	return ""
+
 def timestamp_to_date(now, format=datetimeformat):
     return datetime.datetime.fromtimestamp(int(now)).strftime(format)
 

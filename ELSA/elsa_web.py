@@ -719,30 +719,34 @@ class WebCalendar():
                     use += recipe
                     print "use="+use
                     beg = t.getTimestring()
+                    end = ""
                     if beg:
-                        beg = beg[:10]
-                        planned = t.get_quantity_string() #minutes
-                        if planned:
-                            planned = int(planned)*60
-                            dBeg = useful.date_to_timestamp(beg+" 00:00:00")
+##                        elapsed = self.get_quantity_string()
+##                        typeAlarm, symbAlarm, self.colorAlarm,self.colorTextAlarm = self.getTypeAlarm(elapsed,model)
+                        planned = t.get_planned_duration(c) #minutes
+                        print("plan="+unicode(planned))
+                        if planned >= 0:
+                            planned = planned*60
+                            dBeg = useful.date_to_timestamp(beg)
                             end = useful.timestamp_to_ISO(dBeg+planned)[:10]
-                    if end and beg == end:
-                        if beg[:7] == rac:
-                            if not end+use in quots:
-                                quots[end+use] = set()
-                            quots[end+use].add(b)
-                            print "quots+"+end+use
-                    elif beg:
-                        if beg[:7] == rac:
+                        beg = beg[:10]
+                        if end and beg == end:
+                            if beg[:7] == rac:
+                                if not end+use in quots:
+                                    quots[end+use] = set()
+                                quots[end+use].add(b)
+                                print "quots+"+end+use
+                        elif end:
+                            if end[:7] == rac:
+                                if not end+use in ends:
+                                    ends[end+use] = set()
+                                ends[end+use].add(b)
+                                print "ends+"+end+use
+                        elif beg[:7] == rac:
                             if not beg+use in begs:
                                 begs[beg+use] = set()
                             begs[beg+use].add(b)
                             print "begs+"+beg+use
-                        if end and end[:7] == rac:
-                            if not end+use in ends:
-                                ends[end+use] = set()
-                            ends[end+use].add(b)
-                            print "ends+"+end+use
                 dlc = b.fields['expirationdate']
                 if dlc:
                     dlc = dlc[:10]
@@ -770,8 +774,9 @@ class WebCalendar():
                     cal += unicode(d[0])+"<br/>"
                     today = rac+('0' if d[0] < 10 else '')+"-"+unicode(d[0])
                     after = rac+('0' if d[0] < 9 else '')+"-"+unicode(d[0]+1)
-                    cal += self.makeMyDay(today,after,endK,ends,'from','')
-                    cal += self.makeMyDay(today,after,quotK,quots,'to','from')
+                    cal += self.makeMyDay(today,after,endK,ends,'','')
+                    #cal += self.makeMyDay(today,after,quotK,quots,'to','from')
+                    cal += self.makeMyDay(today,after,quotK,quots,'','')
                     cal += self.makeMyDay(today,after,begK,begs,'','to')
                     cal += self.makeMyDay(today,after,dlcK,dlcs,'time','')
                 cal += u"</td>"

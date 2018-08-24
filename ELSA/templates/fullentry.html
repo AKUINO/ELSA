@@ -121,9 +121,15 @@ $elif permissionKey in '_d_t_v_':
 		<div class="col-xs-5 vcenter">
 		    $:c.linkedAcronym(groups,elem.get_group(),True)
 		</div>
-	        $if 'donotdisturb'in elem.fields and elem.fields['donotdisturb'] == '1' :
-		    <div class="col-xs-1 vcenter">
-			<span class="icon-combine">$:(c.getAllHalfling(c.AllUsers))<span class="halflings halflings-remove text-danger"></span></span>
+		$if type == 'u':
+		    $if elem.fields['donotdisturb'] == '1':
+			    <div class="col-xs-1 vcenter">
+				<span class="icon-combine">$:(c.getAllHalfling(c.AllUsers))<span class="halflings halflings-remove text-danger"></span></span>
+			    </div>
+		    <div class="col-xs-4 vcenter">
+			$ since = elem.connectedSince(c)
+			$if since:
+				$:c.getHalfling('disconnect')$since
 		    </div>
 		</div>
 	$elif permissionKey in '_e_c_':

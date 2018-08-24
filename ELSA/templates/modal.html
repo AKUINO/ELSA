@@ -209,6 +209,14 @@ $var title: MODAL
 		    $if permissionKey in '_s_dm_tm_vm_':
                         <div class="row" style="margin-top:10px;">
                             <div class="col-xs-4">
+                            $c.getMessage('value',self.lang) :
+                            </div>
+                            <div class="col-xs-8" id="modalinfo" >
+				$elem.getQtyUnit(c)
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
                             $c.getMessage('minmin',self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
@@ -468,12 +476,12 @@ $var title: MODAL
 				    -
                             </div>
                         </div>
-			<div class="row" style="margin-top:10px;">
+                        <div class="row" style="margin-top:10px;">
                             <div class="col-xs-4">
-                                $c.getMessage('quantity',self.lang) :
+                            $c.getMessage('value',self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-				$unicode(elem.get_quantity())
+				$elem.getQtyUnit(c)
                             </div>
                         </div>
 			<div class="row" style="margin-top:10px;">
