@@ -22,6 +22,11 @@ $elif aRecipe:
     $ precision = aRecipe.get_measure(c)
 $if errormess != '':
     $var rmq : $data['remark']
+    $code:
+	if data['group']:
+	    kRecipe = data['group']
+	    aRecipe = c.AllGrRecipe.get(kRecipe)
+	    precision = aRecipe.get_measure(c)
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	<div class="form-group row" id="error">
