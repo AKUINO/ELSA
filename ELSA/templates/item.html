@@ -1,10 +1,11 @@
-$def with (type, id,mail)
+$def with (connected, type, id)
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $code :
     elem = c.findAll(type).get(id)
 $var recursive : False
 $var title : ELSA $(c.findAll(type).get_class_acronym())
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var location: list/$(type)=$(c.findAll(type).get_class_acronym())
 
 $if not type in 'tdv':

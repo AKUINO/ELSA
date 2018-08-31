@@ -1,8 +1,8 @@
-$def with (id, mail, errormess, data, context='')
-$# 'value', 'typealarm', 'degree'
+$def with (connected, id, errormess, data, context='')
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $var recursive : False
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var title : $c.getMessage('add',self.lang) $c.getMessage('alarmlog',self.lang)
 $if id == 'new':
     $code :

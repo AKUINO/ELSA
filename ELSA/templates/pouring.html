@@ -1,10 +1,12 @@
-$def with (id, mail, errormess, data, context='')
+$def with (connected, id, errormess, data, context='')
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $var recursive : False
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var title : $c.AllPourings.getName(self.lang)
 $var location: pourings=pouring pourings/new/new=add
 $code:
+    myID = ""
     pouring = None
     rmq = data['remark'] if (data and 'remark' in data) else '' 
     if id == 'new':
@@ -15,15 +17,13 @@ $code:
 	    myID = splits[2]
 	    batch = c.get_object(splits[0],splits[1])
     else :
-	if not id.split('_')[0] == 'b':
-	    pouring = c.AllPourings.get(id)
-	    src = c.AllBatches.get(pouring.fields['src'])
-	    dest = c.AllBatches.get(pouring.fields['dest'])
-	    batch = dest
-	    myID = 'update'
-            if pouring:
-	        rmq = pouring.fields['remark']
-	        self.title = pouring.getName(self.lang)
+	pouring = c.AllPourings.get(id)
+	src = c.AllBatches.get(pouring.fields['src'])
+	dest = c.AllBatches.get(pouring.fields['dest'])
+	batch = dest
+	myID = 'update'
+        if pouring:
+	    rmq = pouring.fields['remark']
 $if myID == 'update':
     $var location: list/b=batch find/v/b_$(dest.getID())=pouring edit/v_$(dest.getID())=edit
 $elif myID == 'in' or myID == 'out':
@@ -46,6 +46,7 @@ function flip() {
 <div class="container">
     <form  method="post" action="" id="modifyPouring"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
         $if myID == 'update':
+		<input type="hidden" name="h_id" value="$pouring.fields['h_id']"/>
 		<input type="hidden" name="origin" value="$pouring.fields['vm_id']"/>
 	<div class="col-sm-12" >
 	    <p id="error">$errormess</p>

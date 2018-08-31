@@ -1,4 +1,7 @@
-$def with (mail,type, status)
+$def with (connected,type, status)
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $code :
     all = (type[0] == '*')
     if all:
@@ -14,8 +17,6 @@ $code :
 	keys = keys[:30]
 $var location: list/$(type)=$(allObjects.get_class_acronym())
 $var recursive : False
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var title: $c.getName(allObjects,self.lang)
 
 <div class="row active">

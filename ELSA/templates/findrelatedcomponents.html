@@ -1,13 +1,13 @@
-$def with (type,id,mail,barcode='')
+$def with (connected,type,id,barcode='')
 $code:
     allobjects = c.findAll(type)
     elem = allobjects.get(id)
     keyID = c.findAllFromObject(elem).keyColumn
     subtype = elem.isModeling()
     allModeled = c.findAll(subtype) if subtype else None
-	
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $var recursive : False
 $var location: list/$(type)=$(c.findAll(type).get_class_acronym()) find/related/$(type)_$(id)=related
 $var title: $elem.getName(self.lang)
@@ -152,6 +152,19 @@ $if (' '+type+' ') in ' s dm ':
                 <div id="includedA_$(k)"></div>
     </div>
 
+$if type == 'u':
+    <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+	<label class="col-sm-12">$c.getMessage('batch',self.lang) :</label>    
+
+    $for k,batch in c.AllBatches.elements.items():
+        $if batch.isActive() and not batch.isComplete() and ( (elem.getID()==batch.fields['provider_id']) or (elem.getID()==batch.fields['buyer_id']) or (elem.getID()==batch.get_last_user(c)) ):
+                <script>
+                    $$(function(){
+                        $$("#includedB_$(k)").load("/fullentry/b_$(k)");
+                    });
+                </script>
+                <div id="includedB_$(k)"></div>
+    </div>
 
 $if type in 'pec':
 	<div class="row active"style = "background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
@@ -200,7 +213,7 @@ $if subtype:
 		$break
     </div>
 
-$if type in 'b':
+$if type == 'b':
 	$code:
 	    recipes = set()
 	    recipe_id = elem.fields['gr_id']
@@ -226,6 +239,34 @@ $if type in 'b':
 	    if recipe and len(usages) == 0:
 		gr_usage = recipe.fields['gu_id']
 		usage = c.AllGrUsage.get(gr_usage)
+
+	$if elem.fields['provider_id']:
+		<div class="row active">
+		$if elem.fields['provider_ref']:
+		    <label class="col-sm-12">$c.getMessage('provider_ref',self.lang) : $(elem.fields['provider_ref'])</label>
+		$else:
+		    <label class="col-sm-12">$c.getMessage('provider',self.lang) :</label>
+		</div>	
+	        <script>
+	        $$(function(){
+		    $$("#includedAllMenuup_$(elem.fields['provider_id'])").load("/fullentry/u_$(elem.fields['provider_id'])");
+	        });
+	        </script>
+	        <div id="includedAllMenuup_$(elem.fields['provider_id'])"></div>
+
+	$if elem.fields['buyer_id']:
+		<div class="row active">
+		$if elem.fields['buyer_ref']:
+		    <label class="col-sm-12">$c.getMessage('buyer_ref',self.lang) : $(elem.fields['buyer_ref'])</label>
+		$else:
+		    <label class="col-sm-12">$c.getMessage('buyer',self.lang) :</label>
+		</div>	
+	        <script>
+	        $$(function(){
+		    $$("#includedAllMenuub_$(elem.fields['buyer_id'])").load("/fullentry/u_$(elem.fields['buyer_id'])");
+	        });
+	        </script>
+	        <div id="includedAllMenuub_$(elem.fields['buyer_id'])"></div>
 
 	<div class="row active">
 	    <label class="col-sm-12">$c.getMessage('checkpoint',self.lang) :</label>

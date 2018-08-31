@@ -1,10 +1,11 @@
-$def with (type, id, mail, modelid)
+$def with (connected, type, id, modelid)
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $code:
     allobjects = c.findAll(type)
     elem = allobjects.get(id)
     keyID = c.findAllFromObject(elem).keyColumn
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var location: list/$(type)=$(c.findAll(type).get_class_acronym()) find/t/$(type)_$(id)=transfer
 $var recursive : False
 $var title : $elem.getName(self.lang)

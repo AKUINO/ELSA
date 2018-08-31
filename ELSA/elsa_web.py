@@ -68,8 +68,8 @@ def redirect_when_not_logged(redir=True):
     When the user is logged, returns the mail (does not redirect)
     When redir is Fals, will log into home page
     """
-    mail = isConnected()
-    if mail is None:
+    connected = isConnected()
+    if connected is None:
         if redir:
             path = web.ctx.env.get('PATH_INFO')
             query = web.ctx.env.get('QUERY_STRING')
@@ -80,45 +80,45 @@ def redirect_when_not_logged(redir=True):
             raise web.seeother('/?redir=' + path)
         else:
             raise web.seeother('/')
-    return mail
+    return connected
 
 def redirect_when_not_allowed(type,redir=True):
-    mail = redirect_when_not_logged(redir)
-    if mail:
-        user = c.AllUsers.getUser(mail)
-        if user.updateAllowed(c,type):
-            return mail
+    connected = redirect_when_not_logged(redir)
+    if connected:
+        user = connected.cuser
+        if user and user.updateAllowed(c,type):
+            return connected
     raise web.seeother('/')
 
 def redirect_when_not_admin(redir=True):
-    mail = redirect_when_not_logged(redir)
-    if mail:
-        user = c.AllUsers.getUser(mail)
-        if user.adminAllowed(c):
-            return mail
+    connected = redirect_when_not_logged(redir)
+    if connected:
+        user = connected.cuser
+        if user and user.adminAllowed(c):
+            return connected
     raise web.seeother('/')
 
 class WebColor():
     def GET(self, type, id):
-        mail = isConnected()
-        if mail is None:
+        connected = isConnected()
+        if connected is None:
             return ''
         
-        return render.colorpicker(mail, type, id)
+        return render.colorpicker(connected, type, id)
 
 class WebBackup():
     def __init(self):
         self.name = u"WebBackup"
 
     def GET(self):
-        mail = redirect_when_not_admin()
-        return render.backup(mail, getLinkForLatestBackupArchive(),"")
+        connected = redirect_when_not_admin()
+        return render.backup(connected, getLinkForLatestBackupArchive(),"")
     
     def POST(self):
-        mail = redirect_when_not_admin()
+        connected = redirect_when_not_admin()
         data = web.input()
         if data is None:
-            return render.backup(mail, getLinkForLatestBackupArchive(),"")
+            return render.backup(connected, getLinkForLatestBackupArchive(),"")
         if 'shutdown' in data and 'restart' in data:
             flags.set_restart()
             raise web.seeother('/restarting')
@@ -127,23 +127,23 @@ class WebBackup():
             raise web.seeother('/restarting')
         elif data.create_backup is not None:
             backup.create_backup_zip()
-            return render.backup(mail,
+            return render.backup(connected,
                                  getLinkForLatestBackupArchive(),
                                  "backupDone")
         else:
-            mail = redirect_when_not_logged()
-            return render.backup(mail, "","")
+            connected = redirect_when_not_logged()
+            return render.backup(connected, "","")
         
 class WebRestore():
     def __init(self):
         self.name = u"WebRestore"
 
     def GET(self):
-        mail = redirect_when_not_admin()            
-        return render.backup(mail, getLinkForLatestBackupArchive(),"")
+        connected = redirect_when_not_admin()            
+        return render.backup(connected, getLinkForLatestBackupArchive(),"")
     
     def POST(self):
-        mail = redirect_when_not_admin()
+        connected = redirect_when_not_admin()
         
         data = web.input(zip_archive_to_restore={})
         if data is not None and 'zip_archive_to_restore' in data\
@@ -158,19 +158,19 @@ class WebRestore():
                 fout.write(data.zip_archive_to_restore.file.read())
             except IOError:
                 print("Error while restoring file.")
-                return render.backup(mail,
+                return render.backup(connected,
                                      getLinkForLatestBackupArchive(),
                                      "restoreError")
             finally:
                 fout.close()
             if backup.check_zip_backup(file_uri) == False:
-                return render.backup(mail,
+                return render.backup(connected,
                                      getLinkForLatestBackupArchive(),
                                      "restoreError")
             flags.set_restore(fname)
             raise web.seeother('/restarting')
         else:
-            return render.backup(mail,
+            return render.backup(connected,
                                  getLinkForLatestBackupArchive(),
                                  "restoreEmpty")
 
@@ -179,7 +179,7 @@ class WebUpdateELSA():
         self.name = u"WebUpdateELSA"
 
     def GET(self):
-        mail = redirect_when_not_admin()
+        connected = redirect_when_not_admin()
         
         subprocess.call(['git', 'remote', 'update'])
         git_status_out = subprocess.check_output(['git', 'status'])
@@ -191,12 +191,12 @@ class WebUpdateELSA():
         except IndexError:
             print("Error reading git status output. " + git_status_out)
             raise
-        return render.updateELSA(mail, git_status_out)
+        return render.updateELSA(connected, git_status_out)
     
     def POST(self):
-        mail = redirect_when_not_admin()
+        connected = redirect_when_not_admin()
         data = web.input()
-        if mail is not None and data.start_elsa_update is not None:
+        if connected is not None and data.start_elsa_update is not None:
             flags.set_check_update(True)
             raise web.seeother('/restarting')
         else:
@@ -279,24 +279,24 @@ class WebRestarting():
         self.name = u"WebRestarting"
 
     def GET(self):
-        mail = redirect_when_not_logged(False)
+        connected = redirect_when_not_logged(False)
         
         app.stop()
         # sys.exit()
-        return render.restarting(mail)
+        return render.restarting(connected)
     
 class WebDisconnect():
     def GET(self):
-        mail = redirect_when_not_logged()
+        connected = redirect_when_not_logged()
             
-        c.connectedUsers.disconnect(mail)
+        c.connectedUsers.disconnect(connected)
         raise web.seeother('/')
 
 # Menu of groups within an update form
 class WebPermission():
     def GET(self, type, id):
-        mail = isConnected()
-        if mail is None:
+        connected = isConnected()
+        if connected is None:
             return ''
 
         splitted = id.split('/')
@@ -306,28 +306,28 @@ class WebPermission():
         else:
             context = ''
         print type+'-'+id+'-'+context
-        return render.permission(mail, type, id, context)
+        return render.permission(connected, type, id, context)
 
 # Display of  a record within a list
 class WebModal():
     def GET(self, type, id):
-        mail = isConnected()
-        if mail is None:
+        connected = isConnected()
+        if connected is None:
             return ''
         
         data = web.input(nifile={})
-        return render.modal(mail, type, id, data)
+        return render.modal(connected, type, id, data)
 
 # Short (and not full!) Entry in a list of records
 class WebFullEntry():
     def GET(self, type, id):
-        mail = isConnected()
-        if mail is None:
+        connected = isConnected()
+        if connected is None:
             return ''
         current = id[0] == '*'
         if current:
             id = id[1:]
-        return render.fullentry(mail, type, id, current)
+        return render.fullentry(connected, type, id, current)
 
 # List of all (active) elements of a Class
 class WebList():
@@ -335,7 +335,7 @@ class WebList():
         self.name = u"WebList"
     
     def GET(self, type):
-        mail = redirect_when_not_logged()
+        connected = redirect_when_not_logged()
         status = ''
         data = web.input(nifile={})
         if 'status' in data:
@@ -345,14 +345,14 @@ class WebList():
             type = type[1:]
 
         if type in 'albcpehsmugugrgftmdmvm' and not type in 'dftv':
-            return self.getRender(mail, ('*' if allRec else '') + type, status)
+            return self.getRender(connected, ('*' if allRec else '') + type, status)
         else:
             return render.notfound()
 
     def POST(self, type):
-        mail = redirect_when_not_logged()
+        connected = redirect_when_not_logged()
             
-        user = c.connectedUsers.users[mail].cuser
+        user = connected.cuser
         data = web.input()
         if 'quantity' in data:
             try:
@@ -376,37 +376,33 @@ class WebList():
                 raise render.notfound()
         raise web.seeother('/')
 
-    def getRender(self, mail, type, status=''):
-        return render.list(mail, type, status)
+    def getRender(self, connected, type, status=''):
+        return render.list(connected, type, status)
 
 # Display of one item
 class WebItem():
     def GET(self, type, id):
-        mail = redirect_when_not_logged()
+        connected = redirect_when_not_logged()
         
         try:
-            return render.item(type, id, mail)
+            return render.item(connected, type, id)
         except:
             return render.notfound()
 
 # UPDATE of Place, Equipment, Container, etc.
 class WebEdit():
     def GET(self, type, id):
-        mail = redirect_when_not_allowed(type)
-        return self.getRender(type, id, mail, '', '')
+        connected = redirect_when_not_allowed(type)
+        return self.getRender(connected,type, id, '', '')
 
     def POST(self, type, id, context=None):
-        mail = redirect_when_not_allowed(type)
-            
-        user = c.connectedUsers.users[mail].cuser
+        connected = redirect_when_not_allowed(type)
+        user = connected.cuser
         currObject = c.getObject(id, type)
-        infoCookie = mail + ',' + user.fields['password']
         data = web.input(placeImg={},linkedDocs={})
-        method = data.get("method", "malformed")
-        update_cookie(infoCookie)
         if currObject is None:
             raise web.seeother('/')
-        cond = currObject.validate_form(data, c, user.fields['language'])
+        cond = currObject.validate_form(data, c, user)
         if cond is True:
             currObject.set_value_from_data(data, c, user)
             if data['linkedDocs'] != {}:
@@ -444,70 +440,69 @@ class WebEdit():
         else:
             if id == 'new':
                 currObject.delete(c)
-            return self.getRender(type, id, mail, cond, data)
+            return self.getRender(connected, type, id, cond, data)
 
-    def getListing(self, mail, type, id=''):
-        return render.list(mail, type, id)
+    def getListing(self, connected, type, id=''):
+        return render.list(connected, type, id)
 
-    def getRender(self, type, id, mail, errormess, data, context=''):
+    def getRender(self, connected, type, id, errormess, data, context=''):
         if type == 'p':
-            return render.place(id, mail, errormess, data, context)
+            return render.place(connected, id, errormess, data, context)
         elif type == 'e':
-            return render.equipment(id, mail, errormess, data, context)
+            return render.equipment(connected, id, errormess, data, context)
         elif type == 'b':
-            return render.batch(id, mail, errormess, data, context)
+            return render.batch(connected, id, errormess, data, context)
         elif type == 'c':
-            return render.container(id, mail, errormess, data, context)
+            return render.container(connected, id, errormess, data, context)
         elif type == 's':
-            return render.sensor(id, mail, errormess, data)
+            return render.sensor(connected, id, errormess, data)
         elif type == 'm':
-            return render.measure(id, mail, errormess, data)
+            return render.measure(connected, id, errormess, data)
         elif type == 'a':
-            return render.alarm(id, mail, errormess, data)
+            return render.alarm(connected, id, errormess, data)
         elif type == 'al':
-            return render.alarmlog(id, mail, errormess, data)
+            return render.alarmlog(connected, id, errormess, data)
         elif type == 'gu':
-            return render.group(type, id, mail, errormess, data)
+            return render.group(connected, type, id, errormess, data)
         elif type == 'gr':
-            return render.group(type, id, mail, errormess, data)
+            return render.group(connected, type, id, errormess, data)
         elif type == 'gf':
-            return render.group(type, id, mail, errormess, data)
+            return render.group(connected, type, id, errormess, data)
         elif type == 'h':
-            return render.group(type, id, mail, errormess, data, context)
+            return render.group(connected, type, id, errormess, data, context)
         elif type == 'u':
-            return render.user(id, mail, errormess, data, context)
+            return render.user(connected, id, errormess, data, context)
         elif type == 'tm':
-            return render.transfermodel(id, mail, errormess, data, context)
+            return render.transfermodel(connected, id, errormess, data, context)
         elif type == 'dm':
-            return render.manualdatamodel(id, mail, errormess, data, context)
+            return render.manualdatamodel(connected, id, errormess, data, context)
         elif type == 'vm':
-            return render.pouringmodel(id, mail, errormess, data, context)
+            return render.pouringmodel(connected, id, errormess, data, context)
         elif type == 't':
-            return render.transfer(id, mail, errormess, data, context)
+            return render.transfer(connected, id, errormess, data, context)
         elif type == 'd':
-            return render.manualdata(id, mail, errormess, data, context)
+            return render.manualdata(connected, id, errormess, data, context)
         elif type == 'v':
-            return render.pouring(id, mail, errormess, data, context)
+            return render.pouring(connected, id, errormess, data, context)
 
 
 class WebCreate(WebEdit):
     def GET(self, type):
         types = type.split('/')
-        mail = redirect_when_not_allowed(types[0])
+        connected = redirect_when_not_allowed(types[0])
             
         if len(types) == 1:
-            return self.getRender(types[0], 'new', mail, '', '')
+            return self.getRender(connected, types[0], 'new', '', '')
         else:
-            return self.getRender(types[0],
+            return self.getRender(connected, types[0],
                                   'new',
-                                  mail,
                                   '',
                                   '',
                                   types[-1])
 
     def POST(self, type):
         types = type.split('/')
-        mail = redirect_when_not_allowed(types[0])
+        connected = redirect_when_not_allowed(types[0])
         
         if len(types) > 1:
             return WebEdit.POST(self,
@@ -520,43 +515,36 @@ class WebCreate(WebEdit):
 
 class WebControl():
     def GET(self, idbatch, idcontrol):
-        mail = redirect_when_not_logged()
+        connected = redirect_when_not_logged()
             
-        return render.control(idbatch, idcontrol, mail, '')
+        return render.control(connected, idbatch, idcontrol, '')
 
     def POST(self, idbatch, idcontrol, context=None):
-        mail = redirect_when_not_logged()
-            
-        user = c.connectedUsers.users[mail].cuser
-        infoCookie = mail + ',' + user.fields['password']
-        update_cookie(infoCookie)
+        connected = redirect_when_not_logged()
+        user = connected.cuser
         data = web.input()
-        method = data.get("method", "malformed")
         currObject = c.getObject(idcontrol, 'h')
         cond = currObject.validate_control(data, user.fields['language'])
         if cond is True:
             currObject.create_control(data, user)
             raise web.seeother('/find/h/b_' + str(idbatch))
         else:
-            return render.control(idbatch, idcontrol, mail, cond)
+            return render.control(connected, idbatch, idcontrol, cond)
 
 
 class WebFind():
     def GET(self, type, id1, id2):
-        mail = redirect_when_not_logged()
+        connected = redirect_when_not_logged()
             
         data = web.input()
 	barcode = ''
         if 'barcode' in data:
 	    barcode = data['barcode']
-        return self.getRender(type, id1, id2, mail, barcode)
+        return self.getRender(connected, type, id1, id2, barcode)
 
     def POST(self, type, id1, id2):
-        mail = redirect_when_not_logged()
-        
-        user = c.connectedUsers.users[mail].cuser
-        infoCookie = mail + ',' + user.fields['password']
-        update_cookie(infoCookie)
+        connected = redirect_when_not_logged()
+        user = connected.cuser
         data = web.input()
         if 'action' in data and data['action']=='map':
             raise web.seeother('/map/b_'+data['batch'])
@@ -566,33 +554,33 @@ class WebFind():
                 raise web.seeother('/control/b_'+data['batch'] +
                                    '/h_'+data['checkpoint'])
             else:
-                return self.getRender(type, id1, id2, mail)
-        return self.getRender(type, id1, id2, mail)
+                return self.getRender(connected, type, id1, id2)
+        return self.getRender(connected, type, id1, id2)
 
-    def getRender(self, type, id1, id2, mail, barcode=''):
+    def getRender(self, connected, type, id1, id2, barcode=''):
         try:
             if type == 'related': # sync with getRender from WebBarcode
                 if id1 == 'm':
-                    return render.findrelatedmeasures(id2, mail, barcode)
+                    return render.findrelatedmeasures(connected, id2, barcode)
                 elif ('g' in id1 or id1 == 'h'):
-                    return render.findrelatedgroups(id1, id2, mail, barcode)
+                    return render.findrelatedgroups(connected, id1, id2, barcode)
                 elif id1 == 'al':
-                    return render.findrelatedlogs(id1, id2, mail, barcode)
+                    return render.findrelatedlogs(connected, id1, id2, barcode)
                 else:
-                    return render.findrelatedcomponents(id1, id2, mail, barcode)
+                    return render.findrelatedcomponents(connected, id1, id2, barcode)
             else:
                 if type == 'd'and id1 in 'pceb':
-                    return render.findlinkeddata(id1, id2, mail,None)
+                    return render.findlinkeddata(connected, id1, id2,None)
                 elif type == 't' and id1 in 'ceb':
-                    return render.findlinkedtransfers(id1, id2, mail,None)
+                    return render.findlinkedtransfers(connected, id1, id2,None)
                 elif type == 'v' and id1 == 'b':
-                    return render.findlinkedpourings(id2, mail,None)
+                    return render.findlinkedpourings(connected, id2,None)
                 elif type == 'h':
-                    return render.findcontrol(id1, id2, mail)
+                    return render.findcontrol(connected, id1, id2)
                 elif type == 'b':
-                    return render.findbatch(id1, id2, mail)
+                    return render.findbatch(connected, id1, id2)
                 elif type == 'al':
-                    return render.findalarmlog(id1, id2, mail)
+                    return render.findalarmlog(connected, id1, id2)
                 else:
                     return render.notfound()
         except:
@@ -601,22 +589,22 @@ class WebFind():
 
 class WebFindModel():
     def GET(self, type, id1, id2, modelid):
-        mail = redirect_when_not_logged()
+        connected = redirect_when_not_logged()
             
         data = web.input()
 	barcode = ''
         if 'barcode' in data:
 	    barcode = data['barcode']
-        return self.getRender(type, id1, id2, modelid, mail, barcode)
+        return self.getRender(connected, type, id1, id2, modelid, barcode)
 
-    def getRender(self, type, id1, id2, modelid, mail, barcode=''):
+    def getRender(self, connected, type, id1, id2, modelid, barcode=''):
         try:
                 if type == 'd'and id1 in 'pceb':
-                    return render.findlinkeddata(id1, id2, mail, modelid)
+                    return render.findlinkeddata(connected, id1, id2, modelid)
                 elif type == 't' and id1 in 'ceb':
-                    return render.findlinkedtransfers(id1, id2, mail, modelid)
+                    return render.findlinkedtransfers(connected, id1, id2, modelid)
                 elif type == 'v' and id1 == 'b':
-                    return render.findlinkedpourings(id2, mail, modelid)
+                    return render.findlinkedpourings(connected, id2, modelid)
                 else:
                     return render.notfound()
         except:
@@ -628,11 +616,11 @@ class WebGraphic():
         self.name = u"WebGraphic"
 
     def GET(self, type, id):
-        mail = redirect_when_not_logged()
+        connected = redirect_when_not_logged()
         if type in 'scpem':
             objects = c.findAll(type)
             if objects and id and id in objects.elements.keys():
-                return render.graphic(mail, type, id)
+                return render.graphic(connected, type, id)
         return render.notfound()
 
 class WebMapRecipe():
@@ -640,11 +628,10 @@ class WebMapRecipe():
         self.name = u"WebMapRecipe"
 
     def GET(self,id):
-        mail = redirect_when_not_logged()
-        lang = c.connectedUsers.users[mail].cuser.fields['language']
+        connected = redirect_when_not_logged()
         
         if id and id in c.AllGrRecipe.elements.keys():
-            return render.maprecipe(mail, type, id)
+            return render.maprecipe(connected, type, id)
         return render.notfound()
 
 class WebCalendar():
@@ -690,8 +677,8 @@ class WebCalendar():
         return cal
 
     def GET(self):
-        mail = redirect_when_not_logged()
-        lang = c.connectedUsers.users[mail].cuser.fields['language']
+        connected = redirect_when_not_logged()
+        lang = connected.cuser.fields['language']
         
         calendarObject = calendar.HTMLCalendar(calendar.MONDAY) #Locale is bugged
 
@@ -781,19 +768,18 @@ class WebCalendar():
                     cal += self.makeMyDay(today,after,dlcK,dlcs,'time','')
                 cal += u"</td>"
             cal += u"</tr>"
-        return render.calendar(mail, calendarObject, int(year), int(month), cal)
+        return render.calendar(connected, calendarObject, int(year), int(month), cal)
 
 class WebMapBatch():
     def __init__(self):
         self.name = u"WebMapBatch"
 
     def GET(self,id):
-        mail = redirect_when_not_logged()
-        lang = c.connectedUsers.users[mail].cuser.fields['language']
+        connected = redirect_when_not_logged()
 
         elem = c.AllBatches.get(id)
         if elem:
-            return render.mapbatch(mail, elem)
+            return render.mapbatch(connected, elem)
         return render.notfound()
 
 class WebGraphHelp():
@@ -801,18 +787,18 @@ class WebGraphHelp():
         self.name = u"WebGraphHelp"
 
     def GET(self, type, id):
-        mail = redirect_when_not_logged()
+        connected = redirect_when_not_logged()
             
         objects = c.findAll(type)
-        return render.graphhelp(mail, type, id)
+        return render.graphhelp(connected, type, id)
 
 class WebGraphRecipe():
     def __init__(self):
         self.name = u"WebGraphRecipe"
 
     def GET(self,type,id):
-        mail = redirect_when_not_logged()
-        lang = c.connectedUsers.users[mail].cuser.fields['language']
+        connected = redirect_when_not_logged()
+        lang = connected.cuser.fields['language']
         graph = ""
 
         kusage = ''
@@ -991,7 +977,7 @@ class WebGraphRecipe():
 ##                        usage = c.AllGrUsage.elements[parent]
 ##                        aboveID = 'gu_'+parent
 ##                        graph += aboveID+"->"+usaID+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
-            return render.graphrecipe(mail, batch, id, graph)
+            return render.graphrecipe(connected, batch, id, graph)
         return render.notfound()
 
 ##class WebGraphBatch():
@@ -1104,43 +1090,39 @@ class WebMapFunctions():
         self.name = u"WebMapFunctions"
 
     def GET(self):
-        mail = redirect_when_not_logged()
-        lang = c.connectedUsers.users[mail].cuser.fields['language']
-        return render.mapfunctions(mail)
+        connected = redirect_when_not_logged()
+        return render.mapfunctions(connected)
 
 class WebMapComponents():
     def __init__(self):
         self.name = u"WebMapComponents"
 
     def GET(self):
-        mail = redirect_when_not_logged()
-        lang = c.connectedUsers.users[mail].cuser.fields['language']
-        return render.mapcomponents(mail)
+        connected = redirect_when_not_logged()
+        return render.mapcomponents(connected)
 
 class WebMapRecipes():
     def __init__(self):
         self.name = u"WebMapRecipes"
 
     def GET(self):
-        mail = redirect_when_not_logged()
-        lang = c.connectedUsers.users[mail].cuser.fields['language']
-        return render.maprecipes(mail)
+        connected = redirect_when_not_logged()
+        return render.maprecipes(connected,False)
 
 class WebMapCheckPoints():
     def __init__(self):
         self.name = u"WebMapCheckPoints"
 
     def GET(self):
-        mail = redirect_when_not_logged()
-        lang = c.connectedUsers.users[mail].cuser.fields['language']
-        return render.mapcheckpoints(mail)
+        connected = redirect_when_not_logged()
+        return render.mapcheckpoints(connected)
 
 class WebRRDfetch():
     def __init__(self):
         self.name = u"WebRRDfetch"
 
     def GET(self, id):
-        mail = redirect_when_not_logged()
+        connected = redirect_when_not_logged()
         data = web.input(nifile={})
         period = None
         if 'period' in data:
@@ -1160,20 +1142,20 @@ class WebIndex():
         self.name = u"WebIndex"
 
     def GET(self):
-        mail = isConnected()
-        if mail is None:
-            return render.index(False, '')
-        return self.getRender(mail)
+        connected = isConnected()
+        if connected is None:
+            return render.index(connected)
+        data = web.input(nifile={})
+        if 'completeMenu' in data:
+            connected.completeMenu = data['completeMenu'] == '1'            
+        return self.getRender(connected)
 
     def POST(self):
         data = web.input(nifile={})
-        # method = data.get("method","malformed")
-        connectedUser = connexion(data._username_, data._password_)
+        connectedUser = checkUser(data._username_, data._password_)
         if connectedUser is not None:
-            infoCookie = data._username_ + ',' + \
-                connectedUser.fields['password']
-            update_cookie(infoCookie)
-            c.connectedUsers.addUser(connectedUser)
+            connected = c.connectedUsers.addUser(connectedUser)
+            ensureLogin(connectedUser.fields['mail'])
 
             query_string = web.ctx.env.get('QUERY_STRING')
             redirect_url = useful.parse_url_query_string(query_string, 'redir')
@@ -1181,42 +1163,41 @@ class WebIndex():
             if (redirect_url is not None):
                 raise web.seeother(redirect_url)
             else:
-                return self.getRender( unicode(data._username_).lower() )
-        return render.index(False, '')
+                return self.getRender( connected )
+        return render.index(None)
 
-    def getRender(self, mail):
-        return render.maprecipes(mail)
-
+    def getRender(self, connected):
+        return render.maprecipes(connected,True)
 
 class WebBarcode():
     def __init__(self):
         self.name = u"WebBarcode"
 
     def GET(self, id=""):
-        mail = redirect_when_not_logged()
+        connected = redirect_when_not_logged()
             
         try:
             data = web.input()
             if 'barcode' in data:
                 id = data['barcode']
-            return self.getRender(id, mail)
+            return self.getRender(connected, id)
         except:
-            return self.getRender(id, mail, 'notfound')
+            return self.getRender(connected, id, 'notfound')
 
-    def getRender(self, id, mail, errormess=''):
+    def getRender(self, connected, id, errormess=''):
          id = id.strip()
          if errormess:
-             return render.barcode(mail, id, errormess)
+             return render.barcode(connected, id, errormess)
 	 elem  = c.AllBarcodes.barcode_to_item(id)
          if elem == None:
-             return render.barcode(mail, id, errormess)
+             return render.barcode(connected, id, errormess)
          else:
             aType = elem.get_type()
             raise web.seeother('/find/related/'+aType+'_'+elem.getID()+'?barcode='+id)
-         return render.barcode(mail, id, errormess)
+         return render.barcode(connected, id, errormess)
 
-    def getListing(self, mail):
-        return render.list(mail, 'places')
+    def getListing(self, connected):
+        return render.list(connected, 'places')
 
 
 class getRRD():
@@ -1243,44 +1224,15 @@ class getDoc():
             except IOError:
                 web.notfound()
 
-class WebMonitoring():
-    def __init__(self):
-        self.name = u"WebMonitoring"
-
-    def GET(self):
-        mail = redirect_when_not_logged()
-        
-        return self.getRender(mail)
-
-    def POST(self):
-        mail = redirect_when_not_logged()
-        
-        data = web.input(nifile={})
-        # method = data.get("method","malformed")
-        connectedUser = connexion(data._username_, data._password_)
-        if connectedUser is not None:
-            infoCookie = data._username_ + ',' + \
-                connectedUser.fields['password']
-            update_cookie(infoCookie)
-            c.connectedUsers.addUser(connectedUser)
-            return render.index(True, data._username_)
-        raise web.seeother('/')
-
-    def getRender(self, mail):
-        return render.monitoring(mail)
-
 class WebExport():
     def GET(self, type, id):
-        mail = redirect_when_not_logged()
+        connected = redirect_when_not_logged()
         
-        return self.getRender(type, id, mail)
+        return self.getRender(connected, type, id)
 
     def POST(self, type, id):
-        mail = redirect_when_not_logged()
-        
-        user = c.connectedUsers.users[mail].cuser
-        infoCookie = mail + ',' + user.fields['password']
-        update_cookie(infoCookie)
+        connected = redirect_when_not_logged()
+        user = connected.cuser
         data = web.input()
         cond = {}
         cond['alarm'] = True if 'alarm' in data else False
@@ -1290,7 +1242,6 @@ class WebExport():
         cond['specialvalue'] = True if 'specialvalue' in data else False
         cond['valuesensor'] = True if 'valuesensor' in data else False
         cond['acronym'] = True if 'acronym' in data else False
-        method = data.get("method", "malformed")
         splits = data['element'].split('_')
         elem = c.get_object(splits[0],splits[1])
         tmp = elsa.ExportData(c, elem, cond, user)
@@ -1303,10 +1254,10 @@ class WebExport():
             user.exportdata = tmp
             raise web.seeother('/datatable/'+str(type)+'_'+str(id))
 
-    def getRender(self, type, id, mail):
+    def getRender(self, connected, type, id):
         try:
             if type in 'cpeb':
-                return render.exportdata(mail, type, id)
+                return render.exportdata(connected,  type, id)
             else:
                 return render.notfound()
         except:
@@ -1315,13 +1266,13 @@ class WebExport():
 
 class WebDataTable():
     def GET(self, type, id):
-        mail = redirect_when_not_logged()
-        return self.getRender(type, id, mail)
+        connected = redirect_when_not_logged()
+        return self.getRender(connected, type, id)
 
-    def getRender(self, type, id, mail):
+    def getRender(self, connected, type, id):
         # try:
         if type in 'cpeb':
-            return render.datatable(mail, type, id)
+            return render.datatable(connected, type, id)
         else:
             return render.notfound()
         """except :
@@ -1343,7 +1294,7 @@ class WebDownloadData():
             f.close()
 
 
-def connexion(username, password):
+def checkUser(username, password):
     user = c.AllUsers.getUser(username)
     if user is None:
         return None
@@ -1352,25 +1303,28 @@ def connexion(username, password):
     if user.checkPassword(cryptedPassword) is True:
         return user
 
-
+# returns connnectedUser object
 def isConnected():
-    infoCookie = web.cookies().get('webpy')
+    infoCookie = web.cookies().get('akuinoELSA')
     if infoCookie is None:
         return None
     
     infoCookie = infoCookie.split(',')
-    if c.connectedUsers.isConnected(infoCookie[0], infoCookie[1]) is True:
-        return unicode(infoCookie[0]).lower()
-
+    if len(infoCookie) > 1:
+        connected = c.connectedUsers.isConnected(infoCookie[0].lower(), infoCookie[1])
+        return connected
     return None
 
 
+def ensureLogin(mail):
+    current = c.connectedUsers.users[mail]
+    user = current.cuser
+    if user and user.isActive():
+        infoCookie = mail + ',' + user.fields['password'] + ',' + ('1' if current.completeMenu else '0')
+        web.setcookie('akuinoELSA', infoCookie, expires=9000)
+
 def notfound():
     return web.notfound(render.notfound())
-
-
-def update_cookie(infoCookie):
-    web.setcookie('webpy', infoCookie, expires=9000)
 
 def cleanup_web_temp_dir():
     try:
@@ -1488,7 +1442,6 @@ def main():
             '/edit/(.+)_(.+)', 'WebEdit',
             '/item/(.+)_(.+)', 'WebItem',
             '/create/(.+)', 'WebCreate',
-            '/monitoring/', 'WebMonitoring',
             '/rrd/(.+)', 'getRRD',
             '/csv/(.+)', 'getCSV',
             '/doc/(.+)', 'getDoc',

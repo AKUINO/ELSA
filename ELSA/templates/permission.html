@@ -1,11 +1,12 @@
-$def with (mail,type,id, context='')
+$def with (connected,type,id, context='')
 $# Template included in update forms and others where a group has to be chosen
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $var recursive : True
 $code :
     allObjs = c.findAll(type)
     groups = c.findAll(allObjs.get_group_type())
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var title : permission
 $code:
     groupList = groups.get_hierarchy_str(None,None)

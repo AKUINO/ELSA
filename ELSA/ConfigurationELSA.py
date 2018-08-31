@@ -73,6 +73,7 @@ alarmFields = [ 'minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', \
                 'a_min', 'a_typical', 'a_max', 'a_maxmax', 'a_none' ]
 alarm_fields_for_groups = ['o_sms1', 'o_sms2', 'o_email1', 'o_email2', 'o_sound1', 'o_sound2']
 
+ALL_UPDATE_GROUPS = u" upd_a upd_al upd_b upd_c upd_d upd_dm upd_e upd_gf upd_gr upd_gu upd_h upd_m upd_p upd_s upd_t upd_tm upd_u upd_v upd_vm "
 
 _lock_socket = None
 
@@ -326,6 +327,11 @@ class ConfigurationObject(object):
     def __repr__(self):
         return self.getTypeId()+(' '+self.fields['acronym']) if 'acronym' in self.fields else ''
 
+    def get_select_str(self, lang):
+        acr = self.fields['acronym']
+        name = self.getName(lang)
+        return(unicode(acr) + ' - ' + name)
+
     def floats(self, field):
         v = self.fields[field]
         if v:
@@ -542,8 +548,9 @@ class ConfigurationObject(object):
                                            encoding="utf-8")
             writer.writerow(tmpCode)
 
-    def validate_form(self, data, configuration, lang):
+    def validate_form(self, data, configuration, user):
         tmp = ''
+        lang = user.fields['language']
         if 'acronym' not in data:
             tmp = configuration.getMessage('acronymrequired',lang) + '\n'
         try:
@@ -717,6 +724,14 @@ class ConfigurationObject(object):
             return configuration.AllTransfers.get(key)
         return None
 
+    def get_last_user(self,configuration):
+        if len(self.transfers) > 0:
+            key = self.transfers[-1]
+            t = configuration.AllTransfers.get(key)
+            if t:
+                return t.fields['user']
+        return self.fields['user']
+
     def get_actual_position_here(self,configuration):
 	currObj = None
 	tmp = self.get_last_transfer(configuration)
@@ -805,6 +820,9 @@ class ConfigurationObject(object):
     def isExpired(self):
         return None
     
+    def isComplete(self):
+        return False
+
     def isAlarmed(self,c):
         if 'al_id' in self.fields:
             if self.fields['al_id']:
@@ -832,6 +850,8 @@ class ConfigurationObject(object):
         if not inButton:
             if self.isModeling():
                 supp_classes = " text-info"
+            elif self.isComplete():
+                supp_classes = " text-danger"
             elif self.isExpired():
                 supp_classes = " text-danger"
         result = configuration.getAllHalfling(allObjects,supp_classes)
@@ -888,6 +908,20 @@ class ConfigurationObject(object):
         if result == '?':
             return ''
         return result
+
+    def hasParent(self,c,acronym):
+        acronym = acronym.lower()
+        allSelf = c.findAll(self.get_type())
+        allObj = c.findAll(allSelf.get_group_type())
+        gr = allObj.get(self.get_group())
+        if gr:
+            if acronym == gr.fields['acronym'].lower():
+                return gr
+            for aGroup in gr.get_all_parents([],allObj):
+                bGroup = allObj.elements[aGroup]
+                if bGroup.fields["acronym"].lower() == acronym:
+                    return bGroup
+        return None
 
     def updateAllowed(self,user,c):
         user_group = user.get_group()
@@ -1293,9 +1327,8 @@ class AllUsers(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'u', User.__name__, config)
-#TODO: contact, addr1, addr2, addr3, vat, accesslevel
         self.fieldnames = ['begin', 'u_id', 'active', 'acronym',
-                           'remark',
+                           'remark','addr1', 'addr2', 'addr3', 'vat', 'accesslevel',
                            'registration', 'phone', 'mail', 'password',
                            'language', 'gf_id', 'donotdisturb', 'user']
         self.fieldtranslate = ['begin', 'lang', 'u_id', 'name', 'user']
@@ -1922,9 +1955,9 @@ class AllBatches(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'b', Batch.__name__, config)
-#TODO: provider, buyer, reference; Transfers to parameterize "orderdate", "deliverydate"
         self.fieldnames = ["begin", "b_id", "active", "acronym",
                            "basicqt", "m_id", "time", "cost", "fixed_cost", "remark",
+                           "provider_id", "provider_ref", "buyer_id", "buyer_ref",
                            'gr_id', 'expirationdate', 'completedtime', "user"]
         self.fieldtranslate = ['begin', 'lang', 'b_id', 'name', 'user']
 
@@ -2186,10 +2219,10 @@ class ConnectedUser():
         self.cuser = user
         self.datetime = time.time()
         self.initial = self.datetime
+        self.completeMenu = False
 
     def update(self):
         self.datetime = time.time()
-
 
 class AllConnectedUsers():
 
@@ -2200,28 +2233,29 @@ class AllConnectedUsers():
         return self.users[key]
 
     def addUser(self, user):
-        self.update()
+        self.removeOld()
         mail = user.fields['mail'].lower()
         if mail not in self.users:
             self.users[mail] = ConnectedUser(user)
         else:
             self.users[mail].update()
+        return self.users[mail]
 
-    def update(self):
+    def removeOld(self):
         updatetime = time.time()
         for mail, connecteduser in self.users.items():
             if (updatetime - connecteduser.datetime) > CONNECTION_TIMEOUT:
                 del self.users[mail]
 
     def isConnected(self, mail, password):
-        self.update()
+        self.removeOld()
         mail = mail.lower()
         if mail in self.users:
             user = self.users[mail].cuser
-            if user.fields['password'] == password:
+            if user.checkPassword(password):
                 self.users[mail].update()
-                return True
-        return False
+                return self.users[mail]
+        return None
 
     def getLanguage(self, mail):
         mail = mail.lower()
@@ -2229,10 +2263,11 @@ class AllConnectedUsers():
             return self.users[mail].cuser.fields['language']
         return 'english'
 
-    def disconnect(self, mail):
-        mail = mail.lower()
-        if mail in self.users:
-            del self.users[mail]
+    def disconnect(self, connected):
+        if connected and connected.cuser:
+            mail = connected.cuser.fields['mail'].lower()
+            if mail in self.users:
+                del self.users[mail]
 
 
 class AllLanguages(AllObjects):
@@ -2314,6 +2349,8 @@ class User(ConfigurationObject):
         return string + "\n"
 
     def checkPassword(self, password):
+        if not self.isActive():
+            return False
         return self.fields['password'] == password
 
     def get_type(self):
@@ -2322,10 +2359,16 @@ class User(ConfigurationObject):
     def get_class_acronym(self):
         return 'user'
 
-    def validate_form(self, data, configuration, lang):
-        tmp = super(User, self).validate_form(data, configuration, lang)
+    def validate_form(self, data, configuration, user):
+        tmp = super(User, self).validate_form(data, configuration, user)
         if tmp is True:
             tmp = ''
+        lang = user.fields['language']
+
+        level = user.fields['accesslevel'] if user.fields['accesslevel'] else '3'
+        if level < self.fields['accesslevel']:
+            tmp += configuration.getMessage('accesslevelrules',lang) + '\n'
+
         if data['password'] and len(data['password']) < 8:
             tmp += configuration.getMessage('passwordrules',lang) + '\n'
 
@@ -2335,9 +2378,13 @@ class User(ConfigurationObject):
 
     def set_value_from_data(self, data, c, user):
         super(User, self).set_value_from_data(data, c, user)
-        tmp = ['phone', 'mail', 'language']
+        tmp = ['phone', 'mail', 'language', 'addr1', 'addr2', 'addr3', 'vat']
         for elem in tmp:
             self.fields[elem] = data[elem]
+        level = user.fields['accesslevel'] if user.fields['accesslevel'] else '3'
+        if (level >= data['accesslevel']) and (level >= self.fields['accesslevel']):
+            self.fields['accesslevel'] = data['accesslevel']
+
         if not self.fields['registration']:
             self.fields['registration'] = useful.now()
         if data['password']:
@@ -2355,6 +2402,8 @@ class User(ConfigurationObject):
         return self.fields['gf_id']
 
     def adminAllowed(self,c):
+        if self.fields['accesslevel'] > '3':
+            return True
         user_group = self.get_group()
         if user_group and user_group in c.AllGrFunction.elements:
             aGroup = c.AllGrFunction.elements[user_group]
@@ -2367,6 +2416,11 @@ class User(ConfigurationObject):
         return False
 
     def updateAllowed(self,c,type):
+        if self.fields['accesslevel']:
+            if self.fields['accesslevel'] < '3':
+                return False
+            if self.fields['accesslevel'] > '3':
+                return True
         user_group = self.get_group()
         if user_group and user_group in c.AllGrFunction.elements:
             key_upd = u"upd_"+type
@@ -2384,6 +2438,11 @@ class User(ConfigurationObject):
         return False
 
     def allowed(self,c):
+        if self.fields['accesslevel']:
+            if self.fields['accesslevel'] < '3':
+                return ""
+            if self.fields['accesslevel'] > '3':
+                return " admin"+ALL_UPDATE_GROUPS
         user_group = self.get_group()
         result = " "
         if user_group and user_group in c.AllGrFunction.elements:
@@ -2394,7 +2453,7 @@ class User(ConfigurationObject):
                 bGroup = c.AllGrFunction.elements[user_group]
                 result += bGroup.fields["acronym"].lower() + " "
         if " admin " in result: # all is updatable then !
-            result += " upd_a upd_al upd_b upd_c upd_d upd_dm upd_e upd_gf upd_gr upd_gu upd_h upd_m upd_p upd_s upd_t upd_tm upd_u upd_v upd_vm "
+            result += ALL_UPDATE_GROUPS
         return result
 
     def connectedSince(self, c):
@@ -2438,8 +2497,8 @@ class Equipment(ConfigurationObject):
                 return True
         return False
 
-    def validate_form(self, data, configuration, lang):
-        return super(Equipment, self).validate_form(data, configuration, lang)
+    def validate_form(self, data, configuration, user):
+        return super(Equipment, self).validate_form(data, configuration, user)
 
     def set_value_from_data(self, data, c, user):
         super(Equipment, self).set_value_from_data(data, c, user)
@@ -2482,8 +2541,8 @@ class Container(ConfigurationObject):
                 return True
         return False
 
-    def validate_form(self, data, configuration, lang):
-        return super(Container, self).validate_form(data, configuration, lang)
+    def validate_form(self, data, configuration, user):
+        return super(Container, self).validate_form(data, configuration, user)
 
     def set_value_from_data(self, data, c, user):
         super(Container, self).set_value_from_data(data, c, user)
@@ -2568,8 +2627,9 @@ class ManualData(AlarmingObject):
         else:
             self.fields['m_id'] = ''
 
-    def validate_form(self, data, configuration, lang):
+    def validate_form(self, data, configuration, user):
         tmp = ''
+        lang = user.fields['language']
         try:
             value = useful.date_to_ISO(data['time'])
         except:
@@ -2676,8 +2736,9 @@ class Pouring(AlarmingObject):
         tmp = measure.split('_')
         self.fields['m_id'] = tmp[-1]
 
-    def validate_form(self, data, configuration, lang):
+    def validate_form(self, data, configuration, user):
         tmp = ''
+        lang = user.fields['language']
         try:
             value = useful.date_to_ISO(data['time'])
         except:
@@ -2825,10 +2886,11 @@ class Group(ConfigurationObject):
     def get_class_acronym(self):
         return 'group'
 
-    def validate_form(self, data, configuration, lang):
-        tmp = super(Group, self).validate_form(data, configuration, lang)
+    def validate_form(self, data, configuration, user):
+        tmp = super(Group, self).validate_form(data, configuration, user)
         if tmp is True:
             tmp = ''
+        lang = user.fields['language']
         for k, v in configuration.findAllFromObject(self).elements.items():
             if k in data:
                 if self.getID() in v.parents or self.getID() in v.siblings:
@@ -3006,8 +3068,8 @@ class GrUsage(Group):
     def get_class_acronym(self):
         return 'guse'
 
-    def validate_form(self, data, configuration, lang):
-        tmp = Group.validate_form(self, data, configuration, lang)
+    def validate_form(self, data, configuration, user):
+        tmp = Group.validate_form(self, data, configuration, user)
         if tmp == '':
             return True
         return tmp
@@ -3033,8 +3095,8 @@ class CheckPoint(Group):
     def get_class_acronym(self):
         return 'checkpoint'
 
-    def validate_form(self, data, configuration, lang):
-        tmp = Group.validate_form(self, data, configuration, lang)
+    def validate_form(self, data, configuration, user):
+        tmp = Group.validate_form(self, data, configuration, user)
         if tmp == '':
             return True
         return tmp
@@ -3296,8 +3358,8 @@ class GrRecipe(Group):
     def get_total_cost(self):
         return self.floats('fixed_cost')+ (self.floats('cost')*self.floats('basicqt'))
 
-    def validate_form(self, data, configuration, lang):
-        tmp = super(GrRecipe, self).validate_form(data, configuration, lang)
+    def validate_form(self, data, configuration, user):
+        tmp = super(GrRecipe, self).validate_form(data, configuration, user)
         if tmp == '':
             return True
         return tmp
@@ -3352,8 +3414,8 @@ class GrFunction(Group):
     def get_class_acronym(self):
         return 'gfunction'
 
-    def validate_form(self, data, configuration, lang):
-        tmp = super(GrFunction, self).validate_form(data, configuration, lang)
+    def validate_form(self, data, configuration, user):
+        tmp = super(GrFunction, self).validate_form(data, configuration, user)
         if tmp == '':
             return True
         return tmp
@@ -3402,8 +3464,8 @@ class Place(ConfigurationObject):
                 return True
         return False
 
-    def validate_form(self, data, configuration, lang):
-        return super(Place, self).validate_form(data, configuration, lang)
+    def validate_form(self, data, configuration, user):
+        return super(Place, self).validate_form(data, configuration, user)
 
     def set_value_from_data(self, data, c, user):
         super(Place, self).set_value_from_data(data, c, user)
@@ -3449,6 +3511,22 @@ class AlarmLog(ConfigurationObject):
             allObjs = config.AllSensors
         return allObjs.get(self.fields['s_id'])
 
+    def get_quantity_string(self):
+        return self.fields['value']
+
+    def get_unit(self,config):
+        s = self.get_source(config)
+        if s:
+            return s.get_unit(config)
+        return ""
+
+    def getQtyUnit(self,c):
+        result = self.get_quantity_string()
+        unit = self.get_unit(c)
+        if unit:
+            result += ' '+unit
+        return result
+
     # WHERE it is moved
     def get_component(self,config):
         if not self.fields['cont_id']:
@@ -3458,8 +3536,9 @@ class AlarmLog(ConfigurationObject):
             return allObjs.get(self.fields['cont_id'])
         return None
 
-    def validate_form(self, data, configuration, lang):
+    def validate_form(self, data, configuration, user):
         tmp = ''
+        lang = user.fields['language']
         try:
             value = useful.date_to_ISO(data['begintime'])
         except:
@@ -4033,8 +4112,8 @@ class Alarm(ConfigurationObject):
     def get_type(self):
         return 'a'
 
-    def validate_form(self, data, configuration, lang):
-        tmp = super(Alarm, self).validate_form(data, configuration, lang)
+    def validate_form(self, data, configuration, user):
+        tmp = super(Alarm, self).validate_form(data, configuration, user)
         return tmp
 
     def set_value_from_data(self, data, c, user):
@@ -4336,10 +4415,11 @@ class Measure(ConfigurationObject):
                 listSensor.append(k)
         return listSensor
 
-    def validate_form(self, data, configuration, lang):
-        tmp = super(Measure, self).validate_form(data, configuration, lang)
+    def validate_form(self, data, configuration, user):
+        tmp = super(Measure, self).validate_form(data, configuration, user)
         if tmp is True:
             tmp = ''
+        lang = user.fields['language']
         try:
             if 'formula' in data and len(data['formula']) > 0:
                 value = 1
@@ -4870,10 +4950,11 @@ class Sensor(AlarmingObject):
             return zip(times, values)
         return None
 
-    def validate_form(self, data, configuration, lang):
-        tmp = super(Sensor, self).validate_form(data, configuration, lang)
+    def validate_form(self, data, configuration, user):
+        tmp = super(Sensor, self).validate_form(data, configuration, user)
         if tmp is True:
             tmp = ''
+        lang = user.fields['language']
         try:
             if 'formula' in data and len(data['formula']) > 0:
                 value = 1
@@ -5071,7 +5152,6 @@ class Batch(ConfigurationObject):
 
     def clone(self, user, name=1):
         b = self.config.getObject('new', 'b')
-        b.fields['active'] = self.fields['active']
         allObjects = self.config.findAllFromObject(self)
         posSuffix = self.fields['acronym'].rfind('_')+1
         lenAcro = len(self.fields['acronym'])
@@ -5080,13 +5160,9 @@ class Batch(ConfigurationObject):
         if not tmpname:
             return False
         b.fields['acronym'] = tmpname
-        b.fields['basicqt'] = self.fields['basicqt']
-        b.fields['m_id'] = self.fields['m_id']
-        b.fields['time'] = self.fields['time']
-        b.fields['cost'] = self.fields['cost']
-        b.fields['fixed_cost'] = self.fields['fixed_cost']
-        b.fields['remark'] = self.fields['remark']
-        b.fields['gr_id'] = self.fields['gr_id']
+        for f in ['active','basicqt','m_id','time','cost''fixed_cost','remark',
+                  "provider_id", "provider_ref", "buyer_id", "buyer_ref",'gr_id']:
+            b.fields[f] = self.fields[f]
         for lang in self.config.AllLanguages.elements:
             b.setName(lang, self.get_real_name(lang),
                       user, self.config.getKeyColumn(b))
@@ -5095,10 +5171,11 @@ class Batch(ConfigurationObject):
         b.save(self.config, user)
         return True
 
-    def validate_form(self, data, configuration, lang):
-        tmp = super(Batch, self).validate_form(data, configuration, lang)
+    def validate_form(self, data, configuration, user):
+        tmp = super(Batch, self).validate_form(data, configuration, user)
         if tmp is True:
             tmp = ''
+        lang = user.fields['language']
         try:
             value = useful.date_to_ISO(data['time'])
         except:
@@ -5148,7 +5225,7 @@ class Batch(ConfigurationObject):
     
     def set_value_from_data(self, data, c, user):
         super(Batch, self).set_value_from_data(data, c, user)
-        tmp = ['basicqt', 'time', 'cost', 'fixed_cost']
+        tmp = ['basicqt', 'time', 'cost', 'fixed_cost',"provider_id", "provider_ref", "buyer_id", "buyer_ref"]
         for elem in tmp:
             self.fields[elem] = data[elem]
         if not self.fields['time']:
@@ -5228,8 +5305,8 @@ class PouringModel(ConfigurationObject):
             return currObject.get_unit(c)
         return ""
 
-    def validate_form(self, data, configuration, lang):
-        return super(PouringModel, self).validate_form(data, configuration, lang)
+    def validate_form(self, data, configuration, user):
+        return super(PouringModel, self).validate_form(data, configuration, user)
 
     def set_value_from_data(self, data, c, user):
         if self.fields['h_id'] != '':
@@ -5289,8 +5366,8 @@ class ManualDataModel(ConfigurationObject):
     def get_quantity_string(self):
         return self.fields['typical']
 
-    def validate_form(self, data, configuration, lang):
-        return super(ManualDataModel, self).validate_form(data, configuration, lang)
+    def validate_form(self, data, configuration, user):
+        return super(ManualDataModel, self).validate_form(data, configuration, user)
 
     def set_value_from_data(self, data, c, user):
         if self.fields['h_id'] != '':
@@ -5352,8 +5429,8 @@ class TransferModel(ConfigurationObject):
             return useful.seconds_to_string(int(delay)*60)
         return ""
 
-    def validate_form(self, data, configuration, lang):
-        return super(TransferModel, self).validate_form(data, configuration, lang)
+    def validate_form(self, data, configuration, user):
+        return super(TransferModel, self).validate_form(data, configuration, user)
 
     def set_value_from_data(self, data, c, user):
         if self.fields['h_id'] != '':
@@ -5467,8 +5544,9 @@ class Transfer(AlarmingObject):
                             return True
         return False
 
-    def validate_form(self, data, configuration, lang):
+    def validate_form(self, data, configuration, user):
         tmp = ''
+        lang = user.fields['language']
         if 'position' in data:
             objtype,objid = splitId(data['object'])
             postype,posid = splitId(data['position'])

@@ -1,7 +1,8 @@
-$def with (id, mail, errormess, data, context='')
+$def with (connected, id, errormess, data, context='')
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $var recursive : False
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var title : $c.getMessage('add',self.lang) $c.getMessage('transfer',self.lang)
 $ splits = context.split('_')
 $if id == 'new':
@@ -34,6 +35,7 @@ $elif myID == 'component':
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
         $if myID == 'update':
+		<input type="hidden" name="h_id" value="$transfer.fields['h_id']"/>
 		<input type="hidden" name="origin" value="$transfer.fields['tm_id']"/>
 	<div class="col-sm-12" >
 	    <p id="error">$errormess</p>

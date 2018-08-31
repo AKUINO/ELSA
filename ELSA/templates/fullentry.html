@@ -1,7 +1,8 @@
-$def with (mail,type, id, current)	
+$def with (connected,type, id, current)	
 $var recursive : True
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $(c.connectedUsers.users[mail].cuser.fields['language'])
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $code :
     allElem = c.findAll(type)
     elem = allElem.get(id)

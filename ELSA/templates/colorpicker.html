@@ -1,13 +1,13 @@
-$def with (mail,type, id)	
+$def with (connected,type, id)	
 $var recursive : True
 $code :
     if id != 'new':
 	color = c.get_object(type,id).fields['colorgraph']
     else:
 	color = ''
-
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $var title : COLOR
 
 <div id='colorPicker' class="form-group" >

@@ -1,8 +1,9 @@
-$def with (mail,calendar,year,month, calendarContent)
+$def with (connected,calendar,year,month, calendarContent)
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $var title : Production Calendar
 $var location: calendar=calendar
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : False
 $code:
     done = set()

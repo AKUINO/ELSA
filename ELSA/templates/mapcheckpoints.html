@@ -1,8 +1,9 @@
-$def with (mail)
+$def with (connected)
 $var title : ELSA Components Map
 $var location: list/gu=$(c.AllCheckPoints.get_class_acronym())
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $var recursive : False
 $ done = set()
 $ listCheckPoint = c.AllCheckPoints.get_fullmap_str()

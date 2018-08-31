@@ -1,4 +1,7 @@
-$def with (id1,id2,mail, errormess)
+$def with (connected,id1,id2, errormess)
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $var recursive : False
 $code:
     batch = c.AllBatches.elements[id1]
@@ -10,8 +13,6 @@ $code:
     if here:
 	here_id = here.getID()
 	here_type = here.get_type()
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var location: list/b=batch find/h/b_$(id1)=related control/b_$(id1)/h_$(id2)=checkpoint
 $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 <div class="container">

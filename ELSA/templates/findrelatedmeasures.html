@@ -1,4 +1,7 @@
-$def with (id,mail,barcode='')
+$def with (connected,id,barcode='')
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $var recursive : False
 $code:
     permissionKey = 'm_'
@@ -6,8 +9,6 @@ $code:
     keyID = c.AllMeasures.keyColumn
     subtype = 'd'
     allModeled = c.AllManualData
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var location: list/m=$(c.findAll('m').get_class_acronym()) find/d/m_$(id)=manualdata
 $var title : $elem.getName(self.lang)
 

@@ -1,4 +1,7 @@
-$def with (type, id, mail)
+$def with (connected, type, id)
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $code:
     allobjects = c.findAll(type)
     elem = allobjects.get(id)
@@ -18,8 +21,6 @@ $code:
 	new_usages = set(usage.get_all_parents([],None))
 	usages = usages | new_usages
     allowedbatches = c.AllBatches.get_batches_for_recipe_usage(recipes,usages)
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var location: list/$(type)=$(allobjects.get_class_acronym()) find/b/$(type)_$(id)=batch
 $var recursive : False
 $var title: $c.getName(allobjects,self.lang)

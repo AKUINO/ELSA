@@ -1,13 +1,13 @@
-$def with (type,id,mail,barcode='')
+$def with (connected,type,id,barcode='')
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $var recursive : False
 $var title : ELSA
 $code:
     allobjects = c.findAll(type)
     elem = allobjects.elements[id]
     keyID = allobjects.keyColumn
-    
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var location: list/$(type)=$(elem.get_class_acronym()) find/related/$(type)_$(id)=related
 $var title : $(elem.getName(self.lang))
 

@@ -1,4 +1,16 @@
 begin	message_id	default	user
+2016-01-01 13:45:56	buyer	customer	1
+2016-01-01 13:45:56	buyer_ref	customer reference #	1
+2016-01-01 13:45:56	provider	provider	1
+2016-01-01 13:45:56	provider_ref	provider reference #	1
+2016-01-01 13:45:56	access0	No access	1
+2016-01-01 13:45:56	access1	Linked data	1
+2016-01-01 13:45:56	access2	Read-Only	1
+2016-01-01 13:45:56	access3	Normal	1
+2016-01-01 13:45:56	access4	Admin	1
+2016-01-01 13:45:56	accesslevel	Access Level	1
+2016-01-01 13:45:56	address	Address	1
+2016-01-01 13:45:56	vat	VAT	1
 2016-01-01 13:45:56	startup	Start	1
 2017-03-21 14:08:46	calendar	Calendar	1
 2016-01-01 13:45:56	all	All	1
@@ -46,6 +58,7 @@ begin	message_id	default	user
 2016-01-01 13:45:56	selecttransfer	Select the object to transfer	1
 2016-01-01 13:45:56	acronymrequired	Acronym is required !	1
 2016-01-01 13:45:56	acronymunique	Acronym must be unique !	1
+2016-01-01 13:45:56	accessrules	You cannot modify a user with higher access level than you	1
 2016-01-01 13:45:56	acronymrules	Acronym can only contain letters, digits and _!	1
 2016-01-01 13:45:56	barcoderules	Barcode must be an EAN 13!\nBarcode must be unique!	1
 2016-01-01 13:45:56	floatrules	The value must be a number	1
@@ -163,7 +176,7 @@ begin	message_id	default	user
 2016-01-01 13:45:56	lifespan	Lifespan	1
 2016-01-01 13:45:56	dateentry	Year-Month-Day Hour:Minute:Second	1
 2016-01-01 13:45:56	alarmtitle	{0}  {1}    {2}    {3} {4} {5} {6}    {7}	1
-2016-01-01 13:45:56	alarmmanualtitle	ManualData : {0} {1} in {2}	1
+2016-01-01 13:45:56	alarmmanualtitle	ManualData : {0} in {2}	1
 2016-01-01 13:45:56	alarmpouringtitle	Pouring from {0} {1} to {2} {3}	1
 2016-01-01 13:45:56	alarmmessage	"Alarm from {0}
 {1} :

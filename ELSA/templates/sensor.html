@@ -1,6 +1,7 @@
-$def with (id, mail, errormess, data)
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+$def with (connected, id, errormess, data)
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $var recursive : False
 $var title : $c.AllSensors.getName(self.lang)
 $ sensor_channels = c.AllSensors.get_query_channels()
@@ -16,9 +17,6 @@ $else:
 $if errormess != '':
     $if 'remark' in data :
 	$ rmq = data['remark']
-
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	<div class="form-group row" id="error">

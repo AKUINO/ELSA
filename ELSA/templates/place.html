@@ -1,6 +1,7 @@
-$def with (id, mail, errormess, data, context='')
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+$def with (connected, id, errormess, data, context='')
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $var recursive : False
 $if id == 'new':
     $var location: list/p=place edit/p_new=add

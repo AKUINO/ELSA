@@ -1,11 +1,12 @@
-$def with (id,mail,modelid=None)
+$def with (connected, id, modelid=None)
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $var recursive : False
 $code:
     permissionKey = 'm_'
     elem = c.AllBatches.get(id)
     keyID = 'b'
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var location: list/b=batch find/v/b_$(id)=pouring
 $var title : $elem.getName(self.lang)
 <script>

@@ -1,7 +1,8 @@
-$def with (mail)
+$def with (connected)
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $var location: list/t=transfer
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : False
 
 <!--div class="row">

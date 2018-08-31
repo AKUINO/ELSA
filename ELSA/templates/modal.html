@@ -1,4 +1,7 @@
-$def with (mail,type, id, data)	
+$def with (connected,type, id, data)	
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $var recursive : True
 $code :
     allElem = c.findAll(type)
@@ -6,9 +9,6 @@ $code :
     keyID = allElem.keyColumn
     permissionKey = '_' + type +'_'
     noname = permissionKey in '_d_t_v_al_'
-
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var title: MODAL 
 
 	    $if 'direct' in data:
@@ -74,37 +74,14 @@ $var title: MODAL
                             </div>
                             </div>
 
-		    $if type == 'al':
-                        <div class="row" style="margin-top:10px;">
-                            <div class="col-xs-4">
-                            $c.getMessage('degree',self.lang) :
-                            </div>
-                            <div class="col-xs-8" id="modalinfo" >
-				$elem.fields['degree']
-                            </div>
-                        </div>
+
+		    $if noname:
                         <div class="row" style="margin-top:10px;">
                             <div class="col-xs-4">
                             $c.getMessage('time',self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-				$useful.date_to_ISO(elem.fields['begintime'])
-                            </div>
-                        </div>
-                        <div class="row" style="margin-top:10px;">
-                            <div class="col-xs-4">
-                            $c.getMessage('alarmtime',self.lang) :
-                            </div>
-                            <div class="col-xs-8" id="modalinfo" >
-				$useful.date_to_ISO(elem.fields['alarmtime'])
-                            </div>
-                        </div>
-                        <div class="row" style="margin-top:10px;">
-                            <div class="col-xs-4">
-                            $c.getMessage('completedtime',self.lang) :
-                            </div>
-                            <div class="col-xs-8" id="modalinfo" >
-				$useful.date_to_ISO(elem.fields['completedtime'])
+				$useful.date_to_ISO(elem.getTimestring())
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">
@@ -129,24 +106,25 @@ $var title: MODAL
                             $c.getMessage('value',self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-                            $if source:
-				$source.getQtyUnit(c)
+				$elem.getQtyUnit(c)
                             </div>
                         </div>
-                        <div class="row" style="margin-top:10px;">
-                            <div class="col-xs-4">
-                            $c.getMessage('component',self.lang) :
-                            </div>
-                            <div class="col-xs-8" id="modalinfo" >
-			    $ compo = elem.get_component(c)
-			    $if compo:
-				<a href="/find/related/$(compo.get_type())_$(compo.getID())">
-				$:(c.getHalfling(compo.get_class_acronym()))
-				$if 'acronym' in compo.fields:
-					$compo.fields['acronym']
-			    	</a>
-                            </div>
-                        </div>
+			$ compo = elem.get_component(c)
+			$if compo:
+	                        <div class="row" style="margin-top:10px;">
+	                            <div class="col-xs-4">
+	                            $c.getMessage('component',self.lang) :
+	                            </div>
+	                            <div class="col-xs-8" id="modalinfo" >
+					<a href="/find/related/$(compo.get_type())_$(compo.getID())">
+					$:(c.getHalfling(compo.get_class_acronym()))
+					$if 'acronym' in compo.fields:
+						$compo.fields['acronym']
+				    	</a>
+	                            </div>
+	                        </div>
+
+		    $if type == 'al':
                         <div class="row" style="margin-top:10px;">
                             <div class="col-xs-4">
                             $c.getMessage('alarm',self.lang) :
@@ -157,6 +135,30 @@ $var title: MODAL
 				<a href="/find/related/a_$(alarm.getID())">
 				$:(c.getHalfling(alarm.get_class_acronym()))$alarm.fields['acronym']
 			    	</a>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
+                            $c.getMessage('alarmtime',self.lang) :
+                            </div>
+                            <div class="col-xs-8" id="modalinfo" >
+				$useful.date_to_ISO(elem.fields['alarmtime'])
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
+                            $c.getMessage('degree',self.lang) :
+                            </div>
+                            <div class="col-xs-8" id="modalinfo" >
+				$elem.fields['degree']
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
+                            $c.getMessage('completedtime',self.lang) :
+                            </div>
+                            <div class="col-xs-8" id="modalinfo" >
+				$useful.date_to_ISO(elem.fields['completedtime'])
                             </div>
                         </div>
 		    $if type == 'h':
@@ -265,6 +267,15 @@ $var title: MODAL
                         </div>
 
                     $if permissionKey in '_u_':
+                        $if elem.fields['accesslevel'] != '':
+                            <div class="row" style="margin-top:10px;">
+                                <div class="col-xs-4">
+                                $c.getMessage('accesslevel',self.lang)
+                                </div>
+                                <div class="col-xs-8" id="modalinfo" >
+                                $(c.getMessage("access"+elem.fields['accesslevel'],self.lang))
+                                </div>
+                            </div>
                         $if elem.fields['mail'] != '':
                             <div class="row" style="margin-top:10px;">
                                 <div class="col-xs-4">
@@ -284,6 +295,28 @@ $var title: MODAL
                                 </div>
                                 <div class="col-xs-8" id="modalinfo" >
                                 $(elem.fields['phone'])
+                                </div>
+                            </div>
+                        $if elem.fields['vat'] != '':
+                            <div class="row" style="margin-top:10px;">
+                                <div class="col-xs-4">
+                                $c.getMessage('vat',self.lang)
+                                </div>
+                                <div class="col-xs-8" id="modalinfo" >
+                                $(elem.fields['vat'])
+                                </div>
+                            </div>
+			$if elem.fields['addr1'] or elem.fields['addr2'] or elem.fields['addr3']: 
+                            <div class="row" style="margin-top:10px;">
+                                <div class="col-xs-4">
+                                $c.getMessage('address',self.lang)
+                                </div>
+                                <div class="col-xs-8" id="modalinfo" >
+                                $(elem.fields['addr1'])
+				$if (elem.fields['addr2']):
+                                    <br/>$(elem.fields['addr2'])
+				$if (elem.fields['addr3']):
+	                            <br/>$(elem.fields['addr3'])
                                 </div>
                             </div>
                     $if permissionKey in '_m_':
@@ -436,8 +469,8 @@ $var title: MODAL
                         </div>
 
 		    $if type == 'b':
-			<div class="row" style="margin-top:10px;">
-                            <div class="col-xs-4">
+		        <div class="row" style="margin-top:10px;">
+			    <div class="col-xs-4">
                                 $c.getMessage('expirationdate',self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
@@ -448,10 +481,34 @@ $var title: MODAL
 				>
 				$elem.fields['expirationdate']
 				$if lifespan:
-				 ($unicode(lifespan) $(c.getMessage('days',self.lang)))
+				    ($unicode(lifespan) $(c.getMessage('days',self.lang)))
 				</span>
                             </div>
-                        </div>
+		        </div>
+		        $ anUser = c.AllUsers.get(elem.fields['provider_id'])
+		        $if anUser:
+				<div class="row" style="margin-top:10px;">
+	                            <div class="col-xs-4">
+					$c.getMessage('provider',self.lang) :
+				    </div>
+	                            <div class="col-xs-8">
+					<a href="/find/related/u_$(anUser.getID())">
+					$:(c.getHalfling(anUser.get_class_acronym()))$anUser.fields['acronym']
+				    	</a> $elem.fields['provider_ref']
+				    </div>	
+				</div>
+		        $ anUser = c.AllUsers.get(elem.fields['buyer_id'])
+		        $if anUser:
+				<div class="row" style="margin-top:10px;">
+	                            <div class="col-xs-4">
+					$c.getMessage('buyer',self.lang) :
+				    </div>
+	                            <div class="col-xs-8">
+					<a href="/find/related/u_$(anUser.getID())">
+					$:(c.getHalfling(anUser.get_class_acronym()))$anUser.fields['acronym']
+				    	</a> $elem.fields['buyer_ref']
+				    </div>	
+				</div>
 		    $if type == 'gr':
 			<div class="row" style="margin-top:10px;">
                             <div class="col-xs-4">

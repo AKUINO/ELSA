@@ -1,7 +1,7 @@
-$def with (id, mail, errormess, data, context='')
-
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+$def with (connected, id, errormess, data, context='')
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $var recursive : False
 $var title : $c.getMessage('add',self.lang)
 $if id == 'new':
@@ -66,6 +66,21 @@ $if errormess != '':
 	</div>
 	
 	<div class="form-group row">
+	    <label for="inputLevel" class="col-sm-3 col-form-label">$c.getMessage('accesslevel',self.lang)</label>
+	    <div class="col-sm-9">
+		<select name="accesslevel" class="form-control" id="inputlevel">
+		$for option in range(5):
+		    <option value="$option"
+			$if (errormess != '') and (unicode(option)==data['accesslevel']):
+			    selected
+			$elif (id !='new') and (unicode(option)==elem.fields['accesslevel']):
+			    selected
+		    >$c.getMessage("access"+unicode(option),self.lang)</option>
+		</select>
+	    </div>
+	</div>
+	
+	<div class="form-group row">
 	    <label for="inputMail" class="col-sm-3 col-form-label">$c.getMessage('mail',self.lang)</label>
 	    <div class="col-sm-9">
 		<input name="mail" type="email" class="form-control" id="inputMail" placeholder="Enter email"
@@ -87,6 +102,46 @@ $if errormess != '':
 			value="$data['phone']"
 		$elif id !='new':
 		    value="$elem.fields['phone']"
+		>
+	    </div>
+	</div>
+
+	<div class="form-group row">
+	    <label for="inputVat" class="col-sm-3 col-form-label">$c.getMessage('vat',self.lang)</label>
+	    <div class="col-sm-9">
+		<input name="vat" type="text" pattern="[A-Z]{2}[0-9]{1,}" class="form-control" id="inputVat" placeholder="Enter VAT number"
+		$if errormess != '':
+		    $if 'vat' in data :
+			value="$data['vat']"
+		$elif id !='new':
+		    value="$elem.fields['vat']"
+		>
+	    </div>
+	</div>
+
+	<div class="form-group row">
+	    <label for="inputAddress1" class="col-sm-3 col-form-label">$c.getMessage('address',self.lang)</label>
+	    <div class="col-sm-9">
+		<input name="addr1" type="text" class="form-control" id="inputAddress1" placeholder="1st address line"
+		$if errormess != '':
+		    $if 'addr1' in data :
+			value="$data['addr1']"
+		$elif id !='new':
+		    value="$elem.fields['addr1']"
+		>
+		<input name="addr2" type="text" class="form-control" id="inputAddress2" placeholder="2nd address line"
+		$if errormess != '':
+		    $if 'addr2' in data :
+			value="$data['addr2']"
+		$elif id !='new':
+		    value="$elem.fields['addr2']"
+		>
+		<input name="addr3" type="text" class="form-control" id="inputAddress3" placeholder="3rd address line"
+		$if errormess != '':
+		    $if 'addr3' in data :
+			value="$data['addr3']"
+		$elif id !='new':
+		    value="$elem.fields['addr3']"
 		>
 	    </div>
 	</div>

@@ -1,4 +1,12 @@
 begin	lang	message_id	name	user
+2016-01-01 13:45:56	EN	buyer	Customer	1
+2016-01-01 13:45:56	EN	buyer_ref	Customer Reference #	1
+2016-01-01 13:45:56	EN	provider	Provider	1
+2016-01-01 13:45:56	EN	provider_ref	Provider Reference #	1
+2016-01-01 13:45:56	FR	buyer	Client	1
+2016-01-01 13:45:56	FR	buyer_ref	#Référence Client	1
+2016-01-01 13:45:56	FR	provider	Fournisseur	1
+2016-01-01 13:45:56	FR	provider_ref	#Référence Fournisseur	1
 2016-01-01 13:45:56	FR	parent	Générique(s)	1
 2016-01-01 13:45:56	FR	child	Spécifique(s)	1
 2016-01-01 13:45:56	DE	acronym	Akronym	1
@@ -23,6 +31,20 @@ begin	lang	message_id	name	user
 2016-01-01 13:45:56	FR	restarting	Redémarrage	1
 2016-01-01 13:45:56	EN	startUpdate	Update ELSA	1
 2016-01-01 13:45:56	FR	startUpdate	Mise à jour d'ELSA	1
+2016-01-01 13:45:56	EN	access0	No access	1
+2016-01-01 13:45:56	EN	access1	Linked data (VAT)	1
+2016-01-01 13:45:56	EN	access2	Read-Only	1
+2016-01-01 13:45:56	EN	access3	Normal	1
+2016-01-01 13:45:56	EN	access4	Admin	1
+2016-01-01 13:45:56	EN	access0	Accès interdit	1
+2016-01-01 13:45:56	EN	access1	Données liées (TVA)	1
+2016-01-01 13:45:56	EN	access2	Lecture seulement	1
+2016-01-01 13:45:56	EN	access3	Normal	1
+2016-01-01 13:45:56	EN	access4	Administrateur	1
+2016-01-01 13:45:56	EN	accesslevel	Access Level	1
+2016-01-01 13:45:56	FR	accesslevel	Niveau d'Accès	1
+2016-01-01 13:45:56	EN	accessrules	You cannot modify a user with higher access level than you	1
+2016-01-01 13:45:56	FR	accessrules	Modification interdite pour un utilisateur de niveau supérieur au vôtre	1
 2016-01-01 13:45:56	EN	acronymrequired	Acronym is required !	1
 2016-01-01 13:45:56	FR	acronymrequired	Acronyme requis	1
 2016-01-01 13:45:56	EN	acronymrules	Acronym can only contain letters, digits and _!	1
@@ -41,6 +63,8 @@ begin	lang	message_id	name	user
 2016-01-01 13:45:56	EN	addgroup	Add to group :	1
 2016-01-01 13:45:56	FR	addgroup	Ajouter dans le groupe :	1
 2016-01-01 13:45:56	NL	addgroup	Toevoegen aan de groep :	1
+2016-01-01 13:45:56	EN	address	Address	1
+2016-01-01 13:45:56	FR	address	Addresse	1
 2016-01-01 13:45:56	DE	alarm	Alarm	1
 2016-01-01 13:45:56	EN	alarm	Alarm	1
 2016-01-01 13:45:56	FR	alarm	Alarme	1
@@ -57,8 +81,8 @@ Time : {7}"	1
 Observation : {5}
      Remarque : {6}
 Heure : {7}"	1
-2016-01-01 13:45:56	EN	alarmmanualtitle	Observed: {0} {1} in {2}	1
-2016-01-01 13:45:56	FR	alarmmanualtitle	Observé : {0} {1} in {2}	1
+2016-01-01 13:45:56	EN	alarmmanualtitle	Observed: {0} in {1}	1
+2016-01-01 13:45:56	FR	alarmmanualtitle	Observé: {0} in {1}	1
 2016-01-01 13:45:56	EN	alarmmessage	"Alarm from {0}, {1}
 {2} : ({4}) {3}
 Sensor : ({6}) {5} = {7} {8}
@@ -420,6 +444,8 @@ Heure : {8}"	1
 2016-01-01 13:45:56	FR	valuesensor	Valeurs acquises par le senseur	1
 2016-01-01 13:45:56	EN	valuetype	Value type 	1
 2016-01-01 13:45:56	FR	valuetype	Type de valeur 	1
+2016-01-01 13:45:56	EN	vat	VAT 	1
+2016-01-01 13:45:56	FR	vat	TVA 	1
 2016-01-01 13:45:56	DE	welcome	Willkomen	1
 2016-01-01 13:45:56	EN	welcome	Welcome	1
 2016-01-01 13:45:56	FR	welcome	Bienvenue	1

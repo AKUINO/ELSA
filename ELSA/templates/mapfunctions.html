@@ -1,8 +1,9 @@
-$def with (mail)
+$def with (connected)
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $var title : ELSA Users Functions Map
 $var location: list/gf=$(c.AllGrFunction.get_class_acronym())
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
 $var recursive : False
 $ done = set()
 $ listFunction = c.AllGrFunction.get_fullmap_str()

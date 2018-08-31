@@ -1,7 +1,8 @@
-$def with (id, mail, errormess, data, context='')
+$def with (connected, id, errormess, data, context='')
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $var recursive : False
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
 $var title : $c.getMessage('add',self.lang) $c.getMessage('batch',self.lang)
 $var rmq :
 $var location: list/b=batch edit/b_new=add
@@ -95,7 +96,71 @@ $if errormess != '':
 		>
 		</div>
 	    </div>
-	    
+
+	<div class="form-group row">
+	    <label for="providerSelect" class="col-sm-3 col-form-label">$c.getMessage('provider',self.lang)</label>
+	    <div class="col-sm-9">
+		<select name = "provider_id" class="form-control" id="providerSelect">
+		    <option></option>
+		    $for k,aUser in c.AllUsers.elements.items():
+		      $if aUser.isActive() and aUser.hasParent(c,"PROVIDER"):
+			<option value="$k"
+			$if errormess != '':
+			    $if 'provider_id' in data :
+				$if k == data['provider_id']:
+				    selected
+			$elif id !='new':
+				$if k == elem.fields['provider_id'] :
+				    selected
+			>$(aUser.get_select_str(self.lang))</option>
+		</select>
+	    </div>
+	</div>
+	<div class="form-group row">
+	    <label for="inputRefProvider" class="col-sm-3 col-form-label">$c.getMessage('provider_ref',self.lang)</label>
+	    <div class="col-sm-9">
+		<input name="provider_ref" type="text" class="form-control" id="inputRefProvider" placeholder="Enter Provider Reference number"
+		$if errormess != '':
+		    $if 'provider_ref' in data :
+			value="$data['provider_ref']"
+		$elif id !='new':
+		    value="$elem.fields['provider_ref']"
+		>
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="buyerSelect" class="col-sm-3 col-form-label">$c.getMessage('buyer',self.lang)</label>
+	    <div class="col-sm-9">
+		<select name = "buyer_id" class="form-control" id="buyerSelect">
+		    <option></option>
+		    $for k,aUser in c.AllUsers.elements.items():
+		      $if aUser.isActive() and aUser.hasParent(c,"CUSTOMER"):
+			<option value="$k"
+			$if errormess != '':
+			    $if 'buyer_id' in data :
+				$if k == data['buyer_id']:
+				    selected
+			$elif id !='new':
+				$if k == elem.fields['buyer_id'] :
+				    selected
+			>$(aUser.get_select_str(self.lang))</option>
+		</select>
+	    </div>
+	</div>
+	<div class="form-group row">
+	    <label for="inputRefBuyer" class="col-sm-3 col-form-label">$c.getMessage('buyer_ref',self.lang)</label>
+	    <div class="col-sm-9">
+		<input name="buyer_ref" type="text" class="form-control" id="inputRefBuyer" placeholder="Enter Buyer Reference number"
+		$if errormess != '':
+		    $if 'buyer_ref' in data :
+			value="$data['buyer_ref']"
+		$elif id !='new':
+		    value="$elem.fields['buyer_ref']"
+		>
+	    </div>
+	</div>
+	
 	<div class="form-group row">
 	    <label for="measureSelect" class="col-sm-3 col-form-label">$c.getMessage('measure',self.lang)</label>
 	    <div class="col-sm-9">

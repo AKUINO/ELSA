@@ -1,7 +1,7 @@
-$def with (mail, git_status)
-
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+$def with (connected, git_status)
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $var recursive : False
 $var location : updateELSA=updateELSA
 $var title : Update ELSA

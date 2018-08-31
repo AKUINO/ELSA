@@ -1,8 +1,13 @@
-$def with (mail)
+$def with (connected,isIndex)
 $var title : ELSA Batches Recipes Map
-$var location: list/gr=$(c.AllGrRecipe.get_class_acronym())
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$if isIndex:
+	$var location : index
+$else:
+	$var location: list/gr=$(c.AllGrRecipe.get_class_acronym())
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
+$ user = connected.cuser
 $var recursive : False
 $ done = set()
 $ listRecipe = c.AllGrRecipe.get_fullmap_str()

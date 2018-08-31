@@ -1,7 +1,7 @@
-$def with (mail, link, message)
-
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language'] 
+$def with (connected, link, message)
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $var recursive : False
 $var location : backup=backup
 $var title : $c.getMessage('createBackup',self.lang)

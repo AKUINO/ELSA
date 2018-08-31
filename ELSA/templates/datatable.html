@@ -1,8 +1,9 @@
-$def with (mail, type,id)
-$var allowed : $c.connectedUsers.users[mail].cuser.allowed(c)
-$var lang : $c.connectedUsers.users[mail].cuser.fields['language']
+$def with (connected, type,id)
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
 $code :
-    elem = c.connectedUsers.users[mail].cuser.exportdata
+    elem = connected.cuser.exportdata
     allSource = c.findAll(type)
     source = allSource.get(id)
 
