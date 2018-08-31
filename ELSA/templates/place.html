@@ -3,6 +3,7 @@ $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
 $var recursive : False
+$ kGroup = ""
 $if id == 'new':
     $var location: list/p=place edit/p_new=add
     $var rmq :
@@ -13,9 +14,14 @@ $else:
         elem = c.AllPlaces.get(id)
     $var rmq :  $elem.fields['remark']
     $var title: $elem.getName(self.lang)
+$if context:
+	$ kGroup = (context.split('_')[-1])
 $if errormess != '':
     $if 'remark' in data :
 	$var rmq : $data['remark']
+    $code:
+	if data['group']:
+	    kGroup = data['group']
 
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
@@ -25,9 +31,9 @@ $if errormess != '':
 	
 	<div class="form-group row">
 	    <script>
-		$if context != '':
+		$if kGroup != '':
 		    $$(function(){
-			$$("#includedPermission").load("/permission/p_$(id)/$(context.split('_')[-1])");
+			$$("#includedPermission").load("/permission/p_$(id)/$(kGroup)");
 		    });
 		$else :
 		    $$(function(){
