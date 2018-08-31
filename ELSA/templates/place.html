@@ -20,7 +20,7 @@ $if errormess != '':
     $if 'remark' in data :
 	$var rmq : $data['remark']
     $code:
-	if data['group']:
+	if 'group' in data and data['group']:
 	    kGroup = data['group']
 
 <div class="container">
