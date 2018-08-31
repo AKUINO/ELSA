@@ -139,9 +139,11 @@ $if content.recursive == 'False' :
 				<li><a href="/list/gr" tabindex="-2">$:c.getHalfling('grecipe')&nbsp;$c.getMessage('grecipe',content.lang)</a></li>
 				<li><a href="/map/gr" tabindex="-3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('datatable')&nbsp;$c.getMessage('datatable',content.lang)</a></li>				
 				<li><a href="/calendar" tabindex="-4">$:c.getHalfling('calendar')&nbsp;$c.getMessage('calendar',content.lang)</a></li>
-				<li$:('' if " upd_d "in content.allowed else ' class="disabled"')><a href="$("/create/d" if " upd_d "in content.allowed else "#")" tabindex="-5">$:c.getHalfling('manualdata')&nbsp;$c.getMessage('manualdata',content.lang)</a></li>
-				<li$:('' if " upd_t "in content.allowed else ' class="disabled"')><a href="$("/create/t" if " upd_t "in content.allowed else "#")" tabindex="-6">$:c.getHalfling('transfer')&nbsp;$c.getMessage('transfer',content.lang)</a></li>
-				<li$:('' if " upd_v "in content.allowed else ' class="disabled"')><a href="$("/create/v" if " upd_v "in content.allowed else "#")" tabindex="-7">$:c.getHalfling('pouring')&nbsp;$c.getMessage('pouring',content.lang)</a></li>
+				<li><a href="#" tabindex="-4" onclick="generateQRCode()" data-toggle="modal" data-target="#modal_barcode" aria-expanded="false" aria-controls="navbar">$:c.getHalfling('barcode')&nbsp;$c.getMessage('barcode',content.lang)</a></li>
+				<li><a href="#" tabindex="-5">&nbsp;</a></li>				
+				<li$:('' if " upd_d "in content.allowed else ' class="disabled"')><a href="$("/create/d" if " upd_d "in content.allowed else "#")" tabindex="-6">$:c.getHalfling('manualdata')&nbsp;$c.getMessage('manualdata',content.lang)</a></li>
+				<li$:('' if " upd_t "in content.allowed else ' class="disabled"')><a href="$("/create/t" if " upd_t "in content.allowed else "#")" tabindex="-7">$:c.getHalfling('transfer')&nbsp;$c.getMessage('transfer',content.lang)</a></li>
+				<li$:('' if " upd_v "in content.allowed else ' class="disabled"')><a href="$("/create/v" if " upd_v "in content.allowed else "#")" tabindex="-8">$:c.getHalfling('pouring')&nbsp;$c.getMessage('pouring',content.lang)</a></li>
 			    </ul>
 			</li>
 			<li class="dropdown" data-show-icon="true">
@@ -149,14 +151,12 @@ $if content.recursive == 'False' :
 			    <ul class="dropdown-menu">
 				<li><a href="/list/u" tabindex="-1">$:c.getHalfling('user')&nbsp;$c.getMessage('user',content.lang)</a></li>
 				<li><a href="/list/gf" tabindex="-2">$:c.getHalfling('gfunction')&nbsp;&nbsp;$c.getMessage('gfunction',content.lang)</a></li>
-				<li><a href="/map/gf" tabindex="-5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('datatable')&nbsp;$c.getMessage('datatable',content.lang)</a></li>				
-				<li$:('' if " admin "in content.allowed else ' class="disabled"')><a href="$("/backup" if " admin "in content.allowed else "#")" tabindex="-3">$:c.getHalfling('backup')&nbsp;$c.getMessage('backup',content.lang)</a></li>
+				<li><a href="/map/gf" tabindex="-3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('datatable')&nbsp;$c.getMessage('datatable',content.lang)</a></li>
+				<li><a href="#" tabindex="-4">&nbsp;</a></li>				
+				<li$:('' if " admin "in content.allowed else ' class="disabled"')><a href="$("/backup" if " admin "in content.allowed else "#")" tabindex="-5">$:c.getHalfling('backup')&nbsp;$c.getMessage('backup',content.lang)</a></li>
 				$if self.tmp == 'connected':
-				    <li><a href="/disconnect" tabindex="-4">$:c.getHalfling('disconnect')&nbsp;$c.getMessage('disconnect',content.lang)</a></li>
+				    <li><a href="/disconnect" tabindex="-6">$:c.getHalfling('disconnect')&nbsp;$c.getMessage('disconnect',content.lang)</a></li>
 			    </ul>
-			</li>
-			<li class="dropdown" data-show-icon="true">
-			<span><button onclick="generateQRCode()" type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#modal_barcode" aria-expanded="false" aria-controls="navbar" style="margin-top:5px;">$:c.getHalfling('barcode')</button></span>
 			</li>
 		    </ul>
 		</div><!--/.navbar-collapse -->
