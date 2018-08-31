@@ -90,7 +90,7 @@ Time : {9}
 Degree : {10}"	1
 2016-01-01 13:45:56	FR	alarmmessage	"Alarme pour {0}, {1}
 {2} : ({4}) {3}
-Senseur : ({6}) {5} = {7} {8}
+Capteur : ({6}) {5} = {7} {8}
 Heure : {9}
 Degré : {10}"	1
 2016-01-01 13:45:56	EN	alarmpouring	"Alarm from {0}, {1}
@@ -181,7 +181,7 @@ Heure : {8}"	1
 2016-01-01 13:45:56	FR	createc	Ajouter un récipient	1
 2016-01-01 13:45:56	DE	createcpehm	Fügen Sie einen neuen Sensor	1
 2016-01-01 13:45:56	EN	createcpehm	Add a new sensor	1
-2016-01-01 13:45:56	FR	createcpehm	Ajouter un nouveau senseur	1
+2016-01-01 13:45:56	FR	createcpehm	Ajouter un nouveau capteur	1
 2016-01-01 13:45:56	NL	createcpehm	Voeg een nieuwe sensor	1
 2016-01-01 13:45:56	DE	createdby	Erstellt von	1
 2016-01-01 13:45:56	EN	createdby	Created by	1
@@ -372,14 +372,14 @@ Heure : {8}"	1
 2016-01-01 13:45:56	FR	selecttransfer	Choisir l'objet à transférer	1
 2016-01-01 13:45:56	DE	sensor	Sensor	1
 2016-01-01 13:45:56	EN	sensor	Sensor	1
-2016-01-01 13:45:56	FR	sensor	Senseur	1
+2016-01-01 13:45:56	FR	sensor	Capteur	1
 2016-01-01 13:45:56	NL	sensor	Sensor	1
 2016-01-01 13:45:56	DE	backup	Backup	1
 2016-01-01 13:45:56	EN	backup	Backup	1
 2016-01-01 13:45:56	FR	backup	Sauvegarde	1
 2016-01-01 13:45:56	NL	backup	Backup	1
 2016-01-01 13:45:56	EN	sensorrules	A sensor is required !	1
-2016-01-01 13:45:56	FR	sensorrules	Un senseur est requis !	1
+2016-01-01 13:45:56	FR	sensorrules	Un capteur est requis !	1
 2016-01-01 13:45:56	DE	sound	Seine	1
 2016-01-01 13:45:56	EN	sound	Sound	1
 2016-01-01 13:45:56	FR	sound	Son	1
@@ -391,7 +391,7 @@ Heure : {8}"	1
 2016-01-01 13:45:56	EN	startup	Start	1
 2016-01-01 13:45:56	FR	startup	Départ	1
 2016-01-01 13:45:56	EN	subsensor	Subsensor 	1
-2016-01-01 13:45:56	FR	subsensor	Sous-senseur 	1
+2016-01-01 13:45:56	FR	subsensor	Sous-capteur 	1
 2016-01-01 13:45:56	EN	target	Target	1
 2016-01-01 13:45:56	FR	target	Destination	1
 2016-01-01 13:45:56	EN	time	Time	1
@@ -441,7 +441,7 @@ Heure : {8}"	1
 2016-01-01 13:45:56	EN	value	Value 	1
 2016-01-01 13:45:56	FR	value	Valeur 	1
 2016-01-01 13:45:56	EN	valuesensor	Values from sensor	1
-2016-01-01 13:45:56	FR	valuesensor	Valeurs acquises par le senseur	1
+2016-01-01 13:45:56	FR	valuesensor	Valeurs acquises par le capteur	1
 2016-01-01 13:45:56	EN	valuetype	Value type 	1
 2016-01-01 13:45:56	FR	valuetype	Type de valeur 	1
 2016-01-01 13:45:56	EN	vat	VAT 	1
