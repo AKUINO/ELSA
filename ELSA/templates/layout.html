@@ -90,8 +90,8 @@ $if content.recursive == 'False' :
             </script>
 
         <div class="container">
-	    <nav class="navbar navbar-inverse navbar-expand-sm" role="navigation">
 	    $if content.completeMenu != 'False':			
+	        <nav class="navbar navbar-inverse navbar-expand-sm" role="navigation">
 		<div class="navbar-header">
 		    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
 			<span class="sr-only">Toggle navigation</span>
@@ -161,26 +161,16 @@ $if content.recursive == 'False' :
 		    </ul>
 		</div><!--/.navbar-collapse -->
 	    $elif self.tmp == 'connected':
+	        <nav class="navbar navbar-inverse" role="navigation">
 		<div class="navbar-header">
 			<a class="navbar-brand" href="/?completeMenu=1" style="margin:15px;margin-top:0px;"><img src="/static/img/akuino.png" border="0" alt="This application stores the configuration and the data of the different AKUINO modules installed"/></a>
-		</div>
-		<div id="navbar" class="navbar-collapse collapse">
-		    <ul class="nav navbar-nav">
-			<li class="dropdown" data-show-icon="true">
 			<button onclick="location.href='/map/gu'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('guse')</button>
-			</li>
-			<li class="dropdown" data-show-icon="true">
 			<button onclick="location.href='/index?completeMenu=0'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('grecipe')</button>
-			</li>
-			<li class="dropdown" data-show-icon="true">
 			<button onclick="location.href='/calendar'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('calendar')</button>
-			</li>
-			<li class="dropdown" data-show-icon="true">
 			<button onclick="generateQRCode()" type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#modal_barcode" aria-expanded="false" aria-controls="navbar" style="margin:15px;">$:c.getHalfling('barcode')</button>
-			</li>
-		    </ul>
 		</div>
 	    $else:
+	        <nav class="navbar navbar-inverse" role="navigation">
 		<div class="navbar-header">
 			<span class="navbar-brand" href="/?completeMenu=1" style="margin:15px;margin-top:0px;"><img src="/static/img/akuino.png" border="0" alt="This application stores the configuration and the data of the different AKUINO modules installed"/></span>
 		</div>
