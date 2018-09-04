@@ -25,6 +25,7 @@ $else:
 		recipe = elem.fields['src']
 	else:
 		recipe = elem.fields['dest']
+	usage = elem.fields['gu_id']
     $var rmq :  $elem.fields['remark']
     $var title : $elem.getName(self.lang)
 $if errormess != '':
@@ -38,6 +39,8 @@ $if errormess != '':
 		checkpoint = data['checkpoint']
 	if 'recipe' in data:
 		recipe = data['recipe']
+	if 'gu_id' in data:
+		usage = data['gu_id']
 	
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
@@ -127,6 +130,22 @@ $if errormess != '':
 				$if k == recipe:
 				    selected
 			    >$grec.fields['acronym'] - $grec.getName(self.lang) </option>
+		</select>
+	    </div>
+	</div>
+	
+	<div class="form-group row">
+	    <div class="col-sm-3 col-form-label">
+		$c.getMessage('guse',self.lang)
+	    </div>
+	    <div class="col-sm-1">$:(c.getHalfling("from") if pouring_from else c.getHalfling("to"))$:(c.getAllHalfling(c.AllGrRecipe))</div>
+	    <div class="col-sm-8">
+		<select name = "gu_id" class="form-control">
+			$for k,gusa in c.AllGrUsage.elements.items():
+			    <option value="$k"
+				$if k == usage:
+				    selected
+			    >$gusa.fields['acronym'] - $gusa.getName(self.lang) </option>
 		</select>
 	    </div>
 	</div>

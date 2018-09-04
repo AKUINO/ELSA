@@ -19,10 +19,10 @@ $var title: MODAL
 		<div class="col-xs-2" 
 		    $if elem.isModeling():
 			style="color : #337ab7"
-		>
+		><a href="/find/related/$elem.getTypeId()">
 		    <strong>$:c.getAllHalfling(allElem)</strong>
 		</div>
-                <h4 class="modal-title col-xs-6 ">$((allElem if noname else elem).getName(self.lang))</h4>
+                <h4 class="modal-title col-xs-6 ">$((allElem if noname else elem).getName(self.lang))</a></h4>
 		<div class="col-xs-2" ></div>
                 <button type="button" class="col-xs-2 btn btn-primary" data-dismiss="modal"><strong><big>&times;</big></strong></button>
 	        </div>

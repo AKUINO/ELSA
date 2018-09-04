@@ -159,6 +159,9 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		    <input type="hidden" name="vm_id_$(countvm)" value="$e.getID()"/>
 		    <label class="col-sm-12 col-form-label">$:c.getAllHalfling(c.AllPourings) $e.getName(self.lang): <span class="text-danger">$e.fields['remark']<span></label>
 		</div>
+		$ aUsage = None
+		$if e.fields['gu_id'] and e.fields['gu_id'] in c.AllGrUsage.elements:
+		    $ aUsage = c.AllGrUsage.elements[e.fields['gu_id']]
                 $ aMeasure = None
 		$if e.fields['in'] != '0':
 		    <div class="form-group row">
@@ -171,21 +174,24 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 			$if aRecipe:
 				<div class="col-sm-9" id = "divsrc">
 				    <select name="vm_src_$(countvm)" class="form-control" id="src">
-					$for k in c.AllBatches.get_batches_for_recipes([aRecipe.getID()]+aRecipe.get_submap_str()):
-					    $if not (k.getID() == batch.getID()):
+					$for k in c.AllBatches.get_batches_for_recipe_usage([aRecipe.getID()]+aRecipe.get_submap_str(), [aUsage.getID()]+aUsage.get_submap_str()):
+					    $if not k.isComplete() and not (k.getID() == batch.getID()):
 						<option value="$k.getID()">$k.fields['acronym'] - $k.getName(self.lang) [= $unicode(k.get_residual_quantity())] </option>
 				    </select>
 				</div>
 		    </div>
 		$else:
 		    <div class="form-group row">
+			$ aRecipe = None
+			$if e.fields['dest'] and e.fields['dest'] in c.AllGrRecipe.elements:
+			    $ aRecipe = c.AllGrRecipe.elements[e.fields['dest']]
 			$if batch:
 			    $ aMeasure = batch.get_measure(c)
-			<label for="b_id" class="col-sm-3 col-form-label">$c.getMessage('batch',self.lang) $c.getMessage('source',self.lang)</label>
+			<label for="b_id" class="col-sm-3 col-form-label">$c.getMessage('batch',self.lang) $c.getMessage('target',self.lang)</label>
 			<div class="col-sm-9" id = "divdest">
 			    <select name="vm_dest_$(countvm)" class="form-control" id="dest">
-				$for k in c.AllBatches.get_batches_for_recipes([e.fields['dest']]):
-				    $if not (k.getID() == batch.getID()):
+				$for k in c.AllBatches.get_batches_for_recipe_usage([aRecipe.getID()]+aRecipe.get_submap_str(), [aUsage.getID()]+aUsage.get_submap_str()):
+				    $if not k.isComplete() and not (k.getID() == batch.getID()):
 					<option value="$k.getID()">$k.fields['acronym'] - $k.getName(self.lang) [= $unicode(k.get_residual_quantity())] </option>
 			    </select>
 			</div>

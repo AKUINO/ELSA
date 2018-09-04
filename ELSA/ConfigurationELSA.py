@@ -2037,9 +2037,9 @@ class AllTransferModels(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'tm', TransferModel.__name__, config)
-        self.fieldnames = ["begin", "tm_id", 'acronym', \
-                           'gu_id', 'h_id', 'rank', "remark", 'active'] \
-                            + alarmFields + ["user"]
+        self.fieldnames = ["begin", 'tm_id', 'acronym', \
+                           'gu_id', 'h_id', 'rank', 'remark', 'active'] \
+                            + alarmFields + ['user']
         self.fieldtranslate = ['begin', 'lang', 'tm_id', 'name', 'user']
 
     def newObject(self):
@@ -2058,9 +2058,9 @@ class AllPouringModels(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'vm', PouringModel.__name__, config)
-        self.fieldnames = ["begin", "vm_id", 'acronym', 'src', 'dest', \
-                           'quantity', 'h_id', 'rank', "in", "remark", 'active'] \
-                            + alarmFields + ["user"]
+        self.fieldnames = ['begin', 'vm_id', 'acronym', 'src', 'dest', \
+                           'quantity', 'h_id', 'rank', 'in', 'gu_id', 'remark', 'active'] \
+                            + alarmFields + ['user']
         self.fieldtranslate = ['begin', 'lang', 'vm_id', 'name', 'user']
 
     def newObject(self):
@@ -2079,8 +2079,8 @@ class AllManualDataModels(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'dm', ManualDataModel.__name__, config)
-        self.fieldnames = ["begin", "dm_id", 'acronym', 'm_id', 'h_id', 'rank', \
-                           "remark", 'active'] + alarmFields + ["user"]
+        self.fieldnames = ['begin', 'dm_id', 'acronym', 'm_id', 'h_id', 'rank', \
+                           'remark', 'active'] + alarmFields + ['user']
         self.fieldtranslate = ['begin', 'lang', 'dm_id', 'name', 'user']
 
     def newObject(self):
@@ -5049,6 +5049,14 @@ class Batch(ConfigurationObject):
             qt += self.config.AllPourings.elements[e].floats('quantity')
         return qt
 
+    def get_quantity_added(self,config):
+        qt = 0
+        for e in self.destination:
+            aPouring = self.config.AllPourings.elements[e]
+            if aPouring.get_unit(config) == self.get_unit(config):
+                qt += self.config.AllPourings.elements[e].floats('quantity')
+        return qt
+
     def get_lifetime(self):
         if self.floats('basicqt') == 0.0:
             self.fields['basicqt'] = "0"
@@ -5105,6 +5113,18 @@ class Batch(ConfigurationObject):
     def remove_destination(self, pouring):
         if pouring.getID() in self.destination:
             self.destination.remove(pouring.getID())
+
+    def get_pourings(self,c):
+        events = []
+        if self.source:
+            for kevent in self.source:
+                if kevent in c.AllPourings.elements:
+                    events.append(c.AllPourings.elements[kevent])
+        if self.destination:
+            for kevent in self.destination:
+                if kevent in c.AllPourings.elements:
+                    events.append(c.AllPourings.elements[kevent])
+        return sorted(events, key=lambda t: t.fields['time'])
 
     def add_checkpoint(self, cp, now):
         if cp not in self.checkpoints and cp in self.config.AllCheckPoints.elements:
@@ -5312,7 +5332,7 @@ class PouringModel(ConfigurationObject):
         if self.fields['h_id'] != '':
             self.config.AllCheckPoints.elements[self.fields['h_id']].remove_vm(self)
         super(PouringModel, self).set_value_from_data(data, c, user)
-        tmp = ['quantity', 'in', 'rank'] + alarmFields
+        tmp = ['quantity', 'in', 'rank', 'gu_id'] + alarmFields
         for elem in tmp:
             self.fields[elem] = data[elem]
 

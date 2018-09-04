@@ -25,12 +25,16 @@ $if modelid:
     <label class="col-sm-12">$c.getMessage('batch',self.lang) $c.getMessage('source',self.lang) :</label>
     <label class="col-sm-3">$c.getMessage('time',self.lang)</label>
     <label class="col-sm-2">$c.getMessage('checkpoint',self.lang)</label>
-    <label class="col-sm-3">$c.getMessage('component',self.lang)</label>
-    <label class="col-sm-3">$c.getMessage('measure',self.lang) / $c.getMessage('remark',self.lang)</label>    
-    $for k in elem.destination:
-	$ pouring = c.AllPourings.get(k)
+    <label class="col-sm-3">$c.getMessage('batch',self.lang)</label>
+    <label class="col-sm-2">$c.getMessage('quantity',self.lang)</label>    
+    <label class="col-sm-1">$:(c.getHalfling('scale'))$elem.getQtyUnit(c)</label>
+    $ pq =  elem.get_quantity()
+    $ stock = pq if pq else 0.0
+    $ odd = False
+    $for pouring in elem.get_pourings(c):
 	$if pouring and (not modelid or pouring.fields['vm_id']==modelid):
-		<div class="row active">
+		<div class="row active" style="$("background-color:#D5D5D7" if odd else "")">
+		    $ odd = not odd
 			<div class="col-xs-3" >
 			    $pouring.fields['time']
 			</div>
@@ -40,20 +44,45 @@ $if modelid:
 			    $if pouring.fields['vm_id'] != '' :
 		                <br/><a href="/find/related/vm_$(pouring.fields['vm_id'])" style="color:#28A4C9">- $c.AllPouringModels.get(pouring.fields['vm_id']).fields['acronym']</a>
 			</div>
+		    $if pouring.getID() in elem.destination:
 			$ batch = c.AllBatches.get(pouring.fields['src'])
 			<div class="col-xs-3 text-right">
-			    <a href="/find/v/b_$(pouring.fields['src'])" class="btn btn-warning" role="button" style="float:right">$:c.getHalfling('input')</a>
+			    <a href="/find/v/b_$(pouring.fields['src'])" class="btn btn-warning" role="button" style="float:right">$:c.getHalfling('output')</a>
 			    <strong><a href="/find/v/b_$(pouring.fields['src'])">$batch.fields['acronym']</a></strong>
 			    <br>$batch.getName(self.lang)
 			</div>	    
-			<div class="col-xs-3" >
-			    $unicode(pouring.get_quantity())) $pouring.get_unit(c)</a>
+			<div class="col-xs-2" >
+			    $pouring.get_quantity_string() $pouring.get_unit(c)</a>
 			    $if pouring.fields['al_id'] :
 			        <a href="/edit/al_$(pouring.fields['al_id'])">$:c.getAllHalfling(c.AllAlarmLogs)</a>
 			    $if pouring.fields['remark']:
 				<br/><span class="text-danger">$pouring.fields['remark']</span>
 			</div>
-			$if ( " upd_v " ) in self.allowed:
+			<div class="col-xs-1">
+			    $ pq =  pouring.get_quantity()
+			    $if pq and pouring.get_unit(c) == elem.get_unit(c):
+			 	$ stock = stock - pq
+				<strong>$unicode(stock)</strong>
+			</div>
+		    $else:
+			$ batch = c.AllBatches.get(pouring.fields['dest'])
+			<div class="col-xs-3">
+			    <strong><a href="/find/v/b_$(pouring.fields['dest'])"><span class="btn btn-warning" style="float:left" role="button">$:c.getHalfling('input')</span>$batch.fields['acronym']</a></strong><br>$batch.getName(self.lang)
+			</div>    
+			<div class="col-xs-2" >
+			    $pouring.getQtyUnit(c)
+			    $if pouring.fields['al_id'] :
+			        <a href="/edit/al_$(pouring.fields['al_id'])">$:c.getAllHalfling(c.AllAlarmLogs)</a>
+			    $if pouring.fields['remark']:
+			    	<br/><span class="text-danger">$pouring.fields['remark']</span>
+			</div>
+			<div class="col-xs-1">
+			    $ pq =  pouring.get_quantity()
+			    $if pq and pouring.get_unit(c) == elem.get_unit(c):
+			 	$ stock = stock + pq
+				<strong>$unicode(stock)</strong>
+			</div>
+		    $if ( " upd_v " ) in self.allowed:
 			  <div class="col-xs-1">
 			    <strong><a href="/edit/v_$(pouring.fields['v_id'])" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
 			  </div>
@@ -65,48 +94,8 @@ $if modelid:
     </div>
     <div class="col-xs-6" id="addItem">
 	$if ( " upd_v " ) in self.allowed:
-	    <a href="/create/v/b_$(id)_in">$:c.getHalfling('add') $c.getMessage('pouring',self.lang)$:c.getAllHalfling(c.AllPourings)</a>
-    </div>
-</div> 
-
-<div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
-    <label class="col-sm-12">$c.getMessage('batch',self.lang) $c.getMessage('target',self.lang)</label>   
-    <label class="col-sm-3">$c.getMessage('time',self.lang)</label>
-    <label class="col-sm-2">$c.getMessage('checkpoint',self.lang)</label>
-    <label class="col-sm-3">$c.getMessage('component',self.lang)</label>
-    <label class="col-sm-3">$c.getMessage('measure',self.lang) / $c.getMessage('remark',self.lang)</label>   
-    $for k in elem.source:
-	$ pouring = c.AllPourings.get(k)
-	$if pouring and (not modelid or pouring.fields['vm_id']==modelid):
-	    <div class="row active">
-		<div class="col-xs-3" >
-		    $pouring.fields['time']
-		</div>	
-		<div class="col-xs-2" >
-		    $if pouring.fields['h_id'] != '' :
-		        <a href="/find/related/h_$(pouring.fields['h_id'])">$:c.getAllHalfling(c.AllCheckPoints) $c.AllCheckPoints.get(pouring.fields['h_id']).fields['acronym']</a>
-		    $if pouring.fields['vm_id'] != '' :
-	                <br/><a href="/find/related/vm_$(pouring.fields['vm_id'])" style="color:#28A4C9">- $c.AllPouringModels.get(pouring.fields['vm_id']).fields['acronym']</a>
-		</div>
-		$ batch = c.AllBatches.get(pouring.fields['dest'])
-		<div class="col-xs-3">
-		    <strong><a href="/find/v/b_$(pouring.fields['dest'])"><span class="btn btn-warning" style="float:left" role="button">$:c.getHalfling('output')</span>$batch.fields['acronym']</a></strong><br>$batch.getName(self.lang)
-		</div>    
-		<div class="col-xs-3" >
-		    $pouring.get_quantity()  $pouring.get_unit(c)
-		    $if pouring.fields['remark']:
-		    	<br/><span class="text-danger">$pouring.fields['remark']</span>
-		</div>
-		<div class="col-xs-1">
-		    <strong><a href="/edit/v_$(pouring.fields['v_id'])" class="btn btn-warning" role="button"><span class="glyphicon glyphicon-edit"></span></a></strong>
-		</div>
-	    </div>
-</div>
-<div class="row active" style="background-color:rgb(0, 21, 43);margin-top:0px">
-    <div class="col-xs-5">
-    </div>
-    <div class="col-xs-6" id="addItem">
-	$if ( " upd_v " ) in self.allowed:
-		<a href="/create/v/b_$(id)_out">$:c.getHalfling('add') $c.getMessage('pouring',self.lang)$:c.getAllHalfling(c.AllPourings," rotate180")</a>
+	    $:c.getAllHalfling(c.AllPourings)$c.getMessage('pouring',self.lang):
+	    &nbsp: &nbsp; <a href="/create/v/b_$(id)_in">$:c.getHalfling('add')$:c.getHalfling("input")</a>
+	    &nbsp: &nbsp; <a href="/create/v/b_$(id)_out">$:c.getHalfling('add')$:c.getHalfling("output")</a>
     </div>
 </div> 

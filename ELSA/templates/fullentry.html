@@ -166,7 +166,7 @@ $elif permissionKey in '_d_t_v_':
 		    $:c.linkedAcronym(groups,elem.get_group(),True)
 		    </div>
 		    <div class="col-xs-1 vcenter">
-			$:(c.getHalfling('scale'))
+			<a href="/find/v/$elem.getTypeId()">$:(c.getHalfling('scale'))</a>
 		    </div>
 		    <div class="col-xs-4 vcenter">
 			$if elem.fields['m_id'] != '':
@@ -233,15 +233,22 @@ $elif permissionKey in '_d_t_v_':
 		<div class="row">
 		    <div class="col-xs-5 vcenter">
 			$:c.linkedAcronym(groups,check_id,True)
-		    </div>
-		    <div class="col-xs-1 vcenter">
 			$:(c.getHalfling('rank'))
-		    </div>
-		    <div class="col-xs-4 vcenter">
 			$if elem.fields['rank'] != '':
 			    $elem.fields['rank']
-			$else:
-			    -
+		    </div>
+		    <div class="col-xs-1 vcenter">
+                    $ usage = elem.fields['gu_id']
+		    $if elem.fields['in']=='1':
+                         $:c.getHalfling('from')
+                         $ recipe = elem.fields['src']
+		    $else:
+                         $:c.getHalfling('to')
+                         $ recipe = elem.fields['dest']
+		    </div>
+		    <div class="col-xs-4 vcenter">
+		    $if recipe :
+			$:c.linkedAcronym(c.AllGrRecipe,recipe,True)
 		    </div>
 		</div>
 		<div class="row">
@@ -251,14 +258,12 @@ $elif permissionKey in '_d_t_v_':
 		    <div class="col-xs-1 vcenter">
 		    $if elem.fields['in']=='1':
                          $:c.getHalfling('from')
-                         $ recipe = elem.fields['src']
 		    $else:
                          $:c.getHalfling('to')
-                         $ recipe = elem.fields['dest']
 		    </div>
 	            <div class="col-xs-4 vcenter">
-		    $if recipe :
-			$:c.linkedAcronym(c.AllGrRecipe,recipe,True)
+		    $if usage :
+			$:c.linkedAcronym(c.AllGrUsage,usage,True)
                     </div>
 		</div>
 	$elif permissionKey in '_tm_':
@@ -394,7 +399,7 @@ $elif permissionKey in '_d_t_v_':
 		    <strong>$:(c.getAllHalfling(allElem))</strong>
 		</div>
 		$if 'acronym' in elem.fields:
-			<h4 class="modal-title col-xs-6 "> $elem.fields['acronym'] - $elem.getName(self.lang)</h4>
+			<h4 class="modal-title col-xs-6 "><a href="/find/related/$(elem.getTypeId())">$elem.fields['acronym'] - $elem.getName(self.lang)</a></h4>
 		<div class="col-xs-2" >
 		</div>
                 <button type="button" class="col-xs-2 btn btn-primary" data-dismiss="modal"><strong><big>&times;</big></strong></button>
