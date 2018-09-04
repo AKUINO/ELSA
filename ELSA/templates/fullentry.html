@@ -430,7 +430,7 @@ $elif permissionKey in '_d_t_v_':
 				<strong><a href="/find/v/$(type)_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('pouring'))</a></strong>
 			    </div>
 			    <div class="col-xs-10">
-				<b>$len(elem.source)</b> $(c.getMessage('mpouring',self.lang))
+				<b>$unicode(len(elem.source)+len(elem.destination))</b> $(c.getMessage('mpouring',self.lang))
 			    </div>
 			</div>
 		    $if permissionKey in '_c_p_e_b_' :
