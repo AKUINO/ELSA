@@ -8,6 +8,7 @@ $code:
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
+$var pinned : $connected.pinned()
 $var recursive : False
 $var location: list/$(type)=$(c.findAll(type).get_class_acronym()) find/related/$(type)_$(id)=related
 $var title: $elem.getName(self.lang)
@@ -220,8 +221,8 @@ $if type == 'b':
 	    recipe = c.AllGrRecipe.get(recipe_id)
 	    if recipe:
 	        recipes.add(recipe_id)
-	        new_recipes = set(recipe.get_all_parents([],None))
-	        recipes = recipes | new_recipes
+	        new_recipes = recipe.get_all_parents([],c.AllGrRecipe)
+	        recipes.update(new_recipes)
 	    allowedcheckpoints = None
 	    usages = set()
 	    usage = None
@@ -233,8 +234,8 @@ $if type == 'b':
 				usage = c.AllGrUsage.get(gr_usage)
 			        if usage:
 			            usages.add(gr_usage)
-			            new_usages = set(usage.get_all_parents([],None))
-				    usages = usages | new_usages
+			            new_usages = usage.get_all_parents([],c.AllGrUsage)
+				    usages.update(new_usages)
 		    allowedcheckpoints = c.AllCheckPoints.get_checkpoints_for_recipe_usage(recipes,usages)
 	    if recipe and len(usages) == 0:
 		gr_usage = recipe.fields['gu_id']
@@ -292,7 +293,7 @@ $if type == 'b':
 		    </div>
 		    <div class="col-sm-4">
 		    $if allowedcheckpoints and add_allowed:
-			<select name = "checkpoint" class="form-control" id="inputPosition">
+			<select name="checkpoint" class="form-control" id="inputPosition">
 			$for v in allowedcheckpoints:
 			    <option value="$v.getID()">
 			    $if v.getID() in elem.checkpoints :

@@ -3,6 +3,7 @@ $var recursive : True
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
+$var pinned : $connected.pinned()
 $code :
     allElem = c.findAll(type)
     elem = allElem.get(id)
@@ -39,6 +40,8 @@ $elif permissionKey in '_d_t_v_':
                     <a href="/find/related/$(type)_$(p)"><strong><big>&#8662;</big></strong></a>
             <button type="button" class="btn $("btn-info" if elem.isModeling() else ("btn-danger" if elem.isExpired() else "btn-warning")) btn-md $(type)_$(id)" data-toggle="modal" data-target="#$(type)_$(id)modal">
 	        $:elem.statusIcon(c,True,True)
+		$if elem.getTypeId() == self.pinned:
+		     $:(c.getHalfling("pin"))
             </button>
 	    $if elem.isAlarmed(c):
 		<a href="/find/al/$(type)_$(id)">$:c.getAllHalfling(c.AllAlarmLogs)</a>
@@ -466,6 +469,15 @@ $elif permissionKey in '_d_t_v_':
 			    </div>
 			    <div class="col-xs-10">
 				<b>$len(elem.batches)</b> $(c.getMessage('batch',self.lang))
+			    </div>
+			</div>
+		    $if type == 'b':
+			<div class="row" style="margin-top:6px;">
+			    <div class="col-xs-2 justify-content-start">
+				<strong><a href="/pin/b_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('pin'))</a></strong>
+			    </div>
+			    <div class="col-xs-10">
+				$(c.getMessage('pin',self.lang))
 			    </div>
 			</div>
 		    $if permissionKey in '_cp_e_m_gu_gr_gf_h_':

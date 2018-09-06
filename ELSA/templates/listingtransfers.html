@@ -2,20 +2,9 @@ $def with (connected)
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
+$var pinned : $connected.pinned()
 $var location: list/t=transfer
 $var recursive : False
-
-<!--div class="row">
-    <label for="graphSelect" class="col-sm-3 col-form-label">$c.getMessage('selecttransfer',self.lang)</label>
-    <div class="col-sm-9">
-	<select id="choice" onchange="fname_update()">
-	    $for k,b in c.AllBatches.elements.items():
-	      $if b.isActive() and not b.isComplete():
-		<option value="b_$k">$b.fields['acronym'] - $b.getName(self.lang) </option>
-	</select>
-	<button>See</button>
-    </div>
-</div-->  
 
 <div class="row active" style="background-color:rgb(0, 21, 43);margin-top:10px;">
     <div class="col-xs-5">

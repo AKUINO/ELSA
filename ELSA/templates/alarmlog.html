@@ -2,6 +2,7 @@ $def with (connected, id, errormess, data, context='')
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
+$var pinned : $connected.pinned()
 $var recursive : False
 $var title : $c.getMessage('add',self.lang) $c.getMessage('alarmlog',self.lang)
 $if id == 'new':

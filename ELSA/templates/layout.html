@@ -136,14 +136,15 @@ $if content.recursive == 'False' :
 			    <a href="#" class="dropdown-toggle" data-toggle="dropdown">$c.getMessage('production',content.lang)<b class="caret"></b></a>
 			    <ul class="dropdown-menu">
 				<li><a href="/list/b" tabindex="-1">$:c.getHalfling('batch')&nbsp;$c.getMessage('batch',content.lang)</a></li>
-				<li><a href="/list/gr" tabindex="-2">$:c.getHalfling('grecipe')&nbsp;$c.getMessage('grecipe',content.lang)</a></li>
-				<li><a href="/map/gr" tabindex="-3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('datatable')&nbsp;$c.getMessage('datatable',content.lang)</a></li>				
-				<li><a href="/calendar" tabindex="-4">$:c.getHalfling('calendar')&nbsp;$c.getMessage('calendar',content.lang)</a></li>
-				<li><a href="#" tabindex="-4" onclick="generateQRCode()" data-toggle="modal" data-target="#modal_barcode" aria-expanded="false" aria-controls="navbar">$:c.getHalfling('barcode')&nbsp;$c.getMessage('barcode',content.lang)</a></li>
-				<li><a href="#" tabindex="-5">&nbsp;</a></li>				
-				<li$:('' if " upd_d "in content.allowed else ' class="disabled"')><a href="$("/create/d" if " upd_d "in content.allowed else "#")" tabindex="-6">$:c.getHalfling('manualdata')&nbsp;$c.getMessage('manualdata',content.lang)</a></li>
-				<li$:('' if " upd_t "in content.allowed else ' class="disabled"')><a href="$("/create/t" if " upd_t "in content.allowed else "#")" tabindex="-7">$:c.getHalfling('transfer')&nbsp;$c.getMessage('transfer',content.lang)</a></li>
-				<li$:('' if " upd_v "in content.allowed else ' class="disabled"')><a href="$("/create/v" if " upd_v "in content.allowed else "#")" tabindex="-8">$:c.getHalfling('pouring')&nbsp;$c.getMessage('pouring',content.lang)</a></li>
+				<li $:('' if content.pinned else 'class="disabled"')><a href="$:(('/find/related/'+content.pinned) if content.pinned else '')" tabindex="-2">$:c.getHalfling('pin')&nbsp;$c.getMessage('pin',content.lang)</a></li>
+				<li><a href="/list/gr" tabindex="-3">$:c.getHalfling('grecipe')&nbsp;$c.getMessage('grecipe',content.lang)</a></li>
+				<li><a href="/map/gr" tabindex="-4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('datatable')&nbsp;$c.getMessage('datatable',content.lang)</a></li>				
+				<li><a href="/calendar" tabindex="-5">$:c.getHalfling('calendar')&nbsp;$c.getMessage('calendar',content.lang)</a></li>
+				<li><a href="#" tabindex="-6" onclick="generateQRCode()" data-toggle="modal" data-target="#modal_barcode" aria-expanded="false" aria-controls="navbar">$:c.getHalfling('barcode')&nbsp;$c.getMessage('barcode',content.lang)</a></li>
+				<li><a href="#" tabindex="-7">&nbsp;</a></li>				
+				<li$:('' if " upd_d "in content.allowed else ' class="disabled"')><a href="$("/create/d" if " upd_d "in content.allowed else "#")" tabindex="-8">$:c.getHalfling('manualdata')&nbsp;$c.getMessage('manualdata',content.lang)</a></li>
+				<li$:('' if " upd_t "in content.allowed else ' class="disabled"')><a href="$("/create/t" if " upd_t "in content.allowed else "#")" tabindex="-9">$:c.getHalfling('transfer')&nbsp;$c.getMessage('transfer',content.lang)</a></li>
+				<li$:('' if " upd_v "in content.allowed else ' class="disabled"')><a href="$("/create/v" if " upd_v "in content.allowed else "#")" tabindex="-10">$:c.getHalfling('pouring')&nbsp;$c.getMessage('pouring',content.lang)</a></li>
 			    </ul>
 			</li>
 			<li class="dropdown" data-show-icon="true">
@@ -166,6 +167,7 @@ $if content.recursive == 'False' :
 			<a class="navbar-brand" href="/?completeMenu=1" style="margin:15px;margin-top:0px;"><img src="/static/img/akuino.png" border="0" alt="This application stores the configuration and the data of the different AKUINO modules installed"/></a>
 			<button onclick="location.href='/map/gu'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('guse')</button>
 			<button onclick="location.href='/index?completeMenu=0'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('grecipe')</button>
+			<button $:(('onclick="location.href=\'/find/related/'+content.pinned+'\'"') if content.pinned else '') type="button" class="btn btn-warning btn-md $:('' if content.pinned else ' disabled')" style="margin:15px;">$:c.getHalfling('pin')</button>
 			<button onclick="location.href='/calendar'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('calendar')</button>
 			<button onclick="generateQRCode()" type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#modal_barcode" aria-expanded="false" aria-controls="navbar" style="margin:15px;">$:c.getHalfling('barcode')</button>
 		</div>

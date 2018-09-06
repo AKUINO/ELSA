@@ -5,11 +5,13 @@ $var allowed : nothing
 $var lang : disconnected
 $var recursive : False
 $var completeMenu : False
+$var pinned : 
 <h4> $useful.timestamp_to_ISO(useful.get_timestamp())
 $if connected:
 	$var allowed : $connected.cuser.allowed(c)
 	$var lang : $connected.cuser.fields['language']
 	$var completeMenu : $connected.completeMenu
+	$var pinned : $connected.pinned()
         : $c.getMessage('welcome',self.lang) <em>$connected.cuser.getName(self.lang)</em>
 	</h4>
 	$ keys = c.AllBatches.get_sorted()

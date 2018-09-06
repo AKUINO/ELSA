@@ -2,6 +2,7 @@ $def with (connected, id, errormess, data, context='')
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
+$var pinned : $connected.pinned()
 $var recursive : False
 $var title : $c.getMessage('add',self.lang) $c.getMessage('transfer',self.lang)
 $ splits = context.split('_')
@@ -61,7 +62,7 @@ $elif myID == 'component':
 			<optgroup label="$c.getMessage('batch',self.lang)">
 			$for k,e in c.AllBatches.elements.items():
 			  $if e.isActive() and not e.isComplete(): 
-			    <option value="b_$k">$e.fields['acronym'] - $e.getName(self.lang) </option>
+			    <option value="b_$k"$:(" selected" if e.getTypeId()==self.pinned else '')>$e.fields['acronym'] - $e.getName(self.lang) </option>
 			<optgroup label="$c.getMessage('equipment',self.lang)">
 			$for k,e in c.AllEquipments.elements.items():
 			  $if e.isActive(): 

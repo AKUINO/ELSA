@@ -513,6 +513,13 @@ class WebCreate(WebEdit):
             return WebEdit.POST(self, types[0], 'new')
 
 
+class WebPin():
+    def GET(self, typeobj, idobj):
+        connected = redirect_when_not_logged()
+        currObject = c.getObject(idobj, typeobj)
+        connected.pin = currObject
+        raise web.seeother('/find/related/'+typeobj+'_' + idobj)
+
 class WebControl():
     def GET(self, idbatch, idcontrol):
         connected = redirect_when_not_logged()
@@ -1467,6 +1474,7 @@ def main():
             '/datatable/(.+)_(.+)', 'WebDataTable',
             '/find/(.+)/(.+)_(.+)/(.+)', 'WebFindModel',
             '/find/(.+)/(.+)_(.+)', 'WebFind',
+            '/pin/(.+)_(.+)', 'WebPin',
             '/permission/(.+)_(.+)', 'WebPermission',
             '/control/b_(.+)/h_(.+)', 'WebControl',
             '/disconnect', 'WebDisconnect',

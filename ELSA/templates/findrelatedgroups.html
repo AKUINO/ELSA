@@ -2,6 +2,7 @@ $def with (connected,type,id,barcode='')
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
+$var pinned : $connected.pinned()
 $var recursive : False
 $var title : ELSA
 $code:
@@ -124,18 +125,17 @@ $elif type == 'h':
 	    if recipe_id and recipe_id in c.AllGrRecipe.elements:
 	        recipes.add(recipe_id)
 	        recipe = c.AllGrRecipe.elements[recipe_id]
-	        new_recipes = set(recipe.get_all_parents([],None))
-	        recipes = recipes | new_recipes
+	        new_recipes = recipe.get_all_children([],c.AllGrRecipe)
+	        recipes.update(new_recipes)
 	    usages = set()
 	    gr_usage = elem.fields['gu_id']
 	    if gr_usage and gr_usage in c.AllGrUsage.elements:
 		usages.add(gr_usage)
 		usage = c.AllGrUsage.elements[gr_usage]
-		new_usages = set(usage.get_all_parents([],None))
-		usages = usages | new_usages
+		new_usages = usage.get_all_children([],c.AllGrUsage)
+		usages.update(new_usages)
 	    allowedbatches = c.AllBatches.get_batches_for_recipe_usage(recipes,usages)
-
-    	<div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
+    <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	    <label class="col-sm-12">$c.getMessage('batch',self.lang) :</label>
 	    $for i in elem.batches:
 	        <script>
@@ -144,15 +144,15 @@ $elif type == 'h':
 	        });
 	        </script>
 	        <div id="includedAllMenub_$(i)"></div>
-        </div>
+    </div>
 	 
 	$if (" upd_d " in self.allowed) or (" upd_t " in self.allowed) or (" upd_v " in self.allowed):
             <form method="post" action="" class="row active" enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 		<div class="col-sm-9">
 	        	<input type="hidden" name="checkpoint" value="$id">
-			<select name = "batch" class="form-control">
+			<select name="batch" class="form-control">
 			$for v in allowedbatches:
-			    <option value="$v.getID()">
+			    <option value="$v.getID()"$:(" selected" if v.getTypeId()==self.pinned else '')>
 			    $if v.getID() in elem.batches :
 				*
 			    $v.fields['acronym'] - $v.getName(self.lang) </option>

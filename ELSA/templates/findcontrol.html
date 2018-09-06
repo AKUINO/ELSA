@@ -2,6 +2,7 @@ $def with (connected, type, id)
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
+$var pinned : $connected.pinned()
 $code:
     allobjects = c.findAll(type)
     elem = allobjects.get(id)
@@ -11,8 +12,8 @@ $code:
     recipe = c.AllGrRecipe.get(recipe_id)
     if recipe:
         recipes.add(recipe_id)
-        new_recipes = set(recipe.get_all_parents([],None))
-        recipes = recipes | new_recipes
+        new_recipes = set(recipe.get_all_parents([],c.AllGrRecipe))
+        recipes.update(new_recipes)
     components = elem.get_actual_position_hierarchy(c,[])
     usages = set()
     for place in components:
@@ -21,8 +22,8 @@ $code:
 		usage = c.AllGrUsage.get(gr_usage)
 	        if usage:
 	            usages.add(gr_usage)
-	            new_usages = set(usage.get_all_parents([],None))
-		    usages = usages | new_usages
+	            new_usages = usage.get_all_parents([],c.AllGrUsage)
+		    usages.update(new_usages)
     allowedcheckpoints = c.AllCheckPoints.get_checkpoints_for_recipe_usage(recipes,usages)
 $var location: list/$(type)=$(allobjects.get_class_acronym()) find/h/$(type)_$(id)=checkpoint
 $var recursive : False
@@ -60,7 +61,7 @@ $ add_allowed = (" upd_d " in self.allowed) or (" upd_t " in self.allowed) or ("
 	    $if add_allowed:
 		    <div class="col-sm-4">
 			<input type="hidden" name="batch" value="$id">
-			<select name = "checkpoint" class="form-control" id="inputPosition">
+			<select name="checkpoint" class="form-control" id="inputPosition">
 			$for v in allowedcheckpoints:
 			    <option value="$v.getID()">
 			    $if v.getID() in elem.checkpoints :

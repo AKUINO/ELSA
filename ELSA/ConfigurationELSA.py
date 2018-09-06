@@ -2220,9 +2220,16 @@ class ConnectedUser():
         self.datetime = time.time()
         self.initial = self.datetime
         self.completeMenu = False
+        self.pin = None
 
     def update(self):
         self.datetime = time.time()
+
+    def pinned(self):
+        if self.pin:
+            return self.pin.getTypeId()
+        else:
+            return ''
 
 class AllConnectedUsers():
 
@@ -2460,8 +2467,18 @@ class User(ConfigurationObject):
         if self.fields['mail']:
             if self.fields['mail'] in c.connectedUsers.users:
                 connexion = c.connectedUsers.users[self.fields['mail']]
-                return useful.date_to_ISO(connexion.initial)
+                if connexion:
+                    return useful.date_to_ISO(connexion.initial)
         return ""
+
+    def pinning(self, c):
+        if self.fields['mail']:
+            if self.fields['mail'] in c.connectedUsers.users:
+                connexion = c.connectedUsers.users[self.fields['mail']]
+                if connexion:
+                    return connexion.pin
+        return None
+
 
 class Equipment(ConfigurationObject):
 
@@ -3003,6 +3020,17 @@ class Group(ConfigurationObject):
                 if rec:
                     parents = rec.get_all_parents(parents, allObj)
         return parents
+
+    def get_all_children(self,children=[],allObj=None):
+        if not allObj:
+            allObj =  self.config.findAll(self.get_type()) 
+        for e in self.children:
+	    if e and e not in children:
+                children.append(e)
+                rec = allObj.get(e)
+                if rec:
+                    children = rec.get_all_children(children, allObj)
+        return children
 
     def get_acronym_hierarchy(self):
         allObj =  self.config.findAll(self.get_type()) 

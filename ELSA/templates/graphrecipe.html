@@ -2,6 +2,7 @@ $def with (connected, batch, id, graph)
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
+$var pinned : $connected.pinned()
 $var recursive : True
 $var title : Graph Schema of Recipe
 $var location :

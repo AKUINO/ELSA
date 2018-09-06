@@ -2,6 +2,7 @@ $def with (connected,id1,id2, errormess)
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
+$var pinned : $connected.pinned()
 $var recursive : False
 $code:
     batch = c.AllBatches.elements[id1]
@@ -34,8 +35,8 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 	<div class="form-group row">
 	    <label for="inputObject" class="col-sm-3 col-form-label">$:c.getAllHalfling(c.AllBatches) $c.getName(c.AllBatches,self.lang) </label>
 	    <div class="col-sm-9">
-		<select name = "batch" class="form-control" id="inputPosition">
-			<option value="b_$(id1)">$batch.fields['acronym'] - $batch.getName(self.lang) </option>
+		<select name="batch" class="form-control" id="inputPosition">
+			<option value="b_$(id1)" selected>$batch.fields['acronym'] - $batch.getName(self.lang) </option>
 		</select>
 	    </div>
 	</div>
@@ -176,7 +177,7 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 				    <select name="vm_src_$(countvm)" class="form-control" id="src">
 					$for k in c.AllBatches.get_batches_for_recipe_usage([aRecipe.getID()]+aRecipe.get_submap_str(), [aUsage.getID()]+aUsage.get_submap_str()):
 					    $if not k.isComplete() and not (k.getID() == batch.getID()):
-						<option value="$k.getID()">$k.fields['acronym'] - $k.getName(self.lang) [= $unicode(k.get_residual_quantity())] </option>
+						<option value="$k.getID()"$:(" selected" if k.getTypeId()==self.pinned else '')>$k.fields['acronym'] - $k.getName(self.lang) [= $unicode(k.get_residual_quantity())] </option>
 				    </select>
 				</div>
 		    </div>
@@ -192,7 +193,7 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 			    <select name="vm_dest_$(countvm)" class="form-control" id="dest">
 				$for k in c.AllBatches.get_batches_for_recipe_usage([aRecipe.getID()]+aRecipe.get_submap_str(), [aUsage.getID()]+aUsage.get_submap_str()):
 				    $if not k.isComplete() and not (k.getID() == batch.getID()):
-					<option value="$k.getID()">$k.fields['acronym'] - $k.getName(self.lang) [= $unicode(k.get_residual_quantity())] </option>
+					<option value="$k.getID()"$:(" selected" if k.getTypeId()==self.pinned else '')>$k.fields['acronym'] - $k.getName(self.lang) [= $unicode(k.get_residual_quantity())] </option>
 			    </select>
 			</div>
 		    </div>		

@@ -2,6 +2,7 @@ $def with (connected,type, status)
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
+$var pinned : $connected.pinned()
 $code :
     all = (type[0] == '*')
     if all:
@@ -50,10 +51,10 @@ $if type == 'b' :
 	    <div class="form-group row">
 		<label for="inputObject" class="col-sm-2 col-form-label">$c.getMessage('batch',self.lang) </label>
 		<div class="col-sm-4">
-		    <select name = "batch" class="form-control" id="inputPosition">
+		    <select name="batch" class="form-control" id="inputPosition">
 		    $for k,b in c.AllBatches.elements.items():
 		      $if b.isActive():
-			<option value="b_$k">$b.fields['acronym'] - $b.getName(self.lang) </option>
+			<option value="b_$k"$:(" selected" if b.getTypeId()==self.pinned else '')>$b.fields['acronym'] - $b.getName(self.lang) </option>
 		    </select>
 		</div>
 		<label for="inputLapse1" class="col-sm-2 col-form-label">$c.getMessage('quantity',self.lang)</label>

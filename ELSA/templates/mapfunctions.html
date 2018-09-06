@@ -2,6 +2,7 @@ $def with (connected)
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
+$var pinned : $connected.pinned()
 $var title : ELSA Users Functions Map
 $var location: list/gf=$(c.AllGrFunction.get_class_acronym())
 $var recursive : False
@@ -42,6 +43,9 @@ $for kfunction in listFunction:
 						$ since = user.connectedSince(c)
 						$if since:
 							$:c.getHalfling('disconnect')$since
+						$ usrpinning = user.pinning(c)
+						$if usrpinning:
+							$:c.getHalfling('pin')$:c.linkedAcronym(c.AllBatches,usrpinning.getID(),True)
 						$ done.add('u_'+kuser)
 					</div>
 			$ done.add('gf_'+kfunction)

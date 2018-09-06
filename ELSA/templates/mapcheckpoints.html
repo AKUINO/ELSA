@@ -4,6 +4,7 @@ $var location: list/gu=$(c.AllCheckPoints.get_class_acronym())
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
+$var pinned : $connected.pinned()
 $var recursive : False
 $ done = set()
 $ listCheckPoint = c.AllCheckPoints.get_fullmap_str()

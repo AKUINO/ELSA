@@ -2,6 +2,7 @@ $def with (connected, type, id)
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
+$var pinned : $connected.pinned()
 $code:
     allobjects = c.findAll(type)
     elem = allobjects.get(id)
@@ -11,15 +12,15 @@ $code:
     recipe = c.AllGrRecipe.get(recipe_id)
     if recipe:
         recipes.add(recipe_id)
-        new_recipes = set(recipe.get_all_parents([],None))
-        recipes = recipes | new_recipes
+        new_recipes = recipe.get_all_children([],c.AllGrRecipe)
+        recipes.update(new_recipes)
     usages = set()
     gr_usage = elem.fields['gu_id']
     usage = c.AllGrUsage.get(gr_usage)
     if usage:
 	usages.add(gr_usage)
-	new_usages = set(usage.get_all_parents([],None))
-	usages = usages | new_usages
+	new_usages = usage.get_all_children([],c.AllGrUsage)
+	usages.update(new_usages)
     allowedbatches = c.AllBatches.get_batches_for_recipe_usage(recipes,usages)
 $var location: list/$(type)=$(allobjects.get_class_acronym()) find/b/$(type)_$(id)=batch
 $var recursive : False
@@ -56,9 +57,9 @@ $if (" upd_d " in self.allowed) or (" upd_t " in self.allowed) or (" upd_v " in 
 	    </div>
 	    <div class="col-sm-4">
 		<input type="hidden" name="checkpoint" value="$id">
-		<select name = "batch" class="form-control" id="inputPosition">
+		<select name="batch" class="form-control" id="inputPosition">
 		$for v in allowedbatches:
-		    <option value="$v.getID()">
+		    <option value="$v.getID()"$:(" selected" if v.getTypeId()==self.pinned else '')>
 		    $if v.getID() in elem.batches :
 			*
 		    $v.fields['acronym'] - $v.getName(self.lang) </option>

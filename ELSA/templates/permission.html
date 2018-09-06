@@ -3,6 +3,7 @@ $# Template included in update forms and others where a group has to be chosen
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
+$var pinned : $connected.pinned()
 $var recursive : True
 $code :
     allObjs = c.findAll(type)

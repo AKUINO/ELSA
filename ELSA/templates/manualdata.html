@@ -2,6 +2,7 @@ $def with (connected, id, errormess, data, context='')
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
+$var pinned : $connected.pinned()
 $var recursive : False
 $var title: $c.getMessage('add',self.lang) $c.getName(c.AllManualData,self.lang)
 $if id == 'new' and context == '':
@@ -54,7 +55,7 @@ $elif myID == 'component':
 	<div class="form-group row">
 	    <label for="itemSelect" class="col-sm-3 col-form-label">$c.getMessage('component',self.lang)</label>
 	    <div class="col-sm-9">
-		<select name = "component" class="form-control" id="langSelect">
+		<select name="component" class="form-control" id="langSelect">
 		    $if myID == 'new':
 			<optgroup label="$c.getMessage('place',self.lang)">
 			    $for k,e in c.AllPlaces.elements.items():
@@ -101,7 +102,7 @@ $elif myID == 'component':
 	<div class="form-group row">
 	    <label for="measureSelect" class="col-sm-3 col-form-label">$c.getMessage('measure',self.lang)</label>
 	    <div class="col-sm-9">
-		<select name = "measure" class="form-control" id="measureSelect">
+		<select name="measure" class="form-control" id="measureSelect">
                     $ aMeasure = None
 		    $for k, currMeasure in c.AllMeasures.elements.items():
 			<option value="$k"
@@ -126,7 +127,7 @@ $elif myID == 'component':
 	<div class="form-group row">
 	    <label for="alarmSelect" class="col-sm-3 col-form-label">$c.getMessage('alarm',self.lang)</label>
 	    <div class="col-sm-9">
-		<select name = "a_id" class="form-control" id="alarmSelect">
+		<select name="a_id" class="form-control" id="alarmSelect">
 		    <option value=""></option>
 		    $for k,alarm in c.AllAlarms.elements.items():
 			<option value="$k">$alarm.fields['acronym'] - $alarm.getName(self.lang) </option>

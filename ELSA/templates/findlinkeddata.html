@@ -6,6 +6,7 @@ $code:
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
+$var pinned : $connected.pinned()
 $var recursive : False
 $var location: list/$(type)=$(allobjects.get_class_acronym()) find/d/$(type)_$(id)=manualdata
 $var title:  $c.getName(allobjects,self.lang) $elem.getName(self.lang)
