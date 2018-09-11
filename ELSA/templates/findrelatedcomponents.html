@@ -2,10 +2,9 @@ $def with (connected,type,id,barcode='')
 $code:
     allobjects = c.findAll(type)
     elem = allobjects.get(id)
-    keyID = c.findAllFromObject(elem).keyColumn
     subtype = elem.isModeling()
     allModeled = c.findAll(subtype) if subtype else None
-$var allowed : $connected.cuser.allowed(c)
+$var allowed : $(connected.cuser.allowed(c))
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
@@ -35,9 +34,10 @@ $ toCheck =[[type,id]]
 $if type == 'p' :
     <div class="row active" style ="margin-top:10px;margin-bottom:10px;background-color:#E5E5E7;padding:15px;" >
 	<label class="col-sm-12">$c.getMessage('equipment',self.lang) :</label>
-	$for k,equipment in c.AllEquipments.elements.items():
-	    $if equipment.isActive() and equipment.is_actual_position(toCheck[0][0],id,c) :
-		$code
+	$for k in c.AllEquipments.get_sorted_hierarchy():
+	    $ equipment = c.AllEquipments.get(k)
+	    $if equipment and equipment.isActive() and equipment.is_actual_position(toCheck[0][0],id,c) :
+		$code:
 		    toCheck.append(['e',k])
 		<script>
 		$$(function(){
@@ -49,9 +49,10 @@ $if type == 'p' :
 $if type in 'pe':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('container',self.lang) :</label>    
-	$for k,container in c.AllContainers.elements.items():
-	    $if container.isActive() and container.is_actual_position(toCheck[0][0],id,c) :
-		$code
+	$for k in c.AllContainers.get_sorted_hierarchy():
+	    $ container = c.AllContainers.get(k)
+	    $if container and container.isActive() and container.is_actual_position(toCheck[0][0],id,c) :
+		$code:
 		    toCheck.append(['c',k])
 		<script>
 		$$(function(){
@@ -64,7 +65,7 @@ $if type == 'a':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('gfunction',self.lang) :</label>    
 
-    $for gr in elem.get_user_groups():
+    $for gr in c.AllGrFunction.sort_hierarchy(elem.get_user_groups()):
                 <script>
                     $$(function(){
                         $$("#includedgf_$(gr)").load("/fullentry/gf_$(gr)");
@@ -77,11 +78,15 @@ $if type in 'ampec':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('sensor',self.lang) :</label>    
 
-    $for k,sensor in c.AllSensors.elements.items():
-        $if (type=='a'):
-            $ OK = (type=='a') and ( (sensor.fields['a_min'] == id) or (sensor.fields['a_minmin'] == id) or (sensor.fields['a_max'] == id) or (sensor.fields['a_maxmax'] == id) or (sensor.fields['a_typical'] == id) )
-        $else:
-            $ OK = sensor.fields[type+'_id'] == id
+    $for k in c.AllSensors.get_sorted_hierarchy():
+	$ sensor = c.AllSensors.get(k)
+	$if sensor:
+	        $if (type=='a'):
+	            $ OK = (type=='a') and ( (sensor.fields['a_min'] == id) or (sensor.fields['a_minmin'] == id) or (sensor.fields['a_max'] == id) or (sensor.fields['a_maxmax'] == id) or (sensor.fields['a_typical'] == id) )
+	        $else:
+	            $ OK = sensor.fields[type+'_id'] == id
+	$else:
+		$ OK = False
         $if OK:
                 <script>
                     $$(function(){
@@ -94,11 +99,15 @@ $if type in 'amh':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('manualdatamodel',self.lang) :</label>    
 
-    $for k,dataModel in c.AllManualDataModels.elements.items():
-        $if (type=='a'):
-            $ OK = (type=='a') and ( (dataModel.fields['a_min'] == id) or (dataModel.fields['a_minmin'] == id) or (dataModel.fields['a_max'] == id) or (dataModel.fields['a_maxmax'] == id) or (dataModel.fields['a_typical'] == id) )
-        $else:
-            $ OK = dataModel.fields[type+'_id'] == id
+    $for k in c.AllManualDataModels.get_sorted_hierarchy():
+	$ dataModel = c.AllManualDataModels.get(k)
+	$if dataModel:
+	        $if (type=='a'):
+	            $ OK = (type=='a') and ( (dataModel.fields['a_min'] == id) or (dataModel.fields['a_minmin'] == id) or (dataModel.fields['a_max'] == id) or (dataModel.fields['a_maxmax'] == id) or (dataModel.fields['a_typical'] == id) )
+	        $else:
+	            $ OK = dataModel.fields[type+'_id'] == id
+	$else:
+		$ OK = False
         $if OK:
                 <script>
                     $$(function(){
@@ -111,11 +120,15 @@ $if type in 'amh':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('pouringmodel',self.lang) :</label>    
 
-    $for k,dataModel in c.AllPouringModels.elements.items():
-        $if (type=='a'):
-            $ OK = (type=='a') and ( (dataModel.fields['a_min'] == id) or (dataModel.fields['a_minmin'] == id) or (dataModel.fields['a_max'] == id) or (dataModel.fields['a_maxmax'] == id) or (dataModel.fields['a_typical'] == id) )
-        $else:
-            $ OK = dataModel.fields[type+'_id'] == id
+    $for k in c.AllPouringModels.get_sorted_hierarchy():
+	$ pouringModel = c.AllPouringModels.get(k)
+	$if pouringModel:
+	        $if (type=='a'):
+	            $ OK = (type=='a') and ( (pouringModel.fields['a_min'] == id) or (pouringModel.fields['a_minmin'] == id) or (pouringModel.fields['a_max'] == id) or (pouringModel.fields['a_maxmax'] == id) or (pouringModel.fields['a_typical'] == id) )
+	        $else:
+	            $ OK = pouringModel.fields[type+'_id'] == id
+	$else:
+		$ OK = False
         $if OK:
                 <script>
                     $$(function(){
@@ -125,11 +138,15 @@ $if type in 'amh':
                 <div id="includedVM_$(k)"></div>
     </div>
 
-    $for k,dataModel in c.AllTransferModels.elements.items():
-        $if (type=='a'):
-            $ OK = (type=='a') and ( (dataModel.fields['a_min'] == id) or (dataModel.fields['a_minmin'] == id) or (dataModel.fields['a_max'] == id) or (dataModel.fields['a_maxmax'] == id) or (dataModel.fields['a_typical'] == id) )
-        $else:
-            $ OK = dataModel.fields[type+'_id'] == id
+    $for k in c.AllTransferModels.get_sorted_hierarchy():
+	$ transferModel = c.AllTransferModels.get(k)
+	$if transferModel:
+	        $if (type=='a'):
+	            $ OK = (type=='a') and ( (transferModel.fields['a_min'] == id) or (transferModel.fields['a_minmin'] == id) or (transferModel.fields['a_max'] == id) or (transferModel.fields['a_maxmax'] == id) or (transferModel.fields['a_typical'] == id) )
+	        $else:
+	            $ OK = transferModel.fields[type+'_id'] == id
+	$else:
+		$ OK = False
         $if OK:
                 <script>
                     $$(function(){
@@ -143,7 +160,7 @@ $if (' '+type+' ') in ' s dm ':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('alarm',self.lang) :</label>    
 
-    $for k,alarm in c.AllAlarms.elements.items():
+    $for k in c.AllAlarms.get_sorted_hierarchy():
         $if (elem.fields['a_min'] == k) or (elem.fields['a_minmin'] == k) or (elem.fields['a_max'] == k) or (elem.fields['a_maxmax'] == k) or (elem.fields['a_typical'] == k):
                 <script>
                     $$(function(){
@@ -157,8 +174,8 @@ $if type == 'u':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('batch',self.lang) :</label>    
 
-    $for k,batch in c.AllBatches.elements.items():
-        $if batch.isActive() and not batch.isComplete() and ( (elem.getID()==batch.fields['provider_id']) or (elem.getID()==batch.fields['buyer_id']) or (elem.getID()==batch.get_last_user(c)) ):
+    $for batch in elem.get_batches(c):
+        $if not batch.isComplete():
                 <script>
                     $$(function(){
                         $$("#includedB_$(k)").load("/fullentry/b_$(k)");
@@ -170,29 +187,32 @@ $if type == 'u':
 $if type in 'pec':
 	<div class="row active"style = "background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	    <label class="col-sm-12">$c.getMessage('batch',self.lang) :</label>
-	    $for k,batch in c.AllBatches.elements.items():
-	      $if batch.isActive():
-	        $for t, i in toCheck:
-	            $if batch.is_actual_position(t, i, c) is True:
-	                <script>
-	                    $$(function(){
-	                        $$("#includedB_$(k)").load("/fullentry/b_$(k)");
-	                    });
-			</script>
-			<div id="includedB_$(k)"></div>
+	    $for k in c.AllBatches.get_sorted_hierarchy():
+		$ batch = c.AllBatches.get(k)
+		$if batch and batch.isActive() and not batch.isComplete():
+		        $for t, i in toCheck:
+		            $if batch.is_actual_position(t, i, c) is True:
+		                <script>
+		                    $$(function(){
+		                        $$("#includedB_$(k)").load("/fullentry/b_$(k)");
+		                    });
+				</script>
+				<div id="includedB_$(k)"></div>
 	</div>
 $if subtype:
 	<div class="row active" style = "background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	    <label class="col-sm-12">$c.getMessage('checkpoint',self.lang) :</label>
-	    $for k,checkpoint in c.AllCheckPoints.elements.items():
-	        $for t, i in toCheck:
-	            $if checkpoint.owns(t, i) is True:
-	                <script>
-	                    $$(function(){
-	                        $$("#includedCK_$(k)").load("/fullentry/h_$(k)");
-	                    });
-			</script>
-			<div id="includedCK_$(k)"></div>
+	    $for k in c.AllCheckPoints.get_sorted_hierarchy():
+		$ checkpoint = c.AllCheckPoints.get(k)
+		$if checkpoint:
+		        $for t, i in toCheck:
+		            $if checkpoint.owns(t, i) is True:
+		                <script>
+		                    $$(function(){
+		                        $$("#includedCK_$(k)").load("/fullentry/h_$(k)");
+		                    });
+				</script>
+				<div id="includedCK_$(k)"></div>
 	</div>
 
     <div class="row active" style ="background-color:#E5E5E7;margin-top:0px;margin-bottom:10px;padding:15px;">
@@ -200,8 +220,8 @@ $if subtype:
     <label class="col-sm-12">$c.getMessage(allModeled.get_class_acronym(),self.lang) :</label>
     $ j=30
     $for k in biglist:
-	$ data = allModeled.elements[k]
-	$if data and data.isActive() and data.fields[keyID] == id :
+	$ data = allModeled.get(k)
+	$if data and data.isActive() and data.getID() == id :
             <script>
 	        $$(function(){
 	            $$("#included$(subtype)_$(k)").load("/fullentry/$(subtype)_$(k)");
@@ -242,37 +262,35 @@ $if type == 'b':
 		usage = c.AllGrUsage.get(gr_usage)
 
 	$if elem.fields['provider_id']:
-		<div class="row active">
+	    <div class="row active" style ="background-color:#E5E5E7;margin-top:0px;margin-bottom:10px;padding:15px;">
 		$if elem.fields['provider_ref']:
 		    <label class="col-sm-12">$c.getMessage('provider_ref',self.lang) : $(elem.fields['provider_ref'])</label>
 		$else:
 		    <label class="col-sm-12">$c.getMessage('provider',self.lang) :</label>
-		</div>	
-	        <script>
+		<script>
 	        $$(function(){
 		    $$("#includedAllMenuup_$(elem.fields['provider_id'])").load("/fullentry/u_$(elem.fields['provider_id'])");
 	        });
 	        </script>
 	        <div id="includedAllMenuup_$(elem.fields['provider_id'])"></div>
+	    </div>
 
 	$if elem.fields['buyer_id']:
-		<div class="row active">
+	    <div class="row active" style ="background-color:#E5E5E7;margin-top:0px;margin-bottom:10px;padding:15px;">
 		$if elem.fields['buyer_ref']:
 		    <label class="col-sm-12">$c.getMessage('buyer_ref',self.lang) : $(elem.fields['buyer_ref'])</label>
 		$else:
 		    <label class="col-sm-12">$c.getMessage('buyer',self.lang) :</label>
-		</div>	
 	        <script>
 	        $$(function(){
 		    $$("#includedAllMenuub_$(elem.fields['buyer_id'])").load("/fullentry/u_$(elem.fields['buyer_id'])");
 	        });
 	        </script>
 	        <div id="includedAllMenuub_$(elem.fields['buyer_id'])"></div>
-
-	<div class="row active">
-	    <label class="col-sm-12">$c.getMessage('checkpoint',self.lang) :</label>
-	</div>	
-	$for i in elem.checkpoints:
+	    </div>
+	<div class="row active" style ="background-color:#E5E5E7;margin-top:0px;margin-bottom:10px;padding:15px;">
+	<label class="col-sm-12">$c.getMessage('checkpoint',self.lang) :</label>
+	$for i in c.AllCheckPoints.sort_hierarchy(elem.checkpoints):
 	        <script>
 	        $$(function(){
 		    $$("#includedAllMenuh_$(i)").load("/fullentry/h_$(i)");
@@ -280,16 +298,16 @@ $if type == 'b':
 	        </script>
 	        <div id="includedAllMenuh_$(i)"></div>
 	    
-	<div style="margin:15px;">
-	</div>    
-	 
 	$if len(usages) > 0:
 	    $ add_allowed = (" upd_d " in self.allowed) or (" upd_t " in self.allowed) or (" upd_v " in self.allowed)
-	    <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+	    <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:0px;margin-bottom:10px">
 	    <form  method="post" action="" enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 		<input type="hidden" name="batch" value="$id">
 		<div class="row active">
 		    <div class="col-sm-2">
+		    <strong><a href="/map/$(type)_$id" class="btn btn-warning" role="button">$:(c.getHalfling('datatable'))</a></strong>
+		    &nbsp; &nbsp;
+		    <button type="button" class="btn btn-warning btn-md map$(type)_$id" data-toggle="modal" data-target="#mapmodal">$:(c.getHalfling('schema'))</button>
 		    </div>
 		    <div class="col-sm-4">
 		    $if allowedcheckpoints and add_allowed:
@@ -304,16 +322,13 @@ $if type == 'b':
 		    <div class="col-sm-6">
 		    $if allowedcheckpoints and add_allowed:
 			<button type="submit" class="btn btn-primary btn-block">$c.getMessage('add',self.lang) $c.getMessage('checkpoint',self.lang)</button>
-		    <strong><a href="/map/$(type)_$id" class="btn btn-warning" role="button">$:(c.getHalfling('datatable'))</a></strong>
-		    <button type="button" class="btn btn-warning btn-md map$(type)_$id" data-toggle="modal" data-target="#mapmodal">$:(c.getHalfling('schema'))</button>
 		    </div>
 		</div>
 	    </form>
 	    </div>
 	$else:
 	    <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
-		<div class="col-sm-2">
-		</div>
+		<div class="col-sm-2"></div>
 		<div class="col-sm-4">
 		  $if ( " upd_t " ) in self.allowed:
 			<a href="/create/t/b_$id" class="btn btn-warning" role="button"><strong>$:(c.getHalfling('transfer')) $:(c.getAllHalfling(c.AllGrUsage))</strong>
@@ -322,6 +337,21 @@ $if type == 'b':
 			</a></strong>
 		</div>
 	    </div>
+        </div>
+        <div class="row active" style="color:#f07e26;background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;">
+	<form  method="post" action="/clone/$(type)_$id" enctype="multipart/form-data">
+	    <div class="form-group row">
+		<label for="inputQty" class="col-sm-2 col-form-label">$:(c.getHalfling('batch'))$elem.fields['acronym']</label>
+		<div class="col-sm-2">
+		    <input name="quantity" type="number" min="1" step="1" class="form-control" id="inputQty" placeholder="$c.getMessage('quantity',self.lang)" >
+		</div>	    
+		<div class="col-sm-2">
+		    <button type="submit" class="btn btn-primary btn-block">$c.getMessage('duplicate',self.lang) $c.getMessage('batch',self.lang)</button>
+		</div> 
+	    </div>
+	</form>
+        </div>
+
 
 $if barcode > '':
 	<div class="row">

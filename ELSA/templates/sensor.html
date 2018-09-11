@@ -66,18 +66,18 @@ $if errormess != '':
 	    <div class="col-sm-9">
 		<select name = "component" class="form-control" id="langSelect">
 		    <optgroup label="$c.getMessage('place',self.lang)">
-		    $for k,aCompo in c.AllPlaces.elements.items():
-			<option value="p_$k"
+		    $for k,aCompo in c.AllPlaces.get_sorted().items():
+			<option value="$aCompo.getTypeId()"
 			    $if errormess != '' :
 				$if 'component' in data:
-				    $if 'p_'+k == data['component']:
+				    $if aCompo.getTypeId() == data['component']:
 					selected
 			    $elif id != 'new':
-				$if k == elem.fields['p_id'] :
+				$if aCompo.getID() == elem.fields['p_id'] :
 				    selected
 			>$aCompo.fields['acronym'] - $aCompo.getName(self.lang) </option>
 		    <optgroup label="$c.getMessage('equipment',self.lang)">
-		    $for k,aCompo in c.AllEquipments.elements.items():
+		    $for k,aCompo in c.AllEquipments.get_sorted().items():
 			<option value="e_$k"
 			    $if errormess != '' :
 				$if 'component' in data:
@@ -88,7 +88,7 @@ $if errormess != '':
 				    selected			
 			>$aCompo.fields['acronym'] - $aCompo.getName(self.lang)</option>
 		    <optgroup label="$c.getMessage('container',self.lang)">
-		    $for k,aCompo in c.AllContainers.elements.items():
+		    $for k,aCompo in c.AllContainers.get_sorted().items():
 			<option value="c_$k"
 			    $if errormess != '' :
 				$if 'component' in data:
@@ -106,7 +106,7 @@ $if errormess != '':
 	    <label for="measureSelect" class="col-sm-3 col-form-label">$:(c.getAllHalfling(c.AllMeasures))$c.getMessage('measure',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "measure" class="form-control" id="measureSelect">
-		    $for k,aMeasure in c.AllMeasures.elements.items():
+		    $for k,aMeasure in c.AllMeasures.get_sorted().items():
 			<option value="m_$k"
 			    $if errormess != '' :
 				$if 'measure' in data:
@@ -142,7 +142,7 @@ $if errormess != '':
 		<div class="col-sm-9">
 		    <select name = "a_$(aname)" class="form-control" id="a$(aname)Select">
 			<option value=''></option>
-			$for k,aMedia in c.AllAlarms.elements.items():
+			$for k,aMedia in c.AllAlarms.get_sorted().items():
 			    <option value="$k"
 				$if errormess != '' :
 				    $if ('a_'+aname) in data:

@@ -577,7 +577,11 @@ class ConfigurationObject(object):
         return tmp
 
     def set_value_from_data(self, data, c, user):
-        self.fields['acronym'] = data['acronym']
+        allObjects = c.findAllFromObject(self)
+
+        if self.fields['acronym'] != data['acronym']:
+            self.fields['acronym'] = data['acronym']
+            c.allObjects.hierarchy = None
 
         for key in c.AllLanguages.elements:
             if key in data:
@@ -909,6 +913,9 @@ class ConfigurationObject(object):
             return ''
         return result
 
+    def get_batches(self,c):
+        return []
+
     def hasParent(self,c,acronym):
         acronym = acronym.lower()
         allSelf = c.findAll(self.get_type())
@@ -919,7 +926,7 @@ class ConfigurationObject(object):
                 return gr
             for aGroup in gr.get_all_parents([],allObj):
                 bGroup = allObj.elements[aGroup]
-                if bGroup.fields["acronym"].lower() == acronym:
+                if bGroup.fields['acronym'].lower() == acronym:
                     return bGroup
         return None
 
@@ -928,15 +935,15 @@ class ConfigurationObject(object):
         if user_group and user_group in c.AllGrFunction.elements:
             key_upd = u"upd_"+self.get_type()
             aGroup = c.AllGrFunction.elements[user_group]
-            if aGroup.fields["acronym"].lower() == KEY_ADMIN:
+            if aGroup.fields['acronym'].lower() == KEY_ADMIN:
                 return True
-            if aGroup.fields["acronym"].lower() == key_upd:
+            if aGroup.fields['acronym'].lower() == key_upd:
                 return True
             for user_group in aGroup.get_all_parents([],c.AllGrFunction):
                 bGroup = c.AllGrFunction.elements[user_group]
-                if bGroup.fields["acronym"].lower() == KEY_ADMIN:
+                if bGroup.fields['acronym'].lower() == KEY_ADMIN:
                     return True
-                if bGroup.fields["acronym"].lower() == key_upd:
+                if bGroup.fields['acronym'].lower() == key_upd:
                     return True
         return False
 
@@ -1046,6 +1053,7 @@ class AllObjects(object):
         self.obj_type = obj_type
         self.obj_classname = obj_name
         self.elements = {}
+        self.hierarchy = None
         self.file_of_objects = os.path.join(DIR_DATA_CSV, obj_type.upper()) + ".csv"
         self.file_of_names = os.path.join(DIR_DATA_CSV, obj_type.upper()) + "names.csv"
         self.keyColumn = obj_type + "_id"
@@ -1304,12 +1312,37 @@ class AllObjects(object):
 
     def get_sorted(self):
         return collections.OrderedDict(sorted(self.elements.items(),
-                                       key=lambda t: t[1].get_acronym().upper())).keys()
+                                       key=lambda t: t[1].get_acronym().upper()))
+
+    def sort_hierarchy_objects(self,objects):
+        return sorted(objects,
+                        key=lambda t: t.get_acronym_hierarchy().upper()  if t else "" )
+
+    def sort_hierarchy(self,keyList):
+        return sorted(keyList,
+                      key=lambda t: self.elements[t].get_acronym_hierarchy().upper() if t else "" )
 
     def get_sorted_hierarchy(self):
-        return sorted(self.elements.keys(),
-#                      key=lambda t: t[1].get_acronym_hierarchy() )
-                      key=lambda t: self.elements[t].get_acronym_hierarchy().upper() )
+        if not self.hierarchy:
+            self.hierarchy = self.sort_hierarchy(self.elements.keys())
+        return self.hierarchy
+
+    # find uncompleted active objects
+    def in_use(self):
+        result = []
+        for k in self.elements.keys():
+            elem = self.elements[k]
+            if elem.isActive() and not elem.isComplete():
+                result.append(k)
+        return result
+
+    # find probably most useful objects
+    def get_top(self,size,keyList):
+        timed = sorted(keyList,
+                       key=lambda t: self.elements[t].getTimestring() if t else "", reverse=True )
+        if size <= 0:
+            return timed
+        return timed[:size]
 
     def findAcronym(self, acronym):
         for k, element in self.elements.items():
@@ -1416,7 +1449,7 @@ class AllAlarmLogs(AllObjects):
         self.file_of_objects = os.path.join(DIR_DATA_CSV, "alarmlogs.csv")
         self.file_of_names = None
         self.fieldnames = ['begin', 'al_id', 'cont_id', 'cont_type',
-                           's_id', 's_type', 'value', 'typealarm', 'a_id', 'begintime',
+                           's_id', 's_type', 'value', 'typealarm', 'a_id', 'gf_id', 'begintime',
                            'alarmtime', 'degree', 'completedtime', 'remark', 'active', 'user']
         self.fieldtranslate = None
 
@@ -1462,10 +1495,10 @@ class AllAlarmLogs(AllObjects):
     def get_sorted(self):
         return collections.OrderedDict(sorted(self.elements.items(),
                                        key=lambda t: t[1].fields['begin'],
-                                       reverse=True )).keys()
+                                       reverse=True ))
 
-    def get_sorted_hierarchy(self):
-        return sorted(self.elements.keys(),
+    def sort_hierarchy(self,keyList):
+        return sorted(keyList,
                       key=lambda t: self.elements[t].fields['begin'],
                       reverse=True)
 
@@ -1538,10 +1571,10 @@ class AllManualData(AllObjects):
     def get_sorted(self):
         return collections.OrderedDict(sorted(self.elements.items(),
                                        key=lambda t: t[1].fields['time'],
-                                       reverse=True )).keys()
+                                       reverse=True ))
 
-    def get_sorted_hierarchy(self):
-        return sorted(self.elements.keys(),
+    def sort_hierarchy(self,keyList):
+        return sorted(keyList,
                       key=lambda t: self.elements[t].fields['time'],
                       reverse=True)
 
@@ -1564,10 +1597,10 @@ class AllPourings(AllObjects):
     def get_sorted(self):
         return collections.OrderedDict(sorted(self.elements.items(),
                                        key=lambda t: t[1].fields['time'],
-                                       reverse=True )).keys()
+                                       reverse=True ))
 
-    def get_sorted_hierarchy(self):
-        return sorted(self.elements.keys(),
+    def sort_hierarchy(self,keyList):
+        return sorted(keyList,
                       key=lambda t: self.elements[t].fields['time'],
                       reverse=True)
 
@@ -1977,7 +2010,7 @@ class AllBatches(AllObjects):
         for k, e in self.elements.items():
             if e.fields['gr_id'] in recipes:
                 batches.append(e)
-        return batches
+        return self.sort_hierarchy_objects(batches)
 
     def get_batches_for_recipe_usage(self, recipes, usages):
         batches = []
@@ -1992,7 +2025,7 @@ class AllBatches(AllObjects):
                     #print currObj.__repr__()+"="+currObj.get_group()
                     if currObj.get_group() in usages:
                         batches.append(e)
-        return batches
+        return self.sort_hierarchy_objects(batches)
 
     def findNextAcronym(self,prefix,totalLen,count=0):
         while True:
@@ -2024,14 +2057,12 @@ class AllTransfers(AllObjects):
     def get_sorted(self):
         return collections.OrderedDict(sorted(self.elements.items(),
                                        key=lambda t: t[1].fields['time'],
-                                       reverse=True )).keys()
+                                       reverse=True ))
 
-    def get_sorted_hierarchy(self):
-        return sorted(self.elements.keys(),
+    def sort_hierarchy(self,keyList):
+        return sorted(keyList,
                       key=lambda t: self.elements[t].fields['time'],
                       reverse=True)
-
-
 
 class AllTransferModels(AllObjects):
 
@@ -2414,11 +2445,11 @@ class User(ConfigurationObject):
         user_group = self.get_group()
         if user_group and user_group in c.AllGrFunction.elements:
             aGroup = c.AllGrFunction.elements[user_group]
-            if aGroup.fields["acronym"].lower() == KEY_ADMIN:
+            if aGroup.fields['acronym'].lower() == KEY_ADMIN:
                 return True
             for user_group in aGroup.get_all_parents([],c.AllGrFunction):
                 bGroup = c.AllGrFunction.elements[user_group]
-                if bGroup.fields["acronym"].lower() == KEY_ADMIN:
+                if bGroup.fields['acronym'].lower() == KEY_ADMIN:
                     return True
         return False
 
@@ -2432,15 +2463,15 @@ class User(ConfigurationObject):
         if user_group and user_group in c.AllGrFunction.elements:
             key_upd = u"upd_"+type
             aGroup = c.AllGrFunction.elements[user_group]
-            if aGroup.fields["acronym"].lower() == KEY_ADMIN:
+            if aGroup.fields['acronym'].lower() == KEY_ADMIN:
                 return True
-            if aGroup.fields["acronym"].lower() == key_upd:
+            if aGroup.fields['acronym'].lower() == key_upd:
                 return True
             for user_group in aGroup.get_all_parents([],c.AllGrFunction):
                 bGroup = c.AllGrFunction.elements[user_group]
-                if bGroup.fields["acronym"].lower() == KEY_ADMIN:
+                if bGroup.fields['acronym'].lower() == KEY_ADMIN:
                     return True
-                if bGroup.fields["acronym"].lower() == key_upd:
+                if bGroup.fields['acronym'].lower() == key_upd:
                     return True
         return False
 
@@ -2455,10 +2486,10 @@ class User(ConfigurationObject):
         if user_group and user_group in c.AllGrFunction.elements:
             key_upd = u"upd_"+self.get_type()
             aGroup = c.AllGrFunction.elements[user_group]
-            result += aGroup.fields["acronym"].lower() + " "
+            result += aGroup.fields['acronym'].lower() + " "
             for user_group in aGroup.get_all_parents([],c.AllGrFunction):
                 bGroup = c.AllGrFunction.elements[user_group]
-                result += bGroup.fields["acronym"].lower() + " "
+                result += bGroup.fields['acronym'].lower() + " "
         if " admin " in result: # all is updatable then !
             result += ALL_UPDATE_GROUPS
         return result
@@ -2479,6 +2510,12 @@ class User(ConfigurationObject):
                     return connexion.pin
         return None
 
+    def get_batches(self,c):
+        result = []
+        for k,b in c.AllBatches.elements.items():
+            if b.isActive() and (self.getID() in [b.get_last_user(c),b.fields['buyer_id'],b.fields['provider_id']]):
+                result.append(b)
+        return c.AllBatches.sort_hierarchy_objects(result)
 
 class Equipment(ConfigurationObject):
 
@@ -2523,6 +2560,15 @@ class Equipment(ConfigurationObject):
         self.fields['gu_id'] = data['group']
         self.save(c, user)
 
+    def get_batches(self,c):
+        result = []
+        for k,b in c.AllBatches.elements.items():
+            if b.isActive():
+                here = b.get_actual_position_here(c)
+                if here and (here.getTypeId() == self.getTypeId()):
+                    result.append(b)
+        return c.AllBatches.sort_hierarchy_objects(result)
+
     def get_group(self):
         return self.fields['gu_id']
 
@@ -2566,6 +2612,15 @@ class Container(ConfigurationObject):
         self.fields['colorgraph'] = data['colorgraph']
         self.fields['gu_id'] = data['group']
         self.save(c, user)
+
+    def get_batches(self,c):
+        result = []
+        for k,b in c.AllBatches.elements.items():
+            if b.isActive():
+                here = b.get_actual_position_here(c)
+                if here and (here.getTypeId() == self.getTypeId()):
+                    result.append(b)
+        return c.AllBatches.sort_hierarchy_objects(result)
 
     def get_group(self):
         return self.fields['gu_id']
@@ -3107,6 +3162,14 @@ class GrUsage(Group):
         self.fields['rank'] = data['rank']
         self.save(c, user)
 
+    def get_batches(self,c):
+        result = []
+        for k,b in c.AllBatches.elements.items():
+            if b.isActive():
+                here = b.get_actual_position_here(c)
+                if here and here.isActive() and here.get_group() == self.getID():
+                    result.append(b)
+        return c.AllBatches.sort_hierarchy_objects(result)
 
 class CheckPoint(Group):
     def __init__(self, config):
@@ -3269,13 +3332,13 @@ class CheckPoint(Group):
             currObject = self.config.getObject('new', type[0])
             tmp = None
             if type == 'dm':
-                tmp = self.create_data(data, type, countdm)
+                tmp = self.create_data(data, type, countdm, user)
                 countdm += 1
             elif type == 'tm':
-                tmp = self.create_data(data, type, counttm)
+                tmp = self.create_data(data, type, counttm, user)
                 counttm += 1
             elif type == 'vm':
-                tmp = self.create_data(data, type, countvm)
+                tmp = self.create_data(data, type, countvm, user)
                 countvm += 1
             if tmp:
                 currObject.set_value_from_data(tmp, self.config, user)
@@ -3283,7 +3346,7 @@ class CheckPoint(Group):
         self.write_control(type, id, user)
         self.config.get_object(type,id).add_checkpoint(self.getID(),data['time'])
 
-    def create_data(self, data, type, count):
+    def create_data(self, data, type, count, user):
         batch = data['batch']
         time = data['time']
         tmp = {}
@@ -3303,14 +3366,21 @@ class CheckPoint(Group):
             tmp['position'] = data['tm_position_'+count]
             tmp['remark'] = data['tm_remark_'+count]
         elif type == 'vm':
+            tmp['quantity'] = data['vm_quantity_'+count]
             tmp['origin'] = data['vm_id_'+count]
-            if 'vm_src_'+count in data:
+            if 'vm_src_'+count in data: #input
                 tmp['src'] = data['vm_src_'+count]
                 tmp['dest'] = batch.split('_')[1]
-            else:
+            else: #output
                 tmp['dest'] = data['vm_dest_'+count]
                 tmp['src'] = batch.split('_')[1]
-            tmp['quantity'] = data['vm_quantity_'+count]
+                if tmp['src'] and tmp['src']==tmp['dest']: #sub-batch
+                    currBatch = self.config.AllBatches.get(tmp['src'])
+                    if currBatch:
+                        subbatch = currBatch.subbatch(user,1)
+                        if not subbatch:
+                            return None
+                        tmp['dest'] = subbatch.getID()
             tmp['remark'] = data['vm_remark_'+count]
         return tmp
 
@@ -3369,6 +3439,14 @@ class CheckPoint(Group):
             elems = self.get_hierarchy_tm([],self)
         return id in elems;
 
+    def get_batches(self,c):
+        result = []
+        for k in self.batches:
+            b = c.AllBatches.get(k)
+            if b and b.isActive():
+                result.append(b)
+        return c.AllBatches.sort_hierarchy_objects(result)
+
 class GrRecipe(Group):
     def __init__(self, config):
         Group.__init__(self, config)
@@ -3423,6 +3501,13 @@ class GrRecipe(Group):
                         return days
             return 0
 
+    def get_batches(self,c):
+        result = []
+        for k,b in c.AllBatches.elements.items():
+            if b.get_group() == self.getID() and b.isActive():
+                result.append(b)
+        return c.AllBatches.sort_hierarchy_objects(result)
+
 class GrFunction(Group):
     def __init__(self, config):
         Group.__init__(self, config)
@@ -3451,7 +3536,6 @@ class GrFunction(Group):
     def set_value_from_data(self, data, c, user):
         super(GrFunction, self).set_value_from_data(data, c, user)
         self.save(c, user)
-
 
 class Place(ConfigurationObject):
     def __init__(self, config):
@@ -3500,6 +3584,15 @@ class Place(ConfigurationObject):
         self.fields['colorgraph'] = data['colorgraph']
         self.fields['gu_id'] = data['group']
         self.save(c, user)
+
+    def get_batches(self,c):
+        result = []
+        for k,b in c.AllBatches.elements.items():
+            if b.isActive():
+                here = b.get_actual_position_here(c)
+                if here and (here.getTypeId() == self.getTypeId()):
+                    result.append(b)
+        return c.AllBatches.sort_hierarchy_objects(result)
 
     def get_group(self):
         return self.fields['gu_id']
@@ -4151,11 +4244,12 @@ class Alarm(ConfigurationObject):
             self.fields[elem] = data[elem]
         self.save(c, user)
 
-    def get_alarm_message(self, alarmedObject, config, lang, saveit):
+    def get_alarm_message(self, alarmedObject, config, group, lang, saveit):
         newFields = {}
         newFields['s_id'] = alarmedObject.getID()
         newFields['s_type'] = alarmedObject.get_type()
         newFields['a_id'] = self.getID()
+        newFields['gf_id'] = group
         newFields['alarmtime'] = useful.now()
         newFields['user'] = alarmedObject.fields['user']
         newFields['remark'] = ''
@@ -4320,41 +4414,83 @@ class Alarm(ConfigurationObject):
             elemout = config.AllBatches.elements[alarmedObject.fields['dest']]
             return unicode.format(title, elemout.fields['acronym'], elemout.getName(lang), elemin.fields['acronym'], elemin.getName(lang))
 
-    def alarm_by_email(self, alarmedObject, e_mail, config):
+    def alarm_by_sms(self, alarmedObject, phone_group, config):
         alid = ""
-        if (e_mail != '') and e_mail in config.AllGrFunction.elements:
-            userlist = config.AllGrFunction.elements[e_mail].get_user_group()
+        group = config.AllGrFunction.get(phone_group)
+        if group:
+            userlist = group.get_user_group()
             first = True
             for user in userlist:
                 anUser = config.AllUsers.elements[user]
                 if anUser.isActive():
                     lang = anUser.fields['language']
-                    allog = self.get_alarm_message(alarmedObject, config, lang, first)
+                    allog = self.get_alarm_message(config, phone_group, lang, first)
                     if first:
                         alid = allog['al_id']
                         first = False
                     title = self.get_alarm_title(alarmedObject, config, lang)
                     if anUser.fields['donotdisturb'] != '1':
-                        useful.send_email(config.AllUsers
-                                                .elements[user].fields['mail'],
+                        if not useful.send_sms(config.HardConfig, anUser.fields['phone'],
+                                                title): #Fall back to email...
+                            useful.send_email(config.HardConfig, anUser.fields['mail'],
+                                                    title, allog['remark'])
+        return alid
+        
+    def alarm_by_email(self, alarmedObject, e_mail, config):
+        alid = ""
+        group = config.AllGrFunction.get(e_mail)
+        if group:
+            userlist = group.get_user_group()
+            first = True
+            for user in userlist:
+                anUser = config.AllUsers.elements[user]
+                if anUser.isActive():
+                    lang = anUser.fields['language']
+                    allog = self.get_alarm_message(alarmedObject, config, e_mail, lang, first)
+                    if first:
+                        alid = allog['al_id']
+                        first = False
+                    title = self.get_alarm_title(alarmedObject, config, lang)
+                    if anUser.fields['donotdisturb'] != '1':
+                        useful.send_email(config.HardConfig, anUser.fields['mail'],
                                                 title,
                                                 allog['remark'])
         return alid
         
+    def alarm_by_sound(self, alarmedObject, dest, config):
+        alid = ""
+        group = config.AllGrFunction.get(dest)
+        if group:
+            userlist = group.get_user_group()
+            first = True
+            for user in userlist:
+                anUser = config.AllUsers.elements[user]
+                if anUser.isActive():
+                    lang = anUser.fields['language']
+                    allog = self.get_alarm_message(alarmedObject, config, dest, lang, first)
+                    if first:
+                        alid = allog['al_id']
+                        first = False
+        return alid
+
+    def alarm_by_all(self, alarmedObject, sms, mail, sound, config):
+        alid = self.alarm_by_sms(alarmedObject, self.fields[sms], config)
+        if not alid:
+            alid = self.alarm_by_email(alarmedObject, self.fields[mail], config)
+            if not alid:
+                alid = self.alarm_by_sound(alarmedObject, self.fields[sound], config)
+        return alid
+
     def launch_alarm(self, alarmedObject, config):
         alid = ""
         if alarmedObject.get_type() == 's':
             level = alarmedObject.degreeAlarm
             if level == 1:
-                alid = self.alarm_by_email(alarmedObject, self.fields['o_email1'], config)
+                alid = self.alarm_by_all(alarmedObject, 'o_sms1','o_email1','o_sound1', config)
             elif level == 2:
-                alid = self.alarm_by_email(alarmedObject, self.fields['o_email2'], config)
-        elif alarmedObject.get_type() == 'd':
-            alid = self.alarm_by_email(alarmedObject, self.fields['o_email2'], config)
-        elif alarmedObject.get_type() == 't':
-            alid = self.alarm_by_email(alarmedObject, self.fields['o_email2'], config)
-        elif alarmedObject.get_type() == 'v':
-            alid = self.alarm_by_email(alarmedObject, self.fields['o_email2'], config)
+                alid = self.alarm_by_all(alarmedObject, 'o_sms2','o_email2','o_sound2', config)
+        elif alarmedObject.get_type() in 'dtv':
+            alid = self.alarm_by_all(alarmedObject, 'o_sms2','o_email2','o_sound2', config)
         return alid
 
     def get_user_groups(self,model=None):
@@ -5089,7 +5225,7 @@ class Batch(ConfigurationObject):
         if self.floats('basicqt') == 0.0:
             self.fields['basicqt'] = "0"
         else:
-            qt = self.get_quantity_used()
+            qt = self.get_quantity_used() - self.get_quantity_added(self.config)
             tmp = self.get_quantity() - qt
             if tmp < 0:
                 return self.pourings.getTimestamp() - uself.getTimestamp()
@@ -5193,10 +5329,10 @@ class Batch(ConfigurationObject):
         return sorted(result, key=lambda e: e.fields['time'])
 
     def get_residual_quantity(self):
-        val = self.get_quantity_used()
+        val = self.get_quantity_used() - self.get_quantity_added(self.config)
         if self.floats('basicqt') == 0.0:
             self.fields['basicqt'] = "0"
-        return self.get_quantity()- val
+        return self.get_quantity() - val
 
     def clone(self, user, name=1):
         b = self.config.getObject('new', 'b')
@@ -5208,7 +5344,8 @@ class Batch(ConfigurationObject):
         if not tmpname:
             return False
         b.fields['acronym'] = tmpname
-        for f in ['active','basicqt','m_id','time','cost''fixed_cost','remark',
+        allObjects.hierarchy = None
+        for f in ['active','basicqt','m_id','time','cost','fixed_cost','remark',
                   "provider_id", "provider_ref", "buyer_id", "buyer_ref",'gr_id']:
             b.fields[f] = self.fields[f]
         for lang in self.config.AllLanguages.elements:
@@ -5218,6 +5355,28 @@ class Batch(ConfigurationObject):
         b.created = b.fields['begin']
         b.save(self.config, user)
         return True
+
+    def subbatch(self, user, name=1):
+        b = self.config.getObject('new', 'b')
+        allObjects = self.config.findAllFromObject(self)
+        lenAcro = len(self.fields['acronym'])+3
+        prefix = self.fields['acronym']+'_'
+        tmpname = allObjects.findNextAcronym(prefix,lenAcro,name)
+        if not tmpname:
+            return None
+        b.fields['acronym'] = tmpname
+        allObjects.hierarchy = None
+        b.fields['basicqt'] = '0'
+        for f in ['active','m_id','time','cost','fixed_cost','remark',
+                  "provider_id", "provider_ref", "buyer_id", "buyer_ref",'gr_id']:
+            b.fields[f] = self.fields[f]
+        for lang in self.config.AllLanguages.elements:
+            b.setName(lang, self.get_real_name(lang),
+                      user, self.config.getKeyColumn(b))
+        b.creator = user.fields['u_id']
+        b.created = b.fields['begin']
+        b.save(self.config, user)
+        return b
 
     def validate_form(self, data, configuration, user):
         tmp = super(Batch, self).validate_form(data, configuration, user)
@@ -5405,7 +5564,7 @@ class ManualDataModel(ConfigurationObject):
     def isModeling(self):
         return "d"
 
-    def get_classe_acronym(self):
+    def get_class_acronym(self):
         return 'manualdatamodel'
 
     def get_group(self):

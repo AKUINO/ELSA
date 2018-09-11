@@ -392,6 +392,8 @@ Heure : {8}"	1
 2016-01-01 13:45:56	FR	specialvalue	Min Max Moyenne 	1
 2016-01-01 13:45:56	EN	startup	Start	1
 2016-01-01 13:45:56	FR	startup	Départ	1
+2016-01-01 13:45:56	EN	subbatch	Batch Splitting	1
+2016-01-01 13:45:56	FR	subbatch	Subdivision d'un Lot	1
 2016-01-01 13:45:56	EN	subsensor	Subsensor 	1
 2016-01-01 13:45:56	FR	subsensor	Sous-capteur 	1
 2016-01-01 13:45:56	EN	target	Target	1

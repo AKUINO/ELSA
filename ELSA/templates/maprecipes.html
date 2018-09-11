@@ -33,8 +33,16 @@ $for krecipe in listRecipe:
 			<a href="#gr_$acro">$acro</a>
 		$else:
 			<a name="gr_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>
-			$for batch in c.AllBatches.get_batches_for_recipes([krecipe]):
-				$if batch.isActive() and not batch.isComplete():
+			$code:
+			    batches = elem.get_batches(c)
+			    in_use = []
+			    for ob in batches:
+				in_use.append(ob.getID())
+			    total = len(in_use)
+			    keys = c.AllBatches.sort_hierarchy(c.AllBatches.get_top(4,in_use))
+			$for k in keys:
+				$ batch = c.AllBatches.get(k)
+				$if batch and not batch.isComplete():
 					<div class="map down">
 					<a href="/find/related/b_$batch.getID()">$:(batch.statusIcon(c,True,False))</a>
 					$ acro = batch.fields['acronym']
@@ -57,5 +65,9 @@ $for krecipe in listRecipe:
 							    $:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
 						$ done.add('b_'+batch.getID())
 					</div>
+			$if len(keys) < total:
+				<div class="map down">
+				<strong><a href="/find/b/gr_$krecipe">+$unicode(total-len(keys)) $:(c.getHalfling('batch'))</a></strong>
+				</div>
 			$ done.add('gr_'+krecipe)
 </div>

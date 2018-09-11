@@ -70,8 +70,9 @@ function flip() {
 	    <div class="col-sm-9" id = "divsrc">
 		<select name="src" class="form-control" id="src">
 		    $if myID != 'out':
-			$for k,b in c.AllBatches.elements.items():
-			    $if b.isActive() and not b.isComplete() and not (myID == 'in' and k == batch.getID()):
+			$for k in c.AllBatches.get_sorted_hierarchy():
+			    $ b = c.AllBatches.get(k)
+			    $if b and b.isActive() and not b.isComplete() and not (myID == 'in' and k == batch.getID()):
 				<option value="$k"
 				$if myID == 'update':
 					    $if k == src.getID() :
@@ -87,8 +88,9 @@ function flip() {
 	    <div class="col-sm-9" id = "divdest">
 		<select name = "dest" class="form-control" id="dest">
 			$if myID != 'in' :
-			    $for k,b in c.AllBatches.elements.items():
-				$if b.isActive() and not b.isComplete() and not (myID == 'out' and k == batch.getID()):
+			    $for k in c.AllBatches.get_sorted_hierarchy():
+				$ b = c.AllBatches.get(k)
+				$if b and b.isActive() and not b.isComplete() and not (myID == 'out' and k == batch.getID()):
 				    <option value="$k"
 				    $if myID == 'update':
 					$if k == dest.getID() :
@@ -125,8 +127,10 @@ function flip() {
 	    <div class="col-sm-9">
 		<select name = "a_id" class="form-control" id="alarmSelect">
 		    <option value=""></option>
-		    $for k,alarm in c.AllAlarms.elements.items():
-			<option value="$k">$alarm.fields['acronym'] - $alarm.getName(self.lang) </option>
+		    $for k in c.AllAlarms.get_sorted_hierarchy():
+			$ alarm = c.AllAlarms.get(k)
+			$if alarm:
+				<option value="$k">$alarm.fields['acronym'] - $alarm.getName(self.lang) </option>
 		</select>
 	    </div>
 	</div>

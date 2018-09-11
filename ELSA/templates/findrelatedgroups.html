@@ -1,20 +1,18 @@
 $def with (connected,type,id,barcode='')
-$var allowed : $connected.cuser.allowed(c)
-$var lang : $connected.cuser.fields['language']
-$var completeMenu : $connected.completeMenu
-$var pinned : $connected.pinned()
-$var recursive : False
-$var title : ELSA
 $code:
     allobjects = c.findAll(type)
-    elem = allobjects.elements[id]
-    keyID = allobjects.keyColumn
+    elem = allobjects.get(id)
+$var lang : $(connected.cuser.fields['language'])
+$var completeMenu : $connected.completeMenu
+$var pinned : $(connected.pinned())
+$var recursive : False
 $var location: list/$(type)=$(elem.get_class_acronym()) find/related/$(type)_$(id)=related
 $var title : $(elem.getName(self.lang))
+$var allowed : $(connected.cuser.allowed(c))
 
 <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
-    <label class="col-sm-12">$c.getMessage('parent',self.lang) :</label>    
-    $for k in elem.parents:
+    <label class="col-sm-12">$(c.getMessage('parent',self.lang)) :</label>    
+    $for k in allobjects.sort_hierarchy(elem.parents):
 	<script>
 	    $$(function(){
 		$$("#includedMenuparents_$(k)").load("/fullentry/$(type)_$(k)");
@@ -32,7 +30,7 @@ $var title : $(elem.getName(self.lang))
 
 <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
     <label class="col-sm-12">$c.getMessage('child',self.lang) :</label>    
-    $for k in elem.children:
+    $for k in allobjects.sort_hierarchy(elem.children):
 	<script>
 	    $$(function(){
 		$$("#includedMenuchildren_$(k)").load("/fullentry/$(type)_$(k)");
@@ -45,8 +43,9 @@ $var title : $(elem.getName(self.lang))
 $if type == 'gf':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('user',self.lang) :</label>    
-	$for k,user in c.AllUsers.elements.items():
-	    $if user.get_group() == id :
+	$for k in c.AllUsers.get_sorted_hierarchy():
+	    $ user = c.AllUsers.get(k)
+	    $if user and user.get_group() == id :
 		<script>
 		    $$(function(){
 			$$("#includedMenuu_$(k)").load("/fullentry/u_$(k)");
@@ -65,7 +64,7 @@ $if type == 'gf':
 $elif type == 'h':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('manualdatamodel',self.lang) :</label>    
-	$for k in elem.dm:
+	$for k in c.AllManualDataModels.sort_hierarchy(elem.dm):
 		<script>
 		    $$(function(){
 			$$("#includedMenudm_$(k)").load("/fullentry/dm_$(k)");
@@ -84,7 +83,7 @@ $elif type == 'h':
     
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('transfermodel',self.lang) :</label>    
-	$for k in elem.tm:
+	$for k in c.AllTransferModels.sort_hierarchy(elem.tm):
 		<script>
 		    $$(function(){
 			$$("#includedMenutm_$(k)").load("/fullentry/tm_$(k)");
@@ -103,7 +102,7 @@ $elif type == 'h':
     
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('pouringmodel',self.lang) :</label>    
-	$for k in elem.vm:
+	$for k in c.AllPouringModels.sort_hierarchy(elem.vm):
 		<script>
 		    $$(function(){
 			$$("#includedMenuvm_$(k)").load("/fullentry/vm_$(k)");
@@ -137,13 +136,14 @@ $elif type == 'h':
 	    allowedbatches = c.AllBatches.get_batches_for_recipe_usage(recipes,usages)
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	    <label class="col-sm-12">$c.getMessage('batch',self.lang) :</label>
-	    $for i in elem.batches:
-	        <script>
-	        $$(function(){
-		    $$("#includedAllMenub_$(i)").load("/fullentry/b_$(i)");
-	        });
-	        </script>
-	        <div id="includedAllMenub_$(i)"></div>
+	    $for b in elem.get_batches(c):
+		$if not b.isComplete():
+		    <script>
+		        $$(function(){
+			    $$("#includedAllMenu$(b.getTypeId())").load("/fullentry/$(b.getTypeId())");
+		        });
+		    </script>
+		    <div id="includedAllMenu$(b.getTypeId())"></div>
     </div>
 	 
 	$if (" upd_d " in self.allowed) or (" upd_t " in self.allowed) or (" upd_v " in self.allowed):
@@ -165,8 +165,9 @@ $elif type == 'h':
 $elif type == 'gu':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('place',self.lang) :</label>    
-	$for k,p in c.AllPlaces.elements.items():
-	    $if p.get_group() == id :
+	$for k in c.AllPlaces.get_sorted_hierarchy():
+	    $ p = c.AllPlaces.get(k)
+	    $if p and p.get_group() == id :
 		<script>
 		    $$(function(){
 			$$("#includedMenup_$(k)").load("/fullentry/p_$(k)");
@@ -185,8 +186,9 @@ $elif type == 'gu':
     
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('equipment',self.lang) :</label>    
-	$for k,e in c.AllEquipments.elements.items():
-	    $if e.get_group() == id :
+	$for k in c.AllEquipments.get_sorted_hierarchy():
+	    $ e = c.AllEquipments.get(k)
+	    $if e and e.get_group() == id :
 		<script>
 		    $$(function(){
 			$$("#includedMenue_$(k)").load("/fullentry/e_$(k)");
@@ -205,8 +207,9 @@ $elif type == 'gu':
 
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('container',self.lang) :</label>    
-	$for k,cont in c.AllContainers.elements.items():
-	    $if cont.get_group() == id :
+	$for k in c.AllContainers.get_sorted_hierarchy():
+	    $ cont = c.AllContainers.get(k)
+	    $if cont and cont.get_group() == id :
 		<script>
 		    $$(function(){
 			$$("#includedMenuc_$(k)").load("/fullentry/c_$(k)");
@@ -224,8 +227,9 @@ $elif type == 'gu':
     </div> 
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('checkpoint',self.lang) :</label>    
-	$for k,cp in c.AllCheckPoints.elements.items():
-	    $if cp.fields['gu_id'] == id:
+	$for k in c.AllCheckPoints.get_sorted_hierarchy():
+	    $ cp = c.AllCheckPoints.get(k)
+	    $if cp and cp.fields['gu_id'] == id:
 		<script>
 		    $$(function(){
 			$$("#includedMenuh_$(k)").load("/fullentry/h_$(k)");
@@ -244,7 +248,7 @@ $elif type == 'gu':
 $elif type == 'gr':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('batch',self.lang) :</label>    
-	$for b in c.AllBatches.get_batches_for_recipes([id]):
+	$for b in elem.get_batches(c):
 	    $if not b.isComplete():
 		<script>
 		    $$(function(){
@@ -264,8 +268,9 @@ $elif type == 'gr':
     
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('checkpoint',self.lang) :</label>    
-	$for k,cp in c.AllCheckPoints.elements.items():
-	    $if cp.fields['gr_id'] == id:
+	$for k in c.AllCheckPoints.get_sorted_hierarchy():
+	    $ cp = c.AllCheckPoints.get(k)
+	    $if cp and cp.fields['gr_id'] == id:
 		<script>
 		    $$(function(){
 			$$("#includedMenuh_$(k)").load("/fullentry/h_$(k)");
@@ -286,8 +291,9 @@ $elif type == 'gr':
     </div> 
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('pouringmodel',self.lang) :</label>    
-	$for k,cp in c.AllPouringModels.elements.items():
-	    $if (cp.fields['src'] == id) or (cp.fields['dest'] == id):
+	$for k in c.AllPouringModels.get_sorted_hierarchy():
+	    $ vm = c.AllPouringModels.get(k)
+	    $if vm and ( (vm.fields['src'] == id) or (vm.fields['dest'] == id) ):
 		<script>
 		    $$(function(){
 			$$("#includedMenuvm_$(k)").load("/fullentry/vm_$(k)");

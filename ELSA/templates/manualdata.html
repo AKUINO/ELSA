@@ -58,35 +58,36 @@ $elif myID == 'component':
 		<select name="component" class="form-control" id="langSelect">
 		    $if myID == 'new':
 			<optgroup label="$c.getMessage('place',self.lang)">
-			    $for k,e in c.AllPlaces.elements.items():
+			    $for k,e in c.AllPlaces.get_sorted().items():
 			      $if e.isActive():
-				<option value="p_$k"
+				<option value="$(e.getTypeId())"
 				    $if myID == 'component':
-					$if 'p' == elem.get_type() and k == elem.getID(): 
+					$if 'p' == elem.get_type() and e.getID() == elem.getID(): 
 					    selected
 				>$e.fields['acronym'] - $e.getName(self.lang) </option>
 			    </optgroup>
 			    <optgroup label="$c.getMessage('equipment',self.lang)">
-			    $for k,e in c.AllEquipments.elements.items():
+			    $for k,e in c.AllEquipments.get_sorted().items():
 			      $if e.isActive():
-				<option value="e_$k"
+				<option value="$(e.getTypeId())"
 				    $if myID == 'component':
-					$if 'e' == elem.get_type() and k == elem.getID(): 
+					$if 'e' == elem.get_type() and e.getID() == elem.getID(): 
 					    selected			
 				>$e.fields['acronym'] - $e.getName(self.lang) </option>
 			    </optgroup>
 			    <optgroup label="$c.getMessage('container',self.lang)">
-			    $for k,e in c.AllContainers.elements.items():
+			    $for k,e in c.AllContainers.get_sorted().items():
 			      $if e.isActive():
-				<option value="c_$k"
+				<option value="$(e.getTypeId())"
 				    $if myID == 'component':
-					$if 'c' == elem.get_type() and k == elem.getID(): 
+					$if 'c' == elem.get_type() and e.getID() == elem.getID(): 
 					    selected
 				>$e.fields['acronym'] - $e.getName(self.lang) </option>
 			    </optgroup>
 			    <optgroup label="$c.getMessage('batch',self.lang)">
-			    $for k,e in c.AllBatches.elements.items():
-			      $if e.isActive() and not e.isComplete():
+			    $for k in c.AllBatches.get_sorted_hierarchy():
+			      $ e = c.AllBatches.get(k)
+			      $if e and e.isActive() and not e.isComplete():
 				<option value="b_$k"
 				    $if myID == 'component':
 					$if 'b' == elem.get_type() and k == elem.getID(): 
@@ -104,10 +105,10 @@ $elif myID == 'component':
 	    <div class="col-sm-9">
 		<select name="measure" class="form-control" id="measureSelect">
                     $ aMeasure = None
-		    $for k, currMeasure in c.AllMeasures.elements.items():
-			<option value="$k"
+		    $for k,currMeasure in c.AllMeasures.get_sorted().items():
+			<option value="$currMeasure.getID()"
 			    $if myID == "update":
-				$if k == manudata.fields['m_id']:
+				$if currMeasure.getID() == manudata.fields['m_id']:
 				    selected			
 			>$(currMeasure.get_select_str(self.lang))</option>
 		</select>
@@ -129,8 +130,8 @@ $elif myID == 'component':
 	    <div class="col-sm-9">
 		<select name="a_id" class="form-control" id="alarmSelect">
 		    <option value=""></option>
-		    $for k,alarm in c.AllAlarms.elements.items():
-			<option value="$k">$alarm.fields['acronym'] - $alarm.getName(self.lang) </option>
+		    $for k,alarm in c.AllAlarms.get_sorted().items():
+			<option value="$alarm.getID()">$alarm.fields['acronym'] - $alarm.getName(self.lang) </option>
 		</select>
 	    </div>
 	</div>
@@ -178,7 +179,7 @@ $elif myID == 'component':
 var mins = [];
 var maxs = [];
 var steps = [];
-$for k,aMeasure in c.AllMeasures.elements.items():
+$for k,aMeasure in c.AllMeasures.get_sorted().items():
     mins[$k]=$(aMeasure.fields['min']);
     maxs[$k]=$(aMeasure.fields['max']);
     steps[$k]='$(aMeasure.get_html_step())';

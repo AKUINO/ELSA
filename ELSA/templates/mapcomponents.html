@@ -40,6 +40,9 @@ $for kusage in listUsage:
 						<a href="#p_$acro">$acro</a>
 					$else:
 						<a name="p_$acro"></a>$acro - <strong>$(place.getName(self.lang))</strong>
+						$ batches = place.get_batches(c)
+						$if len(batches):
+							&nbsp;&nbsp;<strong><a href="/find/b/$(place.getTypeId())">$unicode(len(batches)) $:(c.getHalfling('batch'))</a></strong>
 						$ sensors = place.get_sensors_in_component(c)
 						$for ksensor in sensors:
 						    $ sensor = c.AllSensors.get(ksensor)
@@ -59,6 +62,7 @@ $for kusage in listUsage:
 								    $:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
 								$ done.add('s_'+ksensor)
 							</div>
+
 						$ done.add('p_'+kplace)
 					</div>
 		$for kequipment,equipment in c.AllEquipments.elements.items():
@@ -73,6 +77,9 @@ $for kusage in listUsage:
 						$ here = equipment.get_actual_position_here(c)
 						$if here:
 							<small>$:c.getHalfling('to')</small> <a href="/find/related/$(here.get_type())_$(here.getID())">$:(here.statusIcon(c,True,False))$(here.fields['acronym'])</a>
+						$ batches = equipment.get_batches(c)
+						$if len(batches):
+							&nbsp;&nbsp;<strong><a href="/find/b/$(equipment.getTypeId())">$unicode(len(batches)) $:(c.getHalfling('batch'))</a></strong>
 						$ sensors = equipment.get_sensors_in_component(c)
 						$for ksensor in sensors:
 						    $ sensor = c.AllSensors.get(ksensor)
@@ -106,6 +113,9 @@ $for kusage in listUsage:
 						$ here = container.get_actual_position_here(c)
 						$if here:
 							<small>$:c.getHalfling('to')</small> <a href="/find/related/$(here.get_type())_$(here.getID())">$:(here.statusIcon(c,True,False))$(here.fields['acronym'])</a>
+						$ batches = container.get_batches(c)
+						$if len(batches):
+							&nbsp;&nbsp;<strong><a href="/find/b/$(container.getTypeId())">$unicode(len(batches)) $:(c.getHalfling('batch'))</a></strong>
 						$ sensors = container.get_sensors_in_component(c)
 						$for ksensor in sensors:
 						    $ sensor = c.AllSensors.get(ksensor)

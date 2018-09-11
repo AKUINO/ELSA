@@ -351,6 +351,21 @@ class WebList():
 
     def POST(self, type):
         connected = redirect_when_not_logged()
+        raise web.seeother('/')
+
+    def getRender(self, connected, type, status=''):
+        return render.list(connected, type, status)
+
+# Make copies of an element
+class WebClone():
+    def __init__(self):
+        self.name = u"WebClone"
+    
+    def GET(self, type, id):
+        return render.notfound()
+
+    def POST(self, type, id):
+        connected = redirect_when_not_logged()
             
         user = connected.cuser
         data = web.input()
@@ -359,7 +374,7 @@ class WebList():
                 if type == 'b':
                     count = 1
                     borne = int(data['quantity'])
-                    elem = c.AllBatches.get(data['batch'].split('_')[1])
+                    elem = c.AllBatches.get(id)
                     try:
                         recipe = elem.get_group()
                         acro = elem.fields['acronym']
@@ -375,9 +390,6 @@ class WebList():
             except:
                 raise render.notfound()
         raise web.seeother('/')
-
-    def getRender(self, connected, type, status=''):
-        return render.list(connected, type, status)
 
 # Display of one item
 class WebItem():
@@ -543,11 +555,17 @@ class WebFind():
     def GET(self, type, id1, id2):
         connected = redirect_when_not_logged()
             
-        data = web.input()
+        status = ''
+        data = web.input(nifile={})
+        if 'status' in data:
+            status = data['status']
+        allRec = type[0] == '*'
+        if allRec:
+            type = type[1:]
 	barcode = ''
         if 'barcode' in data:
 	    barcode = data['barcode']
-        return self.getRender(connected, type, id1, id2, barcode)
+        return self.getRender(connected, type, id1, id2, barcode, status, allRec)
 
     def POST(self, type, id1, id2):
         connected = redirect_when_not_logged()
@@ -561,10 +579,10 @@ class WebFind():
                 raise web.seeother('/control/b_'+data['batch'] +
                                    '/h_'+data['checkpoint'])
             else:
-                return self.getRender(connected, type, id1, id2)
+                return self.getRender(connected, type, id1, id2,'','', False)
         return self.getRender(connected, type, id1, id2)
 
-    def getRender(self, connected, type, id1, id2, barcode=''):
+    def getRender(self, connected, type, id1, id2, barcode='', status='', allRec=False):
         try:
             if type == 'related': # sync with getRender from WebBarcode
                 if id1 == 'm':
@@ -585,9 +603,9 @@ class WebFind():
                 elif type == 'h':
                     return render.findcontrol(connected, id1, id2)
                 elif type == 'b':
-                    return render.findbatch(connected, id1, id2)
+                    return render.findbatch(connected, id1, id2, status, allRec)
                 elif type == 'al':
-                    return render.findalarmlog(connected, id1, id2)
+                    return render.findalarmlog(connected, id1, id2, allRec)
                 else:
                     return render.notfound()
         except:
@@ -1162,7 +1180,7 @@ class WebIndex():
         connectedUser = checkUser(data._username_, data._password_)
         if connectedUser is not None:
             connected = c.connectedUsers.addUser(connectedUser)
-            ensureLogin(connectedUser.fields['mail'])
+            ensureLogin(connectedUser.fields['mail'].lower())
 
             query_string = web.ctx.env.get('QUERY_STRING')
             redirect_url = useful.parse_url_query_string(query_string, 'redir')
@@ -1453,6 +1471,7 @@ def main():
             '/csv/(.+)', 'getCSV',
             '/doc/(.+)', 'getDoc',
             '/list/(.+)', 'WebList',
+            '/clone/(.+)_(.+)', 'WebClone',
             '/graphic/(.+)_(.+)', 'WebGraphic',
             '/graphhelp/(.+)_(.+)', 'WebGraphHelp',
             '/map/b_(.+)', 'WebMapBatch',

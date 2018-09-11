@@ -14,7 +14,7 @@ $if connected:
 	$var pinned : $connected.pinned()
         : $c.getMessage('welcome',self.lang) <em>$connected.cuser.getName(self.lang)</em>
 	</h4>
-	$ keys = c.AllBatches.get_sorted()
+	$ keys = c.AllBatches.get_sorted_hierarchy()
 	$for a in keys:
 	    $ elem = c.AllBatches.get(a)
 	    $if id == 'all' or (elem.isActive() and not elem.isComplete()) :

@@ -60,16 +60,19 @@ $elif myID == 'component':
 		<select name = "object" class="form-control" id="inputPosition">
 		    $if myID == 'new':
 			<optgroup label="$c.getMessage('batch',self.lang)">
-			$for k,e in c.AllBatches.elements.items():
-			  $if e.isActive() and not e.isComplete(): 
+			$for k in c.AllBatches.get_sorted_hierarchy():
+			  $ e = c.AllBatches.get(k)
+			  $if e and e.isActive() and not e.isComplete(): 
 			    <option value="b_$k"$:(" selected" if e.getTypeId()==self.pinned else '')>$e.fields['acronym'] - $e.getName(self.lang) </option>
 			<optgroup label="$c.getMessage('equipment',self.lang)">
-			$for k,e in c.AllEquipments.elements.items():
-			  $if e.isActive(): 
+			$for k  in c.AllEquipments.get_sorted_hierarchy():
+			  $ e = c.AllEquipments.get(k)
+			  $if e and e.isActive(): 
 			    <option value="e_$k">$e.fields['acronym'] - $e.getName(self.lang) </option>
 			<optgroup label="$c.getMessage('container',self.lang)">
-			$for k,e in c.AllContainers.elements.items():
-			  $if e.isActive(): 
+			$for k in c.AllContainers.get_sorted_hierarchy():
+			  $ e = c.AllContainers.get(k)
+			  $if e and e.isActive(): 
 			    <option value="c_$k">$e.fields['acronym'] - $e.getName(self.lang) </option>
 		    $else:
 			<option value="$(elem.get_type())_$(elem.getID())" selected>$elem.fields['acronym'] - $elem.getName(self.lang) </option>
@@ -107,9 +110,11 @@ $elif myID == 'component':
 	    <div class="col-sm-9">
 		<select name = "position" class="form-control" id="inputPosition">
 		    $ first = True
-		    $for k,v in c.AllPlaces.elements.items():
-                        $ curr_group=v.fields['gu_id']
-			$if v.isActive() and not usages or (curr_group and curr_group in usages):
+		    $for k in c.AllPlaces.get_sorted_hierarchy():
+			$ v = c.AllPlaces.get(k)
+			$if v and v.isActive():
+                          $ curr_group=v.fields['gu_id']
+			  $if not usages or (curr_group and curr_group in usages):
 			    $if first:
 				<optgroup label="$c.getMessage('place',self.lang)">
 				$ first = False
@@ -120,9 +125,11 @@ $elif myID == 'component':
 			    >$v.fields['acronym'] - $v.getName(self.lang) </option>
 		    $if not(myID == 'component' and  elem.get_type() == 'e'):
 			    $ first = True
-			    $for k,v in c.AllEquipments.elements.items():
-                                $ curr_group=v.fields['gu_id']
-				$if v.isActive() and not usages or (curr_group and curr_group in usages):
+			    $for k in c.AllEquipments.get_sorted_hierarchy():
+				$ v = c.AllEquipments.get(k)
+				$if v and v.isActive():
+	                          $ curr_group=v.fields['gu_id']
+				  $if not usages or (curr_group and curr_group in usages):
 				    $if first:
 					<optgroup label="$c.getMessage('equipment',self.lang)">
 					$ first = False
@@ -133,9 +140,11 @@ $elif myID == 'component':
 				    >$v.fields['acronym'] - $v.getName(self.lang)</option>
 		    $if not(myID == 'component' and (elem.get_type() == 'c'or elem.get_type() == 'e')):
 			    $ first = True
-			    $for k,v in c.AllContainers.elements.items():
-                                $ curr_group=v.fields['gu_id']
-				$if v.isActive() and not usages or (curr_group and curr_group in usages):
+			    $for k in c.AllContainers.get_sorted_hierarchy():
+				$ v = c.AllContainers.get(k)
+				$if v and v.isActive():
+	                          $ curr_group=v.fields['gu_id']
+				  $if not usages or (curr_group and curr_group in usages):
 				    $if first:
 					<optgroup label="$c.getMessage('container',self.lang)">
 					$ first = False

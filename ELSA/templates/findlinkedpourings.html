@@ -47,8 +47,8 @@ $if modelid:
 			</div>
 		    $if pouring.getID() in elem.destination:
 			$ batch = c.AllBatches.get(pouring.fields['src'])
-			<div class="col-xs-3 text-right">
-			    <a href="/find/v/b_$(pouring.fields['src'])" class="btn btn-warning" role="button" style="float:right">$:c.getHalfling('output')</a>
+			<div class="col-xs-3">
+			    <a href="/find/v/b_$(pouring.fields['src'])" class="btn btn-warning" style="float:left" role="button">$:c.getHalfling('input')</a>
 			    <strong><a href="/find/v/b_$(pouring.fields['src'])">$batch.fields['acronym']</a></strong>
 			    <br>$batch.getName(self.lang)
 			</div>	    
@@ -62,13 +62,13 @@ $if modelid:
 			<div class="col-xs-1">
 			    $ pq =  pouring.get_quantity()
 			    $if pq and pouring.get_unit(c) == elem.get_unit(c):
-			 	$ stock = stock - pq
+			 	$ stock = stock + pq
 				<strong>$unicode(stock)</strong>
 			</div>
 		    $else:
 			$ batch = c.AllBatches.get(pouring.fields['dest'])
-			<div class="col-xs-3">
-			    <strong><a href="/find/v/b_$(pouring.fields['dest'])"><span class="btn btn-warning" style="float:left" role="button">$:c.getHalfling('input')</span>$batch.fields['acronym']</a></strong><br>$batch.getName(self.lang)
+			<div class="col-xs-3 text-right">
+			    <strong><a href="/find/v/b_$(pouring.fields['dest'])"><span class="btn btn-warning" style="float:right" role="button">$:c.getHalfling('output')</span>$batch.fields['acronym']</a></strong><br>$batch.getName(self.lang)
 			</div>    
 			<div class="col-xs-2" >
 			    $pouring.getQtyUnit(c)
@@ -80,7 +80,7 @@ $if modelid:
 			<div class="col-xs-1">
 			    $ pq =  pouring.get_quantity()
 			    $if pq and pouring.get_unit(c) == elem.get_unit(c):
-			 	$ stock = stock + pq
+			 	$ stock = stock - pq
 				<strong>$unicode(stock)</strong>
 			</div>
 		    $if ( " upd_v " ) in self.allowed:

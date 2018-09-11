@@ -54,6 +54,14 @@ class HardConfig():
     devices = {}
     inputs = {}
     outputs = {}
+    mail_user = u''
+    mail_password = u''
+    mail_server = u'UNKNOWN_SMTP'
+    mail_port = 587
+    sms_user = u''
+    sms_password = u''
+    sms_server = u'UNKNOWN_SMTP'
+    sms_port = 587
 
     def parse_section_system(self):
         if self.config.has_section('system'):
@@ -251,6 +259,32 @@ class HardConfig():
                         self.running = None
                     else:
                         self.running = int(self.running)
+
+        if u'mail' in self.config.sections():
+            for anItem in self.config.items(u'mail'):
+                if anItem[0].lower() == u'user':
+                    self.mail_user = anItem[1]
+                elif anItem[0].lower() == u'password':
+                    self.mail_password = anItem[1]
+                elif anItem[0].lower() == u'server':
+                    self.mail_server = anItem[1]
+                elif anItem[0].lower() == u'port':
+                    self.mail_port = anItem[1]
+                    if not self.mail_port:
+                        self.mail_port = 587
+                    else:
+                        self.mail_port = int(self.mail_port)
+
+        if u'sms' in self.config.sections():
+            for anItem in self.config.items(u'sms'):
+                if anItem[0].lower() == u'user':
+                    self.sms_user = anItem[1]
+                elif anItem[0].lower() == u'password':
+                    self.sms_password = anItem[1]
+                elif anItem[0].lower() == u'server':
+                    self.sms_server = anItem[1]
+                elif anItem[0].lower() == u'port':
+                    self.sms_port = anItem[1]
 
         if u'keypad' in self.config.sections():
             for anItem in self.config.items(u'keypad'):

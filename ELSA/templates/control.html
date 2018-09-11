@@ -5,8 +5,8 @@ $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
 $var recursive : False
 $code:
-    batch = c.AllBatches.elements[id1]
-    cp = c.AllCheckPoints.elements[id2]
+    batch = c.AllBatches.get(id1)
+    cp = c.AllCheckPoints.get(id2)
     elems = cp.get_model_sorted()
     here = batch.get_actual_position_here(c)
     here_id = None
@@ -63,8 +63,8 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		$code:
 		   usages = None
 		   kusage = e.fields['gu_id']
-		   if kusage and kusage in c.AllGrUsage.elements:
-			usage = c.AllGrUsage.elements[kusage]
+		   usage = c.AllGrUsage.get(kusage)
+		   if usage:
 			usages = set(usage.children)
 			usages.add(kusage)
 		<div class="form-group row">
@@ -72,9 +72,11 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		    <div class="col-sm-9">
 			<select name = "tm_position_$(counttm)" class="form-control" id="inputPosition">
 			    $ first = True
-			    $for k,v in c.AllPlaces.elements.items():
-                                $ curr_group=v.fields['gu_id']
-				$if not usages or (curr_group and curr_group in usages):
+			    $for k in c.AllPlaces.get_sorted_hierarchy():
+				$ v = c.AllPlaces.get(k)
+				$if v and v.isActive():
+	                          $ curr_group=v.fields['gu_id']
+				  $if not usages or (curr_group and curr_group in usages):
 				    $if first:
 					<optgroup label="$c.getMessage('place',self.lang)">
 					$ first = False
@@ -83,9 +85,11 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 					    selected
 				    >$v.fields['acronym'] - $v.getName(self.lang) </option>
 			    $ first = True
-			    $for k,v in c.AllEquipments.elements.items():
-                                $ curr_group=v.fields['gu_id']
-				$if not usages or (curr_group and curr_group in usages):
+			    $for k in c.AllEquipments.get_sorted_hierarchy():
+				$ v = c.AllEquipments.get(k)
+				$if v and v.isActive():
+	                          $ curr_group=v.fields['gu_id']
+				  $if not usages or (curr_group and curr_group in usages):
 				    $if first:
 					<optgroup label="$c.getMessage('equipment',self.lang)">
 					$ first = False
@@ -94,9 +98,11 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 					    selected
 				    >$v.fields['acronym'] - $v.getName(self.lang)</option>
 			    $ first = True
-			    $for k,v in c.AllContainers.elements.items():
-                                $ curr_group=v.fields['gu_id']
-				$if not usages or (curr_group and curr_group in usages):
+			    $for k in c.AllContainers.get_sorted_hierarchy():
+				$ v = c.AllContainers.get(k)
+				$if v and v.isActive():
+	                          $ curr_group=v.fields['gu_id']
+				  $if not usages or (curr_group and curr_group in usages):
 				    $if first:
 					<optgroup label="$c.getMessage('container',self.lang)">
 					$ first = False
@@ -160,17 +166,13 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		    <input type="hidden" name="vm_id_$(countvm)" value="$e.getID()"/>
 		    <label class="col-sm-12 col-form-label">$:c.getAllHalfling(c.AllPourings) $e.getName(self.lang): <span class="text-danger">$e.fields['remark']<span></label>
 		</div>
-		$ aUsage = None
-		$if e.fields['gu_id'] and e.fields['gu_id'] in c.AllGrUsage.elements:
-		    $ aUsage = c.AllGrUsage.elements[e.fields['gu_id']]
+		$ aUsage = c.AllGrUsage.get(e.fields['gu_id'])
                 $ aMeasure = None
 		$if e.fields['in'] != '0':
 		    <div class="form-group row">
-			$ aRecipe = None
-			$if e.fields['src'] and e.fields['src'] in c.AllGrRecipe.elements:
-				$ aRecipe = c.AllGrRecipe.elements[e.fields['src']]
-				$if aRecipe:
-				    $ aMeasure = aRecipe.get_measure(c)
+			$ aRecipe = c.AllGrRecipe.get(e.fields['src'])
+			$if aRecipe:
+			    $ aMeasure = aRecipe.get_measure(c)
 			<label for="b_id" class="col-sm-3 col-form-label">$c.getMessage('batch',self.lang) $c.getMessage('source',self.lang)</label>
 			$if aRecipe:
 				<div class="col-sm-9" id = "divsrc">
@@ -183,17 +185,21 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		    </div>
 		$else:
 		    <div class="form-group row">
-			$ aRecipe = None
-			$if e.fields['dest'] and e.fields['dest'] in c.AllGrRecipe.elements:
-			    $ aRecipe = c.AllGrRecipe.elements[e.fields['dest']]
+			$ aRecipe = c.AllGrRecipe.get(e.fields['dest'])
 			$if batch:
 			    $ aMeasure = batch.get_measure(c)
 			<label for="b_id" class="col-sm-3 col-form-label">$c.getMessage('batch',self.lang) $c.getMessage('target',self.lang)</label>
 			<div class="col-sm-9" id = "divdest">
 			    <select name="vm_dest_$(countvm)" class="form-control" id="dest">
-				$for k in c.AllBatches.get_batches_for_recipe_usage([aRecipe.getID()]+aRecipe.get_submap_str(), [aUsage.getID()]+aUsage.get_submap_str()):
-				    $if not k.isComplete() and not (k.getID() == batch.getID()):
-					<option value="$k.getID()"$:(" selected" if k.getTypeId()==self.pinned else '')>$k.fields['acronym'] - $k.getName(self.lang) [= $unicode(k.get_residual_quantity())] </option>
+				$code:
+				    possDest = c.AllBatches.get_batches_for_recipe_usage([aRecipe.getID()]+aRecipe.get_submap_str(), [aUsage.getID()]+aUsage.get_submap_str())
+				    pinning = not (batch in possDest)
+				$for b in possDest:
+				    $if not b.isComplete():
+					$if b.getID() != batch.getID():
+					    <option value="$b.getID()"$:(" selected" if (pinning and b.getTypeId()==self.pinned) else '')>$b.fields['acronym'] - $b.getName(self.lang) [= $unicode(b.get_residual_quantity())] </option>
+					$else:
+					    <option value="$batch.getID()" selected>$c.getMessage('subbatch',self.lang) [= $unicode(b.get_residual_quantity())] </option>
 			    </select>
 			</div>
 		    </div>		

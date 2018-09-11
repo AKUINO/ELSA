@@ -46,20 +46,20 @@ def encrypt(password, salt):
     return binascii.hexlify(sha)
 
 
-def send_email(recipient, subject, text):
+def send_email(hardconfig, recipient, subject, text):
   print "Mail to "+recipient+" about "+subject+" : "+text
   try:
-    smtpserver = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+    smtpserver = smtplib.SMTP(hardconfig.mail_server, hardconfig.mail_port)
     smtpserver.ehlo()
     smtpserver.starttls()
     smtpserver.ehlo
-    smtpserver.login(GMAIL_USER, GMAIL_PASS)
-    header = u'To:' + recipient + u'\n' + u'From: ' + GMAIL_USER
+    smtpserver.login(hardconfig.mail_user, hardconfig.mail_password)
+    header = u'To:' + recipient + u'\n' + u'From: ' + hardconfig.mail_user
     header = header + '\n' + u'Subject:' + subject + u'\n'
 
     msg = MIMEMultipart('alternative')
     msg.set_charset('utf8')
-    msg['From'] = GMAIL_USER
+    msg['From'] = hardconfig.mail_user
     msg['To'] = recipient
     msg['Subject'] = Header(
         subject.encode('utf-8'),
@@ -70,12 +70,16 @@ def send_email(recipient, subject, text):
     msg.attach(_attach)
     print msg.as_string()
 
-    smtpserver.sendmail(GMAIL_USER, recipient, msg.as_string())
+    smtpserver.sendmail(hardconfig.mail_user, recipient, msg.as_string())
     smtpserver.close()
     print "DONE"
     return True
   except:
     traceback.print_exc()
+    return False
+
+def send_sms(hardconfig, recipient, subject, text):
+    print "Fail to SMS to "+recipient+" about "+subject+" : "+text
     return False
 
 def seconds_to_string(seconds):

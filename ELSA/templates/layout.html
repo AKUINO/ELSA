@@ -165,8 +165,10 @@ $if content.recursive == 'False' :
 	        <nav class="navbar navbar-inverse" role="navigation">
 		<div class="navbar-header">
 			<a class="navbar-brand" href="/?completeMenu=1" style="margin:15px;margin-top:0px;"><img src="/static/img/akuino.png" border="0" alt="This application stores the configuration and the data of the different AKUINO modules installed"/></a>
-			<button onclick="location.href='/map/gu'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('guse')</button>
 			<button onclick="location.href='/index?completeMenu=0'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('grecipe')</button>
+			<button onclick="location.href='/map/gu'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('guse')</button>
+			<button onclick="location.href='/list/al'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('alarmlog')</button>
+			<button onclick="location.href='/map/gf'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('gfunction')</button>
 			<button $:(('onclick="location.href=\'/find/related/'+content.pinned+'\'"') if content.pinned else '') type="button" class="btn btn-warning btn-md $:('' if content.pinned else ' disabled')" style="margin:15px;">$:c.getHalfling('pin')</button>
 			<button onclick="location.href='/calendar'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('calendar')</button>
 			<button onclick="generateQRCode()" type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#modal_barcode" aria-expanded="false" aria-controls="navbar" style="margin:15px;">$:c.getHalfling('barcode')</button>
@@ -177,7 +179,7 @@ $if content.recursive == 'False' :
 			<span class="navbar-brand" href="/?completeMenu=1" style="margin:15px;margin-top:0px;"><img src="/static/img/akuino.png" border="0" alt="This application stores the configuration and the data of the different AKUINO modules installed"/></span>
 		</div>
 	    </nav>
-	    <div style="margin-top:10px;font-size:20px;">
+	    <div style="margin-top:10px;font-size:20px;" class="hidden-print">
 		$if content.location != 'index' :
 		    <a href="/"><span class="glyphicon glyphicon-home"></span>   </a>
 		    $ url = '/'
@@ -194,7 +196,7 @@ $if content.recursive == 'False' :
 		$:content
 	    </div>
             <hr>
-            <footer style="margin-top:20px;">
+            <footer style="margin-top:20px;" class="hidden-print">
                 <div class="col-sm-11 text-center"><a href="https://www.akuino.net" onclick="return(YNconfirm(this))">AKUINO</a>, &copy;<small><a href="https://www.destin-informatique.com" onclick="return(YNconfirm(this))">DESTIN-Informatique</a>, <a href="https://www.glyphicons.com" onclick="return(YNconfirm(this))">GlyphIcons</a>, 2016-2018</small></div>
 	    </footer>
 	</div>
