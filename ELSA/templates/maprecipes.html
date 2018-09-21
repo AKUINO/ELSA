@@ -52,6 +52,7 @@ $for krecipe in listRecipe:
 						<a name="b_$acro"></a>$acro - <strong>$(batch.getName(self.lang))</strong>
 						    $code:
 							pos = None
+							files = batch.getDocumentList()
 							alarms = batch.count_logs(c)
 							transfer = batch.get_last_transfer(c)
 							if transfer:
@@ -63,6 +64,9 @@ $for krecipe in listRecipe:
 						    $if alarms > 0:
 							    <a href="/find/al/b_$batch.getID()">
 							    $:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
+						    $if files > 0:
+							    <a href="/files/b_$batch.getID()">
+							    $:c.getHalfling('file')<strong>$len(files)</strong></a>
 						$ done.add('b_'+batch.getID())
 					</div>
 			$if len(keys) < total:

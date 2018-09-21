@@ -581,7 +581,7 @@ class ConfigurationObject(object):
 
         if self.fields['acronym'] != data['acronym']:
             self.fields['acronym'] = data['acronym']
-            c.allObjects.hierarchy = None
+            allObjects.hierarchy = None
 
         for key in c.AllLanguages.elements:
             if key in data:

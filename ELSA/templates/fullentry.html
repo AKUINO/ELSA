@@ -367,6 +367,8 @@ $elif permissionKey in '_d_t_v_':
 	        $else:
 		  $:(c.getHalfling('menu'))
 	    </button>
+	    $if len(documentList) > 0 :
+		<a href="/files/$(type)_$(id)"><big>$:c.getHalfling('file')<strong>$len(documentList)</strong></big></a>
 	</div>
 </div>
 

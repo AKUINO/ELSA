@@ -386,9 +386,9 @@ class WebClone():
                             break
                         count += 1
                     raise web.seeother('/find/related/gr_'+recipe)
-                raise render.notfound()
+                return render.notfound()
             except:
-                raise render.notfound()
+                return render.notfound()
         raise web.seeother('/')
 
 # Display of one item
@@ -646,6 +646,24 @@ class WebGraphic():
             objects = c.findAll(type)
             if objects and id and id in objects.elements.keys():
                 return render.graphic(connected, type, id)
+        return render.notfound()
+
+class WebFiles():
+    def __init__(self):
+        self.name = u"WebFiles"
+
+    def GET(self, type, id):
+        connected = redirect_when_not_logged()
+        objects = c.findAll(type)
+        if objects:
+            elem = objects.get(id)
+            if elem:
+                fileList = elem.getDocumentList()
+                if fileList:
+                    if len(fileList)==1:
+                        web.seeother(elem.getDocumentURL(fileList[0]))
+                    else:
+                        return render.files(connected,type,id)
         return render.notfound()
 
 class WebMapRecipe():
@@ -1217,8 +1235,7 @@ class WebBarcode():
          if elem == None:
              return render.barcode(connected, id, errormess)
          else:
-            aType = elem.get_type()
-            raise web.seeother('/find/related/'+aType+'_'+elem.getID()+'?barcode='+id)
+            raise web.seeother('/find/related/'+elem.getTypeId()+'?barcode='+id)
          return render.barcode(connected, id, errormess)
 
     def getListing(self, connected):
@@ -1473,6 +1490,7 @@ def main():
             '/list/(.+)', 'WebList',
             '/clone/(.+)_(.+)', 'WebClone',
             '/graphic/(.+)_(.+)', 'WebGraphic',
+            '/files/(.+)_(.+)', 'WebFiles',
             '/graphhelp/(.+)_(.+)', 'WebGraphHelp',
             '/map/b_(.+)', 'WebMapBatch',
             '/map/gr_(.+)', 'WebMapRecipe',
