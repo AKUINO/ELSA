@@ -1,0 +1,31 @@
+$def with (connected, type, id)
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
+$var pinned : $connected.pinned()
+$code :
+    elem = c.findAll(type).get(id)
+$var recursive : False
+$var title : ELSA $(c.findAll(type).get_class_acronym())
+$var location: list/$(type)=$(c.findAll(type).get_class_acronym())
+
+$if not type in 'tdv':
+	<script>
+	    $$(function(){
+		$$("#includedMenu$(type)_$(id)").load("/fullentry/$(type)_*$(id)");
+	    });
+	</script>
+ 	<div id="includedMenu$(type)_$(id)"></div>
+	    $ i=0
+	    $for filename in elem.getDocumentList():
+                 <div class="row" style="margin-top:6px;">
+		    <a href="$elem.getDocumentURL(filename)" target="_blank">
+		    <div class="col-xs-2">
+                        $ i=i+1
+			$:(c.getHalfling('file'))($(i))
+		    </div>
+		    <div class="col-xs-10">
+			<strong>$filename</strong>
+		    </div>
+		    </a>
+		</div>

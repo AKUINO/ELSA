@@ -1,0 +1,60 @@
+$def with (connected, type, id)
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
+$var pinned : $connected.pinned()
+$code :
+    allObjects = c.findAll(type)
+    elem = allObjects.get(id)
+    if elem:
+	records, names, relations = elem.get_history(c)
+    begin = ""
+    user = ""
+    prv = None
+$var recursive : False
+$var title : ELSA $(c.findAll(type).get_class_acronym())
+$var location: history/$(type)=$(c.findAll(type).get_class_acronym())
+
+$if not type in 'tdv':
+	<script>
+	    $$(function(){
+		$$("#includedMenu$(type)_$(id)").load("/fullentry/$(type)_*$(id)");
+	    });
+	</script>
+ 	<div id="includedMenu$(type)_$(id)"></div>
+<table>
+    $for row in records:
+	$code:
+	    if not prv:
+		prv = {}
+		for field,value in row.items():
+		    prv[field] = ''
+	$if row['user'] != user:
+	        $ user = row['user']
+		<tr><th colspan=3>$:c.linkedAcronym(c.AllUsers,user,True)</th></tr>
+	$for field,value in row.items():
+	    $if (not field in ['user','begin',allObjects.keyColumn,'cont_type','object_type']) and prv[field]!=row[field]:
+		<tr><td style="padding:5px">$(row['begin'] if begin != row['begin'] else '')<td>
+		$code:
+		    acro = field
+		    allLinked = None
+		    if field in ['dest','src']:
+		        allLinked = c.AllGrRecipe
+		    elif field.endswith('_id'):
+			acro = field[:-3]
+			if acro in ['buyer','provider']:
+			    allLinked = c.AllUsers
+			elif acro in ['cont','object']:
+			    allLinked = c.findAll(row[acro+'_type'])
+			else:
+			    allLinked = c.findAll(acro)
+			    if allLinked:
+			        acro = allLinked.get_class_acronym()
+		    elif field.startswith('a_'):
+			allLinked = c.AllAlarms
+			acro = field[2:]
+		<th style="padding:5px;text-align:right">$(c.getMessage(acro,self.lang)) :</th>
+		<td style="padding:5px">$:(c.linkedAcronym(allLinked,value,True) if allLinked else '')$('' if allLinked else value)</td></tr>
+		$ begin = row['begin']
+	$ prv = row
+</table>
