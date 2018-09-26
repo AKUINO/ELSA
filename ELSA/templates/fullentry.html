@@ -547,6 +547,14 @@ $elif permissionKey in '_d_t_v_':
 				    $(c.getMessage('update',self.lang))
 				</div>
 			</div>
+		     <div class="row" style="margin-top:6px;">
+			<div class="col-xs-2" >
+			    <a href="/history/$(type)_$(id)" class="btn btn-warning" role="button" style="font-weight:900;font-size:20px">H</a>
+			</div>
+			<div class="col-xs-10">
+			    $(c.getMessage('history',self.lang))
+			</div>
+		    </div>
                     $ i=0
 		    $for filename in documentList:
                         <div class="row" style="margin-top:6px;">
