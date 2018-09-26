@@ -178,10 +178,10 @@ $if type == 'u':
         $if not batch.isComplete():
                 <script>
                     $$(function(){
-                        $$("#includedB_$(k)").load("/fullentry/b_$(k)");
+                        $$("#includedB_$(batch.getID())").load("/fullentry/b_$(batch.getID())");
                     });
                 </script>
-                <div id="includedB_$(k)"></div>
+                <div id="includedB_$(batch.getID())"></div>
     </div>
 
 $if type in 'pec':

@@ -384,6 +384,7 @@ class WebClone():
                     raise web.seeother('/find/related/gr_'+recipe)
                 return render.notfound()
             except:
+                traceback.print_exc()
                 return render.notfound()
         raise web.seeother('/')
 
@@ -395,6 +396,7 @@ class WebItem():
         try:
             return render.item(connected, type, id)
         except:
+            traceback.print_exc()
             return render.notfound()
 
 # Display complete history of one item
@@ -405,6 +407,7 @@ class WebHistory():
         try:
             return render.history(connected, type, id)
         except:
+            traceback.print_exc()
             return render.notfound()
 
 # UPDATE of Place, Equipment, Container, etc.
@@ -1247,6 +1250,7 @@ class WebBarcode():
                 id = data['barcode']
             return self.getRender(connected, id)
         except:
+            traceback.print_exc()
             return self.getRender(connected, id, 'notfound')
 
     def getRender(self, connected, id, errormess=''):
@@ -1325,6 +1329,7 @@ class WebExport():
             else:
                 return render.notfound()
         except:
+            traceback.print_exc()
             return render.notfound()
 
 

@@ -276,7 +276,11 @@ class Configuration():
         return obj.keyColumn
 
     def getMessage(self,message_acronym,lang):
-        return self.AllMessages.elements[message_acronym].getName(lang)
+        mess = self.AllMessages.get(message_acronym)
+        if mess:
+            return mess.getName(lang)
+        else:
+            return message_acronym
 
     def getName(self, allObjects,lang):
         return self.getMessage(allObjects.get_class_acronym(),lang)
@@ -947,6 +951,40 @@ class ConfigurationObject(object):
                     return True
         return False
 
+    def get_history(self,c):
+        allObjects = c.findAllFromObject(self)
+        id = self.getID()
+
+        relations = None
+        if allObjects.file_of_relations:
+            with open(allObjects.file_of_relations) as csvfile:
+                reader = unicodecsv.DictReader(csvfile, delimiter="\t")
+                relations = []
+                for row in reader:
+                    if row['parent_id'] == id:
+                        relations.append(row)
+                    elif row['child_id'] == id:
+                        relations.append(row)
+
+        names = None
+        if allObjects.file_of_names:
+            with open(allObjects.file_of_names) as csvfile:
+                reader = unicodecsv.DictReader(csvfile, delimiter="\t")
+                names = []
+                for row in reader:
+                    if row[allObjects.keyColumn] == id:
+                        names.append(row)
+
+        records = None
+        with open(allObjects.file_of_objects) as csvfile:
+            reader = unicodecsv.DictReader(csvfile, delimiter="\t")
+            records = []
+            for row in reader:
+                if row[allObjects.keyColumn] == id:
+                    records.append(row)
+
+        return records, names, relations
+
 class UpdateThread(threading.Thread):
 
     def __init__(self, config):
@@ -1056,6 +1094,7 @@ class AllObjects(object):
         self.hierarchy = None
         self.file_of_objects = os.path.join(DIR_DATA_CSV, obj_type.upper()) + ".csv"
         self.file_of_names = os.path.join(DIR_DATA_CSV, obj_type.upper()) + "names.csv"
+        self.file_of_relations = None
         self.keyColumn = obj_type + "_id"
         self.config = config
         self.count = 0
