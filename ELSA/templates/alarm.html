@@ -242,6 +242,25 @@ $if errormess != '':
             </div>
 	</div>
 	
+	<div class="form-group row">
+	    <label for="inputImage" class="col-sm-3 col-form-label">$c.getMessage('file',self.lang)</label>
+	    <label class="control-label col-sm-9">
+	        <input id="inputImage" name="placeImg" type="file" class="file file-loading" data-allowed-file-extensions='["jpg", "jpeg", "png"]'>
+            </label>
+	</div>
+	
+	<div class="form-group row">
+	    <label for="inputFile" class="col-sm-3 col-form-label">$c.getMessage('document',self.lang)</label>
+	    <label class="control-label col-sm-9">
+            $ i=0
+	    $if id != 'new':
+		    $for filename in alarmdef.getDocumentList():
+		        $ i=i+1
+			<a href="/files/$(alarmdef.getTypeId())?remove=$filename" class="btn btn-danger" onclick="return(YNmessage(this,'$(c.getMessage("remove",self.lang))','$filename'))">X</a> &nbsp;
+			($(i)) <a href="$alarmdef.getDocumentURL(filename)" target="_blank">$filename</a><br/>
+	    <input id="inputFile" name="linkedDocs" type="file" multiple class="file file-loading"'>
+            </label>
+	</div>
 	
 	<div class="form-group row">
 	    <div class="col-sm-3">

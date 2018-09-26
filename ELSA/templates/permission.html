@@ -14,13 +14,13 @@ $code:
     tmp = ''
     indent = 1
     cindent = 9
+    mygroup = None
     if id != 'new':
 	if 'g' in type or type == 'h':
 	    myid = id
 	    mygroup = groups.get(id)
 	else:
 	    myid = allObjs.get(id).get_group()
-	    mygroup = []
 $if 'g' in type or type == 'h':
     <div class="form-group row">
 	<label class="col-sm-12 col-form-label">$:c.getAllHalfling(groups) $c.getMessage(groups.get_class_acronym(),self.lang) ($c.getMessage('parent',self.lang))</label>
@@ -36,7 +36,9 @@ $if 'g' in type or type == 'h':
 		    indent-=1
 		    cindent+=1
 	    $else :
-		<div class="form-group row">
+		$ aGroup = groups.get(group)
+		$if aGroup:
+		    <div class="form-group row">
 		    <label class="col-xs-$indent col-form-label"></label>
 		    <label id="modalinfo" for="inputGroups" class="col-xs-$cindent col-form-label"
 			$if id != 'new':
@@ -44,7 +46,7 @@ $if 'g' in type or type == 'h':
 				style="background-color:black;"	    
 			>$groups.get(group).getName(self.lang)</label>
 		    $if 'g' in type or type == 'h':
-			$if id != 'new' and group in mygroup.related:
+			$if (id != 'new' and mygroup and group in mygroup.get_related()) or (id == 'new' and context==aGroup.getTypeId() ):
 			    <label class="col-sm-2 col-form-label">
 			    <span class="glyphicon glyphicon-remove-circle"> </span>
 				<label class="switch">
@@ -53,7 +55,7 @@ $if 'g' in type or type == 'h':
 				</label>
 				<span class="glyphicon glyphicon-ok-circle"> </span>
 			    </label>
-			$elif id != 'new' and (group in mygroup.get_children() or group in mygroup.get_parents() or group in mygroup.get_siblings() or id == group):
+			$elif id != 'new' and ( id == group or ( mygroup and ( group in mygroup.get_children() or group in mygroup.get_parents() or group in mygroup.get_siblings() ) ) ):
 			    <label class="col-sm-2 col-form-label">-</label>
 			$else :
 			    <label class="col-sm-2 col-form-label">
@@ -64,7 +66,7 @@ $if 'g' in type or type == 'h':
 				</label>
 				<span class="glyphicon glyphicon-ok-circle"> </span>
 			    </label>
-		</div>	
+		    </div>	
 $else:
     <div class="form-group row">
 	<label for="inputGroup" class="col-sm-3 col-form-label">$:c.getAllHalfling(groups) $c.getMessage(groups.get_class_acronym(),self.lang)</label>

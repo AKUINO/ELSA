@@ -19,6 +19,8 @@ begin	lang	message_id	name	user
 2016-01-01 13:45:56	FR	downloadBackup	Télécharger la dernière Sauvegarde	1
 2016-01-01 13:45:56	EN	backupDone	Backup Done	1
 2016-01-01 13:45:56	FR	backupDone	Sauvegarde effectuée	1
+2016-01-01 13:45:56	EN	remove	Remove	1
+2016-01-01 13:45:56	FR	remove	Détruire	1
 2016-01-01 13:45:56	EN	restore	Restore backup	1
 2016-01-01 13:45:56	FR	restore	Restaurer une Sauvegarde	1
 2016-01-01 13:45:56	EN	restartingDone	Restart in progress… Please wait a bit and reload this page.	1

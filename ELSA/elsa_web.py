@@ -294,18 +294,14 @@ class WebDisconnect():
 
 # Menu of groups within an update form
 class WebPermission():
-    def GET(self, type, id):
+    def GET(self, type, id, type2='', id2=''):
         connected = isConnected()
         if connected is None:
             return ''
-
-        splitted = id.split('/')
-        if len(splitted) > 1:
-            context = splitted[-1]
-            id = splitted[0]
-        else:
-            context = ''
-        print type+'-'+id+'-'+context
+        context = ''
+        if type2:
+            context = type2+'_'+id2
+        print type+'_'+id+' / '+context
         return render.permission(connected, type, id, context)
 
 # Display of  a record within a list
@@ -401,6 +397,16 @@ class WebItem():
         except:
             return render.notfound()
 
+# Display complete history of one item
+class WebHistory():
+    def GET(self, type, id):
+        connected = redirect_when_not_logged()
+        
+        try:
+            return render.history(connected, type, id)
+        except:
+            return render.notfound()
+
 # UPDATE of Place, Equipment, Container, etc.
 class WebEdit():
     def GET(self, type, id):
@@ -475,11 +481,11 @@ class WebEdit():
         elif type == 'al':
             return render.alarmlog(connected, id, errormess, data)
         elif type == 'gu':
-            return render.group(connected, type, id, errormess, data)
+            return render.group(connected, type, id, errormess, data, context)
         elif type == 'gr':
-            return render.group(connected, type, id, errormess, data)
+            return render.group(connected, type, id, errormess, data, context)
         elif type == 'gf':
-            return render.group(connected, type, id, errormess, data)
+            return render.group(connected, type, id, errormess, data, context)
         elif type == 'h':
             return render.group(connected, type, id, errormess, data, context)
         elif type == 'u':
@@ -654,14 +660,30 @@ class WebFiles():
 
     def GET(self, type, id):
         connected = redirect_when_not_logged()
+        user = connected.cuser
         objects = c.findAll(type)
         if objects:
             elem = objects.get(id)
             if elem:
                 fileList = elem.getDocumentList()
                 if fileList:
-                    if len(fileList)==1:
-                        web.seeother(elem.getDocumentURL(fileList[0]))
+                    data = web.input()
+                    if 'remove' in data:
+                        connected = redirect_when_not_allowed(type)
+                        toRemove = data['remove']
+                        if toRemove and toRemove in fileList:
+                            toRemove = toRemove.replace('\\', '/')
+                            name = toRemove.split('/')[-1]
+                            if name:
+                                aDir = elem.getDocumentDir(False)
+                                if aDir:
+                                    try:
+                                        os.remove(aDir+u'/'+name)
+                                    except:
+                                        traceback.print_exc()
+                        raise web.seeother('/edit/'+type+'_'+id)                        
+                    elif len(fileList)==1:
+                        raise web.seeother(elem.getDocumentURL(fileList[0]))
                     else:
                         return render.files(connected,type,id)
         return render.notfound()
@@ -1483,6 +1505,7 @@ def main():
             '/index', 'WebIndex',
             '/edit/(.+)_(.+)', 'WebEdit',
             '/item/(.+)_(.+)', 'WebItem',
+            '/history/(.+)_(.+)', 'WebHistory',
             '/create/(.+)', 'WebCreate',
             '/rrd/(.+)', 'getRRD',
             '/csv/(.+)', 'getCSV',
@@ -1512,6 +1535,7 @@ def main():
             '/find/(.+)/(.+)_(.+)/(.+)', 'WebFindModel',
             '/find/(.+)/(.+)_(.+)', 'WebFind',
             '/pin/(.+)_(.+)', 'WebPin',
+            '/permission/(.+)_(.+)/(.+)_(.+)', 'WebPermission',
             '/permission/(.+)_(.+)', 'WebPermission',
             '/control/b_(.+)/h_(.+)', 'WebControl',
             '/disconnect', 'WebDisconnect',

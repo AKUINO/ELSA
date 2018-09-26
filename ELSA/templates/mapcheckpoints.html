@@ -31,7 +31,12 @@ $for kcheckpoint in listCheckPoint:
 		    <div class="leadot" width="600px"><div>
 		    <span>
 		    <a href="/find/related/h_$kcheckpoint">$:(elem.statusIcon(c,True,False))</a>
-		    <a name="h_$acro"></a>$acro #$elem.fields['rank'] - <strong>$(elem.getName(self.lang))</strong></span>
+		    <a name="h_$acro"></a>$acro #$elem.fields['rank'] - <strong>$(elem.getName(self.lang))</strong>
+		    $ files = elem.getDocumentList()
+		    $if files and len(files) > 0:
+			    <a href="/files/h_$kcheckpoint">
+			    $:c.getHalfling('file')<strong>$len(files)</strong></a>
+		    </span>
 		    <span>
 		    $ kusage = elem.fields['gu_id']
 		    $ usage = c.AllGrUsage.get(kusage)

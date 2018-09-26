@@ -79,14 +79,13 @@ $if content.recursive == 'False' :
                   scalescreen();
               } );
 
-              function YNconfirm(el) {
-                if (window.confirm("Go to "+$$(el).attr("href")+" ?")) {
-		  window.location.href = $$(el).attr("href");
-                  return true;
-                } else {
-                  return false;
-                }
-              }
+	      function YNmessage(el,message,name) {
+	        if (window.confirm(message+" "+name+" ?")) {
+	            return true;
+	        } else {
+	            return false;
+	        }
+	      }
             </script>
 
         <div class="container">
@@ -197,7 +196,7 @@ $if content.recursive == 'False' :
 	    </div>
             <hr>
             <footer style="margin-top:20px;" class="hidden-print">
-                <div class="col-sm-11 text-center"><a href="https://www.akuino.net" onclick="return(YNconfirm(this))">AKUINO</a>, &copy;<small><a href="https://www.destin-informatique.com" onclick="return(YNconfirm(this))">DESTIN-Informatique</a>, <a href="https://www.glyphicons.com" onclick="return(YNconfirm(this))">GlyphIcons</a>, 2016-2018</small></div>
+                <div class="col-sm-11 text-center"><a href="https://www.akuino.net" onclick="return(YNmessage(this,'Go to','AKUINO.net'))">AKUINO</a>, &copy;<small><a href="https://www.destin-informatique.com" onclick="return(YNmessage(this,'Go to','destin-informatique.com'))">DESTIN-Informatique</a>, <a href="https://www.glyphicons.com" onclick="return(YNmessage(this,'Go to','GlyphIcons.com'))">GlyphIcons</a>, 2016-2018</small></div>
 	    </footer>
 	</div>
     

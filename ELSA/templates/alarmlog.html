@@ -159,6 +159,7 @@ $elif myID == 'component':
 	    $if id != 'new':
 		    $for filename in alarmlog.getDocumentList():
 		        $ i=i+1
+			<a href="/files/$(alarmlog.getTypeId())?remove=$filename" class="btn btn-danger" onclick="return(YNmessage(this,'$(c.getMessage("remove",self.lang))','$filename'))">X</a> &nbsp;
 			($(i)) <a href="$alarmlog.getDocumentURL(filename)" target="_blank">$filename</a><br/>
 	    <input id="inputFile" name="linkedDocs" type="file" multiple class="file file-loading"'>
             </label>

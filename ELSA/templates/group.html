@@ -56,7 +56,7 @@ $if errormess != '':
 				    $if aGroup:
 					    <option value="$group"
 					    $if context != '':
-						$if context.split('_')[-1] == group :
+						$if context == aGroup.getTypeId() :
 						    selected
 					    $elif id != 'new':
 						$if group == elem.fields['gr_id'] :
@@ -93,7 +93,7 @@ $if errormess != '':
 				    $if aGroup:
 					    <option value="$group"
 					    $if context != '':
-						$if context.split('_')[-1] == group :
+						$if context == aGroup.getTypeId() :
 						    selected
 					    $elif id == 'new' and data and 'usage' in data:
 						$if group == data['usage'] :
@@ -131,7 +131,7 @@ $if errormess != '':
 			value="$data['acronym']" 
 		$elif id != 'new':
 		    value="$elem.fields['acronym']"
-		$elif context != '':
+		$elif context != '' and context.startswith('gr_'):
 		    value="$(c.AllGrRecipe.get(context.split('_')[-1]).proposedMemberAcronym(c))"
 		required="true">
 	    </div>
@@ -203,7 +203,7 @@ $if errormess != '':
 				    $if aGroup:
 					    <option value="$group"
 					    $if context != '':
-						$if context.split('_')[-1] == group :
+						$if context == aGroup.getTypeId() :
 						    selected
 					    $elif id == 'new' and data and 'usage' in data:
 						$if group == data['usage'] :
@@ -333,7 +333,7 @@ $if errormess != '':
 	<div class="form-group row">
 	    <script>
 		$$(function(){
-		    $$("#includedPermission").load("/permission/$(type)_$(id)");
+		    $$("#includedPermission").load("/permission/$(type)_$(id)$:( '/'+context if context else '' )");
 		});
 	    </script>
 	    <div id="includedPermission" class="col-sm-12"></div>
@@ -368,6 +368,7 @@ $if errormess != '':
 	    $if id != 'new':
 		    $for filename in elem.getDocumentList():
 		        $ i=i+1
+			<a href="/files/$(elem.getTypeId())?remove=$filename" class="btn btn-danger" onclick="return(YNmessage(this,'$(c.getMessage("remove",self.lang))','$filename'))">X</a> &nbsp;
 			($(i)) <a href="$elem.getDocumentURL(filename)" target="_blank">$filename</a><br/>
 	    <input id="inputFile" name="linkedDocs" type="file" multiple class="file file-loading"'>
             </label>

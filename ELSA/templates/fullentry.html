@@ -52,6 +52,9 @@ $elif permissionKey in '_d_t_v_':
 		<a href="/find/related/$(type)_$(id)">
 		$elem.fields['acronym'] 
 		</a>
+		$ documentList = elem.getDocumentList()
+		$if len(documentList) > 0 :
+		    <a href="/files/$(type)_$(id)"><big>$:c.getHalfling('file')<strong>$len(documentList)</strong></big></a>
 	    </div>
 	    <div class="row">
 		<a href="/find/related/$(type)_$(id)">
@@ -357,18 +360,9 @@ $elif permissionKey in '_d_t_v_':
 		$elem.get_select_str(self.lang)
 	</div>
 	<div class="col-xs-1 vcenter">
-	    $ documentList = elem.getDocumentList()
 	    <button type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#modal_menu_$(type)_$(id)">
-		$if len(documentList) > 0 :
-                  <span class="icon-combine">
-                     $:(c.getHalfling('menu'))
-                     <span class="text-danger">$len(documentList)</span>
-                  </span>
-	        $else:
 		  $:(c.getHalfling('menu'))
 	    </button>
-	    $if len(documentList) > 0 :
-		<a href="/files/$(type)_$(id)"><big>$:c.getHalfling('file')<strong>$len(documentList)</strong></big></a>
 	</div>
 </div>
 

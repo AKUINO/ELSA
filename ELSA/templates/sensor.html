@@ -316,6 +316,7 @@ $if errormess != '':
 	    $if id != 'new':
 		    $for filename in elem.getDocumentList():
 		        $ i=i+1
+			<a href="/files/$(elem.getTypeId())?remove=$filename" class="btn btn-danger" onclick="return(YNmessage(this,'$(c.getMessage("remove",self.lang))','$filename'))">X</a> &nbsp;
 			($(i)) <a href="$elem.getDocumentURL(filename)" target="_blank">$filename</a><br/>
 	    <input id="inputFile" name="linkedDocs" type="file" multiple class="file file-loading"'>
             </label>
