@@ -8,12 +8,24 @@ $code :
 $var recursive : False
 $var title : ELSA $(c.findAll(type).get_class_acronym())
 $var location: list/$(type)=$(c.findAll(type).get_class_acronym())
-
+<div class="hidden-print">
 	<script>
 	    $$(function(){
 		$$("#includedMenu$(type)_$(id)").load("/fullentry/$(type)_*$(id)");
-		$$("#includedModal$(type)_$(id)").load("/modal/$(type)_$(id)?direct=1");
 	    });
 	</script>
  	<div id="includedMenu$(type)_$(id)"></div>
- 	<div id="includedModal$(type)_$(id)"></div>
+</div>
+$ barcode = c.AllBarcodes.get_barcode(elem.get_type(),elem.getID())
+$if barcode:
+	<div class="row">
+	    <svg id='barcode'></svg>
+	</div>
+	<div class="form-group row" id="error2">
+	        $c.getMessage('barcoderules',self.lang) [$barcode]
+	</div>
+	<script>
+	if ( generateBarcode( '#barcode', $barcode ) ) {
+	        jQuery('div#error2').css('display', 'none')
+	    }
+	</script>

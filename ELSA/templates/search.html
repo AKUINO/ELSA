@@ -5,7 +5,12 @@ $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
 $var recursive : False
 $var title : ELSA BARCODE search
-$if errormess == '' :
+$if errormess :
+    $var location: barcode/$(barcode)=barcode
+    <div class="form-group row" id="error">
+	    $c.getMessage(errormess,self.lang) [$(barcode)]
+    </div>
+$else:
     $code:
 	elem  = c.AllBarcodes.barcode_to_item(barcode)
     $var location: list/$(elem.get_type())=$(c.findAll(elem.get_type()).get_class_acronym()) barcode/$(barcode)=barcode
@@ -16,20 +21,16 @@ $if errormess == '' :
 	});
     </script>
     <div id="includedMenu" style="min-height:11ex;"></div>
-$else:
-    $var location: barcode/$(barcode)=barcode
-    <div class="form-group row" id="error">
-	    $c.getMessage('errorbarcode',self.lang) [$(barcode)]
-    </div>
-    
-<div class="row">
-    <svg id='barcode'></svg>
-</div>
-<div class="form-group row" id="error2">
-        $c.getMessage('barcoderules',self.lang) [$(barcode)]
-</div>
-<script>
-if (generateBarcode('#barcode', $barcode)) {
-        jQuery('div#error2').css('display', 'none')
-    }
-</script>
+
+$if barcode:    
+	<div class="row">
+	    <svg id='barcode'></svg>
+	</div>
+	<div class="form-group row" id="error2">
+	        $c.getMessage('barcoderules',self.lang) [$(barcode)]
+	</div>
+	<script>
+	if (generateBarcode('#barcode', $barcode)) {
+	        jQuery('div#error2').css('display', 'none')
+	    }
+	</script>

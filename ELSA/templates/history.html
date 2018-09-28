@@ -33,13 +33,16 @@ $if not type in 'tdv':
 	        $ user = row['user']
 		<tr><th colspan=3>$:c.linkedAcronym(c.AllUsers,user,True)</th></tr>
 	$for field,value in row.items():
-	    $if (not field in ['user','begin',allObjects.keyColumn,'cont_type','object_type']) and prv[field]!=row[field]:
+	    $if (not field in ['user','begin',allObjects.keyColumn,'cont_type','object_type','s_type']) and not (prv[field] == row[field]):
 		<tr><td style="padding:5px">$(row['begin'] if begin != row['begin'] else '')<td>
 		$code:
 		    acro = field
 		    allLinked = None
 		    if field in ['dest','src']:
 		        allLinked = c.AllGrRecipe
+		    elif (field == 's_id') and ('s_type' in row.keys()):
+			linkType = row['s_type']
+		        allLinked = c.findAll(linkType if linkType else 's')
 		    elif field.endswith('_id'):
 			acro = field[:-3]
 			if acro in ['buyer','provider']:

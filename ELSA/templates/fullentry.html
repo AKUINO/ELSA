@@ -532,7 +532,7 @@ $elif permissionKey in '_d_t_v_':
 		    $if c.AllBarcodes.get_barcode(elem.get_type(), elem.id) != '' :
 			<div class="row" style="margin-top:6px;">
 			    <div class="col-xs-2" >
-				<strong><a href="/barcode/$(c.AllBarcodes.get_barcode(elem.get_type(), elem.id))" class="btn btn-warning" role="button">$:(c.getHalfling('barcode'))</a></strong>
+				<strong><a href="/label/$(type)_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('barcode'))</a></strong>
 			    </div>
 			    <div class="col-xs-10">
 				$(c.getMessage('barcode',self.lang))

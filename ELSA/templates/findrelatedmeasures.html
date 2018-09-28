@@ -64,16 +64,3 @@ $var title : $elem.getName(self.lang)
 		<div class="row active">... <strong>$len(biglist)</strong> $c.getMessage(allModeled.get_class_acronym(),self.lang)</div>
 		$break
 </div>
-
-$if barcode > '':
-	<div class="row">
-	    <svg id='barcode'></svg>
-	</div>
-	<div class="form-group row" id="error2">
-	        $c.getMessage('barcoderules',self.lang) [$(barcode)]
-	</div>
-	<script>
-	if (generateBarcode('#barcode', $barcode)) {
-	        jQuery('div#error2').css('display', 'none')
-	    }
-	</script>

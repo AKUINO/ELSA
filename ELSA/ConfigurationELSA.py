@@ -310,11 +310,15 @@ class Configuration():
 
     def linkedAcronym(self,allobj,key,icon):
         elem = allobj.get(key)
-        if elem and 'acronym' in elem.fields:
-            return "<a href=\"/find/related/"+allobj.get_type()+"_"+key+"\">" \
-                   +(elem.statusIcon(self,False,False) if icon else "")+elem.fields['acronym']+"</a>"
+        if elem:
+            if 'acronym' in elem.fields:
+                return "<a href=\"/find/related/"+allobj.get_type()+"_"+key+"\">" \
+                       +(elem.statusIcon(self,False,False) if icon else "")+elem.fields['acronym']+"</a>"
+            else:
+                return "<a href=\"/item/"+allobj.get_type()+"_"+key+"\">" \
+                       +(elem.statusIcon(self,False,False) if icon else "")+"#"+key+"</a>"
         else:
-            return ""
+            return ''
 
 class ConfigurationObject(object):
 

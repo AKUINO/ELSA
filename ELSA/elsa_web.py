@@ -463,9 +463,6 @@ class WebEdit():
                 currObject.delete(c)
             return self.getRender(connected, type, id, cond, data)
 
-    def getListing(self, connected, type, id=''):
-        return render.list(connected, type, id)
-
     def getRender(self, connected, type, id, errormess, data, context=''):
         if type == 'p':
             return render.place(connected, id, errormess, data, context)
@@ -593,7 +590,7 @@ class WebFind():
 
     def getRender(self, connected, type, id1, id2, barcode='', status='', allRec=False):
         try:
-            if type == 'related': # sync with getRender from WebBarcode
+            if type == 'related':
                 if id1 == 'm':
                     return render.findrelatedmeasures(connected, id2, barcode)
                 elif ('g' in id1 or id1 == 'h'):
@@ -1237,36 +1234,37 @@ class WebIndex():
     def getRender(self, connected):
         return render.maprecipes(connected,True)
 
-class WebBarcode():
+class WebSearch():
     def __init__(self):
-        self.name = u"WebBarcode"
+        self.name = u"WebSearch"
 
-    def GET(self, id=""):
+    def GET(self):
         connected = redirect_when_not_logged()
             
         try:
             data = web.input()
-            if 'barcode' in data:
-                id = data['barcode']
-            return self.getRender(connected, id)
+            if 'search' in data:
+                barcode = data['search']
+            barcode = barcode.strip()
+            if barcode:
+                elem  = c.AllBarcodes.barcode_to_item(barcode)
+                if elem:
+                    raise web.seeother('/find/related/'+elem.getTypeId())
+                else:
+                    return render.search(connected,barcode, 'errorbarcode')
+            else:
+                return render.search(connected, barcode, 'emptybarcode')
         except:
             traceback.print_exc()
-            return self.getRender(connected, id, 'notfound')
+            return render.search(connected, barcode, 'emptybarcode')
 
-    def getRender(self, connected, id, errormess=''):
-         id = id.strip()
-         if errormess:
-             return render.barcode(connected, id, errormess)
-	 elem  = c.AllBarcodes.barcode_to_item(id)
-         if elem == None:
-             return render.barcode(connected, id, errormess)
-         else:
-            raise web.seeother('/find/related/'+elem.getTypeId()+'?barcode='+id)
-         return render.barcode(connected, id, errormess)
+class WebLabel():
+    def __init__(self):
+        self.name = u"WebLabel"
 
-    def getListing(self, connected):
-        return render.list(connected, 'places')
-
+    def GET(self,type,id):
+        connected = redirect_when_not_logged()
+        return render.label(connected, id, 'emptybarcode')
 
 class getRRD():
     def GET(self, filename):
@@ -1295,7 +1293,6 @@ class getDoc():
 class WebExport():
     def GET(self, type, id):
         connected = redirect_when_not_logged()
-        
         return self.getRender(connected, type, id)
 
     def POST(self, type, id):
@@ -1528,8 +1525,8 @@ def main():
             '/map/h', 'WebMapCheckPoints',
             '/map/gr', 'WebMapRecipes',
             '/calendar', 'WebCalendar',
-            '/barcode/(.+)', 'WebBarcode',
-            '/barcode/', 'WebBarcode',
+            '/label/(.+)_(.+)', 'WebLabel',
+            '/search/', 'WebSearch',
             '/modal/(.+)_(.+)', 'WebModal',
             '/color/(.+)_(.+)', 'WebColor',
             '/fullentry/(.+)_(.+)', 'WebFullEntry',
