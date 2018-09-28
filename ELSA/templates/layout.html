@@ -139,7 +139,7 @@ $if content.recursive == 'False' :
 				<li><a href="/list/gr" tabindex="-3">$:c.getHalfling('grecipe')&nbsp;$c.getMessage('grecipe',content.lang)</a></li>
 				<li><a href="/map/gr" tabindex="-4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('datatable')&nbsp;$c.getMessage('datatable',content.lang)</a></li>				
 				<li><a href="/calendar" tabindex="-5">$:c.getHalfling('calendar')&nbsp;$c.getMessage('calendar',content.lang)</a></li>
-				<li><a href="#" tabindex="-6" onclick="generateQRCode()" data-toggle="modal" data-target="#modal_barcode" aria-expanded="false" aria-controls="navbar">$:c.getHalfling('barcode')&nbsp;$c.getMessage('barcode',content.lang)</a></li>
+				<li><a href="#" tabindex="-6" onclick="generateQRCode()" data-toggle="modal" data-target="#modal_barcode" aria-expanded="false" aria-controls="navbar">$:c.getHalfling('search')&nbsp;$c.getMessage('search',content.lang)</a></li>
 				<li><a href="#" tabindex="-7">&nbsp;</a></li>				
 				<li$:('' if " upd_d "in content.allowed else ' class="disabled"')><a href="$("/create/d" if " upd_d "in content.allowed else "#")" tabindex="-8">$:c.getHalfling('manualdata')&nbsp;$c.getMessage('manualdata',content.lang)</a></li>
 				<li$:('' if " upd_t "in content.allowed else ' class="disabled"')><a href="$("/create/t" if " upd_t "in content.allowed else "#")" tabindex="-9">$:c.getHalfling('transfer')&nbsp;$c.getMessage('transfer',content.lang)</a></li>
@@ -168,9 +168,10 @@ $if content.recursive == 'False' :
 			<button onclick="location.href='/map/gu'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('guse')</button>
 			<button onclick="location.href='/list/al'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('alarmlog')</button>
 			<button onclick="location.href='/map/gf'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('gfunction')</button>
-			<button $:(('onclick="location.href=\'/find/related/'+content.pinned+'\'"') if content.pinned else '') type="button" class="btn btn-warning btn-md $:('' if content.pinned else ' disabled')" style="margin:15px;">$:c.getHalfling('pin')</button>
 			<button onclick="location.href='/calendar'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('calendar')</button>
-			<button onclick="generateQRCode()" type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#modal_barcode" aria-expanded="false" aria-controls="navbar" style="margin:15px;">$:c.getHalfling('barcode')</button>
+			<button onclick="generateQRCode()" type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#modal_barcode" aria-expanded="false" aria-controls="navbar" style="margin:15px;">$:c.getHalfling('search')</button>
+			$if content.pinned:
+			    <button onclick="location.href='/find/related/$(content.pinned)'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('pin')</button>
 		</div>
 	    $else:
 	        <nav class="navbar navbar-inverse" role="navigation">
@@ -205,28 +206,25 @@ $if content.recursive == 'False' :
 	    <div class="modal-content">
 		<div class="modal-header row ">
 		    <div class="col-sm-2" >
-			<strong>$:c.getHalfling('barcode')</strong>
+			<strong>$:c.getHalfling('search')</strong>
 		    </div>
-		    <h4 class="modal-title col-sm-6 "> Search by barcode</h4>
+		    <h4 class="modal-title col-sm-6 ">$c.getMessage('search',content.lang)</h4>
 		    <div class="col-sm-2" >
 		    </div>
 		    <button type="button" class="col-sm-2 btn btn-primary" data-dismiss="modal"><strong><big>&times;</big></strong></button>
 		</div>
-		    <script>
-			function myFunction() {
-			    value = document.getElementById("inputBarcode").value;
-			    window.location.replace("/barcode/"+value);
-			}
-		    </script>
 		<div class="modal-body">
-		    <form action="/barcode/" onsubmit="myFunction()">
+		    <form action="/search" onsubmit="myFunction()" method="GET">
 			<div class="form-group row">
-			    <label for="inputBarcode" class="col-sm-3 col-form-label">$c.getMessage('barcode',content.lang)</label>
-			    <div class="col-sm-9">
-				<input name="barcode" type="text" class="form-control" id="inputBarcode" placeholder="$c.getMessage('barcode',content.lang)" required="true" onsubmit="myFunction()" autofocus>
+			    <label for="inputBarcode" class="col-xs-12 col-form-label">$c.getMessage('barcode',content.lang), $c.getMessage('acronym',content.lang), $c.getMessage('name',content.lang) :</label>
+			    <div class="col-xs-12">
+				<input name="search" type="text" class="form-control" id="inputBarcode" placeholder="$c.getMessage('search',content.lang)" required="true" onsubmit="myFunction()" autofocus>
 			    </div>
 			</div>
-			<button type= "submit" onclick="myFunction()" onsubmit="myFunction()" class="btn btn-primary btn-block" href ="/barcode/">Search</button>
+			<button type= "submit" class="btn btn-primary btn-block">$c.getMessage('search',content.lang)</button>
+    		        <label for="remark" class="col-xs-12 col-form-label">
+			    <input type="checkbox" name="remark" id="remark"/> $c.getMessage('search',content.lang) $c.getMessage('remark',content.lang)
+			</label>
 		    </form>
                     <div id="qrCodeCurrUrl"></div>
 		</div>

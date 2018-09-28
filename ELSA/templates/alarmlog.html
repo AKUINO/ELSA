@@ -53,7 +53,7 @@ $elif myID == 'component':
 	<div class="form-group row">
 	    <label for="Source" class="col-sm-3 col-form-label">$c.getMessage('source',self.lang) </label>
 	    <div class="col-sm-9">
-		<select name = "object" class="form-control" id="Source" readonly>
+		<select name = "noassign1" class="form-control" id="Source" readonly>
 		$if src:
 			<option value="$(src.get_type())_$(src.getID())" selected>
 			$if src.get_type() == 's':
@@ -68,7 +68,7 @@ $elif myID == 'component':
 	<div class="form-group row">
 	    <label for="Alarm" class="col-sm-3 col-form-label">$c.getMessage('alarm',self.lang) </label>
 	    <div class="col-sm-9">
-		<select name = "object" class="form-control" id="Alarm" readonly>
+		<select name = "noassign2" class="form-control" id="Alarm" readonly>
 		$if alarm:
 			<option value="$(alarm.get_type())_$(alarm.getID())" selected>$alarm.fields['acronym'] - $alarm.getName(self.lang) </option>
 		</select>
@@ -90,7 +90,7 @@ $elif myID == 'component':
 	<div class="form-group row">
 	    <label for="Component" class="col-sm-3 col-form-label">$c.getMessage('component',self.lang) </label>
 	    <div class="col-sm-9">
-		<select name = "object" class="form-control" id="Component" readonly>
+		<select name = "noassign3" class="form-control" id="Component" readonly>
 		$if compo:
 			<option value="$(compo.get_type())_$(compo.getID())" selected>$compo.fields['acronym'] - $compo.getName(self.lang) </option>
 		</select>

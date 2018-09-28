@@ -1,36 +1,28 @@
-$def with (connected,barcode, errormess)
+$def with (connected,barcode, errormess='')
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
 $var recursive : False
-$var title : ELSA BARCODE search
+$var title : ELSA $c.getMessage('search',self.lang)
+$var location: search=search
 $if errormess :
-    $var location: barcode/$(barcode)=barcode
     <div class="form-group row" id="error">
-	    $c.getMessage(errormess,self.lang) [$(barcode)]
+    $c.getMessage(errormess,self.lang) [$(barcode)]
     </div>
-$else:
-    $code:
-	elem  = c.AllBarcodes.barcode_to_item(barcode)
-    $var location: list/$(elem.get_type())=$(c.findAll(elem.get_type()).get_class_acronym()) barcode/$(barcode)=barcode
-     
-    <script>
-	$$(function(){
-	    $$("#includedMenu").load("/fullentry/$(elem.get_type())_$(elem.getID())");
-	});
-    </script>
-    <div id="includedMenu" style="min-height:11ex;"></div>
 
-$if barcode:    
-	<div class="row">
-	    <svg id='barcode'></svg>
+<form action="/search" onsubmit="myFunction()" method="GET" class="col-form">
+	<h4 class="form-group col-sm-12">$c.getMessage('search',self.lang)</h4>
+	<div class="form-group row">
+	    <label for="inputBarcode" class="col-xs-12 col-form-label">$c.getMessage('barcode',self.lang), $c.getMessage('acronym',self.lang), $c.getMessage('name',self.lang) :</label>
+	    <div class="col-xs-12">
+		<input name="search" type="text" class="form-control" id="inputBarcode" placeholder="$c.getMessage('search',self.lang)" required="true" onsubmit="myFunction()" autofocus>
+	    </div>
 	</div>
-	<div class="form-group row" id="error2">
-	        $c.getMessage('barcoderules',self.lang) [$(barcode)]
+	<div class="form-group row">
+	<button type= "submit" class="btn btn-primary btn-block">$c.getMessage('search',self.lang)</button>
+        <label for="remark" class="col-xs-12 col-form-label">
+	    <input type="checkbox" name="remark" id="remark"/> $c.getMessage('search',self.lang) $c.getMessage('remark',self.lang)
+	</label>
 	</div>
-	<script>
-	if (generateBarcode('#barcode', $barcode)) {
-	        jQuery('div#error2').css('display', 'none')
-	    }
-	</script>
+</form>

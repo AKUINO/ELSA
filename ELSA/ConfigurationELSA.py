@@ -74,6 +74,8 @@ alarmFields = [ 'minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', \
 alarm_fields_for_groups = ['o_sms1', 'o_sms2', 'o_email1', 'o_email2', 'o_sound1', 'o_sound2']
 
 ALL_UPDATE_GROUPS = u" upd_a upd_al upd_b upd_c upd_d upd_dm upd_e upd_gf upd_gr upd_gu upd_h upd_m upd_p upd_s upd_t upd_tm upd_u upd_v upd_vm "
+ALL_TYPES = ['a','al','b','c','d','dm','e','gf','gr','gu','h','m','p','s','t','tm','u','v','vm']
+ALL_NAMED_TYPES = ['a','b','c','dm','e','gf','gr','gu','h','m','p','s','tm','u','vm']
 
 _lock_socket = None
 
@@ -319,6 +321,40 @@ class Configuration():
                        +(elem.statusIcon(self,False,False) if icon else "")+"#"+key+"</a>"
         else:
             return ''
+
+    def search_acronym(self,acro,result):
+        acro = acro.lower()
+        for type in ALL_TYPES:
+            allObj = self.findAll(type)
+            if 'acronym' in allObj.fieldnames:
+                for key,elem in allObj.elements.items():
+                    if acro in elem.fields['acronym'].lower():
+                        if not elem in result:
+                            result.append(elem)
+        return result
+
+    def search_names(self,word,result):
+        word = word.lower()
+        for type in ALL_NAMED_TYPES:
+            allObj = self.findAll(type)
+            for key,elem in allObj.elements.items():
+                for lang,name in elem.names.items():
+                    if word in name['name'].lower():
+                        if not elem in result:
+                            result.append(elem)
+                        break
+        return result
+
+    def search_remark(self,acro,result):
+        acro = acro.lower()
+        for type in ALL_TYPES:
+            allObj = self.findAll(type)
+            if 'remark' in allObj.fieldnames:
+                for key,elem in allObj.elements.items():
+                    if acro in elem.fields['remark'].lower():
+                        if not elem in result:
+                            result.append(elem)
+        return result
 
 class ConfigurationObject(object):
 

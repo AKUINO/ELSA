@@ -341,16 +341,13 @@ class WebList():
             type = type[1:]
 
         if type in 'albcpehsmugugrgftmdmvm' and not type in 'dftv':
-            return self.getRender(connected, ('*' if allRec else '') + type, status)
+            return render.list(connected, ('*' if allRec else '') + type, status)
         else:
             return render.notfound()
 
     def POST(self, type):
         connected = redirect_when_not_logged()
         raise web.seeother('/')
-
-    def getRender(self, connected, type, status=''):
-        return render.list(connected, type, status)
 
 # Make copies of an element
 class WebClone():
@@ -1242,16 +1239,34 @@ class WebSearch():
         connected = redirect_when_not_logged()
             
         try:
+            barcode = ''
+            remark = ''
             data = web.input()
             if 'search' in data:
                 barcode = data['search']
+            if 'remark' in data:
+                remark = data['remark']
+                if remark and remark.lower() in ['0','off','no','-']:
+                    remark = 'YES'
             barcode = barcode.strip()
             if barcode:
                 elem  = c.AllBarcodes.barcode_to_item(barcode)
                 if elem:
                     raise web.seeother('/find/related/'+elem.getTypeId())
                 else:
-                    return render.search(connected,barcode, 'errorbarcode')
+                    listElem = c.search_acronym(barcode,[])
+                    endAcro = len(listElem)
+                    listElem = c.search_names(barcode,listElem)
+                    endName = len(listElem)
+                    if remark:
+                        listElem = c.search_remark(barcode,listElem)
+                    if len(listElem) > 0:
+                        if len(listElem) == 1:
+                            raise web.seeother('/find/related/'+listElem[0].getTypeId())
+                        else:
+                            return render.searchlist(connected,barcode,listElem,endAcro,endName)
+                    else:
+                        return render.search(connected,barcode, 'errorbarcode')
             else:
                 return render.search(connected, barcode, 'emptybarcode')
         except:
@@ -1526,7 +1541,7 @@ def main():
             '/map/gr', 'WebMapRecipes',
             '/calendar', 'WebCalendar',
             '/label/(.+)_(.+)', 'WebLabel',
-            '/search/', 'WebSearch',
+            '/search', 'WebSearch',
             '/modal/(.+)_(.+)', 'WebModal',
             '/color/(.+)_(.+)', 'WebColor',
             '/fullentry/(.+)_(.+)', 'WebFullEntry',

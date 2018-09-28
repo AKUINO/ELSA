@@ -1,0 +1,38 @@
+$def with (connected,search,items,endAcro,endNames)
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
+$var pinned : $connected.pinned()
+$var location: search=search
+$var recursive : False
+$var title: $c.getMessage('search',self.lang) $search
+
+    <div class="row active" style="background-color:rgb(0, 21, 43);">
+	<label class="col-xs-12" style="color:#f07e26">
+	    $c.getMessage('search',self.lang) "<big><strong>$search</strong></big>" : $len(items)
+	</label>
+    </div> 
+$ i = 0
+$for a in items:
+	$if i > endNames:
+	    <div class="row active" style="background-color:rgb(0, 21, 43);">
+		<label class="col-xs-12" style="color:#f07e26">
+		    <big><strong>$c.getMessage('remark',self.lang)</strong> :</big>
+		</label>
+	    </div> 
+	    $ endNames = 999999999
+	    $ endAcro = 999999999
+	$if i > endAcro:
+	    <div class="row active" style="background-color:rgb(0, 21, 43);">
+		<label class="col-xs-12" style="color:#f07e26">
+		    <big><strong>$c.getMessage('name',self.lang)</strong> :</big>
+		</label>
+	    </div> 
+	    $ endAcro = 999999999
+	$ i = i+1
+	<script>
+	    $$(function(){
+		$$("#includedMenu$(a.getTypeId())").load("/fullentry/$(a.getTypeId())");
+	    });
+	</script>
+	<div id="includedMenu$(a.getTypeId())"></div>    

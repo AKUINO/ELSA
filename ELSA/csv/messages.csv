@@ -238,6 +238,8 @@ Heure : {8}"	1
 2016-01-01 13:45:56	EN	equipment	Equipment	1
 2016-01-01 13:45:56	FR	equipment	Équipement	1
 2016-01-01 13:45:56	NL	equipment	uitrusting	1
+2016-01-01 13:45:56	EN	errorbarcode	This barcode/acronym/name is unknown	1
+2016-01-01 13:45:56	FR	errorbarcode	Ce code-barre/acronyme/nom est inconnu	1
 2016-01-01 13:45:56	EN	expirationdate	Expiration date	1
 2016-01-01 13:45:56	FR	expirationdate	Date limite d'utilisation	1
 2016-01-01 13:45:56	EN	export	Export	1
@@ -374,6 +376,8 @@ Heure : {8}"	1
 2016-01-01 13:45:56	FR	residualqt	Quantité résiduelle	1
 2016-01-01 13:45:56	EN	save	Save	1
 2016-01-01 13:45:56	FR	save	Enregistrer	1
+2016-01-01 13:45:56	EN	search	Search	1
+2016-01-01 13:45:56	FR	search	Recherche	1
 2016-01-01 13:45:56	EN	selecttransfer	Select the object to transfer	1
 2016-01-01 13:45:56	FR	selecttransfer	Choisir l'objet à transférer	1
 2016-01-01 13:45:56	DE	sensor	Sensor	1
