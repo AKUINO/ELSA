@@ -4,10 +4,11 @@ $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
 $code :
-    elem = c.findAll(type).get(id)
+    allObjs = c.findAll(type)
+    elem = allObjs.get(id)
 $var recursive : False
-$var title : ELSA $(c.findAll(type).get_class_acronym())
-$var location: list/$(type)=$(c.findAll(type).get_class_acronym())
+$var title : ELSA $(allObjs.get_class_acronym())
+$var location: list/$(type)=$(allObjs.get_class_acronym())
 <div class="hidden-print">
 	<script>
 	    $$(function(){
@@ -16,16 +17,32 @@ $var location: list/$(type)=$(c.findAll(type).get_class_acronym())
 	</script>
  	<div id="includedMenu$(type)_$(id)"></div>
 </div>
-$ barcode = c.AllBarcodes.get_barcode(elem.get_type(),elem.getID())
-$if barcode:
-	<div class="row">
-	    <svg id='barcode'></svg>
-	</div>
-	<div class="form-group row" id="error2">
-	        $c.getMessage('barcoderules',self.lang) [$barcode]
-	</div>
+
+<table>
+<tr>
+    <td>
+    $ barcode = c.AllBarcodes.get_barcode(elem.get_type(),elem.getID())
+    $if barcode:
+	<svg id='barcode'></svg>
 	<script>
-	if ( generateBarcode( '#barcode', $barcode ) ) {
-	        jQuery('div#error2').css('display', 'none')
+	if ( ! generateBarcode( '#barcode', $barcode ) ) {
+	        jQuery('svg#barcode').css('display', 'none')
 	    }
 	</script>
+    </td>
+    <td style="padding:5px">
+	$allObjs.getName(self.lang) <big><strong>$elem.getName(self.lang)</strong></big>
+	$if 'expirationdate' in elem.fields and elem.fields['expirationdate']:
+		<br/>$c.getMessage('expirationdate',self.lang): <strong>elem.fields['expirationdate']</strong>
+	$ group = elem.get_group()
+	$if group:
+		$ allGrs = c.findAll(allObjs.get_group_type())
+		$ above = allGrs.get(group)
+		$if above:
+			<br/>$allGrs.getName(self.lang): <strong>$above.getName(self.lang)</strong>
+	<br/><strong>$elem.getQtyUnit(c)</strong>
+	$if elem.fields['remark']:
+	    <br>$c.getMessage('remark',self.lang): $elem.fields['remark']
+    </td>
+</tr>
+</table>

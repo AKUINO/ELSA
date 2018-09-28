@@ -1279,7 +1279,7 @@ class WebLabel():
 
     def GET(self,type,id):
         connected = redirect_when_not_logged()
-        return render.label(connected, id, 'emptybarcode')
+        return render.label(connected, type, id)
 
 class getRRD():
     def GET(self, filename):
