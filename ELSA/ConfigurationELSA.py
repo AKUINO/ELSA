@@ -5555,6 +5555,29 @@ class Batch(ConfigurationObject):
     def get_group(self):
         return self.fields['gr_id']
 
+    def get_allowed_checkpoints(self):
+        recipes = set()
+        recipe_id = elem.fields['gr_id']
+        recipe = c.AllGrRecipe.get(recipe_id)
+        if recipe:
+            recipes.add(recipe_id)
+            new_recipes = recipe.get_all_parents([],c.AllGrRecipe)
+            recipes.update(new_recipes)
+        allowedcheckpoints = None
+        usages = set()
+        usage = None
+        components = elem.get_actual_position_hierarchy(c,[])
+        if len(components) > 0:
+                for place in components:
+                    if place.get_type() in 'pec':
+                            gr_usage = place.get_group()
+                            usage = c.AllGrUsage.get(gr_usage)
+                            if usage:
+                                usages.add(gr_usage)
+                                new_usages = usage.get_all_parents([],c.AllGrUsage)
+                                usages.update(new_usages)
+                allowedcheckpoints = c.AllCheckPoints.get_checkpoints_for_recipe_usage(recipes,usages)
+        return allowedcheckpoints, recipes, usages
 
 class PouringModel(ConfigurationObject):
     def __init__(self, config):

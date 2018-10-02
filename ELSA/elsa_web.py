@@ -103,8 +103,12 @@ class WebColor():
         connected = isConnected()
         if connected is None:
             return ''
-        
-        return render.colorpicker(connected, type, id)
+        color = ''
+        if id != 'new':
+            elem  = c.get_object(type,id)
+            if elem:
+                color = elem.fields['colorgraph']
+        return render.colorpicker(connected, color)
 
 class WebBackup():
     def __init(self):
@@ -1374,6 +1378,64 @@ class WebDownloadData():
         finally:
             f.close()
 
+class WebTest:
+    def __init__(self):
+        self.name = u"WebTest"
+
+    def GET(self):
+        connected = redirect_when_not_admin(True)
+        testUrls = ['/', '/index',
+#            '/disconnect',
+            '/backup',
+            '/restore',
+            '/updateELSA',
+#            '/restarting',
+            '/map/gf',
+            '/map/gu',
+            '/map/h',
+            '/map/gr',
+            '/graphhelp/b_1',
+            '/calendar',
+            '/search']       
+#            '/rrd/(.+)',
+#            '/rrdfetch/(.+)',
+#            '/csv/(.+)',
+#            '/doc/(.+)',
+        for someType in ['a','b','c','dm','e','gf','gr','gu','h','m','p','s','tm','u','vm']: #NAMED_TYPES
+            testUrls.extend ( ['/list/'+someType, '/create/'+someType] )
+        result = []
+        result = c.search_acronym("TEST",result)
+        for aTest in result:
+            ti = aTest.getTypeId()
+            if aTest.get_type() == 'b':
+                testUrls.extend ( ['/clone/'+ti, '/pin/'+ti, '/map/'+ti, '/graph/'+ti ] )
+                testControl,recipes,usages = aTest.get_allowed_checkpoints()
+                if testControl:
+                    for aControl in testControl:
+                        testUrls.append ( ['/control/'+ti+'/'+aControl.getTypeId() ] )
+            elif aTest.get_type() == 'gr':
+                testUrls.extend ( [ '/map/'+ti, '/graph/'+ti ] )
+            elif aTest.get_type() in 'scpem':
+                testUrls.extend ( ['/color/'+ti,
+                    '/label/'+ti,
+                    '/graphic/'+ti] )
+            testUrls.extend ( ['/edit/'+ti,
+                                '/item/'+ti,
+                                '/history/'+ti,
+                                '/files/'+ti,
+                                '/modal/'+ti,
+                                '/fullentry/'+ti ] )
+        
+##            '/export/(.+)_(.+)/(.+)',
+##            '/export/(.+)_(.+)',
+##            '/datatable/(.+)_(.+)',
+##            '/find/(.+)/(.+)_(.+)/(.+)',
+##            '/find/(.+)/(.+)_(.+)',
+##            '/permission/(.+)_(.+)/(.+)_(.+)',
+##            '/permission/(.+)_(.+)',
+##            '/api/grafana/([^/]*)/{0,1}(.*)',
+
+        return render.test(connected,testUrls)
 
 def checkUser(username, password):
     user = c.AllUsers.getUser(username)
@@ -1560,7 +1622,8 @@ def main():
             '/restore', 'WebRestore',
             '/updateELSA', 'WebUpdateELSA',
             '/restarting', 'WebRestarting',
-            '/api/grafana/([^/]*)/{0,1}(.*)', 'WebApiGrafana'
+            '/api/grafana/([^/]*)/{0,1}(.*)', 'WebApiGrafana',
+            '/test','WebTest'
         )
         app = web.application(urls, globals())
         app.notfound = notfound

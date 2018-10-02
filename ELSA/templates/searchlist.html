@@ -14,7 +14,7 @@ $var title: $c.getMessage('search',self.lang) $search
     </div> 
 $ i = 0
 $for a in items:
-	$if i > endNames:
+	$if i >= endNames:
 	    <div class="row active" style="background-color:rgb(0, 21, 43);">
 		<label class="col-xs-12" style="color:#f07e26">
 		    <big><strong>$c.getMessage('remark',self.lang)</strong> :</big>
@@ -22,7 +22,7 @@ $for a in items:
 	    </div> 
 	    $ endNames = 999999999
 	    $ endAcro = 999999999
-	$if i > endAcro:
+	$if i >= endAcro:
 	    <div class="row active" style="background-color:rgb(0, 21, 43);">
 		<label class="col-xs-12" style="color:#f07e26">
 		    <big><strong>$c.getMessage('name',self.lang)</strong> :</big>

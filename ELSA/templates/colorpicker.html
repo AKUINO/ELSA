@@ -1,15 +1,10 @@
-$def with (connected,type, id)	
+$def with (connected,color)	
 $var recursive : True
-$code :
-    if id != 'new':
-	color = c.get_object(type,id).fields['colorgraph']
-    else:
-	color = ''
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
-$var title : COLOR
+$var title : Color picker
 
 <div id='colorPicker' class="form-group" >
     <span id='divpreview' class="col-sm-1" style='margin-right:10px;height:30px;width:100px;border:1px solid #d4d4d4;border-bottom:none;background-color:$${colorHex}'> &nbsp; &nbsp; &nbsp; &nbsp; </span>

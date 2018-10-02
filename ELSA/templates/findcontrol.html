@@ -7,24 +7,7 @@ $code:
     allobjects = c.findAll(type)
     elem = allobjects.get(id)
     keyID = allobjects.keyColumn
-    recipes = set()
-    recipe_id = elem.fields['gr_id']
-    recipe = c.AllGrRecipe.get(recipe_id)
-    if recipe:
-        recipes.add(recipe_id)
-        new_recipes = set(recipe.get_all_parents([],c.AllGrRecipe))
-        recipes.update(new_recipes)
-    components = elem.get_actual_position_hierarchy(c,[])
-    usages = set()
-    for place in components:
-	if place.get_type() in 'pec':
-	        gr_usage = place.get_group()
-		usage = c.AllGrUsage.get(gr_usage)
-	        if usage:
-	            usages.add(gr_usage)
-	            new_usages = usage.get_all_parents([],c.AllGrUsage)
-		    usages.update(new_usages)
-    allowedcheckpoints = c.AllCheckPoints.get_checkpoints_for_recipe_usage(recipes,usages)
+    allowedcheckpoints, recipes, usages = elem.get_allowed_checkpoints()
 $var location: list/$(type)=$(allobjects.get_class_acronym()) find/h/$(type)_$(id)=checkpoint
 $var recursive : False
 $var title: $c.getName(allobjects,self.lang)
