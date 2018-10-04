@@ -236,7 +236,7 @@ $if subtype:
 
 $if type == 'b':
 	$code:
-	    allowedcheckpoints, recipes, usages = elem.get_allowed_checkpoints()
+	    allowedcheckpoints, recipes, usages = elem.get_allowed_checkpoints(c)
 	    recipe_id = elem.fields['gr_id']
 	    recipe = c.AllGrRecipe.get(recipe_id)
 	    if recipe and len(usages) == 0:

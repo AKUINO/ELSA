@@ -29,6 +29,7 @@ import serial
 import numbers
 import abe_expanderpi
 import barcode
+import requests
 """
 import SSD1306
 from I2CScreen import *
@@ -956,6 +957,9 @@ class ConfigurationObject(object):
         if result == '?':
             return ''
         return result
+
+    def get_group(self):
+        return None
 
     def get_batches(self,c):
         return []
@@ -2340,6 +2344,23 @@ class ConnectedUser():
             return self.pin.getTypeId()
         else:
             return ''
+
+    def test(self,c,url):
+        infoCookie = self.cuser.fields['mail'] + ',' + self.cuser.fields['password'] + ',' + ('1' if self.completeMenu else '0')
+        cookies = {'akuinoELSA' : infoCookie}
+        r = requests.get("http://localhost"+url,cookies=cookies)
+        if r.status_code != requests.codes.ok:
+            return "<p>"+url+" : status="+unicode(r.status_code)
+        output = r.text
+        if "internal server error" in output:
+            return "<p>"+url+" : "+output
+        if len(output) < 2000: 
+            return "<p>"+url+" : very short="+output
+        if "Please log-in" in output:
+            return "<p>"+url+" : log-in="+output
+        if "ELSA Batch Recipes Map" in output: 
+            return "<p>"+url+" : root="+output
+        return ""
 
 class AllConnectedUsers():
 
@@ -5555,9 +5576,9 @@ class Batch(ConfigurationObject):
     def get_group(self):
         return self.fields['gr_id']
 
-    def get_allowed_checkpoints(self):
+    def get_allowed_checkpoints(self,c):
         recipes = set()
-        recipe_id = elem.fields['gr_id']
+        recipe_id = self.fields['gr_id']
         recipe = c.AllGrRecipe.get(recipe_id)
         if recipe:
             recipes.add(recipe_id)
@@ -5566,7 +5587,7 @@ class Batch(ConfigurationObject):
         allowedcheckpoints = None
         usages = set()
         usage = None
-        components = elem.get_actual_position_hierarchy(c,[])
+        components = self.get_actual_position_hierarchy(c,[])
         if len(components) > 0:
                 for place in components:
                     if place.get_type() in 'pec':

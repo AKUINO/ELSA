@@ -85,23 +85,24 @@ $var title: MODAL
 				$useful.date_to_ISO(elem.getTimestring())
                             </div>
                         </div>
-                        <div class="row" style="margin-top:10px;">
-                            <div class="col-xs-4">
-                            $c.getMessage('source',self.lang) :
-                            </div>
-                            <div class="col-xs-8" id="modalinfo" >
-                            $ source = elem.get_source(c)
-			    $if source:
-				$if source.get_type() in 'dtv':
-					<a href="/edit/$(source.get_type())_$(source.getID())">
-				$else:
-					<a href="/find/related/$(source.get_type())_$(source.getID())">
-				$:(c.getHalfling(source.get_class_acronym()))
-				$if 'acronym' in source.fields:
-					$source.fields['acronym']
-			    	</a>
-                            </div>
-                        </div>
+			$if type != 'd':
+	                        <div class="row" style="margin-top:10px;">
+	                            <div class="col-xs-4">
+	                            $c.getMessage('source',self.lang) :
+	                            </div>
+	                            <div class="col-xs-8" id="modalinfo" >
+	                            $ source = elem.get_source(c)
+				    $if source:
+					$if source.get_type() in 'dtv':
+						<a href="/edit/$(source.get_type())_$(source.getID())">
+					$else:
+						<a href="/find/related/$(source.get_type())_$(source.getID())">
+					$:(c.getHalfling(source.get_class_acronym()))
+					$if 'acronym' in source.fields:
+						$source.fields['acronym']
+				    	</a>
+	                            </div>
+	                        </div>
                         <div class="row" style="margin-top:10px;">
                             <div class="col-xs-4">
                             $c.getMessage('value',self.lang) :

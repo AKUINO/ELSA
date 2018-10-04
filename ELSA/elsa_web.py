@@ -1384,7 +1384,13 @@ class WebTest:
 
     def GET(self):
         connected = redirect_when_not_admin(True)
+        acro = "TEST"
+        data = web.input()
+        if 'acronym' in data:
+            acro = data['acronym']
+
         testUrls = ['/', '/index',
+            '/api/grafana/en/request', # Only POST really exercices Grafana API...
 #            '/disconnect',
             '/backup',
             '/restore',
@@ -1398,42 +1404,69 @@ class WebTest:
             '/calendar',
             '/search']       
 #            '/rrd/(.+)',
-#            '/rrdfetch/(.+)',
 #            '/csv/(.+)',
 #            '/doc/(.+)',
         for someType in ['a','b','c','dm','e','gf','gr','gu','h','m','p','s','tm','u','vm']: #NAMED_TYPES
             testUrls.extend ( ['/list/'+someType, '/create/'+someType] )
         result = []
-        result = c.search_acronym("TEST",result)
+        result = c.search_acronym(acro,result)
         for aTest in result:
             ti = aTest.getTypeId()
             if aTest.get_type() == 'b':
-                testUrls.extend ( ['/clone/'+ti, '/pin/'+ti, '/map/'+ti, '/graph/'+ti ] )
-                testControl,recipes,usages = aTest.get_allowed_checkpoints()
+                testUrls.extend ( ['/clone/'+ti,
+                                   '/export/'+ti,
+                                   '/datatable/'+ti,
+                                   '/pin/'+ti,
+                                   '/map/'+ti,
+                                   '/permission/'+ti,
+                                   '/create/v/'+ti+"_in",
+                                   '/create/v/'+ti+"_out",
+                                   '/find/v/'+ti,
+                                   '/create/t/'+ti,
+                                   '/find/t/'+ti,
+                                   '/create/d/'+ti,
+                                   '/find/d/'+ti,
+                                   '/find/h/'+ti,
+                                   '/find/al/'+ti,
+                                   '/graph/'+ti ] )
+                testControl,recipes,usages = aTest.get_allowed_checkpoints(c)
                 if testControl:
                     for aControl in testControl:
-                        testUrls.append ( ['/control/'+ti+'/'+aControl.getTypeId() ] )
+                        testUrls.extend ( ['/control/'+ti+'/'+aControl.getTypeId(),
+                                           '/permission/'+aControl.getTypeId()+'/'+ti ] )
+                testV = aTest.get_events(c)
+                if testV:
+                    for aRec in testV:
+                        testUrls.extend ( ['/edit/'+aRec.getTypeId(),
+                                           '/history/'+aRec.getTypeId(),
+                                           '/modal/'+aRec.getTypeId(),
+                                           '/fullentry/'+aRec.getTypeId(),
+                                           '/item/'+aRec.getTypeId() ] )
             elif aTest.get_type() == 'gr':
-                testUrls.extend ( [ '/map/'+ti, '/graph/'+ti ] )
-            elif aTest.get_type() in 'scpem':
-                testUrls.extend ( ['/color/'+ti,
-                    '/label/'+ti,
+                testUrls.extend ( [ '/map/'+ti,
+                                    '/permission/'+ti,
+                                    '/graph/'+ti ] )
+            elif aTest.get_type() in 'gf gu h':
+                testUrls.append('/permission/'+ti)
+            elif aTest.get_type() in 'scpe':
+                testUrls.extend ( ['/label/'+ti,
+                    '/find/al/'+ti,
                     '/graphic/'+ti] )
+                if aTest.get_type() == 's':
+                    testUrls.append('/rrdfetch/'+ti)
+                else:
+                    if aTest.get_type() in "ce":
+                        testUrls.append('/find/t/'+ti)
+                    testUrls.extend( ['/find/d/'+ti,
+                                      '/color/'+ti,
+                                      '/permission/'+ti ] )
             testUrls.extend ( ['/edit/'+ti,
                                 '/item/'+ti,
+                                '/find/related/'+ti,
                                 '/history/'+ti,
                                 '/files/'+ti,
                                 '/modal/'+ti,
                                 '/fullentry/'+ti ] )
-        
-##            '/export/(.+)_(.+)/(.+)',
-##            '/export/(.+)_(.+)',
-##            '/datatable/(.+)_(.+)',
-##            '/find/(.+)/(.+)_(.+)/(.+)',
-##            '/find/(.+)/(.+)_(.+)',
-##            '/permission/(.+)_(.+)/(.+)_(.+)',
-##            '/permission/(.+)_(.+)',
-##            '/api/grafana/([^/]*)/{0,1}(.*)',
 
         return render.test(connected,testUrls)
 

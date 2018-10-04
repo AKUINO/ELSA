@@ -7,7 +7,7 @@ $code:
     allobjects = c.findAll(type)
     elem = allobjects.get(id)
     keyID = allobjects.keyColumn
-    allowedcheckpoints, recipes, usages = elem.get_allowed_checkpoints()
+    allowedcheckpoints, recipes, usages = elem.get_allowed_checkpoints(c)
 $var location: list/$(type)=$(allobjects.get_class_acronym()) find/h/$(type)_$(id)=checkpoint
 $var recursive : False
 $var title: $c.getName(allobjects,self.lang)
