@@ -298,15 +298,14 @@ class WebDisconnect():
 
 # Menu of groups within an update form
 class WebPermission():
-    def GET(self, type, id, type2='', id2=''):
+    def GET(self, type, id, context=''):
         connected = isConnected()
         if connected is None:
             return ''
-        context = ''
-        if type2:
-            context = type2+'_'+id2
-        print type+'_'+id+' / '+context
-        return render.permission(connected, type, id, context)
+        context = context.split('_')
+        id2 = context[-1]
+        print type+'_'+id+' / '+id2
+        return render.permission(connected, type, id, id2)
 
 # Display of  a record within a list
 class WebModal():
@@ -1647,7 +1646,7 @@ def main():
             '/find/(.+)/(.+)_(.+)/(.+)', 'WebFindModel',
             '/find/(.+)/(.+)_(.+)', 'WebFind',
             '/pin/(.+)_(.+)', 'WebPin',
-            '/permission/(.+)_(.+)/(.+)_(.+)', 'WebPermission',
+            '/permission/(.+)_(.+)/(.+)', 'WebPermission',
             '/permission/(.+)_(.+)', 'WebPermission',
             '/control/b_(.+)/h_(.+)', 'WebControl',
             '/disconnect', 'WebDisconnect',
