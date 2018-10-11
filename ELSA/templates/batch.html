@@ -10,43 +10,40 @@ $var location: list/b=batch edit/b_new=add
 $ aRecipe = None
 $ aMeasure = None
 $ precision = None
-$if context != '':
-    $ kRecipe = context.split('_')[-1]
-    $ aRecipe = c.AllGrRecipe.get(kRecipe)
+$ elem = None
+$code:
+    if data and ('group' in data) and data['group']:
+	kRecipe = data['group']
+	aRecipe = c.AllGrRecipe.get(kRecipe)
+	precision = aRecipe.get_measure(c)
+    elif id != 'new':
+	elem = c.AllBatches.get(id)
+	if elem:
+		kRecipe = elem.fields['gr_id']
+		aRecipe = c.AllGrRecipe.get(kRecipe)
+		precision = elem.get_measure(c)
+    elif context:
+        kRecipe = context.split('_')[-1]
+        aRecipe = c.AllGrRecipe.get(kRecipe)
+	precision = aRecipe.get_measure(c)
 $if id != 'new':
     $var location: list/b=batch edit/b_$(id)=edit
-    $ elem = c.AllBatches.get(id)
-    $ precision = elem.get_measure(c)
     $var rmq :  $elem.fields['remark']
     $var title :  $c.AllBatches.getName(self.lang) $elem.fields['acronym']
-$elif aRecipe:
-    $ precision = aRecipe.get_measure(c)
 $if errormess != '':
     $var rmq : $data['remark']
-    $code:
-	if data['group']:
-	    kRecipe = data['group']
-	    aRecipe = c.AllGrRecipe.get(kRecipe)
-	    precision = aRecipe.get_measure(c)
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	<div class="form-group row" id="error">
 	    $errormess
 	</div>
 		
-	<div class="form-group row">
-	    <script>
-		$if aRecipe:
-		    $$(function(){
-			$$("#includedPermission").load("/permission/b_$(id)/$(aRecipe.getID())");
-		    });
-		$else :
-		    $$(function(){
-			$$("#includedPermission").load("/permission/b_$(id)");
-		    });
-	    </script>
-	    <div id="includedPermission" class="col-sm-12"></div>
-	</div>
+	<script>
+		$$(function(){
+			$$("#includedPermission").load("/select/group/$(aRecipe.getTypeId() if aRecipe else 'gr')");
+		});
+	</script>
+	<div id="includedPermission"></div>
 	
 	<div class="form-group row">
 	    <label for="inputTime" class="col-sm-3 col-form-label">$c.getMessage('time',self.lang)</label>

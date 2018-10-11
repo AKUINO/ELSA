@@ -1,0 +1,47 @@
+$def with (connected,datafield,context)
+$# Template included in update forms and others where a group has to be chosen
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
+$var pinned : $connected.pinned()
+$var recursive : True
+$var title : Select $datafield
+$code :
+    if not datafield:
+        datafield = 'group'
+    context = context.split('_')
+    groups = c.findAll(context[0])
+    id = ''
+    if len(context) > 1:
+	id = context[1]
+    groupList = groups.get_hierarchy_str(None,None)
+    tmp = ''
+    indent = 1
+    cindent = 9
+    mygroup = None
+<div class="form-group row">
+	<label for="input$(datafield)" class="col-sm-3 col-form-label">$:c.getAllHalfling(groups) $c.getMessage(groups.get_class_acronym(),self.lang)</label>
+	<div class="col-sm-9" id = "divgroup">
+	    <select name="$datafield" class="form-control" id="input$(datafield)" onchange="$(datafield)Change()">
+		<option value=''></option>
+		$if len(groupList) > 0:
+		    $for group in groupList:
+			$if group == '>>' :
+			    $code:
+				indent+=1
+				cindent-=1
+				tmp = ((indent-1)*4)*"_"
+			$elif group == '<<':
+			    $code:
+				indent-=1
+				cindent+=1
+				tmp = ((indent-1)*4)*"_"
+			$else :
+			    $ aGroup = groups.get(group)
+			    <option value="$group"
+			    $if id and (id == group) :
+				    selected
+			    >$:tmp $aGroup.get_select_str(self.lang)</option>
+	    </select>
+	</div>
+</div>

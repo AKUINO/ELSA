@@ -6,21 +6,24 @@ $var pinned : $connected.pinned()
 $var recursive : False
 $var title : $c.AllContainers.getName(self.lang)
 $ kGroup = ''
+$if context:
+	$ kGroup = (context.split('_')[-1])
 $if id == 'new':
     $var location: list/c=container edit/c_new=add
     $var rmq :    
 $else:
     $var location: list/c=container edit/c_$(id)=edit
-    $ elem = c.AllContainers.get(id)
+    $code:
+	elem = c.AllContainers.get(id)
+	if elem and ('gu_id' in elem.fields) and elem.fields['gu_id']:
+		kGroup = elem.fields['gu_id']
     $var rmq :  $elem.fields['remark']
     $var title : $elem.getName(self.lang)
-$if context:
-	$ kGroup = (context.split('_')[-1])
 $if errormess != '':
     $if 'remark' in data :
 	$var rmq : $data['remark']
     $code:
-	if 'group' in data and data['group']:
+	if data and ('group' in data) and data['group']:
 	    kGroup = data['group']
 <div class="container">
     <form  method="post" action=""  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
@@ -28,19 +31,12 @@ $if errormess != '':
 	    $errormess
 	</div>
 	
-	<div class="form-group row">
-	    <script>
-		$if kGroup != '':
-		    $$(function(){
-			$$("#includedPermission").load("/permission/c_$(id)/$(kGroup)");
-		    });
-		$else :
-		    $$(function(){
-			$$("#includedPermission").load("/permission/c_$(id)");
-		    });
-	    </script>
-	    <div id="includedPermission" class="col-sm-12"></div>
-	</div>
+	<script>
+	    $$(function(){
+		$$("#includedPermission").load("/select/group/gu_$(kGroup)");
+	    });
+	</script>
+	<div id="includedPermission"></div>
 	
 	<div class="form-group row">
 	    <label for="inputAcronym" class="col-sm-3 col-form-label">$:(c.getAllHalfling(c.AllContainers))$c.getMessage('acronym',self.lang)</label>

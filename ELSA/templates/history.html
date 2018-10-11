@@ -13,7 +13,7 @@ $code :
     prv = None
 $var recursive : False
 $var title : ELSA $(c.findAll(type).get_class_acronym())
-$var location: history/$(type)=$(c.findAll(type).get_class_acronym())
+$var location: history/$(type)_$(id)=$(c.findAll(type).get_class_acronym())
 
 $if not type in 'tdv':
 	<script>

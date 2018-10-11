@@ -8,7 +8,7 @@ $var recursive : True
 $code :
     allObjs = c.findAll(type)
     groups = c.findAll(allObjs.get_group_type())
-$var title : permission
+$var title : select multiple
 $code:
     groupList = groups.get_hierarchy_str(None,None)
     tmp = ''
@@ -21,10 +21,9 @@ $code:
 	    mygroup = groups.get(id)
 	else:
 	    myid = allObjs.get(id).get_group()
-$if 'g' in type or type == 'h':
-    <div class="form-group row">
+<div class="form-group row">
 	<label class="col-sm-12 col-form-label">$:c.getAllHalfling(groups) $c.getMessage(groups.get_class_acronym(),self.lang) ($c.getMessage('parent',self.lang))</label>
-    </div>
+</div>
     $if len(groupList) > 0:
 	$for group in groupList:
 	    $if group == '>>' :
@@ -45,7 +44,6 @@ $if 'g' in type or type == 'h':
 			    $if group == myid:
 				style="background-color:black;"	    
 			>$groups.get(group).getName(self.lang)</label>
-		    $if 'g' in type or type == 'h':
 			$if (id != 'new' and mygroup and group in mygroup.get_related()) or (id == 'new' and context==aGroup.getTypeId() ):
 			    <label class="col-sm-2 col-form-label">
 			    <span class="glyphicon glyphicon-remove-circle"> </span>
@@ -67,34 +65,3 @@ $if 'g' in type or type == 'h':
 				<span class="glyphicon glyphicon-ok-circle"> </span>
 			    </label>
 		    </div>	
-$else:
-    <div class="form-group row">
-	<label for="inputGroup" class="col-sm-3 col-form-label">$:c.getAllHalfling(groups) $c.getMessage(groups.get_class_acronym(),self.lang)</label>
-	<div class="col-sm-9" id = "divgroup">
-	    <select name = "group" class="form-control" id="group" onchange="mySelectChange()">
-		<option value=''></option>
-		$if len(groupList) > 0:
-		    $for group in groupList:
-			$if group == '>>' :
-			    $code:
-				indent+=1
-				cindent-=1
-				tmp = ((indent-1)*4)*"_"
-			$elif group == '<<':
-			    $code:
-				indent-=1
-				cindent+=1
-				tmp = ((indent-1)*4)*"_"
-			$else :
-			    $ aGroup = groups.get(group)
-			    <option value="$group"
-			    $if context != '':
-				$if context == group :
-				    selected
-			    $elif id != 'new':
-				$if group == myid :
-				    selected
-			    >$:tmp $aGroup.fields['acronym'] - $aGroup.getName(self.lang)</option>
-	    </select>
-	</div>
-    </div>

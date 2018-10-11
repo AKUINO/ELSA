@@ -6,14 +6,32 @@ $var pinned : $connected.pinned()
 $var recursive : False
 $var rmq :
 $var title : ELSA group
-$ AllObjects = c.findAll(type)
-$ precision = None
+$code:
+    AllObjects = c.findAll(type)
+    precision = None
+    elem = None
+    kRec = 'gr'
+    kUse = 'gu'
 $if id == 'new':
     $var location: list/$(type)=$(AllObjects.get_class_acronym()) edit/$(type)_new=add
+    $code:
+	if data and 'recipe' in data:
+	    kRec = 'gr_'+data['recipe']
+	elif context and context.startswith('gr_'):
+	    kRec = context
+	if data and 'usage' in data:
+	    kUse = 'gu_'+data['usage']
+	elif context and context.startswith('gu_'):
+	    kUse = context
 $else:
     $var location: list/$(type)=$(AllObjects.get_class_acronym()) edit/$(type)_$(id)=edit
     $code:
 	elem = AllObjects.get(id)
+	if elem:
+		if 'gr_id' in elem.fields:
+			kRec = 'gr_'+elem.fields['gr_id']
+		if 'gu_id' in elem.fields:
+			kUse = 'gu_'+elem.fields['gu_id']
     $var rmq :  $(elem.fields['remark'])
     $var title : $(elem.getName(self.lang))
 $if errormess != '':
@@ -28,84 +46,19 @@ $if errormess != '':
 	</div>
 	
 	$if type =='h':
-	    <div class="form-group row">
-		<label for="recipe" class="col-sm-3 col-form-label">$:c.getAllHalfling(c.AllGrRecipe) $(c.getMessage('grecipe',self.lang)) </label>
-		<div class="col-sm-9" id = "divgroup">
-		    <select name = "recipe" class="form-control" id="recipe" onchange="myRecipeChange()">
-			<option value=''></option>
-			$code :
-			    groupList = c.AllGrRecipe.get_hierarchy_str(None,None)
-			    groups = c.AllGrRecipe
-			    tmp = ''
-			    indent = 1
-			    cindent = 9
-			$if len(groupList) > 0:
-			    $for group in groupList:
-				$if group == '>>' :
-				    $code:
-					indent+=1
-					cindent-=1
-					tmp = ((indent-1)*4)*"_"
-				$elif group == '<<':
-				    $code:
-					indent-=1
-					cindent+=1
-					tmp = ((indent-1)*4)*"_"
-				$else :
-				    $ aGroup = groups.get(group)
-				    $if aGroup:
-					    <option value="$group"
-					    $if context != '':
-						$if context == aGroup.getTypeId() :
-						    selected
-					    $elif id != 'new':
-						$if group == elem.fields['gr_id'] :
-						    selected
-					    >$tmp $aGroup.fields['acronym'] - $(aGroup.getName(self.lang))</option>
-		    </select>
-		</div>
-	$if type =='h':
-	    <div class="form-group row">
-		<label for="usage" class="col-sm-3 col-form-label">$:c.getAllHalfling(c.AllGrUsage) $c.getMessage(('guse' if type=='h' else 'target'),self.lang) </label>
-		<div class="col-sm-9" id = "divgroup">
-		    <select name = "usage" class="form-control" id="usage">
-			<option value=''></option>
-			$code :
-			    groupList = c.AllGrUsage.get_hierarchy_str()
-			    groups = c.AllGrUsage
-			    tmp = ''
-			    indent = 1
-			    cindent = 9
-			$if len(groupList) > 0:
-			    $for group in groupList:
-				$if group == '>>' :
-				    $code:
-					indent+=1
-					cindent-=1
-					tmp = ((indent-1)*4)*"_"
-				$elif group == '<<':
-				    $code:
-					indent-=1
-					cindent+=1
-					tmp = ((indent-1)*4)*"_"
-				$else :
-				    $ aGroup = groups.get(group)
-				    $if aGroup:
-					    <option value="$group"
-					    $if context != '':
-						$if context == aGroup.getTypeId() :
-						    selected
-					    $elif id == 'new' and data and 'usage' in data:
-						$if group == data['usage'] :
-						    selected
-					    $elif id != 'new':
-						$if group == elem.fields['gu_id'] :
-						    selected
-					    >$tmp $aGroup.fields['acronym'] - $(aGroup.getName(self.lang)) #$aGroup.fields['rank']</option>
-		    </select>
-		</div>
-	    </div>
-    
+	    <div id="divRecipe"></div>
+	    <script>
+		$$(function(){
+			$$("#divRecipe").load("/select/recipe/$(kRec)");
+		    });
+	    </script>
+	    <div id="divUsage"></div>
+	    <script>
+		$$(function(){
+			$$("#divUsage").load("/select/usage/$(kUse)");
+		    });
+	    </script>
+	    
 	$if type =='h' or type == 'gu':
 	    <div class="form-group row">
 		<label for="rankinput" class="col-sm-3 col-form-label">$:(c.getHalfling('rank'))$(c.getMessage('rank',self.lang))</label>
@@ -176,45 +129,14 @@ $if errormess != '':
 	
 	$if type == 'gr':
 		<div class="form-group row">
-		<label for="usage" class="col-sm-3 col-form-label">$:c.getAllHalfling(c.AllTransfers)$:c.getAllHalfling(c.AllGrUsage) $c.getMessage('startup',self.lang) </label>
-		<div class="col-sm-9" id = "divgroup">
-		    <select name = "usage" class="form-control" id="usage">
-			<option value=''></option>
-			$code :
-			    groupList = c.AllGrUsage.get_hierarchy_str()
-			    groups = c.AllGrUsage
-			    tmp = ''
-			    indent = 1
-			    cindent = 9
-			$if len(groupList) > 0:
-			    $for group in groupList:
-				$if group == '>>' :
-				    $code:
-					indent+=1
-					cindent-=1
-					tmp = ((indent-1)*4)*"_"
-				$elif group == '<<':
-				    $code:
-					indent-=1
-					cindent+=1
-					tmp = ((indent-1)*4)*"_"
-				$else :
-				    $ aGroup = groups.get(group)
-				    $if aGroup:
-					    <option value="$group"
-					    $if context != '':
-						$if context == aGroup.getTypeId() :
-						    selected
-					    $elif id == 'new' and data and 'usage' in data:
-						$if group == data['usage'] :
-						    selected
-					    $elif id != 'new':
-						$if group == elem.fields['gu_id'] :
-						    selected
-					    >$tmp $aGroup.fields['acronym'] - $(aGroup.getName(self.lang)) #$aGroup.fields['rank']</option>
-		    </select>
+		<label for="usage" class="col-sm-3 col-form-label">$:c.getAllHalfling(c.AllTransfers) $c.getMessage('startup',self.lang) :</label>
 		</div>
-		</div>
+		<div id="divUsage"></div>
+		<script>
+			$$(function(){
+				$$("#divUsage").load("/select/usage/$(kUse)");
+			    });
+		</script>
 		<div class="form-group row">
 		    <label for="inputLifespan" class="col-sm-3 col-form-label">$c.getMessage('lifespan',self.lang)</label>
 		    <div class="col-sm-4">
@@ -333,10 +255,10 @@ $if errormess != '':
 	<div class="form-group row">
 	    <script>
 		$$(function(){
-		    $$("#includedPermission").load("/permission/$(type)_$(id)$:( '/'+context if context else '' )");
+		    $$("#includedGroup").load("/selectmul/$(type)_$(id)/$(context)");
 		});
 	    </script>
-	    <div id="includedPermission" class="col-sm-12"></div>
+	    <div id="includedGroup" class="col-sm-12"></div>
 	</div>
 	
 	
@@ -400,10 +322,10 @@ $if errormess != '':
 
 $if type == 'h':
     <script>
-    function myRecipeChange() {
-	var select = document.getElementById("recipe");
+    function recipeChange() {
+	var select = document.getElementByName("recipe");
 	var value = select.options[select.selectedIndex].text.split(" -")[0];
-	value = value.replace(/_/g , "")
+	value = value.replace(/____/g , "")
 	document.getElementById("inputAcronym").value = value+"_";
     }
     </script>

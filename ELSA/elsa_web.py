@@ -297,7 +297,14 @@ class WebDisconnect():
         raise web.seeother('/')
 
 # Menu of groups within an update form
-class WebPermission():
+class WebSelect():
+    def GET(self, datafield, context):
+        connected = isConnected()
+        if connected is None:
+            return ''
+        return render.select(connected, datafield, context)
+
+class WebSelectMul():
     def GET(self, type, id, context=''):
         connected = isConnected()
         if connected is None:
@@ -305,7 +312,7 @@ class WebPermission():
         context = context.split('_')
         id2 = context[-1]
         print type+'_'+id+' / '+id2
-        return render.permission(connected, type, id, id2)
+        return render.selectmul(connected, type, id, id2)
 
 # Display of  a record within a list
 class WebModal():
@@ -1417,7 +1424,6 @@ class WebTest:
                                    '/datatable/'+ti,
                                    '/pin/'+ti,
                                    '/map/'+ti,
-                                   '/permission/'+ti,
                                    '/create/v/'+ti+"_in",
                                    '/create/v/'+ti+"_out",
                                    '/find/v/'+ti,
@@ -1431,8 +1437,7 @@ class WebTest:
                 testControl,recipes,usages = aTest.get_allowed_checkpoints(c)
                 if testControl:
                     for aControl in testControl:
-                        testUrls.extend ( ['/control/'+ti+'/'+aControl.getTypeId(),
-                                           '/permission/'+aControl.getTypeId()+'/'+ti ] )
+                        testUrls.extend ( ['/control/'+ti+'/'+aControl.getTypeId() ] )
                 testV = aTest.get_events(c)
                 if testV:
                     for aRec in testV:
@@ -1443,10 +1448,12 @@ class WebTest:
                                            '/item/'+aRec.getTypeId() ] )
             elif aTest.get_type() == 'gr':
                 testUrls.extend ( [ '/map/'+ti,
-                                    '/permission/'+ti,
+                                    '/selectmul/'+aTest.get_type()+'_new/'+aTest.getID(),
+                                    '/selectmul/'+ti+'/',
+                                    '/select/group/'+ti,
                                     '/graph/'+ti ] )
             elif aTest.get_type() in 'gf gu h':
-                testUrls.append('/permission/'+ti)
+                testUrls.append('/select/group/'+ti)
             elif aTest.get_type() in 'scpe':
                 testUrls.extend ( ['/label/'+ti,
                     '/find/al/'+ti,
@@ -1457,8 +1464,7 @@ class WebTest:
                     if aTest.get_type() in "ce":
                         testUrls.append('/find/t/'+ti)
                     testUrls.extend( ['/find/d/'+ti,
-                                      '/color/'+ti,
-                                      '/permission/'+ti ] )
+                                      '/color/'+ti] )
             testUrls.extend ( ['/edit/'+ti,
                                 '/item/'+ti,
                                 '/find/related/'+ti,
@@ -1646,8 +1652,8 @@ def main():
             '/find/(.+)/(.+)_(.+)/(.+)', 'WebFindModel',
             '/find/(.+)/(.+)_(.+)', 'WebFind',
             '/pin/(.+)_(.+)', 'WebPin',
-            '/permission/(.+)_(.+)/(.+)', 'WebPermission',
-            '/permission/(.+)_(.+)', 'WebPermission',
+            '/selectmul/(.+)_(.+)/(.*)', 'WebSelectMul',
+            '/select/(.+)/(.+)', 'WebSelect',
             '/control/b_(.+)/h_(.+)', 'WebControl',
             '/disconnect', 'WebDisconnect',
             '/backup', 'WebBackup',

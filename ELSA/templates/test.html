@@ -1,0 +1,27 @@
+$def with (connected,urlList)
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
+$var pinned : $connected.pinned()
+$var title : Testing ELSA
+$var location : test
+$var recursive : False
+<h4> $useful.timestamp_to_ISO(useful.get_timestamp()) : $c.getMessage('welcome',self.lang) <em>$connected.cuser.getName(self.lang)</em>
+</h4>
+$ err = 0
+$ isOK = 0
+<h1><span id="errcount">?</span> errors, <span id="okcount">?</span> OK</h1>
+<ul>
+$for url in urlList:
+    $ res = connected.test(c,url)
+    $if res:
+	<li><a href="$:url">$url</a>: $:res</li>
+	$ err = err+1
+    $else:
+	$ isOK = isOK+1
+</ul>
+<hr>
+<script>
+    $$('#errcount').text("$err")
+    $$('#okcount').text("$isOK")
+</script>
