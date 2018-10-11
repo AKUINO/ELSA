@@ -5207,11 +5207,17 @@ class Sensor(AlarmingObject):
         if end - start > resolution:
             end -= end % resolution
             start -= start % resolution
-            time_span, _, values = rrdtool.fetch(str(DIR_RRD+self.getRRDName(
-            )), 'AVERAGE', '-s', str(int(start)), '-e', str(int(end)), '-r', str(resolution))
-            ts_start, ts_end, ts_res = time_span
-            times = range(ts_start, ts_end, ts_res)
-            return zip(times, values)
+            try:
+                time_span, _, values = rrdtool.fetch(str(DIR_RRD+self.getRRDName()),
+                                                     'AVERAGE', '-s', str(int(start)),
+                                                     '-e', str(int(end)),
+                                                     '-r', str(resolution) )
+                ts_start, ts_end, ts_res = time_span
+                times = range(ts_start, ts_end, ts_res)
+                return zip(times, values)
+            except:
+                traceback.print_exc()
+                return None
         return None
 
     def validate_form(self, data, configuration, user):
