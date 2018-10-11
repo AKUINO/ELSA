@@ -309,10 +309,8 @@ class WebSelectMul():
         connected = isConnected()
         if connected is None:
             return ''
-        context = context.split('_')
-        id2 = context[-1]
-        print type+'_'+id+' / '+id2
-        return render.selectmul(connected, type, id, id2)
+        print type+'_'+id+' / '+context
+        return render.selectmul(connected, type, id, context)
 
 # Display of  a record within a list
 class WebModal():
