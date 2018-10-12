@@ -27,8 +27,9 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 
 	<div class="form-group row">
 	    <label for="inputTime" class="col-sm-3 col-form-label">$c.getMessage('time',self.lang)</label>
-	    <div class="col-sm-9">
-		<input name="time" type="text" class="form-control" id="inputTime" placeholder="$c.getMessage('dateentry',self.lang)" value ="$c.get_time()">
+	    <div class="col-sm-9 parent">
+		<input name="time" type="text" class="form-control input" id="inputTime" placeholder="$c.getMessage('dateentry',self.lang)" value ="$c.get_time()">
+		<script>rome.moment.locale("$(self.lang.lower())");rome(inputTime,{"inputFormat": "YYYY-MM-DD HH:mm:ss"});</script>
 	    </div>
 	</div>
 	

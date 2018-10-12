@@ -47,8 +47,8 @@ $if errormess != '':
 	
 	<div class="form-group row">
 	    <label for="inputTime" class="col-sm-3 col-form-label">$c.getMessage('time',self.lang)</label>
-	    <div class="col-sm-9">
-		<input name="time" type="text" class="form-control" id="inputTime" placeholder="$c.getMessage('dateentry',self.lang)" 
+	    <div class="col-sm-9 parent">
+		<input name="time" type="text" class="form-control input" id="inputTime" placeholder="$c.getMessage('dateentry',self.lang)" 
 		$if errormess != '':
 		    $if 'time' in data :
 			value="$data['time']" 
@@ -56,7 +56,7 @@ $if errormess != '':
 		    value="$elem.fields['time']"
 		$else :
 		    value ="$c.get_time()"
-		>
+		><script>rome.moment.locale("$(self.lang.lower())");rome(inputTime,{"inputFormat": "YYYY-MM-DD HH:mm:ss"});</script>
 	    </div>
 	</div>
 	
@@ -271,8 +271,9 @@ $if errormess != '':
 			    compTime = data['expirationdate']
 		    elif id != 'new':
 		    	compTime = elem.fields['expirationdate']
-	<div class="col-sm-6">
-	    <input name="expirationdate" type="text" class="form-control" id="expirationDate" placeholder="$c.getMessage('dateentry',self.lang)" value="$compTime">
+	<div class="col-sm-6 parent">
+	    <input name="expirationdate" type="text" class="form-control input" id="expirationDate" placeholder="$c.getMessage('dateentry',self.lang)" value="$compTime">
+		<script>rome(expirationDate,{"inputFormat": "YYYY-MM-DD HH:mm:ss"});</script>
 	</div>
 	</div>
 	
@@ -290,11 +291,12 @@ $if errormess != '':
 	<div class="col-sm-2">
 	    <input name="iscompleted" type="checkbox" class="form-control" value="1" id="isCompleted" $("checked" if compTime else "")>
 	</div>
-	<div class="col-sm-6">
-	    <input name="completedtime" type="text" class="form-control" id="completedTime" placeholder="$c.getMessage('dateentry',self.lang)" value="$compTime">
+	<div class="col-sm-6 parent">
+	    <input name="completedtime" type="text" class="form-control input" id="completedTime" placeholder="$c.getMessage('dateentry',self.lang)" value="$compTime">
+		<script>rome(completedTime,{"inputFormat": "YYYY-MM-DD HH:mm:ss"});</script>
 	</div>
 	</div>
-	
+
 	<div class="form-group row">
 	    <label for="inputactive" class="col-sm-3 col-form-label">$c.getMessage('active',self.lang)</label>
 	    <span class="glyphicon glyphicon-remove-circle"> </span>
@@ -330,7 +332,7 @@ $if errormess != '':
 		        $ i=i+1
 			<a href="/files/$(elem.getTypeId())?remove=$filename" class="btn btn-danger" onclick="return(YNmessage(this,'$(c.getMessage("remove",self.lang))','$filename'))">X</a> &nbsp;
 			($(i)) <a href="$elem.getDocumentURL(filename)" target="_blank">$filename</a><br/>
-	    <input id="inputFile" name="linkedDocs" type="file" multiple class="file file-loading"'>
+	    <input id="inputFile" name="linkedDocs" type="file" multiple class="file file-loading">
             </label>
 	</div>
 

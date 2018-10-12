@@ -40,13 +40,13 @@ $elif myID == 'component':
 	
 	<div class="form-group row">
 	    <label for="inputTime" class="col-sm-3 col-form-label">$c.getMessage('time',self.lang)</label>
-	    <div class="col-sm-9">
-		<input name="begintime" type="text" class="form-control" id="inputTime" placeholder="$c.getMessage('dateentry',self.lang)" 
+	    <div class="col-sm-9 parent">
+		<input name="begintime" type="text" class="form-control input" id="inputTime" placeholder="$c.getMessage('dateentry',self.lang)" 
 		$if myID == 'update':
 		    value="$useful.date_to_ISO(alarmlog.fields['begintime'])"
 		$else :
 		    value ="$c.get_time()"
-		>
+		><script>rome.moment.locale("$(self.lang.lower())");rome(inputTime,{"inputFormat": "YYYY-MM-DD HH:mm:ss"});</script>
 	    </div>
 	</div>
 	
@@ -111,8 +111,9 @@ $elif myID == 'component':
 	<div class="col-sm-2">
 	    <input name="iscompleted" type="checkbox" class="form-control" value="1" id="isCompleted" $("checked" if compTime else "")>
 	</div>
-	<div class="col-sm-6">
-	    <input name="completedtime" type="text" class="form-control" id="completedTime" placeholder="$c.getMessage('dateentry',self.lang)" value="$compTime">
+	<div class="col-sm-6 parent">
+	    <input name="completedtime" type="text" class="form-control input" id="completedTime" placeholder="$c.getMessage('dateentry',self.lang)" value="$compTime">
+		<script>rome(completedTime,{"inputFormat": "YYYY-MM-DD HH:mm:ss"});</script>
 	</div>
 	</div>
 

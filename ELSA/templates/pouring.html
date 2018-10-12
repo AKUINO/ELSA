@@ -55,13 +55,13 @@ function flip() {
 	
 	<div class="form-group row">
 	    <label for="inputTime" class="col-sm-3 col-form-label">$c.getMessage('time',self.lang)</label>
-	    <div class="col-sm-9">
-		<input name="time" type="text" class="form-control" id="inputTime" placeholder="$c.getMessage('dateentry',self.lang)" 
+	    <div class="col-sm-9 parent">
+		<input name="time" type="text" class="form-control input" id="inputTime" placeholder="$c.getMessage('dateentry',self.lang)" 
 		$if myID == 'update':
 		    value="$pouring.fields['time']"
 		$else :
 		    value ="$c.get_time()"
-		>
+		><script>rome.moment.locale("$(self.lang.lower())");rome(inputTime,{"inputFormat": "YYYY-MM-DD HH:mm:ss"});</script>
 	    </div>
 	</div>
 	
