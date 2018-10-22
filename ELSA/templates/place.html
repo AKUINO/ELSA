@@ -5,11 +5,11 @@ $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
 $var recursive : False
 $ kGroup = ""
+$ rmq = ''
 $if context:
     $ kGroup = (context.split('_')[-1])
 $if id == 'new':
     $var location: list/p=place edit/p_new=add
-    $var rmq :
     $var title: $c.AllPlaces.getName(self.lang)
 $else:
     $var location: list/p=place edit/p_$(id)=edit
@@ -17,11 +17,11 @@ $else:
         elem = c.AllPlaces.get(id)
 	if elem and ('gu_id' in elem.fields) and elem.fields['gu_id']:
 		kGroup = elem.fields['gu_id']
-    $var rmq :  $elem.fields['remark']
+    $ rmq = elem.fields['remark']
     $var title: $elem.getName(self.lang)
 $if errormess != '':
     $if 'remark' in data :
-	$var rmq : $data['remark']
+	$ rmq = data['remark']
 $code:
      if data and ('group' in data) and data['group']:
 	kGroup = data['group']
@@ -93,7 +93,7 @@ $code:
 	<div class="form-group row">
 	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 	    <div class="col-sm-9">
-		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.getMessage('remark',self.lang)" >$self.rmq</textarea>
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.getMessage('remark',self.lang)" >$rmq</textarea>
 	    </div>
 	</div>
 	

@@ -6,21 +6,21 @@ $var pinned : $connected.pinned()
 $var recursive : False
 $var title : Equipement
 $ kGroup = ''
+$ rmq = ''
 $if context:
     $ kGroup = (context.split('_')[-1])
 $if id == 'new':
     $var location: list/e=equipment edit/e_new=add
-    $var rmq :    
 $else:
     $var location: list/e=equipment edit/e_$(id)=edit
     $code:
         elem = c.AllEquipments.get(id)
 	if elem and ('gu_id' in elem.fields) and elem.fields['gu_id']:
 		kGroup = elem.fields['gu_id']
-    $var rmq :  $elem.fields['remark']
+    $ rmq = elem.fields['remark']
 $if errormess != '':
     $if 'remark' in data :
-	$var rmq : $data['remark']
+	$ rmq = data['remark']
 $code:
     if data and ('group' in data) and data['group']:
 	kGroup = data['group']
@@ -92,7 +92,7 @@ $code:
 	<div class="form-group row">
 	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 	    <div class="col-sm-9">
-		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >$self.rmq</textarea>
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >$rmq</textarea>
 	    </div>
 	</div>
 	

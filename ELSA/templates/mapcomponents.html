@@ -11,9 +11,11 @@ $ listUsage = c.AllGrUsage.get_fullmap_str()
 $ listUsage.append('')
 <div class="container">
 $ level = 0
+$ first = True
 $for kusage in listUsage:
 	$if kusage == '>>':
 		$ level += 1
+		<div class="map down">
 	$elif kusage == '<<':
 		$ level -= 1
 		</div>
@@ -21,9 +23,11 @@ $for kusage in listUsage:
 	    $ elem = None if kusage == '' else c.AllGrUsage.get(kusage)
 	    $if not elem or elem.isActive():
 		$if level == 0:
+			$if first:
+				$ first = False
+			$else:
+				</div>
 			<div class="map top">
-		$else:
-			<div class="map down">
 		$if elem:
 			<a href="/find/related/gu_$kusage">$:(elem.statusIcon(c,True,False))</a>
 			$ acro = elem.fields['acronym']
@@ -35,6 +39,7 @@ $for kusage in listUsage:
 			$if files and len(files) > 0:
 			    <a href="/files/gu_$kusage">
 			    $:c.getHalfling('file')<strong>$len(files)</strong></a>
+			<br/>
 		$for kplace,place in c.AllPlaces.elements.items():
 			$if place.isActive() and place.get_group() == kusage :
 					<div class="map down" style="border-color:$(place.fields['colorgraph'])">
@@ -165,5 +170,7 @@ $for kusage in listUsage:
 							</div>
 						$ done.add('c_'+kcontainer)
 					</div>
-			$ done.add('gu_'+kusage)
+		$ done.add('gu_'+kusage)
+$if not first:
+	</div>
 </div>

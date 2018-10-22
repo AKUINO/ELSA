@@ -14,9 +14,11 @@ $ done = set()
 $ listRecipe = c.AllGrRecipe.get_fullmap_str()
 <div class="container">
 $ level = 0
+$ first = True
 $for krecipe in listRecipe:
 	$if krecipe == '>>':
 		$ level += 1
+		<div class="map down">
 	$elif krecipe == '<<':
 		$ level -= 1
 		</div>
@@ -24,19 +26,22 @@ $for krecipe in listRecipe:
 	    $ elem = c.AllGrRecipe.get(krecipe)
 	    $if elem and elem.isActive():
 		$if level == 0:
+			$if first:
+				$ first = False
+			$else:
+				</div>
 			<div class="map top">
-		$else:
-			<div class="map down">
 		<a href="/find/related/gr_$krecipe">$:(elem.statusIcon(c,True,False))</a>
 		$ acro = elem.fields['acronym']
 		$if ('gr_'+krecipe) in done:
-			<a href="#gr_$acro">$acro</a>
+			<a href="#gr_$acro">$acro</a><br/>
 		$else:
 			<a name="gr_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>
 			$ files = elem.getDocumentList()
 			$if files and len(files) > 0:
 			    <a href="/files/gr_$krecipe">
 			    $:c.getHalfling('file')<strong>$len(files)</strong></a>
+			<br/>
 			$code:
 			    batches = elem.get_batches(c)
 			    in_use = []
@@ -54,23 +59,23 @@ $for krecipe in listRecipe:
 						<a href="#b_$acro">$acro</a>
 					$else:
 						<a name="b_$acro"></a>$acro - <strong>$(batch.getName(self.lang))</strong>
-						    $code:
+						$code:
 							pos = None
 							files = batch.getDocumentList()
 							alarms = batch.count_logs(c)
 							transfer = batch.get_last_transfer(c)
 							if transfer:
 								pos = transfer.get_component(c)
-						    $if pos is not None :
-							    $:c.getHalfling('to')
-							    <a href="/find/related/$(pos.get_type())_$pos.getID()">$:(pos.statusIcon(c,True,False)) $pos.fields['acronym']</a>,
-							    $transfer.fields['time']
-						    $if alarms > 0:
-							    <a href="/find/al/b_$batch.getID()">
-							    $:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
-						    $if files and len(files) > 0:
-							    <a href="/files/b_$batch.getID()">
-							    $:c.getHalfling('file')<strong>$len(files)</strong></a>
+						$if pos is not None :
+							$:c.getHalfling('to')
+							<a href="/find/related/$(pos.get_type())_$pos.getID()">$:(pos.statusIcon(c,True,False)) $pos.fields['acronym']</a>,
+							$transfer.fields['time']
+						$if alarms > 0:
+							<a href="/find/al/b_$batch.getID()">
+							$:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
+						$if files and len(files) > 0:
+							<a href="/files/b_$batch.getID()">
+							$:c.getHalfling('file')<strong>$len(files)</strong></a>
 						$ done.add('b_'+batch.getID())
 					</div>
 			$if len(keys) < total:
@@ -78,4 +83,6 @@ $for krecipe in listRecipe:
 				<strong><a href="/find/b/gr_$krecipe">+$unicode(total-len(keys)) $:(c.getHalfling('batch'))</a></strong>
 				</div>
 			$ done.add('gr_'+krecipe)
+$if not first:
+	</div>
 </div>

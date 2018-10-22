@@ -1750,9 +1750,12 @@ class AllGroups(AllObjects):
             cond2 = (g is not None and g.getID() in group.related)
             if cond1 or cond2:
                 myString.append(k)
-                myString.append('>>')
-                self.get_hierarchy_str(group, myString)
-                myString.append('<<')
+                subString = []
+                self.get_hierarchy_str(group, subString)
+                if len(subString) > 0:
+                    myString.append('>>')
+                    myString.extend(subString)
+                    myString.append('<<')
         return myString
 
     def get_fullmap_str(self):
@@ -3201,8 +3204,8 @@ class Group(ConfigurationObject):
         children = self.get_children()
         #print self.fields['acronym']+", children="+unicode(children)
         submap = []                      
-        submap.append('>>')
         if children and len (children) > 0:
+            submap.append('>>')
             allObj =  self.config.findAll(self.get_type())
             childObj = []
             for k in children:
@@ -3214,15 +3217,15 @@ class Group(ConfigurationObject):
                     k = elem.getID()
                     submap.append(k)
                     submap += elem.get_submap_str()
-        submap.append('<<')
+            submap.append('<<')
         return submap
 
     # Looking UP
     def get_supermap_str(self):
         children = self.get_parents()
-        submap = []                      
-        submap.append('>>')
+        submap = []
         if children and len (children) > 0:
+            submap.append('>>')
             allObj =  self.config.findAll(self.get_type())
             childObj = []
             for k in children:
@@ -3234,7 +3237,7 @@ class Group(ConfigurationObject):
                     k = elem.getID()
                     submap.append(k)
                     submap += elem.get_supermap_str()
-        submap.append('<<')
+            submap.append('<<')
         return submap
 
     def proposedMemberAcronym(self,configuration):

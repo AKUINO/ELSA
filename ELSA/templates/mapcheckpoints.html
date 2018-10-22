@@ -10,9 +10,11 @@ $ done = set()
 $ listCheckPoint = c.AllCheckPoints.get_fullmap_str()
 <div class="container">
 $ level = 0
+$ first = True
 $for kcheckpoint in listCheckPoint:
 	$if kcheckpoint == '>>':
 		$ level += 1
+		<div class="map down">
 	$elif kcheckpoint == '<<':
 		$ level -= 1
 		</div>
@@ -20,9 +22,11 @@ $for kcheckpoint in listCheckPoint:
 	    $ elem = c.AllCheckPoints.get(kcheckpoint)
 	    $if elem and elem.isActive():
 		$if level == 0:
+			$if first:
+				$ first = False
+			$else:
+				</div>
 			<div class="map top">
-		$else:
-			<div class="map down">
 		$ acro = elem.fields['acronym']
 		$if ('h_'+kcheckpoint) in done:
 		    <a href="/find/related/h_$kcheckpoint">$:(elem.statusIcon(c,True,False))</a>
@@ -73,4 +77,6 @@ $for kcheckpoint in listCheckPoint:
 				
 		        </div>
 		    $ done.add('h_'+kcheckpoint)
+$if not first:
+	</div>
 </div>

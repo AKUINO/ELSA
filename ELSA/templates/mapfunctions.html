@@ -10,9 +10,11 @@ $ done = set()
 $ listFunction = c.AllGrFunction.get_fullmap_str()
 <div class="container">
 $ level = 0
+$ first = True
 $for kfunction in listFunction:
 	$if kfunction == '>>':
 		$ level += 1
+		<div class="map down">
 	$elif kfunction == '<<':
 		$ level -= 1
 		</div>
@@ -20,15 +22,17 @@ $for kfunction in listFunction:
 		$ elem = c.AllGrFunction.get(kfunction)
 		$if elem and elem.isActive():
 		    $if level == 0:
+			$if first:
+				$ first = False
+			$else:
+				</div>
 			<div class="map top">
-		    $else:
-			<div class="map down">
 		    <a href="/find/related/gf_$kfunction">$:(elem.statusIcon(c,True,False))</a>
 		    $ acro = elem.fields['acronym']
 		    $if ('gf_'+kfunction) in done:
-			<a href="#gf_$acro">$acro</a>
+			<a href="#gf_$acro">$acro</a><br/>
 		    $else:
-			<a name="gf_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>
+			<a name="gf_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong><br/>
 			$for kuser,user in c.AllUsers.elements.items():
 				$if user.get_group() == kfunction :
 					<div class="map down">
@@ -49,4 +53,6 @@ $for kfunction in listFunction:
 						$ done.add('u_'+kuser)
 					</div>
 			$ done.add('gf_'+kfunction)
+$if not first:
+	</div>
 </div>

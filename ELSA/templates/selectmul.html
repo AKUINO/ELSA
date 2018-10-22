@@ -43,7 +43,7 @@ $code:
 			$if id != 'new':
 			    $if group == myid:
 				style="background-color:black;"	    
-			>$groups.get(group).getName(self.lang)</label>
+			>$aGroup.getName(self.lang)</label>
 			$if (id != 'new' and mygroup and group in mygroup.get_related()) or (id == 'new' and context==aGroup.getTypeId() ):
 			    <label class="col-sm-2 col-form-label">
 			    <span class="glyphicon glyphicon-remove-circle"> </span>
@@ -55,7 +55,7 @@ $code:
 			    </label>
 			$elif id != 'new' and ( id == group or ( mygroup and ( group in mygroup.get_children() or group in mygroup.get_parents() or group in mygroup.get_siblings() ) ) ):
 			    <label class="col-sm-2 col-form-label">-</label>
-			$else :
+			$elif aGroup.isActive():
 			    <label class="col-sm-2 col-form-label">
 			    <span class="glyphicon glyphicon-remove-circle"> </span>
 				<label class="switch">

@@ -405,12 +405,12 @@ ul.nav.nav-tabs {
 }
 
 .map.top {
-    padding: 4px;
+    padding: 2px;
     border: 1px solid #888;
 }
 
 .map.down {
-    padding: 4px;
+    padding: 2px;
     border: 0px;
     border-left: 5px solid #DDD;
     margin-left: 20px;

@@ -5,23 +5,23 @@ $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
 $var recursive : False
 $var title : $c.getMessage('add',self.lang)
+$ rmq = ''
 $ kGroup = ''
 $if context:
     $ kGroup = (context.split('_')[-1])
 $if id == 'new':
     $var location: list/u=user edit/u_new=add
-    $var rmq :
 $else:
     $code:
         elem = c.AllUsers.get(id)
 	if elem and ('gf_id' in elem.fields) and elem.fields['gf_id']:
 		kGroup = elem.fields['gf_id']
     $var location: list/u=user edit/u_$(id)=edit
-    $var rmq :  $elem.fields['remark']
+    $ rmq = elem.fields['remark']
     $var title : $elem.getName(self.lang)
 $if errormess != '':
     $if 'remark' in data :
-	$var rmq : $data['remark']
+	$ rmq = data['remark']
 $code:
     if data and ('group' in data) and data['group']:
 	kGroup = data['group']
@@ -174,7 +174,7 @@ $code:
 	<div class="form-group row">
 	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 	    <div class="col-sm-9">
-		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >$self.rmq</textarea>
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >$rmq</textarea>
 	    </div>
 	</div>
 	

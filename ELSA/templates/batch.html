@@ -5,12 +5,12 @@ $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
 $var recursive : False
 $var title : $c.getMessage('add',self.lang) $c.getMessage('batch',self.lang)
-$var rmq :
 $var location: list/b=batch edit/b_new=add
 $ aRecipe = None
 $ aMeasure = None
 $ precision = None
 $ elem = None
+$ rmq = ''
 $code:
     if data and ('group' in data) and data['group']:
 	kRecipe = data['group']
@@ -28,10 +28,10 @@ $code:
 	precision = aRecipe.get_measure(c)
 $if id != 'new':
     $var location: list/b=batch edit/b_$(id)=edit
-    $var rmq :  $elem.fields['remark']
+    $ rmq = elem.fields['remark']
     $var title :  $c.AllBatches.getName(self.lang) $elem.fields['acronym']
 $if errormess != '':
-    $var rmq : $data['remark']
+    $ rmq = data['remark']
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	<div class="form-group row" id="error">
@@ -256,7 +256,7 @@ $if errormess != '':
 	<div class="form-group row">
 	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 	    <div class="col-sm-9">
-		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >$self.rmq</textarea>
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >$rmq</textarea>
 	    </div>
 	</div>
 

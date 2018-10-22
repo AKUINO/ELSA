@@ -5,17 +5,17 @@ $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
 $var recursive : False
 $var title : $c.AllTransferModels.getName(self.lang)
-$var rmq :
+$ rmq = ''
 $if id == 'new':
     $var location: list/tm=transfermodel edit/tm_new=add
 $else:
     $var location: list/tm=transfermodel edit/tm_$(id)=edit
     $ transfer_model = c.AllTransferModels.get(id)
-    $var rmq : $transfer_model.fields['remark']
+    $ rmq = transfer_model.fields['remark']
     $var title : $transfer_model.getName(self.lang)
 $if errormess != '':
     $if 'remark' in data :
-	$var rmq : $data['remark']
+	$ rmq = data['remark']
 
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
@@ -149,7 +149,7 @@ $if errormess != '':
 	<div class="form-group row">
 	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 	    <div class="col-sm-9">
-		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.getMessage('remark',self.lang)" >$self.rmq</textarea>
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.getMessage('remark',self.lang)" >$rmq</textarea>
 	    </div>
 	</div>
 	

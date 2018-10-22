@@ -6,9 +6,9 @@ $var pinned : $connected.pinned()
 $var recursive : False
 $var title : $c.AllPouringModels.getName(self.lang)
 $ splits = context.split('_')
+$ rmq = ''
 $if id == 'new':
     $var location: list/vm=pouringmodel edit/vm_new=add
-    $var rmq :
     $code:
         pouring_from = True
 	recipe = ""
@@ -28,11 +28,11 @@ $else:
 	else:
 		recipe = elem.fields['dest']
 	usage = elem.fields['gu_id']
-    $var rmq :  $elem.fields['remark']
+    $ rmq = elem.fields['remark']
     $var title : $elem.getName(self.lang)
 $if errormess != '':
     $if 'remark' in data :
-	$var rmq : $data['remark']
+	$ rmq = data['remark']
     $code:
 	pouring_from = True
 	if 'in' in data:
@@ -205,7 +205,7 @@ $if errormess != '':
 	<div class="form-group row">
 	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 	    <div class="col-sm-9">
-		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.getMessage('remark',self.lang)" >$self.rmq</textarea>
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="$c.getMessage('remark',self.lang)" >$rmq</textarea>
 	    </div>
 	</div>
 	

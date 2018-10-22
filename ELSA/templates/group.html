@@ -4,7 +4,7 @@ $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
 $var recursive : False
-$var rmq :
+$ rmq = ''
 $var title : ELSA group
 $code:
     AllObjects = c.findAll(type)
@@ -32,11 +32,11 @@ $else:
 			kRec = 'gr_'+elem.fields['gr_id']
 		if 'gu_id' in elem.fields:
 			kUse = 'gu_'+elem.fields['gu_id']
-    $var rmq :  $(elem.fields['remark'])
+    $ rmq = (elem.fields['remark'])
     $var title : $(elem.getName(self.lang))
 $if errormess != '':
     $if 'remark' in data :
-	$var rmq : $data['remark']
+	$ rmq = data['remark']
 
 <div class="container">
     
@@ -248,7 +248,7 @@ $if errormess != '':
 	<div class="form-group row">
 	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 	    <div class="col-sm-9">
-		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >$self.rmq</textarea>
+		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >$rmq</textarea>
 	    </div>
 	</div>
 	

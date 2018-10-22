@@ -8,7 +8,7 @@ $var recursive : True
 $var title : Select $datafield
 $code :
     if not datafield:
-        datafield = 'group'
+	datafield = 'group'
     context = context.split('_')
     groups = c.findAll(context[0])
     id = ''
@@ -37,11 +37,12 @@ $code :
 				cindent+=1
 				tmp = ((indent-1)*4)*"_"
 			$else :
-			    $ aGroup = groups.get(group)
-			    <option value="$group"
-			    $if id and (id == group) :
-				    selected
-			    >$:tmp $aGroup.get_select_str(self.lang)</option>
+				$ aGroup = groups.get(group)
+				$if aGroup.isActive() or (id and (id == group)) :
+				    <option value="$group"
+				    $if id and (id == group) :
+					selected
+				    >$:tmp $aGroup.get_select_str(self.lang)</option>
 	    </select>
 	</div>
 </div>
