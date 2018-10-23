@@ -39,6 +39,8 @@ $for kusage in listUsage:
 			$if files and len(files) > 0:
 			    <a href="/files/gu_$kusage">
 			    $:c.getHalfling('file')<strong>$len(files)</strong></a>
+			$if elem.fields['rank']:
+			    <strong>#$elem.fields['rank']</strong>
 			<br/>
 		$for kplace,place in c.AllPlaces.elements.items():
 			$if place.isActive() and place.get_group() == kusage :

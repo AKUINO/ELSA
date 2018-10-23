@@ -814,6 +814,12 @@ class ConfigurationObject(object):
     def get_acronym_hierarchy(self):
         return self.fields['acronym']
 
+    def sort_key(self):
+        return self.get_acronym_hierarchy().upper()
+
+    def sort_level_key(self):
+        return (self.fields['rank'].rjust(10) if 'rank' in self.fields else '') + self.fields['acronym'].upper()
+
     def get_batch_in_component(self, configuration):
         batches = []
         type = self.get_type()
@@ -1395,15 +1401,15 @@ class AllObjects(object):
 
     def get_sorted(self):
         return collections.OrderedDict(sorted(self.elements.items(),
-                                       key=lambda t: t[1].get_acronym().upper()))
+                                       key=lambda t: t[1].sort_key() ))
 
     def sort_hierarchy_objects(self,objects):
         return sorted(objects,
-                        key=lambda t: t.get_acronym_hierarchy().upper()  if t else "" )
+                        key=lambda t: t.sort_key() if t else "" )
 
     def sort_hierarchy(self,keyList):
         return sorted(keyList,
-                      key=lambda t: self.elements[t].get_acronym_hierarchy().upper() if t else "" )
+                      key=lambda t: self.elements[t].sort_key() if t else "" )
 
     def get_sorted_hierarchy(self):
         if not self.hierarchy:
@@ -1746,9 +1752,11 @@ class AllGroups(AllObjects):
         if myString is None:
             myString = []
         for k, group in self.elements.items():
-            cond1 = (g == None and len(group.related) == 0)
-            cond2 = (g is not None and g.getID() in group.related)
-            if cond1 or cond2:
+            if g:
+                cond = g.getID() in group.related
+            else:
+                cond = len(group.related) == 0
+            if cond:
                 myString.append(k)
                 subString = []
                 self.get_hierarchy_str(group, subString)
@@ -1765,7 +1773,7 @@ class AllGroups(AllObjects):
             parents = group.get_parents()
             if not parents or len(parents) == 0:
                 objMap.append(group)
-        objMap = sorted(objMap,key=lambda t: t.get_acronym().upper())
+        objMap = sorted(objMap,key=lambda t: t.sort_level_key())
         # go down the hierarchy...
         fullmap = []
         for group in objMap:
@@ -1781,7 +1789,7 @@ class AllGrUsage(AllGroups):
     def __init__(self, config):
         AllGroups.__init__(self, 'gu', GrUsage.__name__, config)
         self.fieldnames = ["begin", "gu_id",
-                           "active", "acronym", "rank", "remark", "user"]
+                           "active", "acronym", 'rank', "remark", "user"]
         self.fieldtranslate = ['begin', 'lang', 'gu_id', 'name', 'user']
         self.file_of_relations = os.path.join(DIR_DATA_CSV, "GUrelations.csv")
 
@@ -3212,7 +3220,7 @@ class Group(ConfigurationObject):
                 if k and k in allObj.elements:
                     childObj.append(allObj.elements[k])
             if len(childObj):
-                childObj = sorted(childObj,key=lambda t: t.get_acronym().upper())
+                childObj = sorted(childObj,key=lambda t: t.sort_level_key())
                 for elem in childObj:
                     k = elem.getID()
                     submap.append(k)
@@ -3232,7 +3240,7 @@ class Group(ConfigurationObject):
                 if k and k in allObj.elements:
                     childObj.append(allObj.elements[k])
             if len(childObj):
-                childObj = sorted(childObj,key=lambda t: t.get_acronym().upper())
+                childObj = sorted(childObj,key=lambda t: t.sort_level_key())
                 for elem in childObj:
                     k = elem.getID()
                     submap.append(k)
