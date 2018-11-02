@@ -1,5 +1,6 @@
 $def with (connected,type,id,barcode='')
 $code:
+    keyType = '_'+type+'_'
     allobjects = c.findAll(type)
     elem = allobjects.get(id)
     subtype = elem.isModeling()
@@ -46,7 +47,7 @@ $if type == 'p' :
 		</script>
 		<div id="includedE_$(k)"></div>
     </div>
-$if type in 'pe':
+$if keyType in '_p_e_':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('container',self.lang) :</label>    
 	$for k in c.AllContainers.get_sorted_hierarchy():
@@ -74,7 +75,7 @@ $if type == 'a':
                 <div id="includedgf_$(gr)"></div>
     </div>
 
-$if type in 'ampec':
+$if keyType in '_a_m_p_e_c_':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('sensor',self.lang) :</label>    
 
@@ -95,7 +96,7 @@ $if type in 'ampec':
                 </script>
                 <div id="includedS_$(k)"></div>
     </div>
-$if type in 'amh':
+$if keyType in '_a_m_h_':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('manualdatamodel',self.lang) :</label>    
 
@@ -156,7 +157,7 @@ $if type in 'amh':
                 <div id="includedTM_$(k)"></div>
     </div>
 
-$if (' '+type+' ') in ' s dm ':
+$if keyType in '_s_dm_':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('alarm',self.lang) :</label>    
 
@@ -184,7 +185,7 @@ $if type == 'u':
                 <div id="includedB_$(batch.getID())"></div>
     </div>
 
-$if type in 'pec':
+$if keyType in '_p_e_c_':
 	<div class="row active"style = "background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	    <label class="col-sm-12">$c.getMessage('batch',self.lang) :</label>
 	    $for k in c.AllBatches.get_sorted_hierarchy():
@@ -221,17 +222,19 @@ $if subtype:
     $ j=30
     $for k in biglist:
 	$ data = allModeled.get(k)
-	$if data and data.isActive() and data.getID() == id :
-            <script>
-	        $$(function(){
-	            $$("#included$(subtype)_$(k)").load("/fullentry/$(subtype)_$(k)");
-	        });
-	    </script>
-	    <div id="included$(subtype)_$(k)"></div>
-	    $ j -= 1
-            $if j <= 0:
-		<div class="row active">... <strong>$len(biglist)</strong> $c.getMessage(allModeled.get_class_acronym(),self.lang)</div>
-		$break
+	$if data and data.isActive():
+	    $ model = data.get_model(c)
+	    $if model and model.getID() == id :
+		<script>
+		$$(function(){
+		    $$("#included$(subtype)_$(k)").load("/fullentry/$(subtype)_$(k)");
+		});
+		</script>
+		<div id="included$(subtype)_$(k)"></div>
+		$ j -= 1
+		$if j <= 0:
+		    <div class="row active">... <strong>$len(biglist)</strong> $c.getMessage(allModeled.get_class_acronym(),self.lang)</div>
+		    $break
     </div>
 
 $if type == 'b':

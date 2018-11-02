@@ -6,6 +6,9 @@ $var pinned : $connected.pinned()
 $var recursive : False
 $var title : $c.AllSensors.getName(self.lang)
 $ sensor_channels = c.AllSensors.get_query_channels()
+$ component = ""
+$ comp_type = ""
+$ comp_id = ""
 $if id == 'new':
     $var location: list/s=sensor edit/s_new=add
     $ rmq = ""
@@ -15,9 +18,23 @@ $else:
     $ elem = c.AllSensors.get(id)
     $ rmq =  elem.fields['remark']
     $var title : $elem.getName(self.lang)
-$if errormess != '':
-    $if 'remark' in data :
-	$ rmq = data['remark']
+    $code:
+	if elem.fields['p_id']:
+	    component = 'p_'+elem.fields['p_id']
+	elif elem.fields['e_id']:
+	    component = 'e_'+elem.fields['e_id']
+	elif elem.fields['c_id']:
+	    component = 'c_'+elem.fields['c_id']
+$code:
+	if errormess != '':
+	    if 'remark' in data :
+		rmq = data['remark']
+	    if 'component' in data :
+		component = data['component']
+	if component:
+	    component = component.split('_')
+	    comp_type = component[0]
+	    comp_id = component[1]
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	<div class="form-group row" id="error">
@@ -65,39 +82,7 @@ $if errormess != '':
 	    <label for="langSelect" class="col-sm-3 col-form-label">$c.getMessage('component',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "component" class="form-control" id="langSelect">
-		    <optgroup label="$c.getMessage('place',self.lang)">
-		    $for k,aCompo in c.AllPlaces.get_sorted().items():
-			<option value="$aCompo.getTypeId()"
-			    $if errormess != '' :
-				$if 'component' in data:
-				    $if aCompo.getTypeId() == data['component']:
-					selected
-			    $elif id != 'new':
-				$if aCompo.getID() == elem.fields['p_id'] :
-				    selected
-			>$aCompo.fields['acronym'] - $aCompo.getName(self.lang) </option>
-		    <optgroup label="$c.getMessage('equipment',self.lang)">
-		    $for k,aCompo in c.AllEquipments.get_sorted().items():
-			<option value="e_$k"
-			    $if errormess != '' :
-				$if 'component' in data:
-				    $if 'e_'+k == data['component']:
-					selected
-			    $elif id != 'new':
-				$if k == elem.fields['e_id'] :
-				    selected			
-			>$aCompo.fields['acronym'] - $aCompo.getName(self.lang)</option>
-		    <optgroup label="$c.getMessage('container',self.lang)">
-		    $for k,aCompo in c.AllContainers.get_sorted().items():
-			<option value="c_$k"
-			    $if errormess != '' :
-				$if 'component' in data:
-				    $if 'c_'+k == data['component']:
-					selected
-			    $elif id != 'new':
-				$if k == elem.fields['c_id'] :
-				    selected
-			>$aCompo.fields['acronym'] - $aCompo.getName(self.lang)</option>
+		    $:c.AllGrUsage.component_options(None,comp_type,comp_id,self.lang)
 		</select>
 	    </div>
 	</div>

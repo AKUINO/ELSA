@@ -30,6 +30,7 @@ import numbers
 import abe_expanderpi
 import barcode
 import requests
+import web.net as webnet
 """
 import SSD1306
 from I2CScreen import *
@@ -216,7 +217,7 @@ class Configuration():
                                            gpio=PIG))
             self.screen.clear()
         else:
-            self.screen = I2CScreen(False, disp = None)	
+            self.screen = I2CScreen(False, disp = None)
         """
         self.AllLanguages.load()
         self.AllUsers.load()
@@ -403,6 +404,7 @@ class ConfigurationObject(object):
                                            fieldnames=allObjects.fieldnames,
                                            encoding="utf-8")
             writer.writerow(self.fields)
+            allObjects.hierarchy = None # Sort needed...
         self.saveName(configuration, anUser)
         return self
 
@@ -516,7 +518,7 @@ class ConfigurationObject(object):
 
     def getName(self, lang):
         if not lang:
-	    lang = 'EN'
+            lang = 'EN'
         else:
             lang = lang.upper()
         if lang == 'DISCONNECTED':
@@ -539,7 +541,7 @@ class ConfigurationObject(object):
             return "Record "+unicode(self.id)+": no name"
 
     def getNameHTML(self, lang):
-	return cgi.escape(self.getName(lang),True).replace("'","&#39;");
+        return cgi.escape(self.getName(lang),True).replace("'","&#39;");
 
     def get_real_name(self, lang):
         if lang in self.names:
@@ -782,9 +784,9 @@ class ConfigurationObject(object):
         return self.fields['user']
 
     def get_actual_position_here(self,configuration):
-	currObj = None
-	tmp = self.get_last_transfer(configuration)
-	if tmp is not None:
+        currObj = None
+        tmp = self.get_last_transfer(configuration)
+        if tmp is not None:
             currObj = configuration.get_object (tmp.fields['cont_type'], tmp.fields['cont_id'])
         return currObj
 
@@ -940,7 +942,7 @@ class ConfigurationObject(object):
         return "0";
 
     def get_measure(self,c):
-	if 'm_id' in self.fields and self.fields['m_id'] and self.fields['m_id'] in c.AllMeasures.elements:
+        if 'm_id' in self.fields and self.fields['m_id'] and self.fields['m_id'] in c.AllMeasures.elements:
             return c.AllMeasures.elements[self.fields['m_id']]
         return None;
 
@@ -1581,16 +1583,6 @@ class AllAlarmLogs(AllObjects):
                     logs.append(e)
         return sorted(logs, key=lambda t: t.fields['begin'], reverse=True)
 
-    def get_sorted(self):
-        return collections.OrderedDict(sorted(self.elements.items(),
-                                       key=lambda t: t[1].fields['begin'],
-                                       reverse=True ))
-
-    def sort_hierarchy(self,keyList):
-        return sorted(keyList,
-                      key=lambda t: self.elements[t].fields['begin'],
-                      reverse=True)
-
     def get_class_acronym(self):
         return 'alarmlog'
 
@@ -1657,16 +1649,6 @@ class AllManualData(AllObjects):
     def get_class_acronym(self):
         return 'manualdata'
 
-    def get_sorted(self):
-        return collections.OrderedDict(sorted(self.elements.items(),
-                                       key=lambda t: t[1].fields['time'],
-                                       reverse=True ))
-
-    def sort_hierarchy(self,keyList):
-        return sorted(keyList,
-                      key=lambda t: self.elements[t].fields['time'],
-                      reverse=True)
-
 class AllPourings(AllObjects):
 
     def __init__(self, config):
@@ -1682,17 +1664,6 @@ class AllPourings(AllObjects):
 
     def get_class_acronym(self):
         return 'pouring'
-
-    def get_sorted(self):
-        return collections.OrderedDict(sorted(self.elements.items(),
-                                       key=lambda t: t[1].fields['time'],
-                                       reverse=True ))
-
-    def sort_hierarchy(self,keyList):
-        return sorted(keyList,
-                      key=lambda t: self.elements[t].fields['time'],
-                      reverse=True)
-
 
 class AllGroups(AllObjects):
     def __init__(self, obj_type, class_name, config):
@@ -1828,6 +1799,55 @@ class AllGrUsage(AllGroups):
         usages = list(usages)         
         usages.sort(key=lambda x: int(x.fields['rank']), reverse=False)
         return usages
+
+    def component_options(self, usage, selec_type, selec_id, lang):
+        c = self.config
+        usages = []
+        aUsage = self.get(usage)
+        if aUsage:
+            usages = aUsage.get_all_children(usages,c.AllGrUsage)
+            usages.append(usage)
+        options = ""
+        first = True
+        for k in c.AllPlaces.get_sorted_hierarchy():
+            v = c.AllPlaces.get(k)
+            if v and v.isActive():
+                curr_group=v.fields['gu_id']
+                if not usages or (curr_group and curr_group in usages):
+                    if first:
+                        options += '<optgroup label="'+webnet.htmlquote(c.getMessage('place',lang))+'">'
+                        first = False
+                    options += '<option value="p_'+k+'"'
+                    if selec_type=='p' and selec_id==k:
+                        options += 'selected'
+                    options += '>'+v.fields['acronym']+' - '+webnet.htmlquote(v.getName(lang))+'</option>'
+        first = True
+        for k in c.AllEquipments.get_sorted_hierarchy():
+            v = c.AllEquipments.get(k)
+            if v and v.isActive():
+                curr_group=v.fields['gu_id']
+                if not usages or (curr_group and curr_group in usages):
+                    if first:
+                        options += '<optgroup label="'+webnet.htmlquote(c.getMessage('equipment',lang))+'">'
+                        first = False
+                    options += '<option value="e_'+k+'"'
+                    if selec_type=='e' and selec_id==k:
+                        options += 'selected'
+                    options += '>'+v.fields['acronym']+' - '+webnet.htmlquote(v.getName(lang))+'</option>'
+        first = True
+        for k in c.AllContainers.get_sorted_hierarchy():
+            v = c.AllContainers.get(k)
+            if v and v.isActive():
+                curr_group=v.fields['gu_id']
+                if not usages or (curr_group and curr_group in usages):
+                    if first:
+                        options += '<optgroup label="'+webnet.htmlquote(c.getMessage('container',lang))+'">'
+                        first = False
+                    options += '<option value="e_'+k+'"'
+                    if selec_type=='c' and selec_id==k:
+                        options += 'selected'
+                    options += '>'+v.fields['acronym']+' - '+webnet.htmlquote(v.getName(lang))+'</option>'
+        return options
 
 class AllGrRecipe(AllGroups):
     def __init__(self, config):
@@ -2147,16 +2167,6 @@ class AllTransfers(AllObjects):
 
     def get_class_acronym(self):
         return 'transfer'
-
-    def get_sorted(self):
-        return collections.OrderedDict(sorted(self.elements.items(),
-                                       key=lambda t: t[1].fields['time'],
-                                       reverse=True ))
-
-    def sort_hierarchy(self,keyList):
-        return sorted(keyList,
-                      key=lambda t: self.elements[t].fields['time'],
-                      reverse=True)
 
 class AllTransferModels(AllObjects):
 
@@ -2750,18 +2760,18 @@ class AlarmingObject(ConfigurationObject):
 
     def get_alarm(self,model=None):
         bounds = model.fields if model else self.fields
-	if self.actualAlarm == 'typical':
-	    return bounds['a_typical']
-	elif self.actualAlarm == 'minmin':
-	    return bounds['a_minmin']
-	elif self.actualAlarm == 'min':
-	    return bounds['a_min']
-	elif self.actualAlarm == 'max':
-	    return bounds['a_max']
-	elif self.actualAlarm == 'maxmax':
-	    return bounds['a_maxmax']
-	elif self.actualAlarm == 'none':
-	    return bounds['a_none']
+        if self.actualAlarm == 'typical':
+            return bounds['a_typical']
+        elif self.actualAlarm == 'minmin':
+            return bounds['a_minmin']
+        elif self.actualAlarm == 'min':
+            return bounds['a_min']
+        elif self.actualAlarm == 'max':
+            return bounds['a_max']
+        elif self.actualAlarm == 'maxmax':
+            return bounds['a_maxmax']
+        elif self.actualAlarm == 'none':
+            return bounds['a_none']
 
     def setCorrectAlarmValue(self,model=None):
         bounds = model.fields if model else self.fields
@@ -2778,7 +2788,7 @@ class AlarmingObject(ConfigurationObject):
             self.degreeAlarm = int(alarmlog.fields['degree'])
         except:
             self.degreeAlarm = 0
-	Aname, Aacronym, self.colorAlarm, self.colorTextAlarm = c.triple(alarmlog.fields['typealarm'])
+        Aname, Aacronym, self.colorAlarm, self.colorTextAlarm = c.triple(alarmlog.fields['typealarm'])
         self.lastvalue = alarmlog.fields['value']
         self.time = alarmlog.fields['alarmtime']
         
@@ -2795,6 +2805,9 @@ class ManualData(AlarmingObject):
 
     def get_type(self):
         return 'd'
+
+    def sort_key(self):
+        return self.fields['time']
 
     def get_quantity_string(self):
         return self.fields['value']
@@ -2911,6 +2924,9 @@ class Pouring(AlarmingObject):
 
     def get_type(self):
         return 'v'
+
+    def sort_key(self):
+        return self.fields['time']
 
     def get_quantity_string(self):
         return self.fields['quantity']
@@ -3180,7 +3196,7 @@ class Group(ConfigurationObject):
         if not allObj:
             allObj =  self.config.findAll(self.get_type()) 
         for e in self.parents:
-	    if e and e not in parents:
+            if e and e not in parents:
                 parents.append(e)
                 rec = allObj.get(e)
                 if rec:
@@ -3191,7 +3207,7 @@ class Group(ConfigurationObject):
         if not allObj:
             allObj =  self.config.findAll(self.get_type()) 
         for e in self.children:
-	    if e and e not in children:
+            if e and e not in children:
                 children.append(e)
                 rec = allObj.get(e)
                 if rec:
@@ -3482,17 +3498,25 @@ class CheckPoint(Group):
             if 'vm_src_'+count in data: #input
                 tmp['src'] = data['vm_src_'+count]
                 tmp['dest'] = batch.split('_')[1]
-            else: #output
+            elif 'vm_dest_'+count in data:
                 tmp['dest'] = data['vm_dest_'+count]
                 tmp['src'] = batch.split('_')[1]
-                if tmp['src'] and tmp['src']==tmp['dest']: #sub-batch
+                if tmp['dest'].startswith('b_'): # existing batch
+                    tmp['dest'] = tmp['dest'].split('_')[1]
+                else: #sub-batch
                     currBatch = self.config.AllBatches.get(tmp['src'])
                     if currBatch:
-                        subbatch = currBatch.subbatch(user,1)
+                        subbatch = currBatch.subbatch(user,1,self.getID(),tmp['dest'])#After SUB, key of the component to start with...
                         if not subbatch:
                             return None
                         tmp['dest'] = subbatch.getID()
+                    else:
+                        return None
+            else:
+                return None
             tmp['remark'] = data['vm_remark_'+count]
+        else:
+            return None
         return tmp
 
     def write_control(self, type, id, user):
@@ -3732,6 +3756,9 @@ class AlarmLog(ConfigurationObject):
 
     def get_group(self):
         return self.fields['a_id']
+
+    def sort_key(self):
+        return self.fields['begin']
 
     # WHAT is moved
     def get_source(self,config):
@@ -4749,7 +4776,7 @@ class Measure(ConfigurationObject):
         self.save(c, user)
 
     def get_measure(self,c):
-	return self;
+        return self;
 
     def get_unit(self,c):
         return self.fields['unit']
@@ -5124,7 +5151,7 @@ class Sensor(AlarmingObject):
             output_val = self.get_mesure_humidity_campbell(config)
         elif self.fields['channel'] == 'atmos41':
             input = config.HardConfig.inputs[self.fields['channel']]
-	    if cache is [] or cache is None :
+            if cache is [] or cache is None :
                 try:
                     ser = serial.Serial(input['serialport'],
                                         baudrate=9600,
@@ -5473,7 +5500,7 @@ class Batch(ConfigurationObject):
         b.save(self.config, user)
         return True
 
-    def subbatch(self, user, name=1):
+    def subbatch(self, user, name, checkpoint, component):
         b = self.config.getObject('new', 'b')
         allObjects = self.config.findAllFromObject(self)
         lenAcro = len(self.fields['acronym'])+3
@@ -5484,7 +5511,7 @@ class Batch(ConfigurationObject):
         b.fields['acronym'] = tmpname
         allObjects.hierarchy = None
         b.fields['basicqt'] = '0'
-        for f in ['active','m_id','time','cost','fixed_cost','remark',
+        for f in ['active','m_id','time','cost','fixed_cost','remark','expirationdate',
                   "provider_id", "provider_ref", "buyer_id", "buyer_ref",'gr_id']:
             b.fields[f] = self.fields[f]
         for lang in self.config.AllLanguages.elements:
@@ -5493,6 +5520,20 @@ class Batch(ConfigurationObject):
         b.creator = user.fields['u_id']
         b.created = b.fields['begin']
         b.save(self.config, user)
+        if component:
+            #CREATE TRANSFER OF B TO GU !!
+            tr = self.config.getObject('new','t')
+            tr.fields['time'] = b.fields['begin']
+            if not tr.fields['time']:
+                tr.fields['time'] = useful.now()
+            tr.fields['remark'] = ''
+            tr.fields['active'] = '1'
+            tr.fields['h_id'] = checkpoint
+            tr.set_position(component)
+            tr.set_object(b.getTypeId(),user)
+            tr.creator = user.fields['u_id']
+            tr.created = tr.fields['time']
+            tr.save(self.config, user)
         return b
 
     def validate_form(self, data, configuration, user):
@@ -5721,9 +5762,9 @@ class ManualDataModel(ConfigurationObject):
             self.config.AllCheckPoints.elements[self.fields['h_id']].remove_dm(
                 self)
         super(ManualDataModel, self).set_value_from_data(data, c, user)
-	tmp = ['rank'] +alarmFields
-	for elem in tmp:
-	    self.fields[elem] = data[elem]
+        tmp = ['rank'] +alarmFields
+        for elem in tmp:
+            self.fields[elem] = data[elem]
         self.fields['m_id'] = data['measure']
         self.fields['h_id'] = data['checkpoint']
         if 'active' in data:
@@ -5813,6 +5854,9 @@ class Transfer(AlarmingObject):
 
     def get_type(self):
         return 't'
+
+    def sort_key(self):
+        return self.fields['time']
 
     # WHERE it is moved
     def get_type_container(self):

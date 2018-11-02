@@ -573,9 +573,9 @@ class WebFind():
         allRec = type[0] == '*'
         if allRec:
             type = type[1:]
-	barcode = ''
+        barcode = ''
         if 'barcode' in data:
-	    barcode = data['barcode']
+            barcode = data['barcode']
         return self.getRender(connected, type, id1, id2, barcode, status, allRec)
 
     def POST(self, type, id1, id2):
@@ -626,11 +626,10 @@ class WebFind():
 class WebFindModel():
     def GET(self, type, id1, id2, modelid):
         connected = redirect_when_not_logged()
-            
         data = web.input()
-	barcode = ''
+        barcode = ''
         if 'barcode' in data:
-	    barcode = data['barcode']
+            barcode = data['barcode']
         return self.getRender(connected, type, id1, id2, modelid, barcode)
 
     def getRender(self, connected, type, id1, id2, modelid, barcode=''):
@@ -654,9 +653,16 @@ class WebGraphic():
     def GET(self, type, id):
         connected = redirect_when_not_logged()
         if type in 'scpem':
+            data = web.input()
+            begin = ''
+            end = ''
+            if 'begin' in data:
+                begin = data['begin']
+            if 'end' in data:
+                end = data['end']
             objects = c.findAll(type)
             if objects and id and id in objects.elements.keys():
-                return render.graphic(connected, type, id)
+                return render.graphic(connected, type, id, begin, end)
         return render.notfound()
 
 class WebFiles():
@@ -915,7 +921,7 @@ class WebGraphRecipe():
                             graph += usaTopID+'->'+hid+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
 ##                                if v.fields['gr_id'] != id:
 ##                                    graph += "gr_"+v.fields['gr_id']+'->'+hid+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
-                        elems = v.get_local_model_sorted()
+                        elems = v.get_model_sorted()
                         obs = ""
                         for e in elems:
                             if e.get_type() == 'tm':
@@ -983,7 +989,7 @@ class WebGraphRecipe():
                                 else:
                                     first = True
                                     for edata in events:
-                            		Acolor = None
+                                        Acolor = None
                                         qtity = edata.get_quantity()
                                         if qtity:
                                             #qt = float(qtity) 
@@ -1577,10 +1583,10 @@ class end_activities_flags:
         if self._check_update:
             start_update()
             self.set_restart_elsa()
-	
+
         if self._restart_elsa:
-	    restart_program()
-        
+            restart_program()
+
         if self._restart:
             subprocess.call(['sudo', '/sbin/shutdown', '-r', 'now'])
         

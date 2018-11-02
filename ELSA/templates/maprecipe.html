@@ -23,6 +23,8 @@ $for usageTop in usagesTop:
 	<div class="row">
 	  <div class="col-xs-12">
 	    <a href="/find/related/gu_$(usageTop.getID())">$:(usageTop.statusIcon(c,True,False))</a>$usageTop.fields['acronym'] <span class="light">#$usageTop.fields['rank']</span> <strong>$usageTop.getName(self.lang)</strong>
+	    $if usageTop.fields['remark']:
+		<br/><span style="margin-left:24px" class="text-danger">$(usageTop.fields['remark'])</span>
 	  </div>
 	</div>
     $ level = 0
@@ -35,7 +37,9 @@ $for usageTop in usagesTop:
 		    <a href="#h_$acro">$acro</a> <span class="light">#$checkpoint.fields['rank']</span>
 		$else:
 		    <a name="h_$acro"></a>$acro <span class="light">#$checkpoint.fields['rank']</span> - <strong>$(checkpoint.getName(self.lang))</strong>
-		    $ operations = checkpoint.get_local_model_sorted()
+		    $if checkpoint.fields['remark']:
+			<br/><span style="margin-left:24px" class="text-danger">$(checkpoint.fields['remark'])</span>
+		    $ operations = checkpoint.get_model_sorted()
 		    $for operation in operations:
 			$ op_type = operation.get_type()
   		        <div class="map down">

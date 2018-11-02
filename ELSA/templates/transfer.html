@@ -6,6 +6,7 @@ $var pinned : $connected.pinned()
 $var recursive : False
 $var title : $c.getMessage('add',self.lang) $c.getMessage('transfer',self.lang)
 $ splits = context.split('_')
+$ transfer = None
 $if id == 'new':
     $code :
 	myID = 'new'
@@ -20,7 +21,6 @@ $else :
 	    myID = 'update'
 	    rmq = transfer.fields['remark']
     $var title :  $c.getMessage('transfer',self.lang) $id
-	    
 $if context != '' :
     $code:
 	myID = 'component'
@@ -80,20 +80,6 @@ $elif myID == 'component':
 	    </div>
 	</div>
 
-	$code:
-	    recipe = None
-	    usages = None
-	    recipe_id = None
-	    if myID=='component' and ('gr_id' in elem.fields):
-		    recipe_id = elem.fields['gr_id']
-		    recipe = c.AllGrRecipe.get(recipe_id)
-		    if recipe:
-			gr_usage = recipe.fields['gu_id']
-			usage = c.AllGrUsage.get(gr_usage)
-		        if usage:
-			    usages = set(usage.children)
-			    usages.add(gr_usage)
-
         $if myID == 'update' and transfer.fields['tm_id']:
 	    $code:
 		model = transfer.get_model(c)
@@ -105,54 +91,20 @@ $elif myID == 'component':
 		    <div class="col-xs-11"><strong>$(minutes+" mn")</strong></div>
 		</div>
 
+	$code:
+	    recipe = None
+	    gr_usage = None
+	    recipe_id = None
+	    if myID=='component' and ('gr_id' in elem.fields):
+		recipe_id = elem.fields['gr_id']
+		recipe = c.AllGrRecipe.get(recipe_id)
+		if recipe:
+		    gr_usage = recipe.fields['gu_id']
 	<div class="form-group row">
 	    <label for="inputPosition" class="col-sm-3 col-form-label">$c.getMessage('target',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "position" class="form-control" id="inputPosition">
-		    $ first = True
-		    $for k in c.AllPlaces.get_sorted_hierarchy():
-			$ v = c.AllPlaces.get(k)
-			$if v and v.isActive():
-                          $ curr_group=v.fields['gu_id']
-			  $if not usages or (curr_group and curr_group in usages):
-			    $if first:
-				<optgroup label="$c.getMessage('place',self.lang)">
-				$ first = False
-			    <option value="p_$k"
-			    $if myID == 'update':
-				$if 'p' == transfer.fields['cont_type'] and k == transfer.fields['cont_id'] :
-				    selected
-			    >$v.fields['acronym'] - $v.getName(self.lang) </option>
-		    $if not(myID == 'component' and  elem.get_type() == 'e'):
-			    $ first = True
-			    $for k in c.AllEquipments.get_sorted_hierarchy():
-				$ v = c.AllEquipments.get(k)
-				$if v and v.isActive():
-	                          $ curr_group=v.fields['gu_id']
-				  $if not usages or (curr_group and curr_group in usages):
-				    $if first:
-					<optgroup label="$c.getMessage('equipment',self.lang)">
-					$ first = False
-				    <option value="e_$k" 
-				    $if myID == 'update':
-					$if 'e' == transfer.fields['cont_type'] and k == transfer.fields['cont_id'] :
-					    selected			
-				    >$v.fields['acronym'] - $v.getName(self.lang)</option>
-		    $if not(myID == 'component' and (elem.get_type() == 'c'or elem.get_type() == 'e')):
-			    $ first = True
-			    $for k in c.AllContainers.get_sorted_hierarchy():
-				$ v = c.AllContainers.get(k)
-				$if v and v.isActive():
-	                          $ curr_group=v.fields['gu_id']
-				  $if not usages or (curr_group and curr_group in usages):
-				    $if first:
-					<optgroup label="$c.getMessage('container',self.lang)">
-					$ first = False
-				    <option value="c_$k"
-				    $if myID == 'update':
-					$if 'c' == transfer.fields['cont_type'] and k == transfer.fields['cont_id'] :
-					    selected
-				    >$v.fields['acronym'] - $v.getName(self.lang)</option>
+			$:c.AllGrUsage.component_options(gr_usage,transfer.fields['cont_type'] if transfer else None,transfer.fields['cont_id'] if transfer else None,self.lang)
 		</select>
 	    </div>
 	</div>

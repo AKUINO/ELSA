@@ -7,6 +7,7 @@ $var recursive : False
 $if type == 'new':
     $var location: exportdata/=exportdata
     $var title : $c.getMessage('export',self.lang)
+    $ id = None
 $else:
     $code:
         elem = c.get_object(type,id)
@@ -18,37 +19,13 @@ $else:
             <label for="inputElement" class="col-sm-3 col-form-label">$c.getMessage('component',self.lang)</label>
             <div class="col-sm-9">
             <select name = "element" class="form-control" id="inputElement">
-                <optgroup label="$c.getMessage('place',self.lang)">
-                $for k,e in c.AllPlaces.elements.items():
-		  $if e.isActive():
-                    <option value="p_$k"
-                        $if type != 'new':
-                            $if 'p' == type and k == id :
-                                selected
-                    >$e.fields['acronym'] - $e.getName(self.lang) </option>
-                <optgroup label="$c.getMessage('equipment',self.lang)">
-                $for k,e in c.AllEquipments.elements.items():
-		  $if e.isActive():
-                    <option value="e_$k"
-                        $if type != 'new':
-                            $if 'e' == type and k == id :
-                                selected			
-                    >$e.fields['acronym'] - $e.getName(self.lang)</option>
-                <optgroup label="$c.getMessage('container',self.lang)">
-                $for k,e in c.AllContainers.elements.items():
-		  $if e.isActive():
-                    <option value="c_$k"
-                        $if type != 'new':
-                            $if 'c' == type and k == id :
-                                selected
-                    >$e.fields['acronym'] - $e.getName(self.lang)</option>
+		$:c.AllGrUsage.component_options(kusage,type,id,self.lang)
                 <optgroup label="$c.getMessage('batch',self.lang)">
                 $for k,b in c.AllBatches.elements.items():
 		  $if b.isActive():
                     <option value="b_$k"
-                        $if type != 'new':
-                            $if 'b' == type and k == id :
-                                selected
+                        $if 'b' == type and k == id :
+                            selected
                     >$b.fields['acronym'] - $b.getName(self.lang)</option>
                 </select>
             </div>

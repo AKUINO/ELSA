@@ -57,43 +57,7 @@ $elif myID == 'component':
 	    <div class="col-sm-9">
 		<select name="component" class="form-control" id="langSelect">
 		    $if myID == 'new':
-			<optgroup label="$c.getMessage('place',self.lang)">
-			    $for k,e in c.AllPlaces.get_sorted().items():
-			      $if e.isActive():
-				<option value="$(e.getTypeId())"
-				    $if myID == 'component':
-					$if 'p' == elem.get_type() and e.getID() == elem.getID(): 
-					    selected
-				>$e.fields['acronym'] - $e.getName(self.lang) </option>
-			    </optgroup>
-			    <optgroup label="$c.getMessage('equipment',self.lang)">
-			    $for k,e in c.AllEquipments.get_sorted().items():
-			      $if e.isActive():
-				<option value="$(e.getTypeId())"
-				    $if myID == 'component':
-					$if 'e' == elem.get_type() and e.getID() == elem.getID(): 
-					    selected			
-				>$e.fields['acronym'] - $e.getName(self.lang) </option>
-			    </optgroup>
-			    <optgroup label="$c.getMessage('container',self.lang)">
-			    $for k,e in c.AllContainers.get_sorted().items():
-			      $if e.isActive():
-				<option value="$(e.getTypeId())"
-				    $if myID == 'component':
-					$if 'c' == elem.get_type() and e.getID() == elem.getID(): 
-					    selected
-				>$e.fields['acronym'] - $e.getName(self.lang) </option>
-			    </optgroup>
-			    <optgroup label="$c.getMessage('batch',self.lang)">
-			    $for k in c.AllBatches.get_sorted_hierarchy():
-			      $ e = c.AllBatches.get(k)
-			      $if e and e.isActive() and not e.isComplete():
-				<option value="b_$k"
-				    $if myID == 'component':
-					$if 'b' == elem.get_type() and k == elem.getID(): 
-					    selected
-				>$e.fields['acronym'] - $e.getName(self.lang) </option>
-			    </optgroup>
+			$:c.AllGrUsage.component_options(None,elem.get_type() if elem else None,elem.getID() if elem else None,self.lang)
 		    $else:
 			<option value="$(elem.get_type())_$(elem.getID())">$elem.fields['acronym'] - $elem.getName(self.lang) </option>
 		</select>

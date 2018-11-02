@@ -1,4 +1,4 @@
-$def with (connected,type,id)
+$def with (connected,type,id, begin, end)
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
@@ -9,6 +9,10 @@ $code:
     allobjects = c.findAll(type)
     elem = allobjects.get(id)
     keyID = allobjects.keyColumn
+    if begin:
+        begin=",window_min:"+begin
+    if end:
+        end=",window_max:"+end
 $var title : $elem.getName(self.lang)
 
 <script type="text/javascript" src="/static/js/jquery.flot.min.js"></script>
@@ -25,7 +29,7 @@ $var title : $elem.getName(self.lang)
     var graph_opts={legend: { noColumns:4},
 		tooltip: true,
 	    	tooltipOpts: { show:true, dateFormat:"%H:%M:%S", content:"<h4>%s</h4> Value: %y.3 <br/> %x " } };
-    var rrdflot_defaults={graph_width: "600px"}
+    var rrdflot_defaults={graph_width: "600px" $(begin) $(end) }
 </script>
 $code:
     sensors = elem.get_sensors_in_component(c)
@@ -65,5 +69,5 @@ $for k in sensors:
 			dsColor = "#0080ff"
 		var ds_graph_opts = { '$dsName': { color:'$dsColor' }};
 		flot_obj=new rrdFlotAsync("mygraph$(k)","$url",null,graph_opts,ds_graph_opts,rrdflot_defaults);
-                $$("#mygraph$(k)_ds_cb").parent().hide();
+                // $$("#mygraph$(k)_ds_cb").parent().hide();
 	    </script>

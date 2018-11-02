@@ -581,10 +581,10 @@ $var title: MODAL
 		    $if barcode != '' :
                         <div class="row" style="margin-top:10px;">
                             <div class="col-xs-4">
-				<strong><a href="/barcode/$(c.AllBarcodes.get_barcode(elem.get_type(), elem.id))" class="btn btn-warning" role="button">$:c.getHalfling('barcode')</a></strong>
+				<strong><a href="/search?search=$(c.AllBarcodes.get_barcode(elem.get_type(), elem.id))" class="btn btn-warning" role="button">$:c.getHalfling('barcode')</a></strong>
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-				<a href="/barcode/$(barcode)">$(barcode)</a>
+				<a href="/search?search=$(barcode)">$(barcode)</a>
                             </div>
                         </div>
 		    $if 'remark' in elem.fields and elem.fields['remark'] != '' :

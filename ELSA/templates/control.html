@@ -64,53 +64,11 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		$code:
 		   usages = None
 		   kusage = e.fields['gu_id']
-		   usage = c.AllGrUsage.get(kusage)
-		   if usage:
-			usages = set(usage.children)
-			usages.add(kusage)
 		<div class="form-group row">
 		    <label for="inputPosition" class="col-sm-3 col-form-label">$c.getMessage('target',self.lang)</label>
 		    <div class="col-sm-9">
 			<select name = "tm_position_$(counttm)" class="form-control" id="inputPosition">
-			    $ first = True
-			    $for k in c.AllPlaces.get_sorted_hierarchy():
-				$ v = c.AllPlaces.get(k)
-				$if v and v.isActive():
-	                          $ curr_group=v.fields['gu_id']
-				  $if not usages or (curr_group and curr_group in usages):
-				    $if first:
-					<optgroup label="$c.getMessage('place',self.lang)">
-					$ first = False
-				    <option value="p_$k"
-					$if here_type=='p' and here_id==k:
-					    selected
-				    >$v.fields['acronym'] - $v.getName(self.lang) </option>
-			    $ first = True
-			    $for k in c.AllEquipments.get_sorted_hierarchy():
-				$ v = c.AllEquipments.get(k)
-				$if v and v.isActive():
-	                          $ curr_group=v.fields['gu_id']
-				  $if not usages or (curr_group and curr_group in usages):
-				    $if first:
-					<optgroup label="$c.getMessage('equipment',self.lang)">
-					$ first = False
-				    <option value="e_$k"
-					$if here_type=='e' and here_id==k:
-					    selected
-				    >$v.fields['acronym'] - $v.getName(self.lang)</option>
-			    $ first = True
-			    $for k in c.AllContainers.get_sorted_hierarchy():
-				$ v = c.AllContainers.get(k)
-				$if v and v.isActive():
-	                          $ curr_group=v.fields['gu_id']
-				  $if not usages or (curr_group and curr_group in usages):
-				    $if first:
-					<optgroup label="$c.getMessage('container',self.lang)">
-					$ first = False
-				    <option value="c_$k"
-					$if here_type=='c' and here_id==k:
-					    selected
-				    >$v.fields['acronym'] - $v.getName(self.lang)</option>
+			$:c.AllGrUsage.component_options(kusage,here_type,here_id,self.lang)
 			</select>
 		    </div>
 		</div>
@@ -186,21 +144,30 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		    </div>
 		$else:
 		    <div class="form-group row">
-			$ aRecipe = c.AllGrRecipe.get(e.fields['dest'])
-			$if batch:
-			    $ aMeasure = batch.get_measure(c)
 			<label for="b_id" class="col-sm-3 col-form-label">$c.getMessage('batch',self.lang) $c.getMessage('target',self.lang)</label>
 			<div class="col-sm-9" id = "divdest">
 			    <select name="vm_dest_$(countvm)" class="form-control" id="dest">
 				$code:
-				    possDest = c.AllBatches.get_batches_for_recipe_usage([aRecipe.getID()]+aRecipe.get_submap_str(), [aUsage.getID()]+aUsage.get_submap_str())
-				    pinning = not (batch in possDest)
+				    possDest = []
+				    aRecipe = c.AllGrRecipe.get(e.fields['dest'])
+				    if aRecipe:
+					aRecipeFamily = [aRecipe.getID()]+aRecipe.get_submap_str()
+					aUsageFamily = [aUsage.getID()]+aUsage.get_submap_str()
+					possDest = c.AllBatches.get_batches_for_recipe_usage(aRecipeFamily, aUsageFamily)
+				    pinning = True
+				    if batch:
+					aMeasure = batch.get_measure(c)
+					pinning = not (batch in possDest)
+					if pinning and batch.fields['gr_id'] in aRecipeFamily:
+					    pinning = False
+				$if not pinning:
+				    <optgroup label="$c.getMessage('subbatch',self.lang) [= $unicode(batch.get_residual_quantity())]">
+				    $:c.AllGrUsage.component_options(e.fields['gu_id'],None,None,self.lang)
+				    <optgroup label="$c.getMessage('batch',self.lang)">
 				$for b in possDest:
 				    $if not b.isComplete():
 					$if b.getID() != batch.getID():
-					    <option value="$b.getID()"$:(" selected" if (pinning and b.getTypeId()==self.pinned) else '')>$b.fields['acronym'] - $b.getName(self.lang) [= $unicode(b.get_residual_quantity())] </option>
-					$else:
-					    <option value="$batch.getID()" selected>$c.getMessage('subbatch',self.lang) [= $unicode(b.get_residual_quantity())] </option>
+					    <option value="b_$b.getID()"$:(" selected" if (pinning and b.getTypeId()==self.pinned) else '')>$b.fields['acronym'] - $b.getName(self.lang) [= $unicode(b.get_residual_quantity())] </option>
 			    </select>
 			</div>
 		    </div>		

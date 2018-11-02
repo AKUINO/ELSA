@@ -133,6 +133,7 @@ $for operation in events:
 					$(max)</span>
 					$if measure:
 					     $measure.fields['unit']
+					<a href="/graphic/s_$(sensor.getID())?begin=$(begin)&end=$(end)">$:(c.getHalfling('graphic'))</a>
 				</td>
 				<td style="text-align:right;padding:3px">
 					<span style="$(("background-color:#"+str(Acolor)+"; color:#"+str(Atext_color)) if Acolor else "");padding:4px">
