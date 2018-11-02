@@ -3705,6 +3705,13 @@ class Place(ConfigurationObject):
                     listSensor.append(k)
         return listSensor
 
+    def sort_key(self):
+        pref = ""
+        usage = self.config.AllGrUsage.get(self.fields['gu_id'])
+        if usage:
+            pref = usage.fields['rank'].rjust(10)
+        return pref + self.fields['acronym'].upper()
+
     def isAlarmed(self,c):
         for kSensor,aSensor in c.AllSensors.elements.items():
             if aSensor.isAlarmed(c) and aSensor.is_in_component('p',self.id):

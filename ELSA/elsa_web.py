@@ -1029,20 +1029,20 @@ class WebGraphRecipe():
                     recipe = c.AllGrRecipe.get(krecipe)
                     if recipe:
                         if prec:
-                            graph += 'gr_'+krecipe+'->gr_'+prec+'[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];'
-                        graph += 'gr_'+krecipe
+                            graph += 'xgr_'+krecipe+'->xgr_'+prec+'[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];'
+                        graph += 'xgr_'+krecipe
                         graph += "[labelType=\"html\",label=\"<a href=/find/related/gr_"+krecipe+">"+recipe.getNameHTML(lang)+"</a>\""
                         graph += ",tooltip=\""+recipe.fields['acronym']+"\""
-                        graph += ",id=\"gr_"+krecipe+"\",shape=ellipse,style=\"fill:"+("#fbcfaa" if krecipe == id else "#fff")+";stroke:1px;\"];"
+                        graph += ",id=\"xgr_"+krecipe+"\",shape=ellipse,style=\"fill:"+("#fbcfaa" if krecipe == id else "#fff")+";stroke:1px;\"];"
                         if recipe.fields['gu_id']:
-                            graph += "gr_"+krecipe+"->gu_"+recipe.fields['gu_id']+"[style=\"stroke-width:3px;stroke:#3d3\"];"
+                            graph += "xgr_"+krecipe+"->gu_"+recipe.fields['gu_id']+"[style=\"stroke-width:3px;stroke:#3d3\"];"
                     prec = krecipe
             for recipe in recipes_todo:
-                if not recipe.getID() in summit:
+##                if not recipe.getID() in summit:
                     grID = "gr_"+recipe.getID()
-                    for above in recipe.parents:
-                        if above in summit:
-                            graph += "gr_"+above+"->"+grID+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
+##                    for above in recipe.parents:
+##                        if above in summit:
+##                            graph += "xgr_"+above+"->"+grID+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
                     graph += grID
                     graph += "[labelType=\"html\",label=\"<a href=/find/related/"+grID+">"+recipe.getNameHTML(lang)+"</a>\""
                     graph += ",tooltip=\""+recipe.fields['acronym']+"\""
@@ -1176,6 +1176,14 @@ class WebMapComponents():
     def GET(self):
         connected = redirect_when_not_logged()
         return render.mapcomponents(connected)
+
+class WebMapUsages():
+    def __init__(self):
+        self.name = u"WebMapUsages"
+
+    def GET(self):
+        connected = redirect_when_not_logged()
+        return render.mapusages(connected)
 
 class WebMapRecipes():
     def __init__(self):
@@ -1408,6 +1416,7 @@ class WebTest:
 #            '/restarting',
             '/map/gf',
             '/map/gu',
+            '/map/pec',
             '/map/h',
             '/map/gr',
             '/graphhelp/b_1',
@@ -1640,7 +1649,8 @@ def main():
             '/map/gr_(.+)', 'WebMapRecipe',
             '/graph/(.+)_(.+)', 'WebGraphRecipe',
             '/map/gf', 'WebMapFunctions',
-            '/map/gu', 'WebMapComponents',
+            '/map/gu', 'WebMapUsages',
+            '/map/pec', 'WebMapComponents',
             '/map/h', 'WebMapCheckPoints',
             '/map/gr', 'WebMapRecipes',
             '/calendar', 'WebCalendar',

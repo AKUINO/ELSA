@@ -1,0 +1,179 @@
+$def with (connected)
+$var title : ELSA Components Map
+$var location: list/gu=$(c.AllGrUsage.get_class_acronym())
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
+$var pinned : $connected.pinned()
+$var recursive : False
+$ done = set()
+$ listUsage = c.AllGrUsage.get_fullmap_str()
+$ listUsage.append('')
+<div class="container">
+	<a class="btn btn-warning" href="/map/pec" style="float:right">$:c.getHalfling('to')$:c.getHalfling('place')$:c.getHalfling('equipment')$:c.getHalfling('container')</a>
+$ level = 0
+$ first = True
+$for kusage in listUsage:
+	$if kusage == '>>':
+		$ level += 1
+		<div class="map down">
+	$elif kusage == '<<':
+		$ level -= 1
+		</div>
+	$else:
+	    $ elem = None if kusage == '' else c.AllGrUsage.get(kusage)
+	    $if not elem or elem.isActive():
+		$if level == 0:
+			$if first:
+				$ first = False
+			$else:
+				</div>
+			<div class="map top">
+		$if elem:
+			<a href="/find/related/gu_$kusage">$:(elem.statusIcon(c,True,False))</a>
+			$ acro = elem.fields['acronym']
+			$if ('gu_'+kusage) in done:
+				<a href="#gu_$acro">$acro</a>
+				$continue
+			<a name="gu_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>			
+			$ files = elem.getDocumentList()
+			$if files and len(files) > 0:
+			    <a href="/files/gu_$kusage">
+			    $:c.getHalfling('file')<strong>$len(files)</strong></a>
+			$if elem.fields['rank']:
+			    #$elem.fields['rank']
+			<br/>
+		$for kplace,place in c.AllPlaces.elements.items():
+			$if place.isActive() and place.get_group() == kusage :
+					<div class="map down" style="border-color:$(place.fields['colorgraph'])">
+					<a href="/find/related/p_$kplace">$:(place.statusIcon(c,True,False))</a>
+					$ acro = place.fields['acronym']
+					$if ('p_'+kplace) in done:
+						<a href="#p_$acro">$acro</a>
+					$else:
+						<a name="p_$acro"></a>$acro - <strong>$(place.getName(self.lang))</strong>
+						$ files = place.getDocumentList()
+						$if files and len(files) > 0:
+						    <a href="/files/p_$place.getID()">
+						    $:c.getHalfling('file')<strong>$len(files)</strong></a>
+						$ batches = place.get_batches(c)
+						$if len(batches):
+							&nbsp;&nbsp;<strong><a href="/find/b/$(place.getTypeId())">$unicode(len(batches)) $:(c.getHalfling('batch'))</a></strong>
+						$ sensors = place.get_sensors_in_component(c)
+						$for ksensor in sensors:
+						    $ sensor = c.AllSensors.get(ksensor)
+						    $if sensor and sensor.isActive():
+							$ alarms = sensor.count_logs(c)
+							<div class="map down">
+							<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c,True,False))</a>
+							$ acro = sensor.fields['acronym']
+							$if ('s_'+ksensor) in done:
+								<a href="#s_$acro">$acro</a>
+							$else:
+								<a name="s_$acro"></a>$acro - <strong>$(sensor.getName(self.lang))</strong>
+								<span style="padding:5px;background-color:#$(sensor.colorAlarm);color:#$(sensor.colorTextAlarm)">$(sensor.lastvalue)</span> <a href="/find/related/m_$sensor.fields['m_id']">$(sensor.get_unit(c))</a>
+								<a href="/graphic/s_$ksensor">$:(c.getHalfling('graphic'))</a>
+							        $if alarms > 0:
+								    <a href="/find/al/s_$sensor.getID()">
+								    $:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
+								$ files = sensor.getDocumentList()
+								$if files and len(files) > 0:
+								    <a href="/files/s_$sensor.getID()">
+								    $:c.getHalfling('file')<strong>$len(files)</strong></a>
+								$ done.add('s_'+ksensor)
+							</div>
+
+						$ done.add('p_'+kplace)
+					</div>
+		$for kequipment,equipment in c.AllEquipments.elements.items():
+			$if equipment.isActive() and equipment.get_group() == kusage :
+					<div class="map down" style="border-color:$(equipment.fields['colorgraph'])">
+					<a href="/find/related/e_$kequipment">$:(equipment.statusIcon(c,True,False))</a>
+					$ acro = equipment.fields['acronym']
+					$if ('e_'+kequipment) in done:
+						<a href="#e_$acro">$acro</a>
+					$else:
+						<a name="e_$acro"></a>$acro - <strong>$(equipment.getName(self.lang))</strong>
+						$ here = equipment.get_actual_position_here(c)
+						$if here:
+							<small>$:c.getHalfling('to')</small> <a href="/find/related/$(here.get_type())_$(here.getID())">$:(here.statusIcon(c,True,False))$(here.fields['acronym'])</a>
+						$ files = equipment.getDocumentList()
+						$if files and len(files) > 0:
+						    <a href="/files/e_$equipment.getID()">
+						    $:c.getHalfling('file')<strong>$len(files)</strong></a>
+						$ batches = equipment.get_batches(c)
+						$if len(batches):
+							&nbsp;&nbsp;<strong><a href="/find/b/$(equipment.getTypeId())">$unicode(len(batches)) $:(c.getHalfling('batch'))</a></strong>
+						$ sensors = equipment.get_sensors_in_component(c)
+						$for ksensor in sensors:
+						    $ sensor = c.AllSensors.get(ksensor)
+						    $if sensor and sensor.isActive():
+							$ alarms = sensor.count_logs(c)
+							<div class="map down">
+							<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c,True,False))</a>
+							$ acro = sensor.fields['acronym']
+							$if ('s_'+ksensor) in done:
+								<a href="#s_$acro">$acro</a>
+							$else:
+								<a name="s_$acro"></a>$acro - <strong>$(sensor.getName(self.lang))</strong>
+								<span style="padding:5px;background-color:#$(sensor.colorAlarm);color:#$(sensor.colorTextAlarm)">$(sensor.lastvalue)</span> <a href="/find/related/m_$sensor.fields['m_id']">$(sensor.get_unit(c))</a>
+								<a href="/graphic/s_$ksensor">$:(c.getHalfling('graphic'))</a>
+							        $if alarms > 0:
+								    <a href="/find/al/s_$sensor.getID()">
+								    $:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
+								$ files = sensor.getDocumentList()
+								$if files and len(files) > 0:
+								    <a href="/files/s_$sensor.getID()">
+								    $:c.getHalfling('file')<strong>$len(files)</strong></a>
+								$ done.add('s_'+ksensor)
+							</div>
+						$ done.add('e_'+kequipment)
+					</div>
+		$for kcontainer,container in c.AllContainers.elements.items():
+			$if container.isActive() and container.get_group() == kusage :
+					<div class="map down" style="border-color:$(container.fields['colorgraph'])">
+					<a href="/find/related/c_$kcontainer">$:(container.statusIcon(c,True,False))</a>
+					$ acro = container.fields['acronym']
+					$if ('c_'+kcontainer) in done:
+						<a href="#c_$acro">$acro</a>
+					$else:
+						<a name="c_$acro"></a>$acro - <strong>$(container.getName(self.lang))</strong>
+						$ here = container.get_actual_position_here(c)
+						$if here:
+							<small>$:c.getHalfling('to')</small> <a href="/find/related/$(here.get_type())_$(here.getID())">$:(here.statusIcon(c,True,False))$(here.fields['acronym'])</a>
+						$ files = container.getDocumentList()
+						$if files and len(files) > 0:
+						    <a href="/files/c_$container.getID()">
+						    $:c.getHalfling('file')<strong>$len(files)</strong></a>
+						$ batches = container.get_batches(c)
+						$if len(batches):
+							&nbsp;&nbsp;<strong><a href="/find/b/$(container.getTypeId())">$unicode(len(batches)) $:(c.getHalfling('batch'))</a></strong>
+						$ sensors = container.get_sensors_in_component(c)
+						$for ksensor in sensors:
+						    $ sensor = c.AllSensors.get(ksensor)
+						    $if sensor and sensor.isActive():
+							$ alarms = sensor.count_logs(c)
+							<div class="map down">
+							<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c,True,False))</a>
+							$ acro = sensor.fields['acronym']
+							$if ('s_'+ksensor) in done:
+								<a href="#s_$acro">$acro</a>
+							$else:
+								<a name="s_$acro"></a>$acro - <strong>$(sensor.getName(self.lang))</strong>
+								<span style="padding:5px;background-color:#$(sensor.colorAlarm);color:#$(sensor.colorTextAlarm)">$(sensor.lastvalue)</span> <a href="/find/related/m_$sensor.fields['m_id']">$(sensor.get_unit(c))</a>
+								<a href="/graphic/s_$ksensor">$:(c.getHalfling('graphic'))</a>
+							        $if alarms > 0:
+								    <a href="/find/al/s_$sensor.getID()">
+								    $:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
+								$ files = sensor.getDocumentList()
+								$if files and len(files) > 0:
+								    <a href="/files/s_$sensor.getID()">
+								    $:c.getHalfling('file')<strong>$len(files)</strong></a>
+								$ done.add('s_'+ksensor)
+							</div>
+						$ done.add('c_'+kcontainer)
+					</div>
+		$ done.add('gu_'+kusage)
+$if not first:
+	</div>
+</div>

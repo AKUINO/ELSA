@@ -19,11 +19,11 @@ $else:
             <label for="inputElement" class="col-sm-3 col-form-label">$c.getMessage('component',self.lang)</label>
             <div class="col-sm-9">
             <select name = "element" class="form-control" id="inputElement">
-		$:c.AllGrUsage.component_options(kusage,type,id,self.lang)
+		$:c.AllGrUsage.component_options(None,type,id,self.lang)
                 <optgroup label="$c.getMessage('batch',self.lang)">
                 $for k,b in c.AllBatches.elements.items():
 		  $if b.isActive():
-                    <option value="b_$k"
+                    <option value="b_$(k)"
                         $if 'b' == type and k == id :
                             selected
                     >$b.fields['acronym'] - $b.getName(self.lang)</option>

@@ -136,7 +136,7 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 			$if aRecipe:
 				<div class="col-sm-9" id = "divsrc">
 				    <select name="vm_src_$(countvm)" class="form-control" id="src">
-					$for k in c.AllBatches.get_batches_for_recipe_usage([aRecipe.getID()]+aRecipe.get_submap_str(), [aUsage.getID()]+aUsage.get_submap_str()):
+					$for k in c.AllBatches.get_batches_for_recipe_usage([aRecipe.getID()]+aRecipe.get_submap_str(), ([aUsage.getID()]+aUsage.get_submap_str()) if aUsage else []):
 					    $if not k.isComplete() and not (k.getID() == batch.getID()):
 						<option value="$k.getID()"$:(" selected" if k.getTypeId()==self.pinned else '')>$k.fields['acronym'] - $k.getName(self.lang) [= $unicode(k.get_residual_quantity())] </option>
 				    </select>
@@ -150,8 +150,11 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 				$code:
 				    possDest = []
 				    aRecipe = c.AllGrRecipe.get(e.fields['dest'])
+				    aRecipeFamily = []
 				    if aRecipe:
 					aRecipeFamily = [aRecipe.getID()]+aRecipe.get_submap_str()
+				    aUsageFamily = []
+				    if aUsage:
 					aUsageFamily = [aUsage.getID()]+aUsage.get_submap_str()
 					possDest = c.AllBatches.get_batches_for_recipe_usage(aRecipeFamily, aUsageFamily)
 				    pinning = True
@@ -199,7 +202,7 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 	    <div class="col-sm-3">
 	    </div>
 	    <div class="col-sm-2">
-		<a href="/find/h/b_$(batch.getID())" class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>
+		<a href="/find/h/b_$(id1)" class="btn btn-danger btn-block" role="button">$c.getMessage('cancel',self.lang)</a>
 	    </div>
 	    <div class="col-sm-2">
 	    </div>

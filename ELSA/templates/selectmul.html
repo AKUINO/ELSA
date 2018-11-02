@@ -12,7 +12,7 @@ $var title : select multiple
 $code:
     groupList = groups.get_hierarchy_str(None,None)
     tmp = ''
-    indent = 1
+    indent = 0
     cindent = 9
     mygroup = None
     if id != 'new':
@@ -22,7 +22,8 @@ $code:
 	else:
 	    myid = allObjs.get(id).get_group()
 <div class="form-group row">
-	<label class="col-sm-12 col-form-label">$:c.getAllHalfling(groups) $c.getMessage(groups.get_class_acronym(),self.lang) ($c.getMessage('parent',self.lang))</label>
+	<label class="col-xs-9 col-form-label">$:c.getAllHalfling(groups) $c.getMessage(groups.get_class_acronym(),self.lang) ($c.getMessage('parent',self.lang))</label>
+	<label class="col-xs-3 col-form-label"><span class="glyphicon glyphicon-link"></span></label>
 </div>
     $if len(groupList) > 0:
 	$for group in groupList:
@@ -39,29 +40,27 @@ $code:
 		$if aGroup:
 		    <div class="form-group row">
 		    <label class="col-xs-$indent col-form-label"></label>
-		    <label id="modalinfo" for="inputGroups" class="col-xs-$cindent col-form-label"
+		    <label class="col-xs-$cindent col-form-label" id="modalinfo" for="inputGroups"
 			$if id != 'new':
 			    $if group == myid:
 				style="background-color:black;"	    
 			>$aGroup.getName(self.lang)</label>
 			$if (id != 'new' and mygroup and group in mygroup.get_related()) or (id == 'new' and context==aGroup.getTypeId() ):
-			    <label class="col-sm-2 col-form-label">
-			    <span class="glyphicon glyphicon-remove-circle"> </span>
+			    <label class="col-xs-3 col-form-label">
 				<label class="switch">
 				    <input id='inputactive' name="$group" type="checkbox" value="1" checked>
 				    <div class="slider round"></div>
 				</label>
-				<span class="glyphicon glyphicon-ok-circle"> </span>
+				<span class="glyphicon glyphicon-link"> </span>
 			    </label>
 			$elif id != 'new' and ( id == group or ( mygroup and ( group in mygroup.get_children() or group in mygroup.get_parents() or group in mygroup.get_siblings() ) ) ):
-			    <label class="col-sm-2 col-form-label">-</label>
+			    <label class="col-xs-3 col-form-label">-</label>
 			$elif aGroup.isActive():
-			    <label class="col-sm-2 col-form-label">
-			    <span class="glyphicon glyphicon-remove-circle"> </span>
+			    <label class="col-xs-3 col-form-label">
 				<label class="switch">
 				    <input id='inputactive' name="$group" type="checkbox" >
 				    <div class="slider round"></div>
 				</label>
-				<span class="glyphicon glyphicon-ok-circle"> </span>
+				<span class="glyphicon glyphicon-link"> </span>
 			    </label>
 		    </div>	
