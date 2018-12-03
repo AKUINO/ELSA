@@ -40,6 +40,14 @@ def get_timestamp():
     now = int(now)
     return now
 
+def str_float(v):
+    if v:
+        try:
+            return float(v)
+        except:
+            return 0.0
+    else:
+        return 0.0
 
 def encrypt(password, salt):
     sha = hashlib.pbkdf2_hmac('sha256', password, salt, 126425)

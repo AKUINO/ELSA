@@ -313,6 +313,38 @@ Heure : {8}"	1
 2016-01-01 13:45:56	FR	typical	Typique 	1
 2016-01-01 13:45:56	EN	none	No Data 	1
 2016-01-01 13:45:56	FR	none	Donnée manquante 	1
+2016-01-01 13:45:56	EN	seconds	seconds	1
+2016-01-01 13:45:56	FR	seconds	secondes	1
+2016-01-01 13:45:56	NL	seconds	seconden	1
+2016-01-01 13:45:56	DE	seconds	Sekunden	1
+2016-01-01 13:45:56	EN	minutes	minutes	1
+2016-01-01 13:45:56	FR	minutes	minutes	1
+2016-01-01 13:45:56	NL	minutes	minuten	1
+2016-01-01 13:45:56	DE	minutes	Minuten	1
+2016-01-01 13:45:56	EN	hours	hours	1
+2016-01-01 13:45:56	FR	hours	heures	1
+2016-01-01 13:45:56	NL	hours	uur	1
+2016-01-01 13:45:56	DE	hours	Std	1
+2016-01-01 13:45:56	EN	days	days	1
+2016-01-01 13:45:56	FR	days	jours	1
+2016-01-01 13:45:56	NL	days	dagen	1
+2016-01-01 13:45:56	DE	days	Tage	1
+2016-01-01 13:45:56	EN	second	second	1
+2016-01-01 13:45:56	FR	second	seconde	1
+2016-01-01 13:45:56	NL	second	seconde	1
+2016-01-01 13:45:56	DE	second	Sekunde	1
+2016-01-01 13:45:56	EN	minute	minute	1
+2016-01-01 13:45:56	FR	minute	minute	1
+2016-01-01 13:45:56	NL	minute	minute	1
+2016-01-01 13:45:56	DE	minute	Minute	1
+2016-01-01 13:45:56	EN	hour	hour	1
+2016-01-01 13:45:56	FR	hour	heure	1
+2016-01-01 13:45:56	NL	hour	uur	1
+2016-01-01 13:45:56	DE	hour	Std	1
+2016-01-01 13:45:56	EN	day	day	1
+2016-01-01 13:45:56	FR	day	jour	1
+2016-01-01 13:45:56	NL	day	daag	1
+2016-01-01 13:45:56	DE	day	Tage	1
 2016-01-01 13:45:56	DE	modified	Angepasst von	1
 2016-01-01 13:45:56	EN	modified	Modified by	1
 2016-01-01 13:45:56	FR	modified	Modifié par	1
@@ -326,6 +358,10 @@ Heure : {8}"	1
 2016-01-01 13:45:56	EN	name	Name	1
 2016-01-01 13:45:56	FR	name	Nom	1
 2016-01-01 13:45:56	NL	name	Naam	1
+2016-01-01 13:45:56	DE	nomove	keine Verschiebung	1
+2016-01-01 13:45:56	EN	nomove	no displacement	1
+2016-01-01 13:45:56	FR	nomove	sans déplacement	1
+2016-01-01 13:45:56	NL	nomove	geen verplaatsing	1
 2016-01-01 13:45:56	DE	password	Passwort	1
 2016-01-01 13:45:56	EN	password	Password	1
 2016-01-01 13:45:56	FR	password	Mot de passe	1

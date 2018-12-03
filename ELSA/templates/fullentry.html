@@ -231,6 +231,7 @@ $elif permissionKey in '_d_t_v_':
 			</div>
 	$elif permissionKey in '_vm_':
 	        $code :
+		    usage = elem.fields['gu_id']
 		    groups = c.findAll(allElem.get_group_type())
 		    check_id = elem.get_group()
 		    checkPoint = None
@@ -244,8 +245,7 @@ $elif permissionKey in '_d_t_v_':
 			    $elem.fields['rank']
 		    </div>
 		    <div class="col-xs-1 vcenter">
-                    $ usage = elem.fields['gu_id']
-		    $if elem.fields['in']=='1':
+                    $if elem.fields['in']=='1':
                          $:c.getHalfling('from')
                          $ recipe = elem.fields['src']
 		    $else:

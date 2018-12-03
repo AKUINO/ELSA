@@ -65,7 +65,7 @@ $if errormess != '':
 	    <div class="col-sm-9">
 		<select name = "o_sms1" class="form-control" id="inputSms1">
 		    <option value=""></option>
-		    $for k,fun in c.AllGrFunction.elements.items():
+		    $for k,fun in c.AllGrFunction.get_sorted().items():
 			<option value="$k"
                         $if errormess != '' :
 			    $if 'o_sms1' in data:
@@ -84,7 +84,7 @@ $if errormess != '':
 	    <div class="col-sm-9">
 		<select name = "o_email1" class="form-control" id="inputMail1">
 		    <option value=""></option>
-		    $for k,fun in c.AllGrFunction.elements.items():
+		    $for k,fun in c.AllGrFunction.get_sorted().items():
 			<option value="$k"
                          $if errormess != '' :
 			    $if 'o_email1' in data:
@@ -103,7 +103,7 @@ $if errormess != '':
 	    <div class="col-sm-9">
 		<select name = "o_sound1" class="form-control" id="inputSound1">
 		    <option value=""></option>
-		    $for k,fun in c.AllGrFunction.elements.items():
+		    $for k,fun in c.AllGrFunction.get_sorted().items():
 			<option value="$k"
                          $if errormess != '' :
 			    $if 'o_sound1' in data:
@@ -123,7 +123,7 @@ $if errormess != '':
 	    <div class="col-sm-9">
 		<select name = "o_sms2" class="form-control" id="inputSms2">
 		    <option value=""></option>
-		    $for k,fun in c.AllGrFunction.elements.items():
+		    $for k,fun in c.AllGrFunction.get_sorted().items():
 			<option value="$k"
                          $if errormess != '' :
 			    $if 'o_sms2' in data:
@@ -142,7 +142,7 @@ $if errormess != '':
 	    <div class="col-sm-9">
 		<select name = "o_email2" class="form-control" id="inputMail2">
 		    <option value=""></option>
-		    $for k,fun in c.AllGrFunction.elements.items():
+		    $for k,fun in c.AllGrFunction.get_sorted().items():
 			<option value="$k"
                          $if errormess != '' :
 			    $if 'o_email2' in data:
@@ -161,7 +161,7 @@ $if errormess != '':
 	    <div class="col-sm-9">
 		<select name = "o_sound2" class="form-control" id="inputSound2">
 		    <option value=""></option>
-		    $for k,fun in c.AllGrFunction.elements.items():
+		    $for k,fun in c.AllGrFunction.get_sorted().items():
 			<option value="$k"
                          $if errormess != '' :
 			    $if 'o_sound2' in data:

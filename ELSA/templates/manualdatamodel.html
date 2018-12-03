@@ -28,7 +28,7 @@ $if errormess != '':
 	    <label for="inputPosition" class="col-sm-3 col-form-label">$:(c.getAllHalfling(c.AllCheckPoints))$c.getMessage('checkpoint',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "checkpoint" class="form-control" id="inputPosition">
-		    $for k,aCheck in c.AllCheckPoints.elements.items():
+		    $for k,aCheck in c.AllCheckPoints.get_sorted().items():
 			<option value="$k"
 			    $if context != '':
 				$if  k == context.split('_')[-1] :
@@ -99,7 +99,7 @@ $if errormess != '':
 	    <label for="inputPosition" class="col-sm-3 col-form-label">$:(c.getAllHalfling(c.AllMeasures))$c.getMessage('measure',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "measure" class="form-control" id="inputPosition">
-		    $for k, currMeasure in c.AllMeasures.elements.items():
+		    $for k, currMeasure in c.AllMeasures.get_sorted().items():
 			<option value="$k"
 			    $if id != 'new':
 				$if  k == aDataModel.fields['m_id'] :
@@ -131,7 +131,7 @@ $if errormess != '':
 		<div class="col-sm-9">
 		    <select name = "a_$(aname)" class="form-control" id="a$(aname)Select">
 			<option value=''></option>
-			$for k,alarm in c.AllAlarms.elements.items():
+			$for k,alarm in c.AllAlarms.get_sorted().items():
 			    <option value="$k"
 				$if errormess != '' :
 				    $if ('a_'+aname) in data:

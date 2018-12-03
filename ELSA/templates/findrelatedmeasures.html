@@ -23,7 +23,7 @@ $var title : $elem.getName(self.lang)
 
 <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
     <label class="col-sm-12">$c.getMessage('sensor',self.lang) :</label>    
-    $for k,sensor in c.AllSensors.elements.items():
+    $for k,sensor in c.AllSensors.get_sorted().items():
 	$if sensor.fields['m_id'] == id :
 	    <script>
 		$$(function(){
@@ -36,7 +36,7 @@ $var title : $elem.getName(self.lang)
 <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('manualdatamodel',self.lang) :</label>    
 
-    $for k,dataModel in c.AllManualDataModels.elements.items():
+    $for k,dataModel in c.AllManualDataModels.get_sorted().items():
         $if dataModel.isActive() and dataModel.fields['m_id'] == id:
                 <script>
                     $$(function(){

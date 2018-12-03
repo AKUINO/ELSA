@@ -55,10 +55,10 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		    <input type="hidden" name="tm_id_$(counttm)" value="$e.getID()"/>
 		    <label class="col-sm-12 col-form-label">$:c.getAllHalfling(c.AllTransfers) $e.getName(self.lang): <span class="text-danger">$e.fields['remark']<span></label>
 		</div>
-		$ minutes = e.fields['typical']
-		$if minutes:
+		$ seconds = e.fields['typical']
+		$if seconds:
 		    <div class="form-group row">
-			<div class="col-xs-11"><strong>$(minutes+" mn")</strong></div>
+			<div class="col-xs-11"><strong>$(useful.seconds_to_string(seconds))</strong></div>
 		    </div>
 	
 		$code:

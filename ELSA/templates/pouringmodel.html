@@ -54,7 +54,7 @@ $if errormess != '':
 	    <label for="inputPosition" class="col-sm-3 col-form-label">$:(c.getAllHalfling(c.AllCheckPoints))$c.getMessage('checkpoint',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "checkpoint" class="form-control" id="inputPosition">
-		    $for k,cp in c.AllCheckPoints.elements.items():
+		    $for k,cp in c.AllCheckPoints.get_sorted().items():
 			<option value="$k"
 			    $if  k == checkpoint :
 				    selected
@@ -127,7 +127,7 @@ $if errormess != '':
 	    <div class="col-sm-1">$:(c.getHalfling("from") if pouring_from else c.getHalfling("to"))$:(c.getAllHalfling(c.AllGrRecipe))</div>
 	    <div class="col-sm-8">
 		<select name = "recipe" class="form-control">
-			$for k,grec in c.AllGrRecipe.elements.items():
+			$for k,grec in c.AllGrRecipe.get_sorted().items():
 			    <option value="$k"
 				$if k == recipe:
 				    selected
@@ -143,7 +143,7 @@ $if errormess != '':
 	    <div class="col-sm-1">$:(c.getHalfling("from") if pouring_from else c.getHalfling("to"))$:(c.getAllHalfling(c.AllGrRecipe))</div>
 	    <div class="col-sm-8">
 		<select name = "gu_id" class="form-control">
-			$for k,gusa in c.AllGrUsage.elements.items():
+			$for k,gusa in c.AllGrUsage.get_sorted().items():
 			    <option value="$k"
 				$if k == usage:
 				    selected
@@ -187,7 +187,7 @@ $if errormess != '':
 		<div class="col-sm-9">
 		    <select name = "a_$(aname)" class="form-control" id="a$(aname)Select">
 			<option value=''></option>
-			$for k,alarm in c.AllAlarms.elements.items():
+			$for k,alarm in c.AllAlarms.get_sorted().items():
 			    <option value="$k"
 				$if errormess != '' :
 				    $if ('a_'+aname) in data:

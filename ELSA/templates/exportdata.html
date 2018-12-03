@@ -21,7 +21,7 @@ $else:
             <select name = "element" class="form-control" id="inputElement">
 		$:c.AllGrUsage.component_options(None,type,id,self.lang)
                 <optgroup label="$c.getMessage('batch',self.lang)">
-                $for k,b in c.AllBatches.elements.items():
+                $for k,b in c.AllBatches.get_sorted().items():
 		  $if b.isActive():
                     <option value="b_$(k)"
                         $if 'b' == type and k == id :

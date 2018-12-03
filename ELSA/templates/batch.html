@@ -26,7 +26,7 @@ $code:
         kRecipe = context.split('_')[-1]
         aRecipe = c.AllGrRecipe.get(kRecipe)
 	precision = aRecipe.get_measure(c)
-$if id != 'new':
+$if elem:
     $var location: list/b=batch edit/b_$(id)=edit
     $ rmq = elem.fields['remark']
     $var title :  $c.AllBatches.getName(self.lang) $elem.fields['acronym']
@@ -52,7 +52,7 @@ $if errormess != '':
 		$if errormess != '':
 		    $if 'time' in data :
 			value="$data['time']" 
-		$elif id != 'new':
+		$elif elem:
 		    value="$elem.fields['time']"
 		$else :
 		    value ="$c.get_time()"
@@ -67,7 +67,7 @@ $if errormess != '':
 		$if errormess != '':
 		    $if 'acronym' in data :
 			value="$data['acronym']"
-		$elif id != 'new':
+		$elif elem:
 		    value="$elem.fields['acronym']"
 		$elif aRecipe:
 		    value="$(aRecipe.proposedMemberAcronym(c))"
@@ -92,77 +92,91 @@ $if errormess != '':
 		$if errormess != '':
 		    $if k in data :
 			value="$data[k]"
-		$elif id !='new':
+		$elif elem:
 		    value="$elem.get_real_name(k)"
+		$elif aRecipe:
+		    value="$(aRecipe.get_real_name(k))"
 		$if self.lang == k: 
 		    required="true"
 		>
 		</div>
 	    </div>
 
-	<div class="form-group row">
-	    <label for="providerSelect" class="col-sm-3 col-form-label">$c.getMessage('provider',self.lang)</label>
-	    <div class="col-sm-9">
-		<select name = "provider_id" class="form-control" id="providerSelect">
-		    <option></option>
-		    $for k,aUser in c.AllUsers.elements.items():
-		      $if aUser.isActive() and aUser.hasParent(c,"PROVIDER"):
-			<option value="$k"
+	$ gf_provider = None
+	$ aFunction = None
+	$if aRecipe:
+		$ gf_provider = aRecipe.field('provider_gf_id')
+		$ aFunction = c.AllGrFunction.get(gf_provider)
+	$if aFunction :
+		<div class="form-group row">
+		    <label for="providerSelect" class="col-sm-3 col-form-label">$c.getMessage('provider',self.lang)</label>
+		    <div class="col-sm-9">
+			<select name = "provider_id" class="form-control" id="providerSelect">
+			    <option></option>
+			    $for k,aUser in c.AllUsers.get_sorted().items():
+			      $if aUser.isActive() and aUser.hasParent(c,aFunction.fields['acronym']):
+				<option value="$k"
+				$if errormess != '':
+				    $if 'provider_id' in data :
+					$if k == data['provider_id']:
+					    selected
+				$elif elem:
+					$if k == elem.fields['provider_id'] :
+					    selected
+				>$(aUser.get_select_str(self.lang))</option>
+			</select>
+		    </div>
+		</div>
+		<div class="form-group row">
+		    <label for="inputRefProvider" class="col-sm-3 col-form-label">$c.getMessage('provider_ref',self.lang)</label>
+		    <div class="col-sm-9">
+			<input name="provider_ref" type="text" class="form-control" id="inputRefProvider" placeholder="Enter Provider Reference number"
 			$if errormess != '':
-			    $if 'provider_id' in data :
-				$if k == data['provider_id']:
-				    selected
-			$elif id !='new':
-				$if k == elem.fields['provider_id'] :
-				    selected
-			>$(aUser.get_select_str(self.lang))</option>
-		</select>
-	    </div>
-	</div>
-	<div class="form-group row">
-	    <label for="inputRefProvider" class="col-sm-3 col-form-label">$c.getMessage('provider_ref',self.lang)</label>
-	    <div class="col-sm-9">
-		<input name="provider_ref" type="text" class="form-control" id="inputRefProvider" placeholder="Enter Provider Reference number"
-		$if errormess != '':
-		    $if 'provider_ref' in data :
-			value="$data['provider_ref']"
-		$elif id !='new':
-		    value="$elem.fields['provider_ref']"
-		>
-	    </div>
-	</div>
-	
-	<div class="form-group row">
-	    <label for="buyerSelect" class="col-sm-3 col-form-label">$c.getMessage('buyer',self.lang)</label>
-	    <div class="col-sm-9">
-		<select name = "buyer_id" class="form-control" id="buyerSelect">
-		    <option></option>
-		    $for k,aUser in c.AllUsers.elements.items():
-		      $if aUser.isActive() and aUser.hasParent(c,"CUSTOMER"):
-			<option value="$k"
+			    $if 'provider_ref' in data :
+				value="$data['provider_ref']"
+			$elif elem:
+			    value="$elem.fields['provider_ref']"
+			>
+		    </div>
+		</div>
+
+	$ gf_buyer = None
+	$ aFunction = None
+	$if aRecipe:
+		$ gf_buyer = aRecipe.field('buyer_gf_id')
+		$ aFunction = c.AllGrFunction.get(gf_buyer)
+	$if aFunction :
+		<div class="form-group row">
+		    <label for="buyerSelect" class="col-sm-3 col-form-label">$c.getMessage('buyer',self.lang)</label>
+		    <div class="col-sm-9">
+			<select name = "buyer_id" class="form-control" id="buyerSelect">
+			    <option></option>
+			    $for k,aUser in c.AllUsers.get_sorted().items():
+			      $if aUser.isActive() and aUser.hasParent(c,aFunction.fields['acronym']):
+				<option value="$k"
+				$if errormess != '':
+				    $if 'buyer_id' in data :
+					$if k == data['buyer_id']:
+					    selected
+				$elif elem:
+					$if k == elem.fields['buyer_id'] :
+					    selected
+				>$(aUser.get_select_str(self.lang))</option>
+			</select>
+		    </div>
+		</div>
+		<div class="form-group row">
+		    <label for="inputRefBuyer" class="col-sm-3 col-form-label">$c.getMessage('buyer_ref',self.lang)</label>
+		    <div class="col-sm-9">
+			<input name="buyer_ref" type="text" class="form-control" id="inputRefBuyer" placeholder="Enter Buyer Reference number"
 			$if errormess != '':
-			    $if 'buyer_id' in data :
-				$if k == data['buyer_id']:
-				    selected
-			$elif id !='new':
-				$if k == elem.fields['buyer_id'] :
-				    selected
-			>$(aUser.get_select_str(self.lang))</option>
-		</select>
-	    </div>
-	</div>
-	<div class="form-group row">
-	    <label for="inputRefBuyer" class="col-sm-3 col-form-label">$c.getMessage('buyer_ref',self.lang)</label>
-	    <div class="col-sm-9">
-		<input name="buyer_ref" type="text" class="form-control" id="inputRefBuyer" placeholder="Enter Buyer Reference number"
-		$if errormess != '':
-		    $if 'buyer_ref' in data :
-			value="$data['buyer_ref']"
-		$elif id !='new':
-		    value="$elem.fields['buyer_ref']"
-		>
-	    </div>
-	</div>
+			    $if 'buyer_ref' in data :
+				value="$data['buyer_ref']"
+			$elif elem:
+			    value="$elem.fields['buyer_ref']"
+			>
+		    </div>
+		</div>
 	
 	<div class="form-group row">
 	    <label for="measureSelect" class="col-sm-3 col-form-label">$c.getMessage('measure',self.lang)</label>
@@ -171,13 +185,13 @@ $if errormess != '':
 		$if precision:
 		    <option value="m_$(precision.getID())" selected>$(precision.get_select_str(self.lang))</option>
 		$else:
-		    $for k,aMeasure in c.AllMeasures.elements.items():
+		    $for k,aMeasure in c.AllMeasures.get_sorted().items():
 			<option value="m_$k"
 			$if errormess != '':
 			    $if 'measure' in data :
 				$if 'm_'+k == data['measure']:
 				    selected
-			$elif id !='new':
+			$elif elem:
 				$if k == elem.fields['m_id'] :
 				    selected
 			>$(aMeasure.get_select_str(self.lang))</option>
@@ -194,7 +208,7 @@ $if errormess != '':
 			    value="$data['basicqt']" 
 		    $elif id == 'new':
 			$if aRecipe:
-				value="$aRecipe.fields['basicqt']"
+				value="$aRecipe.field('basicqt')"
 		    $else:
 			value="$unicode(elem.get_quantity())"
 		    $if precision:
@@ -212,8 +226,8 @@ $if errormess != '':
 			    value="$data['cost']" 
 		    $elif id == 'new':
 			$if aRecipe:
-				value="$aRecipe.fields['cost']"
-		    $else:
+				value="$aRecipe.field('cost')"
+		    $elif elem:
 			value="$elem.fields['cost']"
 		>
 	    </div>
@@ -231,8 +245,8 @@ $if errormess != '':
 			    value="$data['fixed_cost']" 
 		    $elif id == 'new':
 			$if aRecipe:
-				value="$aRecipe.fields['fixed_cost']"
-		    $else:
+				value="$aRecipe.field('fixed_cost')"
+		    $elif elem:
 			value="$elem.fields['fixed_cost']"
 		>
 	    </div>
@@ -247,7 +261,7 @@ $if errormess != '':
 		$if errormess != '':
 		    $if 'code' in data :
 			value="$data['code']"
-		$elif id != 'new':
+		$elif elem:
 		    value="$c.AllBarcodes.get_barcode(elem.get_type(), id)"
 		>
 	    </div>
@@ -269,7 +283,7 @@ $if errormess != '':
 		    if errormess != '':
 			if 'expirationdate' in data :
 			    compTime = data['expirationdate']
-		    elif id != 'new':
+		    elif elem:
 		    	compTime = elem.fields['expirationdate']
 	<div class="col-sm-6 parent">
 	    <input name="expirationdate" type="text" class="form-control input" id="expirationDate" placeholder="$c.getMessage('dateentry',self.lang)" value="$compTime">
@@ -286,7 +300,7 @@ $if errormess != '':
 		    if errormess != '':
 			if 'completedtime' in data :
 			    compTime = data['completedtime'] 
-		    elif id != 'new':
+		    elif elem:
 		    	compTime = elem.fields['completedtime']
 	<div class="col-sm-2">
 	    <input name="iscompleted" type="checkbox" class="form-control" value="1" id="isCompleted" $("checked" if compTime else "")>
@@ -301,8 +315,8 @@ $if errormess != '':
 	    <label for="inputactive" class="col-sm-3 col-form-label">$c.getMessage('active',self.lang)</label>
 	    <span class="glyphicon glyphicon-remove-circle"> </span>
 	    $code:
-		cond = (id == 'new')
-		if not cond :
+		cond = False
+		if elem :
 		    cond = elem.isActive()
 		if errormess != '' :
 		    if 'active' in data :
@@ -327,7 +341,7 @@ $if errormess != '':
 	    <label for="inputFile" class="col-sm-3 col-form-label">$c.getMessage('document',self.lang)</label>
 	    <label class="control-label col-sm-9">
             $ i=0
-	    $if id != 'new':
+	    $if elem:
 		    $for filename in elem.getDocumentList():
 		        $ i=i+1
 			<a href="/files/$(elem.getTypeId())?remove=$filename" class="btn btn-danger" onclick="return(YNmessage(this,'$(c.getMessage("remove",self.lang))','$filename'))">X</a> &nbsp;

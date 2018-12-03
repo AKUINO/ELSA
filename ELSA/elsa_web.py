@@ -309,7 +309,6 @@ class WebSelectMul():
         connected = isConnected()
         if connected is None:
             return ''
-        print type+'_'+id+' / '+context
         return render.selectmul(connected, type, id, context)
 
 # Display of  a record within a list
@@ -347,8 +346,7 @@ class WebList():
         allRec = type[0] == '*'
         if allRec:
             type = type[1:]
-
-        if type in 'albcpehsmugugrgftmdmvm' and not type in 'dftv':
+        if type in elsa.ALL_NAMED_TYPES or type == 'al':
             return render.list(connected, ('*' if allRec else '') + type, status)
         else:
             return render.notfound()
@@ -450,7 +448,7 @@ class WebEdit():
 ##                if len(data['a_id']) > 0:
 ##                    c.AllAlarms.elements[data['a_id']
 ##                                         ].launch_alarm(currObject, c)
-            if type not in 'tdv':
+            if type not in ['t','d','v']:
                 raise web.seeother('/item/'+type+'_'+currObject.getID())
             else:
                 if currObject.get_type() == 'v':
@@ -605,11 +603,11 @@ class WebFind():
                 else:
                     return render.findrelatedcomponents(connected, id1, id2, barcode)
             else:
-                if type == 'd'and id1 in 'pceb':
+                if type == 'd'and id1 in elsa.OBSERVABLE_TYPES:
                     return render.findlinkeddata(connected, id1, id2,None)
-                elif type == 't' and id1 in 'ceb':
+                elif type == 't' and id1 in elsa.TRANSFERABLE_TYPES:
                     return render.findlinkedtransfers(connected, id1, id2,None)
-                elif type == 'v' and id1 == 'b':
+                elif type == 'v' and id1 in elsa.POURABLE_TYPES:
                     return render.findlinkedpourings(connected, id2,None)
                 elif type == 'h':
                     return render.findcontrol(connected, id1, id2)
@@ -634,11 +632,11 @@ class WebFindModel():
 
     def getRender(self, connected, type, id1, id2, modelid, barcode=''):
         try:
-                if type == 'd'and id1 in 'pceb':
+                if type == 'd'and id1 in elsa.OBSERVABLE_TYPES:
                     return render.findlinkeddata(connected, id1, id2, modelid)
-                elif type == 't' and id1 in 'ceb':
+                elif type == 't' and id1 in elsa.TRANSFERABLE_TYPES:
                     return render.findlinkedtransfers(connected, id1, id2, modelid)
-                elif type == 'v' and id1 == 'b':
+                elif type == 'v' and id1 in elsa.POURABLE_TYPES:
                     return render.findlinkedpourings(connected, id2, modelid)
                 else:
                     return render.notfound()
@@ -652,7 +650,7 @@ class WebGraphic():
 
     def GET(self, type, id):
         connected = redirect_when_not_logged()
-        if type in 'scpem':
+        if type in elsa.COMPONENT_TYPES+['s','m']:
             data = web.input()
             begin = ''
             end = ''
@@ -786,10 +784,10 @@ class WebCalendar():
                     if beg:
 ##                        elapsed = self.get_quantity_string()
 ##                        typeAlarm, symbAlarm, self.colorAlarm,self.colorTextAlarm = self.getTypeAlarm(elapsed,model)
-                        planned = t.get_planned_duration(c) #minutes
+                        planned = t.get_planned_duration(c) #seconds
                         print("plan="+unicode(planned))
                         if planned >= 0:
-                            planned = planned*60
+                            #planned = planned*60 WAS MINUTES
                             dBeg = useful.date_to_timestamp(beg)
                             end = useful.timestamp_to_ISO(dBeg+planned)[:10]
                         beg = beg[:10]
@@ -1358,7 +1356,7 @@ class WebExport():
 
     def getRender(self, connected, type, id):
         try:
-            if type in 'cpeb':
+            if type in elsa.OBSERVABLE_TYPES:
                 return render.exportdata(connected,  type, id)
             else:
                 return render.notfound()
@@ -1374,7 +1372,7 @@ class WebDataTable():
 
     def getRender(self, connected, type, id):
         # try:
-        if type in 'cpeb':
+        if type in elsa.TRANSFERABLE_TYPES:
             return render.datatable(connected, type, id)
         else:
             return render.notfound()
@@ -1425,7 +1423,7 @@ class WebTest:
 #            '/rrd/(.+)',
 #            '/csv/(.+)',
 #            '/doc/(.+)',
-        for someType in ['a','b','c','dm','e','gf','gr','gu','h','m','p','s','tm','u','vm']: #NAMED_TYPES
+        for someType in elsa.ALL_NAMED_TYPES:
             testUrls.extend ( ['/list/'+someType, '/create/'+someType] )
         result = []
         result = c.search_acronym(acro,result)
@@ -1464,17 +1462,35 @@ class WebTest:
                                     '/selectmul/'+aTest.get_type()+'_new/'+aTest.getID(),
                                     '/selectmul/'+ti+'/',
                                     '/select/group/'+ti,
+                                    '/create/gr/'+ti,
+                                    '/create/b/'+ti,
+                                    '/create/h/'+ti,
                                     '/graph/'+ti ] )
-            elif aTest.get_type() in 'gf gu h':
-                testUrls.append('/select/group/'+ti)
-            elif aTest.get_type() in 'scpe':
+            elif aTest.get_type() == 'gu':
+                testUrls.extend ( [ '/select/group/'+ti,
+                                    '/create/gu/'+ti,
+                                    '/create/p/'+ti,
+                                    '/create/e/'+ti,
+                                    '/create/c/'+ti,
+                                    '/create/h/'+ti ] )
+            elif aTest.get_type() == 'gf':
+                testUrls.extend ( [ '/select/group/'+ti,
+                                    '/create/gf/'+ti,
+                                    '/create/u/'+ti ] )
+            elif aTest.get_type() == 'h':
+                testUrls.extend ( [ '/select/group/'+ti,
+                                    '/create/vm/'+ti,
+                                    '/create/tm/'+ti,
+                                    '/create/dm/'+ti,
+                                    '/create/h/'+ti ] )
+            elif aTest.get_type() in elsa.COMPONENT_TYPES+['s']:
                 testUrls.extend ( ['/label/'+ti,
                     '/find/al/'+ti,
                     '/graphic/'+ti] )
                 if aTest.get_type() == 's':
                     testUrls.append('/rrdfetch/'+ti)
                 else:
-                    if aTest.get_type() in "ce":
+                    if aTest.get_type() in ["c","e"]:
                         testUrls.append('/find/t/'+ti)
                     testUrls.extend( ['/find/d/'+ti,
                                       '/color/'+ti] )

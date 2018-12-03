@@ -163,16 +163,19 @@ $if errormess != '':
 		    <label for="measureSelect" class="col-sm-3 col-form-label">$c.getMessage('measure',self.lang)</label>
 		    <div class="col-sm-9">
 			<select name = "measure" class="form-control" id="measureSelect">
-			    $for k,aMeasure in c.AllMeasures.elements.items():
-				<option value="$k"
-				$if errormess != '':
-				    $if 'measure' in data :
-					$if k == data['measure']:
-					    selected
-				$elif id !='new':
-					$if k == elem.fields['m_id'] :
-					    selected
-				>$(aMeasure.get_select_str(self.lang))</option>
+			    <option value=""> </option>
+			    $for k in c.AllMeasures.get_sorted_hierarchy():
+				$ aMeasure = c.AllMeasures.get(k)
+				$if aMeasure:
+					<option value="$k"
+					$if errormess != '':
+					    $if 'measure' in data :
+						$if k == data['measure']:
+						    selected
+					$elif id !='new':
+						$if k == elem.fields['m_id'] :
+						    selected
+					>$(aMeasure.get_select_str(self.lang))</option>
 			</select>
 		    </div>
 		</div>
@@ -211,7 +214,7 @@ $if errormess != '':
 		</div>
 		<div class="form-group row">
 		    <label for="inputFixedCost" class="col-sm-3 col-form-label">$c.getMessage('fixedcost',self.lang)</label>
-		    <div class="col-sm-8">
+		    <div class="col-sm-4">
 			<input name="fixed_cost" type="number" step="0.01" class="form-control" id="inputFixedCost" placeholder="$c.getMessage('cost',self.lang)" 
 			    $if errormess != '':
 				$if 'fixedcost' in data :
@@ -220,11 +223,52 @@ $if errormess != '':
 				value="$elem.fields['fixed_cost']"
 			>
 		    </div>
-		    <div class="col-sm-1">
+		    <div class="col-sm-5">
+			
 			$c.currency
 		    </div>
 		</div>
 
+		<div class="form-group row">
+		    <label for="providerSelect" class="col-sm-3 col-form-label">$c.getMessage('provider',self.lang)</label>
+		    <div class="col-sm-9">
+			<select name = "provider_gf_id" class="form-control" id="providerSelect">
+			    <option></option>
+			    $for k in c.AllGrFunction.get_sorted_hierarchy():
+				$ aFunction = c.AllGrFunction.get(k)
+				$if aFunction:
+					<option value="$k"
+					$if errormess != '':
+					    $if 'provider_gf_id' in data :
+						$if k == data['provider_gf_id']:
+						    selected
+					$elif id !='new':
+						$if k == elem.fields['provider_gf_id'] :
+						    selected
+					>$(aFunction.get_select_str(self.lang))</option>
+			</select>
+		    </div>
+		</div>
+		<div class="form-group row">
+		    <label for="buyerSelect" class="col-sm-3 col-form-label">$c.getMessage('buyer',self.lang)</label>
+		    <div class="col-sm-9">
+			<select name = "buyer_gf_id" class="form-control" id="buyerSelect">
+			    <option></option>
+			    $for k in c.AllGrFunction.get_sorted_hierarchy():
+				$ aFunction = c.AllGrFunction.get(k)
+				$if aFunction:
+					<option value="$k"
+					$if errormess != '':
+					    $if 'buyer_gf_id' in data :
+						$if k == data['buyer_gf_id']:
+						    selected
+					$elif id !='new':
+						$if k == elem.fields['buyer_gf_id'] :
+						    selected
+					>$(aFunction.get_select_str(self.lang))</option>
+			</select>
+		    </div>
+		</div>
 	$if type == 'h':
 	    <div class="form-group row">
 		<label for="inputabstract" class="col-sm-3 col-form-label">$c.getMessage('abstract',self.lang)</label>

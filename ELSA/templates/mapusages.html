@@ -43,7 +43,7 @@ $for kusage in listUsage:
 			$if elem.fields['rank']:
 			    #$elem.fields['rank']
 			<br/>
-		$for kplace,place in c.AllPlaces.elements.items():
+		$for kplace,place in c.AllPlaces.get_sorted().items():
 			$if place.isActive() and place.get_group() == kusage :
 					<div class="map down" style="border-color:$(place.fields['colorgraph'])">
 					<a href="/find/related/p_$kplace">$:(place.statusIcon(c,True,False))</a>
@@ -85,7 +85,7 @@ $for kusage in listUsage:
 
 						$ done.add('p_'+kplace)
 					</div>
-		$for kequipment,equipment in c.AllEquipments.elements.items():
+		$for kequipment,equipment in c.AllEquipments.get_sorted().items():
 			$if equipment.isActive() and equipment.get_group() == kusage :
 					<div class="map down" style="border-color:$(equipment.fields['colorgraph'])">
 					<a href="/find/related/e_$kequipment">$:(equipment.statusIcon(c,True,False))</a>
@@ -129,7 +129,7 @@ $for kusage in listUsage:
 							</div>
 						$ done.add('e_'+kequipment)
 					</div>
-		$for kcontainer,container in c.AllContainers.elements.items():
+		$for kcontainer,container in c.AllContainers.get_sorted().items():
 			$if container.isActive() and container.get_group() == kusage :
 					<div class="map down" style="border-color:$(container.fields['colorgraph'])">
 					<a href="/find/related/c_$kcontainer">$:(container.statusIcon(c,True,False))</a>

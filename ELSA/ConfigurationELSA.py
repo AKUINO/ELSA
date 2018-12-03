@@ -64,7 +64,6 @@ DIR_WEB_TEMP = os.path.join(DIR_STATIC, 'temp/')
 
 TEMPLATES_DIR = os.path.join(DIR_BASE, 'templates/')
 
-GROUPWEBUSERS = '_WEB'
 KEY_ADMIN = "admin" #Omnipotent user
 
 CONNECTION_TIMEOUT = 900 #seconds = 15 minutes before reasking password
@@ -78,6 +77,11 @@ alarm_fields_for_groups = ['o_sms1', 'o_sms2', 'o_email1', 'o_email2', 'o_sound1
 ALL_UPDATE_GROUPS = u" upd_a upd_al upd_b upd_c upd_d upd_dm upd_e upd_gf upd_gr upd_gu upd_h upd_m upd_p upd_s upd_t upd_tm upd_u upd_v upd_vm "
 ALL_TYPES = ['a','al','b','c','d','dm','e','gf','gr','gu','h','m','p','s','t','tm','u','v','vm']
 ALL_NAMED_TYPES = ['a','b','c','dm','e','gf','gr','gu','h','m','p','s','tm','u','vm']
+COMPONENT_TYPES = ['p','e','c']
+TRANSFERABLE_TYPES = ['e','c','b']
+OBSERVABLE_TYPES = ['p','e','c','b']
+POURABLE_TYPES = ['b']
+TRANSACTION_TYPES = ['d','t','v']
 
 _lock_socket = None
 
@@ -299,7 +303,7 @@ class Configuration():
         return useful.get_time()
 
     def is_component(self, type):
-        if type == 'c' or type == 'p' or type == 'e' or type == 'b':
+        if type in TRANSFERABLE_TYPES:
             return True
         return False
 
@@ -379,14 +383,7 @@ class ConfigurationObject(object):
         return(unicode(acr) + ' - ' + name)
 
     def floats(self, field):
-        v = self.fields[field]
-        if v:
-            try:
-                return float(v)
-            except:
-                return 0.0
-        else:
-            return 0.0
+        return useful.str_float(self.fields[field])
 
     def save(self, configuration, anUser=""):
         self.fields["begin"] = useful.now()
@@ -936,7 +933,7 @@ class ConfigurationObject(object):
             return valueCategs[0].triple()
 
     def get_quantity(self):
-        return float(self.get_quantity_string())
+        return useful.str_float(self.get_quantity_string())
     
     def get_quantity_string(self):
         return "0";
@@ -958,7 +955,7 @@ class ConfigurationObject(object):
         quantity = self.get_quantity_string()
         if quantity:
             if measure and measure.fields['step']:
-                quantity = round(float(quantity),int(measure.fields['step']))
+                quantity = round(useful.str_float(quantity),int(measure.fields['step']))
             result = unicode(quantity)
         if measure:
             result += ' '+measure.fields['unit']
@@ -1436,8 +1433,9 @@ class AllObjects(object):
         return timed[:size]
 
     def findAcronym(self, acronym):
+        acronym = acronym.lower()
         for k, element in self.elements.items():
-            if element.fields['acronym'] == acronym:
+            if element.fields['acronym'].lower() == acronym:
                 return element
         return None
 
@@ -1479,6 +1477,8 @@ class AllUsers(AllObjects):
     def get_group_type(self):
         return 'gf'
 
+    def get_admin(self):
+        return self.findAcronym(KEY_ADMIN)
 
 class AllEquipments(AllObjects):
 
@@ -1801,7 +1801,11 @@ class AllGrUsage(AllGroups):
         return usages
 
     def component_options(self, usage, selec_type, selec_id, lang):
-        c = self.config
+      c = self.config
+      if usage == '0': # DON'T MOVE transfer (just check time spent)
+          v = c.getObject(selec_id,selec_type)
+          options = '<option value="'+selec_type+'_'+selec_id+'" selected>'+v.fields['acronym']+' - '+webnet.htmlquote(v.getName(lang))+'</option>'
+      else:
         usages = []
         aUsage = self.get(usage)
         if aUsage:
@@ -1847,12 +1851,12 @@ class AllGrUsage(AllGroups):
                     if selec_type=='c' and selec_id==k:
                         options += 'selected'
                     options += '>'+v.fields['acronym']+' - '+webnet.htmlquote(v.getName(lang))+'</option>'
-        return options
+      return options
 
 class AllGrRecipe(AllGroups):
     def __init__(self, config):
         AllGroups.__init__(self, 'gr', GrRecipe.__name__, config)
-        self.fieldnames = ["begin", "gr_id", "gu_id", 
+        self.fieldnames = ["begin", "gr_id", "gu_id", "provider_gf_id", "buyer_gf_id",
                            "basicqt", "m_id", "cost", "fixed_cost", "lifespan",
                            "active", "acronym", "remark", "user"]
         self.fieldtranslate = ['begin', 'lang', 'gr_id', 'name', 'user']
@@ -1964,6 +1968,8 @@ class AllGrFunction(AllGroups):
     def get_group_type(self):
         return 'gf'
 
+    def get_admin(self):
+        return self.findAcronym(KEY_ADMIN)
 
 class AllMeasures(AllObjects):
 
@@ -1978,7 +1984,6 @@ class AllMeasures(AllObjects):
 
     def get_class_acronym(self):
         return 'measure'
-
 
 iteration_cache = None
 
@@ -2524,8 +2529,8 @@ class User(ConfigurationObject):
             tmp = ''
         lang = user.fields['language']
 
-        level = user.fields['accesslevel'] if user.fields['accesslevel'] else '3'
-        if level < self.fields['accesslevel']:
+        level = user.fields['accesslevel'] if user.fields['accesslevel'] else ('4' if user.adminAllowed(configuration) else '3')
+        if level < data['accesslevel']:
             tmp += configuration.getMessage('accesslevelrules',lang) + '\n'
 
         if data['password'] and len(data['password']) < 8:
@@ -2540,7 +2545,7 @@ class User(ConfigurationObject):
         tmp = ['phone', 'mail', 'language', 'addr1', 'addr2', 'addr3', 'vat']
         for elem in tmp:
             self.fields[elem] = data[elem]
-        level = user.fields['accesslevel'] if user.fields['accesslevel'] else '3'
+        level = user.fields['accesslevel'] if user.fields['accesslevel'] else ('4' if user.adminAllowed(c) else '3')
         if (level >= data['accesslevel']) and (level >= self.fields['accesslevel']):
             self.fields['accesslevel'] = data['accesslevel']
 
@@ -2653,6 +2658,9 @@ class Equipment(ConfigurationObject):
     def get_type(self):
         return 'e'
 
+    def getAll(self):
+        return self.config.AllEquipments
+
     def getID(self):
         return self.fields['e_id']
 
@@ -2699,6 +2707,9 @@ class Container(ConfigurationObject):
     def __init__(self, config):
         ConfigurationObject.__init__(self)
         self.config = config
+
+    def getAll(self):
+        return self.config.AllContainers
 
     def __str__(self):
         string = "\nContainer :"
@@ -3085,6 +3096,28 @@ class Group(ConfigurationObject):
     def get_class_acronym(self):
         return 'group'
 
+    def inherited(self,fname):
+        done = set()
+        for p in self.parents:
+            if not p in done:
+                done.add(p)
+                parent = self.getAll().get(p)
+                if parent:
+                    value = parent.fields[fname]
+                    if value:
+                        return value
+                    else:
+                        value = parent.inherited(fname)
+                        if value:
+                            return value
+        return ""
+    
+    def field(self,fname):
+        if self.fields[fname]:
+            return self.fields[fname]
+        else:
+            return self.inherited(fname)
+
     def validate_form(self, data, configuration, user):
         tmp = super(Group, self).validate_form(data, configuration, user)
         if tmp is True:
@@ -3274,6 +3307,9 @@ class GrUsage(Group):
 
     def get_type(self):
         return 'gu'
+
+    def getAll(self):
+        return self.config.AllGrUsage
 
     def get_class_acronym(self):
         return 'guse'
@@ -3590,14 +3626,21 @@ class GrRecipe(Group):
     def get_type(self):
         return 'gr'
 
+    def getAll(self):
+        return self.config.AllGrRecipe
+
     def get_class_acronym(self):
         return 'grecipe'
 
+    def get_measure(self,c):
+        kmeasure = self.field('m_id')
+        return c.AllMeasures.get(kmeasure)
+
     def get_quantity_string(self):
-        return self.fields['basicqt']
+        return self.field('basicqt')
 
     def get_total_cost(self):
-        return self.floats('fixed_cost')+ (self.floats('cost')*self.floats('basicqt'))
+        return useful.str_float(self.field('fixed_cost'))+ (useful.str_float(self.field('cost'))*useful.str_float(self.field('basicqt')))
 
     def validate_form(self, data, configuration, user):
         tmp = super(GrRecipe, self).validate_form(data, configuration, user)
@@ -3613,6 +3656,8 @@ class GrRecipe(Group):
         self.fields['cost'] = data['cost']
         self.fields['fixed_cost'] = data['fixed_cost']
         self.fields['lifespan'] = data['lifespan']
+        self.fields['buyer_gf_id'] = data['buyer_gf_id']
+        self.fields['provider_gf_id'] = data['provider_gf_id']
 
         self.save(c, user)
 
@@ -3625,15 +3670,10 @@ class GrRecipe(Group):
             return prefix
 
     def lifespan(self,c):
-        if self.fields['lifespan']:
-            return int(self.fields['lifespan'])
+        days = self.field("lifespan")
+        if days:
+            return int(days)
         else:
-            for krecipe in self.parents:
-                if krecipe in c.AllGrRecipe.elements:
-                    recipe = c.AllGrRecipe.elements[krecipe]
-                    days = recipe.lifespan(c)
-                    if days:
-                        return days
             return 0
 
     def get_batches(self,c):
@@ -3650,6 +3690,9 @@ class GrFunction(Group):
 
     def get_type(self):
         return 'gf'
+
+    def getAll(self):
+        return self.config.AllGrFunction
 
     def get_user_group(self):
         listusers = []
@@ -3685,6 +3728,9 @@ class Place(ConfigurationObject):
 
     def get_type(self):
         return 'p'
+
+    def getAll(self):
+        return self.config.AllPlaces
 
     def get_class_acronym(self):
         return 'place'
@@ -4137,7 +4183,7 @@ class ExportData():
         if elem.created:
             tmp['timestamp'] = useful.date_to_ISO(elem.created)
 
-        if elem.get_type() in 'bcpem':
+        if elem.get_type() in OBSERVABLE_TYPES+['m']:
             if elem.get_type() == 'b':
                 tmp['timestamp'] = useful.date_to_ISO(elem.fields['time'])
                 tmp['duration'] = self.get_duration(elem.getTimestamp(), useful.get_timestamp())
@@ -4634,7 +4680,7 @@ class Alarm(ConfigurationObject):
                 alid = self.alarm_by_all(alarmedObject, 'o_sms1','o_email1','o_sound1', config)
             elif level == 2:
                 alid = self.alarm_by_all(alarmedObject, 'o_sms2','o_email2','o_sound2', config)
-        elif alarmedObject.get_type() in 'dtv':
+        elif alarmedObject.get_type() in TRANSACTION_TYPES:
             alid = self.alarm_by_all(alarmedObject, 'o_sms2','o_email2','o_sound2', config)
         return alid
 
@@ -5220,7 +5266,7 @@ class Sensor(AlarmingObject):
         return self.actualAlarm != 'typical'
 
     def is_in_component(self, type, id):
-        if type in 'pecm':
+        if type in COMPONENT_TYPES+['m']:
             return id == self.fields[type+'_id']
         return False
 
@@ -5261,6 +5307,7 @@ class Sensor(AlarmingObject):
                 times = range(ts_start, ts_end, ts_res)
                 return zip(times, values)
             except:
+                print self.getRRDName()+" resolution="+str(resolution)
                 traceback.print_exc()
                 return None
         return None
@@ -5339,6 +5386,9 @@ class Batch(ConfigurationObject):
     def get_type(self):
         return 'b'
 
+    def getAll(self):
+        return self.config.AllBatches
+
     def get_name_listing(self):
         return 'batches'
 
@@ -5352,11 +5402,25 @@ class Batch(ConfigurationObject):
         tmp = data.split('_')
         self.fields['m_id'] = tmp[-1]
 
+    def inherited(self,fname):
+        kgroup = self.get_group()
+        parent = self.config.AllGrRecipe.get(kgroup)
+        if parent:
+            value = parent.field(fname)
+            return value
+        return ""
+    
+    def field(self,fname):
+        if self.fields[fname]:
+            return self.fields[fname]
+        else:
+            return self.inherited(fname)
+
     def get_total_cost(self):
-        return self.floats('fixed_cost')+ (self.floats('cost')*self.floats('basicqt'))
+        return useful.str_float(self.field('fixed_cost'))+ (useful.str_float(self.field('cost'))*useful.str_float(self.field('basicqt')))
 
     def get_quantity_string(self):
-        return self.fields['basicqt']
+        return self.field('basicqt')
 
     def get_quantity_used(self):
         qt = 0
@@ -5373,13 +5437,11 @@ class Batch(ConfigurationObject):
         return qt
 
     def get_lifetime(self):
-        if self.floats('basicqt') == 0.0:
-            self.fields['basicqt'] = "0"
-        else:
+        if useful.str_float(self.get_quantity_string('basicqt')) != 0.0:
             qt = self.get_quantity_used() - self.get_quantity_added(self.config)
             tmp = self.get_quantity() - qt
             if tmp < 0:
-                return self.pourings.getTimestamp() - uself.getTimestamp()
+                return self.pourings.getTimestamp() - self.getTimestamp()
         return useful.get_timestamp() - self.getTimestamp()
 
     def isComplete(self):
@@ -5481,8 +5543,8 @@ class Batch(ConfigurationObject):
 
     def get_residual_quantity(self):
         val = self.get_quantity_used() - self.get_quantity_added(self.config)
-        if self.floats('basicqt') == 0.0:
-            self.fields['basicqt'] = "0"
+        #if self.floats('basicqt') == 0.0:
+        #    self.fields['basicqt'] = "0"
         return self.get_quantity() - val
 
     def clone(self, user, name=1):
@@ -5498,7 +5560,8 @@ class Batch(ConfigurationObject):
         allObjects.hierarchy = None
         for f in ['active','basicqt','m_id','time','cost','fixed_cost','remark',
                   "provider_id", "provider_ref", "buyer_id", "buyer_ref",'gr_id']:
-            b.fields[f] = self.fields[f]
+            if f in self.fields:
+                b.fields[f] = self.fields[f]
         for lang in self.config.AllLanguages.elements:
             b.setName(lang, self.get_real_name(lang),
                       user, self.config.getKeyColumn(b))
@@ -5520,7 +5583,8 @@ class Batch(ConfigurationObject):
         b.fields['basicqt'] = '0'
         for f in ['active','m_id','time','cost','fixed_cost','remark','expirationdate',
                   "provider_id", "provider_ref", "buyer_id", "buyer_ref",'gr_id']:
-            b.fields[f] = self.fields[f]
+            if f in self.fields:
+                b.fields[f] = self.fields[f]
         for lang in self.config.AllLanguages.elements:
             b.setName(lang, self.get_real_name(lang),
                       user, self.config.getKeyColumn(b))
@@ -5598,8 +5662,9 @@ class Batch(ConfigurationObject):
     def set_value_from_data(self, data, c, user):
         super(Batch, self).set_value_from_data(data, c, user)
         tmp = ['basicqt', 'time', 'cost', 'fixed_cost',"provider_id", "provider_ref", "buyer_id", "buyer_ref"]
-        for elem in tmp:
-            self.fields[elem] = data[elem]
+        for f in tmp:
+            if f in data:
+                self.fields[f] = data[f]
         if not self.fields['time']:
             self.fields['time'] = useful.now()
 
@@ -5655,7 +5720,7 @@ class Batch(ConfigurationObject):
         components = self.get_actual_position_hierarchy(c,[])
         if len(components) > 0:
                 for place in components:
-                    if place.get_type() in 'pec':
+                    if place.get_type() in COMPONENT_TYPES:
                             gr_usage = place.get_group()
                             usage = c.AllGrUsage.get(gr_usage)
                             if usage:
@@ -5678,6 +5743,9 @@ class PouringModel(ConfigurationObject):
 
     def get_type(self):
         return 'vm'
+
+    def getAll(self):
+        return self.config.AllPouringModels
 
     def isModeling(self):
         return "v"
@@ -5749,6 +5817,9 @@ class ManualDataModel(ConfigurationObject):
     def get_type(self):
         return 'dm'
 
+    def getAll(self):
+        return self.config.AllManualDataModels
+
     def isModeling(self):
         return "d"
 
@@ -5793,6 +5864,9 @@ class TransferModel(ConfigurationObject):
     def get_type(self):
         return 'tm'
 
+    def getAll(self):
+        return self.config.AllTransferModels
+
     def isModeling(self):
         return "t"
 
@@ -5821,7 +5895,7 @@ class TransferModel(ConfigurationObject):
     def getQtyUnit(self,c):
         delay = self.get_quantity()
         if delay >= 0:
-            return useful.seconds_to_string(int(delay)*60)
+            return useful.seconds_to_string(int(delay))
         return ""
 
     def validate_form(self, data, configuration, user):
@@ -5862,6 +5936,9 @@ class Transfer(AlarmingObject):
     def get_type(self):
         return 't'
 
+    def getAll(self):
+        return self.config.AllTransfers
+
     def sort_key(self):
         return self.fields['time']
 
@@ -5882,22 +5959,22 @@ class Transfer(AlarmingObject):
     def getQtyUnit(self,c):
         delay = self.get_quantity()
         if delay >= 0:
-            return useful.seconds_to_string(int(delay)*60)
+            return useful.seconds_to_string(int(delay))
         return ""
 
     def get_quantity_string(self):
         if self.completed:
-            return unicode(int((useful.string_to_date(self.completed)-useful.string_to_date(self.getTimestring())).total_seconds()//60))
-        return unicode(int((useful.string_to_date(useful.now())-useful.string_to_date(self.getTimestring())).total_seconds()//60))
+            return unicode(int((useful.string_to_date(self.completed)-useful.string_to_date(self.getTimestring())).total_seconds()))
+        return unicode(int((useful.string_to_date(useful.now())-useful.string_to_date(self.getTimestring())).total_seconds()))
 
     def get_planned_duration(self,c):
         if self.completed:
-            return int((useful.string_to_date(self.completed)-useful.string_to_date(self.getTimestring())).total_seconds()//60)
+            return int((useful.string_to_date(self.completed)-useful.string_to_date(self.getTimestring())).total_seconds())
         tm = self.get_model(c)
         if tm:
-            minutes = tm.get_quantity_string()
-            if minutes:
-                return int(minutes)
+            seconds = tm.get_quantity_string()
+            if seconds:
+                return int(seconds)
         return -1
 
     def get_unit(self,c):
@@ -5955,7 +6032,7 @@ class Transfer(AlarmingObject):
 ##                transfer = objet.get_last_transfer(configuration)
 ##                if transfer and (transfer.getID() != self.id):
 ##                    tmp += configuration.getMessage('transferrules',lang) + '\n'
-            if (objtype == 'e' and postype != 'p') or(objtype == 'c' and postype not in 'ep'):
+            if (objtype == 'e' and postype != 'p') or(objtype == 'c' and postype not in ['e','p']):
                 tmp += configuration.getMessage('transferhierarchy',lang) + '\n'
         else:
             tmp += configuration.getMessage('transferrules',lang) + '\n'
