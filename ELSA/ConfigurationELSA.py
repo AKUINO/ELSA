@@ -4615,14 +4615,14 @@ class Alarm(ConfigurationObject):
                 anUser = config.AllUsers.elements[user]
                 if anUser.isActive():
                     lang = anUser.fields['language']
-                    allog = self.get_alarm_message(config, phone_group, lang, first)
+                    allog = self.get_alarm_message(alarmedObject, config, phone_group, lang, first)
                     if first:
                         alid = allog['al_id']
                         first = False
                     title = self.get_alarm_title(alarmedObject, config, lang)
                     if anUser.fields['donotdisturb'] != '1':
                         if not useful.send_sms(config.HardConfig, anUser.fields['phone'],
-                                                title): #Fall back to email...
+                                                title, allog['remark']): #Fall back to email...
                             useful.send_email(config.HardConfig, anUser.fields['mail'],
                                                     title, allog['remark'])
         return alid
