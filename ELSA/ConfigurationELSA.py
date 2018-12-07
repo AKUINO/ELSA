@@ -4171,7 +4171,9 @@ class ExportData():
                 infos = self.get_all_in_component(
                     t.get_component(self.config), begin, end, infos)
         for a in sensors:
-            infos[a] = self.config.AllSensors.elements[a].fetch(begin, end)
+            sensor = self.config.AllSensors.get(a)
+            if sensor:
+                infos[a] = sensor.fetch(begin, end)
         return infos
 
     def transform_object_to_export_data(self, elem):
@@ -5291,36 +5293,27 @@ class Sensor(AlarmingObject):
         else:
             return 60
 
-    def fetch(self, start, end=None, resolution=None):
+    def fetch(self, start, end=None):
         """Fetch data from the RRD.
 
         start -- integer start time in seconds since the epoch, or negative for
                  relative to end
         end -- integer end time in seconds since the epoch, or None for current
-               time
-        resolution -- resolution in seconds"""
-        if not resolution:
-            resolution = self.resolution()
+               time"""
         if end is None:
             end = int(time.time())
         if start < 0:
             start += end
-        print("start="+str(start)+",end="+str(end)+",res="+str(resolution))
-        if end - start > resolution:
-            end -= end % resolution
-            start -= start % resolution
-            print("% start="+str(start)+",end="+str(end)+",res="+str(resolution))
+        if end - start > 0:
             try:
                 time_span, _, values = rrdtool.fetch(str(DIR_RRD+self.getRRDName()),
-                                                     'AVERAGE', '-s', str(int(start)),
-                                                     '-e', str(int(end)),
-                                                     '-r', str(resolution) )
+                                                     'AVERAGE', '-a', '-s', str(int(start)),
+                                                     '-e', str(int(end)) )
                 ts_start, ts_end, ts_res = time_span
-                print("TS start="+str(ts_start)+",end="+str(ts_end)+",res="+str(ts_res))
                 times = range(ts_start, ts_end, ts_res)
                 return zip(times, values)
             except:
-                print self.getRRDName()+" resolution="+str(resolution)
+                print self.getRRDName()
                 traceback.print_exc()
                 return None
         return None
