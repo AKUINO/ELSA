@@ -37,7 +37,7 @@ $else:
 $if errormess != '':
     $if 'remark' in data :
 	$ rmq = data['remark']
-
+$ aRecipe = c.AllGrRecipe.get(kRec)
 <div class="container">
     
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
@@ -144,18 +144,15 @@ $if errormess != '':
 			    $if errormess != '':
 				$if 'lifespan' in data :
 				    value="$data['lifespan']" 
-			    $elif id != 'new':
+			    $elif elem:
 				value="$elem.fields['lifespan']"
 			>
 		    </div>
 		    <div class="col-sm-5">
-			$if id != 'new' and elem.lifespan(c):
-				$for p in elem.get_parents():
-				   $ parent = c.AllGrRecipe.get(p)
-				   $if parent:
-					   $ lifespan = parent.lifespan(c)
-					   $if lifespan:
-						<a href="/find/related/gr_$parent.getID()"><big>&#8662;</big>$parent.fields['acronym']</a>:$unicode(lifespan)
+			$if elem:
+				$ lifespan = elem.lifespan()
+				$if lifespan:
+					$lifespan
 			$c.getMessage('days',self.lang)
 		    </div>
 		</div>
@@ -180,11 +177,11 @@ $if errormess != '':
 		    </div>
 		</div>
 		
-		$if id != 'new':
+		$if elem:
 			$ precision = elem.get_measure(c)
 		<div class="form-group row">
 		    <label for="inputQty" class="col-sm-3 col-form-label">$c.getMessage('quantity',self.lang)</label>
-		    <div class="col-sm-9">
+		    <div class="col-sm-5">
 			<input name="basicqt" type="number" class="form-control" id="inputQty" placeholder="$c.getMessage('quantity',self.lang)" 
 			    $if errormess != '':
 				$if 'basicqt' in data :
@@ -195,36 +192,43 @@ $if errormess != '':
 				   min="$(precision.fields['min'])" max="$(precision.fields['max'])" step="$(precision.get_html_step())"
 			>
 		    </div>
+		    <div class="col-sm-4">
+			$if elem:
+			    $elem.field('basicqt')
+		    </div>
 		</div>
 		
 		<div class="form-group row">
 		    <label for="inputCost" class="col-sm-3 col-form-label">$c.getMessage('unitcost',self.lang)</label>
-		    <div class="col-sm-8">
+		    <div class="col-sm-5">
 			<input name="cost" type="number" step="0.01" class="form-control" id="inputCost" placeholder="$c.getMessage('cost',self.lang)" 
 			    $if errormess != '':
 				$if 'cost' in data :
 				    value="$data['cost']" 
-			    $elif id != 'new':
+			    $elif elem:
 				value="$elem.fields['cost']"
 			>
 		    </div>
-		    <div class="col-sm-1">
+		    <div class="col-sm-4">
+			$if elem:
+			    $elem.field('cost')
 			$c.currency
 		    </div>
 		</div>
 		<div class="form-group row">
 		    <label for="inputFixedCost" class="col-sm-3 col-form-label">$c.getMessage('fixedcost',self.lang)</label>
-		    <div class="col-sm-4">
+		    <div class="col-sm-5">
 			<input name="fixed_cost" type="number" step="0.01" class="form-control" id="inputFixedCost" placeholder="$c.getMessage('cost',self.lang)" 
 			    $if errormess != '':
 				$if 'fixedcost' in data :
 				    value="$data['fixed_cost']" 
-			    $elif id != 'new':
+			    $elif elem:
 				value="$elem.fields['fixed_cost']"
 			>
 		    </div>
-		    <div class="col-sm-5">
-			
+		    <div class="col-sm-4">
+			$if elem:
+			    $elem.field('fixed_cost')
 			$c.currency
 		    </div>
 		</div>
@@ -242,7 +246,7 @@ $if errormess != '':
 					    $if 'provider_gf_id' in data :
 						$if k == data['provider_gf_id']:
 						    selected
-					$elif id !='new':
+					$elif elem:
 						$if k == elem.fields['provider_gf_id'] :
 						    selected
 					>$(aFunction.get_select_str(self.lang))</option>
@@ -262,7 +266,7 @@ $if errormess != '':
 					    $if 'buyer_gf_id' in data :
 						$if k == data['buyer_gf_id']:
 						    selected
-					$elif id !='new':
+					$elif elem:
 						$if k == elem.fields['buyer_gf_id'] :
 						    selected
 					>$(aFunction.get_select_str(self.lang))</option>

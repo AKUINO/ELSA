@@ -201,44 +201,50 @@ $if errormess != '':
 	
 	<div class="form-group row">
 	    <label for="inputQty" class="col-sm-3 col-form-label">$c.getMessage('quantity',self.lang)</label>
-	    <div class="col-sm-9">
+	    <div class="col-sm-5">
 		<input name="basicqt" type="number" class="form-control" id="inputQty" placeholder="$c.getMessage('quantity',self.lang)" 
 		    $if errormess != '':
 			$if 'basicqt' in data :
 			    value="$data['basicqt']" 
 		    $elif id == 'new':
 			$if aRecipe:
-				value="$aRecipe.field('basicqt')"
+			    value="$aRecipe.field('basicqt')"
 		    $else:
 			value="$unicode(elem.get_quantity())"
 		    $if precision:
 			min="$(precision.fields['min'])" max="$(precision.fields['max'])" step="$(precision.get_html_step())"
 		>
 	    </div>
+	    <div class="col-xs-4">
+		$if aRecipe:
+		    $aRecipe.field('basicqt')
+	    </div>
 	</div>
 		
 	<div class="form-group row">
 	    <label for="inputCost" class="col-sm-3 col-form-label">$c.getMessage('unitcost',self.lang)</label>
-	    <div class="col-xs-8">
+	    <div class="col-xs-5">
 		<input name="cost" type="number" step="0.01" class="form-control" id="inputCost" placeholder="$c.getMessage('cost',self.lang)" 
 		    $if errormess != '':
 			$if 'cost' in data :
 			    value="$data['cost']" 
 		    $elif id == 'new':
 			$if aRecipe:
-				value="$aRecipe.field('cost')"
+			    value="$aRecipe.field('cost')"
 		    $elif elem:
 			value="$elem.fields['cost']"
 		>
 	    </div>
-	    <div class="col-xs-1">
+	    <div class="col-xs-4">
+		$if aRecipe:
+		    $aRecipe.field('cost')
 		<big>$c.currency</big>
 	    </div>
 	</div>
 	
 	<div class="form-group row">
 	    <label for="inputFixedCost" class="col-sm-3 col-form-label">$c.getMessage('fixedcost',self.lang)</label>
-	    <div class="col-xs-8">
+	    <div class="col-xs-5">
 		<input name="fixed_cost" type="number" step="0.01" class="form-control" id="inputFixedCost" placeholder="$c.getMessage('cost',self.lang)" 
 		    $if errormess != '':
 			$if 'fixed_cost' in data :
@@ -250,7 +256,9 @@ $if errormess != '':
 			value="$elem.fields['fixed_cost']"
 		>
 	    </div>
-	    <div class="col-xs-1">
+	    <div class="col-xs-4">
+		$if aRecipe:
+		    $aRecipe.field('fixed_cost')
 		<big>$c.currency</big>
 	    </div>
 	</div>
@@ -285,6 +293,12 @@ $if errormess != '':
 			    compTime = data['expirationdate']
 		    elif elem:
 		    	compTime = elem.fields['expirationdate']
+	<div class="col-sm-2">
+	    $if elem:
+		$ lifespan = elem.lifespan()
+		    $if lifespan:
+			$unicode(elem.lifespan()) $c.getMessage('days',self.lang)
+	</div>
 	<div class="col-sm-6 parent">
 	    <input name="expirationdate" type="text" class="form-control input" id="expirationDate" placeholder="$c.getMessage('dateentry',self.lang)" value="$compTime">
 		<script>rome(expirationDate,{"inputFormat": "YYYY-MM-DD HH:mm:ss"});</script>

@@ -476,7 +476,7 @@ $var title: MODAL
                                 $c.getMessage('expirationdate',self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-				$ lifespan = elem.lifespan(c)
+				$ lifespan = elem.lifespan()
 				<span
 				$if elem.fields['expirationdate'] and elem.fields['expirationdate'] < useful.now()[:10]:
 					class="text-danger"
@@ -517,7 +517,7 @@ $var title: MODAL
                                 $c.getMessage('lifespan',self.lang) :
                             </div>
                             <div class="col-xs-8" id="modalinfo" >
-				$ lifespan = elem.lifespan(c)
+				$ lifespan = elem.lifespan()
 				$if not elem.fields['lifespan']:
 				    <big>&#8662;</big>
 				$unicode(lifespan) $(c.getMessage('days',self.lang))

@@ -852,7 +852,9 @@ class ConfigurationObject(object):
                     config, begin, end, infos)
         for a in sensors:
             if a not in infos.keys():
-                infos[a] = config.AllSensors.elements[a].fetch(begin, end)
+                sensor = config.AllSensors.get(a)
+                if sensor and sensor.isActive():
+                    infos[a] = sensor.fetch(begin, end)
         return infos
 
     def isActive(self):
@@ -3669,7 +3671,7 @@ class GrRecipe(Group):
         else:
             return prefix
 
-    def lifespan(self,c):
+    def lifespan(self):
         days = self.field("lifespan")
         if days:
             return int(days)
@@ -5283,7 +5285,13 @@ class Sensor(AlarmingObject):
         tmp.append(self.id)
         return tmp
 
-    def fetch(self, start, end=None, resolution=60):
+    def resolution(self):
+        if self.fields['channel'] == 'radio':
+            return 180
+        else:
+            return 60
+
+    def fetch(self, start, end=None, resolution=None):
         """Fetch data from the RRD.
 
         start -- integer start time in seconds since the epoch, or negative for
@@ -5291,19 +5299,24 @@ class Sensor(AlarmingObject):
         end -- integer end time in seconds since the epoch, or None for current
                time
         resolution -- resolution in seconds"""
+        if not resolution:
+            resolution = self.resolution()
         if end is None:
             end = int(time.time())
         if start < 0:
             start += end
+        print("start="+str(start)+",end="+str(end)+",res="+str(resolution))
         if end - start > resolution:
             end -= end % resolution
             start -= start % resolution
+            print("% start="+str(start)+",end="+str(end)+",res="+str(resolution))
             try:
                 time_span, _, values = rrdtool.fetch(str(DIR_RRD+self.getRRDName()),
                                                      'AVERAGE', '-s', str(int(start)),
                                                      '-e', str(int(end)),
                                                      '-r', str(resolution) )
                 ts_start, ts_end, ts_res = time_span
+                print("TS start="+str(ts_start)+",end="+str(ts_end)+",res="+str(ts_res))
                 times = range(ts_start, ts_end, ts_res)
                 return zip(times, values)
             except:
@@ -5653,10 +5666,11 @@ class Batch(ConfigurationObject):
             return True
         return tmp
 
-    def lifespan(self,c):
+    def lifespan(self):
         krecipe = self.get_group()
-        if krecipe and krecipe in c.AllGrRecipe.elements:
-            return c.AllGrRecipe.elements[krecipe].lifespan(c)
+        aRecipe = c.AllGrRecipe.get(krecipe)
+        if aRecipe:
+            return aRecipe.lifespan()
         return 0
     
     def set_value_from_data(self, data, c, user):
@@ -5688,7 +5702,7 @@ class Batch(ConfigurationObject):
                 expdate= useful.date_to_ISO(data['expirationdate'])[:10]
             except:
                 if self.fields['time']:
-                    expdate= (useful.string_to_date(self.fields['time'])+datetime.timedelta(days=self.lifespan(c))).isoformat()[:10]
+                    expdate= (useful.string_to_date(self.fields['time'])+datetime.timedelta(days=self.lifespan())).isoformat()[:10]
         self.fields['expirationdate']= expdate
 
         self.add_measure(data['measure'])
@@ -6066,7 +6080,7 @@ class Transfer(AlarmingObject):
             if kbatch and kbatch in c.AllBatches.elements:
                 batch = c.AllBatches.elements[kbatch]
                 if not batch.fields['expirationdate']:
-                    lifedays = batch.lifespan(c)
+                    lifedays = batch.lifespan()
                     if lifedays:
                         batch.fields['expirationdate'] = (useful.string_to_date(self.fields['time'])+timedelta(days=lifedays)).isoformat()[:10]
                         batch.save(c, user)
