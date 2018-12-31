@@ -8,8 +8,13 @@ $code:
     elem = allobjects.get(id)
     keyID = allobjects.keyColumn
 $var location: list/$(type)=$(allobjects.get_class_acronym()) find/al/$(type)_$(id)=alarmlog
+$var location:
 $var recursive : False
 $var title: $c.getName(allobjects,self.lang)
+$var bcTop:
+$var bcOwner:$(type)_$id
+$var bcElem:
+$var bcOperation:al
 
 <script>
     $$(function(){

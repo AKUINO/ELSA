@@ -16,9 +16,7 @@ $else:
 $if errormess != '':
     $if 'remark' in data :
 	$ rmq = data['remark']
-
-<div class="container">
-    <form  method="post" action="" id="modifyPlace" enctype="multipart/form-data" data-bv-message="This value is not valid" data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
+<form  method="post" action="" id="modifyPlace" enctype="multipart/form-data" data-bv-message="This value is not valid" data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	<div class="form-group row" id="error">
 	    $errormess
 	</div>
@@ -258,7 +256,7 @@ $if errormess != '':
 		        $ i=i+1
 			<a href="/files/$(alarmdef.getTypeId())?remove=$filename" class="btn btn-danger" onclick="return(YNmessage(this,'$(c.getMessage("remove",self.lang))','$filename'))">X</a> &nbsp;
 			($(i)) <a href="$alarmdef.getDocumentURL(filename)" target="_blank">$filename</a><br/>
-	    <input id="inputFile" name="linkedDocs" type="file" multiple class="file file-loading"'>
+	    <input id="inputFile" name="linkedDocs" type="file" multiple class="file file-loading">
             </label>
 	</div>
 	
@@ -282,5 +280,4 @@ $if errormess != '':
 	    </div>
 	</div>
 	
-    </form>
-</div>
+</form>

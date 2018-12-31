@@ -31,10 +31,7 @@ $if myID == 'update':
     $var location: list/$(elem.get_type())=$(elem.get_class_acronym()) transfers/$(elem.get_type())_$(elem.getID())=transfer edit/t_$(transfer.getID())=edit
 $elif myID == 'component':
     $var location: list/$(idType)=$(elem.get_class_acronym()) transfers/$(idType)_$(elem.getID())=transfer transfers/$(idType)_$(elem.getID())/new=add
-
-
-<div class="container">
-    <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
+<form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
         $if myID == 'update':
 		<input type="hidden" name="h_id" value="$transfer.fields['h_id']"/>
 		<input type="hidden" name="origin" value="$transfer.fields['tm_id']"/>
@@ -154,5 +151,4 @@ $elif myID == 'component':
 	    <div class="col-sm-3">
 	    </div>
 	</div>
-    </form>
-</div>
+</form>

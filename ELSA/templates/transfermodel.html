@@ -6,19 +6,22 @@ $var pinned : $connected.pinned()
 $var recursive : False
 $var title : $c.AllTransferModels.getName(self.lang)
 $ rmq = ''
+$var bcTop:h
+$var bcElem:tm_$id
+$var bcOwner:$context
+$var bcOperation:edit
+$var location:
 $if id == 'new':
-    $var location: list/tm=transfermodel edit/tm_new=add
+    $var locationX: list/tm=transfermodel edit/tm_new=add
 $else:
-    $var location: list/tm=transfermodel edit/tm_$(id)=edit
+    $var locationX: list/tm=transfermodel edit/tm_$(id)=edit
     $ transfer_model = c.AllTransferModels.get(id)
     $ rmq = transfer_model.fields['remark']
     $var title : $transfer_model.getName(self.lang)
 $if errormess != '':
-    $if 'remark' in data :
+    $if data and 'remark' in data :
 	$ rmq = data['remark']
-
-<div class="container">
-    <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
+<form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
 	<div class="col-sm-12" >
 	    <p id="error">$errormess</p>
 	</div>
@@ -101,7 +104,7 @@ $if errormess != '':
 		    $for k,aUse in c.AllGrUsage.get_sorted().items():
 			<option value="$k"
 			    $if id != 'new':
-				$if  k == transfer_model.fields['gu_id'] :
+				$if k == transfer_model.fields['gu_id'] :
 				    selected
 			>$aUse.fields['acronym'] - $aUse.getName(self.lang) </option>
 		<option value="0"
@@ -210,5 +213,4 @@ $if errormess != '':
 	    <div class="col-sm-3">
 	    </div>
 	</div>
-    </form>
-</div>
+</form>

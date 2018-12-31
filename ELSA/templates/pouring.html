@@ -42,10 +42,7 @@ function flip() {
     document.getElementsByName("test")[0].setAttribute("name", "dest");
 }
 </script>
-
-
-<div class="container">
-    <form  method="post" action="" id="modifyPouring"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
+<form  method="post" action="" id="modifyPouring"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
         $if myID == 'update':
 		<input type="hidden" name="h_id" value="$pouring.fields['h_id']"/>
 		<input type="hidden" name="origin" value="$pouring.fields['vm_id']"/>
@@ -178,5 +175,4 @@ function flip() {
 	    <div class="col-sm-3">
 	    </div>
 	</div>
-    </form>
-</div>
+</form>

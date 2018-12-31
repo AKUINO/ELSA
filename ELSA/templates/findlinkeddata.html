@@ -35,7 +35,7 @@ $for d in elem.manualdata:
     $if not modelid or dd.fields['dm_id']==modelid:
 	    <div class="row active" style="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 		<div class="col-xs-3" >
-		    $(dd.fields['time'])
+		    $(dd.fields['time']) $:c.linkedAcronym(c.AllUsers,dd.fields['user'],False)
 		</div>	    
 		<div class="col-xs-3" >
 		    $if dd.fields['h_id'] != '' :

@@ -23,12 +23,11 @@ $if modelid:
 
 
 <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
-    <label class="col-sm-12">$c.getMessage('batch',self.lang) $c.getMessage('source',self.lang) :</label>
     <label class="col-sm-3">$c.getMessage('time',self.lang)</label>
     <label class="col-sm-2">$c.getMessage('checkpoint',self.lang)</label>
     <label class="col-sm-3">$c.getMessage('batch',self.lang)</label>
     <label class="col-sm-2">$c.getMessage('quantity',self.lang)</label>    
-    <label class="col-sm-1">$:(c.getHalfling('scale'))$elem.getQtyUnit(c)</label>
+    <label class="col-sm-1">$:(c.getHalfling('scale'))$elem.getQtyUnit(c,self.lang)</label>
     $ pq =  elem.get_quantity()
     $ stock = pq if pq else 0.0
     $ odd = False
@@ -37,13 +36,13 @@ $if modelid:
 		<div class="row active" style="$("background-color:#D5D5D7" if odd else "")">
 		    $ odd = not odd
 			<div class="col-xs-3" >
-			    $pouring.fields['time']
+			    $pouring.fields['time'] $:c.linkedAcronym(c.AllUsers,pouring.fields['user'],False)
 			</div>
 			<div class="col-xs-2" >
 			    $if pouring.fields['h_id'] != '' :
 			        <a href="/find/related/h_$(pouring.fields['h_id'])">$:c.getAllHalfling(c.AllCheckPoints) $c.AllCheckPoints.get(pouring.fields['h_id']).fields['acronym']</a>
 			    $if pouring.fields['vm_id'] != '' :
-		                <br/><a href="/find/related/vm_$(pouring.fields['vm_id'])" style="color:#28A4C9">- $c.AllPouringModels.get(pouring.fields['vm_id']).fields['acronym']</a>
+		                <br/> $:c.linkedAcronym(c.AllPouringModels,pouring.fields['vm_id'],False)
 			</div>
 		    $if pouring.getID() in elem.destination:
 			$ batch = c.AllBatches.get(pouring.fields['src'])
@@ -71,7 +70,7 @@ $if modelid:
 			    <strong><a href="/find/v/b_$(pouring.fields['dest'])"><span class="btn btn-warning" style="float:right" role="button">$:c.getHalfling('output')</span>$batch.fields['acronym']</a></strong><br>$batch.getName(self.lang)
 			</div>    
 			<div class="col-xs-2" >
-			    $pouring.getQtyUnit(c)
+			    $pouring.getQtyUnit(c,self.lang)
 			    $if pouring.fields['al_id'] :
 			        <a href="/edit/al_$(pouring.fields['al_id'])">$:c.getAllHalfling(c.AllAlarmLogs)</a>
 			    $if pouring.fields['remark']:

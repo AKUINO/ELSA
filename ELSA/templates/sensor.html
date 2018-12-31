@@ -35,8 +35,7 @@ $code:
 	    component = component.split('_')
 	    comp_type = component[0]
 	    comp_id = component[1]
-<div class="container">
-    <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
+<form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	<div class="form-group row" id="error">
 	    $errormess
 	</div>
@@ -251,7 +250,9 @@ $code:
 		$if errormess != '':
 		    $if 'formula' in data :
 			value="$data['formula']"
-		$elif id !='new':
+		$elif id =='new':
+		    value="value"
+		$else:
 		    value="$elem.fields['formula']"
 		>
 	    </div>
@@ -346,7 +347,5 @@ $code:
 	    </div> 
 	    <div class="col-sm-3">
 	    </div>
-	</div>
-	
-    </form>
-</div>
+	</div>	
+</form>

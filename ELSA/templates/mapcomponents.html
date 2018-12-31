@@ -6,9 +6,13 @@ $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
 $var recursive : False
+$var location :
+$var bcTop:pec
+$var bcElem:
+$var bcOwner:
+$var bcOperation:map
 $ done = set()
-<div class="container">
-	<a class="btn btn-warning" href="/map/gu" style="float:right">$:c.getHalfling('to')$:c.getHalfling('guse')</a>
+<a class="btn btn-warning" href="/map/gu" style="float:right">$:c.getHalfling('map')$:c.getHalfling('guse')</a>
 $ level = 0
 $ first = True
 $for kplace in c.AllPlaces.get_sorted_hierarchy():
@@ -31,6 +35,7 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 				$ kusage = place.fields['gu_id']
 				$ elem = c.AllGrUsage.get(kusage)
 				$if elem and elem.isActive():
+				    <div style="float:right">
 					<a href="/find/related/gu_$kusage">$:(elem.statusIcon(c,True,False))</a>
 					$ acro = elem.fields['acronym']
 					<a name="gu_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>			
@@ -40,6 +45,7 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 						$:c.getHalfling('file')<strong>$len(files)</strong></a>
 					$if elem.fields['rank']:
 						#$elem.fields['rank']
+				    </div>
 				$ sensors = place.get_sensors_in_component(c)
 				$for ksensor in sensors:
 					$ sensor = c.AllSensors.get(ksensor)
@@ -84,6 +90,7 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 							$ kusage = equipment.fields['gu_id']
 							$ elem = c.AllGrUsage.get(kusage)
 							$if elem and elem.isActive():
+							    <div style="float:right">
 								<a href="/find/related/gu_$kusage">$:(elem.statusIcon(c,True,False))</a>
 								$ acro = elem.fields['acronym']
 								<a name="gu_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>			
@@ -93,6 +100,7 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 									$:c.getHalfling('file')<strong>$len(files)</strong></a>
 								$if elem.fields['rank']:
 									#$elem.fields['rank']
+							     </div>
 							$ sensors = equipment.get_sensors_in_component(c)
 							$for ksensor in sensors:
 								$ sensor = c.AllSensors.get(ksensor)
@@ -137,6 +145,7 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 											$ kusage = container.fields['gu_id']
 											$ elem = c.AllGrUsage.get(kusage)
 											$if elem and elem.isActive():
+											    <div style="float:right">
 												<a href="/find/related/gu_$kusage">$:(elem.statusIcon(c,True,False))</a>
 												$ acro = elem.fields['acronym']
 												<a name="gu_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>			
@@ -146,6 +155,7 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 													$:c.getHalfling('file')<strong>$len(files)</strong></a>
 												$if elem.fields['rank']:
 													#$elem.fields['rank']
+											    </div>
 											$ sensors = container.get_sensors_in_component(c)
 											$for ksensor in sensors:
 												$ sensor = c.AllSensors.get(ksensor)
@@ -192,6 +202,7 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 										$ kusage = container.fields['gu_id']
 										$ elem = c.AllGrUsage.get(kusage)
 										$if elem and elem.isActive():
+										    <div style="float:right">
 											<a href="/find/related/gu_$kusage">$:(elem.statusIcon(c,True,False))</a>
 											$ acro = elem.fields['acronym']
 											<a name="gu_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>			
@@ -201,6 +212,7 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 												$:c.getHalfling('file')<strong>$len(files)</strong></a>
 											$if elem.fields['rank']:
 												#$elem.fields['rank']
+										    </div>
 										$ sensors = container.get_sensors_in_component(c)
 										$for ksensor in sensors:
 											$ sensor = c.AllSensors.get(ksensor)
@@ -244,6 +256,7 @@ $for kequipment in c.AllEquipments.get_sorted_hierarchy():
 		$ kusage = equipment.fields['gu_id']
 		$ elem = c.AllGrUsage.get(kusage)
 		$if elem and elem.isActive():
+		    <div style="float:right">
 			<a href="/find/related/gu_$kusage">$:(elem.statusIcon(c,True,False))</a>
 			$ acro = elem.fields['acronym']
 			<a name="gu_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>			
@@ -253,6 +266,7 @@ $for kequipment in c.AllEquipments.get_sorted_hierarchy():
 				$:c.getHalfling('file')<strong>$len(files)</strong></a>
 			$if elem.fields['rank']:
 				#$elem.fields['rank']
+		    </div>
 		$ sensors = equipment.get_sensors_in_component(c)
 		$for ksensor in sensors:
 			$ sensor = c.AllSensors.get(ksensor)
@@ -293,6 +307,7 @@ $for kcontainer in c.AllContainers.get_sorted_hierarchy():
 			$ kusage = container.fields['gu_id']
 			$ elem = c.AllGrUsage.get(kusage)
 			$if elem and elem.isActive():
+			    <div style="float:right">
 				<a href="/find/related/gu_$kusage">$:(elem.statusIcon(c,True,False))</a>
 				$ acro = elem.fields['acronym']
 				<a name="gu_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>			
@@ -302,6 +317,7 @@ $for kcontainer in c.AllContainers.get_sorted_hierarchy():
 					$:c.getHalfling('file')<strong>$len(files)</strong></a>
 				$if elem.fields['rank']:
 					#$elem.fields['rank']
+			    </div>
 			$ sensors = container.get_sensors_in_component(c)
 			$for ksensor in sensors:
 				$ sensor = c.AllSensors.get(ksensor)
@@ -326,4 +342,3 @@ $for kcontainer in c.AllContainers.get_sorted_hierarchy():
 					$ done.add('s_'+ksensor)
 				</div>
 			</div>
-</div>

@@ -5,7 +5,11 @@ $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
 $var recursive : False
 $var title : ELSA $c.getMessage('search',self.lang)
-$var location: search=search
+$var bcTop:
+$var bcOwner:
+$var bcElem:
+$var bcOperation:search
+$var location:
 $if errormess :
     <div class="form-group row" id="error">
     $c.getMessage(errormess,self.lang) [$(barcode)]

@@ -892,6 +892,27 @@ class WebGraphRecipe():
         if elem:
             summit = [id] + elem.get_supermap_str()
             usagesTop = c.AllGrUsage.get_usages_for_recipe(summit)
+            prec = ""
+            stack = []
+            start_u = None
+            for krecipe in summit:
+                if krecipe == '>>':
+                    stack.append(prec)
+                elif krecipe == '<<':
+                    prec = stack.pop()
+                else:
+                    recipe = c.AllGrRecipe.get(krecipe)
+                    if recipe:
+                        if prec:
+                            graph += 'xgr_'+krecipe+'->xgr_'+prec+'[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];'
+                        graph += 'xgr_'+krecipe
+                        graph += "[labelType=\"html\",label=\"<a href=/find/related/gr_"+krecipe+">"+recipe.getNameHTML(lang)+"</a>\""
+                        graph += ",tooltip=\""+recipe.fields['acronym']+"\""
+                        graph += ",id=\"xgr_"+krecipe+"\",shape=ellipse,style=\"fill:"+("#fbcfaa" if krecipe == id else "#fff")+";stroke:1px;\"];"
+                        if recipe.fields['gu_id']:
+                            start_u = recipe.fields['gu_id']
+                            graph += "xgr_"+krecipe+"->gu_"+start_u+"[style=\"stroke-width:3px;stroke:#3d3\"];"
+                    prec = krecipe
             recipes_todo = set()
             next_usage = []
             done = set()
@@ -923,13 +944,17 @@ class WebGraphRecipe():
                         obs = ""
                         for e in elems:
                             if e.get_type() == 'tm':
-                                if e.fields['gu_id']:
-                                    nx_usage = e.fields['gu_id']
+                                nx_usage = e.fields['gu_id']
+                                if nx_usage == '0':
+                                    nx_usage = start_u
+                                if nx_usage:
                                     graph += hid+"->"+"gu_"+nx_usage+"[style=\"stroke-width:3px\""
                                     if batch:
                                         events = batch.fromModel(c,e)
                                         if len(events) > 0:
                                             graph += ",labelType=\"html\",label=\"<a href=/find/t/b_"+batch.getID()+"/"+e.getID()+">"+unicode(len(events))+" x</a>\""
+                                    elif 'typical' in e.fields and e.fields['typical']:
+                                        graph += ",label=\""+c.seconds_to_string(int(e.fields['typical']),lang)+"\""
                                     graph += "];"
                                     points = usaTopID+" "+"gu_"+nx_usage
                                     #print points+" in "+unicode(next_usage)
@@ -1016,25 +1041,6 @@ class WebGraphRecipe():
             for remain in next_usage:
                 points = remain.split(" ")
                 graph += points[0]+"->"+points[1]+"[style=\"stroke-width:1px;stroke-dasharray:3,12;stroke:#888;\"];"
-            prec = ""
-            stack = []
-            for krecipe in summit:
-                if krecipe == '>>':
-                    stack.append(prec)
-                elif krecipe == '<<':
-                    prec = stack.pop()
-                else:
-                    recipe = c.AllGrRecipe.get(krecipe)
-                    if recipe:
-                        if prec:
-                            graph += 'xgr_'+krecipe+'->xgr_'+prec+'[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];'
-                        graph += 'xgr_'+krecipe
-                        graph += "[labelType=\"html\",label=\"<a href=/find/related/gr_"+krecipe+">"+recipe.getNameHTML(lang)+"</a>\""
-                        graph += ",tooltip=\""+recipe.fields['acronym']+"\""
-                        graph += ",id=\"xgr_"+krecipe+"\",shape=ellipse,style=\"fill:"+("#fbcfaa" if krecipe == id else "#fff")+";stroke:1px;\"];"
-                        if recipe.fields['gu_id']:
-                            graph += "xgr_"+krecipe+"->gu_"+recipe.fields['gu_id']+"[style=\"stroke-width:3px;stroke:#3d3\"];"
-                    prec = krecipe
             for recipe in recipes_todo:
 ##                if not recipe.getID() in summit:
                     grID = "gr_"+recipe.getID()

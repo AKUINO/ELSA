@@ -5,6 +5,10 @@ $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
 $var recursive : False
 $var title: $c.getMessage('add',self.lang) $c.getName(c.AllManualData,self.lang)
+$var bcTop:gr
+$var bcElem:d_$id
+$var bcOwner:$context
+$var bcOperation:edit
 $if id == 'new' and context == '':
     $code :
 	myID = 'new'
@@ -18,21 +22,28 @@ $elif id == 'new':
 	elem = c.get_object(splits[0],splits[-1])
 	rmq = ''
 	cond = True
+    $var bcTop:$(splits[0])
+    $var bcOwner:$(splits[0])_$(splits[-1])
 $else :
     $code:
-	if not id.split('_')[0] in 'bcep':
+	splits = id.split('_')
+	if not splits[0] in 'bcep':
 	    manudata = c.AllManualData.get(id)
 	    elem = c.get_object(manudata.fields['object_type'],manudata.fields['object_id'])
 	    myID = 'update'
 	    rmq = manudata.fields['remark']
 	    cond = manudata.isActive()
+	else:
+	    elem = c.get_object(splits[0],splits[-1])
+    $var bcTop:$(elem.get_type())
+    $var bcOwner:$(elem.getTypeId())
     $var title: $c.getMessage('update',self.lang) $c.getName(c.AllManualData,self.lang)
 $if myID == 'update':
-    $var location: list/$(elem.get_type())=$(elem.get_class_acronym()) manualdata/$(elem.get_type())_$(elem.getID())=manualdata edit/m_$(manudata.getID())=edit
+    $var location: list/$(elem.get_type())=$(elem.get_class_acronym()) manualdata/$(elem.get_type())_$(elem.getID())=manualdata edit/d_$(manudata.getID())=edit
 $elif myID == 'component':
     $var location: list/$(id.split('_')[-0])=$(elem.get_class_acronym()) manualdata/$(id.split('_')[0])_$(elem.getID())=manualdata transfers/$(id.split('_')[0])_$(elem.getID())/new=add
-<div class="container">
-    <form  method="post" action="" id="modifyManualData"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
+$var location:
+<form  method="post" action="" id="modifyManualData"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
         $if myID == 'update':
 		<input type="hidden" name="h_id" value="$manudata.fields['h_id']"/>
 		<input type="hidden" name="origin" value="$manudata.fields['dm_id']"/>
@@ -136,8 +147,7 @@ $elif myID == 'component':
 	    <div class="col-sm-3">
 	    </div>
 	</div>
-    </form>
-</div>
+</form>
 
 <script>
 var mins = [];

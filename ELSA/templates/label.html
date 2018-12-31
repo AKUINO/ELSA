@@ -9,6 +9,12 @@ $code :
 $var recursive : False
 $var title : ELSA $(allObjs.get_class_acronym())
 $var location: list/$(type)=$(allObjs.get_class_acronym())
+$var location:
+$var bcTop:
+$var bcOwner:
+$var bcElem:$(type)_$id
+$var bcOperation:label
+
 <div class="hidden-print">
 	<script>
 	    $$(function(){
@@ -40,7 +46,7 @@ $var location: list/$(type)=$(allObjs.get_class_acronym())
 		$ above = allGrs.get(group)
 		$if above:
 			<br/>$allGrs.getName(self.lang): <strong>$above.getName(self.lang)</strong>
-	<br/><strong>$elem.getQtyUnit(c)</strong>
+	<br/><strong>$elem.getQtyUnit(c,self.lang)</strong>
 	$if elem.fields['remark']:
 	    <br>$c.getMessage('remark',self.lang): $elem.fields['remark']
     </td>

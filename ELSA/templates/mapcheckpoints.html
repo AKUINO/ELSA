@@ -8,7 +8,6 @@ $var pinned : $connected.pinned()
 $var recursive : False
 $ done = set()
 $ listCheckPoint = c.AllCheckPoints.get_fullmap_str()
-<div class="container">
 $ level = 0
 $ first = True
 $for kcheckpoint in listCheckPoint:
@@ -79,4 +78,3 @@ $for kcheckpoint in listCheckPoint:
 		    $ done.add('h_'+kcheckpoint)
 $if not first:
 	</div>
-</div>

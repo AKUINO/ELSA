@@ -31,8 +31,8 @@ begin	lang	message_id	name	user
 2016-01-01 13:45:56	FR	restoreError	Erreur pour Restaurer...	1
 2016-01-01 13:45:56	EN	restarting	Restarting	1
 2016-01-01 13:45:56	FR	restarting	Redémarrage	1
-2016-01-01 13:45:56	EN	startUpdate	Update ELSA	1
-2016-01-01 13:45:56	FR	startUpdate	Mise à jour d'ELSA	1
+2016-01-01 13:45:56	EN	startUpdate	Update ELSA and Restart	1
+2016-01-01 13:45:56	FR	startUpdate	Mise à jour d'ELSA puis Redémarrage	1
 2016-01-01 13:45:56	EN	access0	No access	1
 2016-01-01 13:45:56	EN	access1	Linked data (VAT)	1
 2016-01-01 13:45:56	EN	access2	Read-Only	1
@@ -220,6 +220,8 @@ Heure : {8}"	1
 2016-01-01 13:45:56	FR	datarules	Si vous indiquez une valeur, indiquez un type de mesure	1
 2016-01-01 13:45:56	EN	datatable	Data Table	1
 2016-01-01 13:45:56	FR	datatable	Tableau des Données	1
+2016-01-01 13:45:56	EN	map	Table	1
+2016-01-01 13:45:56	FR	map	Tableau	1
 2016-01-01 13:45:56	EN	days	days 	1
 2016-01-01 13:45:56	FR	days	jours 	1
 2016-01-01 13:45:56	EN	disconnect	Disconnect	1
@@ -266,10 +268,8 @@ Heure : {8}"	1
 2016-01-01 13:45:56	EN	graphic	Graphic :	1
 2016-01-01 13:45:56	FR	graphic	Graphique :	1
 2016-01-01 13:45:56	NL	graphic	Grafisch :	1
-2016-01-01 13:45:56	EN	map	Schéma des Contrôles de la Recette	1
-2016-01-01 13:45:56	FR	map	Schéma des Contrôles de la Recette	1
-2016-01-01 13:45:56	EN	grecipe	Recipe/Nature	1
-2016-01-01 13:45:56	FR	grecipe	Recette/Nature	1
+2016-01-01 13:45:56	EN	grecipe	Recipe	1
+2016-01-01 13:45:56	FR	grecipe	Recette	1
 2016-01-01 13:45:56	DE	group	Gruppe	1
 2016-01-01 13:45:56	EN	group	Group	1
 2016-01-01 13:45:56	FR	group	Groupe	1

@@ -1,10 +1,10 @@
 $def with(content)
 $if content.recursive == 'False' :
     $if content.lang == 'disconnected':
-	$var tmp : disconnected
+        $var tmp : disconnected
         $var title : Log-In
     $else:
-	$var tmp : connected 
+        $var tmp : connected
     <!doctype html>
     <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
     <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
@@ -114,7 +114,8 @@ $if content.recursive == 'False' :
 				<li><a href="/list/e" tabindex="-2">$:c.getHalfling('equipment')&nbsp;$c.getMessage('equipment',content.lang)</a></li>
 				<li><a href="/list/c" tabindex="-3">$:c.getHalfling('container')&nbsp;$c.getMessage('container',content.lang)</a></li>
 				<li><a href="/list/gu" tabindex="-4">$:c.getHalfling('guse')&nbsp;$c.getMessage('guse',content.lang)</a></li>				
-				<li><a href="/map/gu" tabindex="-5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('datatable')&nbsp;$c.getMessage('datatable',content.lang)</a></li>				
+				<li><a href="/map/gu" tabindex="-5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('map')&nbsp;$c.getMessage('map',content.lang)</a></li>				
+				<li><a href="/map/pec" tabindex="-6">$:c.getHalfling('place')$:c.getHalfling('equipment')$:c.getHalfling('container')&nbsp;$c.getMessage('component',content.lang)</a></li>				
 			    </ul>
 			</li>
 			<li class="dropdown" data-show-icon="true">
@@ -130,7 +131,7 @@ $if content.recursive == 'False' :
 			    <a href="#" class="dropdown-toggle" data-toggle="dropdown">$c.getMessage('checkpoint',content.lang)<b class="caret"></b></a>
 			    <ul class="dropdown-menu">
 				<li><a href="/list/h" tabindex="-1" class="blue">$:c.getHalfling('checkpoint')&nbsp;$c.getMessage('checkpoint',content.lang)</a></li>
-				<li><a href="/map/h" tabindex="-2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('datatable')&nbsp;$c.getMessage('datatable',content.lang)</a></li>				
+				<li><a href="/map/h" tabindex="-2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('map')&nbsp;$c.getMessage('map',content.lang)</a></li>				
 				<li><a href="/list/dm" tabindex="-3" class="blue">$:c.getHalfling('manualdatamodel')&nbsp;$c.getMessage('manualdatamodel',content.lang)</a></li>
 				<li><a href="/list/tm" tabindex="-4" class="blue">$:c.getHalfling('transfermodel')&nbsp;$c.getMessage('transfermodel',content.lang)</a></li>
 				<li><a href="/list/vm" tabindex="-5">$:c.getHalfling('pouringmodel')&nbsp;$c.getMessage('pouringmodel',content.lang)</a></li>
@@ -142,7 +143,7 @@ $if content.recursive == 'False' :
 				<li><a href="/list/b" tabindex="-1">$:c.getHalfling('batch')&nbsp;$c.getMessage('batch',content.lang)</a></li>
 				<li $:('' if content.pinned else 'class="disabled"')><a href="$:(('/find/related/'+content.pinned) if content.pinned else '')" tabindex="-2">$:c.getHalfling('pin')&nbsp;$c.getMessage('pin',content.lang)</a></li>
 				<li><a href="/list/gr" tabindex="-3">$:c.getHalfling('grecipe')&nbsp;$c.getMessage('grecipe',content.lang)</a></li>
-				<li><a href="/map/gr" tabindex="-4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('datatable')&nbsp;$c.getMessage('datatable',content.lang)</a></li>				
+				<li><a href="/map/gr" tabindex="-4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('map')&nbsp;$c.getMessage('map',content.lang)</a></li>				
 				<li><a href="/calendar" tabindex="-5">$:c.getHalfling('calendar')&nbsp;$c.getMessage('calendar',content.lang)</a></li>
 				<li><a href="#" tabindex="-6" onclick="generateQRCode()" data-toggle="modal" data-target="#modal_barcode" aria-expanded="false" aria-controls="navbar">$:c.getHalfling('search')&nbsp;$c.getMessage('search',content.lang)</a></li>
 				<li><a href="#" tabindex="-7">&nbsp;</a></li>				
@@ -156,7 +157,7 @@ $if content.recursive == 'False' :
 			    <ul class="dropdown-menu">
 				<li><a href="/list/u" tabindex="-1">$:c.getHalfling('user')&nbsp;$c.getMessage('user',content.lang)</a></li>
 				<li><a href="/list/gf" tabindex="-2">$:c.getHalfling('gfunction')&nbsp;&nbsp;$c.getMessage('gfunction',content.lang)</a></li>
-				<li><a href="/map/gf" tabindex="-3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('datatable')&nbsp;$c.getMessage('datatable',content.lang)</a></li>
+				<li><a href="/map/gf" tabindex="-3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('map')&nbsp;$c.getMessage('map',content.lang)</a></li>
 				<li><a href="#" tabindex="-4">&nbsp;</a></li>				
 				<li$:('' if " admin "in content.allowed else ' class="disabled"')><a href="$("/backup" if " admin "in content.allowed else "#")" tabindex="-5">$:c.getHalfling('backup')&nbsp;$c.getMessage('backup',content.lang)</a></li>
 				$if self.tmp == 'connected':
@@ -184,25 +185,32 @@ $if content.recursive == 'False' :
 			<span class="navbar-brand" href="/?completeMenu=1" style="margin:15px;margin-top:0px;"><img src="/static/img/akuino.png" border="0" alt="This application stores the configuration and the data of the different AKUINO modules installed"/></span>
 		</div>
 	    </nav>
-	    <div style="margin-top:10px;font-size:20px;" class="hidden-print">
-		$if content.location != 'index' :
-		    <a href="/"><span class="glyphicon glyphicon-home"></span>   </a>
+	    <div style="font-size:20px;" class="hidden-print btn-group btn-breadcrumb">
+		$if content.location:
+		  $if content.location != 'index' :
+		    <a href="/" class="btn btn-default"><span class="glyphicon glyphicon-home"></span>   </a>
 		    $ url = '/'
 		    $for elem in content.location.split():
-                        $ splitted=elem.split('=')
-                        $if len(splitted) > 1:
+			$ splitted=elem.split('=')
+			$if len(splitted) > 1:
 			    $ tmp=url+splitted[0]
 			    $ css=''
 			    $if 'tm' in tmp or 'vm' in tmp or 'dm' in tmp:
 			        $ css='blue'
-			    / <a href="$tmp" class="$(css)">$:c.getHalfling(splitted[1])&nbsp;$c.getMessage(splitted[1],content.lang)</a>
+			    <a href="$tmp" class="$(css) btn btn-default">$:c.getHalfling(splitted[1])&nbsp;$c.getMessage(splitted[1],content.lang)</a>
+		$else:
+		    $if content.bcTop or content.bcElem or content.bcOperation:
+			<a href="/" class="btn btn-default"><span class="glyphicon glyphicon-home"></span></a>
+			$:c.breadcrumb(content.bcTop,content.bcOwner,content.bcElem,content.bcOperation,content.lang)
+		    $else:
+			<span class="btn btn-default"><span class="glyphicon glyphicon-home"></span></span>
 	    </div>
-	    <div style="margin-top:10px;">
+	    <div style="margin-top:6px;">
 		$:content
 	    </div>
             <hr class="hidden-print">
             <footer style="margin-top:20px;" class="hidden-print">
-                <div class="col-sm-11 text-center"><a href="https://www.akuino.net" onclick="return(YNmessage(this,'Go to','AKUINO.net'))">AKUINO</a>, &copy;<small><a href="https://www.destin-informatique.com" onclick="return(YNmessage(this,'Go to','destin-informatique.com'))">DESTIN-Informatique</a>, <a href="https://www.glyphicons.com" onclick="return(YNmessage(this,'Go to','GlyphIcons.com'))">GlyphIcons</a>, 2016-2018</small></div>
+                <div class="col-sm-11 text-center"><a href="https://www.akuino.net" onclick="return(YNmessage(this,'Go to','AKUINO.net'))">AKUINO</a>, &copy;<small><a href="https://www.destin-informatique.com" onclick="return(YNmessage(this,'Go to','destin-informatique.com'))">DESTIN-Informatique</a>, <a href="https://www.glyphicons.com" onclick="return(YNmessage(this,'Go to','GlyphIcons.com'))">GlyphIcons</a>, 2016-2019</small></div>
 	    </footer>
 	</div>
     

@@ -10,9 +10,13 @@ $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
 $ user = connected.cuser
 $var recursive : False
+$var location :
+$var bcTop:gr
+$var bcElem:
+$var bcOwner:
+$var bcOperation:map
 $ done = set()
 $ listRecipe = c.AllGrRecipe.get_fullmap_str()
-<div class="container">
 $ level = 0
 $ first = True
 $for krecipe in listRecipe:
@@ -69,7 +73,7 @@ $for krecipe in listRecipe:
 						$if pos is not None :
 							$:c.getHalfling('to')
 							<a href="/find/related/$(pos.get_type())_$pos.getID()">$:(pos.statusIcon(c,True,False)) $pos.fields['acronym']</a>,
-							$transfer.fields['time']
+							$transfer.fields['time'] $:c.linkedAcronym(c.AllUsers,transfer.fields['user'],False)
 						$if alarms > 0:
 							<a href="/find/al/b_$batch.getID()">
 							$:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
@@ -85,4 +89,3 @@ $for krecipe in listRecipe:
 			$ done.add('gr_'+krecipe)
 $if not first:
 	</div>
-</div>

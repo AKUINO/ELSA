@@ -8,6 +8,11 @@ $code :
 $var recursive : False
 $var title : ELSA $(c.findAll(type).get_class_acronym())
 $var location: list/$(type)=$(c.findAll(type).get_class_acronym())
+$var location:
+$var bcTop:
+$var bcOwner:
+$var bcElem:$(type)_$id
+$var bcOperation:files
 
 $if not type in 'tdv':
 	<script>

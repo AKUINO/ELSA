@@ -7,13 +7,9 @@ $var recursive : False
 $var location : updateELSA=updateELSA
 $var title : Update ELSA
 
-<div class="container">
-    Résultat de git status :<br>
-    <em>$:git_status</em>
-    <form method="post" action="" id="selectAction" enctype="multipart/form-data">
-        Redémarrer et mettre à jour ELSA
+<h3>git status :</h3><em>$:git_status</em>
+<form method="post" action="" id="selectAction" enctype="multipart/form-data">
         <div class="form-group column">
             <input type="submit" value="$c.getMessage('startUpdate',self.lang)" class="form-control" name="start_elsa_update">
         </div>
-    </form>
-</div>
+</form>

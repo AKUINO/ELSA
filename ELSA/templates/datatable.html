@@ -9,8 +9,13 @@ $code :
     source = allSource.get(id)
 
 $var recursive : False
-$var location: list/$(type)=$(c.findAll(type).get_class_acronym()) exportdata/$(type)_$(id)=exportdata datatable/$(type)_$(id)=datatable
+$var locationX: list/$(type)=$(c.findAll(type).get_class_acronym()) exportdata/$(type)_$(id)=exportdata datatable/$(type)_$(id)=datatable
+$var location:
 $var title : $(source.getName(self.lang))
+$var bcTop:gr
+$var bcOwner:
+$var bcElem:$(type)_$id
+$var bcOperation:datatable
 <script>
     $$(function(){
 	$$("#includedMenu$(type)_$(id)").load("/fullentry/$(type)_$(id)");

@@ -6,11 +6,15 @@ $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
 $var recursive : False
+$var location :
+$var bcTop:gu
+$var bcElem:
+$var bcOwner:
+$var bcOperation:map
 $ done = set()
 $ listUsage = c.AllGrUsage.get_fullmap_str()
 $ listUsage.append('')
-<div class="container">
-	<a class="btn btn-warning" href="/map/pec" style="float:right">$:c.getHalfling('to')$:c.getHalfling('place')$:c.getHalfling('equipment')$:c.getHalfling('container')</a>
+<a class="btn btn-warning" href="/map/pec" style="float:right">$:c.getHalfling('map')$:c.getHalfling('place')$:c.getHalfling('equipment')$:c.getHalfling('container')</a>
 $ level = 0
 $ first = True
 $for kusage in listUsage:
@@ -96,7 +100,9 @@ $for kusage in listUsage:
 						<a name="e_$acro"></a>$acro - <strong>$(equipment.getName(self.lang))</strong>
 						$ here = equipment.get_actual_position_here(c)
 						$if here:
+							<div style="float:right">
 							<small>$:c.getHalfling('to')</small> <a href="/find/related/$(here.get_type())_$(here.getID())">$:(here.statusIcon(c,True,False))$(here.fields['acronym'])</a>
+							</div>
 						$ files = equipment.getDocumentList()
 						$if files and len(files) > 0:
 						    <a href="/files/e_$equipment.getID()">
@@ -140,7 +146,9 @@ $for kusage in listUsage:
 						<a name="c_$acro"></a>$acro - <strong>$(container.getName(self.lang))</strong>
 						$ here = container.get_actual_position_here(c)
 						$if here:
+							<div style="float:right">
 							<small>$:c.getHalfling('to')</small> <a href="/find/related/$(here.get_type())_$(here.getID())">$:(here.statusIcon(c,True,False))$(here.fields['acronym'])</a>
+							</div>
 						$ files = container.getDocumentList()
 						$if files and len(files) > 0:
 						    <a href="/files/c_$container.getID()">
@@ -176,4 +184,3 @@ $for kusage in listUsage:
 		$ done.add('gu_'+kusage)
 $if not first:
 	</div>
-</div>

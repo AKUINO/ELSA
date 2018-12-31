@@ -8,7 +8,6 @@ $var location: list/gf=$(c.AllGrFunction.get_class_acronym())
 $var recursive : False
 $ done = set()
 $ listFunction = c.AllGrFunction.get_fullmap_str()
-<div class="container">
 $ level = 0
 $ first = True
 $for kfunction in listFunction:
@@ -55,4 +54,3 @@ $for kfunction in listFunction:
 			$ done.add('gf_'+kfunction)
 $if not first:
 	</div>
-</div>

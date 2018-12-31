@@ -10,7 +10,7 @@ begin	classname	glyphname	user
 2017-03-21 14:08:46	checkpoint	check	1
 2017-03-21 14:08:46	computer	hdd	1
 2017-03-21 14:08:46	container	shopping-cart	1
-2017-03-21 14:08:46	datatable	list 1	
+2017-03-21 14:08:46	datatable	list	1	
 2017-03-21 14:08:46	disabled	remove-circle	1
 2017-03-21 14:08:46	disconnect	off	1
 2017-03-21 14:08:46	edit	edit	1
@@ -28,6 +28,7 @@ begin	classname	glyphname	user
 2017-03-21 14:08:46	input	import	1
 2017-03-21 14:08:46	manualdata	eye-open	1
 2017-03-21 14:08:46	manualdatamodel	eye-open	1
+2017-03-21 14:08:46	map	list	1	
 2017-03-21 14:08:46	measure	reflect-y	1
 2017-03-21 14:08:46	menu	cog 1
 2017-03-21 14:08:46	monitoring	stats	1
@@ -47,6 +48,7 @@ begin	classname	glyphname	user
 2017-03-21 14:08:46	search	search	1
 2017-03-21 14:08:46	sensor	scale	1
 2017-03-21 14:08:46	shutdown	off	1
+2017-03-21 14:08:46	test	text	1	
 2017-03-21 14:08:46	time	time	1
 2017-03-21 14:08:46	to	arrow-right	1
 2017-03-21 14:08:46	ToDo	flag	1

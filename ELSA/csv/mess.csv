@@ -39,6 +39,7 @@ begin	message_id	default	user
 2016-01-01 13:45:56	people	People	1
 2016-01-01 13:45:56	cancel	Cancel	1
 2016-01-01 13:45:56	datatable	Data Table	1
+2016-01-01 13:45:56	map	Table	1
 2016-01-01 13:45:56	quantity	Quantity	1
 2016-01-01 13:45:56	degree	Degree	1
 2016-01-01 13:45:56	duplicate	Duplicate	1
@@ -182,6 +183,7 @@ begin	message_id	default	user
 2016-01-01 13:45:56	mdata	Observation(s)	1
 2016-01-01 13:45:56	maxmax	Max +++ 	1
 2016-01-01 13:45:56	typical	Typical 	1
+2016-01-01 13:45:56	test	TEST 	1
 2016-01-01 13:45:56	phone	Phone  	1
 2016-01-01 13:45:56	add	Add	1
 2016-01-01 13:45:56	edit	Edit	1

@@ -32,8 +32,7 @@ $if myID == 'update':
 $elif myID == 'component':
     $ aType = id.split('_')[0]
     $var location: list/$(aType)=$(elem.get_class_acronym()) find/al/$(aType)_$(elem.getID())=alarmlog alarmlogs/$(aType)_$(elem.getID())/new=add
-<div class="container">
-    <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
+<form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
 	<div class="col-sm-12" >
 	    <p id="error">$errormess</p>
 	</div>
@@ -162,7 +161,7 @@ $elif myID == 'component':
 		        $ i=i+1
 			<a href="/files/$(alarmlog.getTypeId())?remove=$filename" class="btn btn-danger" onclick="return(YNmessage(this,'$(c.getMessage("remove",self.lang))','$filename'))">X</a> &nbsp;
 			($(i)) <a href="$alarmlog.getDocumentURL(filename)" target="_blank">$filename</a><br/>
-	    <input id="inputFile" name="linkedDocs" type="file" multiple class="file file-loading"'>
+	    <input id="inputFile" name="linkedDocs" type="file" multiple class="file file-loading">
             </label>
 	</div>
 
@@ -185,5 +184,4 @@ $elif myID == 'component':
 	    <div class="col-sm-3">
 	    </div>
 	</div>
-    </form>
-</div>
+</form>

@@ -6,6 +6,11 @@ $var pinned : $connected.pinned()
 $var recursive : False
 $ rmq = ''
 $var title : ELSA group
+$var bcTop:
+$var bcOwner:$context
+$var bcElem:$(type)_$id
+$var bcOperation:edit
+
 $code:
     AllObjects = c.findAll(type)
     precision = None
@@ -37,10 +42,9 @@ $else:
 $if errormess != '':
     $if 'remark' in data :
 	$ rmq = data['remark']
+$var location:
 $ aRecipe = c.AllGrRecipe.get(kRec)
-<div class="container">
-    
-    <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
+<form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
 	<div class="form-group row" id="error">
 	    $errormess
 	</div>
@@ -340,7 +344,7 @@ $ aRecipe = c.AllGrRecipe.get(kRec)
 		        $ i=i+1
 			<a href="/files/$(elem.getTypeId())?remove=$filename" class="btn btn-danger" onclick="return(YNmessage(this,'$(c.getMessage("remove",self.lang))','$filename'))">X</a> &nbsp;
 			($(i)) <a href="$elem.getDocumentURL(filename)" target="_blank">$filename</a><br/>
-	    <input id="inputFile" name="linkedDocs" type="file" multiple class="file file-loading"'>
+	    <input id="inputFile" name="linkedDocs" type="file" multiple class="file file-loading">
             </label>
 	</div>
 
@@ -365,8 +369,7 @@ $ aRecipe = c.AllGrRecipe.get(kRec)
 	    </div>
 	</div>
 	
-    </form>
-</div>
+</form>
 
 $if type == 'h':
     <script>

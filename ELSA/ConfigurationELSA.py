@@ -85,6 +85,8 @@ TRANSACTION_TYPES = ['d','t','v']
 
 _lock_socket = None
 
+buttonClasses = "" #" btn-warning btn btn-md"
+
 color_violet = "FF00FF"
 color_blue = "0000FF"
 color_green = "00FF00"
@@ -299,6 +301,97 @@ class Configuration():
     def getAllHalfling(self, allObjects, supp_classes=""):
         return self.AllHalflings.getHalfling(allObjects.get_class_acronym(), supp_classes)
 
+    def breadcrumbTop(self,top):
+        if top in "grbdtv":
+            top = "gr"
+        elif top == "gu":
+            pass
+        elif top in "gfu":
+            top = "gf"
+        elif top in "hdmtmvm" and not top in "mdtv":
+            top = "h"
+        elif top == u"pec":
+            top = "pec"
+        elif not top in 'dtv':
+            pass
+        return top
+
+    def breadcrumb(self, top, kowner, kelem, operation, lang):
+        global buttonClasses
+        print "top="+top+",owner="+kowner+",kelem="+kelem+",operation="+operation
+        html = ""
+        if not top:
+            if kowner:
+                ids = kowner.split('_')
+                if len(ids) >= 2:
+                    top = ids[0]
+            if not top and kelem:
+                ids = kelem.split('_')
+                if len(ids) >= 2:
+                    top = ids[0]
+        top = self.breadcrumbTop(top)
+        if top in "grbdtv":
+            html = '<a href="/map/gr" class="btn btn-default">'+self.AllGrRecipe.statusIcon(None,False,buttonClasses)+self.getMessage('grecipe',lang)+'</a>'
+        elif top == self.AllGrUsage.get_type():
+            html = '<a href="/map/gu" class="btn btn-default">'+self.AllGrUsage.statusIcon(None,False,buttonClasses)+self.getMessage('guse',lang)+'</a>'
+        elif top in "gfu":
+            html = '<a href="/map/gf" class="btn btn-default"><div class="'+buttonClasses+'">'+self.AllGrFunction.statusIcon(None,False)+'</div>'+self.getMessage('gfunction',lang)+'</a>'
+        elif top in "hdmtmvm" and not top in "mdtv":
+            html = '<a href="/map/h" class="btn btn-default">'+self.AllCheckPoints.statusIcon(None,False,buttonClasses)+self.getMessage('checkpoint',lang)+'</a>'
+        elif top == u"pec":
+            html = '<a href="/map/pec" class="btn btn-default">'+self.getHalfling('place')+self.getHalfling('equipment')+self.getHalfling('container')+self.getMessage('component',lang)+'</a>'
+        elif not top in 'dtv':
+            allObj = self.findAll(top)
+            html = '<a href="/list/"'+top+'" class="btn btn-default">'+allObj.statusIcon(None,False,buttonClasses)+self.getMessage(allObj.get_class_acronym(),lang)+'</a>'
+        owner = None
+        if kowner:
+            ids = kowner.split('_')
+            if len(ids) >= 2:
+                owner = self.get_object(ids[0],ids[1])
+                if owner:
+                    if ids[0] == top:
+                        html += '<a href="/find/related/'+owner.getTypeId()+'" class="btn btn-default"><strong>'+owner.get_acronym()+'</strong></a>' #:
+                    else:
+                        allGroup = self.findAllFromObject(owner)
+                        html += '<a href="/find/related/'+owner.getTypeId()+'" class="btn btn-default">'+owner.statusIcon(self,None,False)+'<strong>'+owner.get_acronym()+'</strong></a>' #-
+                    top = ids[0]
+        if kelem:
+            ids = kelem.split('_')
+            if len(ids) >= 2:
+                if ids[1] == 'new':
+                    allObj = self.findAll(ids[0])
+                    if allObj:
+                        html += '<a href="/edit/'+ids[0]+'_new" class="btn btn-default">'+self.getHalfling('add')+self.getMessage('add',lang)+' '+allObj.statusIcon(None,False)+self.getMessage(allObj.get_class_acronym(),lang)+'</a>' #-
+                else:
+                    elem = self.get_object(ids[0],ids[1])
+                    if elem:
+                        allObj = self.findAllFromObject(elem)
+                        if not owner:
+                            kowner = elem.get_group()
+                            if kowner:
+                                type = allObj.get_group_type()
+                                allGroup = self.findAll(type)
+                                owner = allGroup.get(kowner)
+                                if owner:
+                                    html += '<a href="/find/related/'+owner.getTypeId()+'" class="btn btn-default">'+('' if type==top else owner.statusIcon(self,None,False))+'<strong>'+owner.get_acronym()+'</strong></a>' #' = ' if type==top else ' - ')+
+                                    top = type
+                        #if owner:
+                        #    html += ' / '
+                        #else:
+                        #    if top == ids[0]:
+                        #        html += ' = '
+                        #    else:
+                        #        html += ' - '
+                        if ids[0] in 'dtv':
+                            html += '<a href="/find/'+ids[0]+'/'+owner.getTypeId()+'" class="btn btn-default">'+elem.statusIcon(self,None,False)+'</a>'
+                        else:
+                            html += '<a href="/find/related/'+elem.getTypeId()+'" class="btn btn-default">'+('' if top == ids[0] else elem.statusIcon(self,None,False))+'<strong>'+elem.get_acronym()+'</strong></a>'
+                        if operation:
+                            html += '<a href="'+elem.get_href(operation)+'" class="btn btn-default">'+self.getHalfling(operation)+self.getMessage(operation,lang)+'</a>' #:
+        elif operation:
+            html += '<a href="/'+operation+'" class="btn btn-default">'+self.getHalfling(operation)+self.getMessage(operation,lang)+'</a>'#:
+        return html
+
     def get_time(self):
         return useful.get_time()
 
@@ -319,11 +412,14 @@ class Configuration():
     def linkedAcronym(self,allobj,key,icon):
         elem = allobj.get(key)
         if elem:
+            style = ""
+            if allobj.isModeling():
+                style = " style=\"color:#28A4C9\""
             if 'acronym' in elem.fields:
-                return "<a href=\"/find/related/"+allobj.get_type()+"_"+key+"\">" \
+                return "<a href=\"/find/related/"+allobj.get_type()+"_"+key+"\""+style+">" \
                        +(elem.statusIcon(self,False,False) if icon else "")+elem.fields['acronym']+"</a>"
             else:
-                return "<a href=\"/item/"+allobj.get_type()+"_"+key+"\">" \
+                return "<a href=\"/item/"+allobj.get_type()+"_"+key+"\""+style+">" \
                        +(elem.statusIcon(self,False,False) if icon else "")+"#"+key+"</a>"
         else:
             return ''
@@ -361,6 +457,22 @@ class Configuration():
                         if not elem in result:
                             result.append(elem)
         return result
+
+    def seconds_to_string(self,seconds,lang):
+        if not seconds:
+            return ""
+        seconds = int(seconds)
+        mn = seconds // 60
+        hh = mn // 60
+        dd = hh // 24
+        seconds = seconds % 60
+        mn = mn % 60
+        hh = hh % 24
+        result = ( (" "+unicode(dd)+" "+self.getMessage("day"+("s" if dd > 1 else ""),lang)) if dd else "") \
+                     + ( (" "+unicode(hh)+" "+self.getMessage("hour"+("s" if hh > 1 else ""),lang)) if hh else "") \
+                     + ( (" "+unicode(mn)+" "+self.getMessage("minute"+("s" if mn > 1 else ""),lang)) if mn else "") \
+                     + ( (" "+unicode(seconds)+" "+self.getMessage("second"+("s" if seconds > 1 else ""),lang)) if seconds else "")
+        return result[1:]
 
 class ConfigurationObject(object):
 
@@ -501,8 +613,13 @@ class ConfigurationObject(object):
                 return u"jpg"
             else:
                 return None
-                
 
+    def get_href(self, operation):
+        if operation:
+            return '/'+operation+'/'+self.getTypeId()
+        else:
+            return '/find/related/'+self.getTypeId()
+                
     def setName(self, key, value, user, keyColumn):
         if value != '' and value is not None:
             newName = {}
@@ -872,7 +989,7 @@ class ConfigurationObject(object):
 
     def isModeling(self):
         return None
-    
+
     def isExpired(self):
         return None
     
@@ -951,7 +1068,7 @@ class ConfigurationObject(object):
             return aMeasure.fields['unit']
         return "";
         
-    def getQtyUnit(self,c):
+    def getQtyUnit(self,c,lang="EN"):
         result = u'?'
         measure = self.get_measure(c)
         quantity = self.get_quantity_string()
@@ -1447,6 +1564,13 @@ class AllObjects(object):
         except:
             return None
 
+    def statusIcon(self, pic=None,inButton=False, add_classes=''):
+        supp_classes = ""+add_classes
+        if not inButton:
+            if self.isModeling():
+                supp_classes += " text-info"
+        return self.config.getAllHalfling(self,supp_classes)
+
 class AllUsers(AllObjects):
 
     def __init__(self, config):
@@ -1618,7 +1742,7 @@ class AllHalflings(AllObjects):
             return self.elements[acronym].getHalfling(supp_classes)
         except:
             traceback.print_exc()
-            return "<H1>"+acronym+" not found</H1>"
+            return "<em>"+acronym+" not found</em>"
 
 class AllAlarms(AllObjects):
 
@@ -2091,8 +2215,7 @@ class AllSensors(AllObjects):
                 return None
 
         for k, sensor in self.elements.items():
-            if sensor.fields['channel'] in self._queryChannels \
-                                        and sensor.isActive():
+            if sensor.isActive() and sensor.fields['channel'] in self._queryChannels:
                 value, cache = sensor.get_value_sensor(self.config, get_cache(sensor))
                 sensor.update(now, value, self.config)
                 if cache is not None:
@@ -2200,6 +2323,7 @@ class AllPouringModels(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'vm', PouringModel.__name__, config)
+        #QUANTITY must NOT be used, TYPICAL is the right field
         self.fieldnames = ['begin', 'vm_id', 'acronym', 'src', 'dest', \
                            'quantity', 'h_id', 'rank', 'in', 'gu_id', 'remark', 'active'] \
                             + alarmFields + ['user']
@@ -3834,7 +3958,7 @@ class AlarmLog(ConfigurationObject):
             return s.get_unit(config)
         return ""
 
-    def getQtyUnit(self,c):
+    def getQtyUnit(self,c,lang="EN"):
         result = self.get_quantity_string()
         unit = self.get_unit(c)
         if unit:
@@ -4479,7 +4603,7 @@ class Alarm(ConfigurationObject):
                                   elem.fields['acronym'] if elem else "",
                                   alarmedObject.getName(lang),
                                   alarmedObject.fields['acronym'],
-                                  alarmedObject.getQtyUnit(config),
+                                  alarmedObject.getQtyUnit(config,lang),
                                   alarmedObject.actualAlarm,
                                   alarmedObject.time,
                                   unicode(alarmedObject.degreeAlarm))
@@ -4500,7 +4624,7 @@ class Alarm(ConfigurationObject):
                                   name,
                                   elem.getName(lang) if elem else "",
                                   elem.fields['acronym'] if elem else "",
-                                  alarmedObject.getQtyUnit(config),
+                                  alarmedObject.getQtyUnit(config,lang),
                                   alarmedObject.fields['remark'],
                                   alarmedObject.fields['time'])
         elif alarmedObject.get_type() == 't':
@@ -4521,7 +4645,7 @@ class Alarm(ConfigurationObject):
                                   name,
                                   elem.getName(lang) if elem else "",
                                   elem.fields['acronym'] if elem else "",
-                                  alarmedObject.getQtyUnit(config),
+                                  alarmedObject.getQtyUnit(config,lang),
                                   alarmedObject.fields['remark'],
                                   alarmedObject.fields['time'])
         elif alarmedObject.get_type() == 'v':
@@ -4549,7 +4673,7 @@ class Alarm(ConfigurationObject):
                                   elemout.fields['acronym'] if elemout else "",
                                   elemin.getName(lang) if elemin else "",
                                   elemin.fields['acronym'] if elemin else "",
-                                  alarmedObject.getQtyUnit(config),
+                                  alarmedObject.getQtyUnit(config,lang),
                                   alarmedObject.fields['remark'],
                                   alarmedObject.fields['time'])
         if saveit:
@@ -4594,14 +4718,14 @@ class Alarm(ConfigurationObject):
             elem = config.get_object(
                 alarmedObject.fields['object_type'],alarmedObject.fields['object_id'])
             return unicode.format(title,
-                                  alarmedObject.getQtyUnit(config),
+                                  alarmedObject.getQtyUnit(config,lang),
                                   elem.getName(lang))
         elif alarmedObject.get_type() == 't':
             title = config.getMessage('alarmmanualtitle',lang)
             elem = config.get_object(
                 alarmedObject.fields['object_type'],alarmedObject.fields['object_id'])
             return unicode.format(title,
-                                  alarmedObject.getQtyUnit(config),
+                                  alarmedObject.getQtyUnit(config,lang),
                                   elem.getName(lang))
         elif alarmedObject.get_type() == 'v':
             title = config.getMessage('alarmpouringtitle',lang)
@@ -5072,15 +5196,16 @@ class Sensor(AlarmingObject):
         output_val = None
         debugging = u""
         if self.fields['channel'] == 'wire':
-            try:
-                sensorAdress = u'/' + \
-                    unicode(self.fields['sensor'])+u'/' + \
-                    unicode(self.fields['subsensor'])
-                output_val = float(config.owproxy.read(sensorAdress))
-            except:
-                debugging = (u"Device=" + sensorAdress
-                                        + u", Message="
-                                        + traceback.format_exc())
+            if config.owproxy:
+                try:
+                    sensorAdress = u'/' + \
+                        unicode(self.fields['sensor'])+u'/' + \
+                        unicode(self.fields['subsensor'])
+                    output_val = float(config.owproxy.read(sensorAdress))
+                except:
+                    debugging = (u"Device=" + sensorAdress
+                                            + u", Message="
+                                            + traceback.format_exc())
         elif self.fields['channel'] == 'radio':
             # Look at RadioThread
             pass
@@ -5661,7 +5786,7 @@ class Batch(ConfigurationObject):
 
     def lifespan(self):
         krecipe = self.get_group()
-        aRecipe = c.AllGrRecipe.get(krecipe)
+        aRecipe = self.config.AllGrRecipe.get(krecipe)
         if aRecipe:
             return aRecipe.lifespan()
         return 0
@@ -5764,7 +5889,7 @@ class PouringModel(ConfigurationObject):
         return self.fields['h_id']
 
     def get_quantity_string(self):
-        return self.fields['quantity']
+        return self.fields['typical']
 
     def get_unit_in_context(self,c, currObject):
         if self.fields['src']:
@@ -5782,7 +5907,7 @@ class PouringModel(ConfigurationObject):
         if self.fields['h_id'] != '':
             self.config.AllCheckPoints.elements[self.fields['h_id']].remove_vm(self)
         super(PouringModel, self).set_value_from_data(data, c, user)
-        tmp = ['quantity', 'in', 'rank', 'gu_id'] + alarmFields
+        tmp = ['in', 'rank', 'gu_id'] + alarmFields
         for elem in tmp:
             self.fields[elem] = data[elem]
 
@@ -5899,10 +6024,10 @@ class TransferModel(ConfigurationObject):
             return self.fields['maxmax']
         return ""
 
-    def getQtyUnit(self,c):
+    def getQtyUnit(self,c,lang="EN"):
         delay = self.get_quantity()
         if delay >= 0:
-            return useful.seconds_to_string(int(delay))
+            return c.seconds_to_string(delay,lang)
         return ""
 
     def validate_form(self, data, configuration, user):
@@ -5963,10 +6088,10 @@ class Transfer(AlarmingObject):
     def get_id_object(self):
         return self.fields['object_id']
 
-    def getQtyUnit(self,c):
+    def getQtyUnit(self,c,lang="EN"):
         delay = self.get_quantity()
         if delay >= 0:
-            return useful.seconds_to_string(int(delay))
+            return c.seconds_to_string(delay,lang)
         return ""
 
     def get_quantity_string(self):

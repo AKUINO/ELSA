@@ -9,7 +9,6 @@ $var recursive : False
 $code:
     done = set()
     listRecipe = c.AllGrRecipe.get_fullmap_str()
-<div class="container">
 <table class="table table-responsive table-hover">
 $code:
    prvM = month-1
@@ -22,11 +21,10 @@ $code:
    if nxtM > 12:
 	nxtM = 1
 	nxtY = year+1
-<tr><th colspan="7" class="text-center"><a href="/calendar?date=$(prvY)-$(("0" if prvM < 10 else "")+unicode(prvM))">$:c.getHalfling("from")</a> <big>$unicode(year)-$(("0" if month < 10 else "")+unicode(month))</big> <a href="/calendar?date=$(nxtY)-$(("0" if nxtM < 10 else "")+unicode(nxtM))">$:c.getHalfling("to")</a></th></tr>
+<tr><th colspan="7" class="text-center"><a href='/calendar?date=$(prvY)-$(("0" if prvM < 10 else "")+unicode(prvM))'>$:c.getHalfling("from")</a> <big>$unicode(year)-$(("0" if month < 10 else "")+unicode(month))</big> <a href='/calendar?date=$(nxtY)-$(("0" if nxtM < 10 else "")+unicode(nxtM))'>$:c.getHalfling("to")</a></th></tr>
 <tr>
 $for d in range(7):
     <th class="text-center">$(c.getMessage("w"+unicode(d), self.lang))</th>
 </tr>
 $:calendarContent
 </table>
-</div>

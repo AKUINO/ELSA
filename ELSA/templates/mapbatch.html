@@ -6,6 +6,7 @@ $var pinned : $connected.pinned()
 $var recursive : False
 $var title : Map Recipe
 $var location :
+$var bcTop:gr
 $code:
     id = elem.getID()
     summit = []
@@ -19,7 +20,9 @@ $code:
     #pseudo event to signal END of events!
     events.append(elem)
     done = set()
-<div class="container">
+$var bcElem:b_$id
+$var bcOwner:
+$var bcOperation:map
 <script>
     $$(function(){
 	$$("#includedAllMenub_$(id)").load("/fullentry/b_*$(id)");
@@ -42,7 +45,7 @@ $for operation in events:
 	$if op_type != 'b' and operation.fields['h_id'] != prev:
 		$ duration = operation.getTimestamp()-prevtime
 		<tr style="padding:3px;border-top:1px solid #333;$( (";border-left:4px solid "+place.fields['colorgraph']+";border-right:4px solid "+place.fields['colorgraph']) if place else "")">
-		<td></td><td style="text-align:right;padding:3px">$(useful.timestamp_to_time(duration) if prev_duration != duration else '" " " ')</td>
+		<td></td><td style="text-align:right;padding:3px">$(c.seconds_to_string(duration,self.lang) if prev_duration != duration else '" " " ')</td>
 		$ prev_duration = duration
 		$ prev = operation.fields['h_id']
 		$ checkpoint = c.AllCheckPoints.get(prev)
@@ -74,8 +77,7 @@ $for operation in events:
 	    $ prev_duration = -1
 	    $for sensorId,sensorData in infos.items():
 		$ sensor = None
-		<H4>S_$(sensorId)=$(sensorData)</H4>
-	        $if sensorData:
+		$if sensorData:
 		    $ sensor = c.AllSensors.get(sensorId)
 		    $if sensor.isActive():
 	              $code:
@@ -104,7 +106,7 @@ $for operation in events:
 			$ Acolor = None
 			<tr style="padding:3px$(";background-color:#eee" if row else "")$( (";border-left:4px solid "+place.fields['colorgraph']+";border-right:4px solid "+place.fields['colorgraph']) if place else "")">
 				$ duration = end-begin
-				<td></td><td style="text-align:right;padding:3px">$(useful.timestamp_to_time(duration) if prev_duration != duration else '" " " ' )</td>
+				<td></td><td style="text-align:right;padding:3px">$(c.seconds_to_string(duration,self.lang) if prev_duration != duration else '" " " ' )</td>
 				$ prev_duration = duration
 				<td style="padding:3px"><a href="/graphic/s_$(sensorId)">$:sensor.statusIcon(c,True,False)</a>
 				</td><td style="padding:3px">$(sensor.fields['acronym']) - <strong>$(sensor.getName(self.lang))</strong>
@@ -206,4 +208,3 @@ $for operation in events:
             </tr>
 	    $ row = not row
 </table>
-</div>

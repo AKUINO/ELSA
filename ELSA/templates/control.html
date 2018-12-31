@@ -16,13 +16,12 @@ $code:
 	here_type = here.get_type()
 $var location: list/b=batch find/h/b_$(id1)=related control/b_$(id1)/h_$(id2)=checkpoint
 $var title : $batch.getName(self.lang): $cp.getName(self.lang)
-<div class="container">
-    <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
+<form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
 	<div class="form-group row" id="error">
 	    $errormess
 	</div>
 	<div class="form-group row">
-	    <label class="col-sm-12 col-form-label center-block" style="font-size:18px">$:c.getAllHalfling(c.AllCheckPoints) $cp.fields['acronym'] - $cp.getName(self.lang): <span class="text-danger">$cp.fields['remark']<span></label>
+	    <label class="col-sm-12 col-form-label center-block" style="font-size:18px">$:c.getAllHalfling(c.AllCheckPoints) $cp.fields['acronym'] - $cp.getName(self.lang): <span class="text-danger">$cp.fields['remark']</span></label>
 	</div>
 
 	<div class="form-group row">
@@ -53,14 +52,14 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 	    $if e.get_type() == 'tm' and " upd_t " in self.allowed:
 		<div class="form-group row">
 		    <input type="hidden" name="tm_id_$(counttm)" value="$e.getID()"/>
-		    <label class="col-sm-12 col-form-label">$:c.getAllHalfling(c.AllTransfers) $e.getName(self.lang): <span class="text-danger">$e.fields['remark']<span></label>
+		    <label class="col-xs-12 col-form-label">$:c.getAllHalfling(c.AllTransfers) $e.getName(self.lang): <span class="text-danger">$e.fields['remark']</span></label>
 		</div>
 		$ seconds = e.fields['typical']
 		$if seconds:
 		    <div class="form-group row">
-			<div class="col-xs-11"><strong>$(useful.seconds_to_string(seconds))</strong></div>
+			<div class="col-xs-3"></div>
+			<div class="col-xs-8"><strong>$(c.seconds_to_string(seconds,self.lang))</strong></div>
 		    </div>
-	
 		$code:
 		   usages = None
 		   kusage = e.fields['gu_id']
@@ -86,7 +85,7 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 		<div class="form-group row">
 		    <input type="hidden" name="dm_id_$(countdm)" value="$e.getID()"/>
                     <input type="hidden" name="dm_measure_$(countdm)" value="$e.fields['m_id']">
-		    <label class="col-sm-12 col-form-label">$:c.getAllHalfling(c.AllManualData) $e.getName(self.lang): <span class="text-danger">$e.fields['remark']<span></label>
+		    <label class="col-sm-12 col-form-label">$:c.getAllHalfling(c.AllManualData) $e.getName(self.lang): <span class="text-danger">$e.fields['remark']</span></label>
 		</div>
 		
 		<div class="form-group row">
@@ -123,7 +122,7 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 	    $elif e.get_type() == 'vm' and " upd_v " in self.allowed:		
 		<div class="form-group row">
 		    <input type="hidden" name="vm_id_$(countvm)" value="$e.getID()"/>
-		    <label class="col-sm-12 col-form-label">$:c.getAllHalfling(c.AllPourings) $e.getName(self.lang): <span class="text-danger">$e.fields['remark']<span></label>
+		    <label class="col-sm-12 col-form-label">$:c.getAllHalfling(c.AllPourings) $e.getName(self.lang): <span class="text-danger">$e.fields['remark']</span></label>
 		</div>
 		$ aUsage = c.AllGrUsage.get(e.fields['gu_id'])
                 $ aMeasure = None
@@ -212,6 +211,5 @@ $var title : $batch.getName(self.lang): $cp.getName(self.lang)
 	    <div class="col-sm-3">
 	    </div>
 	</div>
-    </form>
-</div>
+</form>
 

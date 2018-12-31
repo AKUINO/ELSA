@@ -5,13 +5,16 @@ $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
 $var recursive : False
 $var title : Map Recipe
-$var location :
+$var location:
+$var bcTop:gr
+$var bcElem:gr_$id
+$var bcOwner:
+$var bcOperation:map
 $code:
     elem = c.AllGrRecipe.get(id)
     summit = [id] + elem.get_supermap_str()
     usagesTop = c.AllGrUsage.get_usages_for_recipe(summit)
     done = set()
-<div class="container">
 <script>
     $$(function(){
 	$$("#includedAllMenugr_$(id)").load("/fullentry/gr_*$(id)");
@@ -76,4 +79,3 @@ $for usageTop in usagesTop:
 		    $ done.add('h_'+checkpoint.getID())
         </div>
     </div>
-</div>

@@ -248,15 +248,6 @@ h3, .h3 {
 	font-weight:bold;
 	color:#F07E26 !important;
 }
-.btn-default {
-	background-image:none;
-	background-color:#4D5A66;
-	color:white;
-	text-shadow:none;
-	box-shadow:none;
-	border-color:transparent;
-}
-
 .button-spacer {
   	width: 40px;
 	display: inline-block;
@@ -267,8 +258,6 @@ h3, .h3 {
 .row { margin-right:-5px; margin-left:-5px }
 
 .form-horizontal .form-group { margin-right:-5px;margin-left:-5px }
-
-.navbar-collapse{margin-right:-5px;margin-left:-5px}
 
 /*
 @media screen (max-width: 567px) {
@@ -313,9 +302,12 @@ a.blue:hover {
     color: #f07e26;
 }
 
+.navbar-collapse{margin-right:-5px;margin-left:-5px}
+
 .navbar {
   margin-right: -5px;
   margin-left: -5px;
+  margin-bottom: 5px;
 }
 
 .navbar-inverse .navbar-nav > .active > a, .navbar-inverse .navbar-nav > .active > a:hover, .navbar-inverse .navbar-nav > .active > a:focus {
@@ -422,9 +414,10 @@ ul.nav.nav-tabs {
 
 /* Breadcrumbs from http://bootsnipp.com/snippets/featured/triangle-breadcrumbs-arrows */
 .btn-breadcrumb {
-	margin-top:6px;
+	margin-top:1px;
+	margin-left:-5px;
 }
-.btn-breadcrumb .btn:not(:last-child):after {
+.btn-breadcrumb .btn:after {
   content: " ";
   display: block;
   width: 0;
@@ -438,7 +431,7 @@ ul.nav.nav-tabs {
   left: 100%;
   z-index: 3;
 }
-.btn-breadcrumb .btn:not(:last-child):before {
+.btn-breadcrumb .btn:before {
   content: " ";
   display: block;
   width: 0;
@@ -454,8 +447,19 @@ ul.nav.nav-tabs {
   z-index: 3;
 }
 
-.breadcrumb .btn {
+.btn-breadcrumb .btn.btn-default {
+	background-image:none;
+	text-shadow:none;
+	box-shadow:none;
+	background-color: white;
+	height: 36px;
+}
+
+.btn-breadcrumb .btn {
   padding:6px 12px 6px 24px;
+}
+.btn-breadcrumb .btn:hover {
+  background-color: #ebebeb;
 }
 .btn-breadcrumb .btn:first-child {
   padding:6px 6px 6px 10px;
@@ -465,16 +469,16 @@ ul.nav.nav-tabs {
 }
 
 /** Default button **/
-.btn-breadcrumb .btn.btn-default:not(:last-child):after {
+.btn-breadcrumb .btn.btn-default:after {
   border-left: 10px solid #fff;
 }
-.btn-breadcrumb .btn.btn-default:not(:last-child):before {
+.btn-breadcrumb .btn.btn-default:before {
   border-left: 10px solid #ccc;
 }
-.btn-breadcrumb .btn.btn-default:hover:not(:last-child):after {
+.btn-breadcrumb .btn.btn-default:hover:after {
   border-left: 10px solid #ebebeb;
 }
-.btn-breadcrumb .btn.btn-default:hover:not(:last-child):before {
+.btn-breadcrumb .btn.btn-default:hover:before {
   border-left: 10px solid #adadad;
 }
 
@@ -487,13 +491,9 @@ ul.nav.nav-tabs {
     text-overflow: ellipsis;    
 }
 
-.btn-breadcrumb > *:nth-child(n+2) {
-  display:none;
-}
-
 /* === For phones =================================== */
 @media (max-width: 767px) {
-    .btn-breadcrumb > *:nth-last-child(-n+2) {
+    .btn-breadcrumb > *:nth-last-child(-n+6) {
         display:block;
     } 
     .btn-breadcrumb > * div {
@@ -503,7 +503,7 @@ ul.nav.nav-tabs {
 
 /* === For tablets ================================== */
 @media (min-width: 768px) and (max-width:991px) {
-    .btn-breadcrumb > *:nth-last-child(-n+4) {
+    .btn-breadcrumb > *:nth-last-child(-n+6) {
         display:block;
     } 
     .btn-breadcrumb > * div {

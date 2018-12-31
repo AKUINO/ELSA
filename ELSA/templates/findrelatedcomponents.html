@@ -12,6 +12,11 @@ $var pinned : $connected.pinned()
 $var recursive : False
 $var location: list/$(type)=$(c.findAll(type).get_class_acronym()) find/related/$(type)_$(id)=related
 $var title: $elem.getName(self.lang)
+$var bcTop:
+$var bcOwner:
+$var bcElem:$(type)_$id
+$var bcOperation:
+$var location:
 <script>
     $$(function(){
         $$("#includedAllMenu$(type)_$(id)").load("/fullentry/$(type)_*$(id)");
@@ -23,7 +28,7 @@ $ aTransfer = elem.get_last_transfer(c)
 $if aTransfer:
         $ key=aTransfer.fields['cont_type']+"_"+aTransfer.fields['cont_id']
 	    <div class="row active" style ="margin-top:10px;margin-bottom:10px;background-color:#E5E5E7;padding:15px;" >
-		<label class="col-sm-12">$c.getMessage('actualposition',self.lang) :</label>   
+		<label class="col-sm-12">$c.getMessage('actualposition',self.lang) $aTransfer.fields['time']  $:c.linkedAcronym(c.AllUsers,aTransfer.fields['user'],False):</label>   
 		<script>
 	            $$(function(){
 	                $$("#includedT$(key)").load("/fullentry/$(key)");
@@ -83,7 +88,7 @@ $if keyType in '_a_m_p_e_c_':
 	$ sensor = c.AllSensors.get(k)
 	$if sensor:
 	        $if (type=='a'):
-	            $ OK = (type=='a') and ( (sensor.fields['a_min'] == id) or (sensor.fields['a_minmin'] == id) or (sensor.fields['a_max'] == id) or (sensor.fields['a_maxmax'] == id) or (sensor.fields['a_typical'] == id) )
+	            $ OK = (type=='a') and ( (sensor.fields['a_min'] == id) or (sensor.fields['a_minmin'] == id) or (sensor.fields['a_max'] == id) or (sensor.fields['a_maxmax'] == id) or (sensor.fields['a_typical'] == id) or (sensor.fields['a_none'] == id) )
 	        $else:
 	            $ OK = sensor.fields[type+'_id'] == id
 	$else:
@@ -104,7 +109,7 @@ $if keyType in '_a_m_h_':
 	$ dataModel = c.AllManualDataModels.get(k)
 	$if dataModel:
 	        $if (type=='a'):
-	            $ OK = (type=='a') and ( (dataModel.fields['a_min'] == id) or (dataModel.fields['a_minmin'] == id) or (dataModel.fields['a_max'] == id) or (dataModel.fields['a_maxmax'] == id) or (dataModel.fields['a_typical'] == id) )
+	            $ OK = (type=='a') and ( (dataModel.fields['a_min'] == id) or (dataModel.fields['a_minmin'] == id) or (dataModel.fields['a_max'] == id) or (dataModel.fields['a_maxmax'] == id) or (dataModel.fields['a_typical'] == id) or (dataModel.fields['a_none'] == id) )
 	        $else:
 	            $ OK = dataModel.fields[type+'_id'] == id
 	$else:
@@ -125,7 +130,7 @@ $if keyType in '_a_m_h_':
 	$ pouringModel = c.AllPouringModels.get(k)
 	$if pouringModel:
 	        $if (type=='a'):
-	            $ OK = (type=='a') and ( (pouringModel.fields['a_min'] == id) or (pouringModel.fields['a_minmin'] == id) or (pouringModel.fields['a_max'] == id) or (pouringModel.fields['a_maxmax'] == id) or (pouringModel.fields['a_typical'] == id) )
+	            $ OK = (type=='a') and ( (pouringModel.fields['a_min'] == id) or (pouringModel.fields['a_minmin'] == id) or (pouringModel.fields['a_max'] == id) or (pouringModel.fields['a_maxmax'] == id) or (pouringModel.fields['a_typical'] == id) or (pouringModel.fields['a_none'] == id) )
 	        $else:
 	            $ OK = pouringModel.fields[type+'_id'] == id
 	$else:
@@ -143,7 +148,7 @@ $if keyType in '_a_m_h_':
 	$ transferModel = c.AllTransferModels.get(k)
 	$if transferModel:
 	        $if (type=='a'):
-	            $ OK = (type=='a') and ( (transferModel.fields['a_min'] == id) or (transferModel.fields['a_minmin'] == id) or (transferModel.fields['a_max'] == id) or (transferModel.fields['a_maxmax'] == id) or (transferModel.fields['a_typical'] == id) )
+	            $ OK = (type=='a') and ( (transferModel.fields['a_min'] == id) or (transferModel.fields['a_minmin'] == id) or (transferModel.fields['a_max'] == id) or (transferModel.fields['a_maxmax'] == id) or (transferModel.fields['a_typical'] == id) or (transferModel.fields['a_none'] == id) )
 	        $else:
 	            $ OK = transferModel.fields[type+'_id'] == id
 	$else:
@@ -162,7 +167,7 @@ $if keyType in '_s_dm_':
 	<label class="col-sm-12">$c.getMessage('alarm',self.lang) :</label>    
 
     $for k in c.AllAlarms.get_sorted_hierarchy():
-        $if (elem.fields['a_min'] == k) or (elem.fields['a_minmin'] == k) or (elem.fields['a_max'] == k) or (elem.fields['a_maxmax'] == k) or (elem.fields['a_typical'] == k):
+        $if (elem.fields['a_min'] == k) or (elem.fields['a_minmin'] == k) or (elem.fields['a_max'] == k) or (elem.fields['a_maxmax'] == k) or (elem.fields['a_typical'] == k) or (elem.fields['a_none'] == k):
                 <script>
                     $$(function(){
                         $$("#includedA_$(k)").load("/fullentry/a_$(k)");
