@@ -1,11 +1,9 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import web
 import urllib
 import ConfigurationELSA as elsa
 import myuseful as useful
 import traceback
-import math as mathlibrary
 import sys
 import shutil
 import os
@@ -21,6 +19,7 @@ import bisect
 
 global c, render
 
+
 def manage_cmdline_arguments():
     parser = argparse.ArgumentParser(description='Enregistrement des Lots \
                                                   pour la Sécurité Alimentaire')
@@ -31,11 +30,13 @@ def manage_cmdline_arguments():
                                              particular computer')
     return parser.parse_args()
 
+
 def web_link_from_abs_path(path):
     """
     Will strip DIR_BASE from path. Intended to be used in href
     """
     return path[len(elsa.DIR_BASE):]
+
 
 def getLinkForLatestBackupArchive():
     """
@@ -52,13 +53,16 @@ def getLinkForLatestBackupArchive():
     else:
         return None
 
+
 def protectHTML(input):
-    return cgi.escape(input,True).replace("'","&#39;");
+    return cgi.escape(input, True).replace("'", "&#39;");
+
 
 def protectJS(input):
-    if not input: # if input is None
+    if not input:  # if input is None
         return u''
-    return unicode(input).replace("'","\\'").replace("\\","\\\\")
+    return unicode(input).replace("'", "\\'").replace("\\", "\\\\")
+
 
 def redirect_when_not_logged(redir=True):
     """
@@ -74,7 +78,7 @@ def redirect_when_not_logged(redir=True):
             path = web.ctx.env.get('PATH_INFO')
             query = web.ctx.env.get('QUERY_STRING')
             if query:
-                path = path+u'?'+urllib.quote(query)
+                path = path + u'?' + urllib.quote(query)
                 print query
                 print path
             raise web.seeother('/?redir=' + path)
@@ -82,13 +86,15 @@ def redirect_when_not_logged(redir=True):
             raise web.seeother('/')
     return connected
 
-def redirect_when_not_allowed(type,redir=True):
+
+def redirect_when_not_allowed(type, redir=True):
     connected = redirect_when_not_logged(redir)
     if connected:
         user = connected.cuser
-        if user and user.updateAllowed(c,type):
+        if user and user.updateAllowed(c, type):
             return connected
     raise web.seeother('/')
+
 
 def redirect_when_not_admin(redir=True):
     connected = redirect_when_not_logged(redir)
@@ -98,31 +104,33 @@ def redirect_when_not_admin(redir=True):
             return connected
     raise web.seeother('/')
 
-class WebColor():
+
+class WebColor:
     def GET(self, type, id):
         connected = isConnected()
         if connected is None:
             return ''
         color = ''
         if id != 'new':
-            elem  = c.get_object(type,id)
+            elem = c.get_object(type, id)
             if elem:
                 color = elem.fields['colorgraph']
         return render.colorpicker(connected, color)
 
-class WebBackup():
+
+class WebBackup:
     def __init(self):
         self.name = u"WebBackup"
 
     def GET(self):
         connected = redirect_when_not_admin()
-        return render.backup(connected, getLinkForLatestBackupArchive(),"")
-    
+        return render.backup(connected, getLinkForLatestBackupArchive(), "")
+
     def POST(self):
         connected = redirect_when_not_admin()
         data = web.input()
         if data is None:
-            return render.backup(connected, getLinkForLatestBackupArchive(),"")
+            return render.backup(connected, getLinkForLatestBackupArchive(), "")
         if 'shutdown' in data and 'restart' in data:
             flags.set_restart()
             raise web.seeother('/restarting')
@@ -136,29 +144,30 @@ class WebBackup():
                                  "backupDone")
         else:
             connected = redirect_when_not_logged()
-            return render.backup(connected, "","")
-        
-class WebRestore():
+            return render.backup(connected, "", "")
+
+
+class WebRestore:
     def __init(self):
         self.name = u"WebRestore"
 
     def GET(self):
-        connected = redirect_when_not_admin()            
-        return render.backup(connected, getLinkForLatestBackupArchive(),"")
-    
+        connected = redirect_when_not_admin()
+        return render.backup(connected, getLinkForLatestBackupArchive(), "")
+
     def POST(self):
         connected = redirect_when_not_admin()
-        
+
         data = web.input(zip_archive_to_restore={})
-        if data is not None and 'zip_archive_to_restore' in data\
-                            and data['zip_archive_to_restore'].filename:
+        if data is not None and 'zip_archive_to_restore' in data \
+                and data['zip_archive_to_restore'].filename:
             # replaces the windows-style slashes with linux ones.
             fpath = data['zip_archive_to_restore'].filename.replace('\\', '/')
             # splits the and chooses the last part (filename with extension)
             fname = fpath.split('/')[-1]
             file_uri = os.path.join(elsa.DIR_WEB_TEMP, fname)
             try:
-                fout = open(file_uri,'w')
+                fout = open(file_uri, 'w')
                 fout.write(data.zip_archive_to_restore.file.read())
             except IOError:
                 print("Error while restoring file.")
@@ -178,13 +187,14 @@ class WebRestore():
                                  getLinkForLatestBackupArchive(),
                                  "restoreEmpty")
 
-class WebUpdateELSA():
+
+class WebUpdateELSA:
     def __init(self):
         self.name = u"WebUpdateELSA"
 
     def GET(self):
         connected = redirect_when_not_admin()
-        
+
         subprocess.call(['git', 'remote', 'update'])
         git_status_out = subprocess.check_output(['git', 'status'])
         git_status_out = git_status_out.split('\n')
@@ -196,7 +206,7 @@ class WebUpdateELSA():
             print("Error reading git status output. " + git_status_out)
             raise
         return render.updateELSA(connected, git_status_out)
-    
+
     def POST(self):
         connected = redirect_when_not_admin()
         data = web.input()
@@ -205,10 +215,11 @@ class WebUpdateELSA():
             raise web.seeother('/restarting')
         else:
             raise web.seeother('/')
-        
+
+
 def get_list_of_active_sensors_acronyms(lang):
     list = []
-    for i,s in c.AllSensors.elements.items():
+    for i, s in c.AllSensors.elements.items():
         if s.fields['active'] == '1':
             acronym = s.get_acronym()
             if lang is None:
@@ -218,25 +229,27 @@ def get_list_of_active_sensors_acronyms(lang):
                             + u' [' + acronym + u']')
     return list
 
+
 def get_data_points_for_grafana_api(target, lang, time_from_utc, time_to_utc):
     datapoints = []
     sensor = None
     acronym = target
     if lang is not None:
-        acronym = target[target.find('[')+1 : -1]
+        acronym = target[target.find('[') + 1: -1]
 
     sensor = c.AllSensors.findAcronym(acronym)
     try:
         sensor_id = sensor.fields['s_id']
     except AttributeError:
         raise AttributeError("That acronym does not exist : " + target)
-    
+
     return {"target": target,
             "datapoints": rrd.get_datapoints_from_s_id(sensor_id,
                                                        time_from_utc,
                                                        time_to_utc)}
 
-class WebApiGrafana():
+
+class WebApiGrafana:
     def __init(self):
         self.name = u"WebApiGrafana"
 
@@ -252,19 +265,19 @@ class WebApiGrafana():
         if request == '':
             request = lang
             lang = None
-        data=json.loads(web.data())
-        if request=='search':
+        data = json.loads(web.data())
+        if request == 'search':
             return json.dumps(get_list_of_active_sensors_acronyms(lang))
-        elif request=='query':
+        elif request == 'query':
             time_from_utc = data['range']['from']
             time_from_utc = time_from_utc.split('.')[0]
             time_from_utc = time.strptime(time_from_utc, "%Y-%m-%dT%H:%M:%S")
             time_to_utc = time.strptime(data['range']['to'].split('.')[0],
                                         "%Y-%m-%dT%H:%M:%S")
-            
+
             targets = []
             for elem in data['targets']:
-# .replace removes all '\' in the target name. Fixes a grafana/simple-json bug.
+                # .replace removes all '\' in the target name. Fixes a grafana/simple-json bug.
                 targets.append(elem['target'].replace('\\', ''))
             out = []
             for elem in targets:
@@ -275,54 +288,60 @@ class WebApiGrafana():
             return json.dumps(out)
         else:
             return 'Error: Invalid url requested'
-    
 
-class WebRestarting():
+
+class WebRestarting:
     global app
+
     def __init(self):
         self.name = u"WebRestarting"
 
     def GET(self):
         connected = redirect_when_not_logged(False)
-        
+
         app.stop()
         # sys.exit()
         return render.restarting(connected)
-    
-class WebDisconnect():
+
+
+class WebDisconnect:
     def GET(self):
         connected = redirect_when_not_logged()
-            
+
         c.connectedUsers.disconnect(connected)
         raise web.seeother('/')
 
+
 # Menu of groups within an update form
-class WebSelect():
+class WebSelect:
     def GET(self, datafield, context):
         connected = isConnected()
         if connected is None:
             return ''
         return render.select(connected, datafield, context)
 
-class WebSelectMul():
+
+class WebSelectMul:
     def GET(self, type, id, context=''):
         connected = isConnected()
         if connected is None:
             return ''
         return render.selectmul(connected, type, id, context)
 
+
 # Display of  a record within a list
-class WebModal():
+class WebModal:
     def GET(self, type, id):
         connected = isConnected()
         if connected is None:
             return ''
-        
+
         data = web.input(nifile={})
         return render.modal(connected, type, id, data)
 
+
 # Short (and not full!) Entry in a list of records
-class WebFullEntry():
+class WebFullEntry:
     def GET(self, type, id):
         connected = isConnected()
         if connected is None:
@@ -332,11 +351,12 @@ class WebFullEntry():
             id = id[1:]
         return render.fullentry(connected, type, id, current)
 
+
 # List of all (active) elements of a Class
-class WebList():
+class WebList:
     def __init__(self):
         self.name = u"WebList"
-    
+
     def GET(self, type):
         connected = redirect_when_not_logged()
         status = ''
@@ -355,17 +375,18 @@ class WebList():
         connected = redirect_when_not_logged()
         raise web.seeother('/')
 
+
 # Make copies of an element
-class WebClone():
+class WebClone:
     def __init__(self):
         self.name = u"WebClone"
-    
+
     def GET(self, type, id):
         return render.notfound()
 
     def POST(self, type, id):
         connected = redirect_when_not_logged()
-            
+
         user = connected.cuser
         data = web.input()
         if 'quantity' in data:
@@ -377,53 +398,56 @@ class WebClone():
                     try:
                         recipe = elem.get_group()
                         acro = elem.fields['acronym']
-                        name = int(acro[acro.rfind('_')+1:])
+                        name = int(acro[acro.rfind('_') + 1:])
                     except:
                         name = 0
                     while count <= borne:
                         if not elem.clone(user, (name + count)):
                             break
                         count += 1
-                    raise web.seeother('/find/related/gr_'+recipe)
+                    raise web.seeother('/find/related/gr_' + recipe)
                 return render.notfound()
             except:
                 traceback.print_exc()
                 return render.notfound()
         raise web.seeother('/')
 
+
 # Display of one item
-class WebItem():
+class WebItem:
     def GET(self, type, id):
         connected = redirect_when_not_logged()
-        
+
         try:
             return render.item(connected, type, id)
         except:
             traceback.print_exc()
             return render.notfound()
 
+
 # Display complete history of one item
-class WebHistory():
+class WebHistory:
     def GET(self, type, id):
         connected = redirect_when_not_logged()
-        
+
         try:
             return render.history(connected, type, id)
         except:
             traceback.print_exc()
             return render.notfound()
 
+
 # UPDATE of Place, Equipment, Container, etc.
-class WebEdit():
+class WebEdit:
     def GET(self, type, id):
         connected = redirect_when_not_allowed(type)
-        return self.getRender(connected,type, id, '', '')
+        return self.getRender(connected, type, id, '', '')
 
     def POST(self, type, id, context=None):
         connected = redirect_when_not_allowed(type)
         user = connected.cuser
         currObject = c.getObject(id, type)
-        data = web.input(placeImg={},linkedDocs={})
+        data = web.input(placeImg={}, linkedDocs={})
         if currObject is None:
             raise web.seeother('/')
         cond = currObject.validate_form(data, c, user)
@@ -431,7 +455,7 @@ class WebEdit():
             currObject.set_value_from_data(data, c, user)
             if data['linkedDocs'] != {}:
                 linkedDocs = web.webapi.rawinput().get('linkedDocs')
-                if not isinstance(linkedDocs,list):
+                if not isinstance(linkedDocs, list):
                     linkedDocs = [linkedDocs]
                 aDir = None
                 for aDoc in linkedDocs:
@@ -441,15 +465,15 @@ class WebEdit():
                         if name:
                             if not aDir:
                                 aDir = currObject.getDocumentDir(True)
-                            with open(aDir+u'/'+name, 'w') as fout:
+                            with open(aDir + u'/' + name, 'w') as fout:
                                 fout.write(aDoc.file.read())
 
-##            if 'a_id' in data:
-##                if len(data['a_id']) > 0:
-##                    c.AllAlarms.elements[data['a_id']
-##                                         ].launch_alarm(currObject, c)
-            if type not in ['t','d','v']:
-                raise web.seeother('/item/'+type+'_'+currObject.getID())
+            ##            if 'a_id' in data:
+            ##                if len(data['a_id']) > 0:
+            ##                    c.AllAlarms.elements[data['a_id']
+            ##                                         ].launch_alarm(currObject, c)
+            if type not in ['t', 'd', 'v']:
+                raise web.seeother('/item/' + type + '_' + currObject.getID())
             else:
                 if currObject.get_type() == 'v':
                     elemtype = 'b'
@@ -460,7 +484,7 @@ class WebEdit():
                 elif currObject.get_type() == 'd':
                     elemtype = currObject.fields['object_type']
                     elemid = currObject.fields['object_id']
-                raise web.seeother('/find/'+type+'/'+elemtype+'_'+elemid)
+                raise web.seeother('/find/' + type + '/' + elemtype + '_' + elemid)
         else:
             if id == 'new':
                 currObject.delete(c)
@@ -511,7 +535,7 @@ class WebCreate(WebEdit):
     def GET(self, type):
         types = type.split('/')
         connected = redirect_when_not_allowed(types[0])
-            
+
         if len(types) == 1:
             return self.getRender(connected, types[0], 'new', '', '')
         else:
@@ -524,7 +548,7 @@ class WebCreate(WebEdit):
     def POST(self, type):
         types = type.split('/')
         connected = redirect_when_not_allowed(types[0])
-        
+
         if len(types) > 1:
             return WebEdit.POST(self,
                                 types[0],
@@ -534,17 +558,18 @@ class WebCreate(WebEdit):
             return WebEdit.POST(self, types[0], 'new')
 
 
-class WebPin():
+class WebPin:
     def GET(self, typeobj, idobj):
         connected = redirect_when_not_logged()
         currObject = c.getObject(idobj, typeobj)
         connected.pin = currObject
-        raise web.seeother('/find/related/'+typeobj+'_' + idobj)
+        raise web.seeother('/find/related/' + typeobj + '_' + idobj)
 
-class WebControl():
+
+class WebControl:
     def GET(self, idbatch, idcontrol):
         connected = redirect_when_not_logged()
-            
+
         return render.control(connected, idbatch, idcontrol, '')
 
     def POST(self, idbatch, idcontrol, context=None):
@@ -560,10 +585,10 @@ class WebControl():
             return render.control(connected, idbatch, idcontrol, cond)
 
 
-class WebFind():
+class WebFind:
     def GET(self, type, id1, id2):
         connected = redirect_when_not_logged()
-            
+
         status = ''
         data = web.input(nifile={})
         if 'status' in data:
@@ -580,15 +605,15 @@ class WebFind():
         connected = redirect_when_not_logged()
         user = connected.cuser
         data = web.input()
-        if 'action' in data and data['action']=='map':
-            raise web.seeother('/map/b_'+data['batch'])
+        if 'action' in data and data['action'] == 'map':
+            raise web.seeother('/map/b_' + data['batch'])
         elif 'checkpoint' in data and 'batch' in data:
             allowed = user.allowed(c)
             if (" upd_d " in allowed) or (" upd_t " in allowed) or (" upd_v " in allowed):
-                raise web.seeother('/control/b_'+data['batch'] +
-                                   '/h_'+data['checkpoint'])
+                raise web.seeother('/control/b_' + data['batch'] +
+                                   '/h_' + data['checkpoint'])
             else:
-                return self.getRender(connected, type, id1, id2,'','', False)
+                return self.getRender(connected, type, id1, id2, '', '', False)
         return self.getRender(connected, type, id1, id2)
 
     def getRender(self, connected, type, id1, id2, barcode='', status='', allRec=False):
@@ -603,12 +628,12 @@ class WebFind():
                 else:
                     return render.findrelatedcomponents(connected, id1, id2, barcode)
             else:
-                if type == 'd'and id1 in elsa.OBSERVABLE_TYPES:
-                    return render.findlinkeddata(connected, id1, id2,None)
+                if type == 'd' and id1 in elsa.OBSERVABLE_TYPES:
+                    return render.findlinkeddata(connected, id1, id2, None)
                 elif type == 't' and id1 in elsa.TRANSFERABLE_TYPES:
-                    return render.findlinkedtransfers(connected, id1, id2,None)
+                    return render.findlinkedtransfers(connected, id1, id2, None)
                 elif type == 'v' and id1 in elsa.POURABLE_TYPES:
-                    return render.findlinkedpourings(connected, id2,None)
+                    return render.findlinkedpourings(connected, id2, None)
                 elif type == 'h':
                     return render.findcontrol(connected, id1, id2)
                 elif type == 'b':
@@ -621,7 +646,8 @@ class WebFind():
             traceback.print_exc()
             return render.notfound()
 
-class WebFindModel():
+
+class WebFindModel:
     def GET(self, type, id1, id2, modelid):
         connected = redirect_when_not_logged()
         data = web.input()
@@ -632,25 +658,26 @@ class WebFindModel():
 
     def getRender(self, connected, type, id1, id2, modelid, barcode=''):
         try:
-                if type == 'd'and id1 in elsa.OBSERVABLE_TYPES:
-                    return render.findlinkeddata(connected, id1, id2, modelid)
-                elif type == 't' and id1 in elsa.TRANSFERABLE_TYPES:
-                    return render.findlinkedtransfers(connected, id1, id2, modelid)
-                elif type == 'v' and id1 in elsa.POURABLE_TYPES:
-                    return render.findlinkedpourings(connected, id2, modelid)
-                else:
-                    return render.notfound()
+            if type == 'd' and id1 in elsa.OBSERVABLE_TYPES:
+                return render.findlinkeddata(connected, id1, id2, modelid)
+            elif type == 't' and id1 in elsa.TRANSFERABLE_TYPES:
+                return render.findlinkedtransfers(connected, id1, id2, modelid)
+            elif type == 'v' and id1 in elsa.POURABLE_TYPES:
+                return render.findlinkedpourings(connected, id2, modelid)
+            else:
+                return render.notfound()
         except:
             traceback.print_exc()
             return render.notfound()
 
-class WebGraphic():
+
+class WebGraphic:
     def __init__(self):
         self.name = u"WebGraphic"
 
     def GET(self, type, id):
         connected = redirect_when_not_logged()
-        if type in elsa.COMPONENT_TYPES+['s','m']:
+        if type in elsa.COMPONENT_TYPES + ['s', 'm']:
             data = web.input()
             begin = ''
             end = ''
@@ -663,7 +690,8 @@ class WebGraphic():
                 return render.graphic(connected, type, id, begin, end)
         return render.notfound()
 
-class WebFiles():
+
+class WebFiles:
     def __init__(self):
         self.name = u"WebFiles"
 
@@ -687,35 +715,37 @@ class WebFiles():
                                 aDir = elem.getDocumentDir(False)
                                 if aDir:
                                     try:
-                                        os.remove(aDir+u'/'+name)
+                                        os.remove(aDir + u'/' + name)
                                     except:
                                         traceback.print_exc()
-                        raise web.seeother('/edit/'+type+'_'+id)                        
-                    elif len(fileList)==1:
+                        raise web.seeother('/edit/' + type + '_' + id)
+                    elif len(fileList) == 1:
                         raise web.seeother(elem.getDocumentURL(fileList[0]))
                     else:
-                        return render.files(connected,type,id)
+                        return render.files(connected, type, id)
         return render.notfound()
 
-class WebMapRecipe():
+
+class WebMapRecipe:
     def __init__(self):
         self.name = u"WebMapRecipe"
 
-    def GET(self,id):
+    def GET(self, id):
         connected = redirect_when_not_logged()
-        
+
         if id and id in c.AllGrRecipe.elements.keys():
             return render.maprecipe(connected, type, id)
         return render.notfound()
 
-class WebCalendar():
+
+class WebCalendar:
     def __init__(self):
         self.name = u"WebCalendar"
 
-    def makeMyDay(self,today, afterToday, sortedKeys,elements,before,after):
+    def makeMyDay(self, today, afterToday, sortedKeys, elements, before, after):
         cal = u""
-        i = bisect.bisect(sortedKeys,today)
-        j = bisect.bisect(sortedKeys,afterToday)
+        i = bisect.bisect(sortedKeys, today)
+        j = bisect.bisect(sortedKeys, afterToday)
         prv_use = None
         opened = False
         for k in sortedKeys[i:j]:
@@ -724,37 +754,38 @@ class WebCalendar():
                 print pieces
                 if pieces[1] != prv_use:
                     if opened:
-                        cal+=u")<br/>"
+                        cal += u")<br/>"
                     prv_use = pieces[1]
                     prv_recipe = None
-                    cal+= c.getHalfling(before) if before else u''
+                    cal += c.getHalfling(before) if before else u''
                     if pieces[1]:
                         use = pieces[1].split('_')
-                        #useAll = c.findAll(use[0])
-                        #cal+=c.linkedAcronym(useAll,use[1])
-                        usage = c.get_object(use[0],use[1])
-                        cal+= usage.statusIcon(c,None,False)
-                        cal+= usage.fields['acronym']
-                        cal+= c.getHalfling(after) if after else u''
-                        cal+=u"("
+                        # useAll = c.findAll(use[0])
+                        # cal+=c.linkedAcronym(useAll,use[1])
+                        usage = c.get_object(use[0], use[1])
+                        cal += usage.statusIcon(c, None, False)
+                        cal += usage.fields['acronym']
+                        cal += c.getHalfling(after) if after else u''
+                        cal += u"("
                         opened = True
                 if pieces[2] != prv_recipe:
                     prv_recipe = pieces[2]
                     if pieces[2]:
                         recipe = c.AllGrRecipe.get(pieces[2])
                         if recipe:
-                            cal+= recipe.fields['acronym']
+                            cal += recipe.fields['acronym']
                 for b in elements[k]:
-                    cal+= "<a href=\"/find/related/b_"+b.getID()+"\" alt=\""+b.fields['acronym']+"\">"+b.statusIcon(c)+"</a>"
+                    cal += "<a href=\"/find/related/b_" + b.getID() + "\" alt=\"" + b.fields[
+                        'acronym'] + "\">" + b.statusIcon(c) + "</a>"
         if opened:
-            cal+=u")<br/>"
+            cal += u")<br/>"
         return cal
 
     def GET(self):
         connected = redirect_when_not_logged()
         lang = connected.cuser.fields['language']
-        
-        calendarObject = calendar.HTMLCalendar(calendar.MONDAY) #Locale is bugged
+
+        calendarObject = calendar.HTMLCalendar(calendar.MONDAY)  # Locale is bugged
 
         data = web.input()
         if 'date' in data:
@@ -768,9 +799,9 @@ class WebCalendar():
         begs = {}
         ends = {}
         dlcs = {}
-        for k,b in c.AllBatches.elements.items():
+        for k, b in c.AllBatches.elements.items():
             if b.isActive() and not b.isComplete():
-                recipe = "/"+b.get_group()
+                recipe = "/" + b.get_group()
                 t = b.get_last_transfer(c)
                 use = "/"
                 if t:
@@ -778,44 +809,44 @@ class WebCalendar():
                     if where:
                         use += where.getTypeId()
                     use += recipe
-                    print "use="+use
+                    print "use=" + use
                     beg = t.getTimestring()
                     end = ""
                     if beg:
-##                        elapsed = self.get_quantity_string()
-##                        typeAlarm, symbAlarm, self.colorAlarm,self.colorTextAlarm = self.getTypeAlarm(elapsed,model)
-                        planned = t.get_planned_duration(c) #seconds
-                        print("plan="+unicode(planned))
+                        ##                        elapsed = self.get_quantity_string()
+                        ##                        typeAlarm, symbAlarm, self.colorAlarm,self.colorTextAlarm = self.getTypeAlarm(elapsed,model)
+                        planned = t.get_planned_duration(c)  # seconds
+                        print("plan=" + unicode(planned))
                         if planned >= 0:
-                            #planned = planned*60 WAS MINUTES
+                            # planned = planned*60 WAS MINUTES
                             dBeg = useful.date_to_timestamp(beg)
-                            end = useful.timestamp_to_ISO(dBeg+planned)[:10]
+                            end = useful.timestamp_to_ISO(dBeg + planned)[:10]
                         beg = beg[:10]
                         if end and beg == end:
                             if beg[:7] == rac:
-                                if not end+use in quots:
-                                    quots[end+use] = set()
-                                quots[end+use].add(b)
-                                print "quots+"+end+use
+                                if not end + use in quots:
+                                    quots[end + use] = set()
+                                quots[end + use].add(b)
+                                print "quots+" + end + use
                         elif end:
                             if end[:7] == rac:
-                                if not end+use in ends:
-                                    ends[end+use] = set()
-                                ends[end+use].add(b)
-                                print "ends+"+end+use
+                                if not end + use in ends:
+                                    ends[end + use] = set()
+                                ends[end + use].add(b)
+                                print "ends+" + end + use
                         elif beg[:7] == rac:
-                            if not beg+use in begs:
-                                begs[beg+use] = set()
-                            begs[beg+use].add(b)
-                            print "begs+"+beg+use
+                            if not beg + use in begs:
+                                begs[beg + use] = set()
+                            begs[beg + use].add(b)
+                            print "begs+" + beg + use
                 dlc = b.fields['expirationdate']
                 if dlc:
                     dlc = dlc[:10]
                     if dlc[:7] == rac:
-                        if not dlc+u'/'+recipe in dlcs:
-                            dlcs[dlc+u'/'+recipe] = set()
-                        dlcs[dlc+u'/'+recipe].add(b)
-                        print "dlcs+"+dlc+'/'+recipe
+                        if not dlc + u'/' + recipe in dlcs:
+                            dlcs[dlc + u'/' + recipe] = set()
+                        dlcs[dlc + u'/' + recipe].add(b)
+                        print "dlcs+" + dlc + '/' + recipe
         dlcK = dlcs.keys()
         dlcK.sort()
         begK = begs.keys()
@@ -825,30 +856,31 @@ class WebCalendar():
         quotK = quots.keys()
         quotK.sort()
         cal = u""
-        for w in calendarObject.monthdays2calendar(int(year),int(month)):
+        for w in calendarObject.monthdays2calendar(int(year), int(month)):
             cal += u"<tr>"
             for d in w:
                 cal += "<td class=\"text-center\">"
                 if not d[0]:
                     cal += u"&nbsp;"
                 else:
-                    cal += unicode(d[0])+"<br/>"
-                    today = rac+('0' if d[0] < 10 else '')+"-"+unicode(d[0])
-                    after = rac+('0' if d[0] < 9 else '')+"-"+unicode(d[0]+1)
-                    cal += self.makeMyDay(today,after,endK,ends,'','')
-                    #cal += self.makeMyDay(today,after,quotK,quots,'to','from')
-                    cal += self.makeMyDay(today,after,quotK,quots,'','')
-                    cal += self.makeMyDay(today,after,begK,begs,'','to')
-                    cal += self.makeMyDay(today,after,dlcK,dlcs,'time','')
+                    cal += unicode(d[0]) + "<br/>"
+                    today = rac + ('0' if d[0] < 10 else '') + "-" + unicode(d[0])
+                    after = rac + ('0' if d[0] < 9 else '') + "-" + unicode(d[0] + 1)
+                    cal += self.makeMyDay(today, after, endK, ends, '', '')
+                    # cal += self.makeMyDay(today,after,quotK,quots,'to','from')
+                    cal += self.makeMyDay(today, after, quotK, quots, '', '')
+                    cal += self.makeMyDay(today, after, begK, begs, '', 'to')
+                    cal += self.makeMyDay(today, after, dlcK, dlcs, 'time', '')
                 cal += u"</td>"
             cal += u"</tr>"
         return render.calendar(connected, calendarObject, int(year), int(month), cal)
 
-class WebMapBatch():
+
+class WebMapBatch:
     def __init__(self):
         self.name = u"WebMapBatch"
 
-    def GET(self,id):
+    def GET(self, id):
         connected = redirect_when_not_logged()
 
         elem = c.AllBatches.get(id)
@@ -856,21 +888,23 @@ class WebMapBatch():
             return render.mapbatch(connected, elem)
         return render.notfound()
 
-class WebGraphHelp():
+
+class WebGraphHelp:
     def __init__(self):
         self.name = u"WebGraphHelp"
 
     def GET(self, type, id):
         connected = redirect_when_not_logged()
-            
+
         objects = c.findAll(type)
         return render.graphhelp(connected, type, id)
 
-class WebGraphRecipe():
+
+class WebGraphRecipe:
     def __init__(self):
         self.name = u"WebGraphRecipe"
 
-    def GET(self,type,id):
+    def GET(self, type, id):
         connected = redirect_when_not_logged()
         lang = connected.cuser.fields['language']
         graph = ""
@@ -904,42 +938,46 @@ class WebGraphRecipe():
                     recipe = c.AllGrRecipe.get(krecipe)
                     if recipe:
                         if prec:
-                            graph += 'xgr_'+krecipe+'->xgr_'+prec+'[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];'
-                        graph += 'xgr_'+krecipe
-                        graph += "[labelType=\"html\",label=\"<a href=/find/related/gr_"+krecipe+">"+recipe.getNameHTML(lang)+"</a>\""
-                        graph += ",tooltip=\""+recipe.fields['acronym']+"\""
-                        graph += ",id=\"xgr_"+krecipe+"\",shape=ellipse,style=\"fill:"+("#fbcfaa" if krecipe == id else "#fff")+";stroke:1px;\"];"
+                            graph += 'xgr_' + krecipe + '->xgr_' + prec + '[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];'
+                        graph += 'xgr_' + krecipe
+                        graph += "[labelType=\"html\",label=\"<a href=/find/related/gr_" + krecipe + ">" + recipe.getNameHTML(
+                            lang) + "</a>\""
+                        graph += ",tooltip=\"" + recipe.fields['acronym'] + "\""
+                        graph += ",id=\"xgr_" + krecipe + "\",shape=ellipse,style=\"fill:" + (
+                            "#fbcfaa" if krecipe == id else "#fff") + ";stroke:1px;\"];"
                         if recipe.fields['gu_id']:
                             start_u = recipe.fields['gu_id']
-                            graph += "xgr_"+krecipe+"->gu_"+start_u+"[style=\"stroke-width:3px;stroke:#3d3\"];"
+                            graph += "xgr_" + krecipe + "->gu_" + start_u + "[style=\"stroke-width:3px;stroke:#3d3\"];"
                     prec = krecipe
             recipes_todo = set()
             next_usage = []
             done = set()
             prec_u = ""
             for usageTop in usagesTop:
-                usaTopID = 'gu_'+usageTop.getID()
+                usaTopID = 'gu_' + usageTop.getID()
                 if prec_u:
-                    #graph += prec_u+"->"+usaTopID+"[style=\"stroke-width:0px;stroke:#fff\"];"
-                    next_usage.append(prec_u+" "+usaTopID)
+                    # graph += prec_u+"->"+usaTopID+"[style=\"stroke-width:0px;stroke:#fff\"];"
+                    next_usage.append(prec_u + " " + usaTopID)
                 prec_u = usaTopID
             for usageTop in usagesTop:
-                usaTopID = 'gu_'+usageTop.getID()
-                graph += usaTopID # +"[url=\"/find/related/"+usaTopID+"\""
-                graph += "[labelType=\"html\",label=\"<a href=/find/related/"+usaTopID+">"+usageTop.getNameHTML(lang)+"</a>\""
-                graph += ",tooltip=\""+usageTop.fields['acronym']+"\""
-                graph += ",id=\""+usaTopID+"\",shape=diamond,style=\"fill:"+("#fbcfaa" if kusage == usageTop.getID() else "#fff")+";stroke:1px;\"];"
-                
+                usaTopID = 'gu_' + usageTop.getID()
+                graph += usaTopID  # +"[url=\"/find/related/"+usaTopID+"\""
+                graph += "[labelType=\"html\",label=\"<a href=/find/related/" + usaTopID + ">" + usageTop.getNameHTML(
+                    lang) + "</a>\""
+                graph += ",tooltip=\"" + usageTop.fields['acronym'] + "\""
+                graph += ",id=\"" + usaTopID + "\",shape=diamond,style=\"fill:" + (
+                    "#fbcfaa" if kusage == usageTop.getID() else "#fff") + ";stroke:1px;\"];"
+
                 checkpoints = c.AllCheckPoints.get_checkpoints_for_recipe_usage(summit, [usageTop.getID()])
                 prec_v = ""
                 for v in checkpoints:
-                    #print "h="+v.getID()
-                    hid = "h_"+v.getID()
+                    # print "h="+v.getID()
+                    hid = "h_" + v.getID()
                     if v.getID() not in done:
                         if not prec_v:
-                            graph += usaTopID+'->'+hid+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
-##                                if v.fields['gr_id'] != id:
-##                                    graph += "gr_"+v.fields['gr_id']+'->'+hid+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
+                            graph += usaTopID + '->' + hid + "[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
+                        ##                                if v.fields['gr_id'] != id:
+                        ##                                    graph += "gr_"+v.fields['gr_id']+'->'+hid+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
                         elems = v.get_model_sorted()
                         obs = ""
                         for e in elems:
@@ -948,16 +986,18 @@ class WebGraphRecipe():
                                 if nx_usage == '0':
                                     nx_usage = start_u
                                 if nx_usage:
-                                    graph += hid+"->"+"gu_"+nx_usage+"[style=\"stroke-width:3px\""
+                                    graph += hid + "->" + "gu_" + nx_usage + "[style=\"stroke-width:3px\""
                                     if batch:
-                                        events = batch.fromModel(c,e)
+                                        events = batch.fromModel(c, e)
                                         if len(events) > 0:
-                                            graph += ",labelType=\"html\",label=\"<a href=/find/t/b_"+batch.getID()+"/"+e.getID()+">"+unicode(len(events))+" x</a>\""
+                                            graph += ",labelType=\"html\",label=\"<a href=/find/t/b_" + batch.getID() + "/" + e.getID() + ">" + unicode(
+                                                len(events)) + " x</a>\""
                                     elif 'typical' in e.fields and e.fields['typical']:
-                                        graph += ",label=\""+c.seconds_to_string(int(e.fields['typical']),lang)+"\""
+                                        graph += ",label=\"" + c.seconds_to_string(int(e.fields['typical']),
+                                                                                   lang) + "\""
                                     graph += "];"
-                                    points = usaTopID+" "+"gu_"+nx_usage
-                                    #print points+" in "+unicode(next_usage)
+                                    points = usaTopID + " " + "gu_" + nx_usage
+                                    # print points+" in "+unicode(next_usage)
                                     if points in next_usage:
                                         next_usage.remove(points)
                             elif e.get_type() == 'vm':
@@ -966,101 +1006,111 @@ class WebGraphRecipe():
                                     nx_recipe = e.fields['dest']
                                     v_recipe = c.AllGrRecipe.get(nx_recipe)
                                     if v_recipe:
-                                        graph += hid+"->"+"gr_"+nx_recipe
+                                        graph += hid + "->" + "gr_" + nx_recipe
                                 if e.fields['src']:
                                     nx_recipe = e.fields['src']
                                     v_recipe = c.AllGrRecipe.get(nx_recipe)
                                     if v_recipe:
-                                        graph += "gr_"+nx_recipe+"->"+hid
+                                        graph += "gr_" + nx_recipe + "->" + hid
                                 if v_recipe:
                                     graph += "[style=\"stroke-width:3px;stroke:#f07e26\",labelType=\"html\",label=\""
                                     events = []
                                     if batch:
-                                        events = batch.fromModel(c,e)
+                                        events = batch.fromModel(c, e)
                                     if len(events) == 0:
-                                        graph += unicode(e.get_quantity())+' '+protectJS(e.get_unit_in_context(c,elem))
+                                        graph += unicode(e.get_quantity()) + ' ' + protectJS(
+                                            e.get_unit_in_context(c, elem))
                                     else:
                                         first = True
                                         for ev in events:
                                             Acolor = None
                                             qtity = ev.get_quantity()
                                             if qtity:
-##                                                qt = float(qtity)
-##                                                Aname, Aacronym, Acolor, Atext_color = e.getTypeAlarm(qt,None)
-##                                                if Aname == 'typical':
-##                                                    Acolor = None
+                                                ##                                                qt = float(qtity)
+                                                ##                                                Aname, Aacronym, Acolor, Atext_color = e.getTypeAlarm(qt,None)
+                                                ##                                                if Aname == 'typical':
+                                                ##                                                    Acolor = None
                                                 graph += ("" if first else ", ")
-                                                graph += "<a href=/edit/v_"+ev.getID()+">" + ("<font color="+Acolor+">" if Acolor else "")
-                                                graph += unicode(qtity)+" "+protectHTML(ev.get_unit_in_context(c,elem))+("</font>" if Acolor else "")+"</a>"
+                                                graph += "<a href=/edit/v_" + ev.getID() + ">" + (
+                                                    "<font color=" + Acolor + ">" if Acolor else "")
+                                                graph += unicode(qtity) + " " + protectHTML(
+                                                    ev.get_unit_in_context(c, elem)) + (
+                                                             "</font>" if Acolor else "") + "</a>"
                                                 first = False
                                     graph += "\"];"
                                     recipes_todo.add(v_recipe)
                             elif e.get_type() == 'dm':
-                                obs += u"<br>"+e.getNameHTML(lang)
+                                obs += u"<br>" + e.getNameHTML(lang)
                                 events = []
                                 if batch:
-                                    events = batch.fromModel(c,e)
+                                    events = batch.fromModel(c, e)
                                 if len(events) == 0:
                                     target = "?"
                                     if e.fields['typical']:
                                         target = e.fields['typical']
                                     measure = e.get_measure(c)
                                     if measure:
-                                        obs += u" / " + measure.getNameHTML(lang)+": "+target+" "+protectHTML(measure.fields['unit'])
+                                        obs += u" / " + measure.getNameHTML(lang) + ": " + target + " " + protectHTML(
+                                            measure.fields['unit'])
                                     else:
-                                        obs += ": " + target                                    
+                                        obs += ": " + target
                                 else:
                                     first = True
                                     for edata in events:
                                         Acolor = None
                                         qtity = edata.get_quantity()
                                         if qtity:
-                                            #qt = float(qtity) 
-                                            Aname, Aacronym, Acolor, Atext_color = e.getTypeAlarm(qtity,None)
+                                            # qt = float(qtity)
+                                            Aname, Aacronym, Acolor, Atext_color = e.getTypeAlarm(qtity, None)
                                             if Aname == 'typical':
                                                 Acolor = None
                                             obs += (": " if first else ", ")
-                                            obs += "<a href=/edit/d_"+edata.getID()+">" + ("<font color="+Acolor+">" if Acolor else "")
-                                            obs += unicode(qtity)+" "+protectHTML(edata.get_unit(c))+("</font>" if Acolor else "")+"</a>"
+                                            obs += "<a href=/edit/d_" + edata.getID() + ">" + (
+                                                "<font color=" + Acolor + ">" if Acolor else "")
+                                            obs += unicode(qtity) + " " + protectHTML(edata.get_unit(c)) + (
+                                                "</font>" if Acolor else "") + "</a>"
                                             first = False
-                        graph += hid # +"[url=\"/find/related/"+hid+"\""
-                        graph += "[labelType=\"html\",label=\"<a href=/find/related/"+hid+">"
-##                        ext = v.isImaged()
-##                        if ext:
-##                            graph += "<img scale=both src="+self.getImageURL(ext)+">"
+                        graph += hid  # +"[url=\"/find/related/"+hid+"\""
+                        graph += "[labelType=\"html\",label=\"<a href=/find/related/" + hid + ">"
+                        ##                        ext = v.isImaged()
+                        ##                        if ext:
+                        ##                            graph += "<img scale=both src="+self.getImageURL(ext)+">"
                         if batch and v.getID() in batch.checkpoints:
                             graph += "* "
                         graph += v.getNameHTML(lang)
-                        graph += "</a>"+obs+"\"" #+v.fields['rank']
-                        graph += ",tooltip=\""+v.fields['acronym']+"\""
-                        graph += ",id=\""+hid+"\"];"
+                        graph += "</a>" + obs + "\""  # +v.fields['rank']
+                        graph += ",tooltip=\"" + v.fields['acronym'] + "\""
+                        graph += ",id=\"" + hid + "\"];"
                         if prec_v:
-                            graph += "h_"+prec_v+'->'+hid+"[style=\"stroke-width:3px;stroke:#888\"];"
+                            graph += "h_" + prec_v + '->' + hid + "[style=\"stroke-width:3px;stroke:#888\"];"
                         prec_v = v.getID()
                         done.add(prec_v)
             for remain in next_usage:
                 points = remain.split(" ")
-                graph += points[0]+"->"+points[1]+"[style=\"stroke-width:1px;stroke-dasharray:3,12;stroke:#888;\"];"
+                graph += points[0] + "->" + points[
+                    1] + "[style=\"stroke-width:1px;stroke-dasharray:3,12;stroke:#888;\"];"
             for recipe in recipes_todo:
-##                if not recipe.getID() in summit:
-                    grID = "gr_"+recipe.getID()
-##                    for above in recipe.parents:
-##                        if above in summit:
-##                            graph += "xgr_"+above+"->"+grID+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
-                    graph += grID
-                    graph += "[labelType=\"html\",label=\"<a href=/find/related/"+grID+">"+recipe.getNameHTML(lang)+"</a>\""
-                    graph += ",tooltip=\""+recipe.fields['acronym']+"\""
-                    graph += ",id=\""+grID+"\",shape=ellipse,style=\"fill:#fff;stroke:1px;\"];"
-##            for usage in usages:
-##                    usaID = 'gu_'+usage.getID()
-##                    for parent in usage.parents:
-##                        usage = c.AllGrUsage.elements[parent]
-##                        aboveID = 'gu_'+parent
-##                        graph += aboveID+"->"+usaID+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
+                ##                if not recipe.getID() in summit:
+                grID = "gr_" + recipe.getID()
+                ##                    for above in recipe.parents:
+                ##                        if above in summit:
+                ##                            graph += "xgr_"+above+"->"+grID+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
+                graph += grID
+                graph += "[labelType=\"html\",label=\"<a href=/find/related/" + grID + ">" + recipe.getNameHTML(
+                    lang) + "</a>\""
+                graph += ",tooltip=\"" + recipe.fields['acronym'] + "\""
+                graph += ",id=\"" + grID + "\",shape=ellipse,style=\"fill:#fff;stroke:1px;\"];"
+            ##            for usage in usages:
+            ##                    usaID = 'gu_'+usage.getID()
+            ##                    for parent in usage.parents:
+            ##                        usage = c.AllGrUsage.elements[parent]
+            ##                        aboveID = 'gu_'+parent
+            ##                        graph += aboveID+"->"+usaID+"[style=\"stroke-width:1px;stroke-dasharray:5,5;\"];"
             return render.graphrecipe(connected, batch, id, graph)
         return render.notfound()
 
-##class WebGraphBatch():
+
+##class WebGraphBatch:
 ##    def __init__(self):
 ##        self.name = u"WebGraphBatch"
 ##
@@ -1165,7 +1215,7 @@ class WebGraphRecipe():
 ##            return render.graphbatch(mail, 'b', id, graph)
 ##        return render.notfound()
 
-class WebMapFunctions():
+class WebMapFunctions:
     def __init__(self):
         self.name = u"WebMapFunctions"
 
@@ -1173,7 +1223,8 @@ class WebMapFunctions():
         connected = redirect_when_not_logged()
         return render.mapfunctions(connected)
 
-class WebMapComponents():
+
+class WebMapComponents:
     def __init__(self):
         self.name = u"WebMapComponents"
 
@@ -1181,7 +1232,8 @@ class WebMapComponents():
         connected = redirect_when_not_logged()
         return render.mapcomponents(connected)
 
-class WebMapUsages():
+
+class WebMapUsages:
     def __init__(self):
         self.name = u"WebMapUsages"
 
@@ -1189,15 +1241,17 @@ class WebMapUsages():
         connected = redirect_when_not_logged()
         return render.mapusages(connected)
 
-class WebMapRecipes():
+
+class WebMapRecipes:
     def __init__(self):
         self.name = u"WebMapRecipes"
 
     def GET(self):
         connected = redirect_when_not_logged()
-        return render.maprecipes(connected,False)
+        return render.maprecipes(connected, False)
 
-class WebMapCheckPoints():
+
+class WebMapCheckPoints:
     def __init__(self):
         self.name = u"WebMapCheckPoints"
 
@@ -1205,7 +1259,8 @@ class WebMapCheckPoints():
         connected = redirect_when_not_logged()
         return render.mapcheckpoints(connected)
 
-class WebRRDfetch():
+
+class WebRRDfetch:
     def __init__(self):
         self.name = u"WebRRDfetch"
 
@@ -1215,17 +1270,18 @@ class WebRRDfetch():
         period = None
         if 'period' in data:
             period = data['period']
-            
+
         currSensor = c.AllSensors.get(id)
         if currSensor:
             web.header('Content-Disposition',
-                       'attachment; filename="s_'+str(id)+'.csv"')
+                       'attachment; filename="s_' + str(id) + '.csv"')
             web.header('Content-type', 'text/tab-separated-values')
             web.header('Content-transfer-encoding', 'binary')
             return currSensor.fetchRRD(period)
         return render.notfound()
 
-class WebIndex():
+
+class WebIndex:
     def __init(self):
         self.name = u"WebIndex"
 
@@ -1235,7 +1291,7 @@ class WebIndex():
             return render.index(connected)
         data = web.input(nifile={})
         if 'completeMenu' in data:
-            connected.completeMenu = data['completeMenu'] == '1'            
+            connected.completeMenu = data['completeMenu'] == '1'
         return self.getRender(connected)
 
     def POST(self):
@@ -1251,19 +1307,20 @@ class WebIndex():
             if (redirect_url is not None):
                 raise web.seeother(redirect_url)
             else:
-                return self.getRender( connected )
+                return self.getRender(connected)
         return render.index(None)
 
     def getRender(self, connected):
-        return render.maprecipes(connected,True)
+        return render.maprecipes(connected, True)
 
-class WebSearch():
+
+class WebSearch:
     def __init__(self):
         self.name = u"WebSearch"
 
     def GET(self):
         connected = redirect_when_not_logged()
-            
+
         try:
             barcode = ''
             remark = ''
@@ -1272,42 +1329,44 @@ class WebSearch():
                 barcode = data['search']
             if 'remark' in data:
                 remark = data['remark']
-                if remark and remark.lower() in ['0','off','no','-']:
+                if remark and remark.lower() in ['0', 'off', 'no', '-']:
                     remark = 'YES'
             barcode = barcode.strip()
             if barcode:
-                elem  = c.AllBarcodes.barcode_to_item(barcode)
+                elem = c.AllBarcodes.barcode_to_item(barcode)
                 if elem:
-                    raise web.seeother('/find/related/'+elem.getTypeId())
+                    raise web.seeother('/find/related/' + elem.getTypeId())
                 else:
-                    listElem = c.search_acronym(barcode,[])
+                    listElem = c.search_acronym(barcode, [])
                     endAcro = len(listElem)
-                    listElem = c.search_names(barcode,listElem)
+                    listElem = c.search_names(barcode, listElem)
                     endName = len(listElem)
                     if remark:
-                        listElem = c.search_remark(barcode,listElem)
+                        listElem = c.search_remark(barcode, listElem)
                     if len(listElem) > 0:
                         if len(listElem) == 1:
-                            raise web.seeother('/find/related/'+listElem[0].getTypeId())
+                            raise web.seeother('/find/related/' + listElem[0].getTypeId())
                         else:
-                            return render.searchlist(connected,barcode,listElem,endAcro,endName)
+                            return render.searchlist(connected, barcode, listElem, endAcro, endName)
                     else:
-                        return render.search(connected,barcode, 'errorbarcode')
+                        return render.search(connected, barcode, 'errorbarcode')
             else:
                 return render.search(connected, barcode, 'emptybarcode')
         except:
             traceback.print_exc()
             return render.search(connected, barcode, 'emptybarcode')
 
-class WebLabel():
+
+class WebLabel:
     def __init__(self):
         self.name = u"WebLabel"
 
-    def GET(self,type,id):
+    def GET(self, type, id):
         connected = redirect_when_not_logged()
         return render.label(connected, type, id)
 
-class getRRD():
+
+class getRRD:
     def GET(self, filename):
         with open(elsa.DIR_RRD + filename) as f:
             try:
@@ -1315,15 +1374,17 @@ class getRRD():
             except IOError:
                 web.notfound()
 
-class getCSV():
+
+class getCSV:
     def GET(self, filename):
         with open(elsa.DIR_DATA_CSV + filename) as f:
-            try:            
+            try:
                 return f.read()
             except IOError:
                 web.notfound()
 
-class getDoc():
+
+class getDoc:
     def GET(self, filename):
         with open(elsa.DIR_DOC + filename) as f:
             try:
@@ -1331,7 +1392,8 @@ class getDoc():
             except IOError:
                 web.notfound()
 
-class WebExport():
+
+class WebExport:
     def GET(self, type, id):
         connected = redirect_when_not_logged()
         return self.getRender(connected, type, id)
@@ -1349,21 +1411,21 @@ class WebExport():
         cond['valuesensor'] = True if 'valuesensor' in data else False
         cond['acronym'] = True if 'acronym' in data else False
         splits = data['element'].split('_')
-        elem = c.get_object(splits[0],splits[1])
+        elem = c.get_object(splits[0], splits[1])
         tmp = elsa.ExportData(c, elem, cond, user)
         tmp.create_export()
         if "download" in data:
             tmp.write_csv()
-            raise web.seeother('/export/'+str(type) +
-                               '_'+str(id)+'/exportdata.csv')
+            raise web.seeother('/export/' + str(type) +
+                               '_' + str(id) + '/exportdata.csv')
         else:
             user.exportdata = tmp
-            raise web.seeother('/datatable/'+str(type)+'_'+str(id))
+            raise web.seeother('/datatable/' + str(type) + '_' + str(id))
 
     def getRender(self, connected, type, id):
         try:
             if type in elsa.OBSERVABLE_TYPES:
-                return render.exportdata(connected,  type, id)
+                return render.exportdata(connected, type, id)
             else:
                 return render.notfound()
         except:
@@ -1371,7 +1433,7 @@ class WebExport():
             return render.notfound()
 
 
-class WebDataTable():
+class WebDataTable:
     def GET(self, type, id):
         connected = redirect_when_not_logged()
         return self.getRender(connected, type, id)
@@ -1386,12 +1448,12 @@ class WebDataTable():
             return render.notfound()"""
 
 
-class WebDownloadData():
+class WebDownloadData:
     def GET(self, id1, id2, filename):
         try:
             f = open(elsa.DIR_DATA_CSV + filename)
             web.header('Content-Disposition',
-                       'attachment; filename="'+str(filename)+'"')
+                       'attachment; filename="' + str(filename) + '"')
             web.header('Content-type', 'text/tab-separated-values')
             web.header('Content-transfer-encoding', 'binary')
             return f.read()
@@ -1399,6 +1461,7 @@ class WebDownloadData():
             web.notfound()
         finally:
             f.close()
+
 
 class WebTest:
     def __init__(self):
@@ -1412,119 +1475,121 @@ class WebTest:
             acro = data['acronym']
 
         testUrls = ['/', '/index',
-            '/api/grafana/en/request', # Only POST really exercices Grafana API...
-#            '/disconnect',
-            '/backup',
-            '/restore',
-            '/updateELSA',
-#            '/restarting',
-            '/map/gf',
-            '/map/gu',
-            '/map/pec',
-            '/map/h',
-            '/map/gr',
-            '/graphhelp/b_1',
-            '/calendar',
-            '/search']       
-#            '/rrd/(.+)',
-#            '/csv/(.+)',
-#            '/doc/(.+)',
+                    '/api/grafana/en/request',  # Only POST really exercices Grafana API...
+                    #            '/disconnect',
+                    '/backup',
+                    '/restore',
+                    '/updateELSA',
+                    #            '/restarting',
+                    '/map/gf',
+                    '/map/gu',
+                    '/map/pec',
+                    '/map/h',
+                    '/map/gr',
+                    '/graphhelp/b_1',
+                    '/calendar',
+                    '/search']
+        #            '/rrd/(.+)',
+        #            '/csv/(.+)',
+        #            '/doc/(.+)',
         for someType in elsa.ALL_NAMED_TYPES:
-            testUrls.extend ( ['/list/'+someType, '/create/'+someType] )
+            testUrls.extend(['/list/' + someType, '/create/' + someType])
         result = []
-        result = c.search_acronym(acro,result)
+        result = c.search_acronym(acro, result)
         for aTest in result:
             ti = aTest.getTypeId()
             if aTest.get_type() == 'b':
-                testUrls.extend ( ['/clone/'+ti,
-                                   '/export/'+ti,
-                                   '/datatable/'+ti,
-                                   '/pin/'+ti,
-                                   '/map/'+ti,
-                                   '/create/v/'+ti+"_in",
-                                   '/create/v/'+ti+"_out",
-                                   '/find/v/'+ti,
-                                   '/create/t/'+ti,
-                                   '/find/t/'+ti,
-                                   '/create/d/'+ti,
-                                   '/find/d/'+ti,
-                                   '/find/h/'+ti,
-                                   '/find/al/'+ti,
-                                   '/graph/'+ti ] )
-                testControl,recipes,usages = aTest.get_allowed_checkpoints(c)
+                testUrls.extend(['/clone/' + ti,
+                                 '/export/' + ti,
+                                 '/datatable/' + ti,
+                                 '/pin/' + ti,
+                                 '/map/' + ti,
+                                 '/create/v/' + ti + "_in",
+                                 '/create/v/' + ti + "_out",
+                                 '/find/v/' + ti,
+                                 '/create/t/' + ti,
+                                 '/find/t/' + ti,
+                                 '/create/d/' + ti,
+                                 '/find/d/' + ti,
+                                 '/find/h/' + ti,
+                                 '/find/al/' + ti,
+                                 '/graph/' + ti])
+                testControl, recipes, usages = aTest.get_allowed_checkpoints(c)
                 if testControl:
                     for aControl in testControl:
-                        testUrls.extend ( ['/control/'+ti+'/'+aControl.getTypeId() ] )
+                        testUrls.extend(['/control/' + ti + '/' + aControl.getTypeId()])
                 testV = aTest.get_events(c)
                 if testV:
                     for aRec in testV:
-                        testUrls.extend ( ['/edit/'+aRec.getTypeId(),
-                                           '/history/'+aRec.getTypeId(),
-                                           '/modal/'+aRec.getTypeId(),
-                                           '/fullentry/'+aRec.getTypeId(),
-                                           '/item/'+aRec.getTypeId() ] )
+                        testUrls.extend(['/edit/' + aRec.getTypeId(),
+                                         '/history/' + aRec.getTypeId(),
+                                         '/modal/' + aRec.getTypeId(),
+                                         '/fullentry/' + aRec.getTypeId(),
+                                         '/item/' + aRec.getTypeId()])
             elif aTest.get_type() == 'gr':
-                testUrls.extend ( [ '/map/'+ti,
-                                    '/selectmul/'+aTest.get_type()+'_new/'+aTest.getID(),
-                                    '/selectmul/'+ti+'/',
-                                    '/select/group/'+ti,
-                                    '/create/gr/'+ti,
-                                    '/create/b/'+ti,
-                                    '/create/h/'+ti,
-                                    '/graph/'+ti ] )
+                testUrls.extend(['/map/' + ti,
+                                 '/selectmul/' + aTest.get_type() + '_new/' + aTest.getID(),
+                                 '/selectmul/' + ti + '/',
+                                 '/select/group/' + ti,
+                                 '/create/gr/' + ti,
+                                 '/create/b/' + ti,
+                                 '/create/h/' + ti,
+                                 '/graph/' + ti])
             elif aTest.get_type() == 'gu':
-                testUrls.extend ( [ '/select/group/'+ti,
-                                    '/create/gu/'+ti,
-                                    '/create/p/'+ti,
-                                    '/create/e/'+ti,
-                                    '/create/c/'+ti,
-                                    '/create/h/'+ti ] )
+                testUrls.extend(['/select/group/' + ti,
+                                 '/create/gu/' + ti,
+                                 '/create/p/' + ti,
+                                 '/create/e/' + ti,
+                                 '/create/c/' + ti,
+                                 '/create/h/' + ti])
             elif aTest.get_type() == 'gf':
-                testUrls.extend ( [ '/select/group/'+ti,
-                                    '/create/gf/'+ti,
-                                    '/create/u/'+ti ] )
+                testUrls.extend(['/select/group/' + ti,
+                                 '/create/gf/' + ti,
+                                 '/create/u/' + ti])
             elif aTest.get_type() == 'h':
-                testUrls.extend ( [ '/select/group/'+ti,
-                                    '/create/vm/'+ti,
-                                    '/create/tm/'+ti,
-                                    '/create/dm/'+ti,
-                                    '/create/h/'+ti ] )
-            elif aTest.get_type() in elsa.COMPONENT_TYPES+['s']:
-                testUrls.extend ( ['/label/'+ti,
-                    '/find/al/'+ti,
-                    '/graphic/'+ti] )
+                testUrls.extend(['/select/group/' + ti,
+                                 '/create/vm/' + ti,
+                                 '/create/tm/' + ti,
+                                 '/create/dm/' + ti,
+                                 '/create/h/' + ti])
+            elif aTest.get_type() in elsa.COMPONENT_TYPES + ['s']:
+                testUrls.extend(['/label/' + ti,
+                                 '/find/al/' + ti,
+                                 '/graphic/' + ti])
                 if aTest.get_type() == 's':
-                    testUrls.append('/rrdfetch/'+ti)
+                    testUrls.append('/rrdfetch/' + ti)
                 else:
-                    if aTest.get_type() in ["c","e"]:
-                        testUrls.append('/find/t/'+ti)
-                    testUrls.extend( ['/find/d/'+ti,
-                                      '/color/'+ti] )
-            testUrls.extend ( ['/edit/'+ti,
-                                '/item/'+ti,
-                                '/find/related/'+ti,
-                                '/history/'+ti,
-                                '/files/'+ti,
-                                '/modal/'+ti,
-                                '/fullentry/'+ti ] )
+                    if aTest.get_type() in ["c", "e"]:
+                        testUrls.append('/find/t/' + ti)
+                    testUrls.extend(['/find/d/' + ti,
+                                     '/color/' + ti])
+            testUrls.extend(['/edit/' + ti,
+                             '/item/' + ti,
+                             '/find/related/' + ti,
+                             '/history/' + ti,
+                             '/files/' + ti,
+                             '/modal/' + ti,
+                             '/fullentry/' + ti])
 
-        return render.test(connected,testUrls)
+        return render.test(connected, testUrls)
+
 
 def checkUser(username, password):
     user = c.AllUsers.getUser(username)
     if user is None:
         return None
-    
+
     cryptedPassword = useful.encrypt(password, user.fields['registration'])
     if user.checkPassword(cryptedPassword) is True:
         return user
+
 
 # returns connnectedUser object
 def isConnected():
     infoCookie = web.cookies().get('akuinoELSA')
     if infoCookie is None:
         return None
-    
+
     infoCookie = infoCookie.split(',')
     if len(infoCookie) > 1:
         connected = c.connectedUsers.isConnected(infoCookie[0].lower(), infoCookie[1])
@@ -1539,14 +1604,16 @@ def ensureLogin(mail):
         infoCookie = mail + ',' + user.fields['password'] + ',' + ('1' if current.completeMenu else '0')
         web.setcookie('akuinoELSA', infoCookie, expires=9000)
 
+
 def notfound():
     return web.notfound(render.notfound())
+
 
 def cleanup_web_temp_dir():
     try:
         shutil.rmtree(elsa.DIR_WEB_TEMP)
     except OSError, e:
-        print ("Error: %s - %s." % (e.filename,e.strerror))
+        print ("Error: %s - %s." % (e.filename, e.strerror))
         raise
     finally:
         if not os.path.exists(elsa.DIR_WEB_TEMP):
@@ -1562,6 +1629,7 @@ def start_update():
     finally:
         print("Fin du processus de mise à jour")
 
+
 def restart_program():
     """Restarts the current program, with file objects and descriptors
        cleanup
@@ -1572,18 +1640,20 @@ def restart_program():
     args[0] = os.path.join(elsa.DIR_BASE, os.path.basename(sys.argv[0]))
     os.execl(python, python, *args)
 
+
 class end_activities_flags:
     """
     An object that holds some flags until just before the end of the program.
     Intended to launch things when we want to ELSA to be in a coherent state.
     """
+
     def __init__(self):
         self._check_update = False
         self._restart_elsa = False
         self._restart = False
         self._shutdown = False
         self._restore = False
-    
+
     def set_restore(self, fname):
         self._restore = fname
 
@@ -1593,21 +1663,21 @@ class end_activities_flags:
         elif value == True:
             self._check_update = True
         else:
-            raise("Invalid value received : expected bool")
+            raise ("Invalid value received : expected bool")
 
     def set_restart_elsa(self):
         self._restart_elsa = True
-    
+
     def set_shutdown(self):
         self._shutdown = True
-    
+
     def set_restart(self):
         self._restart = True
-    
+
     def launch_end_activities(self):
         if self._restore:
-#returns False if restore did not work but no way to alert the user !
-            if not backup.restore_from_zip(self._restore): 
+            # returns False if restore did not work but no way to alert the user !
+            if not backup.restore_from_zip(self._restore):
                 print ("Error while restoring from bacup.")
             self.set_restart_elsa()
 
@@ -1620,14 +1690,16 @@ class end_activities_flags:
 
         if self._restart:
             subprocess.call(['sudo', '/sbin/shutdown', '-r', 'now'])
-        
-        if self._shutdown: 
+
+        if self._shutdown:
             subprocess.call(['sudo', '/sbin/shutdown', '-h', 'now'])
+
 
 c = None
 wsgiapp = None
 flags = end_activities_flags()
 app = None
+
 
 def main():
     # restart_program()
@@ -1650,7 +1722,7 @@ def main():
         web.template.Template.globals['bisect'] = bisect
         web.template.Template.globals['round'] = round
         web.template.Template.globals['subprocess'] = subprocess
-        layout = web.template.frender(elsa.TEMPLATES_DIR+'/layout.html')
+        layout = web.template.frender(elsa.TEMPLATES_DIR + '/layout.html')
         render = web.template.render(elsa.TEMPLATES_DIR, base=layout)
         urls = (
             '/', 'WebIndex',
@@ -1697,7 +1769,7 @@ def main():
             '/updateELSA', 'WebUpdateELSA',
             '/restarting', 'WebRestarting',
             '/api/grafana/([^/]*)/{0,1}(.*)', 'WebApiGrafana',
-            '/test','WebTest'
+            '/test', 'WebTest'
         )
         app = web.application(urls, globals())
         app.notfound = notfound
@@ -1712,7 +1784,7 @@ def main():
             c.UpdateThread.join()
             c.RadioThread.join()
             c.TimerThread.join()
-        
+
         flags.launch_end_activities()
 
         print 'Exit system'

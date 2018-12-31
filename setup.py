@@ -1,8 +1,10 @@
 import os
 from setuptools import setup, find_packages
 
+
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
 
 setup(
     name="ELSA",
@@ -13,7 +15,7 @@ setup(
     description="Monitoring de la production par lots",
     long_description=read('README.md'),
     packages=find_packages(),
-    classifiers = [
+    classifiers=[
         'Programming Language :: Python',
-        ]
+    ], install_requires=['barcode', 'requests', 'serial', 'rrdtool', 'unicodecsv', 'web.py', 'pyownet']
 )

@@ -1,19 +1,17 @@
-import time
-import urllib
-import math
-import hashlib
 import binascii
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.header import Header
 import datetime
-import socket
 import fcntl
+import hashlib
+import math
+import smtplib
+import socket
 import struct
+import time
 import traceback
-
-import unicodecsv
+import urllib
+from email.header import Header
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 GMAIL_USER = u'christophe.dupriez@guest.uliege.be' #u'akuino6002@gmail.com'
 GMAIL_PASS = u'vjdQ5631' #u'My_Password6002'
