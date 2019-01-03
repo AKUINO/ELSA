@@ -8,8 +8,11 @@ $code:
     permissionKey = 'm_'
     elem = c.AllBatches.get(id)
     keyID = 'b'
-$var location: list/b=batch find/v/b_$(id)=pouring
 $var title : $elem.getName(self.lang)
+$var bcTop:
+$var bcElem:v_$id
+$var bcOwner:$(("vm_"+modelid) if modelid else "")
+$var bcOperation:find
 <script>
     $$(function(){
 	$$("#includedAllMenuB_$(id)").load("/fullentry/b_*$(id)");

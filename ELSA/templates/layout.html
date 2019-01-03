@@ -186,24 +186,11 @@ $if content.recursive == 'False' :
 		</div>
 	    </nav>
 	    <div style="font-size:20px;" class="hidden-print btn-group btn-breadcrumb">
-		$if content.location:
-		  $if content.location != 'index' :
-		    <a href="/" class="btn btn-default"><span class="glyphicon glyphicon-home"></span>   </a>
-		    $ url = '/'
-		    $for elem in content.location.split():
-			$ splitted=elem.split('=')
-			$if len(splitted) > 1:
-			    $ tmp=url+splitted[0]
-			    $ css=''
-			    $if 'tm' in tmp or 'vm' in tmp or 'dm' in tmp:
-			        $ css='blue'
-			    <a href="$tmp" class="$(css) btn btn-default">$:c.getHalfling(splitted[1])&nbsp;$c.getMessage(splitted[1],content.lang)</a>
+		$if content.bcTop or content.bcElem or content.bcOperation:
+		    <a href="/" class="btn btn-default"><span class="glyphicon glyphicon-home"></span></a>
+		    $:c.breadcrumb(content.bcTop,content.bcOwner,content.bcElem,content.bcOperation,content.lang)
 		$else:
-		    $if content.bcTop or content.bcElem or content.bcOperation:
-			<a href="/" class="btn btn-default"><span class="glyphicon glyphicon-home"></span></a>
-			$:c.breadcrumb(content.bcTop,content.bcOwner,content.bcElem,content.bcOperation,content.lang)
-		    $else:
-			<span class="btn btn-default"><span class="glyphicon glyphicon-home"></span></span>
+		    <span class="btn btn-default"><span class="glyphicon glyphicon-home"></span></span>
 	    </div>
 	    <div style="margin-top:6px;">
 		$:content

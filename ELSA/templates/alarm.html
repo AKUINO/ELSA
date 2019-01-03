@@ -1,4 +1,4 @@
-$def with (connected, id, errormess, data)
+$def with (connected, id, errormess, data, context='')
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
@@ -6,16 +6,17 @@ $var pinned : $connected.pinned()
 $var recursive : False
 $var title: $c.getMessage("add",self.lang) $c.AllAlarms.getName(self.lang)
 $ rmq = ''
-$if id == 'new':
-    $var location: list/a=alarm edit/a_new=add
-$else:
-    $var location: list/a=alarm edit/a_$(id)=edit
+$if id != 'new':
     $ alarmdef = c.AllAlarms.get(id)
     $ rmq = alarmdef.fields['remark']
     $var title: $c.getMessage("update",self.lang) $alarmdef.getName(self.lang) 
 $if errormess != '':
     $if 'remark' in data :
 	$ rmq = data['remark']
+$var bcTop:a
+$var bcElem:a_$id
+$var bcOwner:$context
+$var bcOperation:edit
 <form  method="post" action="" id="modifyPlace" enctype="multipart/form-data" data-bv-message="This value is not valid" data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	<div class="form-group row" id="error">
 	    $errormess

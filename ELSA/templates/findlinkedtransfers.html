@@ -7,10 +7,12 @@ $code:
     allobjects = c.findAll(type)
     elem = allobjects.get(id)
     keyID = c.findAllFromObject(elem).keyColumn
-$var location: list/$(type)=$(c.findAll(type).get_class_acronym()) find/t/$(type)_$(id)=transfer
 $var recursive : False
 $var title : $elem.getName(self.lang)
-
+$var bcTop:
+$var bcElem:$(type)_$id
+$var bcOwner:$(("tm_"+modelid) if modelid else "")
+$var bcOperation:find
 <script>
     $$(function(){
 	$$("#includedAllMenu$(type)_$(id)").load("/fullentry/$(type)_*$(id)");

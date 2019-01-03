@@ -15,9 +15,12 @@ $code :
     in_use = allObjects.in_use()
     total = len(in_use)
     keys = allObjects.sort_hierarchy(in_use if all else allObjects.get_top(30,in_use))
-$var location: list/$(type)=$(allObjects.get_class_acronym())
 $var recursive : False
 $var title: $c.getName(allObjects,self.lang)
+$var bcTop:$type
+$var bcOwner:
+$var bcElem:
+$var bcOperation:list
 
 <div class="row active">
     <label class="col-sm-12">$len(keys)

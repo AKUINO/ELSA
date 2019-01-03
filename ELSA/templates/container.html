@@ -9,10 +9,7 @@ $ rmq = ''
 $ kGroup = ''
 $if context:
 	$ kGroup = (context.split('_')[-1])
-$if id == 'new':
-    $var location: list/c=container edit/c_new=add
-$else:
-    $var location: list/c=container edit/c_$(id)=edit
+$if id != 'new':
     $code:
 	elem = c.AllContainers.get(id)
 	if elem and ('gu_id' in elem.fields) and elem.fields['gu_id']:
@@ -25,6 +22,10 @@ $if errormess != '':
     $code:
 	if data and ('group' in data) and data['group']:
 	    kGroup = data['group']
+$var bcTop:pec
+$var bcElem:c_$id
+$var bcOwner:$context
+$var bcOperation:edit
 <form  method="post" action=""  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	<div class="form-group row" id="error">
 	    $errormess

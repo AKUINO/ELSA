@@ -6,18 +6,18 @@ $var pinned : $connected.pinned()
 $var recursive : False
 $var title : $c.getMessage('measure',self.lang)
 $ rmq = ''
-$if id == 'new':
-    $var location: list/m=measure edit/m_new=add
-$else:
-    $var location: list/m=measure edit/m_$(id)=edit
-    $code:
-        elem = c.AllMeasures.get(id)
+$if id != 'new':
+    $ elem = c.AllMeasures.get(id)
     $ rmq = elem.fields['remark']
     $var title : $elem.getName(self.lang)
 $if errormess != '':
     $if 'remark' in data :
 	$ rmq = data['remark']
-     
+$var bcTop:
+$var bcOwner:
+$var bcElem:m_$id
+$var bcOperation:edit
+
 <div class="container">
     <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	<div class="form-group row" id="error">

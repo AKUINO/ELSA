@@ -318,13 +318,11 @@ class Configuration():
             top = "h"
         elif top == u"pec":
             top = "pec"
-        elif not top in 'dtv':
-            pass
         return top
 
     def breadcrumb(self, top, kowner, kelem, operation, lang):
         global buttonClasses
-        print "top=" + top + ",owner=" + kowner + ",kelem=" + kelem + ",operation=" + operation
+        #print "top=" + top + ",owner=" + kowner + ",kelem=" + kelem + ",operation=" + operation
         html = ""
         if not top:
             if kowner:
@@ -356,7 +354,7 @@ class Configuration():
                 'equipment') + self.getHalfling('container') + self.getMessage('component', lang) + '</a>'
         elif not top in 'dtv':
             allObj = self.findAll(top)
-            html = '<a href="/list/"' + top + '" class="btn btn-default">' + allObj.statusIcon(None, False,
+            html = '<a href="/list/' + top + '" class="btn btn-default">' + allObj.statusIcon(None, False,
                                                                                                buttonClasses) + self.getMessage(
                 allObj.get_class_acronym(), lang) + '</a>'
         owner = None
@@ -387,9 +385,16 @@ class Configuration():
                     if elem:
                         allObj = self.findAllFromObject(elem)
                         if not owner:
-                            kowner = elem.get_group()
-                            if kowner:
+                            if ids[0] in 'dt':
+                                kowner = elem.fields['object_id']
+                                type = elem.fields['object_type']
+                            elif ids[0] == 'v':
+                                kowner = elem.fields['src']
+                                type = 'b'
+                            elif allObj.get_group_type():
+                                kowner = elem.get_group()
                                 type = allObj.get_group_type()
+                            if kowner:
                                 allGroup = self.findAll(type)
                                 owner = allGroup.get(kowner)
                                 if owner:
@@ -414,12 +419,11 @@ class Configuration():
                                 '' if top == ids[0] else elem.statusIcon(self, None,
                                                                          False)) + '<strong>' + elem.get_acronym() + '</strong></a>'
                         if operation:
-                            html += '<a href="' + elem.get_href(
-                                operation) + '" class="btn btn-default">' + self.getHalfling(
-                                operation) + self.getMessage(operation, lang) + '</a>'  #:
+                            html += '<a href="#" class="btn btn-default">' + self.getHalfling(
+                                operation) + self.getMessage(operation, lang) + '</a>'
         elif operation:
-            html += '<a href="/' + operation + '" class="btn btn-default">' + self.getHalfling(
-                operation) + self.getMessage(operation, lang) + '</a>'  #:
+            html += '<a href="#" class="btn btn-default">' + self.getHalfling(
+                operation) + self.getMessage(operation, lang) + '</a>'
         return html
 
     def get_time(self):
@@ -1314,6 +1318,9 @@ class AllObjects(object):
 
     def get_type(self):
         return self.obj_type
+
+    def get_group_type(self):
+        return None
 
     def load(self):
         self.check_csv(self.file_of_objects)
@@ -4622,7 +4629,13 @@ class Halfling(ConfigurationObject):
         return 'halfling'
 
     def getHalfling(self, supp_classes):
-        return '<span class="halflings halflings-' + self.fields['glyphname'] + supp_classes + '"></span>'
+        glyph = self.fields['glyphname']
+        if not glyph:
+            return ""
+        elif glyph[0] == "*" and len(glyph) > 1:
+            return '<span class="halflings' + supp_classes + '">' + glyph[1:] + '</span>'
+        else:
+            return '<span class="halflings halflings-' + glyph + supp_classes + '"></span>'
 
     def get_class_acronym(self):
         return 'halfling'

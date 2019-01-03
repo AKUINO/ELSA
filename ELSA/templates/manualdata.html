@@ -14,7 +14,6 @@ $if id == 'new' and context == '':
 	myID = 'new'
 	rmq = ''
 	cond = True
-    $var location: /find/m=manualdata create/m=add
 $elif id == 'new':
     $code:
 	myID = 'component'
@@ -38,11 +37,6 @@ $else :
     $var bcTop:$(elem.get_type())
     $var bcOwner:$(elem.getTypeId())
     $var title: $c.getMessage('update',self.lang) $c.getName(c.AllManualData,self.lang)
-$if myID == 'update':
-    $var location: list/$(elem.get_type())=$(elem.get_class_acronym()) manualdata/$(elem.get_type())_$(elem.getID())=manualdata edit/d_$(manudata.getID())=edit
-$elif myID == 'component':
-    $var location: list/$(id.split('_')[-0])=$(elem.get_class_acronym()) manualdata/$(id.split('_')[0])_$(elem.getID())=manualdata transfers/$(id.split('_')[0])_$(elem.getID())/new=add
-$var location:
 <form  method="post" action="" id="modifyManualData"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
         $if myID == 'update':
 		<input type="hidden" name="h_id" value="$manudata.fields['h_id']"/>

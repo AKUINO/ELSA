@@ -5,18 +5,19 @@ $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
 $var recursive : False
 $var title : $c.getMessage('add',self.lang)
+$var bcTop:
+$var bcOwner:
+$var bcElem:u_$id
+$var bcOperation:edit
 $ rmq = ''
 $ kGroup = ''
 $if context:
     $ kGroup = (context.split('_')[-1])
-$if id == 'new':
-    $var location: list/u=user edit/u_new=add
-$else:
+$if id != 'new':
     $code:
         elem = c.AllUsers.get(id)
 	if elem and ('gf_id' in elem.fields) and elem.fields['gf_id']:
 		kGroup = elem.fields['gf_id']
-    $var location: list/u=user edit/u_$(id)=edit
     $ rmq = elem.fields['remark']
     $var title : $elem.getName(self.lang)
 $if errormess != '':

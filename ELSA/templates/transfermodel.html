@@ -10,11 +10,7 @@ $var bcTop:h
 $var bcElem:tm_$id
 $var bcOwner:$context
 $var bcOperation:edit
-$var location:
-$if id == 'new':
-    $var locationX: list/tm=transfermodel edit/tm_new=add
-$else:
-    $var locationX: list/tm=transfermodel edit/tm_$(id)=edit
+$if id != 'new':
     $ transfer_model = c.AllTransferModels.get(id)
     $ rmq = transfer_model.fields['remark']
     $var title : $transfer_model.getName(self.lang)

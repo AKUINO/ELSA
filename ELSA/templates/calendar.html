@@ -4,11 +4,14 @@ $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
 $var title : Production Calendar
-$var location: calendar=calendar
 $var recursive : False
 $code:
     done = set()
     listRecipe = c.AllGrRecipe.get_fullmap_str()
+$var bcTop:
+$var bcOwner:
+$var bcElem:
+$var bcOperation:calendar
 <table class="table table-responsive table-hover">
 $code:
    prvM = month-1

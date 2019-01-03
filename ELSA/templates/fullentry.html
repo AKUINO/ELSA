@@ -516,7 +516,7 @@ $elif permissionKey in '_d_t_v_':
 		    $if permissionKey in '_c_p_e_b_' :
 			<div class="row" style="margin-top:6px;">
 			    <div class="col-xs-2" >
-				<strong><a href="/export/$(type)_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('exportdata'))</a></strong>
+				<strong><a href="/export/$(type)_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('export'))</a></strong>
 			    </div>
 			    <div class="col-xs-10">
 				$(c.getMessage('export',self.lang))
@@ -525,7 +525,7 @@ $elif permissionKey in '_d_t_v_':
 		    $if c.AllBarcodes.get_barcode(elem.get_type(), elem.id) != '' :
 			<div class="row" style="margin-top:6px;">
 			    <div class="col-xs-2" >
-				<strong><a href="/label/$(type)_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('barcode'))</a></strong>
+				<strong><a href="/label/$(type)_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('label'))</a></strong>
 			    </div>
 			    <div class="col-xs-10">
 				$(c.getMessage('barcode',self.lang))
@@ -542,7 +542,7 @@ $elif permissionKey in '_d_t_v_':
 			</div>
 		     <div class="row" style="margin-top:6px;">
 			<div class="col-xs-2" >
-			    <a href="/history/$(type)_$(id)" class="btn btn-warning" role="button" style="font-weight:900;font-size:20px">H</a>
+			    <a href="/history/$(type)_$(id)" class="btn btn-warning" role="button" style="font-weight:900;font-size:20px">$:(c.getHalfling('history'))</a>
 			</div>
 			<div class="col-xs-10">
 			    $(c.getMessage('history',self.lang))

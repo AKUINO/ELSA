@@ -5,13 +5,16 @@ $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
 $var recursive : False
 $var title : $c.getMessage('add',self.lang) $c.getMessage('transfer',self.lang)
+$var bcTop:
+$var bcOwner:$context
+$var bcElem:t_$id
+$var bcOperation:edit
 $ splits = context.split('_')
 $ transfer = None
 $if id == 'new':
     $code :
 	myID = 'new'
 	rmq = ''
-    $var location: transfers=transfer transfers/new/new=add
 $else :
     $code:
 	idType = id.split('_')[0]
@@ -27,10 +30,7 @@ $if context != '' :
 	elem = c.get_object(splits[0],splits[-1])
 	idType = elem.get_type()
 	rmq = data['remark'] if (data and 'remark' in data) else '' 
-$if myID == 'update':
-    $var location: list/$(elem.get_type())=$(elem.get_class_acronym()) transfers/$(elem.get_type())_$(elem.getID())=transfer edit/t_$(transfer.getID())=edit
-$elif myID == 'component':
-    $var location: list/$(idType)=$(elem.get_class_acronym()) transfers/$(idType)_$(elem.getID())=transfer transfers/$(idType)_$(elem.getID())/new=add
+    $var bcOwner:$elem.getTypeId() if elem else ""
 <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
         $if myID == 'update':
 		<input type="hidden" name="h_id" value="$transfer.fields['h_id']"/>

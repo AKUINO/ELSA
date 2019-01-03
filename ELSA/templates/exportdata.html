@@ -5,14 +5,15 @@ $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
 $var recursive : False
 $if type == 'new':
-    $var location: exportdata/=exportdata
     $var title : $c.getMessage('export',self.lang)
-    $ id = None
 $else:
     $code:
         elem = c.get_object(type,id)
-    $var location: list/$(type)=$(elem.get_class_acronym()) exportdata/$(type)_$(id)=exportdata
     $var title : $elem.getName(self.lang)
+$var bcTop:
+$var bcElem:$(type)_$id
+$var bcOwner:
+$var bcOperation:export
 <form  method="post" action="" id="exportdata"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
         <div class="form-group row">
             <label for="inputElement" class="col-sm-3 col-form-label">$c.getMessage('component',self.lang)</label>

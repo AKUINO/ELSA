@@ -4,8 +4,11 @@ $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
 $var title : ELSA Users Functions Map
-$var location: list/gf=$(c.AllGrFunction.get_class_acronym())
 $var recursive : False
+$var bcTop:gf
+$var bcOwner:
+$var bcElem:
+$var bcOperation:
 $ done = set()
 $ listFunction = c.AllGrFunction.get_fullmap_str()
 $ level = 0

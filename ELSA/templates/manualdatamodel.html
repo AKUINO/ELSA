@@ -6,17 +6,19 @@ $var pinned : $connected.pinned()
 $var recursive : False
 $var title : $c.getMessage('manualdatamodel',self.lang)
 $if id == 'new':
-    $var location: list/dm=manualdatamodel edit/dm_new=add
     $ rmq = ""
     $ aDataModel = None
 $else:
-    $var location: list/dm=manualdatamodel edit/dm_$(id)=edit
     $ aDataModel = c.AllManualDataModels.get(id)
     $ rmq = aDataModel.fields['remark']
     $var title : $aDataModel.getName(self.lang)
 $if errormess != '':
     $if 'remark' in data :
 	$ rmq = data['remark']
+$var bcTop:
+$var bcOwner:
+$var bcElem:dm_$id
+$var bcOperation:edit
 <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
 	<div class="col-sm-12" >
 	    <p id="error">$errormess</p>

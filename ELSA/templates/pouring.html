@@ -5,7 +5,6 @@ $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
 $var recursive : False
 $var title : $c.AllPourings.getName(self.lang)
-$var location: pourings=pouring pourings/new/new=add
 $code:
     myID = ""
     pouring = None
@@ -25,11 +24,10 @@ $code:
 	myID = 'update'
         if pouring:
 	    rmq = pouring.fields['remark']
-$if myID == 'update':
-    $var location: list/b=batch find/v/b_$(dest.getID())=pouring edit/v_$(dest.getID())=edit
-$elif myID == 'in' or myID == 'out':
-    $var location: list/b=batch find/v/b_$(batch.getID())=pouring create/v/b_$(batch.getID())/new=add
-
+$var bcTop:
+$var bcOwner:$context
+$var bcElem:v_$id
+$var bcOperation:edit
 <script>
 function flip() {
     $$("#src").appendTo("#divdest");

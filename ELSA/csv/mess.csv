@@ -1,200 +1,204 @@
-begin	message_id	default	user
-2016-01-01 13:45:56	nomove	no displacement	1
-2016-01-01 13:45:56	search	Search	1
-2016-01-01 13:45:56	remove	Remove	1
-2016-01-01 13:45:56	history	History	1
-2016-01-01 13:45:56	pin	focus	1
-2016-01-01 13:45:56	buyer	customer	1
-2016-01-01 13:45:56	buyer_ref	customer reference #	1
-2016-01-01 13:45:56	provider	provider	1
-2016-01-01 13:45:56	provider_ref	provider reference #	1
-2016-01-01 13:45:56	access0	No access	1
-2016-01-01 13:45:56	access1	Linked data	1
-2016-01-01 13:45:56	access2	Read-Only	1
-2016-01-01 13:45:56	access3	Normal	1
-2016-01-01 13:45:56	access4	Admin	1
-2016-01-01 13:45:56	accesslevel	Access Level	1
-2016-01-01 13:45:56	address	Address	1
-2016-01-01 13:45:56	vat	VAT	1
-2016-01-01 13:45:56	startup	Start	1
-2017-03-21 14:08:46	calendar	Calendar	1
-2016-01-01 13:45:56	all	All	1
-2016-01-01 13:45:56	name	Name	1
-2016-01-01 13:45:56	days	days	1
-2016-01-01 13:45:56	disconnect	Disconnect	1
-2016-01-01 13:45:56	parent	Generic(s)	1
-2016-01-01 13:45:56	child	Specific(s)	1
-2016-01-01 13:45:56	sibling	Sibling(s)	1
-2016-01-01 13:45:56	abstract	Abstract	1
-2016-01-01 13:45:56	currentbatch	Current batch	1
-2016-01-01 13:45:56	subbatch	Batch Splitting	1
-2016-01-01 13:45:56	errorbarcode	the following barcode is not attached to an item	1
-2016-01-01 13:45:56	pouring	Pouring	1
-2016-01-01 13:45:56	pouringmodel	Pouring Model	1
-2016-01-01 13:45:56	pouringfrom	Pouring from	1
-2016-01-01 13:45:56	pouringto	Pouring to	1
-2016-01-01 13:45:56	transfermodel	Transfer Model	1
-2016-01-01 13:45:56	production	Production	1
-2016-01-01 13:45:56	exportdata	Export data	1
-2016-01-01 13:45:56	people	People	1
-2016-01-01 13:45:56	cancel	Cancel	1
-2016-01-01 13:45:56	datatable	Data Table	1
-2016-01-01 13:45:56	map	Table	1
-2016-01-01 13:45:56	quantity	Quantity	1
-2016-01-01 13:45:56	degree	Degree	1
-2016-01-01 13:45:56	duplicate	Duplicate	1
-2016-01-01 13:45:56	save	Save	1
-2016-01-01 13:45:56	cost	Cost	1
-2016-01-01 13:45:56	unitcost	Unit Cost	1
-2016-01-01 13:45:56	fixedcost	Fixed Cost	1
-2016-01-01 13:45:56	valuesensor	Values from sensor	1
-2016-01-01 13:45:56	value	Value 	1
-2016-01-01 13:45:56	specialvalue	Min Max Average 	1
-2016-01-01 13:45:56	monitoring	Monitoring 	1
-2016-01-01 13:45:56	time	Time	1
-2016-01-01 13:45:56	alarmtime	Alarm Time	1
-2016-01-01 13:45:56	completedtime	Completed Time	1
-2016-01-01 13:45:56	rank	Rank	1
-2016-01-01 13:45:56	componentmove	Component to move	1
-2016-01-01 13:45:56	target	Target	1
-2016-01-01 13:45:56	export	Export	1
-2016-01-01 13:45:56	update	Update	1
-2016-01-01 13:45:56	alarmlog	AlarmLog	1
-2016-01-01 13:45:56	source	Source	1
-2016-01-01 13:45:56	residualqt	Residual quantity	1
-2016-01-01 13:45:56	selecttransfer	Select the object to transfer	1
-2016-01-01 13:45:56	acronymrequired	Acronym is required !	1
-2016-01-01 13:45:56	acronymunique	Acronym must be unique !	1
-2016-01-01 13:45:56	accessrules	You cannot modify a user with higher access level than you	1
-2016-01-01 13:45:56	acronymrules	Acronym can only contain letters, digits and _!	1
-2016-01-01 13:45:56	barcoderules	Barcode must be an EAN 13 and must be unique!	1
-2016-01-01 13:45:56	floatrules	The value must be a number	1
-2016-01-01 13:45:56	timerules	The time must be in this format year-month-day hour:minute:second 	1
-2016-01-01 13:45:56	days	days	1
-2016-01-01 13:45:56	hours	hours	1
-2016-01-01 13:45:56	minutes	minutes	1
-2016-01-01 13:45:56	seconds	seconds	1
-2016-01-01 13:45:56	day	day	1
-2016-01-01 13:45:56	hour	hour	1
-2016-01-01 13:45:56	minute	minute	1
-2016-01-01 13:45:56	second	second	1
-2016-01-01 13:45:56	grouprules	A group can't be added to a parent, child or sibling	1
-2016-01-01 13:45:56	componentrules	Error component	1
-2016-01-01 13:45:56	measurerules	A measure is required !	1
-2016-01-01 13:45:56	passwordrules	Password must contain at least eight characters! !	1
-2016-01-01 13:45:56	sensorrules	A sensor is required !	1
-2016-01-01 13:45:56	batchrules1	A Batch source is required !	1
-2016-01-01 13:45:56	batchrules2	A Batch target is required !	1
-2016-01-01 13:45:56	batchrules3	The batch target must be different from batch source!	1
-2016-01-01 13:45:56	unitrules	An unit is required !	1
-2016-01-01 13:45:56	minrules	A Minimum value is required !	1
-2016-01-01 13:45:56	steprules	A Precision is required !	1
-2016-01-01 13:45:56	maxrules	A Maximum value (greater than Minimum) is required !	1
-2016-01-01 13:45:56	channelrules	A channel is required !	1
-2016-01-01 13:45:56	datarules	If you enter a value, select a measure	1
-2016-01-01 13:45:56	transferrules	The batch is already in this component	1
-2016-01-01 13:45:56	transferhierarchy	This object can't be moved to this component	1
-2016-01-01 13:45:56	formularules	The formula is not correct	1
-2016-01-01 13:45:56	costrules	The cost must be a positive float	1
-2016-01-01 13:45:56	quantityrules	The quantity must be a positive float	1
-2016-01-01 13:45:56	actualposition	Actual Position 	1
-2016-01-01 13:45:56	lapse	Lapse	1
-2016-01-01 13:45:56	related	Listing	1
-2016-01-01 13:45:56	begin	Begin	1
-2016-01-01 13:45:56	group	Group	1
-2016-01-01 13:45:56	guse	Group Use	1
-2016-01-01 13:45:56	gfunction	Group Function	1
-2016-01-01 13:45:56	grecipe	Group Recipe	1
-2016-01-01 13:45:56	active	Active	1
-2016-01-01 13:45:56	donotdisturb	Do not disturb	1
-2016-01-01 13:45:56	acronym	Acronym	1
-2016-01-01 13:45:56	createBackup	Create backup	1
-2016-01-01 13:45:56	downloadBackup	Download backup	1
-2016-01-01 13:45:56	restore	Restore backup	1
-2016-01-01 13:45:56	restoreEmpty	Restore File Missing	1
-2016-01-01 13:45:56	restoreError	Restore Error	1
-2016-01-01 13:45:56	backupDone	Backup Done	1
-2016-01-01 13:45:56	restarting	Restarting	1
-2016-01-01 13:45:56	restartingDone	Restart in progress… Please wait a bit and reload this page.	1
-2016-01-01 13:45:56	barcode	Barcode	1
-2016-01-01 13:45:56	remark	Remark	1
-2016-01-01 13:45:56	welcome	Welcome	1
-2016-01-01 13:45:56	user	User	1
-2016-01-01 13:45:56	file	Image	1
-2016-01-01 13:45:56	document	Document	1
-2016-01-01 13:45:56	modified	Modified by	1
-2016-01-01 13:45:56	createdby	Created by	1
-2016-01-01 13:45:56	mail	Email	1
-2016-01-01 13:45:56	password	Password	1
-2016-01-01 13:45:56	lang	Language	1
-2016-01-01 13:45:56	code	Code	1
-2016-01-01 13:45:56	addgroup	Add to group :	1
-2016-01-01 13:45:56	removegroup	Remove from group :	1
-2016-01-01 13:45:56	place	Place	1
-2016-01-01 13:45:56	equipment	Equipment	1
-2016-01-01 13:45:56	checkpoint	Checkpoint	1
-2016-01-01 13:45:56	container	Container	1
-2016-01-01 13:45:56	batch	Batch	1
-2016-01-01 13:45:56	manualdata	Observation	1
-2016-01-01 13:45:56	manualdatamodel	Observation Model	1
-2016-01-01 13:45:56	transfer	Transfer	1
-2016-01-01 13:45:56	measure	Measure	1
-2016-01-01 13:45:56	sensor	Sensor	1
-2016-01-01 13:45:56	backup	Backup	1
-2016-01-01 13:45:56	updateELSA	Update ELSA	1
-2016-01-01 13:45:56	shutdown	shutdown	1
-2016-01-01 13:45:56	startUpdate	Update ELSA	1
-2016-01-01 13:45:56	alarm	Alarm	1
-2016-01-01 13:45:56	createe	Add a new equipment	1
-2016-01-01 13:45:56	createtm	Add a new TransferModel	1
-2016-01-01 13:45:56	createp	Add a new place	1
-2016-01-01 13:45:56	createu	Add a new user	1
-2016-01-01 13:45:56	createg	Add a new group	1
-2016-01-01 13:45:56	createc	Add a new container	1
-2016-01-01 13:45:56	createm	Add a new measure	1
-2016-01-01 13:45:56	created	Add a new manual measure	1
-2016-01-01 13:45:56	createcpehm	Add a new sensor	1
-2016-01-01 13:45:56	createa	Add a new Alarm	1
-2016-01-01 13:45:56	color	Color 	1
-2016-01-01 13:45:56	source	Source 	1
-2016-01-01 13:45:56	formula	Formula 	1
-2016-01-01 13:45:56	unit	Unit 	1
-2016-01-01 13:45:56	min	Minimum 	1
-2016-01-01 13:45:56	step	Precision 	1
-2016-01-01 13:45:56	max	Maximum 	1
-2016-01-01 13:45:56	component	Component 	1
-2016-01-01 13:45:56	subsensor	Subsensor 	1
-2016-01-01 13:45:56	valuetype	Value type 	1
-2016-01-01 13:45:56	channel	Channel 	1
-2016-01-01 13:45:56	graphic	Graphic 	1
-2016-01-01 13:45:56	map	Recipe Controls Map 	1
-2016-01-01 13:45:56	phone	Phone 	1
-2016-01-01 13:45:56	relay	Relay 	1
-2016-01-01 13:45:56	sound	Sound 	1
-2016-01-01 13:45:56	minmin	Min --- 	1
-2016-01-01 13:45:56	min	Min 	1
-2016-01-01 13:45:56	info	Info 	1
-2016-01-01 13:45:56	data	Data 	1
-2016-01-01 13:45:56	typical	Typical 	1
-2016-01-01 13:45:56	none	No Data 	1
-2016-01-01 13:45:56	max	Max 	1
-2016-01-01 13:45:56	mpouring	Pouring(s) 	1
-2016-01-01 13:45:56	mtransfer	Transfer(s) 	1
-2016-01-01 13:45:56	mdata	Observation(s)	1
-2016-01-01 13:45:56	maxmax	Max +++ 	1
-2016-01-01 13:45:56	typical	Typical 	1
-2016-01-01 13:45:56	test	TEST 	1
-2016-01-01 13:45:56	phone	Phone  	1
-2016-01-01 13:45:56	add	Add	1
-2016-01-01 13:45:56	edit	Edit	1
-2016-01-01 13:45:56	schema	Table	1
-2016-01-01 13:45:56	expirationdate	Expiration date	1
-2016-01-01 13:45:56	lifespan	Lifespan	1
-2016-01-01 13:45:56	dateentry	Year-Month-Day Hour:Minute:Second	1
-2016-01-01 13:45:56	alarmtitle	{0}  {1}    {2}    {3} {4} {5} {6}    {7}	1
-2016-01-01 13:45:56	alarmmanualtitle	ManualData : {0} in {2}	1
-2016-01-01 13:45:56	alarmpouringtitle	Pouring from {0} {1} to {2} {3}	1
-2016-01-01 13:45:56	alarmmessage	"Alarm from {0}
+"begin"	"message_id"	"default"	"user"
+"2016-01-01 13:45:56"	"nomove"	"no displacement"	"1"
+"2016-01-01 13:45:56"	"search"	"Search"	"1"
+"2016-01-01 13:45:56"	"remove"	"Remove"	"1"
+"2016-01-01 13:45:56"	"history"	"History"	"1"
+"2016-01-01 13:45:56"	"pin"	"focus"	"1"
+"2016-01-01 13:45:56"	"buyer"	"customer"	"1"
+"2016-01-01 13:45:56"	"buyer_ref"	"customer reference #"	"1"
+"2016-01-01 13:45:56"	"provider"	"provider"	"1"
+"2016-01-01 13:45:56"	"provider_ref"	"provider reference #"	"1"
+"2016-01-01 13:45:56"	"access0"	"No access"	"1"
+"2016-01-01 13:45:56"	"access1"	"Linked data"	"1"
+"2016-01-01 13:45:56"	"access2"	"Read-Only"	"1"
+"2016-01-01 13:45:56"	"access3"	"Normal"	"1"
+"2016-01-01 13:45:56"	"access4"	"Admin"	"1"
+"2016-01-01 13:45:56"	"accesslevel"	"Access Level"	"1"
+"2016-01-01 13:45:56"	"address"	"Address"	"1"
+"2016-01-01 13:45:56"	"vat"	"VAT"	"1"
+"2016-01-01 13:45:56"	"startup"	"Start"	"1"
+"2017-03-21 14:08:46"	"calendar"	"Calendar"	"1"
+"2016-01-01 13:45:56"	"all"	"All"	"1"
+"2016-01-01 13:45:56"	"name"	"Name"	"1"
+"2016-01-01 13:45:56"	"days"	"days"	"1"
+"2016-01-01 13:45:56"	"disconnect"	"Disconnect"	"1"
+"2016-01-01 13:45:56"	"parent"	"Generic(s)"	"1"
+"2016-01-01 13:45:56"	"child"	"Specific(s)"	"1"
+"2016-01-01 13:45:56"	"sibling"	"Sibling(s)"	"1"
+"2016-01-01 13:45:56"	"abstract"	"Abstract"	"1"
+"2016-01-01 13:45:56"	"currentbatch"	"Current batch"	"1"
+"2016-01-01 13:45:56"	"subbatch"	"Batch Splitting"	"1"
+"2016-01-01 13:45:56"	"errorbarcode"	"the following barcode is not attached to an item"	"1"
+"2016-01-01 13:45:56"	"pouring"	"Pouring"	"1"
+"2016-01-01 13:45:56"	"pouringmodel"	"Pouring Model"	"1"
+"2016-01-01 13:45:56"	"pouringfrom"	"Pouring from"	"1"
+"2016-01-01 13:45:56"	"pouringto"	"Pouring to"	"1"
+"2016-01-01 13:45:56"	"transfermodel"	"Transfer Model"	"1"
+"2016-01-01 13:45:56"	"production"	"Production"	"1"
+"2016-01-01 13:45:56"	"exportdata"	"Export data"	"1"
+"2016-01-01 13:45:56"	"people"	"People"	"1"
+"2016-01-01 13:45:56"	"cancel"	"Cancel"	"1"
+"2016-01-01 13:45:56"	"datatable"	"Data Table"	"1"
+"2016-01-01 13:45:56"	"map"	"Table"	"1"
+"2016-01-01 13:45:56"	"quantity"	"Quantity"	"1"
+"2016-01-01 13:45:56"	"degree"	"Degree"	"1"
+"2016-01-01 13:45:56"	"duplicate"	"Duplicate"	"1"
+"2016-01-01 13:45:56"	"save"	"Save"	"1"
+"2016-01-01 13:45:56"	"cost"	"Cost"	"1"
+"2016-01-01 13:45:56"	"unitcost"	"Unit Cost"	"1"
+"2016-01-01 13:45:56"	"fixedcost"	"Fixed Cost"	"1"
+"2016-01-01 13:45:56"	"valuesensor"	"Values from sensor"	"1"
+"2016-01-01 13:45:56"	"value"	"Value"	"1"
+"2016-01-01 13:45:56"	"specialvalue"	"Min Max Average"	"1"
+"2016-01-01 13:45:56"	"monitoring"	"Monitoring"	"1"
+"2016-01-01 13:45:56"	"time"	"Time"	"1"
+"2016-01-01 13:45:56"	"alarmtime"	"Alarm Time"	"1"
+"2016-01-01 13:45:56"	"completedtime"	"Completed Time"	"1"
+"2016-01-01 13:45:56"	"rank"	"Rank"	"1"
+"2016-01-01 13:45:56"	"componentmove"	"Component to move"	"1"
+"2016-01-01 13:45:56"	"target"	"Target"	"1"
+"2016-01-01 13:45:56"	"export"	"Export"	"1"
+"2016-01-01 13:45:56"	"control"	"Control Point"	"1"
+"2016-01-01 13:45:56"	"update"	"Update"	"1"
+"2016-01-01 13:45:56"	"alarmlog"	"AlarmLog"	"1"
+"2016-01-01 13:45:56"	"source"	"Source"	"1"
+"2016-01-01 13:45:56"	"residualqt"	"Residual quantity"	"1"
+"2016-01-01 13:45:56"	"selecttransfer"	"Select the object to transfer"	"1"
+"2016-01-01 13:45:56"	"acronymrequired"	"Acronym is required !"	"1"
+"2016-01-01 13:45:56"	"acronymunique"	"Acronym must be unique !"	"1"
+"2016-01-01 13:45:56"	"accessrules"	"You cannot modify a user with higher access level than you"	"1"
+"2016-01-01 13:45:56"	"acronymrules"	"Acronym can only contain letters, digits and _!"	"1"
+"2016-01-01 13:45:56"	"barcoderules"	"Barcode must be an EAN 13 and must be unique!"	"1"
+"2016-01-01 13:45:56"	"floatrules"	"The value must be a number"	"1"
+"2016-01-01 13:45:56"	"timerules"	"The time must be in this format year-month-day hour:minute:second"	"1"
+"2016-01-01 13:45:56"	"days"	"days"	"1"
+"2016-01-01 13:45:56"	"hours"	"hours"	"1"
+"2016-01-01 13:45:56"	"minutes"	"minutes"	"1"
+"2016-01-01 13:45:56"	"seconds"	"seconds"	"1"
+"2016-01-01 13:45:56"	"day"	"day"	"1"
+"2016-01-01 13:45:56"	"hour"	"hour"	"1"
+"2016-01-01 13:45:56"	"minute"	"minute"	"1"
+"2016-01-01 13:45:56"	"second"	"second"	"1"
+"2016-01-01 13:45:56"	"grouprules"	"A group can't be added to a parent, child or sibling"	"1"
+"2016-01-01 13:45:56"	"componentrules"	"Error component"	"1"
+"2016-01-01 13:45:56"	"measurerules"	"A measure is required !"	"1"
+"2016-01-01 13:45:56"	"passwordrules"	"Password must contain at least eight characters! !"	"1"
+"2016-01-01 13:45:56"	"sensorrules"	"A sensor is required !"	"1"
+"2016-01-01 13:45:56"	"batchrules1"	"A Batch source is required !"	"1"
+"2016-01-01 13:45:56"	"batchrules2"	"A Batch target is required !"	"1"
+"2016-01-01 13:45:56"	"batchrules3"	"The batch target must be different from batch source!"	"1"
+"2016-01-01 13:45:56"	"unitrules"	"An unit is required !"	"1"
+"2016-01-01 13:45:56"	"minrules"	"A Minimum value is required !"	"1"
+"2016-01-01 13:45:56"	"steprules"	"A Precision is required !"	"1"
+"2016-01-01 13:45:56"	"maxrules"	"A Maximum value (greater than Minimum) is required !"	"1"
+"2016-01-01 13:45:56"	"channelrules"	"A channel is required !"	"1"
+"2016-01-01 13:45:56"	"datarules"	"If you enter a value, select a measure"	"1"
+"2016-01-01 13:45:56"	"transferrules"	"The batch is already in this component"	"1"
+"2016-01-01 13:45:56"	"transferhierarchy"	"This object can't be moved to this component"	"1"
+"2016-01-01 13:45:56"	"formularules"	"The formula is not correct"	"1"
+"2016-01-01 13:45:56"	"costrules"	"The cost must be a positive float"	"1"
+"2016-01-01 13:45:56"	"quantityrules"	"The quantity must be a positive float"	"1"
+"2016-01-01 13:45:56"	"actualposition"	"Actual Position"	"1"
+"2016-01-01 13:45:56"	"lapse"	"Lapse"	"1"
+"2016-01-01 13:45:56"	"related"	"Listing"	"1"
+"2016-01-01 13:45:56"	"begin"	"Begin"	"1"
+"2016-01-01 13:45:56"	"group"	"Group"	"1"
+"2016-01-01 13:45:56"	"guse"	"Group Use"	"1"
+"2016-01-01 13:45:56"	"gfunction"	"Group Function"	"1"
+"2016-01-01 13:45:56"	"grecipe"	"Group Recipe"	"1"
+"2016-01-01 13:45:56"	"active"	"Active"	"1"
+"2016-01-01 13:45:56"	"donotdisturb"	"Do not disturb"	"1"
+"2016-01-01 13:45:56"	"acronym"	"Acronym"	"1"
+"2016-01-01 13:45:56"	"createBackup"	"Create backup"	"1"
+"2016-01-01 13:45:56"	"downloadBackup"	"Download backup"	"1"
+"2016-01-01 13:45:56"	"restore"	"Restore backup"	"1"
+"2016-01-01 13:45:56"	"restoreEmpty"	"Restore File Missing"	"1"
+"2016-01-01 13:45:56"	"restoreError"	"Restore Error"	"1"
+"2016-01-01 13:45:56"	"backupDone"	"Backup Done"	"1"
+"2016-01-01 13:45:56"	"restarting"	"Restarting"	"1"
+"2016-01-01 13:45:56"	"restartingDone"	"Restart in progress… Please wait a bit and reload this page."	"1"
+"2016-01-01 13:45:56"	"barcode"	"Barcode"	"1"
+"2016-01-01 13:45:56"	"remark"	"Remark"	"1"
+"2016-01-01 13:45:56"	"welcome"	"Welcome"	"1"
+"2016-01-01 13:45:56"	"user"	"User"	"1"
+"2016-01-01 13:45:56"	"file"	"Image"	"1"
+"2016-01-01 13:45:56"	"document"	"Document"	"1"
+"2016-01-01 13:45:56"	"modified"	"Modified by"	"1"
+"2016-01-01 13:45:56"	"createdby"	"Created by"	"1"
+"2016-01-01 13:45:56"	"mail"	"Email"	"1"
+"2016-01-01 13:45:56"	"password"	"Password"	"1"
+"2016-01-01 13:45:56"	"lang"	"Language"	"1"
+"2016-01-01 13:45:56"	"code"	"Code"	"1"
+"2016-01-01 13:45:56"	"addgroup"	"Add to group :"	"1"
+"2016-01-01 13:45:56"	"removegroup"	"Remove from group :"	"1"
+"2016-01-01 13:45:56"	"place"	"Place"	"1"
+"2016-01-01 13:45:56"	"equipment"	"Equipment"	"1"
+"2016-01-01 13:45:56"	"checkpoint"	"Checkpoint"	"1"
+"2016-01-01 13:45:56"	"container"	"Container"	"1"
+"2016-01-01 13:45:56"	"batch"	"Batch"	"1"
+"2016-01-01 13:45:56"	"manualdata"	"Observation"	"1"
+"2016-01-01 13:45:56"	"manualdatamodel"	"Observation Model"	"1"
+"2016-01-01 13:45:56"	"transfer"	"Transfer"	"1"
+"2016-01-01 13:45:56"	"measure"	"Measure"	"1"
+"2016-01-01 13:45:56"	"sensor"	"Sensor"	"1"
+"2016-01-01 13:45:56"	"backup"	"Backup"	"1"
+"2016-01-01 13:45:56"	"updateELSA"	"Update ELSA"	"1"
+"2016-01-01 13:45:56"	"shutdown"	"shutdown"	"1"
+"2016-01-01 13:45:56"	"startUpdate"	"Update ELSA"	"1"
+"2016-01-01 13:45:56"	"notfound"	"not found"	"1"
+"2016-01-01 13:45:56"	"list"	"list"	"1"
+"2016-01-01 13:45:56"	"find"	"linked"	"1"
+"2016-01-01 13:45:56"	"alarm"	"Alarm"	"1"
+"2016-01-01 13:45:56"	"createe"	"Add a new equipment"	"1"
+"2016-01-01 13:45:56"	"createtm"	"Add a new TransferModel"	"1"
+"2016-01-01 13:45:56"	"createp"	"Add a new place"	"1"
+"2016-01-01 13:45:56"	"createu"	"Add a new user"	"1"
+"2016-01-01 13:45:56"	"createg"	"Add a new group"	"1"
+"2016-01-01 13:45:56"	"createc"	"Add a new container"	"1"
+"2016-01-01 13:45:56"	"createm"	"Add a new measure"	"1"
+"2016-01-01 13:45:56"	"created"	"Add a new manual measure"	"1"
+"2016-01-01 13:45:56"	"createcpehm"	"Add a new sensor"	"1"
+"2016-01-01 13:45:56"	"createa"	"Add a new Alarm"	"1"
+"2016-01-01 13:45:56"	"color"	"Color"	"1"
+"2016-01-01 13:45:56"	"source"	"Source"	"1"
+"2016-01-01 13:45:56"	"formula"	"Formula"	"1"
+"2016-01-01 13:45:56"	"unit"	"Unit"	"1"
+"2016-01-01 13:45:56"	"min"	"Minimum"	"1"
+"2016-01-01 13:45:56"	"step"	"Precision"	"1"
+"2016-01-01 13:45:56"	"max"	"Maximum"	"1"
+"2016-01-01 13:45:56"	"component"	"Component"	"1"
+"2016-01-01 13:45:56"	"subsensor"	"Subsensor"	"1"
+"2016-01-01 13:45:56"	"valuetype"	"Value type"	"1"
+"2016-01-01 13:45:56"	"channel"	"Channel"	"1"
+"2016-01-01 13:45:56"	"graphic"	"Graphic"	"1"
+"2016-01-01 13:45:56"	"map"	"Recipe Controls Map"	"1"
+"2016-01-01 13:45:56"	"phone"	"Phone"	"1"
+"2016-01-01 13:45:56"	"relay"	"Relay"	"1"
+"2016-01-01 13:45:56"	"sound"	"Sound"	"1"
+"2016-01-01 13:45:56"	"minmin"	"Min ---"	"1"
+"2016-01-01 13:45:56"	"min"	"Min"	"1"
+"2016-01-01 13:45:56"	"info"	"Info"	"1"
+"2016-01-01 13:45:56"	"data"	"Data"	"1"
+"2016-01-01 13:45:56"	"typical"	"Typical"	"1"
+"2016-01-01 13:45:56"	"none"	"No Data"	"1"
+"2016-01-01 13:45:56"	"max"	"Max"	"1"
+"2016-01-01 13:45:56"	"mpouring"	"Pouring(s)"	"1"
+"2016-01-01 13:45:56"	"mtransfer"	"Transfer(s)"	"1"
+"2016-01-01 13:45:56"	"mdata"	"Observation(s)"	"1"
+"2016-01-01 13:45:56"	"maxmax"	"Max +++"	"1"
+"2016-01-01 13:45:56"	"typical"	"Typical"	"1"
+"2016-01-01 13:45:56"	"test"	"TEST"	"1"
+"2016-01-01 13:45:56"	"phone"	"Phone"	"1"
+"2016-01-01 13:45:56"	"add"	"Add"	"1"
+"2016-01-01 13:45:56"	"edit"	"Edit"	"1"
+"2016-01-01 13:45:56"	"schema"	"Table"	"1"
+"2016-01-01 13:45:56"	"expirationdate"	"Expiration date"	"1"
+"2016-01-01 13:45:56"	"lifespan"	"Lifespan"	"1"
+"2016-01-01 13:45:56"	"dateentry"	"Year-Month-Day Hour:Minute:Second"	"1"
+"2016-01-01 13:45:56"	"alarmtitle"	"{0}  {1}    {2}    {3} {4} {5} {6}    {7}"	"1"
+"2016-01-01 13:45:56"	"alarmmanualtitle"	"ManualData : {0} in {2}"	"1"
+"2016-01-01 13:45:56"	"alarmpouringtitle"	"Pouring from {0} {1} to {2} {3}"	"1"
+"2016-01-01 13:45:56"	"alarmmessage"	"Alarm from {0}
 {1} :
      Name : {2}
      Acronym : {3}
@@ -204,16 +208,16 @@ Sensor :
      Value : {6}
      Type Alarm : {7}
 Time : {8}
-Degree : {9}"	1
-2016-01-01 13:45:56	alarmmanual	"Manual Data from {0}
+Degree : {9}"	"1"
+"2016-01-01 13:45:56"	"alarmmanual"	"Manual Data from {0}
 {1} :
      Name : {2}
      Acronym : {3}
 ManualData :
      Value : {4} {5}
      Remark : {6}
-Time : {7}"	1
-2016-01-01 13:45:56	alarmpouring	"Alarm from {0}
+Time : {7}"	"1"
+"2016-01-01 13:45:56"	"alarmpouring"	"Alarm from {0}
 Pouring from Batch :
      Name : {1}
      Acronym : {2}
@@ -222,11 +226,12 @@ To Batch :
      Acronym : {4}
 Quantity : {5} {6}
 Remark : {7}
-Time : {8}"	1
-2016-01-01 13:45:56	w0	Mon	1
-2016-01-01 13:45:56	w1	Tue	1
-2016-01-01 13:45:56	w2	Wed	1
-2016-01-01 13:45:56	w3	Thu	1
-2016-01-01 13:45:56	w4	Fri	1
-2016-01-01 13:45:56	w5	Sat	1
-2016-01-01 13:45:56	w6	Sun	1
+Time : {8}"	"1"
+"2016-01-01 13:45:56"	"w0"	"Mon"	"1"
+"2016-01-01 13:45:56"	"w1"	"Tue"	"1"
+"2016-01-01 13:45:56"	"w2"	"Wed"	"1"
+"2016-01-01 13:45:56"	"w3"	"Thu"	"1"
+"2016-01-01 13:45:56"	"w4"	"Fri"	"1"
+"2016-01-01 13:45:56"	"w5"	"Sat"	"1"
+"2016-01-01 13:45:56"	"w6"	"Sun"	"1"
+""	""	""	""

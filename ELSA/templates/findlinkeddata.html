@@ -8,8 +8,11 @@ $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
 $var recursive : False
-$var location: list/$(type)=$(allobjects.get_class_acronym()) find/d/$(type)_$(id)=manualdata
 $var title:  $c.getName(allobjects,self.lang) $elem.getName(self.lang)
+$var bcTop:
+$var bcElem:$(type)_$id
+$var bcOwner:$(("dm_"+modelid) if modelid else "")
+$var bcOperation:find
 <script>
     $$(function(){
 	$$("#includedAllMenu$(type)_$(id)").load("/fullentry/$(type)_*$(id)");

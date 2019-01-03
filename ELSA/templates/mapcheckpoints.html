@@ -1,11 +1,14 @@
 $def with (connected)
-$var title : ELSA Components Map
-$var location: list/gu=$(c.AllCheckPoints.get_class_acronym())
+$var title : ELSA Checkpoints Map
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
 $var recursive : False
+$var bcTop:h
+$var bcOwner:
+$var bcElem:
+$var bcOperation:map
 $ done = set()
 $ listCheckPoint = c.AllCheckPoints.get_fullmap_str()
 $ level = 0

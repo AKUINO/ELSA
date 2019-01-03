@@ -12,9 +12,12 @@ $code :
 	in_use.append(ob.getID())
     total = len(in_use)
     keys = c.AllBatches.sort_hierarchy(in_use if allRec else c.AllBatches.get_top(12,in_use))
-$var location: find/$(type)=$(allObjects.get_class_acronym()) find/b/$(type)_$(id)=batch
 $var recursive : False
 $var title: $c.getName(c.AllBatches,self.lang)
+$var bcTop:
+$var bcElem:$(type)_$id
+$var bcOwner:
+$var bcOperation:find
 
 <div class="row active" style="background-color:#D5D5D7;padding:5px;">
 	<script>

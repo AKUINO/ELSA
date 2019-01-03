@@ -8,7 +8,6 @@ $var title : $c.AllPouringModels.getName(self.lang)
 $ splits = context.split('_')
 $ rmq = ''
 $if id == 'new':
-    $var location: list/vm=pouringmodel edit/vm_new=add
     $code:
         pouring_from = True
 	recipe = ""
@@ -18,7 +17,6 @@ $if id == 'new':
 	    checkpoint = splits[-1]
         checkpoint_elem = None
 $else:
-    $var location: list/vm=pouringmodel edit/vm_$(id)=edit
     $code:
         elem = c.AllPouringModels.get(id)
         checkpoint = elem.get_group()
@@ -30,6 +28,10 @@ $else:
 	usage = elem.fields['gu_id']
     $ rmq = elem.fields['remark']
     $var title : $elem.getName(self.lang)
+$var bcTop:
+$var bcOwner:
+$var bcElem:vm_$id
+$var bcOperation:
 $if errormess != '':
     $if 'remark' in data :
 	$ rmq = data['remark']

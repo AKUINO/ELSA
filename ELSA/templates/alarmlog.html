@@ -9,7 +9,6 @@ $if id == 'new':
     $code :
 	myID = 'new'
 	rmq = ''
-    $var location: alarmlog=alarmlog alarmlog/new/new=add
 $else :
     $code:
 	if not id.split('_')[0] in 'bec':
@@ -27,11 +26,10 @@ $if context != '' :
 	splits = context.split('_')
 	elem = c.get_object(splits[0],splits[-1])
 	rmq = '' 
-$if myID == 'update':
-    $var location: list/$(compo.get_type())=$(compo.get_class_acronym()) find/al/$(compo.get_type())_$(compo.getID())=alarmlog edit/al_$(alarmlog.getID())=edit
-$elif myID == 'component':
-    $ aType = id.split('_')[0]
-    $var location: list/$(aType)=$(elem.get_class_acronym()) find/al/$(aType)_$(elem.getID())=alarmlog alarmlogs/$(aType)_$(elem.getID())/new=add
+$var bcTop:al
+$var bcElem:al_$id
+$var bcOwner:$context
+$var bcOperation:edit
 <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
 	<div class="col-sm-12" >
 	    <p id="error">$errormess</p>

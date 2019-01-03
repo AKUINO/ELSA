@@ -732,7 +732,7 @@ $var title: MODAL
 		$if permissionKey in '_c_p_e_b_':
 		    $ col += 2
 		    <div class="col-xs-2">
-			<strong><a href="/export/$(type)_$(id)" class="btn btn-warning" role="button">$:c.getHalfling('exportdata')</a></strong>
+			<strong><a href="/export/$(type)_$(id)" class="btn btn-warning" role="button">$:c.getHalfling('export')</a></strong>
 		    </div>
 		$if not 'direct' in data:
 		        <div class="col-xs-$(10-col)" ></div>

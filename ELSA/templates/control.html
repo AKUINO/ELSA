@@ -14,8 +14,11 @@ $code:
     if here:
 	here_id = here.getID()
 	here_type = here.get_type()
-$var location: list/b=batch find/h/b_$(id1)=related control/b_$(id1)/h_$(id2)=checkpoint
 $var title : $batch.getName(self.lang): $cp.getName(self.lang)
+$var bcTop:gr
+$var bcOwner:b_$id1
+$var bcElem:h_$id2
+$var bcOperation:control
 <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
 	<div class="form-group row" id="error">
 	    $errormess

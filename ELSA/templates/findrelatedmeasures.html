@@ -10,8 +10,11 @@ $code:
     keyID = c.AllMeasures.keyColumn
     subtype = 'd'
     allModeled = c.AllManualData
-$var location: list/m=$(c.findAll('m').get_class_acronym()) find/d/m_$(id)=manualdata
 $var title : $elem.getName(self.lang)
+$var bcTop:
+$var bcOwner:
+$var bcElem:m_$id
+$var bcOperation:
 
 <script>
     $$(function(){

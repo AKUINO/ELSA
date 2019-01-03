@@ -4,8 +4,11 @@ $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
 $var recursive : False
-$var location : backup=backup
 $var title : $c.getMessage('createBackup',self.lang)
+$var bcTop:
+$var bcElem:
+$var bcOwner:
+$var bcOperation:backup
 
     <row>
     $if message:
