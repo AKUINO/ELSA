@@ -343,8 +343,8 @@ class Configuration():
                                                                                              buttonClasses) + self.getMessage(
                 'guse', lang) + '</a>'
         elif top in "gfu":
-            html = '<a href="/map/gf" class="btn btn-default"><div class="' + buttonClasses + '">' + self.AllGrFunction.statusIcon(
-                None, False) + '</div>' + self.getMessage('gfunction', lang) + '</a>'
+            html = '<a href="/map/gf" class="btn btn-default">' + self.AllGrFunction.statusIcon(
+                None, False)  + self.getMessage('gfunction', lang) + '</a>'
         elif top in "hdmtmvm" and not top in "mdtv":
             html = '<a href="/map/h" class="btn btn-default">' + self.AllCheckPoints.statusIcon(None, False,
                                                                                                 buttonClasses) + self.getMessage(

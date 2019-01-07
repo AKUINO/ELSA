@@ -3,5 +3,10 @@
     <CsvCodeStyleSettings>
       <option name="SEPARATOR_INDEX" value="3" />
     </CsvCodeStyleSettings>
+    <codeStyleSettings language="HTML">
+      <indentOptions>
+        <option name="TAB_SIZE" value="8" />
+      </indentOptions>
+    </codeStyleSettings>
   </code_scheme>
 </component>

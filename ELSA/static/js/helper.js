@@ -1,12 +1,3 @@
-function generateQRCode() {
-    element = jQuery('div#qrCodeCurrUrl')
-    if (isEmpty(element)) {
-        element.qrcode({
-            text:window.location.href
-        })
-    }
-}
-
 function isEmpty(el) {
     return !$.trim(el.html())
 }

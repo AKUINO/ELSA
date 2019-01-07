@@ -72,6 +72,32 @@ $if content.recursive == 'False' :
                       //$$('#debug').text("dpr="+window.devicePixelRatio+", scale="+scaling+", max="+maxWidth+", scr="+screen.width+", win="+window.innerWidth+", cli="+document.documentElement.clientWidth);
               }
 
+			  function generateQRCode() {
+					element = jQuery('div#qrCodeCurrUrl')
+					if (isEmpty(element)) {
+						element.qrcode({
+							text:window.location.href
+						})
+					}
+			  }
+
+			  document.addEventListener('keydown', function (event) {
+				if (event.defaultPrevented || !event.ctrlKey) {
+					return;
+				}
+
+				var key = event.key || event.keyCode;
+				//Ctrl-Y
+				if (key === 'y' || key === 'Y') {
+					generateQRCode();
+					elem = $$('#modal_barcode');
+					$$(elem).modal("show");
+					elem_in = $$(elem).find('[autofocus]');
+					$$(elem_in).focus();
+					$$(elem_in).val('');
+				}
+			  });
+
               $$(window).on("orientationchange", function (event) {
                   scalescreen();
               } );
