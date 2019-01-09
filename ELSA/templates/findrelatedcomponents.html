@@ -18,7 +18,7 @@ $var bcOperation:
 $var location:
 <script>
     $$(function(){
-        $$("#includedAllMenu$(type)_$(id)").load("/fullentry/$(type)_*$(id)");
+        $$("#includedAllMenu$(type)_$(id)").load("/fullentry/$(type)_$("!" if barcode else "*")$(id)");
     });
 </script>
 <div id="includedAllMenu$(type)_$(id)"></div>

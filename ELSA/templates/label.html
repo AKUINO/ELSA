@@ -1,52 +1,55 @@
-$def with (connected, type, id)
+$def with (connected, type, id="")
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
-$code :
-    allObjs = c.findAll(type)
-    elem = allObjs.get(id)
 $var recursive : False
-$var title : ELSA $(allObjs.get_class_acronym())
-$var bcTop:
+$var bcTop:$(type)
 $var bcOwner:
-$var bcElem:$(type)_$id
 $var bcOperation:label
-
-<div class="hidden-print">
+$ allObjs = c.findAll(type)
+$var title : ELSA $(allObjs.get_class_acronym())
+$if id:
+    <div class="hidden-print">
 	<script>
 	    $$(function(){
 		$$("#includedMenu$(type)_$(id)").load("/fullentry/$(type)_*$(id)");
 	    });
 	</script>
  	<div id="includedMenu$(type)_$(id)"></div>
-</div>
-
+    </div>
+    $ to_print = [id]
+    $var bcElem:$(type)_$id
+$else:
+    $ to_print = allObjs.get_sorted_hierarchy()
+    $var bcElem:
 <table>
-<tr>
-    <td>
-    $ barcode = c.AllBarcodes.get_barcode(elem.get_type(),elem.getID())
-    $if barcode:
-	<svg id='barcode'></svg>
-	<script>
-	if ( ! generateBarcode( '#barcode', $barcode ) ) {
-	        jQuery('svg#barcode').css('display', 'none')
-	    }
-	</script>
-    </td>
-    <td style="padding:5px">
-	$allObjs.getName(self.lang) <big><strong>$elem.getName(self.lang)</strong></big>
-	$if 'expirationdate' in elem.fields and elem.fields['expirationdate']:
-		<br/>$c.getMessage('expirationdate',self.lang): <strong>elem.fields['expirationdate']</strong>
-	$ group = elem.get_group()
-	$if group:
-		$ allGrs = c.findAll(allObjs.get_group_type())
-		$ above = allGrs.get(group)
-		$if above:
-			<br/>$allGrs.getName(self.lang): <strong>$above.getName(self.lang)</strong>
-	<br/><strong>$elem.getQtyUnit(c,self.lang)</strong>
-	$if elem.fields['remark']:
-	    <br>$c.getMessage('remark',self.lang): $elem.fields['remark']
-    </td>
-</tr>
+	$for key in to_print:
+		<tr>
+		    <td>
+		    $ elem = allObjs.get(key)
+		    $ barcode = c.AllBarcodes.get_barcode(elem.get_type(),elem.getID())
+		    $if barcode:
+			<svg id='barcode'></svg>
+			<script>
+			if ( ! generateBarcode( '#barcode', $barcode ) ) {
+				jQuery('svg#barcode').css('display', 'none')
+			    }
+			</script>
+		    </td>
+		    <td style="padding:5px">
+			$allObjs.getName(self.lang) <big><strong>$elem.getName(self.lang)</strong></big>
+			$if 'expirationdate' in elem.fields and elem.fields['expirationdate']:
+				<br/>$c.getMessage('expirationdate',self.lang): <strong>elem.fields['expirationdate']</strong>
+			$ group = elem.get_group()
+			$if group:
+				$ allGrs = c.findAll(allObjs.get_group_type())
+				$ above = allGrs.get(group)
+				$if above:
+					<br/>$allGrs.getName(self.lang): <strong>$above.getName(self.lang)</strong>
+			<br/><strong>$elem.getQtyUnit(c,self.lang)</strong>
+			$if elem.fields['remark']:
+			    <br>$c.getMessage('remark',self.lang): $elem.fields['remark']
+		    </td>
+		</tr>
 </table>

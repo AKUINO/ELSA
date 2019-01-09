@@ -346,7 +346,10 @@ class WebFullEntry:
         connected = isConnected()
         if connected is None:
             return ''
-        current = id[0] == '*'
+        current = id[0] in '*!'
+        if current:
+            if id[0] == '!':
+                current = "menu"
         if current:
             id = id[1:]
         return render.fullentry(connected, type, id, current)
@@ -1335,7 +1338,7 @@ class WebSearch:
             if barcode:
                 elem = c.AllBarcodes.barcode_to_item(barcode)
                 if elem:
-                    raise web.seeother('/find/related/' + elem.getTypeId())
+                    raise web.seeother('/find/related/' + elem.getTypeId() + '?barcode=' + barcode)
                 else:
                     listElem = c.search_acronym(barcode, [])
                     endAcro = len(listElem)
@@ -1345,7 +1348,7 @@ class WebSearch:
                         listElem = c.search_remark(barcode, listElem)
                     if len(listElem) > 0:
                         if len(listElem) == 1:
-                            raise web.seeother('/find/related/' + listElem[0].getTypeId())
+                            raise web.seeother('/find/related/' + listElem[0].getTypeId() + '?barcode=' + barcode)
                         else:
                             return render.searchlist(connected, barcode, listElem, endAcro, endName)
                     else:
@@ -1361,7 +1364,7 @@ class WebLabel:
     def __init__(self):
         self.name = u"WebLabel"
 
-    def GET(self, type, id):
+    def GET(self, type, id=""):
         connected = redirect_when_not_logged()
         return render.label(connected, type, id)
 
@@ -1749,6 +1752,7 @@ def main():
             '/map/gr', 'WebMapRecipes',
             '/calendar', 'WebCalendar',
             '/label/(.+)_(.+)', 'WebLabel',
+            '/label/(.+)', 'WebLabel',
             '/search', 'WebSearch',
             '/modal/(.+)_(.+)', 'WebModal',
             '/color/(.+)_(.+)', 'WebColor',

@@ -82,19 +82,16 @@ $if content.recursive == 'False' :
 			  }
 
 			  document.addEventListener('keydown', function (event) {
-				if (event.defaultPrevented || !event.ctrlKey) {
-					return;
-				}
-
-				var key = event.key || event.keyCode;
-				//Ctrl-Y
-				if (key === 'y' || key === 'Y') {
+				//"`" and not Ctrl-Y as prefered...
+				if (event.key === '`') {
 					generateQRCode();
 					elem = $$('#modal_barcode');
 					$$(elem).modal("show");
 					elem_in = $$(elem).find('[autofocus]');
 					$$(elem_in).focus();
 					$$(elem_in).val('');
+					event.preventDefault();
+					return false;
 				}
 			  });
 
@@ -167,7 +164,7 @@ $if content.recursive == 'False' :
 			    <a href="#" class="dropdown-toggle" data-toggle="dropdown">$c.getMessage('production',content.lang)<b class="caret"></b></a>
 			    <ul class="dropdown-menu">
 				<li><a href="/list/b" tabindex="-1">$:c.getHalfling('batch')&nbsp;$c.getMessage('batch',content.lang)</a></li>
-				<li $:('' if content.pinned else 'class="disabled"')><a href="$:(('/find/related/'+content.pinned) if content.pinned else '')" tabindex="-2">$:c.getHalfling('pin')&nbsp;$c.getMessage('pin',content.lang)</a></li>
+				<li $:('' if content.pinned else 'class="disabled"')><a href="$:(('/find/related/'+content.pinned+'?barcode=pinned') if content.pinned else '')" tabindex="-2">$:c.getHalfling('pin')&nbsp;$c.getMessage('pin',content.lang)</a></li>
 				<li><a href="/list/gr" tabindex="-3">$:c.getHalfling('grecipe')&nbsp;$c.getMessage('grecipe',content.lang)</a></li>
 				<li><a href="/map/gr" tabindex="-4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('map')&nbsp;$c.getMessage('map',content.lang)</a></li>				
 				<li><a href="/calendar" tabindex="-5">$:c.getHalfling('calendar')&nbsp;$c.getMessage('calendar',content.lang)</a></li>
@@ -203,7 +200,7 @@ $if content.recursive == 'False' :
 			<button onclick="location.href='/calendar'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('calendar')</button>
 			<button onclick="generateQRCode()" type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#modal_barcode" aria-expanded="false" aria-controls="navbar" style="margin:15px;">$:c.getHalfling('search')</button>
 			$if content.pinned:
-			    <button onclick="location.href='/find/related/$(content.pinned)'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('pin')</button>
+			    <button onclick="location.href='/find/related/$(content.pinned)?barcode=pinned'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('pin')</button>
 		</div>
 	    $else:
 	        <nav class="navbar navbar-inverse" role="navigation">

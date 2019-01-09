@@ -371,34 +371,17 @@ $elif permissionKey in '_d_t_v_':
     </div>
 </div>
 
-<script>
-    $$(document).ready(function(){
-	$$('.$(type)_$(id)').on("click",function(e){
-	    $$('#modal_menu_$(type)_$(id)').modal('hide');
-	    $$("#modal_$(type)_$(id)").find(".modal-dialog").load("/modal/$(type)_$(id)");
-	    $$("#modal_$(type)_$(id)").modal('show');
-	});
-	$$('.map$(type)_$(id)').on("click",function(e){
-	    $$('#modal_menu_$(type)_$(id)').modal('hide');
-	    $$("#modal_$(type)_$(id)").find(".modal-dialog").load("/graph/$(type)_$(id)");
-	    $$("#modal_$(type)_$(id)").modal('show');
-	});
-    });
-</script>
-
-
 <div class="modal" id="modal_menu_$(type)_$(id)">
     <div class="modal-dialog">
 	<div class="modal-content">
-            <div class="modal-header row ">
+            <div class="modal-header row " style="color:#E5E5E7;">
 		<div class="col-xs-2" 
 		    $if 'm' in type and type != 'm':
 			style="color : #337ab7"
-		>
-		    <strong>$:(c.getAllHalfling(allElem))</strong>
+		>$:(c.getAllHalfling(allElem," gi-3x"))
 		</div>
 		$if 'acronym' in elem.fields:
-			<h4 class="modal-title col-xs-6 "><a href="/find/related/$(elem.getTypeId())">$elem.fields['acronym'] - $elem.getName(self.lang)</a></h4>
+			<h4 class="modal-title col-xs-6 "><a href="/find/related/$(elem.getTypeId())" style="color:#E5E5E7;">$elem.fields['acronym'] - $elem.getName(self.lang)</a></h4>
 		<div class="col-xs-2" >
 		    <button type="button" class="btn btn-warning btn-md $(type)_$(id)" data-toggle="modal" data-target="#$(type)_$(id)modal">$:(c.getHalfling('info'))</button>
 		</div>
@@ -469,15 +452,6 @@ $elif permissionKey in '_d_t_v_':
 				$(c.getMessage('pin',self.lang))
 			    </div>
 			</div>
-		    $if permissionKey in '_cp_e_m_gu_gr_gf_h_':
-			<div class="row" style="margin-top:6px;">
-			    <div class="col-xs-2 justify-content-start">
-				<strong><a href="/find/related/$(type)_$id" class="btn btn-warning" role="button">$:(c.getHalfling('related'))</a></strong>
-			    </div>
-			    <div class="col-xs-10">
-				$(c.getMessage('related',self.lang))
-			    </div>
-			</div>
 		    $if permissionKey in '_c_p_e_s_m_' :
 			<div class="row" style="margin-top:6px;">
 			    <div class="col-xs-2" >
@@ -490,10 +464,10 @@ $elif permissionKey in '_d_t_v_':
 		    $if permissionKey in '_b_gr_' :
 			<div class="row" style="margin-top:6px;">
 			    <div class="col-xs-2" >
-				<strong><a href="/map/$(type)_$id" class="btn btn-warning" role="button">$:(c.getHalfling('datatable'))</a></strong>
+				<strong><a href="/map/$(type)_$id" class="btn btn-warning" role="button">$:(c.getHalfling('map'))</a></strong>
 			    </div>
 			    <div class="col-xs-10">
-				$(c.getMessage('datatable',self.lang))
+				$(c.getMessage('map',self.lang))
 			    </div>
 			</div>
 			<div class="row" style="margin-top:6px;">
@@ -568,4 +542,24 @@ $elif permissionKey in '_d_t_v_':
             </div>
         </div>
     </div>
+
+<script>
+    $$(document).ready(function(){
+	$$('.$(type)_$(id)').on("click",function(e){
+	    $$('#modal_menu_$(type)_$(id)').modal('hide');
+	    $$("#modal_$(type)_$(id)").find(".modal-dialog").load("/modal/$(type)_$(id)");
+	    $$("#modal_$(type)_$(id)").modal('show');
+	});
+	$$('.map$(type)_$(id)').on("click",function(e){
+	    $$('#modal_menu_$(type)_$(id)').modal('hide');
+	    $$("#modal_$(type)_$(id)").find(".modal-dialog").load("/graph/$(type)_$(id)");
+	    $$("#modal_$(type)_$(id)").modal('show');
+	});
+	if ("$current"=="menu") {
+	    $$("#modal_menu_$(type)_$(id)").modal('show');
+	}
+    });
+</script>
+
 </div>
+

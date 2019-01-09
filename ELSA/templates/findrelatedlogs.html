@@ -24,7 +24,7 @@ $ alarm = c.AllAlarms.get(elem.fields['a_id'])
 $if alarm:
 	<script>
 	    $$(function(){
-	        $$("#includedAllMenua_$(alarm.getID())").load("/fullentry/a_*$(alarm.getID())");
+	        $$("#includedAllMenua_$(alarm.getID())").load("/fullentry/a_$("!" if barcode else "*")$(alarm.getID())");
 	    });
 	</script>
 	<div id="includedAllMenua_$(alarm.getID())"></div>

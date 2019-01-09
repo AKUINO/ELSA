@@ -10,6 +10,11 @@
   left: 0px;
 }
 
+.gi-2x{font-size: 2em !important;}
+.gi-3x{font-size: 3em !important;}
+.gi-4x{font-size: 4em !important;}
+.gi-5x{font-size: 5em !important;}
+
 div.leadot {
    padding:0;
    overflow-x: hidden;
@@ -57,7 +62,7 @@ div.leadot span + span {
 .modal {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
+    z-index: 4; /* Sit on top */
     left: 0;
     top: 0;
     width: 100%; /* Full width */
@@ -429,7 +434,7 @@ ul.nav.nav-tabs {
   top: 50%;
   margin-top: -17px;
   left: 100%;
-  z-index: 3;
+  z-index: 2;
 }
 .btn-breadcrumb .btn:before {
     content: " ";
@@ -444,7 +449,7 @@ ul.nav.nav-tabs {
     margin-top: -17px;
     margin-left: 1px;
     left: 100%;
-    z-index: 3;
+    z-index: 2;
 }
 
 .btn-breadcrumb .btn.btn-default {
