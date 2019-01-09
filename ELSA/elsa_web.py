@@ -564,8 +564,8 @@ class WebCreate(WebEdit):
 class WebPin:
     def GET(self, typeobj, idobj):
         connected = redirect_when_not_logged()
-        currObject = c.getObject(idobj, typeobj)
-        connected.pin = currObject
+        currObject = c.getObject(idobj,typeobj)
+        connected.pinit(typeobj,currObject)
         raise web.seeother('/find/related/' + typeobj + '_' + idobj)
 
 

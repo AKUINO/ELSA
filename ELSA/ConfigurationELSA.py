@@ -2557,15 +2557,39 @@ class ConnectedUser():
         self.initial = self.datetime
         self.completeMenu = False
         self.pin = None
+        self.where = None
+        self.how = None
 
     def update(self):
         self.datetime = time.time()
 
-    def pinned(self):
-        if self.pin:
-            return self.pin.getTypeId()
+    def pinned(self,type='b'):
+        if type == 'b':
+            if self.pin:
+                return self.pin.getTypeId()
+        elif type == 'h':
+            if self.how:
+                return self.how.getTypeId()
         else:
-            return ''
+            if self.where:
+                return self.where.getTypeId()
+        return ''
+
+    def pinit(self,type,obj):
+        if obj:
+            if type == 'b':
+                self.pin = obj
+            elif type == 'h':
+                self.how = obj
+            else:
+                self.where = obj
+        else:
+            if type == 'b':
+                self.pin = None
+            elif type == 'h':
+                self.how = None
+            else:
+                self.where = None
 
     def test(self, c, url):
         infoCookie = self.cuser.fields['mail'] + ',' + self.cuser.fields['password'] + ',' + (
@@ -4177,7 +4201,7 @@ class ExportData():
             count += 1
             self.load_transfers(tmpComponent, begin, end)
         self.transfers.sort(key=lambda x: int(x.getTimestamp()), reverse=False)
-        while self.transfers[0].fields['object_type'] != 'b':
+        while self.transfers and self.transfers[0].fields['object_type'] != 'b':
             self.transfers.pop(0)
         return self.transfers
 

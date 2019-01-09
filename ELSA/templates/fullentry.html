@@ -3,7 +3,7 @@ $var recursive : True
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
-$var pinned : $connected.pinned()
+$var pinned : $connected.pinned(type)
 $code :
     allElem = c.findAll(type)
     elem = allElem.get(id)
@@ -389,6 +389,27 @@ $elif permissionKey in '_d_t_v_':
             </div>
 	<div class="modal-body">
                 <div class="container-fluid">
+		    $if type in '_c_e_p_b_h_':
+			<div class="row" style="margin-top:6px;">
+			    <div class="col-xs-2 justify-content-start">
+		    		$if elem.getTypeId() == self.pinned:
+					<span class="btn btn-success">$:(c.getHalfling('pin'))</span>
+				$else:
+					<strong><a href="/pin/$(type)_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('pin'))</a></strong>
+			    </div>
+			    <div class="col-xs-10">
+				$(c.getMessage('pin',self.lang))
+			    </div>
+			</div>
+		    $if permissionKey in '_c_e_b_' :
+			<div class="row" style="margin-top:6px;">
+			    <div class="col-xs-2 justify-content-start">
+				<strong><a href="/find/t/$(type)_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('transfer'))</a></strong>
+			    </div>
+			    <div class="col-xs-10">
+				<b>$len(elem.transfers)</b> $(c.getMessage('mtransfer',self.lang))
+			    </div>
+			</div>
 		    $if 'm' in type and 'm' != type:
 			<div class="row" style="margin-top:6px;">
 			    <div class="col-xs-2 justify-content-start">
@@ -425,15 +446,6 @@ $elif permissionKey in '_d_t_v_':
 				<b>$len(elem.manualdata)</b> $(c.getMessage('mdata',self.lang))
 			    </div>
 			</div>
-		    $if permissionKey in '_c_e_b_' :
-			<div class="row" style="margin-top:6px;">
-			    <div class="col-xs-2 justify-content-start">
-				<strong><a href="/find/t/$(type)_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('transfer'))</a></strong>
-			    </div>
-			    <div class="col-xs-10">
-				<b>$len(elem.transfers)</b> $(c.getMessage('mtransfer',self.lang))
-			    </div>
-			</div>
 		    $if type == 'h':
 			<div class="row" style="margin-top:6px;">
 			    <div class="col-xs-2 justify-content-start">
@@ -443,13 +455,13 @@ $elif permissionKey in '_d_t_v_':
 				<b>$len(elem.batches)</b> $(c.getMessage('batch',self.lang))
 			    </div>
 			</div>
-		    $if type == 'b':
+		    $if permissionKey in '_c_p_e_s_m_b_' :
 			<div class="row" style="margin-top:6px;">
-			    <div class="col-xs-2 justify-content-start">
-				<strong><a href="/pin/b_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('pin'))</a></strong>
+			    <div class="col-xs-2" >
+				<strong><a href="/find/al/$(type)_$id" class="btn btn-warning" role="button">$:(c.getHalfling('alarmlog'))</a></strong>
 			    </div>
 			    <div class="col-xs-10">
-				$(c.getMessage('pin',self.lang))
+				<strong>$( unicode(elem.count_logs(c)) if type in 'sb' else u"")</strong> $(c.getMessage('alarmlog',self.lang))
 			    </div>
 			</div>
 		    $if permissionKey in '_c_p_e_s_m_' :
@@ -464,36 +476,18 @@ $elif permissionKey in '_d_t_v_':
 		    $if permissionKey in '_b_gr_' :
 			<div class="row" style="margin-top:6px;">
 			    <div class="col-xs-2" >
-				<strong><a href="/map/$(type)_$id" class="btn btn-warning" role="button">$:(c.getHalfling('map'))</a></strong>
-			    </div>
-			    <div class="col-xs-10">
-				$(c.getMessage('map',self.lang))
-			    </div>
-			</div>
-			<div class="row" style="margin-top:6px;">
-			    <div class="col-xs-2" >
 				<button type="button" class="btn btn-warning btn-md map$(type)_$id" data-toggle="modal" data-target="#mapmodal">$:(c.getHalfling('schema'))</button>
 			    </div>
 			    <div class="col-xs-10">
 				$(c.getMessage('schema',self.lang))
 			    </div>
 			</div>
-		    $if permissionKey in '_c_p_e_s_m_b_' :
 			<div class="row" style="margin-top:6px;">
 			    <div class="col-xs-2" >
-				<strong><a href="/find/al/$(type)_$id" class="btn btn-warning" role="button">$:(c.getHalfling('alarmlog'))</a></strong>
+				<strong><a href="/map/$(type)_$id" class="btn btn-warning" role="button">$:(c.getHalfling('map'))</a></strong>
 			    </div>
 			    <div class="col-xs-10">
-				<strong>$( unicode(elem.count_logs(c)) if type in 'sb' else u"")</strong> $(c.getMessage('alarmlog',self.lang))
-			    </div>
-			</div>
-		    $if permissionKey in '_c_p_e_b_' :
-			<div class="row" style="margin-top:6px;">
-			    <div class="col-xs-2" >
-				<strong><a href="/export/$(type)_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('export'))</a></strong>
-			    </div>
-			    <div class="col-xs-10">
-				$(c.getMessage('export',self.lang))
+				$(c.getMessage('map',self.lang))
 			    </div>
 			</div>
 		    $if c.AllBarcodes.get_barcode(elem.get_type(), elem.id) != '' :
@@ -503,6 +497,15 @@ $elif permissionKey in '_d_t_v_':
 			    </div>
 			    <div class="col-xs-10">
 				$(c.getMessage('barcode',self.lang))
+			    </div>
+			</div>
+		    $if permissionKey in '_c_p_e_b_' :
+			<div class="row" style="margin-top:6px;">
+			    <div class="col-xs-2" >
+				<strong><a href="/export/$(type)_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('export'))</a></strong>
+			    </div>
+			    <div class="col-xs-10">
+				$(c.getMessage('export',self.lang))
 			    </div>
 			</div>
 		    $if ( " upd_"+type+" " ) in self.allowed:

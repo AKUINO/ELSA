@@ -216,38 +216,6 @@ form{
     display: inline-block;
 }
 
-.btn-success,
-.btn-success:hover,
-.btn-success:focus,
-.btn-success:active,
-.btn-success.active,
-.open > .dropdown-toggle.btn-success,
-.btn-success:active,
-.btn-success.active,
-.open > .dropdown-toggle.btn-success,
-.btn-success.disabled,
-.btn-success[disabled],
-fieldset[disabled] .btn-success,
-.btn-success.disabled:hover,
-.btn-success[disabled]:hover,
-fieldset[disabled] .btn-success:hover,
-.btn-success.disabled:focus,
-.btn-success[disabled]:focus,
-fieldset[disabled] .btn-success:focus,
-.btn-success.disabled:active,
-.btn-success[disabled]:active,
-fieldset[disabled] .btn-success:active,
-.btn-success.disabled.active,
-.btn-success[disabled].active,
-fieldset[disabled] .btn-success.active {
-    background-image:none;
-    background-color:#F07E26;
-    color:white;
-    text-shadow:none;
-    box-shadow:none;
-    border-color:transparent;
-}
-
 h3, .h3 {
     font-size:16px;
     font-weight:bold;
