@@ -15,7 +15,7 @@ $if errormess :
     </div>
 
 <form action="/search" onsubmit="myFunction()" method="GET" class="col-form">
-	<h4 class="form-group col-sm-12">$c.getMessage('search',self.lang)</h4>
+	<h4 class="form-group col-sm-12">$c.getMessage('search',self.lang) !</h4>
 	<div class="form-group row">
 	    <label for="inputBarcode" class="col-xs-12 col-form-label">$c.getMessage('barcode',self.lang), $c.getMessage('acronym',self.lang), $c.getMessage('name',self.lang) :</label>
 	    <div class="col-xs-12">
@@ -27,5 +27,26 @@ $if errormess :
         <label for="remark" class="col-xs-12 col-form-label">
 	    <input type="checkbox" name="remark" id="remark"/> $c.getMessage('search',self.lang) $c.getMessage('remark',self.lang)
 	</label>
+	</div>
+$if self.pinned:
+	<div class="form-group row">
+		$if connected.pin:
+		    <div class="col-xs-4 mx-auto">
+		    <a href="/find/related/$(connected.pin.getTypeId())" class="btn $("btn-danger" if connected.pin.isExpired() else "btn-warning")">
+			$:connected.pin.statusIcon(c,True,True,connected)
+			    </a> <a href="/find/related/$(connected.pin.getTypeId())">$:connected.pin.fields['acronym']</a>
+		    </div>
+		$if connected.where:
+		    <div class="col-xs-4 mx-auto">
+		    <a href="/find/related/$(connected.where.getTypeId())" class="btn $("btn-danger" if connected.where.isExpired() else "btn-warning")">
+			$:connected.where.statusIcon(c,True,True,connected)
+		    </a> <a href="/find/related/$(connected.where.getTypeId())">$:connected.where.fields['acronym']</a>
+		    </div>
+		$if connected.how:
+		    <div class="col-xs-4 mx-auto">
+		    <a href="/find/related/$(connected.how.getTypeId())" class="btn $("btn-danger" if connected.how.isExpired() else "btn-warning")">
+			$:connected.how.statusIcon(c,True,True,connected)
+		    </a> <a href="/find/related/$(connected.how.getTypeId())">$:connected.how.fields['acronym']</a>
+		    </div>
 	</div>
 </form>

@@ -1,0 +1,24 @@
+$def with (connected)
+$var allowed : $connected.cuser.allowed(c)
+$var lang : $connected.cuser.fields['language']
+$var completeMenu : $connected.completeMenu
+$var pinned : $connected.pinned()
+$var recursive : True
+$if connected.pin:
+    <div class="col-xs-4 mx-auto">
+    <a href="/find/related/$(connected.pin.getTypeId())" class="btn $("btn-danger" if connected.pin.isExpired() else "btn-warning")">
+        $:connected.pin.statusIcon(c,True,True,connected)
+            </a> <a href="/find/related/$(connected.pin.getTypeId())">$:connected.pin.fields['acronym']</a>
+    </div>
+$if connected.where:
+    <div class="col-xs-4 mx-auto">
+    <a href="/find/related/$(connected.where.getTypeId())" class="btn $("btn-danger" if connected.where.isExpired() else "btn-warning")">
+        $:connected.where.statusIcon(c,True,True,connected)
+    </a> <a href="/find/related/$(connected.where.getTypeId())">$:connected.where.fields['acronym']</a>
+    </div>
+$if connected.how:
+    <div class="col-xs-4 mx-auto">
+    <a href="/find/related/$(connected.how.getTypeId())" class="btn $("btn-danger" if connected.how.isExpired() else "btn-warning")">
+        $:connected.how.statusIcon(c,True,True,connected)
+    </a> <a href="/find/related/$(connected.how.getTypeId())">$:connected.how.fields['acronym']</a>
+    </div>

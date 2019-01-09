@@ -56,7 +56,7 @@ $for krecipe in listRecipe:
 				$ batch = c.AllBatches.get(k)
 				$if batch and not batch.isComplete():
 					<div class="map down">
-					<a href="/find/related/b_$batch.getID()">$:(batch.statusIcon(c,True,False))</a>
+					<a href="/find/related/b_$batch.getID()">$:(batch.statusIcon(c,True,False,connected))</a>
 					$ acro = batch.fields['acronym']
 					$if ('b_'+batch.getID()) in done:
 						<a href="#b_$acro">$acro</a>
@@ -71,7 +71,7 @@ $for krecipe in listRecipe:
 								pos = transfer.get_component(c)
 						$if pos is not None :
 							$:c.getHalfling('to')
-							<a href="/find/related/$(pos.get_type())_$pos.getID()">$:(pos.statusIcon(c,True,False)) $pos.fields['acronym']</a>,
+							<a href="/find/related/$(pos.get_type())_$pos.getID()">$:(pos.statusIcon(c,True,False,connected)) $pos.fields['acronym']</a>,
 							$transfer.fields['time'] $:c.linkedAcronym(c.AllUsers,transfer.fields['user'],False)
 						$if alarms > 0:
 							<a href="/find/al/b_$batch.getID()">

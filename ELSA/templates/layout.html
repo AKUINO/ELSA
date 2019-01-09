@@ -79,6 +79,7 @@ $if content.recursive == 'False' :
 							text:window.location.href
 						})
 					}
+					$$("#pinnedRecords").load("/pinlist");
 			  }
 
 			  document.addEventListener('keydown', function (event) {
@@ -164,11 +165,13 @@ $if content.recursive == 'False' :
 			    <a href="#" class="dropdown-toggle" data-toggle="dropdown">$c.getMessage('production',content.lang)<b class="caret"></b></a>
 			    <ul class="dropdown-menu">
 				<li><a href="/list/b" tabindex="-1">$:c.getHalfling('batch')&nbsp;$c.getMessage('batch',content.lang)</a></li>
-				<li $:('' if content.pinned else 'class="disabled"')><a href="$:(('/find/related/'+content.pinned+'?barcode=pinned') if content.pinned else '')" tabindex="-2">$:c.getHalfling('pin')&nbsp;$c.getMessage('pin',content.lang)</a></li>
 				<li><a href="/list/gr" tabindex="-3">$:c.getHalfling('grecipe')&nbsp;$c.getMessage('grecipe',content.lang)</a></li>
 				<li><a href="/map/gr" tabindex="-4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('map')&nbsp;$c.getMessage('map',content.lang)</a></li>				
 				<li><a href="/calendar" tabindex="-5">$:c.getHalfling('calendar')&nbsp;$c.getMessage('calendar',content.lang)</a></li>
-				<li><a href="#" tabindex="-6" onclick="generateQRCode()" data-toggle="modal" data-target="#modal_barcode" aria-expanded="false" aria-controls="navbar">$:c.getHalfling('search')&nbsp;$c.getMessage('search',content.lang)</a></li>
+				<li><a href="#" tabindex="-6" onclick="generateQRCode()" data-toggle="modal" data-target="#modal_barcode" aria-expanded="false" aria-controls="navbar">$:c.getHalfling('search')
+					$if content.pinned:
+						$:c.getHalfling('pin')
+					&nbsp;$c.getMessage('search',content.lang)</a></li>
 				<li><a href="#" tabindex="-7">&nbsp;</a></li>				
 				<li$:('' if " upd_d "in content.allowed else ' class="disabled"')><a href="$("/create/d" if " upd_d "in content.allowed else "#")" tabindex="-8">$:c.getHalfling('manualdata')&nbsp;$c.getMessage('manualdata',content.lang)</a></li>
 				<li$:('' if " upd_t "in content.allowed else ' class="disabled"')><a href="$("/create/t" if " upd_t "in content.allowed else "#")" tabindex="-9">$:c.getHalfling('transfer')&nbsp;$c.getMessage('transfer',content.lang)</a></li>
@@ -198,9 +201,10 @@ $if content.recursive == 'False' :
 			<button onclick="location.href='/list/al'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('alarmlog')</button>
 			<button onclick="location.href='/map/gf'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('gfunction')</button>
 			<button onclick="location.href='/calendar'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('calendar')</button>
-			<button onclick="generateQRCode()" type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#modal_barcode" aria-expanded="false" aria-controls="navbar" style="margin:15px;">$:c.getHalfling('search')</button>
+			<button onclick="generateQRCode()" type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#modal_barcode" aria-expanded="false" aria-controls="navbar" style="margin:15px;">$:c.getHalfling('search')
 			$if content.pinned:
-			    <button onclick="location.href='/find/related/$(content.pinned)?barcode=pinned'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('pin')</button>
+			    $:c.getHalfling('pin')
+			</button>
 		</div>
 	    $else:
 	        <nav class="navbar navbar-inverse" role="navigation">
@@ -248,6 +252,8 @@ $if content.recursive == 'False' :
     		        <label for="remark" class="col-xs-12 col-form-label">
 			    <input type="checkbox" name="remark" id="remark"/> $c.getMessage('search',content.lang) $c.getMessage('remark',content.lang)
 			</label>
+			$if content.pinned:
+				<div class="form-group row" id="pinnedRecords"></div>
 		    </form>
                     <div id="qrCodeCurrUrl"></div>
 		</div>

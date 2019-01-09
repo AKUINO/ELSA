@@ -18,7 +18,7 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 	$ place = c.AllPlaces.get(kplace)
 	$if place and place.isActive() :
 			<div class="map top"><div class="map down" style="border-color:$(place.fields['colorgraph'])">
-			<a href="/find/related/p_$kplace">$:(place.statusIcon(c,True,False))</a>
+			<a href="/find/related/p_$kplace">$:(place.statusIcon(c,True,False,connected))</a>
 			$ acro = place.fields['acronym']
 			$if ('p_'+kplace) in done:
 				<a href="#p_$acro">$acro</a>
@@ -73,7 +73,7 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 					$ equipment = c.AllEquipments.get(kequipment)
 					$if equipment and equipment.isActive() and equipment.get_actual_position_here(c) == place :
 						<div class="map down" style="border-color:$(equipment.fields['colorgraph'])">
-						<a href="/find/related/e_$kequipment">$:(equipment.statusIcon(c,True,False))</a>
+						<a href="/find/related/e_$kequipment">$:(equipment.statusIcon(c,True,False,connected))</a>
 						$ acro = equipment.fields['acronym']
 						$if ('e_'+kequipment) in done:
 							<a href="#e_$acro">$acro</a>
@@ -128,7 +128,7 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 								$ container = c.AllContainers.get(kcontainer)
 								$if container and container.isActive() and container.get_actual_position_here(c) == equipment :
 										<div class="map down" style="border-color:$(container.fields['colorgraph'])">
-										<a href="/find/related/c_$kcontainer">$:(container.statusIcon(c,True,False))</a>
+										<a href="/find/related/c_$kcontainer">$:(container.statusIcon(c,True,False,connected))</a>
 										$ acro = container.fields['acronym']
 										$if ('c_'+kcontainer) in done:
 											<a href="#c_$acro">$acro</a>
@@ -185,7 +185,7 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 							$ container = c.AllContainers.get(kcontainer)
 							$if container and container.isActive() and container.get_actual_position_here(c) == place :
 									<div class="map down" style="border-color:$(container.fields['colorgraph'])">
-									<a href="/find/related/c_$kcontainer">$:(container.statusIcon(c,True,False))</a>
+									<a href="/find/related/c_$kcontainer">$:(container.statusIcon(c,True,False,connected))</a>
 									$ acro = container.fields['acronym']
 									$if ('c_'+kcontainer) in done:
 										<a href="#c_$acro">$acro</a>
@@ -293,7 +293,7 @@ $for kcontainer in c.AllContainers.get_sorted_hierarchy():
 	$ container = c.AllContainers.get(kcontainer)
 	$if container and container.isActive() and not ('c_'+kcontainer) in done:
 			<div class="map down" style="border-color:$(container.fields['colorgraph'])">
-			<a href="/find/related/c_$kcontainer">$:(container.statusIcon(c,True,False))</a>
+			<a href="/find/related/c_$kcontainer">$:(container.statusIcon(c,True,False,connected))</a>
 			$ acro = container.fields['acronym']
 			<a name="c_$acro"></a>$acro - <strong>$(container.getName(self.lang))</strong>
 			$ files = container.getDocumentList()

@@ -143,6 +143,9 @@ $if keyType in '_a_m_h_':
                 <div id="includedVM_$(k)"></div>
     </div>
 
+    <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+	<label class="col-sm-12">$c.getMessage('transfermodel',self.lang) :</label>
+
     $for k in c.AllTransferModels.get_sorted_hierarchy():
 	$ transferModel = c.AllTransferModels.get(k)
 	$if transferModel:
@@ -190,7 +193,7 @@ $if type == 'u':
     </div>
 
 $if keyType in '_p_e_c_':
-	<div class="row active"style = "background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+	<div class="row active" style = "background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	    <label class="col-sm-12">$c.getMessage('batch',self.lang) :</label>
 	    $for k in c.AllBatches.get_sorted_hierarchy():
 		$ batch = c.AllBatches.get(k)

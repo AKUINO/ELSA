@@ -1033,6 +1033,9 @@ class ConfigurationObject(object):
     def isComplete(self):
         return False
 
+    def isPinned(self,connected):
+        return False
+
     def isAlarmed(self, c):
         if 'al_id' in self.fields:
             if self.fields['al_id']:
@@ -1054,7 +1057,7 @@ class ConfigurationObject(object):
                     return True
         return False
 
-    def statusIcon(self, configuration, pic=None, inButton=False):
+    def statusIcon(self, configuration, pic=None, inButton=False, connected = None):
         allObjects = configuration.findAllFromObject(self)
         supp_classes = ""
         if not inButton:
@@ -1070,6 +1073,9 @@ class ConfigurationObject(object):
         # result = '<span class="icon-combine">'+result+'<span class="halflings halflings-time text-danger"></span></span>'
         if pic:
             result += self.getImage(36)
+        if connected:
+            if self.isPinned(connected):
+                result += configuration.getHalfling("pin","")
         return result
 
     def getTypeAlarm(self, value, model=None):
@@ -2563,8 +2569,15 @@ class ConnectedUser():
     def update(self):
         self.datetime = time.time()
 
-    def pinned(self,type='b'):
-        if type == 'b':
+    def pinned(self,type=''):
+        if not type:
+            if self.pin:
+                return self.pin.getTypeId()
+            if self.how:
+                return self.how.getTypeId()
+            if self.where:
+                return self.where.getTypeId()
+        elif type == 'b':
             if self.pin:
                 return self.pin.getTypeId()
         elif type == 'h':
@@ -2925,6 +2938,9 @@ class Equipment(ConfigurationObject):
     def get_group(self):
         return self.fields['gu_id']
 
+    def isPinned(self,connected):
+        return self == connected.where
+
 
 class Container(ConfigurationObject):
 
@@ -2980,6 +2996,9 @@ class Container(ConfigurationObject):
 
     def get_group(self):
         return self.fields['gu_id']
+
+    def isPinned(self,connected):
+        return self == connected.where
 
 
 class AlarmingObject(ConfigurationObject):
@@ -3579,6 +3598,9 @@ class CheckPoint(Group):
     def get_type(self):
         return 'h'
 
+    def isPinned(self,connected):
+        return self == connected.how
+
     def get_class_acronym(self):
         return 'checkpoint'
 
@@ -4022,6 +4044,9 @@ class Place(ConfigurationObject):
 
     def get_group(self):
         return self.fields['gu_id']
+
+    def isPinned(self,connected):
+        return self == connected.where
 
 
 class AlarmLog(ConfigurationObject):
@@ -5969,6 +5994,9 @@ class Batch(ConfigurationObject):
 
     def get_group(self):
         return self.fields['gr_id']
+
+    def isPinned(self,connected):
+        return self == connected.pin
 
     def get_allowed_checkpoints(self, c):
         recipes = set()

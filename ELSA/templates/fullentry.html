@@ -393,7 +393,7 @@ $elif permissionKey in '_d_t_v_':
 			<div class="row" style="margin-top:6px;">
 			    <div class="col-xs-2 justify-content-start">
 		    		$if elem.getTypeId() == self.pinned:
-					<span class="btn btn-success">$:(c.getHalfling('pin'))</span>
+					<strong><a href="/unpin/$(type)" class="btn btn-success" role="button">$:(c.getHalfling('pin'))</a></strong>
 				$else:
 					<strong><a href="/pin/$(type)_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('pin'))</a></strong>
 			    </div>

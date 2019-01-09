@@ -569,6 +569,23 @@ class WebPin:
         raise web.seeother('/find/related/' + typeobj + '_' + idobj)
 
 
+class WebUnPin:
+    def GET(self, typeobj):
+        connected = redirect_when_not_logged()
+        currPin = connected.pinned(typeobj)
+        if currPin:
+            connected.pinit(typeobj,None)
+            raise web.seeother('/find/related/' + currPin)
+        else:
+            raise web.seeother('/')
+
+
+class WebPinList:
+    def GET(self):
+        connected = redirect_when_not_logged()
+        return render.pinlist(connected)
+
+
 class WebControl:
     def GET(self, idbatch, idcontrol):
         connected = redirect_when_not_logged()
@@ -1489,6 +1506,7 @@ class WebTest:
                     '/map/pec',
                     '/map/h',
                     '/map/gr',
+                    '/unpin/h',
                     '/graphhelp/b_1',
                     '/calendar',
                     '/search']
@@ -1506,6 +1524,7 @@ class WebTest:
                                  '/export/' + ti,
                                  '/datatable/' + ti,
                                  '/pin/' + ti,
+                                 '/unpin/b',
                                  '/map/' + ti,
                                  '/create/v/' + ti + "_in",
                                  '/create/v/' + ti + "_out",
@@ -1551,6 +1570,7 @@ class WebTest:
                                  '/create/u/' + ti])
             elif aTest.get_type() == 'h':
                 testUrls.extend(['/select/group/' + ti,
+                                 '/pin/' + ti,
                                  '/create/vm/' + ti,
                                  '/create/tm/' + ti,
                                  '/create/dm/' + ti,
@@ -1564,6 +1584,7 @@ class WebTest:
                 else:
                     if aTest.get_type() in ["c", "e"]:
                         testUrls.append('/find/t/' + ti)
+                        testUrls.append('/pin/' + ti)
                     testUrls.extend(['/find/d/' + ti,
                                      '/color/' + ti])
             testUrls.extend(['/edit/' + ti,
@@ -1573,7 +1594,8 @@ class WebTest:
                              '/files/' + ti,
                              '/modal/' + ti,
                              '/fullentry/' + ti])
-
+        testUrls.append('/pinlist')
+        testUrls.append('/unpin/p')
         return render.test(connected, testUrls)
 
 
@@ -1764,6 +1786,8 @@ def main():
             '/find/(.+)/(.+)_(.+)/(.+)', 'WebFindModel',
             '/find/(.+)/(.+)_(.+)', 'WebFind',
             '/pin/(.+)_(.+)', 'WebPin',
+            '/unpin/(.+)', 'WebUnPin',
+            '/pinlist', 'WebPinList',
             '/selectmul/(.+)_(.+)/(.*)', 'WebSelectMul',
             '/select/(.+)/(.+)', 'WebSelect',
             '/control/b_(.+)/h_(.+)', 'WebControl',

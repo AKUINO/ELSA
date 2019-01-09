@@ -49,7 +49,7 @@ $for operation in events:
 		$ prev = operation.fields['h_id']
 		$ checkpoint = c.AllCheckPoints.get(prev)
 		$if checkpoint:
-		        <td><a href="/find/related/h_$checkpoint.getID()">$:(checkpoint.statusIcon(c,True,False))</a></td>
+		        <td><a href="/find/related/h_$checkpoint.getID()">$:(checkpoint.statusIcon(c,True,False,connected))</a></td>
 			<th>
 			$ acro = checkpoint.fields['acronym']
 			$if prev in done:
@@ -173,7 +173,7 @@ $for operation in events:
 		$if op_type == 't':
 		    $ dest = operation.get_component(c)
 		    $:c.getHalfling('to')
-		    <a href="/find/related/$dest.get_type()_$dest.getID()">$:(dest.statusIcon(c,True,False))$(dest.fields['acronym'])</a> $dest.getName(self.lang)
+		    <a href="/find/related/$dest.get_type()_$dest.getID()">$:(dest.statusIcon(c,True,False,connected))$(dest.fields['acronym'])</a> $dest.getName(self.lang)
 		    $ place = dest
 		$elif op_type == 'v':
 			$ kbatch = ''
@@ -185,7 +185,7 @@ $for operation in events:
 				$ kbatch = operation.fields['dest']
 			$ batch = c.AllBatches.get(kbatch)
 			$if batch:
-				<a href="/find/related/b_$kbatch">$:(batch.statusIcon(c,True,False))$(batch.fields['acronym'])</a> $batch.getName(self.lang)
+				<a href="/find/related/b_$kbatch">$:(batch.statusIcon(c,True,False,connected))$(batch.fields['acronym'])</a> $batch.getName(self.lang)
 		$elif op_type == 'd':
 			$code:
 			    Acolor = None
