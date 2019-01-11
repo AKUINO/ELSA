@@ -34,6 +34,8 @@ $if errormess != '':
 			    $elif id != 'new':
 				$if  k == transfer_model.fields['h_id'] :
 				    selected
+			    $elif cp.getTypeId()==connected.how:
+				    selected
 			>$cp.fields['acronym'] - $cp.getName(self.lang) </option>
 		</select>
 	    </div>

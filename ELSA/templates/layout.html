@@ -85,7 +85,6 @@ $if content.recursive == 'False' :
 			  document.addEventListener('keydown', function (event) {
 				//"`" and not Ctrl-Y as prefered...
 				if (event.key === '`') {
-					generateQRCode();
 					elem = $$('#modal_barcode');
 					$$(elem).modal("show");
 					elem_in = $$(elem).find('[autofocus]');

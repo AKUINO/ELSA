@@ -30,17 +30,17 @@ $else:
 		    $ elem = allObjs.get(key)
 		    $ barcode = c.AllBarcodes.get_barcode(elem.get_type(),elem.getID())
 		    $if barcode:
-			<svg id='barcode'></svg>
+			<svg id='barcode_$key'></svg>
 			<script>
-			if ( ! generateBarcode( '#barcode', $barcode ) ) {
-				jQuery('svg#barcode').css('display', 'none')
+			if ( ! generateBarcode( '#barcode_$key', $barcode ) ) {
+				jQuery('svg#barcode_$key').css('display', 'none')
 			    }
 			</script>
 		    </td>
 		    <td style="padding:5px">
 			$allObjs.getName(self.lang) <big><strong>$elem.getName(self.lang)</strong></big>
 			$if 'expirationdate' in elem.fields and elem.fields['expirationdate']:
-				<br/>$c.getMessage('expirationdate',self.lang): <strong>elem.fields['expirationdate']</strong>
+				<br/>$c.getMessage('expirationdate',self.lang): <strong>$(elem.fields['expirationdate'])</strong>
 			$ group = elem.get_group()
 			$if group:
 				$ allGrs = c.findAll(allObjs.get_group_type())

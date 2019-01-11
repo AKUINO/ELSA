@@ -1346,12 +1346,14 @@ class WebSearch:
             remark = ''
             data = web.input()
             if 'search' in data:
-                barcode = data['search']
+                barcode = data['search'].strip()
+                # Remove the scanner prefix if it falled through (scan in a readily opened search box)
+                if barcode and barcode[0]=='`':
+                    barcode = barcode[1:]
             if 'remark' in data:
                 remark = data['remark']
                 if remark and remark.lower() in ['0', 'off', 'no', '-']:
                     remark = 'YES'
-            barcode = barcode.strip()
             if barcode:
                 elem = c.AllBarcodes.barcode_to_item(barcode)
                 if elem:

@@ -65,12 +65,12 @@ $if context != '' :
 			$for k  in c.AllEquipments.get_sorted_hierarchy():
 			  $ e = c.AllEquipments.get(k)
 			  $if e and e.isActive(): 
-			    <option value="e_$k">$e.fields['acronym'] - $e.getName(self.lang) </option>
+			    <option value="e_$k"$:(" selected" if e.getTypeId()==connected.where else '')>$e.fields['acronym'] - $e.getName(self.lang) </option>
 			<optgroup label="$c.getMessage('container',self.lang)">
 			$for k in c.AllContainers.get_sorted_hierarchy():
 			  $ e = c.AllContainers.get(k)
 			  $if e and e.isActive(): 
-			    <option value="c_$k">$e.fields['acronym'] - $e.getName(self.lang) </option>
+			    <option value="c_$k"$:(" selected" if e.getTypeId()==connected.where else '')>$e.fields['acronym'] - $e.getName(self.lang) </option>
 		    $else:
 			<option value="$(elem.get_type())_$(elem.getID())" selected>$elem.fields['acronym'] - $elem.getName(self.lang) </option>
 		</select>

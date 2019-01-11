@@ -799,17 +799,20 @@ class ConfigurationObject(object):
         # linkedDocs is treated by caller because "web" object is needed...
 
         if 'code' in data:
-            lenCode = len(data['code'])
-            if lenCode < 14 and lenCode > 11:
-                some_code = int(data['code'])
-                c.AllBarcodes.add_barcode(self, some_code, user)
-            elif lenCode == 0:
-                # Defaut barcode: 99hhT1234567x
-                some_code = 990000000000 + (self.get_hash_type() * 10000000) + int(self.id)
-                ean = c.AllBarcodes.EAN(unicode(some_code))
-                c.AllBarcodes.add_barcode(self, ean.get_fullcode(), user)
+            self.ensure_barcode(c,user,data['code'])
 
         self.fields['remark'] = data['remark']
+
+    def ensure_barcode(self,c,user,code):
+        lenCode = len(code)
+        if lenCode < 14 and lenCode > 11:
+            some_code = int(code)
+            c.AllBarcodes.add_barcode(self, some_code, user)
+        elif lenCode == 0:
+            # Defaut barcode: 99hhT1234567x
+            some_code = 990000000000 + (self.get_hash_type() * 10000000) + int(self.id)
+            ean = c.AllBarcodes.EAN(unicode(some_code))
+            c.AllBarcodes.add_barcode(self, ean.get_fullcode(), user)
 
     def get_events(self, c):
         events = []
@@ -5855,6 +5858,7 @@ class Batch(ConfigurationObject):
         b.creator = user.fields['u_id']
         b.created = b.fields['begin']
         b.save(self.config, user)
+        b.ensure_barcode(self.config, user, "")
         return True
 
     def subbatch(self, user, name, checkpoint, component):
@@ -5878,6 +5882,7 @@ class Batch(ConfigurationObject):
         b.creator = user.fields['u_id']
         b.created = b.fields['begin']
         b.save(self.config, user)
+        b.ensure_barcode(self.config,user,"")
         if component:
             # CREATE TRANSFER OF B TO GU !!
             tr = self.config.getObject('new', 't')

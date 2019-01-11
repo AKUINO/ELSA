@@ -305,7 +305,7 @@ $if type == 'b':
 		    $if allowedcheckpoints and add_allowed:
 			<select name="checkpoint" class="form-control" id="inputPosition">
 			$for v in allowedcheckpoints:
-			    <option value="$v.getID()">
+			    <option value="$v.getID()"$:(" selected" if v.getTypeId()==connected.how else '')>
 			    $if v.getID() in elem.checkpoints :
 				*
 			    $v.fields['acronym'] - $v.getName(self.lang) </option>
