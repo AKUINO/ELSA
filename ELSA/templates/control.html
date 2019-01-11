@@ -36,7 +36,7 @@ $var bcOperation:control
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputObject" class="col-sm-3 col-form-label">$:c.getAllHalfling(c.AllBatches) $c.getName(c.AllBatches,self.lang) </label>
+	    <label for="inputPosition" class="col-sm-3 col-form-label">$:c.getAllHalfling(c.AllBatches) $c.getName(c.AllBatches,self.lang) </label>
 	    <div class="col-sm-9">
 		<select name="batch" class="form-control" id="inputPosition">
 			<option value="b_$(id1)" selected>$batch.fields['acronym'] - $batch.getName(self.lang) </option>
@@ -67,17 +67,17 @@ $var bcOperation:control
 		   usages = None
 		   kusage = e.fields['gu_id']
 		<div class="form-group row">
-		    <label for="transferPosition" class="col-sm-3 col-form-label">$c.getMessage('target',self.lang)</label>
+		    <label for="transferPosition_$(counttm)" class="col-sm-3 col-form-label">$c.getMessage('target',self.lang)</label>
 		    <div class="col-sm-9">
-			<select name = "tm_position_$(counttm)" class="form-control" id="transferPosition">
+			<select name = "tm_position_$(counttm)" class="form-control" id="transferPosition_$(counttm)">
 			$:c.AllGrUsage.component_options(kusage,here_type,here_id,self.lang)
 			</select>
 		    </div>
 		</div>
 		<div class="form-group row">
-		    <label for="transferRemark" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
+		    <label for="transferRemark_$(counttm)" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 		    <div class="col-sm-9">
-			<textarea name="tm_remark_$(counttm)" type="text" class="form-control" id="transferRemark" placeholder="$c.getMessage('remark',self.lang)" ></textarea>
+			<textarea name="tm_remark_$(counttm)" type="text" class="form-control" id="transferRemark_$(counttm)" placeholder="$c.getMessage('remark',self.lang)" ></textarea>
 		    </div>
 		</div>
 		<hr/>
@@ -92,7 +92,7 @@ $var bcOperation:control
 		</div>
 		
 		<div class="form-group row">
-		    <label for="inputValue" class="hidden-xs col-sm-3 col-form-label">$aMeasure.getName(self.lang)</label>
+		    <label for="inputValue_$(countdm)" class="hidden-xs col-sm-3 col-form-label">$aMeasure.getName(self.lang)</label>
 		    $if 0 < aMeasure.integers_count() <= 6:
 		      <div class="col-sm-9">
 			$ typical = None
@@ -107,16 +107,16 @@ $var bcOperation:control
 		      </div>
 		    $else:
 		      <div class="col-xs-6 col-sm-7">
-		        <input name="dm_value_$(countdm)" type="number" min="$(aMeasure.fields['min'])" max="$(aMeasure.fields['max'])" step="$(aMeasure.get_html_step())" class="form-control" size="15" id="inputValue" placeholder="$c.getMessage('value',self.lang)" value="$e.fields['typical']">
+		        <input name="dm_value_$(countdm)" type="number" min="$(aMeasure.fields['min'])" max="$(aMeasure.fields['max'])" step="$(aMeasure.get_html_step())" class="form-control" size="15" id="inputValue_$(countdm)" placeholder="$c.getMessage('value',self.lang)" value="$e.fields['typical']">
                       </div>
 		      <div class="col-xs-3 col-sm-2">
                         <strong>$(aMeasure.fields['unit'])</strong>
 		      </div>
 		</div>
 		<div class="form-group row">
-		    <label for="dataRemark" class="hidden-xs col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
+		    <label for="dataRemark_$(countdm)" class="hidden-xs col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 		    <div class="col-xs-12 col-sm-9">
-			<textarea name="dm_remark_$(countdm)" type="text" class="form-control" id="dataRemark" placeholder="$c.getMessage('remark',self.lang)" ></textarea>
+			<textarea name="dm_remark_$(countdm)" type="text" class="form-control" id="dataRemark_$(countdm)" placeholder="$c.getMessage('remark',self.lang)" ></textarea>
 		    </div>
 		</div>
 		<hr/>
@@ -136,8 +136,8 @@ $var bcOperation:control
 			    $ aMeasure = aRecipe.get_measure(c)
 			<label for="sv_$(countvm)" class="col-sm-3 col-form-label">$c.getMessage('batch',self.lang) $c.getMessage('source',self.lang)</label>
 			$if aRecipe:
-				<div class="col-sm-9" id = "sv_$(countvm)">
-				    <select name="vm_src_$(countvm)" class="form-control" id="sb_id_$(countvm)">
+				<div class="col-sm-9">
+				    <select name="vm_src_$(countvm)" class="form-control" id="sv_$(countvm)">
 					$for k in c.AllBatches.get_batches_for_recipe_usage([aRecipe.getID()]+aRecipe.get_submap_str(), ([aUsage.getID()]+aUsage.get_submap_str()) if aUsage else []):
 					    $if not k.isComplete() and not (k.getID() == batch.getID()):
 						<option value="$k.getID()"$:(" selected" if k.getTypeId()==self.pinned else '')>$k.fields['acronym'] - $k.getName(self.lang) [= $unicode(k.get_residual_quantity())] </option>
@@ -179,12 +179,12 @@ $var bcOperation:control
 			</div>
 		    </div>		
 		<div class="form-group row">
-		    <label for="pourValue" class="col-xs-12 col-sm-3 col-form-label">$c.getMessage('quantity',self.lang)</label>
+		    <label for="pourValue_$(countvm)" class="col-xs-12 col-sm-3 col-form-label">$c.getMessage('quantity',self.lang)</label>
 		    <div class="col-xs-8 col-sm-7">
 			<input name="vm_quantity_$(countvm)" type="number" 
                         $if aMeasure:
                             min="$(aMeasure.fields['min'])" max="$(aMeasure.fields['max'])" step="$(aMeasure.get_html_step())"
-                        class="form-control" id="pourValue" placeholder="$c.getMessage('value',self.lang)" value="$unicode(e.get_quantity())"required >
+                        class="form-control" id="pourValue_$(countvm)" placeholder="$c.getMessage('value',self.lang)" value="$unicode(e.get_quantity())"required >
 		    </div>
                     $if aMeasure:
 		      <div class="col-xs-4 col-sm-2">
@@ -194,9 +194,9 @@ $var bcOperation:control
 		</div>
 		
 		<div class="form-group row">
-		    <label for="pourRemark" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
+		    <label for="pourRemark_$(countvm)" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 		    <div class="col-sm-9">
-			<textarea name="vm_remark_$(countvm)" type="text" class="form-control" id="pourRemark" placeholder="$c.getMessage('remark',self.lang)" ></textarea>
+			<textarea name="vm_remark_$(countvm)" type="text" class="form-control" id="pourRemark_$(countvm)" placeholder="$c.getMessage('remark',self.lang)" ></textarea>
 		    </div>
 		</div>
 		<hr>
