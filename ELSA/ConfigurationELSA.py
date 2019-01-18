@@ -95,6 +95,265 @@ color_grey = "808080"
 color_black = "000000"
 color_white = "FFFFFF"
 
+HALFLING_UNICODE = { "adjust" : "\ue063", #xe063
+"alert" : "\ue209", #xe209
+"align-center" : "\ue053", #xe053
+"align-justify" : "\ue055", #xe055
+"align-left" : "\ue052", #xe052
+"align-right" : "\ue054", #xe054
+"apple" : "\uf8ff", #xf8ff
+"arrow-down" : "\ue094", #xe094
+"arrow-left" : "\ue091", #xe091
+"arrow-right" : "\ue092", #xe092
+"arrow-up" : "\ue093", #xe093
+"asterisk" : "\u2a", #x2a
+"baby-formula" : "\ue216", #xe216
+"backward" : "\ue071", #xe071
+"ban-circle" : "\ue090", #xe090
+"barcode" : "\ue040", #xe040
+"bed" : "\ue219", #xe219
+"bell" : "\ue123", #xe123
+"bishop" : "\ue214", #xe214
+"bitcoin" : "\ue227", #xe227
+"blackboard" : "\ue218", #xe218
+"bold" : "\ue048", #xe048
+"book" : "\ue043", #xe043
+"bookmark" : "\ue044", #xe044
+"briefcase" : "\ue139", #xe139
+"bullhorn" : "\ue122", #xe122
+"calendar" : "\ue109", #xe109
+"camera" : "\ue046", #xe046
+"cd" : "\ue201", #xe201
+"certificate" : "\ue124", #xe124
+"check" : "\ue067", #xe067
+"chevron-down" : "\ue114", #xe114
+"chevron-left" : "\ue079", #xe079
+"chevron-right" : "\ue080", #xe080
+"chevron-up" : "\ue113", #xe113
+"circle-arrow-down" : "\ue134", #xe134
+"circle-arrow-left" : "\ue132", #xe132
+"circle-arrow-right" : "\ue131", #xe131
+"circle-arrow-up" : "\ue133", #xe133
+"cloud" : "\u2601", #x2601
+"cloud-download" : "\ue197", #xe197
+"cloud-upload" : "\ue198", #xe198
+"cog" : "\ue019", #xe019
+"collapse-down" : "\ue159", #xe159
+"collapse-up" : "\ue160", #xe160
+"comment" : "\ue111", #xe111
+"compressed" : "\ue181", #xe181
+"console" : "\ue254", #xe254
+"copy" : "\ue205", #xe205
+"copyright-mark" : "\ue194", #xe194
+"credit-card" : "\ue177", #xe177
+"cutlery" : "\ue179", #xe179
+"dashboard" : "\ue141", #xe141
+"download-alt" : "\ue025", #xe025
+"download" : "\ue026", #xe026
+"duplicate" : "\ue224", #xe224
+"earphone" : "\ue182", #xe182
+"edit" : "\ue065", #xe065
+"education" : "\ue233", #xe233
+"eject" : "\ue078", #xe078
+"envelope" : "\u2709", #x2709
+"equalizer" : "\ue210", #xe210
+"erase" : "\ue221", #xe221
+"eur" : "\u20ac", #x20ac
+"euro" : "\u20ac", #x20ac
+"exclamation-sign" : "\ue101", #xe101
+"expand" : "\ue158", #xe158
+"export" : "\ue170", #xe170
+"eye-close" : "\ue106", #xe106
+"eye-open" : "\ue105", #xe105
+"facetime-video" : "\ue059", #xe059
+"fast-backward" : "\ue070", #xe070
+"fast-forward" : "\ue076", #xe076
+"file" : "\ue022", #xe022
+"film" : "\ue009", #xe009
+"filter" : "\ue138", #xe138
+"fire" : "\ue104", #xe104
+"flag" : "\ue034", #xe034
+"flash" : "\ue162", #xe162
+"floppy-disk" : "\ue172", #xe172
+"floppy-open" : "\ue176", #xe176
+"floppy-remove" : "\ue174", #xe174
+"floppy-save" : "\ue175", #xe175
+"floppy-saved" : "\ue173", #xe173
+"folder-close" : "\ue117", #xe117
+"folder-open" : "\ue118", #xe118
+"font" : "\ue047", #xe047
+"forward" : "\ue075", #xe075
+"fullscreen" : "\ue140", #xe140
+"gbp" : "\ue149", #xe149
+"gift" : "\ue102", #xe102
+"glass" : "\ue001", #xe001
+"globe" : "\ue135", #xe135
+"grain" : "\ue239", #xe239
+"hand-down" : "\ue130", #xe130
+"hand-left" : "\ue128", #xe128
+"hand-right" : "\ue127", #xe127
+"hand-up" : "\ue129", #xe129
+"hdd" : "\ue121", #xe121
+"hd-video" : "\ue187", #xe187
+"header" : "\ue180", #xe180
+"headphones" : "\ue035", #xe035
+"heart" : "\ue005", #xe005
+"heart-empty" : "\ue143", #xe143
+"home" : "\ue021", #xe021
+"hourglass" : "\u231b", #x231b
+"ice-lolly" : "\ue231", #xe231
+"ice-lolly-tasted" : "\ue232", #xe232
+"import" : "\ue169", #xe169
+"inbox" : "\ue028", #xe028
+"indent-left" : "\ue057", #xe057
+"indent-right" : "\ue058", #xe058
+"info-sign" : "\ue086", #xe086
+"italic" : "\ue049", #xe049
+"king" : "\ue211", #xe211
+"knight" : "\ue215", #xe215
+"lamp" : "\ue223", #xe223
+"leaf" : "\ue103", #xe103
+"level-up" : "\ue204", #xe204
+"link" : "\ue144", #xe144
+"list-alt" : "\ue032", #xe032
+"list" : "\ue056", #xe056
+"lock" : "\ue033", #xe033
+"log-in" : "\ue161", #xe161
+"log-out" : "\ue163", #xe163
+"magnet" : "\ue112", #xe112
+"map-marker" : "\ue062", #xe062
+"menu-down" : "\ue259", #xe259
+"menu-hamburger" : "\ue236", #xe236
+"menu-left" : "\ue257", #xe257
+"menu-right" : "\ue258", #xe258
+"menu-up" : "\ue260", #xe260
+"minus" : "\u2212", #x2212
+"minus-sign" : "\ue082", #xe082
+"modal-window" : "\ue237", #xe237
+"move" : "\ue068", #xe068
+"music" : "\ue002", #xe002
+"new-window" : "\ue164", #xe164
+"object-align-bottom" : "\ue245", #xe245
+"object-align-horizontal" : "\ue246", #xe246
+"object-align-left" : "\ue247", #xe247
+"object-align-right" : "\ue249", #xe249
+"object-align-top" : "\ue244", #xe244
+"object-align-vertical" : "\ue248", #xe248
+"off" : "\ue017", #xe017
+"oil" : "\ue238", #xe238
+"ok-circle" : "\ue089", #xe089
+"ok" : "\ue013", #xe013
+"ok-sign" : "\ue084", #xe084
+"open" : "\ue167", #xe167
+"open-file" : "\ue203", #xe203
+"option-horizontal" : "\ue234", #xe234
+"option-vertical" : "\ue235", #xe235
+"paperclip" : "\ue142", #xe142
+"paste" : "\ue206", #xe206
+"pause" : "\ue073", #xe073
+"pawn" : "\ue213", #xe213
+"pencil" : "\u270f", #x270f
+"phone-alt" : "\ue183", #xe183
+"phone" : "\ue145", #xe145
+"picture" : "\ue060", #xe060
+"piggy-bank" : "\ue225", #xe225
+"plane" : "\ue108", #xe108
+"play-circle" : "\ue029", #xe029
+"play" : "\ue072", #xe072
+"plus" : "\u2b", #x2b
+"plus-sign" : "\ue081", #xe081
+"print" : "\ue045", #xe045
+"pushpin" : "\ue146", #xe146
+"qrcode" : "\ue039", #xe039
+"queen" : "\ue212", #xe212
+"question-sign" : "\ue085", #xe085
+"random" : "\ue110", #xe110
+"record" : "\ue165", #xe165
+"refresh" : "\ue031", #xe031
+"registration-mark" : "\ue195", #xe195
+"remove-circle" : "\ue088", #xe088
+"remove" : "\ue014", #xe014
+"remove-sign" : "\ue083", #xe083
+"repeat" : "\ue030", #xe030
+"resize-full" : "\ue096", #xe096
+"resize-horizontal" : "\ue120", #xe120
+"resize-small" : "\ue097", #xe097
+"resize-vertical" : "\ue119", #xe119
+"retweet" : "\ue115", #xe115
+"road" : "\ue024", #xe024
+"ruble" : "\u20bd", #x20bd
+"save" : "\ue166", #xe166
+"saved" : "\ue168", #xe168
+"save-file" : "\ue202", #xe202
+"scale" : "\ue230", #xe230
+"scissors" : "\ue226", #xe226
+"screenshot" : "\ue087", #xe087
+"sd-video" : "\ue186", #xe186
+"search" : "\ue003", #xe003
+"send" : "\ue171", #xe171
+"share-alt" : "\ue095", #xe095
+"share" : "\ue066", #xe066
+"shopping-cart" : "\ue116", #xe116
+"signal" : "\ue018", #xe018
+"sort-by-alphabet-alt" : "\ue152", #xe152
+"sort-by-alphabet" : "\ue151", #xe151
+"sort-by-attributes-alt" : "\ue156", #xe156
+"sort-by-attributes" : "\ue155", #xe155
+"sort-by-order-alt" : "\ue154", #xe154
+"sort-by-order" : "\ue153", #xe153
+"sort" : "\ue150", #xe150
+"sound-5-1" : "\ue191", #xe191
+"sound-6-1" : "\ue192", #xe192
+"sound-7-1" : "\ue193", #xe193
+"sound-dolby" : "\ue190", #xe190
+"sound-stereo" : "\ue189", #xe189
+"star" : "\ue006", #xe006
+"star-empty" : "\ue007", #xe007
+"stats" : "\ue185", #xe185
+"step-backward" : "\ue069", #xe069
+"step-forward" : "\ue077", #xe077
+"stop" : "\ue074", #xe074
+"subscript" : "\ue256", #xe256
+"subtitles" : "\ue188", #xe188
+"sunglasses" : "\ue240", #xe240
+"superscript" : "\ue255", #xe255
+"tag" : "\ue041", #xe041
+"tags" : "\ue042", #xe042
+"tasks" : "\ue137", #xe137
+"tent" : "\u26fa", #x26fa
+"text-background" : "\ue243", #xe243
+"text-color" : "\ue242", #xe242
+"text-height" : "\ue050", #xe050
+"text-size" : "\ue241", #xe241
+"text-width" : "\ue051", #xe051
+"th" : "\ue011", #xe011
+"th-large" : "\ue010", #xe010
+"th-list" : "\ue012", #xe012
+"thumbs-down" : "\ue126", #xe126
+"thumbs-up" : "\ue125", #xe125
+"time" : "\ue023", #xe023
+"tint" : "\ue064", #xe064
+"tower" : "\ue184", #xe184
+"transfer" : "\ue178", #xe178
+"trash" : "\ue020", #xe020
+"tree-conifer" : "\ue199", #xe199
+"tree-deciduous" : "\ue200", #xe200
+"triangle-bottom" : "\ue252", #xe252
+"triangle-left" : "\ue251", #xe251
+"triangle-right" : "\ue250", #xe250
+"triangle-top" : "\ue253", #xe253
+"unchecked" : "\ue157", #xe157
+"upload" : "\ue027", #xe027
+"usd" : "\ue148", #xe148
+"user" : "\ue008", #xe008
+"volume-down" : "\ue037", #xe037
+"volume-off" : "\ue036", #xe036
+"volume-up" : "\ue038", #xe038
+"warning-sign" : "\ue107", #xe107
+"wrench" : "\ue136", #xe136
+"yen" : "\u00a5", #x00a5
+"zoom-in" : "\ue015", #xe015
+"zoom-out" : "\ue016" } #xe016
 
 def copy_default_csv(filename):
     '''
@@ -306,6 +565,12 @@ class Configuration():
 
     def getAllHalfling(self, allObjects, supp_classes=""):
         return self.AllHalflings.getHalfling(allObjects.get_class_acronym(), supp_classes)
+
+    def getGlyph(self, acronym):
+        return self.AllHalflings.getGlyph(acronym)
+
+    def getAllGlyph(self, allObjects):
+        return self.AllHalflings.getGlyph(allObjects.get_class_acronym())
 
     def breadcrumbTop(self, top):
         if top in "grbdtv":
@@ -1081,6 +1346,10 @@ class ConfigurationObject(object):
                 result += configuration.getHalfling("pin","")
         return result
 
+    def getGlyph(self, configuration):
+        allObjects = configuration.findAllFromObject(self)
+        return allObjects.getGlyph()
+
     def getTypeAlarm(self, value, model=None):
         if (value == None) or (value == ''):
             return valueCategs[3].triple()
@@ -1628,6 +1897,9 @@ class AllObjects(object):
                 supp_classes += " text-info"
         return self.config.getAllHalfling(self, supp_classes)
 
+    def getGlyph(self):
+        return self.config.getAllGlyph(self)
+
 
 class AllUsers(AllObjects):
 
@@ -1803,6 +2075,13 @@ class AllHalflings(AllObjects):
     def getHalfling(self, acronym, supp_classes=""):
         try:
             return self.elements[acronym].getHalfling(supp_classes)
+        except:
+            traceback.print_exc()
+            return "<em>" + acronym + " not found</em>"
+
+    def getGlyph(self, acronym):
+        try:
+            return self.elements[acronym].getGlyph()
         except:
             traceback.print_exc()
             return "<em>" + acronym + " not found</em>"
@@ -2047,7 +2326,6 @@ class AllGrUsage(AllGroups):
                             options += 'selected'
                         options += '>' + v.fields['acronym'] + ' - ' + webnet.htmlquote(v.getName(lang)) + '</option>'
         return options
-
 
 class AllGrRecipe(AllGroups):
     def __init__(self, config):
@@ -3588,6 +3866,19 @@ class GrUsage(Group):
                     result.append(b)
         return c.AllBatches.sort_hierarchy_objects(result)
 
+    def get_members(self):
+        result = []
+        for k, b in self.config.AllPlaces.elements.items():
+            if b.get_group() == self.getID() and b.isActive():
+                result.append(b)
+        for k, b in self.config.AllEquipments.elements.items():
+            if b.get_group() == self.getID() and b.isActive():
+                result.append(b)
+        for k, b in self.config.AllContainers.elements.items():
+            if b.get_group() == self.getID() and b.isActive():
+                result.append(b)
+        return result
+
 
 class CheckPoint(Group):
     def __init__(self, config):
@@ -3877,6 +4168,8 @@ class CheckPoint(Group):
                 result.append(b)
         return c.AllBatches.sort_hierarchy_objects(result)
 
+    def get_members(self):
+        return self.get_model_sorted()
 
 class GrRecipe(Group):
     def __init__(self, config):
@@ -3944,6 +4237,8 @@ class GrRecipe(Group):
                 result.append(b)
         return c.AllBatches.sort_hierarchy_objects(result)
 
+    def get_members(self):
+        return self.get_batches(self.config)
 
 class GrFunction(Group):
     def __init__(self, config):
@@ -3977,6 +4272,12 @@ class GrFunction(Group):
         super(GrFunction, self).set_value_from_data(data, c, user)
         self.save(c, user)
 
+    def get_members(self):
+        result = []
+        for k, b in self.config.AllUsers.elements.items():
+            if b.get_group() == self.getID() and b.isActive():
+                result.append(b)
+        return self.config.AllUsers.sort_hierarchy_objects(result)
 
 class Place(ConfigurationObject):
     def __init__(self, config):
@@ -4688,6 +4989,15 @@ class Halfling(ConfigurationObject):
             return '<span class="halflings' + supp_classes + '">' + glyph[1:] + '</span>'
         else:
             return '<span class="halflings halflings-' + glyph + supp_classes + '"></span>'
+
+    def getGlyph(self):
+        glyph = self.fields['glyphname']
+        if not glyph:
+            return ""
+        elif glyph[0] == "*" and len(glyph) > 1:
+            return glyph[1:].encode('ascii', 'xmlcharrefreplace')
+        else:
+            return  HALFLING_UNICODE[glyph].encode('ascii', 'xmlcharrefreplace')
 
     def get_class_acronym(self):
         return 'halfling'

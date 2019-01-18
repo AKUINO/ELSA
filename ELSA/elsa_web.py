@@ -55,7 +55,7 @@ def getLinkForLatestBackupArchive():
 
 
 def protectHTML(input):
-    return cgi.escape(input, True).replace("'", "&#39;");
+    return cgi.escape(input, True).replace("'", "&#39;")
 
 
 def protectJS(input):
@@ -983,8 +983,18 @@ class WebGraphRecipe:
                 usaTopID = 'gu_' + usageTop.getID()
                 graph += usaTopID  # +"[url=\"/find/related/"+usaTopID+"\""
                 graph += "[labelType=\"html\",label=\"<a href=/find/related/" + usaTopID + ">" + usageTop.getNameHTML(
-                    lang) + "</a>\""
-                graph += ",tooltip=\"" + usageTop.fields['acronym'] + "\""
+                    lang) + "</a>"
+                components = usageTop.get_members()
+                if components:
+                    graph += ':'
+                    for i in range(len(components)):
+                        if i >= 2:
+                            graph += " +"+unicode(len(components)-2)
+                            break
+                        #+ components[i].getGlyph(c)
+                        graph += " <a href=/find/related/" + components[i].getTypeId() + ">" +components[i].getNameHTML(lang) + "</a>"
+                # ,labelStyle=\"font-family:'Glyphicons Halflings'\"
+                graph += "\",tooltip=\"" + usageTop.fields['acronym'] + "\""
                 graph += ",id=\"" + usaTopID + "\",shape=diamond,style=\"fill:" + (
                     "#fbcfaa" if kusage == usageTop.getID() else "#fff") + ";stroke:1px;\"];"
 
