@@ -191,7 +191,7 @@ input:checked + .slider:before {
 
 
 body{
-    font-family: 'Open Sans', sans-serif;
+    font-family: 'Open Sans', sans-serif, 'Glyphicons Halflings';
     padding-top: 2px;
 }
 

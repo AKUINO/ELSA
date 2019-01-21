@@ -992,7 +992,7 @@ class WebGraphRecipe:
                             graph += " +"+unicode(len(components)-2)
                             break
                         #+ components[i].getGlyph(c)
-                        graph += " <a href=/find/related/" + components[i].getTypeId() + ">" +components[i].getNameHTML(lang) + "</a>"
+                        graph += " <a href=/find/related/" + components[i].getTypeId() + ">" + components[i].getGlyph(c) + components[i].getNameHTML(lang) + "</a>"
                 # ,labelStyle=\"font-family:'Glyphicons Halflings'\"
                 graph += "\",tooltip=\"" + usageTop.fields['acronym'] + "\""
                 graph += ",id=\"" + usaTopID + "\",shape=diamond,style=\"fill:" + (
@@ -1393,9 +1393,9 @@ class WebLabel:
     def __init__(self):
         self.name = u"WebLabel"
 
-    def GET(self, type, id=""):
+    def GET(self, type, id="", children=""):
         connected = redirect_when_not_logged()
-        return render.label(connected, type, id)
+        return render.label(connected, type, id, children)
 
 
 class getRRD:
@@ -1785,6 +1785,7 @@ def main():
             '/map/h', 'WebMapCheckPoints',
             '/map/gr', 'WebMapRecipes',
             '/calendar', 'WebCalendar',
+            '/label/(.+)_(.+)/(.+)', 'WebLabel',
             '/label/(.+)_(.+)', 'WebLabel',
             '/label/(.+)', 'WebLabel',
             '/search', 'WebSearch',

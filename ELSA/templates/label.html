@@ -1,4 +1,4 @@
-$def with (connected, type, id="")
+$def with (connected, type, id="", children="")
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
@@ -9,7 +9,7 @@ $var bcOwner:
 $var bcOperation:label
 $ allObjs = c.findAll(type)
 $var title : ELSA $(allObjs.get_class_acronym())
-$if id:
+$if children or id:
     <div class="hidden-print">
 	<script>
 	    $$(function(){
@@ -18,6 +18,12 @@ $if id:
 	</script>
  	<div id="includedMenu$(type)_$(id)"></div>
     </div>
+$if children:
+    $ parent = allObjs.get(id)
+    $ allObjs = c.findAll(children)
+    $ to_print = allObjs.get_linked(parent)
+    $var bcElem:$(type)_$id
+$elif id:
     $ to_print = [id]
     $var bcElem:$(type)_$id
 $else:
