@@ -1398,6 +1398,38 @@ class WebLabel:
         return render.label(connected, type, id, children)
 
 
+class WebNFC:
+    def __init__(self):
+        self.name = u"WebNFC"
+
+    def GET(self, type="", id=""):
+        connected = redirect_when_not_logged()
+        user = connected.cuser
+        try:
+            nfc_uid = ''
+            data = web.input()
+            if 'uid' in data:
+                nfc_uid = data['uid'].strip()
+            else:
+                nfc_uid = connected.nfc
+            if nfc_uid:
+                connected.nfc = nfc_uid
+                if type and id:
+                    elem = c.get_object(type,id)
+                    oldelem = c.AllBarcodes.barcode_to_item(nfc_uid)
+                    if elem != oldelem:
+                        if oldelem:
+                            c.AllBarcodes.delete_barcode(nfc_uid, "N", user)
+                        c.AllBarcodes.add_barcode(elem, nfc_uid, "N", user)
+                else:
+                    elem = c.AllBarcodes.barcode_to_item(nfc_uid, "N")
+                if elem:
+                    raise web.seeother('/find/related/' + elem.getTypeId() + '?barcode=' + nfc_uid)
+        except:
+            traceback.print_exc()
+        return render.search(connected, nfc_uid, 'nfcunknown')
+
+
 class getRRD:
     def GET(self, filename):
         with open(elsa.DIR_RRD + filename) as f:
@@ -1521,6 +1553,7 @@ class WebTest:
                     '/unpin/h',
                     '/graphhelp/b_1',
                     '/calendar',
+                    '/nfc?uid=04715C7A894981',
                     '/search']
         #            '/rrd/(.+)',
         #            '/csv/(.+)',
@@ -1604,10 +1637,12 @@ class WebTest:
                              '/find/related/' + ti,
                              '/history/' + ti,
                              '/files/' + ti,
+                             '/nfc/' + ti,
                              '/modal/' + ti,
                              '/fullentry/' + ti])
         testUrls.append('/pinlist')
         testUrls.append('/unpin/p')
+        testUrls.append('/nfc?uid=04715C7A894981')
         return render.test(connected, testUrls)
 
 
@@ -1810,6 +1845,8 @@ def main():
             '/updateELSA', 'WebUpdateELSA',
             '/restarting', 'WebRestarting',
             '/api/grafana/([^/]*)/{0,1}(.*)', 'WebApiGrafana',
+            '/nfc/(.+)_(.+)', 'WebNFC',
+            '/nfc', 'WebNFC',
             '/test', 'WebTest'
         )
         app = web.application(urls, globals())

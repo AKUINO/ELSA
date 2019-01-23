@@ -73,7 +73,7 @@ alarmFields = ['minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', \
                'a_min', 'a_typical', 'a_max', 'a_maxmax', 'a_none']
 alarm_fields_for_groups = ['o_sms1', 'o_sms2', 'o_email1', 'o_email2', 'o_sound1', 'o_sound2']
 
-ALL_UPDATE_GROUPS = u" upd_a upd_al upd_b upd_c upd_d upd_dm upd_e upd_gf upd_gr upd_gu upd_h upd_m upd_p upd_s upd_t upd_tm upd_u upd_v upd_vm "
+ALL_UPDATE_GROUPS = u" upd_a upd_al upd_b upd_c upd_d upd_dm upd_e upd_gf upd_gr upd_gu upd_h upd_m upd_p upd_s upd_t upd_tm upd_u upd_v upd_vm upd_nfc"
 ALL_TYPES = ['a', 'al', 'b', 'c', 'd', 'dm', 'e', 'gf', 'gr', 'gu', 'h', 'm', 'p', 's', 't', 'tm', 'u', 'v', 'vm']
 ALL_NAMED_TYPES = ['a', 'b', 'c', 'dm', 'e', 'gf', 'gr', 'gu', 'h', 'm', 'p', 's', 'tm', 'u', 'vm']
 COMPONENT_TYPES = ['p', 'e', 'c']
@@ -1030,7 +1030,7 @@ class ConfigurationObject(object):
                 if 'code' in data and len(data['code']) > 0:
                     some_code = int(data['code'])
                     if not configuration.AllBarcodes.validate_barcode(
-                            some_code, self.id, self.get_type()):
+                            some_code,"", self.get_type(), self.id):
                         tmp += configuration.getMessage('barcoderules', lang) + '\n'
             except:
                 tmp += configuration.getMessage('barcoderules', lang) + '\n'
@@ -1070,14 +1070,13 @@ class ConfigurationObject(object):
 
     def ensure_barcode(self,c,user,code):
         lenCode = len(code)
-        if lenCode < 14 and lenCode > 11:
-            some_code = int(code)
-            c.AllBarcodes.add_barcode(self, some_code, user)
+        if lenCode >= 12 and lenCode <= 13:
+            c.AllBarcodes.add_barcode(self, code, "", user)
         elif lenCode == 0:
             # Defaut barcode: 99hhT1234567x
-            some_code = 990000000000 + (self.get_hash_type() * 10000000) + int(self.id)
-            ean = c.AllBarcodes.EAN(unicode(some_code))
-            c.AllBarcodes.add_barcode(self, ean.get_fullcode(), user)
+            code = 990000000000 + (self.get_hash_type() * 10000000) + int(self.id)
+            ean = c.AllBarcodes.EAN(unicode(code))
+            c.AllBarcodes.add_barcode(self, ean.get_fullcode(), "", user)
 
     def get_events(self, c):
         events = []
@@ -1900,6 +1899,8 @@ class AllObjects(object):
     def getGlyph(self):
         return self.config.getAllGlyph(self)
 
+    def get_linked(self, parent):
+        return None
 
 class AllUsers(AllObjects):
 
@@ -1936,6 +1937,17 @@ class AllUsers(AllObjects):
     def get_admin(self):
         return self.findAcronym(KEY_ADMIN)
 
+    def get_linked(self,parent):
+        a_type = parent.get_type()
+        a_ids = [parent.getID()]
+        a_ids.extend(parent.get_all_children([],None))
+        result = []
+        if a_type == 'gf':
+            for u in self.get_sorted_hierarchy():
+                user = self.get(u)
+                if user.get_group() in a_ids:
+                    result.append(u)
+        return result
 
 class AllEquipments(AllObjects):
 
@@ -2726,77 +2738,100 @@ class AllBarcodes(AllObjects):
         self.file_of_names = None
         self.keyColumn = "code"
         self.fieldnames = ['begin', 'type',
-                           'idobject', 'code', 'active', 'user']
+                           'idobject', 'code', 'codetype', 'active', 'user']
         self.fieldtranslate = None
         self.EAN = barcode.get_barcode_class('ean13')
 
     def load(self):
         AllObjects.check_csv(self, self.file_of_objects)
+        conformant = None
+        conformantFile = None
+        conformantWriter = None
         with open(self.file_of_objects) as csvfile:
             reader = unicodecsv.DictReader(csvfile, delimiter="\t")
             for row in reader:
+                if conformant is None:
+                    if self.fieldnames is None:
+                        conformant = True
+                    else:
+                        conformant = self.fieldnames == reader.fieldnames
+                        if not conformant:
+                            conformantFile = open(self.file_of_objects + ".NEW", 'w')
+                            print (self.file_of_objects + " will be made conformant")
+                            conformantWriter = unicodecsv.DictWriter(conformantFile,
+                                                                     delimiter='\t',
+                                                                     fieldnames=self.fieldnames,
+                                                                     encoding="utf-8")
+                            conformantWriter.writeheader()
+                if conformantWriter is not None:
+                    conformantWriter.writerow(row)
                 key = row[self.keyColumn]
                 if row['active'] == '0':
                     del self.elements[key]
                 elif len(row['code']) > 0:
                     currObject = self.newObject(
-                        self.config.getObject(row['idobject'], row['type']))
+                        self.config.get_object(row['type'], row['idobject']))
                     currObject.fields = row
+                    if not 'codetype' in currObject.fields: # Old file format
+                        currObject.fields['codetype'] = '' # Barcode
                     currObject.id = key
                     self.elements[key] = currObject
         # self.to_pictures()
+        if conformantFile is not None:
+            conformantFile.close()
+            os.rename(self.file_of_objects,
+                      self.file_of_objects + '.' + useful.timestamp_to_ISO(useful.get_timestamp()).translate(None,
+                                                                                                             " :./-"))
+            os.rename(self.file_of_objects + ".NEW", self.file_of_objects)
 
     def newObject(self, item):
         return Barcode(item)
 
-    def get_barcode(self, myType, myID):
+    def get_barcode(self, myType, myID, codetype=""):
         for k in self.elements.keys():
-            if self.elements[k].element:
-                if self.elements[k].element.get_type() == myType \
-                        and unicode(self.elements[k].element.getID()) == myID:
-                    # self.elements[k].barcode_picture()
+            currCode = self.elements[k]
+            if currCode.fields['codetype'] == codetype and currCode.element:
+                if currCode.element.get_type() == myType \
+                        and unicode(currCode.element.getID()) == myID:
                     return k
         return ''
 
-    def unique_barcode(self, some_code, myID, myType):
-        some_code = int(some_code)
-        for k, v in self.elements.items():
-            if (some_code == int(k)
-                    and not myID == v.getID()
-                    and not myType == v.fields['type']):
-                return False
+    def unique_barcode(self, some_code, myType, myID):
+        v = self.get(some_code)
+        if v and (myID != v.getID() or myType != v.fields['type']):
+            return False
         return True
 
-    def add_barcode(self, item, some_code, user):
-        if self.unique_barcode(some_code, item.getID(), item.get_type()):
-            oldBarcode = self.get_barcode(item.get_type(), item.getID())
-            if not oldBarcode == some_code and not oldBarcode == '':
-                self.delete_barcode(oldBarcode, user)
-            self.elements[some_code] = self.create_barcode(item, some_code, user)
+    def add_barcode(self, item, some_code, codetype, user):
+        if self.unique_barcode(some_code, item.get_type(), item.getID()):
+            oldBarcode = self.get_barcode(item.get_type(), item.getID(),codetype)
+            if oldBarcode and not oldBarcode == some_code:
+                self.delete_barcode(oldBarcode, codetype, user)
+            self.elements[some_code] = self.create_barcode(item, some_code, codetype, user)
 
-    def delete_barcode(self, oldBarcode, user):
-        self.write_csv(oldBarcode, 0, user)
+    def delete_barcode(self, oldBarcode, codetype, user):
+        self.write_csv(oldBarcode, codetype, 0, user)
         del self.elements[oldBarcode]
 
-    def write_csv(self, some_code, active, user):
+    def write_csv(self, some_code, codetype, active, user):
         with open(self.file_of_objects, "a") as csvfile:
-            tmpCode = self.create_fields(some_code, active, user)
+            tmpCode = self.create_fields(some_code, codetype, active, user)
             writer = unicodecsv.DictWriter(csvfile,
                                            delimiter='\t',
                                            fieldnames=self.fieldnames,
                                            encoding="utf-8")
             writer.writerow(tmpCode)
 
-    def create_barcode(self, item, some_code, user):
+    def create_barcode(self, item, some_code, codetype, user):
         tmp = self.newObject(item)
-        fields = self.create_fields(some_code, 1, user, item)
+        fields = self.create_fields(some_code, codetype, 1, user, item)
         tmp.fields = fields
         self.elements[some_code] = tmp
         tmp.element = item
-        self.write_csv(some_code, 1, user)
+        self.write_csv(some_code, codetype, 1, user)
         return tmp
 
-    def create_fields(self, some_code, active, user, item=None):
+    def create_fields(self, some_code, codetype, active, user, item=None):
         fields = {}
         fields['begin'] = useful.now()
         if item is None:
@@ -2806,35 +2841,43 @@ class AllBarcodes(AllObjects):
             fields['type'] = item.get_type()
             fields['idobject'] = item.id
         fields['code'] = some_code
+        fields['codetype'] = codetype
         fields['active'] = active
         fields["user"] = user.fields['u_id']
         return fields
 
-    def validate_barcode(self, some_code, anID, aType):
-        some_code = unicode(some_code)
-        if len(some_code) < 12 or len(some_code) > 13:
-            return False
-        try:
-            ean = self.EAN(some_code)
-        except:
-            traceback.print_exc()
-            return False
-        if self.unique_barcode(some_code, anID, aType) is not True:
-            return False
-        return True
+    def validate_barcode(self, some_code, codetype, aType, anID):
+        if not codetype: #Barcode EAN
+            if len(some_code) < 12 or len(some_code) > 13:
+                return False
+            try:
+                ean = self.EAN(some_code)
+            except:
+                traceback.print_exc()
+                return False
+        elif codetype == 'N': #NFC
+            if len(some_code) != 14: # 14 hex digits
+                return False
+            try:
+                test = int(some_code,16)
+            except:
+                traceback.print_exc()
+                return False
+        return self.unique_barcode(some_code, aType, anID)
 
     ##    def to_pictures(self):
     ##        for k, v in self.elements.items():
     ##            v.barcode_picture()
 
-    def barcode_to_item(self, some_code):
-        for k, barcode in self.elements.items():
-            if barcode.fields['code'] == some_code:
-                return self.config.get_object(barcode.fields['type'], barcode.fields['idobject'])
+    def barcode_to_item(self, some_code,codetype=""):
+        elem = self.get(some_code)
+        if elem and codetype == elem.fields['codetype']:
+            return self.config.get_object(elem.fields['type'], elem.fields['idobject'])
+        else:
+            return None
 
     def get_class_acronym(self):
         return 'barcode'
-
 
 class ConnectedUser():
 
@@ -2846,6 +2889,7 @@ class ConnectedUser():
         self.pin = None
         self.where = None
         self.how = None
+        self.nfc = None
 
     def update(self):
         self.datetime = time.time()
@@ -6717,10 +6761,10 @@ class Barcode(ConfigurationObject):
         self.element = item
 
     def __repr__(self):
-        return self.fields['code']
+        return self.fields['code']+((' '+fields['codetype']) if fields['codetype'] else "")
 
     def __str__(self):
-        string = "\nCode barre :"
+        string = "\nCode(barre) :"
         for field in self.fields:
             string = string + "\n" + field + " : " + self.fields[field]
         return string + "\n"

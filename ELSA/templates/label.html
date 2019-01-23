@@ -29,7 +29,8 @@ $elif id:
 $else:
     $ to_print = allObjs.get_sorted_hierarchy()
     $var bcElem:
-<table>
+$if to_print:
+	<table>
 	$for key in to_print:
 		<tr>
 		    <td>
@@ -58,4 +59,4 @@ $else:
 			    <br>$c.getMessage('remark',self.lang): $elem.fields['remark']
 		    </td>
 		</tr>
-</table>
+	</table>

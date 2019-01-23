@@ -32,8 +32,10 @@ $var allowed : $(connected.cuser.allowed(c))
 <div id="includedAllMenug_$(id)"></div>
 
 <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
-    <label class="col-sm-12">$c.getMessage('child',self.lang) :</label>    
+    <label class="col-sm-12">$c.getMessage('child',self.lang) :</label>
+    $ some = 0
     $for k in allobjects.sort_hierarchy(elem.children):
+	$ some += 1
 	<script>
 	    $$(function(){
 		$$("#includedMenuchildren_$(k)").load("/fullentry/$(type)_$(k)");
@@ -43,6 +45,8 @@ $var allowed : $(connected.cuser.allowed(c))
 </div>
 <div class="row active" style="background-color:rgb(0, 21, 43);">
 	<div class="col-xs-5">
+		$if some:
+			<a href="/label/$(type)_$(id)/$(type)" class="btn btn-warning">$:(c.getHalfling('label'))</a>
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
 	$if ( " upd_"+type+" " ) in self.allowed:
@@ -52,10 +56,12 @@ $var allowed : $(connected.cuser.allowed(c))
 
 $if type == 'gf':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
-	<label class="col-sm-12">$c.getMessage('user',self.lang) :</label>    
+	<label class="col-sm-12">$c.getMessage('user',self.lang) :</label>
+	$ some = 0
 	$for k in c.AllUsers.get_sorted_hierarchy():
 	    $ user = c.AllUsers.get(k)
 	    $if user and user.get_group() == id :
+	    	$ some += 1
 		<script>
 		    $$(function(){
 			$$("#includedMenuu_$(k)").load("/fullentry/u_$(k)");
@@ -65,7 +71,8 @@ $if type == 'gf':
     </div>
     <div class="row active" style="background-color:rgb(0, 21, 43);">
 	<div class="col-xs-5">
-	</div>
+		$if some:
+			<a href="/label/$(type)_$(id)/u" class="btn btn-warning">$:(c.getHalfling('label'))</a>
 	<div class="col-xs-6 vcenter" id="addItem">
 	$if ( " upd_u " ) in self.allowed:
 	    <a href="/create/u/$(type)_$(id)" class = "vcenter">$:c.getHalfling('add') $c.getMessage('user',self.lang)</a>
@@ -73,8 +80,10 @@ $if type == 'gf':
     </div> 
 $elif type == 'h':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
-	<label class="col-sm-12">$c.getMessage('manualdatamodel',self.lang) :</label>    
+	<label class="col-sm-12">$c.getMessage('manualdatamodel',self.lang) :</label>
+	$ some = 0
 	$for k in c.AllManualDataModels.sort_hierarchy(elem.dm):
+	    	$ some += 1
 		<script>
 		    $$(function(){
 			$$("#includedMenudm_$(k)").load("/fullentry/dm_$(k)");
@@ -84,6 +93,8 @@ $elif type == 'h':
     </div>
     <div class="row active" style="background-color:rgb(0, 21, 43);">
 	<div class="col-xs-5">
+		$if some:
+			<a href="/label/$(type)_$(id)/dm" class="btn btn-warning">$:(c.getHalfling('label'))</a>
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
 	$if ( " upd_dm " ) in self.allowed:
@@ -93,7 +104,9 @@ $elif type == 'h':
     
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('transfermodel',self.lang) :</label>    
+	$ some = 0
 	$for k in c.AllTransferModels.sort_hierarchy(elem.tm):
+	    	$ some += 1
 		<script>
 		    $$(function(){
 			$$("#includedMenutm_$(k)").load("/fullentry/tm_$(k)");
@@ -103,6 +116,8 @@ $elif type == 'h':
     </div>
     <div class="row active" style="background-color:rgb(0, 21, 43);">
 	<div class="col-xs-5">
+		$if some:
+			<a href="/label/$(type)_$(id)/tm" class="btn btn-warning">$:(c.getHalfling('label'))</a>
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
 	$if ( " upd_tm " ) in self.allowed:
@@ -111,8 +126,10 @@ $elif type == 'h':
     </div> 
     
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
+	$ some = 0
 	<label class="col-sm-12">$c.getMessage('pouringmodel',self.lang) :</label>    
 	$for k in c.AllPouringModels.sort_hierarchy(elem.vm):
+	        $ some += 1
 		<script>
 		    $$(function(){
 			$$("#includedMenuvm_$(k)").load("/fullentry/vm_$(k)");
@@ -122,6 +139,8 @@ $elif type == 'h':
     </div>
     <div class="row active" style="background-color:rgb(0, 21, 43);">
 	<div class="col-xs-5">
+		$if some:
+			<a href="/label/$(type)_$(id)/vm" class="btn btn-warning">$:(c.getHalfling('label'))</a>
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
 	$if ( " upd_vm " ) in self.allowed:
@@ -146,8 +165,10 @@ $elif type == 'h':
 	    allowedbatches = c.AllBatches.get_batches_for_recipe_usage(recipes,usages)
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	    <label class="col-sm-12">$c.getMessage('batch',self.lang) :</label>
+	    $ some = 0
 	    $for b in elem.get_batches(c):
 		$if not b.isComplete():
+	    	    $ some += 1
 		    <script>
 		        $$(function(){
 			    $$("#includedAllMenu$(b.getTypeId())").load("/fullentry/$(b.getTypeId())");
@@ -175,9 +196,11 @@ $elif type == 'h':
 $elif type == 'gu':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('place',self.lang) :</label>    
+	$ some = 0
 	$for k in c.AllPlaces.get_sorted_hierarchy():
 	    $ p = c.AllPlaces.get(k)
 	    $if p and p.get_group() == id :
+	    	$ some += 1
 		<script>
 		    $$(function(){
 			$$("#includedMenup_$(k)").load("/fullentry/p_$(k)");
@@ -187,6 +210,8 @@ $elif type == 'gu':
     </div>
     <div class="row active" style="background-color:rgb(0, 21, 43);">
 	<div class="col-xs-5">
+		$if some:
+			<a href="/label/$(type)_$(id)/p" class="btn btn-warning">$:(c.getHalfling('label'))</a>
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
 	$if ( " upd_p " ) in self.allowed:
@@ -196,9 +221,11 @@ $elif type == 'gu':
     
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('equipment',self.lang) :</label>    
+	$ some = 0
 	$for k in c.AllEquipments.get_sorted_hierarchy():
 	    $ e = c.AllEquipments.get(k)
 	    $if e and e.get_group() == id :
+	    	$ some += 1
 		<script>
 		    $$(function(){
 			$$("#includedMenue_$(k)").load("/fullentry/e_$(k)");
@@ -208,6 +235,8 @@ $elif type == 'gu':
     </div>
     <div class="row active" style="background-color:rgb(0, 21, 43);">
 	<div class="col-xs-5">
+		$if some:
+			<a href="/label/$(type)_$(id)/e" class="btn btn-warning">$:(c.getHalfling('label'))</a>
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
 	$if ( " upd_e " ) in self.allowed:
@@ -217,9 +246,11 @@ $elif type == 'gu':
 
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('container',self.lang) :</label>    
+	$ some = 0
 	$for k in c.AllContainers.get_sorted_hierarchy():
 	    $ cont = c.AllContainers.get(k)
 	    $if cont and cont.get_group() == id :
+	    	$ some += 1
 		<script>
 		    $$(function(){
 			$$("#includedMenuc_$(k)").load("/fullentry/c_$(k)");
@@ -229,6 +260,8 @@ $elif type == 'gu':
     </div>
     <div class="row active" style="background-color:rgb(0, 21, 43);">
 	<div class="col-xs-5">
+		$if some:
+			<a href="/label/$(type)_$(id)/c" class="btn btn-warning">$:(c.getHalfling('label'))</a>
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
 	$if ( " upd_c " ) in self.allowed:
@@ -237,9 +270,11 @@ $elif type == 'gu':
     </div> 
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('checkpoint',self.lang) :</label>    
+	$ some = 0
 	$for k in c.AllCheckPoints.get_sorted_hierarchy():
 	    $ cp = c.AllCheckPoints.get(k)
 	    $if cp and cp.fields['gu_id'] == id:
+	    	$ some += 1
 		<script>
 		    $$(function(){
 			$$("#includedMenuh_$(k)").load("/fullentry/h_$(k)");
@@ -249,6 +284,8 @@ $elif type == 'gu':
     </div>
     <div class="row active" style="background-color:rgb(0, 21, 43);">
 	<div class="col-xs-5">
+		$if some:
+			<a href="/label/$(type)_$(id)/h" class="btn btn-warning">$:(c.getHalfling('label'))</a>
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
 	$if ( " upd_h " ) in self.allowed:
@@ -258,8 +295,10 @@ $elif type == 'gu':
 $elif type == 'gr':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('batch',self.lang) :</label>    
+	$ some = 0
 	$for b in elem.get_batches(c):
 	    $if not b.isComplete():
+	    	$ some += 1
 		<script>
 		    $$(function(){
 			$$("#includedMenub_$(b.getID())").load("/fullentry/b_$(b.getID())");
@@ -269,6 +308,8 @@ $elif type == 'gr':
     </div>
     <div class="row active" style="background-color:rgb(0, 21, 43);">
 	<div class="col-xs-5">
+		$if some:
+			<a href="/label/$(type)_$(id)/b" class="btn btn-warning">$:(c.getHalfling('label'))</a>
 	</div>
 	<div class="col-xs-6 vcenter" id="addItem">
 	$if ( " upd_b " ) in self.allowed:
@@ -278,9 +319,11 @@ $elif type == 'gr':
     
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('checkpoint',self.lang) :</label>    
+	$ some = 0
 	$for k in c.AllCheckPoints.get_sorted_hierarchy():
 	    $ cp = c.AllCheckPoints.get(k)
 	    $if cp and cp.fields['gr_id'] == id:
+	    	$ some += 1
 		<script>
 		    $$(function(){
 			$$("#includedMenuh_$(k)").load("/fullentry/h_$(k)");
@@ -289,7 +332,11 @@ $elif type == 'gr':
 		<div id="includedMenuh_$(k)"></div>
     </div>
     <div class="row active" style="background-color:rgb(0, 21, 43);">
-	<div class="col-xs-3"></div>
+	<div class="col-xs-3">
+		$if some:
+			<a href="/label/$(type)_$(id)/h" class="btn btn-warning">$:(c.getHalfling('label'))</a>
+
+	</div>
 	<div class="col-xs-5 vcenter" id="addItem">
 	$if ( " upd_h " ) in self.allowed:
 	    <a href="/create/h/$(type)_$(id)" class = "vcenter">$:c.getHalfling('add') $c.getMessage('checkpoint',self.lang)</a>
