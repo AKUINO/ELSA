@@ -63,7 +63,7 @@ $for d in elem.manualdata:
     <div class="col-xs-5">
     </div>
     $if ( " upd_d " ) in self.allowed:
-      <div class="col-xs-6" id="addItem">
+      <div class="col-xs-6 addItem">
 	$if ( " upd_d " ) in self.allowed:
 	    <a href="/create/d/$(type)_$(id)">$:c.getHalfling('add')$c.getMessage('manualdata',self.lang)</a>
       </div>

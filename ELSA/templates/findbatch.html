@@ -62,7 +62,7 @@ $if not allRec and (len(keys) < total):
 	class="btn btn-default" >$:c.getHalfling('active')&nbsp;/&nbsp;$:c.getHalfling('disabled')</a>
     </div>
     $if (type != 'al') and ( " upd_"+type+" " ) in self.allowed:
-      <div class="col-xs-6 vcenter" id="addItem">
+      <div class="col-xs-6 vcenter addItem">
 	<a href="/create/$(type)" class = "vcenter">$:c.getHalfling('add') $c.getName(c.AllBatches,self.lang)</a>
       </div>
 </div>    

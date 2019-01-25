@@ -1,9 +1,5 @@
 $def with (connected,isIndex)
 $var title : ELSA Batches Recipes Map
-$if isIndex:
-	$var location : index
-$else:
-	$var location: list/gr=$(c.AllGrRecipe.get_class_acronym())
 $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu

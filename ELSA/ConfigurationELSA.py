@@ -1899,8 +1899,18 @@ class AllObjects(object):
     def getGlyph(self):
         return self.config.getAllGlyph(self)
 
-    def get_linked(self, parent):
-        return None
+    def get_linked(self,parent):
+        a_type = parent.get_type()
+        result = []
+        if a_type == self.get_group_type():
+            a_ids = [parent.getID()]
+            a_ids.extend(parent.get_all_children([], None))
+            for key in self.get_sorted_hierarchy():
+                elem = self.get(key)
+                if elem.get_group() in a_ids:
+                    result.append(key)
+        return result
+
 
 class AllUsers(AllObjects):
 
@@ -1936,18 +1946,6 @@ class AllUsers(AllObjects):
 
     def get_admin(self):
         return self.findAcronym(KEY_ADMIN)
-
-    def get_linked(self,parent):
-        a_type = parent.get_type()
-        a_ids = [parent.getID()]
-        a_ids.extend(parent.get_all_children([],None))
-        result = []
-        if a_type == 'gf':
-            for u in self.get_sorted_hierarchy():
-                user = self.get(u)
-                if user.get_group() in a_ids:
-                    result.append(u)
-        return result
 
 class AllEquipments(AllObjects):
 
@@ -2240,6 +2238,13 @@ class AllGroups(AllObjects):
     def get_class_acronym(self):
         return 'group'
 
+    def get_linked(self,parent):
+        a_type = parent.get_type()
+        result = []
+        if a_type == self.get_type():
+            result = parent.get_all_children([], None)
+        return result
+
 
 class AllGrUsage(AllGroups):
     def __init__(self, config):
@@ -2501,6 +2506,9 @@ class AllSensors(AllObjects):
 
     def get_class_acronym(self):
         return 'sensor'
+
+    def get_group_type(self):
+        return 'm'
 
     def add_query_channel(self, channel):
         '''
@@ -5491,6 +5499,9 @@ class Sensor(AlarmingObject):
 
     def get_class_acronym(self):
         return 'sensor'
+
+    def get_group(self):
+        return self.fields['m_id']
 
     def get_quantity_string(self):
         if self.lastvalue is None:

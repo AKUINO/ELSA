@@ -14,11 +14,9 @@ $ component = ""
 $ comp_type = ""
 $ comp_id = ""
 $if id == 'new':
-    $var location: list/s=sensor edit/s_new=add
     $ rmq = ""
     $ elem = None
 $else:
-    $var location: list/s=sensor edit/s_$(id)=edit
     $ elem = c.AllSensors.get(id)
     $ rmq =  elem.fields['remark']
     $var title : $elem.getName(self.lang)

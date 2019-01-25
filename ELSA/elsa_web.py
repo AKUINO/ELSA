@@ -17,7 +17,7 @@ import time
 import calendar
 import bisect
 
-global c, render
+global c, render, includes
 
 
 def manage_cmdline_arguments():
@@ -1778,7 +1778,7 @@ def main():
     args = manage_cmdline_arguments()
     cleanup_web_temp_dir()
 
-    global c, wsgiapp, render, app
+    global c, wsgiapp, render, includes, app
     try:
         web.config.debug = False
         # Configuration Singleton ELSA
@@ -1796,6 +1796,8 @@ def main():
         web.template.Template.globals['subprocess'] = subprocess
         layout = web.template.frender(elsa.TEMPLATES_DIR + '/layout.html')
         render = web.template.render(elsa.TEMPLATES_DIR, base=layout)
+        includes = web.template.render(elsa.TEMPLATES_DIR + '/includes')
+        web.template.Template.globals['includes'] = includes
         urls = (
             '/', 'WebIndex',
             '/index', 'WebIndex',

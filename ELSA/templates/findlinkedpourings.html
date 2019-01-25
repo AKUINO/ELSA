@@ -95,7 +95,7 @@ $if modelid:
 <div class="row active" style="background-color:rgb(0, 21, 43);margin-top:0px">
     <div class="col-xs-5">
     </div>
-    <div class="col-xs-6" id="addItem">
+    <div class="col-xs-6 addItem">
 	$if ( " upd_v " ) in self.allowed:
 	    $:c.getAllHalfling(c.AllPourings)$c.getMessage('pouring',self.lang):
 	    &nbsp: &nbsp; <a href="/create/v/b_$(id)_in">$:c.getHalfling('add')$:c.getHalfling("input")</a>

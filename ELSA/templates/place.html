@@ -13,10 +13,8 @@ $ rmq = ''
 $if context:
     $ kGroup = (context.split('_')[-1])
 $if id == 'new':
-    $var location: list/p=place edit/p_new=add
     $var title: $c.AllPlaces.getName(self.lang)
 $else:
-    $var location: list/p=place edit/p_$(id)=edit
     $code:
         elem = c.AllPlaces.get(id)
 	if elem and ('gu_id' in elem.fields) and elem.fields['gu_id']:

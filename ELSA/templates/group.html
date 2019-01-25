@@ -18,7 +18,6 @@ $code:
     kRec = 'gr'
     kUse = 'gu'
 $if id == 'new':
-    $var location: list/$(type)=$(AllObjects.get_class_acronym()) edit/$(type)_new=add
     $code:
 	if data and 'recipe' in data:
 	    kRec = 'gr_'+data['recipe']
@@ -29,7 +28,6 @@ $if id == 'new':
 	elif context and context.startswith('gu_'):
 	    kUse = context
 $else:
-    $var location: list/$(type)=$(AllObjects.get_class_acronym()) edit/$(type)_$(id)=edit
     $code:
 	elem = AllObjects.get(id)
 	if elem:
@@ -42,7 +40,6 @@ $else:
 $if errormess != '':
     $if 'remark' in data :
 	$ rmq = data['remark']
-$var location:
 $ aRecipe = c.AllGrRecipe.get(kRec)
 <form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip"data-bv-submitButtons="#loginSubmit">
 	<div class="form-group row" id="error">
