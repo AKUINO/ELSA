@@ -35,7 +35,7 @@ $if to_print:
 		<tr>
 		    <td>
 		    $ elem = allObjs.get(key)
-		    $ barcode = c.AllBarcodes.get_barcode(elem.get_type(),elem.getID())
+		    $ barcode = elem.get_barcode(c,'')
 		    $if barcode:
 			<svg id='barcode_$key'></svg>
 			<script>
@@ -57,6 +57,7 @@ $if to_print:
 			<br/><strong>$elem.getQtyUnit(c,self.lang)</strong>
 			$if elem.fields['remark']:
 			    <br>$c.getMessage('remark',self.lang): $elem.fields['remark']
+  		        <PRE>$elem.labelPrinter(c)</PRE>
 		    </td>
 		</tr>
 	</table>

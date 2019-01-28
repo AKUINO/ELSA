@@ -208,7 +208,7 @@ $var bcOperation:edit
 		    $if 'code' in data :
 			value="$data['code']"
 		$elif id != 'new':
-		    value="$c.AllBarcodes.get_barcode(alarmdef.get_type(), id)"
+		    value="$alarmdef.get_barcode(c,'')"
 		>
 	    </div>
 	</div>	

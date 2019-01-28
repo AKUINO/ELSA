@@ -278,7 +278,7 @@ $code:
 		    $if 'code' in data :
 			value="$data['code']"
 		$elif id != 'new':
-		    value="$c.AllBarcodes.get_barcode(elem.get_type(), id)"
+		    value="$elem.get_barcode(c,'')"
 		>
 	    </div>
 	</div>

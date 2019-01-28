@@ -495,7 +495,7 @@ $elif permissionKey in '_d_t_v_':
 			    <div class="col-xs-4">
 				$(c.getMessage('barcode',self.lang))
 			    </div>
-			    $ currNFC = c.AllBarcodes.get_barcode(elem.get_type(), elem.id, "N")
+			    $ currNFC = elem.get_barcode(c, "N")
 			    <div class="col-xs-2" >
 			        $if currNFC == connected.nfc :
 				    <span class="btn btn-success" role="button"><img src="/static/img/nfc.png" height="22"></span>

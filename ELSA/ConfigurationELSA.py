@@ -1,34 +1,37 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import sets
-import time
+import cgi
+import collections
 import datetime
-import traceback
 import errno
-import unicodecsv
-import sys
-import threading
 import os
 import os.path
-import cgi
-import rrdtool
-import pyownet
-import myuseful as useful
-import HardConfig as hardconfig
 import re
-import socket
-import urllib2
-import collections
+import rrdtool
+import sets
 import shutil
-import abe_adcpi
-import abe_mcp3424
-import abe_mcp3423
-import abe_iopi
-import serial
-import abe_expanderpi
+import socket
+import subprocess
+import sys
+import threading
+import time
+import traceback
+import urllib2
+
 import barcode
+import pyownet
 import requests
+import serial
+import unicodecsv
 import web.net as webnet
+
+import HardConfig as hardconfig
+import abe_adcpi
+import abe_expanderpi
+import abe_iopi
+import abe_mcp3423
+import abe_mcp3424
+import myuseful as useful
 
 """
 import SSD1306
@@ -395,6 +398,18 @@ class valueCategory(object):
     # triple returns 4 values for a given category !
     def triple(self):
         return self.name, self.acronym, self.color, self.text_color
+
+def exec_command(contexte, args):
+    outputText = None
+    try:
+        outputText = subprocess.check_output(args, stderr=subprocess.STDOUT).decode(sys.getdefaultencoding())
+    except subprocess.CalledProcessError as anError:
+        print u"Statut=" + unicode(anError.returncode) + u" " + unicode(anError)
+        return "Error="+unicode(anError.returncode)
+    except:
+        traceback.print_exc()
+        return None
+    return outputText
 
 
 valueCategs = {-2: valueCategory(-2, 'minmin', '---', color_violet, color_black),
@@ -774,6 +789,15 @@ class Configuration():
                                                                     lang)) if seconds else "")
         return result[1:]
 
+    # TRUE if no problem to create Print job
+    def labelPrinter(self, type_id, someText):
+        fileName = os.path.join(self.HardConfig.rundirectory, type_id + ".prn")
+        print "Printing using " + fileName
+        with open(fileName, "w") as printFile:
+            printFile.write(someText)
+        return self.exec_command(["lpr", "-o", "raw", "-r", fileName])
+        #return someText
+
 
 class ConfigurationObject(object):
 
@@ -966,8 +990,16 @@ class ConfigurationObject(object):
     def getID(self):
         return self.id
 
+    # must be overriden
+    def get_type(self):
+        return ""
+
     def getTypeId(self):
         return self.get_type() + u'_' + unicode(self.id)
+
+    # to be overriden when parents available
+    def get_all_parents(self,list=[],allObjs=None):
+        return list
 
     def getTimestring(self):
         stamp = ""
@@ -1077,6 +1109,9 @@ class ConfigurationObject(object):
             code = 990000000000 + (self.get_hash_type() * 10000000) + int(self.id)
             ean = c.AllBarcodes.EAN(unicode(code))
             c.AllBarcodes.add_barcode(self, ean.get_fullcode(), "", user)
+
+    def get_barcode(self, c, codetype=""):
+        return c.AllBarcodes.get_barcode_from_object(self.get_type(),self.getID(), codetype)
 
     def get_events(self, c):
         events = []
@@ -1432,6 +1467,59 @@ class ConfigurationObject(object):
                 if bGroup.fields['acronym'].lower() == key_upd:
                     return True
         return False
+
+    def readPrintTemplate(self,c,format):
+        directory = self.getDocumentDir()
+        try:
+            with open(os.path.join(directory, format + ".prn")) as f:
+                try:
+                    return f.read()
+                except:
+                    pass
+        except:
+            pass
+        allObjs = c.findAll(self.get_type())
+        elem_group = self.get_group()
+        if elem_group:
+            allGrs = c.findAll(allObjs.get_group_type())
+            above = allGrs.get(elem_group)
+            if above:
+                result = above.readPrintTemplate(c,format)
+                if result:
+                    return result
+        for elem_group in self.get_all_parents([], allObjs):
+            above = allObjs.get(elem_group)
+            if above:
+                result = above.readPrintTemplate(c,format)
+                if result:
+                    return result
+        return None
+
+
+    def labelPrinter(self, c, format="label", lang=""):
+        printerString = self.readPrintTemplate(c,format)
+        if printerString:
+            allObjs = c.findAll(self.get_type())
+            labelFields = {"barcode": self.get_barcode(c,''), "code": self.fields['acronym'], "name": self.getName(lang), "type": allObjs.getName(lang)}
+            value = ""
+            if 'remark' in self.fields and self.fields['remark']:
+                value = c.getMessage('remark', self.lang) + ": " + self.fields['remark']
+            labelFields['remark'] = value
+            value = ""
+            if 'expirationdate' in self.fields and self.fields['expirationdate']:
+                value = c.getMessage('expirationdate', lang) + ": " + self.fields['expirationdate']
+            labelFields['expiration'] = value
+            value = ""
+            group = self.get_group()
+            if group:
+                allGrs = c.findAll(allObjs.get_group_type())
+                above = allGrs.get(group)
+                if above:
+                    value = allGrs.getName(lang) + ": " + above.getName(lang)
+            labelFields['group'] = value
+            labelFields['quantity'] = self.getQtyUnit(c, lang)
+            return c.labelPrinter(self.getTypeId(),printerString % labelFields)
+        return "Format "+format+" unknown."
 
     def get_history(self, c):
         allObjects = c.findAllFromObject(self)
@@ -2795,7 +2883,7 @@ class AllBarcodes(AllObjects):
     def newObject(self, item):
         return Barcode(item)
 
-    def get_barcode(self, myType, myID, codetype=""):
+    def get_barcode_from_object(self, myType, myID, codetype=""):
         for k in self.elements.keys():
             currCode = self.elements[k]
             if currCode.fields['codetype'] == codetype and currCode.element:
