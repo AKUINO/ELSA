@@ -399,7 +399,7 @@ class valueCategory(object):
     def triple(self):
         return self.name, self.acronym, self.color, self.text_color
 
-def exec_command(contexte, args):
+def exec_command(args):
     outputText = None
     try:
         outputText = subprocess.check_output(args, stderr=subprocess.STDOUT).decode(sys.getdefaultencoding())
