@@ -6860,7 +6860,7 @@ class Barcode(ConfigurationObject):
         self.element = item
 
     def __repr__(self):
-        return self.fields['code']+((' '+fields['codetype']) if fields['codetype'] else "")
+        return self.fields['code']+((' '+self.fields['codetype']) if self.fields['codetype'] else "")
 
     def __str__(self):
         string = "\nCode(barre) :"
