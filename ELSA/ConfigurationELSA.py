@@ -795,7 +795,7 @@ class Configuration():
         print "Printing using " + fileName
         with open(fileName, "w") as printFile:
             printFile.write(someText)
-        return self.exec_command(["lpr", "-o", "raw", "-r", fileName])
+        return exec_command(["lpr", "-o", "raw", "-r", fileName])
         #return someText
 
 
