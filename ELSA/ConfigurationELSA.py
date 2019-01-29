@@ -791,12 +791,16 @@ class Configuration():
 
     # TRUE if no problem to create Print job
     def labelPrinter(self, type_id, someText):
-        fileName = os.path.join(self.HardConfig.rundirectory, type_id + ".prn")
+        # fileName = os.path.join(self.HardConfig.rundirectory, type_id + ".prn")
+        # print "Printing using " + fileName
+        # with open(fileName, "w") as printFile:
+        #     printFile.write(someText)
+        # return exec_command(["lpr", "-o", "raw", "-r", fileName])
+        #return someText
+        fileName = "/dev/usb/lp0"
         print "Printing using " + fileName
         with open(fileName, "w") as printFile:
             printFile.write(someText)
-        return exec_command(["lpr", "-o", "raw", "-r", fileName])
-        #return someText
 
 
 class ConfigurationObject(object):

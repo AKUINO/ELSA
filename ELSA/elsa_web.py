@@ -1316,6 +1316,10 @@ class WebIndex:
         self.name = u"WebIndex"
 
     def GET(self):
+        data = web.input(nifile={})
+        # Incomplete NFC reference !
+        if 'uid' in data and data['uid']:
+            raise web.seeother('/nfc?uid='+data['uid'])
         connected = isConnected()
         if connected is None:
             return render.index(connected)
