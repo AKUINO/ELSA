@@ -57,7 +57,7 @@ $if to_print:
 			<br/><strong>$elem.getQtyUnit(c,self.lang)</strong>
 			$if elem.fields['remark']:
 			    <br>$c.getMessage('remark',self.lang): $elem.fields['remark']
-  		        <PRE>$elem.labelPrinter(c)</PRE>
+  		        <PRE>$elem.labelPrinter(c,"label",self.lang)</PRE>
 		    </td>
 		</tr>
 	</table>
