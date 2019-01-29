@@ -136,8 +136,8 @@ div.leadot span + span {
 .switch {
   position: relative;
   display: inline-block;
-  width: 60px;
-  height: 17px;
+  width: 68px;
+  height: 24px;
 }
 
 .switch input {display:none;}
@@ -157,8 +157,8 @@ div.leadot span + span {
 .slider:before {
   position: absolute;
   content: "";
-  height: 13px;
-  width: 13px;
+  height: 20px;
+  width: 20px;
   left: 2px;
   bottom: 2px;
   background-color: white;
@@ -177,12 +177,12 @@ input:focus + .slider {
 input:checked + .slider:before {
   -webkit-transform: translateX(42px);
   -ms-transform: translateX(42px);
-  transform: translateX(42px);
+  transform: translateX(46px);
 }
 
 /* Rounded sliders */
 .slider.round {
-  border-radius: 34px;
+  border-radius: 42px;
 }
 
 .slider.round:before {

@@ -1064,7 +1064,7 @@ class ConfigurationObject(object):
         else:
             try:
                 if 'code' in data and len(data['code']) > 0:
-                    some_code = int(data['code'])
+                    some_code = data['code'].strip()
                     if not configuration.AllBarcodes.validate_barcode(
                             some_code,"", self.get_type(), self.id):
                         tmp += configuration.getMessage('barcoderules', lang) + '\n'
@@ -2898,7 +2898,7 @@ class AllBarcodes(AllObjects):
 
     def unique_barcode(self, some_code, myType, myID):
         v = self.get(some_code)
-        if v and (myID != v.getID() or myType != v.fields['type']):
+        if v and (myID != v.fields['idobject'] or myType != v.fields['type']):
             return False
         return True
 
