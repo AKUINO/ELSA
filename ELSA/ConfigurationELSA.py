@@ -2904,7 +2904,7 @@ class AllBarcodes(AllObjects):
 
     def add_barcode(self, item, some_code, codetype, user):
         if self.unique_barcode(some_code, item.get_type(), item.getID()):
-            oldBarcode = self.get_barcode(item.get_type(), item.getID(),codetype)
+            oldBarcode = self.get_barcode_from_object(item.get_type(), item.getID(),codetype)
             if oldBarcode and not oldBarcode == some_code:
                 self.delete_barcode(oldBarcode, codetype, user)
             self.elements[some_code] = self.create_barcode(item, some_code, codetype, user)
