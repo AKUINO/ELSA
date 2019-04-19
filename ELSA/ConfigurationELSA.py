@@ -2696,23 +2696,22 @@ class AllSensors(AllObjects):
         module = inputData['M']
         now = useful.get_timestamp()
         noDots = {ord(' '): None, ord('.'): None}
-        for k, v in inputData.items():
-            if k and v:
+        for key, value in inputData.items():
+            if key and value:
                 currSensor = None
                 for sensor in self.config.AllSensors.elements:
                     currSensor = self.config.AllSensors.elements[sensor]
                     if currSensor.isActive():
                         try:
-                            if unicode(currSensor.fields['sensor']).translate(noDots) == unicode(
-                                    module).translate(noDots)+'-'+unicode(
-                                    k).translate(noDots):
+                            if unicode(currSensor.fields['sensor']).translate(noDots) == u'M'+unicode(
+                                    module).translate(noDots)+u'_'+unicode(
+                                    key).translate(noDots):
                                 if not currSensor.fields['formula'] == '':
-                                    v = unicode(
+                                    value = unicode(
                                         eval(currSensor.fields['formula']))
-                                print(
-                                        u"Sensor LORA-" + currSensor.fields['sensor'] + u": " +
-                                        currSensor.fields['acronym'] + u" = " + unicode(v))
-                                currSensor.update(now, v, self.config)
+                                print( u"Sensor LORA-" + currSensor.fields['sensor'] + u": " +
+                                        currSensor.fields['acronym'] + u" = " + unicode(value))
+                                currSensor.update(now, value, self.config)
                         except:
                             traceback.print_exc()
                             print "Error in formula, " + currSensor.fields['acronym'] + ": " + \
@@ -5673,13 +5672,13 @@ class Sensor(AlarmingObject):
             self.countAlarm = self.countAlarm + 1
             alarmCode = self.get_alarm()
             if self.degreeAlarm == 1 \
-                    and self.countAlarm >= int(self.fields['lapse1']):
+                    and self.fields['lapse1'] and self.countAlarm >= int(self.fields['lapse1']):
                 if alarmCode and alarmCode in config.AllAlarms.elements:
                     alid = config.AllAlarms.elements[alarmCode].launch_alarm(self, config)
                 self.degreeAlarm = 2
                 self.countAlarm = 0
             elif self.degreeAlarm == 2 \
-                    and self.countAlarm >= int(self.fields['lapse2']):
+                    and self.fields['lapse2'] and self.countAlarm >= int(self.fields['lapse2']):
                 if alarmCode and alarmCode in config.AllAlarms.elements:
                     alid = config.AllAlarms \
                         .elements[alarmCode].launch_alarm(self, config)
