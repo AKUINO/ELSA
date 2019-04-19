@@ -32,6 +32,17 @@ def parse_url_query_string(string, key):
             return urllib.unquote(item[1]).decode('UTF-8')
     return None
 
+def parse_url_dict(string):
+    result = {}
+    array_string = string.split('&')
+    for item in array_string:
+        item = item.split('=')
+        if len(item) > 1:
+            result[item[0]] = urllib.unquote(item[1]).decode('UTF-8')
+        else:
+            result[item[0]] = ''
+    return result
+
 def get_timestamp():
     now = time.time()
     now = math.floor(float(now))

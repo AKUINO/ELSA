@@ -267,6 +267,7 @@ class WebApiGrafana:
             lang = None
         data = json.loads(web.data())
         if request == 'search':
+            web.header('Content-type', 'application/json')
             return json.dumps(get_list_of_active_sensors_acronyms(lang))
         elif request == 'query':
             time_from_utc = data['range']['from']
@@ -285,10 +286,27 @@ class WebApiGrafana:
                                                            lang,
                                                            time_from_utc,
                                                            time_to_utc))
+            web.header('Content-type', 'application/json')
             return json.dumps(out)
         else:
             return 'Error: Invalid url requested'
 
+
+class WebApiKeyValue:
+    def __init(self):
+        self.name = u"WebApiKeyValue"
+
+    def GET(self):
+        query_string = web.ctx.env.get('QUERY_STRING')
+        inputData = useful.parse_url_dict(query_string)
+        inputData['H'] = useful.get_timestamp()
+        if inputData['M']:
+            c.AllSensors.storeLoraValue(inputData)
+        web.header('Content-type', 'application/json')
+        return json.dumps(inputData)
+
+    def POST(self):
+        return ""
 
 class WebRestarting:
     global app
@@ -298,7 +316,6 @@ class WebRestarting:
 
     def GET(self):
         connected = redirect_when_not_logged(False)
-
         app.stop()
         # sys.exit()
         return render.restarting(connected)
@@ -1558,6 +1575,7 @@ class WebTest:
                     '/graphhelp/b_1',
                     '/calendar',
                     '/nfc?uid=04715C7A894981',
+                    '/api/kv?M=1&T',
                     '/search']
         #            '/rrd/(.+)',
         #            '/csv/(.+)',
@@ -1851,6 +1869,8 @@ def main():
             '/updateELSA', 'WebUpdateELSA',
             '/restarting', 'WebRestarting',
             '/api/grafana/([^/]*)/{0,1}(.*)', 'WebApiGrafana',
+            '/api/grafana', 'WebApiGrafana',
+            '/api/kv', 'WebApiKeyValue',
             '/nfc/(.+)_(.+)', 'WebNFC',
             '/nfc', 'WebNFC',
             '/test', 'WebTest'

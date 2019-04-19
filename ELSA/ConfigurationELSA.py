@@ -2581,7 +2581,8 @@ class AllSensors(AllObjects):
                       'http',
                       'json',
                       'cputemp',
-                      'system']
+                      'system',
+                      'lora']
 
     def __init__(self, config):
         AllObjects.__init__(self, 's', Sensor.__name__, config)
@@ -2691,6 +2692,31 @@ class AllSensors(AllObjects):
             if not os.path.exists(filename):
                 v.createRRD()
 
+    def storeLoraValue(self, inputData):
+        module = inputData['M']
+        now = useful.get_timestamp()
+        noDots = {ord(' '): None, ord('.'): None}
+        for k, v in inputData.items():
+            if k and v:
+                currSensor = None
+                for sensor in self.config.AllSensors.elements:
+                    currSensor = self.config.AllSensors.elements[sensor]
+                    if currSensor.isActive():
+                        try:
+                            if unicode(currSensor.fields['sensor']).translate(noDots) == unicode(
+                                    module).translate(noDots)+'-'+unicode(
+                                    k).translate(noDots):
+                                if not currSensor.fields['formula'] == '':
+                                    v = unicode(
+                                        eval(currSensor.fields['formula']))
+                                print(
+                                        u"Sensor LORA-" + currSensor.fields['sensor'] + u": " +
+                                        currSensor.fields['acronym'] + u" = " + unicode(v))
+                                currSensor.update(now, v, self.config)
+                        except:
+                            traceback.print_exc()
+                            print "Error in formula, " + currSensor.fields['acronym'] + ": " + \
+                                  currSensor.fields['formula']
 
 class AllBatches(AllObjects):
 
@@ -5824,11 +5850,20 @@ class Sensor(AlarmingObject):
         elif self.fields['channel'] == 'radio':
             # Look at RadioThread
             pass
+        elif self.fields['channel'] == 'lora':
+            # Look at WebApiKeyValue
+            pass
         elif self.fields['channel'] == 'cputemp':
-            with open('/sys/class/thermal/thermal_zone0/temp', 'r') \
-                    as sensorfile:
-                info = sensorfile.read()
-                output_val = float(info) / 1000.0
+            try:
+                with open('/sys/class/thermal/thermal_zone0/temp', 'r') \
+                        as sensorfile:
+                    info = sensorfile.read()
+                    output_val = float(info) / 1000.0
+            except:
+                 debugging = (u"File=/sys/class/thermal/thermal_zone0/temp"
+                                 + u", Message="
+                                 + traceback.format_exc())
+                 traceback.print_exc()
         elif self.fields['channel'] == 'http':
             url = self.fields['sensor']
             code = 0
@@ -5910,26 +5945,27 @@ class Sensor(AlarmingObject):
                             self.fields['subsensor'] + u", data=" + \
                             unicode(info) + u", Message=" + traceback.format_exc()
         elif self.fields['channel'] == 'battery':
-            input = config.HardConfig.inputs[self.fields['channel']]
-            device = config.HardConfig.devices[input['device']]
-            if device['install'] == "mcp3423":
-                try:
-                    adc = abe_mcp3423.ADCPi(int(device['i2c'], 16),
-                                            int(input['resolution']))
-                    output_val = adc.read_voltage(int(input['channel']))
-                except IOError:
-                    print('Unable to read sensor !' + ' channel : '
-                          + self.fields['channel']
-                          + ', i2c address : '
-                          + device['i2c'])
-            elif device['install'] == "abe_expanderpi":
-                adc = abe_expanderpi.ADC()
-                output_val = adc.read_adc_voltage(int(input['channel']), 0)
-                adc.close()
-            else:
-                print("Error : device.install : "
-                      + device.install
-                      + " not supported for type battery.")
+            if 'battery' in config.HardConfig.inputs:
+                input = config.HardConfig.inputs['battery']
+                device = config.HardConfig.devices[input['device']]
+                if device['install'] == "mcp3423":
+                    try:
+                        adc = abe_mcp3423.ADCPi(int(device['i2c'], 16),
+                                                int(input['resolution']))
+                        output_val = adc.read_voltage(int(input['channel']))
+                    except IOError:
+                        debugging = ('Unable to read sensor !' + ' channel : '
+                                      + self.fields['channel']
+                                      + ', i2c address : '
+                                      + device['i2c'])
+                elif device['install'] == "abe_expanderpi":
+                    adc = abe_expanderpi.ADC()
+                    output_val = adc.read_adc_voltage(int(input['channel']), 0)
+                    adc.close()
+                else:
+                    debugging = ("Error : device.install : "
+                                  + device.install
+                                  + " not supported for type battery.")
         elif self.fields['channel'].startswith('lightsensor'):
             input = config.HardConfig.inputs[self.fields['channel']]
             device = config.HardConfig.devices[input['device']]
@@ -5940,10 +5976,10 @@ class Sensor(AlarmingObject):
                 adc.set_pga(int(device['amplification']))
                 output_val = adc.read_voltage(int(input['channel']))
             except IOError:
-                print('Unable to read sensor !' + ' channel : '
-                      + self.fields['channel']
-                      + ', i2c address : '
-                      + device['i2c'])
+                debugging = ('Unable to read sensor !' + ' channel : '
+                              + self.fields['channel']
+                              + ', i2c address : '
+                              + device['i2c'])
         elif self.fields['channel'].startswith('humiditysensor'):
             output_val = self.get_mesure_humidity_campbell(config)
         elif self.fields['channel'] == 'atmos41':
@@ -5979,7 +6015,7 @@ class Sensor(AlarmingObject):
         try:
             assert output_val != None
         except AssertionError:
-            if self.fields['channel'] != 'radio':
+            if self.fields['channel'] not in  ['radio','lora']:
                 print("output_val has not been set for channel: "
                       + self.fields['channel']
                       + '. Ignoring.')
