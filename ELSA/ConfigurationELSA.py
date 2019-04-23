@@ -5719,8 +5719,8 @@ class Sensor(AlarmingObject):
 
     def updateRRD(self, now, value):
         value = float(value)
-        print self.getRRDName() + " " + useful.timestamp_to_ISO(now) + "." + unicode(now) + "=" + unicode(value)
         rrdtool.update(str(DIR_RRD + self.getRRDName()), '%d:%f' % (now, value))
+        print self.getRRDName() + " " + useful.timestamp_to_ISO(now) + " " + '%d:%f' % (now, value)
 
     def fetchRRD(self, period=None):
         filename = str(DIR_RRD + self.getRRDName())
@@ -5935,6 +5935,7 @@ class Sensor(AlarmingObject):
                     sensorfile.close()
         elif self.fields['channel'] == 'system':
             try:
+                info = ""
                 sensorAdress = self.fields['sensor']
                 with open(sensorAdress, 'r') as sensorfile:
                     info = sensorfile.read()
