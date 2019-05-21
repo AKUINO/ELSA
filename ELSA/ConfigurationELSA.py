@@ -588,6 +588,14 @@ class Configuration():
     def getAllGlyph(self, allObjects):
         return self.AllHalflings.getGlyph(allObjects.get_class_acronym())
 
+    def get_channel_devices(self, channel):
+        list_channel = self.channels[channel]
+        if channel == 'wire':
+            list = self.owproxy.dir()
+            for w in list:
+                list_channel[w] = [0, ""]
+        return list_channel
+
     def breadcrumbTop(self, top):
         if top in "grbdtv":
             top = "gr"
