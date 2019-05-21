@@ -5461,7 +5461,7 @@ class Alarm(ConfigurationObject):
             relaySensor.update(alarmedObject.time,relay_value,config)
             relaySensor.relaySetting = relay_value
 
-    def alarm_by_all(self, alarmedObject, sms, mail, relay, sound, relay_id, relay_value, config):
+    def alarm_by_all(self, alarmedObject, sms, mail, sound, relay_id, relay_value, config):
         alid = None
         alid = self.alarm_by_sms(alarmedObject, alid, self.fields[sms], config)
         alid = self.alarm_by_email(alarmedObject, alid, self.fields[mail], config)
