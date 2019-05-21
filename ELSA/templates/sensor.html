@@ -29,7 +29,7 @@ $else:
 	elif elem.fields['c_id']:
 	    component = 'c_'+elem.fields['c_id']
 	channel = elem.fields['channel']
-$ now = useful.now()
+$ timestamp = useful.get_timestamp()
 $code:
 	if errormess != '':
 	    if 'remark' in data :
@@ -211,7 +211,7 @@ $code:
 			$for k,v in list_channel.items():
 				$ rssi = v[0]
 				$ timestamp = v[1]
-				<option value="$k">$k $( ("RSSI:"+rssi) if rssi else "") $(timestamp if timestamp else "")</option>
+				<option value="$k">$k $( ("RSSI:"+rssi) if rssi else "") $(useful.timestamp_to_date(timestamp) if timestamp else "")</option>
 		</datalist>
 	    </div>
 	</div>
@@ -249,7 +249,7 @@ $code:
                 <label for="inputValidation" class="col-sm-3 col-form-label">TEST</label>
                 <div class="col-sm-9" style="color:black">
 		    $code:
-                        value, ignore = elem.get_value_sensor(c,now)
+                        value, ignore = elem.get_value_sensor(c,timestamp)
 		    Value=<span style="background-color:#$(elem.colorAlarm);color:#$(elem.colorTextAlarm)"><strong>$(value)</strong> $elem.get_unit(c)</span>
 	        </div>
 	    </div>

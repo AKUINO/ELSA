@@ -1585,9 +1585,9 @@ class UpdateThread(threading.Thread):
                                                          port=4304)
         while self.config.isThreading is True:
             timer = 0
-            now = useful.get_timestamp()
+            timestamp = useful.get_timestamp()
             if len(self.config.AllSensors.elements) > 0:
-                self.config.AllSensors.update(now)
+                self.config.AllSensors.update(timestamp)
                 #TODO: send values to locally connected relays
                 # for relaySensor in c.allSensors.elements:
                 #     if relaySensor.relaySetting and relaySensor.fields['channel'] != 'lora' and relaySensor.fields[
@@ -1625,7 +1625,7 @@ class RadioThread(threading.Thread):
                     elif line is not None:
                         if data == ']':
                             if len(line) == 10:
-                                now = useful.get_timestamp()
+                                timestamp = useful.get_timestamp()
                                 RSS = int(line[0] + line[1], 16)
                                 HEX = line[2] + line[3] + line[4]
                                 self.config.channels['radio'][HEX] = [RSS,now]
@@ -1650,7 +1650,7 @@ class RadioThread(threading.Thread):
                                                 print(
                                                         u"Sensor ELA-" + currSensor.fields['sensor'] + u": " +
                                                         currSensor.fields['acronym'] + u" = " + unicode(value))
-                                                currSensor.update(now, value, self.config)
+                                                currSensor.update(timestamp, value, self.config)
                                         except:
                                             traceback.print_exc()
                                             print "Error in formula, " + currSensor.fields['acronym'] + ": " + \
@@ -2679,7 +2679,7 @@ class AllSensors(AllObjects):
         for k, sensor in self.elements.items():
             sensor.setCorrectAlarmValue()
 
-    def update(self, now):
+    def update(self, timestamp):
         iteration_cache = {}
 
         def set_cache(self, cache):
@@ -2703,8 +2703,8 @@ class AllSensors(AllObjects):
 
         for k, sensor in self.elements.items():
             if sensor.isActive() and sensor.fields['channel'] in self._queryChannels:
-                value, cache = sensor.get_value_sensor(self.config, now, get_cache(sensor))
-                sensor.update(now, value, self.config)
+                value, cache = sensor.get_value_sensor(self.config, timestamp, get_cache(sensor))
+                sensor.update(timestamp, value, self.config)
                 if cache is not None:
                     set_cache(sensor, cache)
 
@@ -2725,7 +2725,7 @@ class AllSensors(AllObjects):
         stamp = None
         if 'H' in inputData and inputData['H']:
             try:
-                stamp = useful.timestamp_to_date(inputData['H'])
+                stamp = inputData['H']
             except:
                 stamp = None
         if not stamp:
@@ -5879,7 +5879,7 @@ class Sensor(AlarmingObject):
                   + unicode(value) + ' because it is out of bounds')
             return None
 
-    def get_value_sensor(self, config, now, cache=None):
+    def get_value_sensor(self, config, timestamp, cache=None):
         def parse_atmos_data(self, input):
             '''
             Given a single string '+a+b-c+d', returns ['+a','+b','-c','+d']
@@ -5900,7 +5900,7 @@ class Sensor(AlarmingObject):
                                    unicode(self.fields['sensor']) + u'/' + \
                                    unicode(self.fields['subsensor'])
                     output_val = float(config.owproxy.read(sensorAdress))
-                    config.channels['wire'][self.fields['sensor']] = [0,now]
+                    config.channels['wire'][self.fields['sensor'][:12]] = [0,timestamp]
                 except:
                     debugging = (u"Device=" + sensorAdress
                                  + u", Message="
@@ -5947,7 +5947,7 @@ class Sensor(AlarmingObject):
                     info = sensorfile.read(80000)
                     cache = info
                     output_val = eval(self.fields['subsensor'])
-                    config.channels['http'][self.fields['sensor']] = [0,now]
+                    config.channels['http'][self.fields['sensor']] = [0,timestamp]
                 except:
                     debugging = u"URL=" + (url if url else "") + u", code=" + \
                                 (unicode(code) if code else "") + u", Response=" + (info if info else "") + \
@@ -5981,7 +5981,7 @@ class Sensor(AlarmingObject):
                     info = json.loads(info)
                     cache = info
                     output_val = eval(self.fields['subsensor'])
-                    config.channels['json'][self.fields['sensor']] = [0,now]
+                    config.channels['json'][self.fields['sensor']] = [0,timestamp]
                 except:
                     debugging = (u"URL=" + (url if url else "")
                                  + u", code="
