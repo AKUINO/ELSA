@@ -5479,7 +5479,7 @@ class Alarm(ConfigurationObject):
     def alarm_by_relay(self, alarmedObject, relay_id, relay_value, config):
         relaySensor = config.AllSensors.get(relay_id)
         if relaySensor and relay_value:
-            relaySensor.update(alarmedObject.time,relay_value,config)
+            relaySensor.update(useful.date_to_timestamp(alarmedObject.time),relay_value,config)
             relaySensor.relaySetting = relay_value
 
     def alarm_by_all(self, alarmedObject, sms, mail, sound, relay_id, relay_value, config):
@@ -5712,14 +5712,14 @@ class Sensor(AlarmingObject):
     def add_phase(self, data):
         self.fields['h_id'] = data
 
-    def nextAlarm(self, config, now, no_change):
+    def nextAlarm(self, config, timestamp, no_change):
         alid = None
         if not no_change:  # Alarm just changed !
             self.degreeAlarm = 0
         if self.degreeAlarm == 0:
             self.degreeAlarm = 1
             self.countAlarm = 0
-            self.time = useful.timestamp_to_date(now)
+            self.time = useful.timestamp_to_date(timestamp)
             alarmCode = self.get_alarm()
             if int(self.floats('lapse1')) == 0:
                 if alarmCode and alarmCode in config.AllAlarms.elements:
@@ -5750,13 +5750,13 @@ class Sensor(AlarmingObject):
             print 'Alarm #' + alid + ' [' + self.actualAlarm + '] level ' + unicode(
                     self.degreeAlarm) + ' for ' + self.__repr__()
 
-    def update(self, now, value, config):
+    def update(self, timestamp, value, config):
         self.lastvalue = value
         if value is not None:
-            self.updateRRD(now, value)
+            self.updateRRD(timestamp, value)
 
         if config.screen is not None:
-            minutes = int(now / 60)
+            minutes = int(timestamp / 60)
             # GMT + DST
             hours = (int(minutes / 60) % 24) + 100 + 2
             minutes = (minutes % 60) + 100
@@ -5773,7 +5773,7 @@ class Sensor(AlarmingObject):
         prvAlarm = self.actualAlarm
         typeAlarm, symbAlarm, self.colorAlarm, self.colorTextAlarm = self.getTypeAlarm(value, self)
         self.actualAlarm = typeAlarm
-        self.nextAlarm(config, now, prvAlarm == self.actualAlarm)
+        self.nextAlarm(config, timestamp, prvAlarm == self.actualAlarm)
 
     def updateRRD(self, now, value):
         value = float(value)
