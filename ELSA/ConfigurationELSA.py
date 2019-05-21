@@ -468,6 +468,7 @@ class Configuration():
         self.AllEquipments = AllEquipments(self)
         self.AllMeasures = AllMeasures(self)
         self.AllBatches = AllBatches(self)
+        self.channels = {} # Directory of devices for different channels
         self.AllSensors = AllSensors(self)
         self.AllGrFunction = AllGrFunction(self)
         self.AllGrUsage = AllGrUsage(self)
@@ -493,7 +494,6 @@ class Configuration():
         self.screen = None
         self.owproxy = None
         self.batteryVoltage = 0.0
-        self.channels = {} # Directory of devices for different channels
 
     def load(self):
         """

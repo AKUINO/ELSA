@@ -27,6 +27,7 @@ $else:
 	    component = 'e_'+elem.fields['e_id']
 	elif elem.fields['c_id']:
 	    component = 'c_'+elem.fields['c_id']
+$ now = useful.now()
 $code:
 	if errormess != '':
 	    if 'remark' in data :
@@ -214,11 +215,17 @@ $code:
 		    value="$elem.fields['sensor']"
 		required="true" list="known"/>
 		<datalist id="known">
-		$if data['channel'] in c.channels:
-			$for k,v in c.channels[data['channel']]:
+		$if data and  data['channel'] in c.channels:
+			$ channel = data['channel']
+			$if channel == 'wire':
+				$ list_channel = c.channels[channel]
+				$ list = c.owproxy.dir()
+				$for w in list:
+					$ list_channel[w] = [0,now]
+			$for k,v in c.channels[channel]:
 				$ rssi = v[0]
 				$ timestamp = v[1]
-				<option value="$k">$k RSSI:$rssi $timestamp</option>
+				<option value="$k">$k, RSSI:$rssi $timestamp</option>
 		</datalist>
 	    </div>
 	</div>
@@ -256,7 +263,7 @@ $code:
                 <label for="inputValidation" class="col-sm-3 col-form-label">TEST</label>
                 <div class="col-sm-9" style="color:black">
 		    $code:
-                        value, ignore = elem.get_value_sensor(c)
+                        value, ignore = elem.get_value_sensor(c,now)
 		    Value=<span style="background-color:#$(elem.colorAlarm);color:#$(elem.colorTextAlarm)"><strong>$(value)</strong> $elem.get_unit(c)</span>
 	        </div>
 	    </div>

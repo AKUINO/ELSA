@@ -52,7 +52,7 @@ $var title: MODAL
 		    $if type == 's':
 			<div class="row">
 			    $code:
-				value, ignore = elem.get_value_sensor(c)
+				value, ignore = elem.get_value_sensor(c,useful.now)
                             <div class="col-xs-2">
 				$c.getMessage(elem.actualAlarm,self.lang)
                             </div>
