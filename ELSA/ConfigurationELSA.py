@@ -589,11 +589,15 @@ class Configuration():
         return self.AllHalflings.getGlyph(allObjects.get_class_acronym())
 
     def get_channel_devices(self, channel):
+        if not channel in self.channels:
+            return []
         list_channel = self.channels[channel]
         if channel == 'wire':
+            now = useful.now()
             list = self.owproxy.dir()
             for w in list:
-                list_channel[w] = [0, ""]
+                w = w.strip('/. ').replace('.','')
+                list_channel[w] = [0, now]
         return list_channel
 
     def breadcrumbTop(self, top):

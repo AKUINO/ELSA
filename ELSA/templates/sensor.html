@@ -13,6 +13,7 @@ $ sensor_channels = c.AllSensors.get_query_channels()
 $ component = ""
 $ comp_type = ""
 $ comp_id = ""
+$ channel = ""
 $if id == 'new':
     $ rmq = ""
     $ elem = None
@@ -27,6 +28,7 @@ $else:
 	    component = 'e_'+elem.fields['e_id']
 	elif elem.fields['c_id']:
 	    component = 'c_'+elem.fields['c_id']
+	channel = elem.fields['channel']
 $ now = useful.now()
 $code:
 	if errormess != '':
@@ -34,6 +36,8 @@ $code:
 		rmq = data['remark']
 	    if 'component' in data :
 		component = data['component']
+	    if 'channel' in data :
+		channel = data['channel']
 	if component:
 	    component = component.split('_')
 	    comp_type = component[0]
@@ -184,26 +188,14 @@ $code:
 	    <label for="channelSelect" class="col-sm-3 col-form-label">$c.getMessage('channel',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "channel" class="form-control" id="channelSelect">
-		    $code:
-			dicchannel = {'wire':'1-Wire','radio':'ELA Radio','http':'HTTP or HTTPS request', 'json' : 'JSON format from HTTP/HTTPS request','cputemp':'CPU Temperature','system':'System File','battery':'input.battery', 'humiditysensor1':'humiditysensor1', 'lightsensor1':'lightsensor1'}
 		    $for item in sensor_channels:
 			<option value="$(item)"
-			$if errormess != '' :
-			    $if 'channel' in data:
-				$if item == data['channel']:
-				    selected
-			$elif id != 'new':
-			    $if item == elem.fields['channel'] :
+		    	$if item == channel:
 				selected
 			>$(item)</option>
 		</select>
 	    </div>
 	</div>
-<!-- c.owproxy.dir() retournerait ['/10.000010EF0000/', '/05.000005FA0100/', '/26.000026D90200/', '/01.000001FE0300/', '/43.000043BC0400/']
-     et permettrait de faire une liste des équipements 1-Wire connecté
-     c.channels['ela'] contient déjà les devices ELA et leur [RSSI,last-time]
-     c.channels['lora'] contient déjà les devices LORA et leur [RSSI,last-time]
- -->
 	<div class="form-group row">
 	    <label for="inputSensor" class="col-sm-3 col-form-label">$c.getMessage('sensor',self.lang)</label>
 	    <div class="col-sm-9">
@@ -215,9 +207,8 @@ $code:
 		    value="$elem.fields['sensor']"
 		required="true" list="known"/>
 		<datalist id="known">
-		$if data and  data['channel'] in c.channels:
-			$ list_channel = c.get_channel_devices(data['channel'])
-			$for k,v in list_channel:
+			$ list_channel = c.get_channel_devices(channel)
+			$for k,v in list_channel.items():
 				$ rssi = v[0]
 				$ timestamp = v[1]
 				<option value="$k">$k $( ("RSSI:"+rssi) if rssi else "") $(timestamp if timestamp else "")</option>
