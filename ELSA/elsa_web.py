@@ -249,6 +249,13 @@ def get_data_points_for_grafana_api(target, lang, time_from_utc, time_to_utc):
                                                        time_to_utc)}
 
 
+class GrafanaAnnotation(object):
+    def __init__(self, req, time, title="", tags=[], text=""):
+        self.annotation = req
+        self.time = time
+        self.tags = tags
+        self.text = text
+
 class WebApiGrafana:
     def __init(self):
         self.name = u"WebApiGrafana"
@@ -288,6 +295,23 @@ class WebApiGrafana:
                                                            time_to_utc))
             web.header('Content-type', 'application/json')
             return json.dumps(out)
+        elif request == 'annotations':
+            time_from_utc = data['range']['from']
+            time_from_utc = time_from_utc.split('.')[0]
+            time_from_utc = time.strptime(time_from_utc, "%Y-%m-%dT%H:%M:%S")
+            time_to_utc = time.strptime(data['range']['to'].split('.')[0],
+                                        "%Y-%m-%dT%H:%M:%S")
+
+            out = []
+            for elem in data['annotation']:
+                anno = GrafanaAnnotation(elem,data['range']['from'],"Some Title",[],"Some Text")
+                out.append(anno)
+                # out.append(get_annotations_for_grafana_api(elem,
+                #                                            lang,
+                #                                            time_from_utc,
+                #                                            time_to_utc))
+            web.header('Content-type', 'application/json')
+            return json.dumps(out, default=lambda x: x.__dict__)
         else:
             return 'Error: Invalid url requested'
 
@@ -299,11 +323,16 @@ class WebApiKeyValue:
     def GET(self):
         query_string = web.ctx.env.get('QUERY_STRING')
         inputData = useful.parse_url_dict(query_string)
-        inputData['H'] = useful.get_timestamp()
-        if inputData['M']:
-            c.AllSensors.storeLoraValue(inputData)
-        web.header('Content-type', 'application/json')
-        return json.dumps(inputData)
+        c.AllSensors.storeLoraValue(inputData)
+        # web.header('Content-type', 'application/json')
+        # return json.dumps(outputData)
+        web.header('Content-type', 'text/plain')
+        out = u''
+        for relaySensor in c.allSensors.elements:
+            if relaySensor.relaySetting and relaySensor.fields['channel']=='lora' and relaySensor.fields['sensor'] and relaySensor.fields['subsensor']:
+                out += u'&S=' + relaySensor.getAccronym() + u'&M=' + relaySensor.fields['sensor'] + u'&' + relaySensor.fields['subsensor'] + u'=' + relaySensor.relaySetting + u"\n"
+                relaySensor.relaySetting = None
+        return out
 
     def POST(self):
         return ""

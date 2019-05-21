@@ -37,7 +37,7 @@ $code:
 	    component = component.split('_')
 	    comp_type = component[0]
 	    comp_id = component[1]
-<form  method="post" action="" id="modifyPlace"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
+<form  method="post" action="" id="modifySensor"  enctype="multipart/form-data" data-bv-message="This value is not valid"  data-bv-live="enabled" data-bv-container="tooltip" data-bv-submitButtons="#loginSubmit">
 	<div class="form-group row" id="error">
 	    $errormess
 	</div>
@@ -215,33 +215,13 @@ $code:
 	<div class="form-group row">
 	    <label for="inputSubsensor" class="col-sm-3 col-form-label">$c.getMessage('subsensor',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="subsensor" type="text" class="form-control" id="inputUnit" placeholder="$c.getMessage('subsensor',self.lang)" 
+		<input name="subsensor" type="text" class="form-control" id="inputSubsensor" placeholder="$c.getMessage('subsensor',self.lang)"
 		$if errormess != '':
 		    $if 'subsensor' in data :
 			value="$data['subsensor']"
 		$elif id !='new':
 		    value="$elem.fields['subsensor']"
 		>
-	    </div>
-	</div>
-	
-	<div class="form-group row">
-	    <label for="inputValuetype" class="col-sm-3 col-form-label">$c.getMessage('valuetype',self.lang)</label>
-	    <div class="col-sm-9">
-		<select name = "valuetype" class="form-control" id="channelSelect">
-		    $code:
-			values = ['float', 'int', 'hexa']
-		    $for v in values:
-		    <option value="$(v)"
-			$if errormess != '':
-			    $if 'valuetype' in data :
-				$if v == data['valuetype']:
-				    selected
-			$elif id !='new':
-			    $if v == elem.fields['valuetype'] :
-				selected
-			>$(v)</option>
-		</select>
 	    </div>
 	</div>
 	

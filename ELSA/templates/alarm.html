@@ -175,9 +175,28 @@ $var bcOperation:edit
 	</div>	
 	
 	<div class="form-group row">
-	    <label for="inputRelay1" class="col-sm-3 col-form-label">$c.getMessage('relay',self.lang) 1</label>
+	    <label for="inputRelay1_id" class="col-sm-3 col-form-label">$c.getMessage('sensor',self.lang) 1</label>
 	    <div class="col-sm-9">
-		<input name="relay1" type="text" class="form-control" id="inputRelay1" placeholder="$c.getMessage('relay',self.lang)" 
+		<select name = "relay1_id" class="form-control" id="inputRelay1_id">
+		    <option value=""></option>
+		    $for k,fun in c.AllSensors.get_sorted().items():
+			<option value="$k"
+                         $if errormess != '' :
+			    $if 'relay1_id' in data:
+				$if k == data['relay1_id']:
+				    selected
+			$elif id != 'new':
+                            $if alarmdef.fields["relay1_id"] == k:
+				selected
+			>$fun.fields['acronym'] - $fun.getName(self.lang) </option>
+		</select>
+	    </div>
+	</div>
+
+	<div class="form-group row">
+	    <label for="inputRelay1" class="col-sm-3 col-form-label">$c.getMessage('relay',self.lang) 1 ($c.getMessage('value',self.lang))</label>
+	    <div class="col-sm-9">
+		<input name="relay1" type="text" class="form-control" id="inputRelay1" placeholder="$c.getMessage('value',self.lang)"
 		$if errormess != '' :
 		    $if 'relay1' in data:
 			value = "$data['relay1']"
@@ -188,9 +207,28 @@ $var bcOperation:edit
 	</div>
 	
 	<div class="form-group row">
-	    <label for="inputRelay2" class="col-sm-3 col-form-label">$c.getMessage('relay',self.lang) 2</label>
+	    <label for="inputRelay2_id" class="col-sm-3 col-form-label">$c.getMessage('sensor',self.lang) 2</label>
 	    <div class="col-sm-9">
-		<input name="relay2" type="text" class="form-control" id="inputRelay2" placeholder="$c.getMessage('relay',self.lang)" 
+		<select name = "relay2_id" class="form-control" id="inputRelay2_id">
+		    <option value=""></option>
+		    $for k,fun in c.AllSensors.get_sorted().items():
+			<option value="$k"
+                         $if errormess != '' :
+			    $if 'relay2_id' in data:
+				$if k == data['relay2_id']:
+				    selected
+			$elif id != 'new':
+                            $if alarmdef.fields["relay2_id"] == k:
+				selected
+			>$fun.fields['acronym'] - $fun.getName(self.lang) </option>
+		</select>
+	    </div>
+	</div>
+
+	<div class="form-group row">
+	    <label for="inputRelay2" class="col-sm-3 col-form-label">$c.getMessage('relay',self.lang) 2 ($c.getMessage('value',self.lang))</label>
+	    <div class="col-sm-9">
+		<input name="relay2" type="text" class="form-control" id="inputRelay2" placeholder="$c.getMessage('value',self.lang)"
 		$if errormess != '' :
 		    $if 'relay1' in data:
 			value = "$data['relay2']"

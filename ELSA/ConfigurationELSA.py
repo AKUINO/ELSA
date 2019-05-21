@@ -1575,6 +1575,12 @@ class UpdateThread(threading.Thread):
             now = useful.get_timestamp()
             if len(self.config.AllSensors.elements) > 0:
                 self.config.AllSensors.update(now)
+                #TODO: send values to locally connected relays
+                # for relaySensor in c.allSensors.elements:
+                #     if relaySensor.relaySetting and relaySensor.fields['channel'] != 'lora' and relaySensor.fields[
+                #         'sensor'] and relaySensor.fields['subsensor']:
+                #         SEND VALUE TO SENSOR/RELAY !
+                #         relaySensor.relaySetting = None
             while self.config.isThreading is True and timer < 60:
                 time.sleep(1)
                 timer = timer + 1
@@ -2195,7 +2201,7 @@ class AllAlarms(AllObjects):
         AllObjects.__init__(self, 'a', Alarm.__name__, config)
         self.fieldnames = ['begin', 'a_id', 'active', 'acronym', 'o_sms1',
                            'o_sms2', 'o_email1', 'o_email2', 'o_sound1',
-                           'o_sound2', 'relay1', 'relay2', 'remark', 'user']
+                           'o_sound2', 'relay1', 'relay1_id', 'relay2', 'relay2_id', 'remark', 'user']
         self.fieldtranslate = ['begin', 'lang', 'a_id', 'name', 'user']
 
     def newObject(self):
@@ -2693,25 +2699,55 @@ class AllSensors(AllObjects):
                 v.createRRD()
 
     def storeLoraValue(self, inputData):
+        if not 'M' in inputData or not inputData['M']:
+            return
         module = inputData['M']
-        now = useful.get_timestamp()
+        stamp = None
+        if 'H' in inputData and inputData['H']:
+            try:
+                stamp = useful.timestamp_to_date(inputData['H'])
+            except:
+                stamp = None
+        if not stamp:
+            stamp = useful.get_timestamp()
+
         noDots = {ord(' '): None, ord('.'): None}
         for key, value in inputData.items():
-            if key and value:
+            if key and value and not key in ['H','M']:
                 currSensor = None
                 for sensor in self.config.AllSensors.elements:
                     currSensor = self.config.AllSensors.elements[sensor]
                     if currSensor.isActive():
                         try:
-                            if unicode(currSensor.fields['sensor']).translate(noDots) == u'M'+unicode(
-                                    module).translate(noDots)+u'_'+unicode(
-                                    key).translate(noDots):
+                            if (unicode(currSensor.fields['sensor']).translate(noDots) \
+                                 == u'M'+unicode(module).translate(noDots)) \
+                                and (unicode(currSensor.fields['subsensor']).translate(noDots) \
+                                        == unicode(key).translate(noDots)):
                                 if not currSensor.fields['formula'] == '':
-                                    value = unicode(
-                                        eval(currSensor.fields['formula']))
+                                    value = unicode(eval(currSensor.fields['formula']))
                                 print( u"Sensor LORA-" + currSensor.fields['sensor'] + u": " +
                                         currSensor.fields['acronym'] + u" = " + unicode(value))
-                                currSensor.update(now, value, self.config)
+                                if key == 'G':
+                                    try:
+                                        nfc_uid = hex(int(value)).zfill(14)
+                                        elem = self.config.AllBarcodes.barcode_to_item(nfc_uid, "N")
+                                        if elem:
+                                            type = elem.get_type()
+                                            if type in TRANSFERABLE_TYPES:
+                                                where = currSensor.get_component()
+                                                if not elem.is_actual_position (where.get_type(), where.getID(), self.config):
+                                                    newTransfer = Transfer(self.config)
+                                                    newTransfer.set_position(where)
+                                                    newTransfer.set_object(elem.getTypeId(),currSensor.default_user)
+                                                    newTransfer.save(self.config, currSensor.default_user)
+                                            elif type == self.config.AllUsers.get_type():
+                                                currSensor.default_user = elem
+
+                                    except:
+                                        traceback.print_exc()
+                                        print "Invalid NFC UID: " + inputData['G']
+                                else:
+                                    currSensor.update(stamp, value, self.config)
                         except:
                             traceback.print_exc()
                             print "Error in formula, " + currSensor.fields['acronym'] + ": " + \
@@ -5192,7 +5228,7 @@ class Alarm(ConfigurationObject):
 
     def set_value_from_data(self, data, c, user):
         super(Alarm, self).set_value_from_data(data, c, user)
-        tmp = alarm_fields_for_groups + ['relay1', 'relay2']
+        tmp = alarm_fields_for_groups + ['relay1', 'relay2', 'relay1_id', 'relay2_id']
         for elem in tmp:
             self.fields[elem] = data[elem]
         self.save(c, user)
@@ -5368,20 +5404,17 @@ class Alarm(ConfigurationObject):
             return unicode.format(title, elemout.fields['acronym'], elemout.getName(lang), elemin.fields['acronym'],
                                   elemin.getName(lang))
 
-    def alarm_by_sms(self, alarmedObject, phone_group, config):
-        alid = ""
+    def alarm_by_sms(self, alarmedObject, alid, phone_group, config):
         group = config.AllGrFunction.get(phone_group)
         if group:
             userlist = group.get_user_group()
-            first = True
             for user in userlist:
                 anUser = config.AllUsers.elements[user]
                 if anUser.isActive():
                     lang = anUser.fields['language']
-                    allog = self.get_alarm_message(alarmedObject, config, phone_group, lang, first)
-                    if first:
+                    allog = self.get_alarm_message(alarmedObject, config, phone_group, lang, alid)
+                    if not alid:
                         alid = allog['al_id']
-                        first = False
                     title = self.get_alarm_title(alarmedObject, config, lang)
                     if anUser.fields['donotdisturb'] != '1':
                         if not useful.send_sms(config.HardConfig, anUser.fields['phone'],
@@ -5390,20 +5423,17 @@ class Alarm(ConfigurationObject):
                                               title, allog['remark'])
         return alid
 
-    def alarm_by_email(self, alarmedObject, e_mail, config):
-        alid = ""
+    def alarm_by_email(self, alarmedObject, alid, e_mail, config):
         group = config.AllGrFunction.get(e_mail)
         if group:
             userlist = group.get_user_group()
-            first = True
             for user in userlist:
                 anUser = config.AllUsers.elements[user]
                 if anUser.isActive():
                     lang = anUser.fields['language']
-                    allog = self.get_alarm_message(alarmedObject, config, e_mail, lang, first)
-                    if first:
+                    allog = self.get_alarm_message(alarmedObject, config, e_mail, lang,  alid)
+                    if not alid:
                         alid = allog['al_id']
-                        first = False
                     title = self.get_alarm_title(alarmedObject, config, lang)
                     if anUser.fields['donotdisturb'] != '1':
                         useful.send_email(config.HardConfig, anUser.fields['mail'],
@@ -5411,40 +5441,44 @@ class Alarm(ConfigurationObject):
                                           allog['remark'])
         return alid
 
-    def alarm_by_sound(self, alarmedObject, dest, config):
-        alid = ""
+    def alarm_by_sound(self, alarmedObject, alid, dest, config):
         group = config.AllGrFunction.get(dest)
         if group:
             userlist = group.get_user_group()
-            first = True
             for user in userlist:
                 anUser = config.AllUsers.elements[user]
                 if anUser.isActive():
                     lang = anUser.fields['language']
-                    allog = self.get_alarm_message(alarmedObject, config, dest, lang, first)
-                    if first:
+                    allog = self.get_alarm_message(alarmedObject, config, dest, lang,  alid)
+                    if not alid:
                         alid = allog['al_id']
-                        first = False
         return alid
 
-    def alarm_by_all(self, alarmedObject, sms, mail, sound, config):
-        alid = self.alarm_by_sms(alarmedObject, self.fields[sms], config)
-        if not alid:
-            alid = self.alarm_by_email(alarmedObject, self.fields[mail], config)
-            if not alid:
-                alid = self.alarm_by_sound(alarmedObject, self.fields[sound], config)
+
+    def alarm_by_relay(self, alarmedObject, relay_id, relay_value, config):
+        relaySensor = config.AllSensors.get(relay_id)
+        if relaySensor and relay_value:
+            relaySensor.update(alarmedObject.time,relay_value,config)
+            relaySensor.relaySetting = relay_value
+
+    def alarm_by_all(self, alarmedObject, sms, mail, relay, sound, relay_id, relay_value, config):
+        alid = None
+        alid = self.alarm_by_sms(alarmedObject, alid, self.fields[sms], config)
+        alid = self.alarm_by_email(alarmedObject, alid, self.fields[mail], config)
+        alid = self.alarm_by_sound(alarmedObject, alid, self.fields[sound], config)
+        self.alarm_by_relay(alarmedObject, self.fields[relay_id], self.fields[relay_value], config)
         return alid
 
     def launch_alarm(self, alarmedObject, config):
-        alid = ""
+        alid = None
         if alarmedObject.get_type() == 's':
             level = alarmedObject.degreeAlarm
             if level == 1:
-                alid = self.alarm_by_all(alarmedObject, 'o_sms1', 'o_email1', 'o_sound1', config)
+                alid = self.alarm_by_all(alarmedObject, 'o_sms1', 'o_email1', 'o_sound1','relay1_id' ,'re1ay1', config)
             elif level == 2:
-                alid = self.alarm_by_all(alarmedObject, 'o_sms2', 'o_email2', 'o_sound2', config)
+                alid = self.alarm_by_all(alarmedObject, 'o_sms2', 'o_email2', 'o_sound2', 'relay2_id' ,'re1ay2', config)
         elif alarmedObject.get_type() in TRANSACTION_TYPES:
-            alid = self.alarm_by_all(alarmedObject, 'o_sms2', 'o_email2', 'o_sound2', config)
+            alid = self.alarm_by_all(alarmedObject, 'o_sms2', 'o_email2', 'o_sound2', 'relay2_id' ,'re1ay2', config)
         return alid
 
     def get_user_groups(self, model=None):
@@ -5600,7 +5634,9 @@ class Measure(ConfigurationObject):
 
 class Sensor(AlarmingObject):
     def __init__(self):
+        default_user = None
         AlarmingObject.__init__(self)
+        relaySetting = None
 
     def __str__(self):
         string = "\nSensor :"
@@ -5656,7 +5692,7 @@ class Sensor(AlarmingObject):
         self.fields['h_id'] = data
 
     def nextAlarm(self, config, now, no_change):
-        alid = ""
+        alid = None
         if not no_change:  # Alarm just changed !
             self.degreeAlarm = 0
         if self.degreeAlarm == 0:
@@ -5689,8 +5725,9 @@ class Sensor(AlarmingObject):
                 if alarmCode and alarmCode in config.AllAlarms.elements:
                     alid = config.AllAlarms.elements[alarmCode].launch_alarm(self, config)
                 self.degreeAlarm = 4  # Do nothing after this!
-        print 'Alarm #' + alid + ' [' + self.actualAlarm + '] level ' + unicode(
-            self.degreeAlarm) + ' for ' + self.__repr__()
+        if alid:
+            print 'Alarm #' + alid + ' [' + self.actualAlarm + '] level ' + unicode(
+                    self.degreeAlarm) + ' for ' + self.__repr__()
 
     def update(self, now, value, config):
         self.lastvalue = value
@@ -6135,7 +6172,7 @@ class Sensor(AlarmingObject):
 
     def set_value_from_data(self, data, c, user):
         super(Sensor, self).set_value_from_data(data, c, user)
-        tmp = ['channel', 'sensor', 'subsensor', 'valuetype', 'formula', 'lapse1', 'lapse2', 'lapse3'] + alarmFields
+        tmp = ['channel', 'sensor', 'subsensor', 'formula', 'lapse1', 'lapse2', 'lapse3'] + alarmFields
         for elem in tmp:
             self.fields[elem] = data[elem]
         self.add_component(data['component'])
