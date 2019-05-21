@@ -198,7 +198,11 @@ $code:
 		</select>
 	    </div>
 	</div>
-
+<!-- c.owproxy.dir() retournerait ['/10.000010EF0000/', '/05.000005FA0100/', '/26.000026D90200/', '/01.000001FE0300/', '/43.000043BC0400/']
+     et permettrait de faire une liste des équipements 1-Wire connecté
+     c.channels['ela'] contient déjà les devices ELA et leur [RSSI,last-time]
+     c.channels['lora'] contient déjà les devices LORA et leur [RSSI,last-time]
+ -->
 	<div class="form-group row">
 	    <label for="inputSensor" class="col-sm-3 col-form-label">$c.getMessage('sensor',self.lang)</label>
 	    <div class="col-sm-9">
@@ -208,10 +212,17 @@ $code:
 			value="$data['sensor']"
 		$elif id !='new':
 		    value="$elem.fields['sensor']"
-		required="true">
+		required="true" list="known"/>
+		<datalist id="known">
+		$if data['channel'] in c.channels:
+			$for k,v in c.channels[data['channel']]:
+				$ rssi = v[0]
+				$ timestamp = v[1]
+				<option value="$k">$k RSSI:$rssi $timestamp</option>
+		</datalist>
 	    </div>
 	</div>
-	
+<!-- une liste de subsensor possibles pourrait venir selon le channel...-->
 	<div class="form-group row">
 	    <label for="inputSubsensor" class="col-sm-3 col-form-label">$c.getMessage('subsensor',self.lang)</label>
 	    <div class="col-sm-9">

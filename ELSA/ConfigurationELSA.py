@@ -493,6 +493,7 @@ class Configuration():
         self.screen = None
         self.owproxy = None
         self.batteryVoltage = 0.0
+        self.channels = {} # Directory of devices for different channels
 
     def load(self):
         """
@@ -1615,6 +1616,7 @@ class RadioThread(threading.Thread):
                                 now = useful.get_timestamp()
                                 RSS = int(line[0] + line[1], 16)
                                 HEX = line[2] + line[3] + line[4]
+                                self.config.channels['radio'][HEX] = [RSS,now]
                                 # ADDRESS = int(HEX,16)
                                 VAL = int(line[5] + line[6] + line[7], 16)
                                 print ("ELA="
@@ -2583,15 +2585,17 @@ iteration_cache = None
 class AllSensors(AllObjects):
     # We dynamically append all [input.xxx] from hardconfig to _queryChannels
     _queryChannels = ['wire',
+                      'lora',
                       'radio',
                       'http',
                       'json',
                       'cputemp',
-                      'system',
-                      'lora']
+                      'system']
 
     def __init__(self, config):
         AllObjects.__init__(self, 's', Sensor.__name__, config)
+        for k in self._queryChannels:
+            config.channels[k] = {}
         self.fieldnames = ['begin', 's_id', 'c_id', 'p_id', 'e_id', 'm_id', \
                            'active', 'acronym', 'remark', 'channel', 'sensor', \
                            'subsensor', 'valuetype', 'formula', \
@@ -2687,7 +2691,7 @@ class AllSensors(AllObjects):
 
         for k, sensor in self.elements.items():
             if sensor.isActive() and sensor.fields['channel'] in self._queryChannels:
-                value, cache = sensor.get_value_sensor(self.config, get_cache(sensor))
+                value, cache = sensor.get_value_sensor(self.config, now, get_cache(sensor))
                 sensor.update(now, value, self.config)
                 if cache is not None:
                     set_cache(sensor, cache)
@@ -2702,6 +2706,10 @@ class AllSensors(AllObjects):
         if not 'M' in inputData or not inputData['M']:
             return
         module = inputData['M']
+        if 'R' in inputData and inputData['R']: #RSSI
+            rssi = int(inputData['R'])
+        else:
+            rssi = 0
         stamp = None
         if 'H' in inputData and inputData['H']:
             try:
@@ -2710,6 +2718,7 @@ class AllSensors(AllObjects):
                 stamp = None
         if not stamp:
             stamp = useful.get_timestamp()
+        self.config.channels['lora'][module] = [rssi,stamp]
 
         noDots = {ord(' '): None, ord('.'): None}
         for key, value in inputData.items():
@@ -5858,7 +5867,7 @@ class Sensor(AlarmingObject):
                   + unicode(value) + ' because it is out of bounds')
             return None
 
-    def get_value_sensor(self, config, cache=None):
+    def get_value_sensor(self, config, now, cache=None):
         def parse_atmos_data(self, input):
             '''
             Given a single string '+a+b-c+d', returns ['+a','+b','-c','+d']
@@ -5879,6 +5888,7 @@ class Sensor(AlarmingObject):
                                    unicode(self.fields['sensor']) + u'/' + \
                                    unicode(self.fields['subsensor'])
                     output_val = float(config.owproxy.read(sensorAdress))
+                    config.channels['wire'][self.fields['sensor']] = [0,now]
                 except:
                     debugging = (u"Device=" + sensorAdress
                                  + u", Message="
@@ -5925,6 +5935,7 @@ class Sensor(AlarmingObject):
                     info = sensorfile.read(80000)
                     cache = info
                     output_val = eval(self.fields['subsensor'])
+                    config.channels['http'][self.fields['sensor']] = [0,now]
                 except:
                     debugging = u"URL=" + (url if url else "") + u", code=" + \
                                 (unicode(code) if code else "") + u", Response=" + (info if info else "") + \
@@ -5958,6 +5969,7 @@ class Sensor(AlarmingObject):
                     info = json.loads(info)
                     cache = info
                     output_val = eval(self.fields['subsensor'])
+                    config.channels['json'][self.fields['sensor']] = [0,now]
                 except:
                     debugging = (u"URL=" + (url if url else "")
                                  + u", code="
