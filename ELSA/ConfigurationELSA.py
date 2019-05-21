@@ -1628,7 +1628,7 @@ class RadioThread(threading.Thread):
                                 timestamp = useful.get_timestamp()
                                 RSS = int(line[0] + line[1], 16)
                                 HEX = line[2] + line[3] + line[4]
-                                self.config.channels['radio'][HEX] = [RSS,now]
+                                self.config.channels['radio'][HEX] = [RSS,timestamp]
                                 # ADDRESS = int(HEX,16)
                                 VAL = int(line[5] + line[6] + line[7], 16)
                                 print ("ELA="
@@ -5434,7 +5434,7 @@ class Alarm(ConfigurationObject):
                 if anUser.isActive():
                     lang = anUser.fields['language']
                     allog = self.get_alarm_message(alarmedObject, config, phone_group, lang, alid)
-                    if not alid:
+                    if not alid and allog:
                         alid = allog['al_id']
                     title = self.get_alarm_title(alarmedObject, config, lang)
                     if anUser.fields['donotdisturb'] != '1':
@@ -5453,7 +5453,7 @@ class Alarm(ConfigurationObject):
                 if anUser.isActive():
                     lang = anUser.fields['language']
                     allog = self.get_alarm_message(alarmedObject, config, e_mail, lang,  alid)
-                    if not alid:
+                    if not alid and allog:
                         alid = allog['al_id']
                     title = self.get_alarm_title(alarmedObject, config, lang)
                     if anUser.fields['donotdisturb'] != '1':
