@@ -99,8 +99,8 @@ def send_sms(hardconfig, recipient, subject, text):
     print "Fail to SMS to "+recipient+" about "+subject+" : "+text
     return False
 
-def timestamp_to_date(now, format=datetimeformat):
-    return datetime.datetime.fromtimestamp(int(now)).strftime(format)
+def timestamp_to_date(timestamp, format=datetimeformat):
+    return datetime.datetime.fromtimestamp(int(timestamp)).strftime(format)
 
 
 def timestamp_to_time(now):

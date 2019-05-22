@@ -593,12 +593,35 @@ class Configuration():
             return []
         list_channel = self.channels[channel]
         if channel == 'wire':
-            now = useful.now()
+            timestamp = useful.get_timestamp()
             list = self.owproxy.dir()
             for w in list:
-                w = w.strip('/. ').replace('.','')
-                list_channel[w] = [0, now]
+                w = w.strip('/. ').replace('.','')[:14]
+                self.set_channel_access('wire', w, 0, timestamp)
         return list_channel
+
+    def set_channel_access(self, channel, device, rssi, timestamp):
+        if not device:
+            print "Device not specified."
+            traceback.print_stack()
+            return
+        if not channel in self.channels:
+            print "Channel "+channel+" unknown."
+            traceback.print_stack()
+            return
+        list_channel = self.channels[channel]
+        if not timestamp:
+            timestamp = useful.get_timestamp()
+        else:
+            try:
+                timestamp = int(timestamp)
+            except:
+                print "Timestamp " + unicode(timestamp) + " not a number."
+                traceback.print_stack()
+                return
+        if not rssi:
+            rssi = 0
+        list_channel[device] = [rssi,timestamp]
 
     def breadcrumbTop(self, top):
         if top in "grbdtv":
@@ -1628,7 +1651,7 @@ class RadioThread(threading.Thread):
                                 timestamp = useful.get_timestamp()
                                 RSS = int(line[0] + line[1], 16)
                                 HEX = line[2] + line[3] + line[4]
-                                self.config.channels['radio'][HEX] = [RSS,timestamp]
+                                self.config.set_channel_access('radio',HEX,RSS,timestamp)
                                 # ADDRESS = int(HEX,16)
                                 VAL = int(line[5] + line[6] + line[7], 16)
                                 print ("ELA="
@@ -2606,8 +2629,6 @@ class AllSensors(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 's', Sensor.__name__, config)
-        for k in self._queryChannels:
-            config.channels[k] = {}
         self.fieldnames = ['begin', 's_id', 'c_id', 'p_id', 'e_id', 'm_id', \
                            'active', 'acronym', 'remark', 'channel', 'sensor', \
                            'subsensor', 'valuetype', 'formula', \
@@ -2615,6 +2636,8 @@ class AllSensors(AllObjects):
                           + alarmFields + ['user']
         self.fieldtranslate = ['begin', 'lang', 's_id', 'name', 'user']
         self.add_query_channels_from_hardconfig()
+        for k in self._queryChannels:
+            config.channels[k] = {}
 
     def newObject(self):
         return Sensor()
@@ -2730,7 +2753,7 @@ class AllSensors(AllObjects):
                 stamp = None
         if not stamp:
             stamp = useful.get_timestamp()
-        self.config.channels['lora'][module] = [rssi,stamp]
+        self.config.set_channel_access('lora',module,rssi,stamp)
 
         noDots = {ord(' '): None, ord('.'): None}
         for key, value in inputData.items():
@@ -5900,7 +5923,7 @@ class Sensor(AlarmingObject):
                                    unicode(self.fields['sensor']) + u'/' + \
                                    unicode(self.fields['subsensor'])
                     output_val = float(config.owproxy.read(sensorAdress))
-                    config.channels['wire'][self.fields['sensor'][:12]] = [0,timestamp]
+                    config.set_channel_access('wire', self.fields['sensor'][:14], 0, timestamp)
                 except:
                     debugging = (u"Device=" + sensorAdress
                                  + u", Message="
@@ -5947,7 +5970,7 @@ class Sensor(AlarmingObject):
                     info = sensorfile.read(80000)
                     cache = info
                     output_val = eval(self.fields['subsensor'])
-                    config.channels['http'][self.fields['sensor']] = [0,timestamp]
+                    config.set_channel_access('http', self.fields['sensor'], 0, timestamp)
                 except:
                     debugging = u"URL=" + (url if url else "") + u", code=" + \
                                 (unicode(code) if code else "") + u", Response=" + (info if info else "") + \
@@ -5981,7 +6004,7 @@ class Sensor(AlarmingObject):
                     info = json.loads(info)
                     cache = info
                     output_val = eval(self.fields['subsensor'])
-                    config.channels['json'][self.fields['sensor']] = [0,timestamp]
+                    config.set_channel_access('json', self.fields['sensor'], 0, timestamp)
                 except:
                     debugging = (u"URL=" + (url if url else "")
                                  + u", code="
