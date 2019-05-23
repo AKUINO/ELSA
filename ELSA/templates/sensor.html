@@ -208,7 +208,7 @@ $code:
 		required="true" list="known"/>
 		<datalist id="known">
 			$ list_channel = c.get_channel_devices(channel)
-			$ if list_channel:
+			$if channel and list_channel:
 				$for k,v in list_channel.items():
 					$ rssi = v[0]
 					$ timestamp = v[1]
