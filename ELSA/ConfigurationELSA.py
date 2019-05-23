@@ -5678,9 +5678,9 @@ class Measure(ConfigurationObject):
 
 class Sensor(AlarmingObject):
     def __init__(self):
-        default_user = None
+        self.default_user = None
+        self.relaySetting = None
         AlarmingObject.__init__(self)
-        relaySetting = None
 
     def __str__(self):
         string = "\nSensor :"

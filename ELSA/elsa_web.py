@@ -328,7 +328,7 @@ class WebApiKeyValue:
         # return json.dumps(outputData)
         web.header('Content-type', 'text/plain')
         out = u''
-        for relaySensor in c.AllSensors.elements:
+        for s,relaySensor in c.AllSensors.elements.items():
             if relaySensor.relaySetting and relaySensor.fields['channel']=='lora' and relaySensor.fields['sensor'] and relaySensor.fields['subsensor']:
                 out += u'&S=' + relaySensor.getAccronym() + u'&M=' + relaySensor.fields['sensor'] + u'&' + relaySensor.fields['subsensor'] + u'=' + relaySensor.relaySetting + u"\n"
                 relaySensor.relaySetting = None
