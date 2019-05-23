@@ -211,7 +211,7 @@ $code:
 			$for k,v in list_channel.items():
 				$ rssi = v[0]
 				$ timestamp = v[1]
-				<option value="$k">$k $( ("RSSI:"+rssi) if rssi else "") $(useful.timestamp_to_date(timestamp) if timestamp else "")</option>
+				<option value="$k">$k $( ("RSSI:"+unicode(rssi)) if rssi else "") $(useful.timestamp_to_date(timestamp) if timestamp else "")</option>
 		</datalist>
 	    </div>
 	</div>
