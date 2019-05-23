@@ -1612,7 +1612,7 @@ class UpdateThread(threading.Thread):
             if len(self.config.AllSensors.elements) > 0:
                 self.config.AllSensors.update(timestamp)
                 #TODO: send values to locally connected relays
-                # for relaySensor in c.allSensors.elements:
+                # for relaySensor in c.AllSensors.elements:
                 #     if relaySensor.relaySetting and relaySensor.fields['channel'] != 'lora' and relaySensor.fields[
                 #         'sensor'] and relaySensor.fields['subsensor']:
                 #         SEND VALUE TO SENSOR/RELAY !
