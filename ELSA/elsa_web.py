@@ -330,7 +330,7 @@ class WebApiKeyValue:
         out = u''
         for s,relaySensor in c.AllSensors.elements.items():
             if relaySensor.relaySetting and relaySensor.fields['channel']=='lora' and relaySensor.fields['sensor'] and relaySensor.fields['subsensor']:
-                out += u'&S=' + relaySensor.getAccronym() + u'&M=' + relaySensor.fields['sensor'] + u'&' + relaySensor.fields['subsensor'] + u'=' + relaySensor.relaySetting + u"\n"
+                out += u'&S=' + relaySensor.get_acronym() + u'&M=' + relaySensor.fields['sensor'] + u'&' + relaySensor.fields['subsensor'] + u'=' + relaySensor.relaySetting + u"\n"
                 relaySensor.relaySetting = None
         return out
 

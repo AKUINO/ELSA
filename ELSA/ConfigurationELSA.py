@@ -617,7 +617,7 @@ class Configuration():
                 timestamp = int(timestamp)
             except:
                 print "Timestamp " + unicode(timestamp) + " not a number."
-                traceback.print_stack()
+                traceback.print_exc()
                 return
         if not rssi:
             rssi = 0
@@ -5517,11 +5517,11 @@ class Alarm(ConfigurationObject):
         if alarmedObject.get_type() == 's':
             level = alarmedObject.degreeAlarm
             if level == 1:
-                alid = self.alarm_by_all(alarmedObject, 'o_sms1', 'o_email1', 'o_sound1','relay1_id' ,'re1ay1', config)
+                alid = self.alarm_by_all(alarmedObject, u'o_sms1', u'o_email1', u'o_sound1', u'relay1_id' , u'relay1', config)
             elif level == 2:
-                alid = self.alarm_by_all(alarmedObject, 'o_sms2', 'o_email2', 'o_sound2', 'relay2_id' ,'re1ay2', config)
+                alid = self.alarm_by_all(alarmedObject, u'o_sms2', u'o_email2', u'o_sound2', u'relay2_id' , u'relay2', config)
         elif alarmedObject.get_type() in TRANSACTION_TYPES:
-            alid = self.alarm_by_all(alarmedObject, 'o_sms2', 'o_email2', 'o_sound2', 'relay2_id' ,'re1ay2', config)
+            alid = self.alarm_by_all(alarmedObject, u'o_sms2', u'o_email2', u'o_sound2', u'relay2_id' , u'relay2', config)
         return alid
 
     def get_user_groups(self, model=None):

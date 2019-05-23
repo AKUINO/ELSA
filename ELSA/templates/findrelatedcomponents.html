@@ -99,6 +99,33 @@ $if keyType in '_a_m_p_e_c_':
                 </script>
                 <div id="includedS_$(k)"></div>
     </div>
+$if keyType in '_a_':
+    $if elem.fields['relay1_id']:
+	    <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+		<label class="col-sm-12">$c.getMessage('relay',self.lang) 1 = $elem.fields['relay1'] :</label>
+		$ k = elem.fields['relay1_id']
+		$ sensor = c.AllSensors.get(k)
+		$if sensor:
+			<script>
+			    $$(function(){
+				$$("#includedR1_$(k)").load("/fullentry/s_$(k)");
+			    });
+			</script>
+			<div id="includedR1_$(k)"></div>
+	    </div>
+    $if elem.fields['relay2_id']:
+	    <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
+		<label class="col-sm-12">$c.getMessage('relay',self.lang) 2 = $elem.fields['relay2'] :</label>
+	        $ k = elem.fields['relay2_id']
+		$ sensor = c.AllSensors.get(k)
+		$if sensor:
+			<script>
+			    $$(function(){
+				$$("#includedR2_$(k)").load("/fullentry/s_$(k)");
+			    });
+			</script>
+			<div id="includedR2_$(k)"></div>
+	    </div>
 $if keyType in '_a_m_h_':
     <div class="row active" style ="background-color:#E5E5E7;margin-top:10px;margin-bottom:10px;padding:15px;">
 	<label class="col-sm-12">$c.getMessage('manualdatamodel',self.lang) :</label>    

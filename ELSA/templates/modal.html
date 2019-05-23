@@ -468,13 +468,13 @@ $var title: MODAL
 					$:c.linkedAcronym(c.AllGrFunction,elem.fields['o_sound1'],True)
                                 </div>
                             </div>
-                        $if elem.fields['relay1'] != '':
+                        $if elem.fields['relay1_id'] != '':
                             <div class="row" style="margin-top:10px;">
                                 <div class="col-xs-4">
                                 $c.getMessage('relay',self.lang) 1:
                                 </div>
                                 <div class="col-xs-8" >
-                                $elem.fields['relay1']
+                                    $:c.linkedAcronym(c.AllSensors,elem.fields['relay1_id'],True) = $elem.fields['relay1']
                                 </div>
                             </div>
                         $if elem.fields['o_sms2'] != '':
@@ -504,13 +504,13 @@ $var title: MODAL
 					$:c.linkedAcronym(c.AllGrFunction,elem.fields['o_sound2'],True)
                                 </div>
                             </div>
-                        $if elem.fields['relay2'] != '':
+                        $if elem.fields['relay2_id'] != '':
                             <div class="row" style="margin-top:10px;">
                                 <div class="col-xs-4">
                                 $c.getMessage('relay',self.lang) 2:
                                 </div>
                                 <div class="col-xs-8" >
-                                $elem.fields['relay2']
+                                    $:c.linkedAcronym(c.AllSensors,elem.fields['relay2_id'],True) = $elem.fields['relay2']
                                 </div>
                             </div>
                     $if type == 's':
@@ -579,14 +579,6 @@ $var title: MODAL
                             </div>
                             <div class="col-xs-8" >
                                 $elem.fields['subsensor']
-                            </div>
-                        </div>
-                        <div class="row" style="margin-top:10px;">
-                            <div class="col-xs-4">
-                                $c.getMessage('valuetype',self.lang) :
-                            </div>
-                            <div class="col-xs-8" >
-                                $elem.fields['valuetype']
                             </div>
                         </div>
 
