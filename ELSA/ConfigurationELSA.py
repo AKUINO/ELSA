@@ -2763,8 +2763,7 @@ class AllSensors(AllObjects):
                     currSensor = self.config.AllSensors.elements[sensor]
                     if currSensor.isActive():
                         try:
-                            if (unicode(currSensor.fields['sensor']).translate(noDots) \
-                                 == u'M'+unicode(module).translate(noDots)) \
+                            if (unicode(currSensor.fields['sensor']).translate(noDots) == unicode(module) ) \
                                 and (unicode(currSensor.fields['subsensor']).translate(noDots) \
                                         == unicode(key).translate(noDots)):
                                 if not currSensor.fields['formula'] == '':
