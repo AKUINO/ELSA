@@ -5276,7 +5276,7 @@ class Alarm(ConfigurationObject):
             self.fields[elem] = data[elem]
         self.save(c, user)
 
-    def get_alarm_message(self, alarmedObject, config, group, lang, saveit):
+    def get_alarm_message(self, alarmedObject, config, group, lang, alid):
         newFields = {}
         newFields['s_id'] = alarmedObject.getID()
         newFields['s_type'] = alarmedObject.get_type()
@@ -5389,7 +5389,7 @@ class Alarm(ConfigurationObject):
                                                  alarmedObject.getQtyUnit(config, lang),
                                                  alarmedObject.fields['remark'],
                                                  alarmedObject.fields['time'])
-        if saveit:
+        if not alid:
             currObject = config.AllAlarmLogs.createObject()
             currObject.fields.update(newFields)
             currObject.save(config)
@@ -5456,7 +5456,7 @@ class Alarm(ConfigurationObject):
                 if anUser.isActive():
                     lang = anUser.fields['language']
                     allog = self.get_alarm_message(alarmedObject, config, phone_group, lang, alid)
-                    if not alid and allog:
+                    if not alid and allog and 'al_id' in allog:
                         alid = allog['al_id']
                     title = self.get_alarm_title(alarmedObject, config, lang)
                     if anUser.fields['donotdisturb'] != '1':
@@ -5475,7 +5475,7 @@ class Alarm(ConfigurationObject):
                 if anUser.isActive():
                     lang = anUser.fields['language']
                     allog = self.get_alarm_message(alarmedObject, config, e_mail, lang,  alid)
-                    if not alid and allog:
+                    if not alid and allog and 'al_id' in allog:
                         alid = allog['al_id']
                     title = self.get_alarm_title(alarmedObject, config, lang)
                     if anUser.fields['donotdisturb'] != '1':
@@ -5493,7 +5493,7 @@ class Alarm(ConfigurationObject):
                 if anUser.isActive():
                     lang = anUser.fields['language']
                     allog = self.get_alarm_message(alarmedObject, config, dest, lang,  alid)
-                    if not alid:
+                    if not alid and allog and 'al_id' in allog:
                         alid = allog['al_id']
         return alid
 
