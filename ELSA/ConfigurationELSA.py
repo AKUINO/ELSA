@@ -2775,7 +2775,14 @@ class AllSensors(AllObjects):
                                         #nfc_uid = hex(long(value)).zfill(14)
                                         nfc_uid = value
                                         print ("NFC="+nfc_uid)
-                                        elem = self.config.AllBarcodes.barcode_to_item(nfc_uid, "N")
+                                        if len(nfc_uid) == 12: # Patch for truncated nfc_uid read by 1-wire simulation
+                                            for i in range(0,255):
+                                                suff = hex(i).zfill(2)
+                                                elem = self.config.AllBarcodes.barcode_to_item(nfc_uid+suff, "N")
+                                                if elem:
+                                                    break
+                                        else:
+                                            elem = self.config.AllBarcodes.barcode_to_item(nfc_uid, "N")
                                         if elem:
                                             type = elem.get_type()
                                             print elem
@@ -2974,7 +2981,7 @@ class AllBarcodes(AllObjects):
                     conformantWriter.writerow(row)
                 key = row[self.keyColumn]
                 if row['active'] == '0':
-                    del self.elements[key[:12]]
+                    del self.elements[key]
                 elif len(row['code']) > 0:
                     currObject = self.newObject(
                         self.config.get_object(row['type'], row['idobject']))
@@ -2982,7 +2989,7 @@ class AllBarcodes(AllObjects):
                     if not 'codetype' in currObject.fields: # Old file format
                         currObject.fields['codetype'] = '' # Barcode
                     currObject.id = key
-                    self.elements[key[:12]] = currObject
+                    self.elements[key] = currObject
         # self.to_pictures()
         if conformantFile is not None:
             conformantFile.close()
@@ -3004,7 +3011,7 @@ class AllBarcodes(AllObjects):
         return ''
 
     def unique_barcode(self, some_code, myType, myID):
-        v = self.get(some_code[:12])
+        v = self.get(some_code)
         if v and (myID != v.fields['idobject'] or myType != v.fields['type']):
             return False
         return True
@@ -3014,11 +3021,11 @@ class AllBarcodes(AllObjects):
             oldBarcode = self.get_barcode_from_object(item.get_type(), item.getID(),codetype)
             if oldBarcode and not oldBarcode == some_code:
                 self.delete_barcode(oldBarcode, codetype, user, item)
-            self.elements[some_code[:12]] = self.create_barcode(item, some_code, codetype, user)
+            self.elements[some_code] = self.create_barcode(item, some_code, codetype, user)
 
     def delete_barcode(self, oldBarcode, codetype, user, item):
         self.write_csv(oldBarcode, codetype, 0, user, item)
-        del self.elements[oldBarcode[:12]]
+        del self.elements[oldBarcode]
 
     def write_csv(self, some_code, codetype, active, user, item):
         with open(self.file_of_objects, "a") as csvfile:
@@ -3033,7 +3040,7 @@ class AllBarcodes(AllObjects):
         tmp = self.newObject(item)
         fields = self.create_fields(some_code, codetype, 1, user, item)
         tmp.fields = fields
-        self.elements[some_code[:12]] = tmp
+        self.elements[some_code] = tmp
         tmp.element = item
         self.write_csv(some_code, codetype, 1, user, item)
         return tmp
@@ -3042,8 +3049,8 @@ class AllBarcodes(AllObjects):
         fields = {}
         fields['begin'] = useful.now()
         if item is None:
-            fields['type'] = self.elements[some_code[:12]].element.get_type()
-            fields['idobject'] = self.elements[some_code[:12]].element.id
+            fields['type'] = self.elements[some_code].element.get_type()
+            fields['idobject'] = self.elements[some_code].element.id
         else:
             fields['type'] = item.get_type()
             fields['idobject'] = item.id
@@ -3079,7 +3086,7 @@ class AllBarcodes(AllObjects):
     ##            v.barcode_picture()
 
     def barcode_to_item(self, some_code,codetype=""):
-        elem = self.get(some_code[:12])
+        elem = self.get(some_code)
         if elem and codetype == elem.fields['codetype']:
             return self.config.get_object(elem.fields['type'], elem.fields['idobject'])
         else:
