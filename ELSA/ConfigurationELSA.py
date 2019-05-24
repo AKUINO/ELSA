@@ -862,9 +862,9 @@ class ConfigurationObject(object):
     def floats(self, field):
         return useful.str_float(self.fields[field])
 
-    def save(self, configuration, anUser=""):
+    def save(self, configuration, anUser=None):
         self.fields["begin"] = useful.now()
-        if anUser != "":
+        if anUser:
             self.fields["user"] = anUser.fields['u_id']
 
         if self.creator is None:
