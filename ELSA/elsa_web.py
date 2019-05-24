@@ -1469,7 +1469,7 @@ class WebNFC:
                     oldelem = c.AllBarcodes.barcode_to_item(nfc_uid,"N")
                     if elem != oldelem:
                         if oldelem:
-                            c.AllBarcodes.delete_barcode(nfc_uid, "N", user)
+                            c.AllBarcodes.delete_barcode(nfc_uid, "N", user, oldelem)
                         c.AllBarcodes.add_barcode(elem, nfc_uid, "N", user)
                 else:
                     elem = c.AllBarcodes.barcode_to_item(nfc_uid, "N")

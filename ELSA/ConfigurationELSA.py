@@ -3010,16 +3010,16 @@ class AllBarcodes(AllObjects):
         if self.unique_barcode(some_code, item.get_type(), item.getID()):
             oldBarcode = self.get_barcode_from_object(item.get_type(), item.getID(),codetype)
             if oldBarcode and not oldBarcode == some_code:
-                self.delete_barcode(oldBarcode, codetype, user)
+                self.delete_barcode(oldBarcode, codetype, user, item)
             self.elements[some_code] = self.create_barcode(item, some_code, codetype, user)
 
-    def delete_barcode(self, oldBarcode, codetype, user):
-        self.write_csv(oldBarcode, codetype, 0, user)
+    def delete_barcode(self, oldBarcode, codetype, user, item):
+        self.write_csv(oldBarcode, codetype, 0, user, item)
         del self.elements[oldBarcode]
 
-    def write_csv(self, some_code, codetype, active, user):
+    def write_csv(self, some_code, codetype, active, user, item):
         with open(self.file_of_objects, "a") as csvfile:
-            tmpCode = self.create_fields(some_code, codetype, active, user)
+            tmpCode = self.create_fields(some_code, codetype, active, user, item)
             writer = unicodecsv.DictWriter(csvfile,
                                            delimiter='\t',
                                            fieldnames=self.fieldnames,
@@ -3032,10 +3032,10 @@ class AllBarcodes(AllObjects):
         tmp.fields = fields
         self.elements[some_code] = tmp
         tmp.element = item
-        self.write_csv(some_code, codetype, 1, user)
+        self.write_csv(some_code, codetype, 1, user, item)
         return tmp
 
-    def create_fields(self, some_code, codetype, active, user, item=None):
+    def create_fields(self, some_code, codetype, active, user, item):
         fields = {}
         fields['begin'] = useful.now()
         if item is None:
