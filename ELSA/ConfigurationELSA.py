@@ -2792,7 +2792,9 @@ class AllSensors(AllObjects):
                                                 where = currSensor.get_component(self.config)
                                                 print ("Move To:" + where.getTypeId())
                                                 if not elem.is_actual_position (where.get_type(), where.getID(), self.config):
-                                                    newTransfer = Transfer(self.config)
+                                                    newTransfer = self.config.AllTransfers.createObject()
+                                                    newTransfer.fields['time'] = useful.now()
+                                                    newTransfer.fields['user'] = ""
                                                     newTransfer.set_position(where.getTypeId())
                                                     newTransfer.set_object(elem.getTypeId(),currSensor.default_user)
                                                     newTransfer.save(self.config, currSensor.default_user)
