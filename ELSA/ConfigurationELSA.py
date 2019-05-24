@@ -2773,9 +2773,11 @@ class AllSensors(AllObjects):
                                 if key == 'G':
                                     try:
                                         nfc_uid = hex(long(value)).zfill(14)
+                                        print ("NFC="+nfc_uid)
                                         elem = self.config.AllBarcodes.barcode_to_item(nfc_uid, "N")
                                         if elem:
                                             type = elem.get_type()
+                                            print elem
                                             if type in TRANSFERABLE_TYPES:
                                                 where = currSensor.get_component()
                                                 if not elem.is_actual_position (where.get_type(), where.getID(), self.config):
