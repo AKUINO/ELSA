@@ -2784,15 +2784,17 @@ class AllSensors(AllObjects):
                                         else:
                                             elem = self.config.AllBarcodes.barcode_to_item(nfc_uid, "N")
                                         if elem:
+                                            print ("Found:"+elem.getTypeId())
                                             type = elem.get_type()
-                                            print elem
                                             if type in TRANSFERABLE_TYPES:
                                                 where = currSensor.get_component()
+                                                print ("Move To:" + where.getTypeId())
                                                 if not elem.is_actual_position (where.get_type(), where.getID(), self.config):
                                                     newTransfer = Transfer(self.config)
                                                     newTransfer.set_position(where)
                                                     newTransfer.set_object(elem.getTypeId(),currSensor.default_user)
                                                     newTransfer.save(self.config, currSensor.default_user)
+                                                    print ("SAVED!")
                                             elif type == self.config.AllUsers.get_type():
                                                 currSensor.default_user = elem
 
