@@ -2777,7 +2777,7 @@ class AllSensors(AllObjects):
                                         print ("NFC="+nfc_uid)
                                         if len(nfc_uid) == 12: # Patch for truncated nfc_uid read by 1-wire simulation
                                             for i in range(0,255):
-                                                suff = hex(i).zfill(2).upper()
+                                                suff = (hex(i)[2:]).zfill(2).upper()
                                                 elem = self.config.AllBarcodes.barcode_to_item(nfc_uid+suff, "N")
                                                 if elem:
                                                     break
