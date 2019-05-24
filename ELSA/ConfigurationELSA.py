@@ -2787,7 +2787,7 @@ class AllSensors(AllObjects):
                                             print ("Found:"+elem.getTypeId())
                                             type = elem.get_type()
                                             if type in TRANSFERABLE_TYPES:
-                                                where = currSensor.get_component()
+                                                where = currSensor.get_component(self.config)
                                                 print ("Move To:" + where.getTypeId())
                                                 if not elem.is_actual_position (where.get_type(), where.getID(), self.config):
                                                     newTransfer = Transfer(self.config)
