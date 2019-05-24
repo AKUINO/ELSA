@@ -1047,7 +1047,7 @@ class ConfigurationObject(object):
             stamp = self.fields['begintime']
         elif 'time' in self.fields:
             stamp = self.fields['time']
-        else:  # begin = record creation
+        elif 'begin' in self.fields:
             stamp = self.fields['begin']
         return stamp
 
