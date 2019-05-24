@@ -2773,7 +2773,7 @@ class AllSensors(AllObjects):
                                 if key == 'G':
                                     try:
                                         #nfc_uid = hex(long(value)).zfill(14)
-                                        nfc_uid = value
+                                        nfc_uid = value.upper()
                                         print ("NFC="+nfc_uid)
                                         if len(nfc_uid) == 12: # Patch for truncated nfc_uid read by 1-wire simulation
                                             for i in range(0,255):
