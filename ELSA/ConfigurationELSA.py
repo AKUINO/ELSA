@@ -6877,9 +6877,10 @@ class Transfer(AlarmingObject):
         self.fields['cont_type'], self.fields['cont_id'] = splitId(pos)
 
     def set_object(self, objkey, user):
-        obj = self.config.get_object(self.fields['object_type'], self.fields['object_id'])
-        if obj:
-            obj.remove_position(self)
+        if 'object_type' in self.fields:
+            obj = self.config.get_object(self.fields['object_type'], self.fields['object_id'])
+            if obj:
+                obj.remove_position(self)
         type, id = splitId(objkey)
         self.fields['object_type'] = type
         self.fields['object_id'] = id
