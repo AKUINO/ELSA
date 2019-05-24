@@ -2772,7 +2772,8 @@ class AllSensors(AllObjects):
                                         currSensor.fields['acronym'] + u" = " + unicode(value))
                                 if key == 'G':
                                     try:
-                                        nfc_uid = hex(long(value)).zfill(14)
+                                        //nfc_uid = hex(long(value)).zfill(14)
+                                        nfc_uid = value
                                         print ("NFC="+nfc_uid)
                                         elem = self.config.AllBarcodes.barcode_to_item(nfc_uid, "N")
                                         if elem:
