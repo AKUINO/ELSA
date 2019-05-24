@@ -2777,7 +2777,7 @@ class AllSensors(AllObjects):
                                         print ("NFC="+nfc_uid)
                                         if len(nfc_uid) == 12: # Patch for truncated nfc_uid read by 1-wire simulation
                                             for i in range(0,255):
-                                                suff = hex(i).zfill(2)
+                                                suff = hex(i).zfill(2).upper()
                                                 elem = self.config.AllBarcodes.barcode_to_item(nfc_uid+suff, "N")
                                                 if elem:
                                                     break
@@ -3090,10 +3090,10 @@ class AllBarcodes(AllObjects):
     def barcode_to_item(self, some_code,codetype=""):
         elem = self.get(some_code)
         if elem and codetype == elem.fields['codetype']:
-            print (some_code+"="+elem.getTypeID())
+            #print (some_code+"="+elem.getTypeID())
             return self.config.get_object(elem.fields['type'], elem.fields['idobject'])
         else:
-            print (some_code+" not found.")
+            #print (some_code+" not found.")
             return None
 
     def get_class_acronym(self):
