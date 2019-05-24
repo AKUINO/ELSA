@@ -3090,8 +3090,10 @@ class AllBarcodes(AllObjects):
     def barcode_to_item(self, some_code,codetype=""):
         elem = self.get(some_code)
         if elem and codetype == elem.fields['codetype']:
+            print (some_code+"="+elem.getTypeID())
             return self.config.get_object(elem.fields['type'], elem.fields['idobject'])
         else:
+            print (some_code+" not found.")
             return None
 
     def get_class_acronym(self):
