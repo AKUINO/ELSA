@@ -866,6 +866,8 @@ class ConfigurationObject(object):
         self.fields["begin"] = useful.now()
         if anUser:
             self.fields["user"] = anUser.fields['u_id']
+        else:
+            self.fields["user"] = ""
 
         if self.creator is None:
             self.creator = self.fields['user']
