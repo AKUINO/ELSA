@@ -1,0 +1,23 @@
+^XA
+^MMT
+^PW1063
+^LL0472
+^LS0
+^CFA,20
+^FO530,50^FDRendez-vous de la^FS
+^CFA,30
+^FO530,90^FDDiversification^FS
+^CFA,40
+^FO530,150^FDAKUINO.net^FS
+^FO50,230^FD%(name)s^FS
+^CFA,30
+^FO50,300^FD%(type)s %(code)s^FS
+^FO50,340^FD%(expiration)s^FS
+^FO50,380^FD%(group)s^FS
+^FO50,420^FD%(quantity)s^FS
+^FO50,460^FD%(remark)s^FS
+^FWN
+^FO100,50^BY4
+^BEN,100,Y,N
+^FD%(barcode)s^FS
+^XZ
