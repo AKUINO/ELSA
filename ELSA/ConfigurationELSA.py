@@ -5433,54 +5433,59 @@ class Alarm(ConfigurationObject):
             return newFields
 
     def get_alarm_title(self, alarmedObject, config, lang):
-        if alarmedObject.get_type() == 's':
-            title = config.getMessage('alarmtitle', lang)
-            code = ''
-            equal = ''
-            if alarmedObject.actualAlarm == 'minmin':
-                code = '---'
-                equal = '<'
-            elif alarmedObject.actualAlarm == 'min':
-                code = '-'
-                equal = '<'
-            elif alarmedObject.actualAlarm == 'max':
-                code = '+'
-                equal = '>'
-            elif alarmedObject.actualAlarm == 'maxmax':
-                code = '+++'
-                equal = '>'
-            elif alarmedObject.actualAlarm == 'none':
-                code = '???'
-                equal = '>'
-            return unicode.format(title,
-                                  code,
-                                  unicode(alarmedObject.degreeAlarm),
-                                  alarmedObject.fields['acronym'],
-                                  unicode(alarmedObject.lastvalue),
-                                  equal,
-                                  alarmedObject.fields[alarmedObject.actualAlarm],
-                                  alarmedObject.get_unit(config),
-                                  alarmedObject.getName(lang))
-        elif alarmedObject.get_type() == 'd':
-            title = config.getMessage('alarmmanualtitle', lang)
-            elem = config.get_object(
-                alarmedObject.fields['object_type'], alarmedObject.fields['object_id'])
-            return unicode.format(title,
-                                  alarmedObject.getQtyUnit(config, lang),
-                                  elem.getName(lang))
-        elif alarmedObject.get_type() == 't':
-            title = config.getMessage('alarmmanualtitle', lang)
-            elem = config.get_object(
-                alarmedObject.fields['object_type'], alarmedObject.fields['object_id'])
-            return unicode.format(title,
-                                  alarmedObject.getQtyUnit(config, lang),
-                                  elem.getName(lang))
-        elif alarmedObject.get_type() == 'v':
-            title = config.getMessage('alarmpouringtitle', lang)
-            elemin = config.AllBatches.elements[alarmedObject.fields['src']]
-            elemout = config.AllBatches.elements[alarmedObject.fields['dest']]
-            return unicode.format(title, elemout.fields['acronym'], elemout.getName(lang), elemin.fields['acronym'],
-                                  elemin.getName(lang))
+        try:
+            if alarmedObject.get_type() == 's':
+                title = config.getMessage('alarmtitle', lang)
+                code = ''
+                equal = ''
+                if alarmedObject.actualAlarm == 'minmin':
+                    code = '---'
+                    equal = '<'
+                elif alarmedObject.actualAlarm == 'min':
+                    code = '-'
+                    equal = '<'
+                elif alarmedObject.actualAlarm == 'max':
+                    code = '+'
+                    equal = '>'
+                elif alarmedObject.actualAlarm == 'maxmax':
+                    code = '+++'
+                    equal = '>'
+                elif alarmedObject.actualAlarm == 'none':
+                    code = '???'
+                    equal = '>'
+                return unicode.format(title,
+                                      code,
+                                      unicode(alarmedObject.degreeAlarm),
+                                      alarmedObject.fields['acronym'],
+                                      unicode(alarmedObject.lastvalue),
+                                      equal,
+                                      alarmedObject.fields[alarmedObject.actualAlarm],
+                                      alarmedObject.get_unit(config),
+                                      alarmedObject.getName(lang))
+            elif alarmedObject.get_type() == 'd':
+                title = config.getMessage('alarmmanualtitle', lang)
+                elem = config.get_object(
+                    alarmedObject.fields['object_type'], alarmedObject.fields['object_id'])
+                return unicode.format(title,
+                                      alarmedObject.getQtyUnit(config, lang),
+                                      elem.getName(lang))
+            elif alarmedObject.get_type() == 't':
+                title = config.getMessage('alarmmanualtitle', lang)
+                elem = config.get_object(
+                    alarmedObject.fields['object_type'], alarmedObject.fields['object_id'])
+                return unicode.format(title,
+                                      alarmedObject.getQtyUnit(config, lang),
+                                      elem.getName(lang))
+            elif alarmedObject.get_type() == 'v':
+                title = config.getMessage('alarmpouringtitle', lang)
+                elemin = config.AllBatches.elements[alarmedObject.fields['src']]
+                elemout = config.AllBatches.elements[alarmedObject.fields['dest']]
+                return unicode.format(title, elemout.fields['acronym'], elemout.getName(lang), elemin.fields['acronym'],
+                                      elemin.getName(lang))
+        except:
+            print alarmedObject.getTypeID()
+            traceback.print_exc()
+            return ""
 
     def alarm_by_sms(self, alarmedObject, alid, phone_group, config):
         group = config.AllGrFunction.get(phone_group)
