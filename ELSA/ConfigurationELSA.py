@@ -5493,8 +5493,8 @@ class Alarm(ConfigurationObject):
                     allog = self.get_alarm_message(alarmedObject, config, phone_group, lang, alid)
                     if not alid and allog and 'al_id' in allog:
                         alid = allog['al_id']
-                    title = self.get_alarm_title(alarmedObject, config, lang)
                     if anUser.fields['donotdisturb'] != '1':
+                        title = self.get_alarm_title(alarmedObject, config, lang)
                         if not useful.send_sms(config.HardConfig, anUser.fields['phone'],
                                                title, allog['remark']):  # Fall back to email...
                             useful.send_email(config.HardConfig, anUser.fields['mail'],
@@ -5512,8 +5512,8 @@ class Alarm(ConfigurationObject):
                     allog = self.get_alarm_message(alarmedObject, config, e_mail, lang,  alid)
                     if not alid and allog and 'al_id' in allog:
                         alid = allog['al_id']
-                    title = self.get_alarm_title(alarmedObject, config, lang)
                     if anUser.fields['donotdisturb'] != '1':
+                        title = self.get_alarm_title(alarmedObject, config, lang)
                         useful.send_email(config.HardConfig, anUser.fields['mail'],
                                           title,
                                           allog['remark'])
