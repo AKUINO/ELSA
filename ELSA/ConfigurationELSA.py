@@ -13,6 +13,10 @@ import shutil
 import socket
 import subprocess
 import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
+import io
+
 import threading
 import time
 import traceback
@@ -594,10 +598,13 @@ class Configuration():
         list_channel = self.channels[channel]
         if channel == 'wire':
             timestamp = useful.get_timestamp()
-            list = self.owproxy.dir()
-            for w in list:
-                w = w.strip('/. ').replace('.','')[:14]
-                self.set_channel_access('wire', w, 0, timestamp)
+            try:
+                list = self.owproxy.dir()
+                for w in list:
+                    w = w.strip('/. ').replace('.','')[:14]
+                    self.set_channel_access('wire', w, 0, timestamp)
+            except:
+                print "OWFS not active."
         return list_channel
 
     def set_channel_access(self, channel, device, rssi, timestamp):
@@ -835,8 +842,9 @@ class Configuration():
         #return someText
         fileName = "/dev/usb/lp0"
         print "Printing using " + fileName
-        with open(fileName, "w") as printFile:
-            printFile.write(someText)
+        # Printing UTF-8 characters using ZPL and Page Code 850:
+        with io.open(fileName, "wb") as printFile:
+            printFile.write(someText.replace(u"\ufeff",'').encode("cp850"))
 
 
 class ConfigurationObject(object):
@@ -1535,6 +1543,16 @@ class ConfigurationObject(object):
                 result = above.readPrintTemplate(c,format)
                 if result:
                     return result
+        directory = os.path.join(DIR_DOC,
+                                 self.get_type())
+        try:
+            with open(os.path.join(directory, format + ".prn")) as f:
+                try:
+                    return f.read()
+                except:
+                    pass
+        except:
+            pass
         return None
 
 
@@ -1545,11 +1563,11 @@ class ConfigurationObject(object):
             labelFields = {"barcode": self.get_barcode(c,''), "code": self.fields['acronym'], "name": self.getName(lang), "type": allObjs.getName(lang)}
             value = ""
             if 'remark' in self.fields and self.fields['remark']:
-                value = c.getMessage('remark', self.lang) + ": " + self.fields['remark']
+                value = c.getMessage('remark', lang) + u": " + self.fields['remark']
             labelFields['remark'] = value
             value = ""
             if 'expirationdate' in self.fields and self.fields['expirationdate']:
-                value = c.getMessage('expirationdate', lang) + ": " + self.fields['expirationdate']
+                value = c.getMessage('expirationdate', lang) + u": " + self.fields['expirationdate']
             labelFields['expiration'] = value
             value = ""
             group = self.get_group()
@@ -1557,7 +1575,7 @@ class ConfigurationObject(object):
                 allGrs = c.findAll(allObjs.get_group_type())
                 above = allGrs.get(group)
                 if above:
-                    value = allGrs.getName(lang) + ": " + above.getName(lang)
+                    value = allGrs.getName(lang) + u": " + above.getName(lang)
             labelFields['group'] = value
             labelFields['quantity'] = self.getQtyUnit(c, lang)
             return c.labelPrinter(self.getTypeId(),printerString % labelFields)
@@ -2475,7 +2493,7 @@ class AllGrUsage(AllGroups):
                         if first:
                             options += '<optgroup label="' + webnet.htmlquote(c.getMessage('container', lang)) + '">'
                             first = False
-                        options += '<option value="e_' + k + '"'
+                        options += '<option value="c_' + k + '"'
                         if selec_type == 'c' and selec_id == k:
                             options += 'selected'
                         options += '>' + v.fields['acronym'] + ' - ' + webnet.htmlquote(v.getName(lang)) + '</option>'
@@ -6116,9 +6134,9 @@ class Sensor(AlarmingObject):
             assert output_val != None
         except AssertionError:
             if self.fields['channel'] not in  ['radio','lora']:
-                print("output_val has not been set for channel: "
+                print("Channel "
                       + self.fields['channel']
-                      + '. Ignoring.')
+                      + ' cannot be read. Ignoring.')
             return None, None
         else:
             try:
