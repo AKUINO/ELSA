@@ -5483,7 +5483,7 @@ class Alarm(ConfigurationObject):
                 return unicode.format(title, elemout.fields['acronym'], elemout.getName(lang), elemin.fields['acronym'],
                                       elemin.getName(lang))
         except:
-            print alarmedObject.getTypeID()
+            print alarmedObject.getTypeId()
             traceback.print_exc()
             return ""
 
