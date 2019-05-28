@@ -166,6 +166,7 @@ class WebRestore:
             # splits the and chooses the last part (filename with extension)
             fname = fpath.split('/')[-1]
             file_uri = os.path.join(elsa.DIR_WEB_TEMP, fname)
+            print ("Restore data to be sent to file: "+file_uri)
             try:
                 fout = open(file_uri, 'w')
                 fout.write(data.zip_archive_to_restore.file.read())
@@ -177,12 +178,14 @@ class WebRestore:
             finally:
                 fout.close()
             if backup.check_zip_backup(file_uri) == False:
+                print ("Restore data, bad Zip format in file: " + file_uri)
                 return render.backup(connected,
                                      getLinkForLatestBackupArchive(),
                                      "restoreError")
             flags.set_restore(fname)
             raise web.seeother('/restarting')
         else:
+            print ("Restore data empty")
             return render.backup(connected,
                                  getLinkForLatestBackupArchive(),
                                  "restoreEmpty")
@@ -1801,7 +1804,7 @@ class end_activities_flags:
         if self._restore:
             # returns False if restore did not work but no way to alert the user !
             if not backup.restore_from_zip(self._restore):
-                print ("Error while restoring from bacup.")
+                print ("Error while restoring from backup.")
             self.set_restart_elsa()
 
         if self._check_update:
