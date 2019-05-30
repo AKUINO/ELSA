@@ -325,7 +325,8 @@ class WebApiKeyValue:
 
     def GET(self):
         query_string = web.ctx.env.get('QUERY_STRING')
-        inputData = useful.parse_url_dict(query_string)
+        all_ascii = ''.join(char for char in query_string if ord(char) < 128)
+        inputData = useful.parse_url_dict(all_ascii)
         c.AllSensors.storeLoraValue(inputData)
         # web.header('Content-type', 'application/json')
         # return json.dumps(outputData)
