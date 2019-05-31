@@ -2746,10 +2746,15 @@ class AllSensors(AllObjects):
 
         for k, sensor in self.elements.items():
             if sensor.isActive() and sensor.fields['channel'] in self._queryChannels:
-                value, cache = sensor.get_value_sensor(self.config, timestamp, get_cache(sensor))
-                sensor.update(timestamp, value, self.config)
-                if cache is not None:
-                    set_cache(sensor, cache)
+                if sensor.fields['channel'] in ['wire',
+                      'http',
+                      'json',
+                      'cputemp',
+                      'system']:
+                    value, cache = sensor.get_value_sensor(self.config, timestamp, get_cache(sensor))
+                    sensor.update(timestamp, value, self.config)
+                    if cache is not None:
+                        set_cache(sensor, cache)
 
     def check_rrd(self):
         for k, v in self.elements.items():
