@@ -1,7 +1,11 @@
-import rrdtool
-import os
-import ConfigurationELSA as elsa
 import calendar
+import os
+import rrdtool
+from numpy import nan
+import datetime
+
+import ConfigurationELSA as elsa
+
 
 def get_datapoints_from_s_id(sensorID, time_from_utc, time_to_utc):
     if time_from_utc is None:
@@ -19,7 +23,9 @@ def get_datapoints_from_s_id(sensorID, time_from_utc, time_to_utc):
     datapoints = []
     rrd_step = result[0][2]
     for i in range(0, len(result[2])):
-        datapoints.append([result[2][i][0], (time_from + i*rrd_step)*1000])
+        val = result[2][i][0]
+        if val != nan:
+            datapoints.append([val, (time_from + i*rrd_step)*1000])
     
 
     return datapoints
