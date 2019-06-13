@@ -1495,7 +1495,26 @@ class getRRD:
 
 class getCSV:
     def GET(self, filename):
+        web.header('Content-type', 'text/csv')
         with open(elsa.DIR_DATA_CSV + filename) as f:
+            try:
+                return f.read()
+            except IOError:
+                web.notfound()
+
+class getCSS:
+    def GET(self, filename):
+        web.header('Content-type', 'text/css')
+        with open( os.path.join(elsa.DIR_STATIC,'css') + filename) as f:
+            try:
+                return f.read()
+            except IOError:
+                web.notfound()
+
+class getJS:
+    def GET(self, filename):
+        web.header('Content-type', 'application/javascript')
+        with open( os.path.join(elsa.DIR_STATIC,'js') + filename) as f:
             try:
                 return f.read()
             except IOError:
@@ -1861,6 +1880,10 @@ def main():
             '/history/(.+)_(.+)', 'WebHistory',
             '/create/(.+)', 'WebCreate',
             '/rrd/(.+)', 'getRRD',
+            '/static/js/(.+)', 'getJS',
+            '/static/css/(.+)', 'getCSS',
+            '/js/(.+)', 'getJS',
+            '/css/(.+)', 'getCSS',
             '/csv/(.+)', 'getCSV',
             '/doc/(.+)', 'getDoc',
             '/list/(.+)', 'WebList',
