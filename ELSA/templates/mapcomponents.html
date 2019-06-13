@@ -23,10 +23,7 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 				<a href="#p_$acro">$acro</a>
 			$else:
 				<a name="p_$acro"></a>$acro - <strong>$(place.getName(self.lang))</strong>
-				$ files = place.getDocumentList()
-				$if files and len(files) > 0:
-					<a href="/files/p_$place.getID()">
-					$:c.getHalfling('file')<strong>$len(files)</strong></a>
+				$:place.linkFiles(c)
 				$ batches = place.get_batches(c)
 				$if len(batches):
 					&nbsp;&nbsp;<strong><a href="/find/b/$(place.getTypeId())">$unicode(len(batches)) $:(c.getHalfling('batch'))</a></strong>
@@ -37,10 +34,7 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 					<a href="/find/related/gu_$kusage">$:(elem.statusIcon(c,True,False))</a>
 					$ acro = elem.fields['acronym']
 					<a name="gu_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>			
-					$ files = elem.getDocumentList()
-					$if files and len(files) > 0:
-						<a href="/files/gu_$kusage">
-						$:c.getHalfling('file')<strong>$len(files)</strong></a>
+					$:elem.linkFiles(c)
 					$if elem.fields['rank']:
 						#$elem.fields['rank']
 				    </div>
@@ -61,10 +55,7 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 							$if alarms > 0:
 							<a href="/find/al/s_$sensor.getID()">
 							$:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
-						$ files = sensor.getDocumentList()
-						$if files and len(files) > 0:
-							<a href="/files/s_$sensor.getID()">
-							$:c.getHalfling('file')<strong>$len(files)</strong></a>
+						$:sensor.linkFiles(c)
 						$ done.add('s_'+ksensor)
 					</div>
 				$ done.add('p_'+kplace)
@@ -78,10 +69,7 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 							<a href="#e_$acro">$acro</a>
 						$else:
 							<a name="e_$acro"></a>$acro - <strong>$(equipment.getName(self.lang))</strong>
-							$ files = equipment.getDocumentList()
-							$if files and len(files) > 0:
-								<a href="/files/e_$equipment.getID()">
-								$:c.getHalfling('file')<strong>$len(files)</strong></a>
+							$:equipment.linkFiles(c)
 							$ batches = equipment.get_batches(c)
 							$if len(batches):
 								&nbsp;&nbsp;<strong><a href="/find/b/$(equipment.getTypeId())">$unicode(len(batches)) $:(c.getHalfling('batch'))</a></strong>
@@ -92,10 +80,7 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 								<a href="/find/related/gu_$kusage">$:(elem.statusIcon(c,True,False))</a>
 								$ acro = elem.fields['acronym']
 								<a name="gu_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>			
-								$ files = elem.getDocumentList()
-								$if files and len(files) > 0:
-									<a href="/files/gu_$kusage">
-									$:c.getHalfling('file')<strong>$len(files)</strong></a>
+								$:elem.linkFiles(c)
 								$if elem.fields['rank']:
 									#$elem.fields['rank']
 							     </div>
@@ -116,10 +101,7 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 										$if alarms > 0:
 										<a href="/find/al/s_$sensor.getID()">
 										$:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
-									$ files = sensor.getDocumentList()
-									$if files and len(files) > 0:
-										<a href="/files/s_$sensor.getID()">
-										$:c.getHalfling('file')<strong>$len(files)</strong></a>
+									$:sensor.linkFiles(c)
 									$ done.add('s_'+ksensor)
 								</div>
 							$ done.add('e_'+kequipment)
@@ -133,10 +115,7 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 											<a href="#c_$acro">$acro</a>
 										$else:
 											<a name="c_$acro"></a>$acro - <strong>$(container.getName(self.lang))</strong>
-											$ files = container.getDocumentList()
-											$if files and len(files) > 0:
-												<a href="/files/c_$container.getID()">
-												$:c.getHalfling('file')<strong>$len(files)</strong></a>
+											$:container.linkFiles(c)
 											$ batches = container.get_batches(c)
 											$if len(batches):
 												&nbsp;&nbsp;<strong><a href="/find/b/$(container.getTypeId())">$unicode(len(batches)) $:(c.getHalfling('batch'))</a></strong>
@@ -147,10 +126,7 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 												<a href="/find/related/gu_$kusage">$:(elem.statusIcon(c,True,False))</a>
 												$ acro = elem.fields['acronym']
 												<a name="gu_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>			
-												$ files = elem.getDocumentList()
-												$if files and len(files) > 0:
-													<a href="/files/gu_$kusage">
-													$:c.getHalfling('file')<strong>$len(files)</strong></a>
+												$:elem.linkFiles(c)
 												$if elem.fields['rank']:
 													#$elem.fields['rank']
 											    </div>
@@ -171,10 +147,7 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 														$if alarms > 0:
 														<a href="/find/al/s_$sensor.getID()">
 														$:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
-													$ files = sensor.getDocumentList()
-													$if files and len(files) > 0:
-														<a href="/files/s_$sensor.getID()">
-														$:c.getHalfling('file')<strong>$len(files)</strong></a>
+													$:sensor.linkFiles(c)
 													$ done.add('s_'+ksensor)
 												</div>
 											$ done.add('c_'+kcontainer)
@@ -190,10 +163,7 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 										<a href="#c_$acro">$acro</a>
 									$else:
 										<a name="c_$acro"></a>$acro - <strong>$(container.getName(self.lang))</strong>
-										$ files = container.getDocumentList()
-										$if files and len(files) > 0:
-											<a href="/files/c_$container.getID()">
-											$:c.getHalfling('file')<strong>$len(files)</strong></a>
+										$:container.linkFiles(c)
 										$ batches = container.get_batches(c)
 										$if len(batches):
 											&nbsp;&nbsp;<strong><a href="/find/b/$(container.getTypeId())">$unicode(len(batches)) $:(c.getHalfling('batch'))</a></strong>
@@ -204,10 +174,7 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 											<a href="/find/related/gu_$kusage">$:(elem.statusIcon(c,True,False))</a>
 											$ acro = elem.fields['acronym']
 											<a name="gu_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>			
-											$ files = elem.getDocumentList()
-											$if files and len(files) > 0:
-												<a href="/files/gu_$kusage">
-												$:c.getHalfling('file')<strong>$len(files)</strong></a>
+											$:elem.linkFiles(c)
 											$if elem.fields['rank']:
 												#$elem.fields['rank']
 										    </div>
@@ -228,10 +195,7 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 													$if alarms > 0:
 													<a href="/find/al/s_$sensor.getID()">
 													$:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
-												$ files = sensor.getDocumentList()
-												$if files and len(files) > 0:
-													<a href="/files/s_$sensor.getID()">
-													$:c.getHalfling('file')<strong>$len(files)</strong></a>
+												$:sensor.linkFiles(c)
 												$ done.add('s_'+ksensor)
 											</div>
 										$ done.add('c_'+kcontainer)
@@ -244,10 +208,7 @@ $for kequipment in c.AllEquipments.get_sorted_hierarchy():
 		<a href="/find/related/e_$kequipment">$:(equipment.statusIcon(c,True,False))</a>
 		$ acro = equipment.fields['acronym']
 		<a name="e_$acro"></a>$acro - <strong>$(equipment.getName(self.lang))</strong>
-		$ files = equipment.getDocumentList()
-		$if files and len(files) > 0:
-			<a href="/files/e_$equipment.getID()">
-			$:c.getHalfling('file')<strong>$len(files)</strong></a>
+		$:equipment.linkFiles(c)
 		$ batches = equipment.get_batches(c)
 		$if len(batches):
 			&nbsp;&nbsp;<strong><a href="/find/b/$(equipment.getTypeId())">$unicode(len(batches)) $:(c.getHalfling('batch'))</a></strong>
@@ -258,10 +219,7 @@ $for kequipment in c.AllEquipments.get_sorted_hierarchy():
 			<a href="/find/related/gu_$kusage">$:(elem.statusIcon(c,True,False))</a>
 			$ acro = elem.fields['acronym']
 			<a name="gu_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>			
-			$ files = elem.getDocumentList()
-			$if files and len(files) > 0:
-				<a href="/files/gu_$kusage">
-				$:c.getHalfling('file')<strong>$len(files)</strong></a>
+			$:elem.linkFiles(c)
 			$if elem.fields['rank']:
 				#$elem.fields['rank']
 		    </div>
@@ -282,10 +240,7 @@ $for kequipment in c.AllEquipments.get_sorted_hierarchy():
 					$if alarms > 0:
 					<a href="/find/al/s_$sensor.getID()">
 					$:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
-				$ files = sensor.getDocumentList()
-				$if files and len(files) > 0:
-					<a href="/files/s_$sensor.getID()">
-					$:c.getHalfling('file')<strong>$len(files)</strong></a>
+				$:sensor.linkFiles(c)
 				$ done.add('s_'+ksensor)
 			</div>
 $for kcontainer in c.AllContainers.get_sorted_hierarchy():
@@ -295,10 +250,7 @@ $for kcontainer in c.AllContainers.get_sorted_hierarchy():
 			<a href="/find/related/c_$kcontainer">$:(container.statusIcon(c,True,False,connected))</a>
 			$ acro = container.fields['acronym']
 			<a name="c_$acro"></a>$acro - <strong>$(container.getName(self.lang))</strong>
-			$ files = container.getDocumentList()
-			$if files and len(files) > 0:
-				<a href="/files/c_$container.getID()">
-				$:c.getHalfling('file')<strong>$len(files)</strong></a>
+			$:container.linkFiles(c)
 			$ batches = container.get_batches(c)
 			$if len(batches):
 				&nbsp;&nbsp;<strong><a href="/find/b/$(container.getTypeId())">$unicode(len(batches)) $:(c.getHalfling('batch'))</a></strong>
@@ -309,10 +261,7 @@ $for kcontainer in c.AllContainers.get_sorted_hierarchy():
 				<a href="/find/related/gu_$kusage">$:(elem.statusIcon(c,True,False))</a>
 				$ acro = elem.fields['acronym']
 				<a name="gu_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>			
-				$ files = elem.getDocumentList()
-				$if files and len(files) > 0:
-					<a href="/files/gu_$kusage">
-					$:c.getHalfling('file')<strong>$len(files)</strong></a>
+				$:elem.linkFiles(c)
 				$if elem.fields['rank']:
 					#$elem.fields['rank']
 			    </div>
@@ -333,10 +282,7 @@ $for kcontainer in c.AllContainers.get_sorted_hierarchy():
 						$if alarms > 0:
 						<a href="/find/al/s_$sensor.getID()">
 						$:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
-					$ files = sensor.getDocumentList()
-					$if files and len(files) > 0:
-						<a href="/files/s_$sensor.getID()">
-						$:c.getHalfling('file')<strong>$len(files)</strong></a>
+					$:sensor.linkFiles(c)
 					$ done.add('s_'+ksensor)
 				</div>
 			</div>

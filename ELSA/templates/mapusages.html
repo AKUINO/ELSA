@@ -37,11 +37,8 @@ $for kusage in listUsage:
 			$if ('gu_'+kusage) in done:
 				<a href="#gu_$acro">$acro</a>
 				$continue
-			<a name="gu_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>			
-			$ files = elem.getDocumentList()
-			$if files and len(files) > 0:
-			    <a href="/files/gu_$kusage">
-			    $:c.getHalfling('file')<strong>$len(files)</strong></a>
+			<a name="gu_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>
+			$:elem.linkFiles(c)
 			$if elem.fields['rank']:
 			    #$elem.fields['rank']
 			<br/>
@@ -54,10 +51,7 @@ $for kusage in listUsage:
 						<a href="#p_$acro">$acro</a>
 					$else:
 						<a name="p_$acro"></a>$acro - <strong>$(place.getName(self.lang))</strong>
-						$ files = place.getDocumentList()
-						$if files and len(files) > 0:
-						    <a href="/files/p_$place.getID()">
-						    $:c.getHalfling('file')<strong>$len(files)</strong></a>
+						$:place.linkFiles(c)
 						$ batches = place.get_batches(c)
 						$if len(batches):
 							&nbsp;&nbsp;<strong><a href="/find/b/$(place.getTypeId())">$unicode(len(batches)) $:(c.getHalfling('batch'))</a></strong>
@@ -78,10 +72,7 @@ $for kusage in listUsage:
 							        $if alarms > 0:
 								    <a href="/find/al/s_$sensor.getID()">
 								    $:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
-								$ files = sensor.getDocumentList()
-								$if files and len(files) > 0:
-								    <a href="/files/s_$sensor.getID()">
-								    $:c.getHalfling('file')<strong>$len(files)</strong></a>
+								$:sensor.linkFiles(c)
 								$ done.add('s_'+ksensor)
 							</div>
 
@@ -101,10 +92,7 @@ $for kusage in listUsage:
 							<div style="float:right">
 							<small>$:c.getHalfling('to')</small> <a href="/find/related/$(here.get_type())_$(here.getID())">$:(here.statusIcon(c,True,False))$(here.fields['acronym'])</a>
 							</div>
-						$ files = equipment.getDocumentList()
-						$if files and len(files) > 0:
-						    <a href="/files/e_$equipment.getID()">
-						    $:c.getHalfling('file')<strong>$len(files)</strong></a>
+						$:equipment.linkFiles(c)
 						$ batches = equipment.get_batches(c)
 						$if len(batches):
 							&nbsp;&nbsp;<strong><a href="/find/b/$(equipment.getTypeId())">$unicode(len(batches)) $:(c.getHalfling('batch'))</a></strong>
@@ -125,10 +113,7 @@ $for kusage in listUsage:
 							        $if alarms > 0:
 								    <a href="/find/al/s_$sensor.getID()">
 								    $:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
-								$ files = sensor.getDocumentList()
-								$if files and len(files) > 0:
-								    <a href="/files/s_$sensor.getID()">
-								    $:c.getHalfling('file')<strong>$len(files)</strong></a>
+								$:sensor.linkFiles(c)
 								$ done.add('s_'+ksensor)
 							</div>
 						$ done.add('e_'+kequipment)
@@ -147,10 +132,7 @@ $for kusage in listUsage:
 							<div style="float:right">
 							<small>$:c.getHalfling('to')</small> <a href="/find/related/$(here.get_type())_$(here.getID())">$:(here.statusIcon(c,True,False))$(here.fields['acronym'])</a>
 							</div>
-						$ files = container.getDocumentList()
-						$if files and len(files) > 0:
-						    <a href="/files/c_$container.getID()">
-						    $:c.getHalfling('file')<strong>$len(files)</strong></a>
+						$:container.linkFiles(c)
 						$ batches = container.get_batches(c)
 						$if len(batches):
 							&nbsp;&nbsp;<strong><a href="/find/b/$(container.getTypeId())">$unicode(len(batches)) $:(c.getHalfling('batch'))</a></strong>
@@ -171,10 +153,7 @@ $for kusage in listUsage:
 							        $if alarms > 0:
 								    <a href="/find/al/s_$sensor.getID()">
 								    $:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
-								$ files = sensor.getDocumentList()
-								$if files and len(files) > 0:
-								    <a href="/files/s_$sensor.getID()">
-								    $:c.getHalfling('file')<strong>$len(files)</strong></a>
+								$:sensor.linkFiles(c)
 								$ done.add('s_'+ksensor)
 							</div>
 						$ done.add('c_'+kcontainer)

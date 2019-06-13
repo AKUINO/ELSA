@@ -36,10 +36,7 @@ $for krecipe in listRecipe:
 			<a href="#gr_$acro">$acro</a><br/>
 		$else:
 			<a name="gr_$acro"></a>$acro - <strong>$(elem.getName(self.lang))</strong>
-			$ files = elem.getDocumentList()
-			$if files and len(files) > 0:
-			    <a href="/files/gr_$krecipe">
-			    $:c.getHalfling('file')<strong>$len(files)</strong></a>
+			$:elem.linkFiles(c)
 			<br/>
 			$code:
 			    batches = elem.get_batches(c)
@@ -72,9 +69,7 @@ $for krecipe in listRecipe:
 						$if alarms > 0:
 							<a href="/find/al/b_$batch.getID()">
 							$:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
-						$if files and len(files) > 0:
-							<a href="/files/b_$batch.getID()">
-							$:c.getHalfling('file')<strong>$len(files)</strong></a>
+						$:batch.linkFiles(c)
 						$ done.add('b_'+batch.getID())
 					</div>
 			$if len(keys) < total:

@@ -970,6 +970,16 @@ class ConfigurationObject(object):
             return os.listdir(directory)
         return []
 
+    def linkFiles(self,config):
+        files = self.getDocumentList()
+        result = ""
+        if files and len(files) > 0:
+            result = '<a href="/files/'+self.getTypeId()+'"'
+            if len(files) == 1:
+                result += ' target="_blank"'
+            result += '>' + config.getHalfling('file') + '<strong>'+unicode(len(files))+'</strong></a>'
+        return result
+
     def getDocumentURL(self, filename=u''):
         thisType = self.get_type()
         if thisType in imagedTypes:
@@ -4668,6 +4678,9 @@ class AlarmLog(ConfigurationObject):
 
     def sort_key(self):
         return self.fields['begin']
+
+    def get_acronym(self):
+        return self.sort_key()
 
     # WHAT is moved
     def get_source(self, config):

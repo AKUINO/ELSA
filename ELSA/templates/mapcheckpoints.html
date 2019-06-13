@@ -38,10 +38,7 @@ $for kcheckpoint in listCheckPoint:
 		    <span>
 		    <a href="/find/related/h_$kcheckpoint">$:(elem.statusIcon(c,True,False,connected))</a>
 		    <a name="h_$acro"></a>$acro #$elem.fields['rank'] - <strong>$(elem.getName(self.lang))</strong>
-		    $ files = elem.getDocumentList()
-		    $if files and len(files) > 0:
-			    <a href="/files/h_$kcheckpoint">
-			    $:c.getHalfling('file')<strong>$len(files)</strong></a>
+		    $:elem.linkFiles(c)
 		    </span>
 		    <span>
 		    $ kusage = elem.fields['gu_id']
