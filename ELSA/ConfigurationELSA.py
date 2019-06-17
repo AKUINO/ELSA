@@ -1425,13 +1425,15 @@ class ConfigurationObject(object):
         if not inButton:
             if self.isModeling():
                 supp_classes = " text-info"
-            elif self.isComplete():
-                supp_classes = " text-danger"
+            #elif self.isComplete():
+            #    supp_classes = " text-danger"
             elif self.isExpired():
                 supp_classes = " text-danger"
         result = configuration.getAllHalfling(allObjects, supp_classes)
         if 'active' in self.fields and self.fields['active'] == '0':
             result = '<span class="icon-combine">' + result + '<span class="halflings halflings-remove text-danger"></span></span>'
+        elif self.isComplete():
+            result = '<span class="icon-combine">' + result + '<span class="halflings halflings-record text-danger"></span></span>'
         # result = '<span class="icon-combine">'+result+'<span class="halflings halflings-time text-danger"></span></span>'
         if pic:
             result += self.getImage(36)
