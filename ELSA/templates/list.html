@@ -3,6 +3,7 @@ $var allowed : $connected.cuser.allowed(c)
 $var lang : $connected.cuser.fields['language']
 $var completeMenu : $connected.completeMenu
 $var pinned : $connected.pinned()
+$var recursive : False
 $code :
     all = (type[0] == '*')
     if all:
@@ -10,29 +11,16 @@ $code :
     if type in 'vtd' :
 	type = 'b'	
     allObjects = c.findAll(type)
-    keyID = allObjects.keyColumn
-    permissionKey = type +'_'
-    in_use = allObjects.in_use()
-    total = len(in_use)
-    keys = allObjects.sort_hierarchy(in_use if all else allObjects.get_top(30,in_use))
-$var recursive : False
+    keys = []
 $var title: $c.getName(allObjects,self.lang)
 $var bcTop:$type
 $var bcOwner:
 $var bcElem:
 $var bcOperation:list
-
-<div class="row active">
-    <label class="col-sm-12">$len(keys)
-	$if len(keys) < total:
-	    / $total
-	$c.getMessage(allObjects.get_class_acronym(),self.lang) :</label>
-</div>
 $ count_active = 0
 $ count_inactive = 0
 $ count_complete = 0
-$for ikey in keys:
-    $ a = allObjects.get(ikey)
+$for ikey,a in allObjects.elements.items():
     $ active = a.isActive()
     $ complete = a.isComplete()
     $ ok = status == 'all'
@@ -46,8 +34,20 @@ $for ikey in keys:
     $else:
         $ count_inactive += 1
         $ ok = status == 'del'
-    $if (status == '' and active and not complete) or status == 'all' or (status == 'del' and not active) or (status=='done' and complete):
-	$ key = a.get_type()+"_"+a.getID()
+    $if ok:
+        $ keys.append(ikey)
+$ total = len(keys)
+$ keys = allObjects.sort_hierarchy(keys if all else allObjects.get_top(30,keys))
+<div class="row active">
+    <label class="col-sm-12">$len(keys)
+	$if len(keys) < total:
+	    / $total
+	$c.getMessage(allObjects.get_class_acronym(),self.lang) :</label>
+</div>
+
+$for ikey in keys:
+        $ a = allObjects.elements[ikey]
+	$ key = a.getTypeId()
 	<script>
 	    $$(function(){
 		$$("#includedMenu$(key)").load("/fullentry/$(key)");
