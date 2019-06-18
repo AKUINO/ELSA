@@ -1329,7 +1329,7 @@ class ConfigurationObject(object):
         return self.fields['acronym']
 
     def sort_key(self):
-        return self.get_acronym_hierarchy().upper()
+        return  (self.fields['rank'].rjust(10) if 'rank' in self.fields else '') + self.get_acronym_hierarchy().upper()
 
     def sort_level_key(self):
         return (self.fields['rank'].rjust(10) if 'rank' in self.fields else '') + self.fields['acronym'].upper()
@@ -3485,6 +3485,13 @@ class Equipment(ConfigurationObject):
     def get_class_acronym(self):
         return 'equipment'
 
+    def sort_key(self):
+        pref = ""
+        usage = self.config.AllGrUsage.get(self.fields['gu_id'])
+        if usage:
+            pref = usage.fields['rank'].rjust(10)
+        return pref + self.fields['acronym'].upper()
+
     def get_sensors_in_component(self, config):
         listSensor = []
         for k, sensor in config.AllSensors.elements.items():
@@ -3543,6 +3550,13 @@ class Container(ConfigurationObject):
 
     def get_class_acronym(self):
         return 'container'
+
+    def sort_key(self):
+        pref = ""
+        usage = self.config.AllGrUsage.get(self.fields['gu_id'])
+        if usage:
+            pref = usage.fields['rank'].rjust(10)
+        return pref + self.fields['acronym'].upper()
 
     def get_sensors_in_component(self, config):
         listSensor = []
@@ -4599,6 +4613,13 @@ class Place(ConfigurationObject):
     def get_class_acronym(self):
         return 'place'
 
+    def sort_key(self):
+        pref = ""
+        usage = self.config.AllGrUsage.get(self.fields['gu_id'])
+        if usage:
+            pref = usage.fields['rank'].rjust(10)
+        return pref + self.fields['acronym'].upper()
+
     def get_sensors_in_component(self, config):
         listSensor = []
         checklist = []
@@ -4614,13 +4635,6 @@ class Place(ConfigurationObject):
                 if sensor.is_in_component(comp, id):
                     listSensor.append(k)
         return listSensor
-
-    def sort_key(self):
-        pref = ""
-        usage = self.config.AllGrUsage.get(self.fields['gu_id'])
-        if usage:
-            pref = usage.fields['rank'].rjust(10)
-        return pref + self.fields['acronym'].upper()
 
     def isAlarmed(self, c):
         for kSensor, aSensor in c.AllSensors.elements.items():
