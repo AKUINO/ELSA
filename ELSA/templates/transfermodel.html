@@ -59,7 +59,7 @@ $if errormess != '':
 	<div class="form-group row">
 	    <label for="rankinput" class="col-sm-3 col-form-label">$:(c.getHalfling('rank'))$c.getMessage('rank',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="rank" type="number" class="form-control" 
+		<input name="rank" type="number" lang="en-US" class="form-control"
 		$if errormess != '':
 		    $if 'rank' in data :
 			value="$data['rank']" 
@@ -123,7 +123,7 @@ $if errormess != '':
 		<label for="$(aname)Select" class="col-sm-3 col-form-label">$(c.getMessage(aname,self.lang))</label>
 		$if aname != 'none':
 		  <div class="col-sm-9">
-		    <!--input type="number" min="0" step="1"--><input type="text" name="$(aname)" class="form-control" id="$(aname)Select" placeholder="$(c.getMessage(aname,self.lang))" 
+		    <!--input type="number" lang="en-US" min="0" step="1"--><input type="text" name="$(aname)" class="form-control" id="$(aname)Select" placeholder="$(c.getMessage(aname,self.lang))"
 			$if errormess != '' :
 			    $if aname in data:
 				value = $data[aname]

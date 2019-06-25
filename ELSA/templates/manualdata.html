@@ -88,7 +88,7 @@ $else :
 	<div class="form-group row">
 	    <label for="inputValue" class="col-sm-3 col-form-label">$c.getMessage('value',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="value" type="number" class="form-control" id="inputValue" placeholder="$c.getMessage('value',self.lang)" 
+		<input name="value" type="number" lang="en-US" class="form-control" id="inputValue" placeholder="$c.getMessage('value',self.lang)"
 		$if myID == 'update':
 		    value="$manudata.fields['value']"
 		>

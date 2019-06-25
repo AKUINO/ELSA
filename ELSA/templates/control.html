@@ -107,7 +107,7 @@ $var bcOperation:control
 		      </div>
 		    $else:
 		      <div class="col-xs-6 col-sm-7">
-		        <input name="dm_value_$(countdm)" type="number" min="$(aMeasure.fields['min'])" max="$(aMeasure.fields['max'])" step="$(aMeasure.get_html_step())" class="form-control" size="15" id="inputValue_$(countdm)" placeholder="$c.getMessage('value',self.lang)" value="$e.fields['typical']">
+		        <input name="dm_value_$(countdm)" type="number" lang="en-US" min="$(aMeasure.fields['min'])" max="$(aMeasure.fields['max'])" step="$(aMeasure.get_html_step())" class="form-control" size="15" id="inputValue_$(countdm)" placeholder="$c.getMessage('value',self.lang)" value="$e.fields['typical']">
                       </div>
 		      <div class="col-xs-3 col-sm-2">
                         <strong>$(aMeasure.fields['unit'])</strong>
@@ -181,7 +181,7 @@ $var bcOperation:control
 		<div class="form-group row">
 		    <label for="pourValue_$(countvm)" class="col-xs-12 col-sm-3 col-form-label">$c.getMessage('quantity',self.lang)</label>
 		    <div class="col-xs-8 col-sm-7">
-			<input name="vm_quantity_$(countvm)" type="number" 
+			<input name="vm_quantity_$(countvm)" type="number" lang="en-US"
                         $if aMeasure:
                             min="$(aMeasure.fields['min'])" max="$(aMeasure.fields['max'])" step="$(aMeasure.get_html_step())"
                         class="form-control" id="pourValue_$(countvm)" placeholder="$c.getMessage('value',self.lang)" value="$unicode(e.get_quantity())"required >

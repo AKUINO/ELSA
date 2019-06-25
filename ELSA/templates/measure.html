@@ -90,7 +90,7 @@ $var bcOperation:edit
 	<div class="form-group row">
 	    <label for="inputMin" class="col-sm-3 col-form-label">$c.getMessage('min',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="min" type="number" class="form-control" id="inputMin" placeholder="$c.getMessage('min',self.lang)" 
+		<input name="min" type="number" lang="en-US" class="form-control" id="inputMin" placeholder="$c.getMessage('min',self.lang)"
 		$if errormess != '':
 		    $if 'min' in data :
 			value="$data['min']"
@@ -103,7 +103,7 @@ $var bcOperation:edit
 	<div class="form-group row">
 	    <label for="inputMax" class="col-sm-3 col-form-label">$c.getMessage('max',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="max" type="number" class="form-control" id="inputMax" placeholder="$c.getMessage('max',self.lang)" 
+		<input name="max" type="number" lang="en-US" class="form-control" id="inputMax" placeholder="$c.getMessage('max',self.lang)"
 		$if errormess != '':
 		    $if 'max' in data :
 			value="$data['max']"

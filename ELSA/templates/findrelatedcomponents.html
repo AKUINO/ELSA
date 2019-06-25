@@ -361,7 +361,7 @@ $if type == 'b':
 	    <div class="form-group row">
 		<label for="inputQty" class="col-sm-2 col-form-label">$:(c.getHalfling('batch'))$elem.fields['acronym']</label>
 		<div class="col-sm-2">
-		    <input name="quantity" type="number" min="1" step="1" class="form-control" id="inputQty" placeholder="$c.getMessage('quantity',self.lang)" >
+		    <input name="quantity" type="number" lang="en-US" min="1" step="1" class="form-control" id="inputQty" placeholder="$c.getMessage('quantity',self.lang)" >
 		</div>	    
 		<div class="col-sm-2">
 		    <button type="submit" class="btn btn-primary btn-block">$c.getMessage('duplicate',self.lang) $c.getMessage('batch',self.lang)</button>

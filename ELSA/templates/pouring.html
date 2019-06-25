@@ -104,7 +104,7 @@ function flip() {
 	<div class="form-group row">
 	    <label for="inputValue" class="col-sm-3 col-form-label">$c.getMessage('quantity',self.lang)</label>
 	    <div class="col-sm-6">
-		<input name="quantity" type="number" class="form-control" id="inputValue" placeholder="$c.getMessage('value',self.lang)" 
+		<input name="quantity" type="number" lang="en-US" class="form-control" id="inputValue" placeholder="$c.getMessage('value',self.lang)"
 		$if myID == 'update':
 		    $ aMeasure = pouring.get_measure_in_context(c,batch)
 		    value="$unicode(pouring.get_quantity())"

@@ -83,7 +83,7 @@ $if errormess != '':
 	<div class="form-group row">
 	    <label for="rankinput" class="col-sm-3 col-form-label">$:(c.getHalfling('rank'))$c.getMessage('rank',self.lang)</label>
 	    <div class="col-sm-9">
-		<input name="rank" id="rankinput" type="number" class="form-control"
+		<input name="rank" id="rankinput" type="number" lang="en-US" class="form-control"
 		$if errormess != '':
 		    $if 'rank' in data :
 			value="$data['rank']" 
