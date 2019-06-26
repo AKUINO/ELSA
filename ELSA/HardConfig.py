@@ -62,6 +62,7 @@ class HardConfig():
     sms_password = u''
     sms_server = u'UNKNOWN_SMTP'
     sms_port = 587
+    printer = "/dev/usb/lp0"
 
     def parse_section_system(self):
         if self.config.has_section('system'):
@@ -76,6 +77,8 @@ class HardConfig():
                             print('Impossible de creer le dossier '
                                   + self.rundirectory + '.')
                             sys.exit()
+                    elif anItem[0].lower() == u'printer':
+                        self.printer = unicode(anItem[1]).strip()
                     elif anItem[0].lower() == u'model':
                         self.model = anItem[1]
 

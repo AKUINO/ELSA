@@ -832,6 +832,19 @@ class Configuration():
                                                                     lang)) if seconds else "")
         return result[1:]
 
+    def exec_command(self, inputData, args):
+        outputText = ""
+        try:
+            p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE)
+            outputText = p.communicate(input=inputData)[0].decode(sys.getdefaultencoding())
+        except subprocess.CalledProcessError as anError:
+            print u"Statut=" + unicode(anError.returncode) + u" " + unicode(anError)
+            return anError.returncode == 0
+        except:
+            traceback.print_exc()
+            return False
+        return outputText.replace(u"\ufeff", '').encode("cp850")
+
     # TRUE if no problem to create Print job
     def labelPrinter(self, type_id, someText):
         # fileName = os.path.join(self.HardConfig.rundirectory, type_id + ".prn")
@@ -840,11 +853,7 @@ class Configuration():
         #     printFile.write(someText)
         # return exec_command(["lpr", "-o", "raw", "-r", fileName])
         #return someText
-        fileName = "/dev/usb/lp0"
-        print "Printing using " + fileName
-        # Printing UTF-8 characters using ZPL and Page Code 850:
-        with io.open(fileName, "wb") as printFile:
-            printFile.write(someText.replace(u"\ufeff",'').encode("cp850"))
+        return self.exec_command(someText, ["lpr", "-o", "raw"])
 
 
 class ConfigurationObject(object):
