@@ -245,7 +245,27 @@ $code:
 	    </div>
 	</div>
 	
-        $if id !='new':
+
+	<div class="form-group row">
+	    <label for="inputsleep" class="col-sm-3 col-form-label">$c.getMessage('sleep',self.lang)</label>
+	    <span class="glyphicon glyphicon-remove-circle"> </span>
+	    $code:
+		cond = (id == 'new')
+		if not cond :
+		    cond = elem.isSleeping()
+		if errormess != '' :
+		    if 'sleep' in data :
+			cond  = True
+		    else:
+			cond = False
+	    <label class="switch">
+		    <input id='inputsleep' name="sleep" type="checkbox" value="1" $('checked' if cond else '')>
+		    <div class="slider round"></div>
+	    </label>
+	    <span class="glyphicon glyphicon-ok-circle"> </span>
+	</div>
+
+        $if id !='new' and not elem.isSleeping():
             <div class="form-group row">
                 <label for="inputValidation" class="col-sm-3 col-form-label">TEST</label>
                 <div class="col-sm-9" style="color:black">
@@ -295,7 +315,6 @@ $code:
             </label>
 	</div>
 
-	
 	<div class="form-group row">
 	    <label for="inputactive" class="col-sm-3 col-form-label">$c.getMessage('active',self.lang)</label>
 	    <span class="glyphicon glyphicon-remove-circle"> </span>
@@ -314,8 +333,7 @@ $code:
 	    </label>
 	    <span class="glyphicon glyphicon-ok-circle"> </span>
 	</div>
-	
-	
+
 	<div class="form-group row">
 	    <div class="col-sm-3">
 	    </div>

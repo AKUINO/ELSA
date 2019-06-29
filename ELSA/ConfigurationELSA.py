@@ -1387,6 +1387,12 @@ class ConfigurationObject(object):
         else:
             return self.fields['active'] != '0'
 
+    def isSleeping(self):
+        if not 'sleep' in self.fields:
+            return False
+        else:
+            return self.fields['sleep'] > '0'
+
     def getImage(self, height=36):
         ext = self.isImaged()
         if ext:
@@ -1658,7 +1664,7 @@ class UpdateThread(threading.Thread):
                 #         'sensor'] and relaySensor.fields['subsensor']:
                 #         SEND VALUE TO SENSOR/RELAY !
                 #         relaySensor.relaySetting = None
-            while self.config.isThreading is True and timer < 60:
+            while self.config.isThreading is True and timer < self.config.HardConfig.sensor_polling:
                 time.sleep(1)
                 timer = timer + 1
 
@@ -2672,7 +2678,7 @@ class AllSensors(AllObjects):
         AllObjects.__init__(self, 's', Sensor.__name__, config)
         self.fieldnames = ['begin', 's_id', 'c_id', 'p_id', 'e_id', 'm_id', \
                            'active', 'acronym', 'remark', 'channel', 'sensor', \
-                           'subsensor', 'valuetype', 'formula', \
+                           'subsensor', 'valuetype', 'formula', 'sleep', \
                            'lapse1', 'lapse2', 'lapse3'] \
                           + alarmFields + ['user']
         self.fieldtranslate = ['begin', 'lang', 's_id', 'name', 'user']
@@ -2772,10 +2778,13 @@ class AllSensors(AllObjects):
                       'json',
                       'cputemp',
                       'system']:
-                    value, cache = sensor.get_value_sensor(self.config, timestamp, get_cache(sensor))
-                    sensor.update(timestamp, value, self.config)
-                    if cache is not None:
-                        set_cache(sensor, cache)
+                    try:
+                        value, cache = sensor.get_value_sensor(self.config, timestamp, get_cache(sensor))
+                        sensor.update(timestamp, value, self.config)
+                        if cache is not None:
+                            set_cache(sensor, cache)
+                    except:
+                        traceback.print_exc()
 
     def check_rrd(self):
         for k, v in self.elements.items():
@@ -5762,6 +5771,7 @@ class Sensor(AlarmingObject):
     def __init__(self):
         self.default_user = None
         self.relaySetting = None
+        self.lastMission = None
         AlarmingObject.__init__(self)
 
     def __str__(self):
@@ -6000,16 +6010,107 @@ class Sensor(AlarmingObject):
         debugging = u""
         if self.fields['channel'] == 'wire':
             if config.owproxy:
-                try:
-                    sensorAdress = u'/' + \
-                                   unicode(self.fields['sensor']) + u'/' + \
-                                   unicode(self.fields['subsensor'])
-                    output_val = float(config.owproxy.read(sensorAdress))
-                    config.set_channel_access('wire', self.fields['sensor'][:14], 0, timestamp)
-                except:
-                    debugging = (u"Device=" + sensorAdress
-                                 + u", Message="
-                                 + traceback.format_exc())
+                if not self.isSleeping():
+                    try:
+                        sensorAdress = u'/' + \
+                                       unicode(self.fields['sensor']) + u'/' + \
+                                       unicode(self.fields['subsensor'])
+                        output_val = float(config.owproxy.read(sensorAdress))
+                        config.set_channel_access('wire', self.fields['sensor'][:14], 0, timestamp)
+                    except:
+                        debugging = (u"Device=" + sensorAdress
+                                     + u", Message="
+                                     + traceback.format_exc())
+
+                if self.fields['sensor'][:2] == '21': # ThermoChron
+                    try:
+                        # Mission recorded ?
+                        MissionRecorded = False
+                        alreadStarted = False # running is not immediately set to 1...
+                        try:
+                            sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/clock/running'
+                            log_clock_running = int(config.owproxy.read(sensorAdress))
+                            if not self.isSleeping() and not log_clock_running:
+                                print (sensorAdress+" Start Clock")
+                                status = config.owproxy.write(sensorAdress, b'1')
+                                log_clock_running = int(config.owproxy.read(sensorAdress))
+
+                            ###  DOES NOT WORK: EASYSTART is mandatory... ###
+                            #sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/mission/running'
+                            #log_mission_running = int(config.owproxy.read(sensorAdress))
+                            # if not self.isSleeping() and not log_mission_running:
+                            #     print (sensorAdress+" Start Mission")
+                            #     sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/mission/frequency'
+                            #     status = config.owproxy.write(sensorAdress, b'1')
+
+                            if log_clock_running:
+                                sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/clock/udate'
+                                log_clock = int(config.owproxy.read(sensorAdress))
+                                if log_clock != timestamp:
+                                    sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/clock/date'
+                                    status = config.owproxy.write(sensorAdress,b'')
+                                    sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/clock/udate'
+                                    log_clock = int(config.owproxy.read(sensorAdress))
+                                    print (sensorAdress + u" RESYNC to " + unicode(log_clock))
+                        except:
+                            debugging = (u"Device=" + sensorAdress
+                                         + u", message="
+                                         + traceback.format_exc())
+                        sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/log/elements'
+                        log_elements = int(config.owproxy.read(sensorAdress))
+                        if log_elements and log_elements > 0:
+                            print (sensorAdress+u"="+unicode(log_elements))
+                            sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/log/udate.' + unicode(log_elements-1)
+                            log_mission = int(config.owproxy.read(sensorAdress))
+                            if log_mission:
+                                if self.lastMission:
+                                    if log_mission <= self.lastMission:
+                                         MissionRecorded = True
+                                if not MissionRecorded:
+                                    self.lastMission = log_mission
+                                    sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/log/temperature.ALL'
+                                    log_temp = config.owproxy.read(sensorAdress).replace(' ','').split(',')
+                                    sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/log/udate.ALL'
+                                    log_udate = config.owproxy.read(sensorAdress).replace(' ','').split(',')
+                                    i = 0
+                                    for temp in log_temp:
+                                        if temp:
+                                            log_stamp = int(log_udate[i])
+                                            if not log_stamp or (log_stamp > timestamp):
+                                                print (unicode(log_stamp)+u" is in the future!")
+                                            else:
+                                                try:
+                                                    self.update(log_stamp, float(temp), config)
+                                                except:
+                                                    pass # Il est possible que certaines valeurs entrent en conflit avec des valeurs déjà présentes
+                                        i += 1
+                                        if i >= log_elements:
+                                            break
+                                    print (sensorAdress + u" RECORDED, iButton has to be remissionned.")
+                                    sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/mission/frequency'
+                                    status = config.owproxy.write(sensorAdress, b'1') # sampling every minutes = 33 hours capacity...
+                                    sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/mission/easystart'
+                                    status = config.owproxy.write(sensorAdress, b'1')
+                                    alreadyStarted = True
+                        if self.isSleeping():
+                            print (sensorAdress+" STOP Mission and Clock")
+                            sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/mission/running'
+                            status = config.owproxy.write(sensorAdress, b'0')
+                            sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/clock/running'
+                            status = config.owproxy.write(sensorAdress, b'0')
+                        elif not alreadyStarted: # "easystart" is the only way to start
+                            sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/mission/running'
+                            log_mission_running = int(config.owproxy.read(sensorAdress))
+                            if not log_mission_running:
+                                print (sensorAdress + u" START.")
+                                sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/mission/frequency'
+                                status = config.owproxy.write(sensorAdress, b'1') # sampling every minutes = 33 hours capacity...
+                                sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/mission/easystart'
+                                status = config.owproxy.write(sensorAdress, b'1')
+                    except:
+                        debugging = (u"Device=" + sensorAdress
+                                     + u", Message="
+                                     + traceback.format_exc())
         elif self.fields['channel'] == 'radio':
             # Look at RadioThread
             pass
@@ -6017,187 +6118,197 @@ class Sensor(AlarmingObject):
             # Look at WebApiKeyValue
             pass
         elif self.fields['channel'] == 'cputemp':
-            try:
-                with open('/sys/class/thermal/thermal_zone0/temp', 'r') \
-                        as sensorfile:
-                    info = sensorfile.read()
-                    output_val = float(info) / 1000.0
-            except:
-                 debugging = (u"File=/sys/class/thermal/thermal_zone0/temp"
-                                 + u", Message="
-                                 + traceback.format_exc())
-                 traceback.print_exc()
+            if not self.isSleeping():
+                try:
+                    with open('/sys/class/thermal/thermal_zone0/temp', 'r') \
+                            as sensorfile:
+                        info = sensorfile.read()
+                        output_val = float(info) / 1000.0
+                except:
+                     debugging = (u"File=/sys/class/thermal/thermal_zone0/temp"
+                                     + u", Message="
+                                     + traceback.format_exc())
+                     traceback.print_exc()
         elif self.fields['channel'] == 'http':
-            url = self.fields['sensor']
-            code = 0
-            info = cache
-            if info is not None:
-                try:
-                    output_val = eval(self.fields['subsensor'])
-                except:
-                    debugging = (u"URL=" + url
-                                 + u", code="
-                                 + unicode(code)
-                                 + u", Response="
-                                 + unicode(info)
-                                 + u", Subsensor="
-                                 + self.fields['subsensor']
-                                 + u", Message="
-                                 + traceback.format_exc())
-                    traceback.print_exc()
-            else:
-                sensorfile = None
-                try:  # urlopen not usable with "with"
-                    sensorfile = urllib2.urlopen(self.fields['sensor'], None, 20)
-                    info = sensorfile.read(80000)
-                    cache = info
-                    output_val = eval(self.fields['subsensor'])
-                    config.set_channel_access('http', self.fields['sensor'], 0, timestamp)
-                except:
-                    debugging = u"URL=" + (url if url else "") + u", code=" + \
-                                (unicode(code) if code else "") + u", Response=" + (info if info else "") + \
-                                u", Message=" + traceback.format_exc()
-                if sensorfile:
-                    sensorfile.close()
-        elif self.fields['channel'] == 'json':
-            url = self.fields['sensor']
-            code = 0
-            info = cache
-            if info is not None:
-                try:
-                    output_val = eval(self.fields['subsensor'])
-                except:
-                    debugging = (u"URL=" + url
-                                 + u", code="
-                                 + unicode(code)
-                                 + u", Response="
-                                 + unicode(info)
-                                 + u", Subsensor="
-                                 + self.fields['subsensor']
-                                 + u", Message="
-                                 + traceback.format_exc())
-                    traceback.print_exc()
-            else:
-                sensorfile = None
-                try:  # urlopen not compatible with "with"
-                    sensorfile = urllib2.urlopen(self.fields['sensor'], None, 20)
-                    # print sensorfile.getcode()
-                    info = sensorfile.read()
-                    info = json.loads(info)
-                    cache = info
-                    output_val = eval(self.fields['subsensor'])
-                    config.set_channel_access('json', self.fields['sensor'], 0, timestamp)
-                except:
-                    debugging = (u"URL=" + (url if url else "")
-                                 + u", code="
-                                 + (unicode(code) if code else "")
-                                 + u", Response="
-                                 + (unicode(info) if info else "")
-                                 + u", Subsensor="
-                                 + (self.fields['subsensor'] if self.fields['subsensor'] else "")
-                                 + u", Message="
-                                 + traceback.format_exc())
-                if sensorfile:
-                    sensorfile.close()
-        elif self.fields['channel'] == 'system':
-            try:
-                info = ""
-                sensorAdress = self.fields['sensor']
-                with open(sensorAdress, 'r') as sensorfile:
-                    info = sensorfile.read()
-                    output_val = eval(self.fields['subsensor'])
-            except:
-                debugging = u"Device=" + sensorAdress + u", field=" + \
-                            self.fields['subsensor'] + u", data=" + \
-                            unicode(info) + u", Message=" + traceback.format_exc()
-        elif self.fields['channel'] == 'battery':
-            if 'battery' in config.HardConfig.inputs:
-                input = config.HardConfig.inputs['battery']
-                device = config.HardConfig.devices[input['device']]
-                if device['install'] == "mcp3423":
+            if not self.isSleeping():
+                url = self.fields['sensor']
+                code = 0
+                info = cache
+                if info is not None:
                     try:
-                        adc = abe_mcp3423.ADCPi(int(device['i2c'], 16),
-                                                int(input['resolution']))
-                        output_val = adc.read_voltage(int(input['channel']))
-                    except IOError:
-                        debugging = ('Unable to read sensor !' + ' channel : '
-                                      + self.fields['channel']
-                                      + ', i2c address : '
-                                      + device['i2c'])
-                elif device['install'] == "abe_expanderpi":
-                    adc = abe_expanderpi.ADC()
-                    output_val = adc.read_adc_voltage(int(input['channel']), 0)
-                    adc.close()
+                        output_val = eval(self.fields['subsensor'])
+                    except:
+                        debugging = (u"URL=" + url
+                                     + u", code="
+                                     + unicode(code)
+                                     + u", Response="
+                                     + unicode(info)
+                                     + u", Subsensor="
+                                     + self.fields['subsensor']
+                                     + u", Message="
+                                     + traceback.format_exc())
+                        traceback.print_exc()
                 else:
-                    debugging = ("Error : device.install : "
-                                  + device.install
-                                  + " not supported for type battery.")
-        elif self.fields['channel'].startswith('lightsensor'):
-            input = config.HardConfig.inputs[self.fields['channel']]
-            device = config.HardConfig.devices[input['device']]
-            try:
-                adc = abe_mcp3424.ADCDifferentialPi(int(device['i2c'], 16),
-                                                    int(device['i2c'], 16) + 1,
-                                                    int(input['resolution']))
-                adc.set_pga(int(device['amplification']))
-                output_val = adc.read_voltage(int(input['channel']))
-            except IOError:
-                debugging = ('Unable to read sensor !' + ' channel : '
-                              + self.fields['channel']
-                              + ', i2c address : '
-                              + device['i2c'])
-        elif self.fields['channel'].startswith('humiditysensor'):
-            output_val = self.get_mesure_humidity_campbell(config)
-        elif self.fields['channel'] == 'atmos41':
-            input = config.HardConfig.inputs[self.fields['channel']]
-            if cache is [] or cache is None:
+                    sensorfile = None
+                    try:  # urlopen not usable with "with"
+                        sensorfile = urllib2.urlopen(self.fields['sensor'], None, 20)
+                        info = sensorfile.read(80000)
+                        cache = info
+                        output_val = eval(self.fields['subsensor'])
+                        config.set_channel_access('http', self.fields['sensor'], 0, timestamp)
+                    except:
+                        debugging = u"URL=" + (url if url else "") + u", code=" + \
+                                    (unicode(code) if code else "") + u", Response=" + (info if info else "") + \
+                                    u", Message=" + traceback.format_exc()
+                    if sensorfile:
+                        sensorfile.close()
+        elif self.fields['channel'] == 'json':
+            if not self.isSleeping():
+                url = self.fields['sensor']
+                code = 0
+                info = cache
+                if info is not None:
+                    try:
+                        output_val = eval(self.fields['subsensor'])
+                    except:
+                        debugging = (u"URL=" + url
+                                     + u", code="
+                                     + unicode(code)
+                                     + u", Response="
+                                     + unicode(info)
+                                     + u", Subsensor="
+                                     + self.fields['subsensor']
+                                     + u", Message="
+                                     + traceback.format_exc())
+                        traceback.print_exc()
+                else:
+                    sensorfile = None
+                    try:  # urlopen not compatible with "with"
+                        sensorfile = urllib2.urlopen(self.fields['sensor'], None, 20)
+                        # print sensorfile.getcode()
+                        info = sensorfile.read()
+                        info = json.loads(info)
+                        cache = info
+                        output_val = eval(self.fields['subsensor'])
+                        config.set_channel_access('json', self.fields['sensor'], 0, timestamp)
+                    except:
+                        debugging = (u"URL=" + (url if url else "")
+                                     + u", code="
+                                     + (unicode(code) if code else "")
+                                     + u", Response="
+                                     + (unicode(info) if info else "")
+                                     + u", Subsensor="
+                                     + (self.fields['subsensor'] if self.fields['subsensor'] else "")
+                                     + u", Message="
+                                     + traceback.format_exc())
+                    if sensorfile:
+                        sensorfile.close()
+        elif self.fields['channel'] == 'system':
+            if not self.isSleeping():
                 try:
-                    ser = serial.Serial(input['serialport'],
-                                        baudrate=9600,
-                                        timeout=10)
-                    time.sleep(2.5)  # Leave some time to initialize
-                    ser.write(input['sdiaddress'].encode() + b'R0!')
-                    cache = parse_atmos_data(self, ser.readline())
-                except serial.SerialException:
-                    print('Tried to read several times back to back ?')
-                    raise
-                finally:
-                    if ser:
-                        ser.close()
-            try:
-                output_val = float(cache[int(self.fields['subsensor'])])
-            except ValueError:
-                print('Subsensor should be a number')
-            except IndexError:
-                print('Subsensor for atmos is out of range: '
-                      + self.fields['subsensor']
-                      + '. Range starts at 0')
+                    info = ""
+                    sensorAdress = self.fields['sensor']
+                    with open(sensorAdress, 'r') as sensorfile:
+                        info = sensorfile.read()
+                        output_val = eval(self.fields['subsensor'])
+                except:
+                    debugging = u"Device=" + sensorAdress + u", field=" + \
+                                self.fields['subsensor'] + u", data=" + \
+                                unicode(info) + u", Message=" + traceback.format_exc()
+        elif self.fields['channel'] == 'battery':
+            if not self.isSleeping():
+                if 'battery' in config.HardConfig.inputs:
+                    input = config.HardConfig.inputs['battery']
+                    device = config.HardConfig.devices[input['device']]
+                    if device['install'] == "mcp3423":
+                        try:
+                            adc = abe_mcp3423.ADCPi(int(device['i2c'], 16),
+                                                    int(input['resolution']))
+                            output_val = adc.read_voltage(int(input['channel']))
+                        except IOError:
+                            debugging = ('Unable to read sensor !' + ' channel : '
+                                          + self.fields['channel']
+                                          + ', i2c address : '
+                                          + device['i2c'])
+                    elif device['install'] == "abe_expanderpi":
+                        adc = abe_expanderpi.ADC()
+                        output_val = adc.read_adc_voltage(int(input['channel']), 0)
+                        adc.close()
+                    else:
+                        debugging = ("Error : device.install : "
+                                      + device.install
+                                      + " not supported for type battery.")
+        elif self.fields['channel'].startswith('lightsensor'):
+            if not self.isSleeping():
+                input = config.HardConfig.inputs[self.fields['channel']]
+                device = config.HardConfig.devices[input['device']]
+                try:
+                    adc = abe_mcp3424.ADCDifferentialPi(int(device['i2c'], 16),
+                                                        int(device['i2c'], 16) + 1,
+                                                        int(input['resolution']))
+                    adc.set_pga(int(device['amplification']))
+                    output_val = adc.read_voltage(int(input['channel']))
+                except IOError:
+                    debugging = ('Unable to read sensor !' + ' channel : '
+                                  + self.fields['channel']
+                                  + ', i2c address : '
+                                  + device['i2c'])
+        elif self.fields['channel'].startswith('humiditysensor'):
+            if not self.isSleeping():
+                output_val = self.get_mesure_humidity_campbell(config)
+        elif self.fields['channel'] == 'atmos41':
+            if not self.isSleeping():
+                input = config.HardConfig.inputs[self.fields['channel']]
+                if cache is [] or cache is None:
+                    try:
+                        ser = serial.Serial(input['serialport'],
+                                            baudrate=9600,
+                                            timeout=10)
+                        time.sleep(2.5)  # Leave some time to initialize
+                        ser.write(input['sdiaddress'].encode() + b'R0!')
+                        cache = parse_atmos_data(self, ser.readline())
+                    except serial.SerialException:
+                        print('Tried to read several times back to back ?')
+                        raise
+                    finally:
+                        if ser:
+                            ser.close()
+                try:
+                    output_val = float(cache[int(self.fields['subsensor'])])
+                except ValueError:
+                    print('Subsensor should be a number')
+                except IndexError:
+                    print('Subsensor for atmos is out of range: '
+                          + self.fields['subsensor']
+                          + '. Range starts at 0')
         else:
-            print('Error: no sensor channel for ' + self.fields['channel'])
+            if not self.isSleeping():
+                print('Error: no sensor channel for ' + self.fields['channel'])
             return None, None
 
         if (debugging != ''):
             print(debugging)
-        try:
-            assert output_val != None
-        except AssertionError:
-            if self.fields['channel'] not in  ['radio','lora']:
-                print("Channel "
-                      + self.fields['channel']
-                      + ' cannot be read. Ignoring.')
-            return None, None
-        else:
+        if not self.isSleeping():
             try:
-                value = float(output_val)
-                if self.fields['formula']:
-                    output_val = float(eval(self.fields['formula']))
-                else:
-                    output_val = value
-            except:
-                print(u"Device=" + self.fields['sensor'] + u" / " + self.fields['subsensor'] + \
-                      u", Formula=" + self.fields['formula'] + \
-                      u", Message=" + traceback.format_exc())
-            return self.sanitize_reading(config, output_val), cache
+                assert output_val != None
+            except AssertionError:
+                if self.fields['channel'] not in  ['radio','lora']:
+                    print("Channel "
+                          + self.fields['channel']
+                          + ' cannot be read. Ignoring.')
+                return None, None
+            else:
+                try:
+                    value = float(output_val)
+                    if self.fields['formula']:
+                        output_val = float(eval(self.fields['formula']))
+                    else:
+                        output_val = value
+                except:
+                    print(u"Device=" + self.fields['sensor'] + u" / " + self.fields['subsensor'] + \
+                          u", Formula=" + self.fields['formula'] + \
+                          u", Message=" + traceback.format_exc())
+                return self.sanitize_reading(config, output_val), cache
         return None, None
 
     def count_logs(self, c):
@@ -6304,6 +6415,10 @@ class Sensor(AlarmingObject):
         tmp = ['channel', 'sensor', 'subsensor', 'formula', 'lapse1', 'lapse2', 'lapse3'] + alarmFields
         for elem in tmp:
             self.fields[elem] = data[elem]
+        if 'sleep' in data and data['sleep'] > '0':
+            self.fields['sleep'] = '1'
+        else:
+            self.fields['sleep'] = ''
         self.add_component(data['component'])
         self.add_measure(data['measure'])
 
