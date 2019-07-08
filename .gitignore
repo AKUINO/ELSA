@@ -6,4 +6,5 @@ ELSA/static/img/barcodes/
 data/*
 ELSA.egg-info/
 dist/
+build/
 

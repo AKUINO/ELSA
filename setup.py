@@ -17,5 +17,5 @@ setup(
     packages=find_packages(),
     classifiers=[
         'Programming Language :: Python',
-    ], install_requires=['barcode', 'requests', 'serial', 'rrdtool', 'unicodecsv', 'web.py', 'pyownet']
+    ], install_requires=['pyBarcode', 'requests', 'serial', 'rrdtool', 'unicodecsv', 'web.py', 'pyownet']
 )
