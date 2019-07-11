@@ -94,6 +94,25 @@ $code:
 	</div>
 	
 	<div class="form-group row">
+	    <label for="inputmobile" class="col-sm-3 col-form-label">$c.getMessage('mobile',self.lang)</label>
+	    <span class="glyphicon glyphicon-remove-circle"> </span>
+	    $code:
+		cond = (id == 'new')
+		if not cond :
+		    cond = elem.isMobile()
+		if errormess != '' :
+		    if 'mobile' in data :
+			cond  = True
+		    else:
+			cond = False
+	    <label class="switch">
+		    <input id='inputmobile' name="mobile" type="checkbox" value="1" $('checked' if cond else '')>
+		    <div class="slider round"></div>
+	    </label>
+	    <span class="glyphicon glyphicon-ok-circle"> </span>
+	</div>
+
+	<div class="form-group row">
 	    <label for="measureSelect" class="col-sm-3 col-form-label">$:(c.getAllHalfling(c.AllMeasures))$c.getMessage('measure',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "measure" class="form-control" id="measureSelect">
@@ -271,7 +290,7 @@ $code:
                 <div class="col-sm-9" style="color:black">
 		    $code:
                         value, ignore = elem.get_value_sensor(c,timestamp)
-		    Value=<span style="background-color:#$(elem.colorAlarm);color:#$(elem.colorTextAlarm)"><strong>$(value)</strong> $elem.get_unit(c)</span>
+		    Value=<span style="background-color:#$(elem.colorAlarm);color:#$(elem.colorTextAlarm)"><strong>$(value if not elem.isSleeping() else c.getMessage('sleep',self.lang))</strong> $elem.get_unit(c)</span>
 	        </div>
 	    </div>
 	
@@ -310,7 +329,10 @@ $code:
 		    $for filename in elem.getDocumentList():
 		        $ i=i+1
 			<a href="/files/$(elem.getTypeId())?remove=$filename" class="btn btn-danger" onclick="return(YNmessage(this,'$(c.getMessage("remove",self.lang))','$filename'))">X</a> &nbsp;
-			($(i)) <a href="$elem.getDocumentURL(filename)" target="_blank">$filename</a><br/>
+			($(i)) <a href="$elem.getDocumentURL(filename)" target="_blank">$filename</a>
+                        $if len(filename) > 4 and filename[-4:].lower() in [".csv",".tsv"]:
+                            <a href="/files/$(elem.getTypeId())?load=$filename" class="btn btn-info" onclick="return(YNmessage(this,'$(c.getMessage("load",self.lang))','$filename'))">$(c.getMessage("load",self.lang))</a>
+                        <br/>
 	    <input id="inputFile" name="linkedDocs" type="file" multiple class="file file-loading"'>
             </label>
 	</div>

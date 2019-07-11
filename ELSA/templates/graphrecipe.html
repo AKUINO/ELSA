@@ -11,7 +11,7 @@ $code:
     place = None
     if batch:
 	keyURL = 'b_'+batch.getID()
-        place = batch.get_actual_position_here(c)
+        place,timestring = batch.get_actual_position_here(c)
     else:
 	keyURL = 'gr_'+id
     if place:

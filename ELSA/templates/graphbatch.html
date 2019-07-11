@@ -10,7 +10,7 @@ $code:
     recipe_id = elem.fields['gr_id']
     recipe = c.AllGrRecipe.get(recipe_id)
     usage = None
-    place = elem.get_actual_position_here(c)
+    place, timestring = elem.get_actual_position_here(c)
     if place:
 	    gr_usage = place.get_group()
             usage = c.AllGrUsage.get(gr_usage)

@@ -57,7 +57,7 @@ $var title: MODAL
 				$c.getMessage(elem.actualAlarm,self.lang)
                             </div>
 			    <div class="col-xs-10" style="color:black">
-			    <span style="background-color:#$(elem.colorAlarm);color:#$(elem.colorTextAlarm)"><strong>$(value)</strong> $(elem.get_unit(c))</span>
+			    <span style="background-color:#$(elem.colorAlarm);color:#$(elem.colorTextAlarm)"><strong>$(value if not elem.isSleeping() else c.getMessage('sleep',self.lang))</strong> $(elem.get_unit(c))</span>
 			    $useful.timestamp_to_ISO(useful.get_timestamp())
 			    </div>
 			</div>

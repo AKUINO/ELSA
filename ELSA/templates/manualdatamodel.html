@@ -109,6 +109,44 @@ $var bcOperation:edit
 	    </div>
 	</div>
 
+	<div class="form-group row">
+	    <label for="inputsensor" class="col-sm-3 col-form-label">$c.getMessage('sensordesired',self.lang)</label>
+	    <span class="glyphicon glyphicon-remove-circle"> </span>
+	    $code:
+		cond = (id == 'new')
+		if not cond :
+		    cond = aDataModel.fields['sensordesired'] > '0'
+		if errormess != '' :
+		    if 'sensordesired' in data :
+			cond  = True
+		    else:
+			cond = False
+	    <label class="switch">
+		    <input id='inputsensor' name="sensordesired" type="checkbox" value="1" $('checked' if cond else '')>
+		    <div class="slider round"></div>
+	    </label>
+	    <span class="glyphicon glyphicon-ok-circle"> </span>
+	</div>
+
+	<div class="form-group row">
+	    <label for="inputinterval" class="col-sm-3 col-form-label">$c.getMessage('timeinterval',self.lang)</label>
+	    <span class="glyphicon glyphicon-remove-circle"> </span>
+	    $code:
+		cond = (id == 'new')
+		if not cond :
+		    cond = aDataModel.fields['timeinterval'] > '0'
+		if errormess != '' :
+		    if 'timeinterval' in data :
+			cond  = True
+		    else:
+			cond = False
+	    <label class="switch">
+		    <input id='inputinterval' name="timeinterval" type="checkbox" value="1" $('checked' if cond else '')>
+		    <div class="slider round"></div>
+	    </label>
+	    <span class="glyphicon glyphicon-ok-circle"> </span>
+	</div>
+
 	$for alarm in c.sortedCategs:
           $ aname = c.valueCategs[alarm].name
           $ acolor = c.valueCategs[alarm].color

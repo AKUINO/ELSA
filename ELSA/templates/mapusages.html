@@ -87,7 +87,7 @@ $for kusage in listUsage:
 						<a href="#e_$acro">$acro</a>
 					$else:
 						<a name="e_$acro"></a>$acro - <strong>$(equipment.getName(self.lang))</strong>
-						$ here = equipment.get_actual_position_here(c)
+						$ here,timestring = equipment.get_actual_position_here(c)
 						$if here:
 							<div style="float:right">
 							<small>$:c.getHalfling('to')</small> <a href="/find/related/$(here.get_type())_$(here.getID())">$:(here.statusIcon(c,True,False))$(here.fields['acronym'])</a>
@@ -127,7 +127,7 @@ $for kusage in listUsage:
 						<a href="#c_$acro">$acro</a>
 					$else:
 						<a name="c_$acro"></a>$acro - <strong>$(container.getName(self.lang))</strong>
-						$ here = container.get_actual_position_here(c)
+						$ here,timestring = container.get_actual_position_here(c)
 						$if here:
 							<div style="float:right">
 							<small>$:c.getHalfling('to')</small> <a href="/find/related/$(here.get_type())_$(here.getID())">$:(here.statusIcon(c,True,False))$(here.fields['acronym'])</a>

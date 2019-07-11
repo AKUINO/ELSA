@@ -789,6 +789,20 @@ class WebFiles:
                                     except:
                                         traceback.print_exc()
                         raise web.seeother('/edit/' + type + '_' + id)
+                    elif 'load' in data:
+                            connected = redirect_when_not_allowed(type)
+                            toLoad = data['load']
+                            if toLoad and toLoad in fileList:
+                                toLoad = toLoad.replace('\\', '/')
+                                name = toLoad.split('/')[-1]
+                                if name:
+                                    aDir = elem.getDocumentDir(False)
+                                    if aDir:
+                                        try:
+                                            elem.loadRRD(c,aDir + u'/' + name)
+                                        except:
+                                            traceback.print_exc()
+                            raise web.seeother('/graphic/' + type + '_' + id)
                     elif len(fileList) == 1:
                         raise web.seeother(elem.getDocumentURL(fileList[0]))
                     else:
@@ -984,7 +998,7 @@ class WebGraphRecipe:
             batch = c.AllBatches.get(id)
             if batch:
                 id = batch.get_group()
-                place = batch.get_actual_position_here(c)
+                place, timestring = batch.get_actual_position_here(c)
                 if place:
                     kusage = place.get_group()
         elif type == 'gr':

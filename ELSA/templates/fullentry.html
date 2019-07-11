@@ -484,27 +484,28 @@ $elif permissionKey in '_d_t_v_':
 			    </div>
 			</div>
 		    <div class="row" style="margin-top:6px;">
+		        $if ( " upd_"+type+" " ) in self.allowed:
 			    <div class="col-xs-2" >
 				<strong><a href="/label/$(type)_$(id)" class="btn btn-warning" role="button">$:(c.getHalfling('label'))</a></strong>
 			    </div>
 			    <div class="col-xs-4">
 				$(c.getMessage('barcode',self.lang))
 			    </div>
-			    $ currNFC = elem.get_barcode(c, "N")
-			    <div class="col-xs-2" >
+			$ currNFC = elem.get_barcode(c, "N")
+			<div class="col-xs-2" >
 			        $if currNFC == connected.nfc :
 				    <span class="btn btn-success" role="button"><img src="/static/img/nfc.png" height="22"></span>
 				$elif connected.nfc and "upd_nfc" in self.allowed:
 				    <a href="/nfc/$(type)_$(id)" class="btn btn-warning" role="button"><img src="/static/img/nfc.png" height="22"></a>
 			        $else:
 				    <span class="btn btn-info" role="button"><img src="/static/img/nfc.png" height="22"></span>
-			    </div>
-			    <div class="col-xs-4">
+			</div>
+			<div class="col-xs-4">
 			        $if connected.nfc and currNFC != connected.nfc and "upd_nfc" in self.allowed:
 				    $(c.getMessage('nfcset',self.lang))
 				$else:
 				    $(c.getMessage('nfc',self.lang))
-			    </div>
+			</div>
 		    </div>
 		    $if permissionKey in '_c_p_e_b_' :
 			<div class="row" style="margin-top:6px;">

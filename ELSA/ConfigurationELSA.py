@@ -518,7 +518,7 @@ class Configuration():
         self.AllMessages.load()
         self.AllMeasures.load()
         self.AllSensors.load()
-        self.AllSensors.check_rrd()
+        #self.AllSensors.check_rrd()
         self.AllSensors.correctValueAlarm()
         self.AllAlarms.load()
         self.AllHalflings.load()
@@ -1308,13 +1308,13 @@ class ConfigurationObject(object):
         currObj = None
         tmp = self.get_last_transfer(configuration)
         if tmp is not None:
-            currObj = configuration.get_object(tmp.fields['cont_type'], tmp.fields['cont_id'])
-        return currObj
+            return configuration.get_object(tmp.fields['cont_type'], tmp.fields['cont_id']), tmp.getTimestring()
+        return None,None
 
     def get_actual_position_hierarchy(self, configuration, result=[]):
         if not (self in result):
             result.append(self)
-            currObj = self.get_actual_position_here(configuration)
+            currObj, timestring = self.get_actual_position_here(configuration)
             if currObj:
                 return currObj.get_actual_position_hierarchy(configuration, result)
         return result
@@ -1392,6 +1392,12 @@ class ConfigurationObject(object):
             return False
         else:
             return self.fields['sleep'] > '0'
+
+    def isMobile(self):
+        if not 'mobile' in self.fields:
+            return self.get_type() in TRANSFERABLE_TYPES
+        else:
+            return self.fields['mobile'] > '0'
 
     def getImage(self, height=36):
         ext = self.isImaged()
@@ -2301,7 +2307,7 @@ class AllManualData(AllObjects):
         AllObjects.__init__(self, 'd', ManualData.__name__, config)
         self.file_of_names = None
         self.fieldnames = ['begin', 'd_id', 'dm_id', 'object_id', 'object_type',
-                           'time', 'h_id', 'remark', 'm_id', 'value', 'al_id', 'active',
+                           'time', 'h_id', 'remark', 'm_id', 'value', 'minval', 'maxval', 'startrange', 's_id', 'al_id', 'active',
                            'user']
         self.fieldtranslate = None
 
@@ -2676,7 +2682,7 @@ class AllSensors(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 's', Sensor.__name__, config)
-        self.fieldnames = ['begin', 's_id', 'c_id', 'p_id', 'e_id', 'm_id', \
+        self.fieldnames = ['begin', 's_id', 'c_id', 'p_id', 'e_id', 'm_id', 'mobile', \
                            'active', 'acronym', 'remark', 'channel', 'sensor', \
                            'subsensor', 'valuetype', 'formula', 'sleep', \
                            'lapse1', 'lapse2', 'lapse3'] \
@@ -2786,11 +2792,11 @@ class AllSensors(AllObjects):
                     except:
                         traceback.print_exc()
 
-    def check_rrd(self):
-        for k, v in self.elements.items():
-            filename = os.path.join(DIR_RRD, v.getRRDName())
-            if not os.path.exists(filename):
-                v.createRRD()
+    # def check_rrd(self):
+    #     for k, v in self.elements.items():
+    #         filename = os.path.join(DIR_RRD, v.getRRDName())
+    #         if not os.path.exists(filename):
+    #             v.createRRD()
 
     def storeLoraValue(self, inputData):
         if not 'M' in inputData or not inputData['M']:
@@ -2985,7 +2991,7 @@ class AllManualDataModels(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'dm', ManualDataModel.__name__, config)
-        self.fieldnames = ['begin', 'dm_id', 'acronym', 'm_id', 'h_id', 'rank', \
+        self.fieldnames = ['begin', 'dm_id', 'acronym', 'm_id', 'h_id', 'rank', 'timeinterval', 'sensordesired', \
                            'remark', 'active'] + alarmFields + ['user']
         self.fieldtranslate = ['begin', 'lang', 'dm_id', 'name', 'user']
 
@@ -3536,7 +3542,7 @@ class Equipment(ConfigurationObject):
         result = []
         for k, b in c.AllBatches.elements.items():
             if b.isActive():
-                here = b.get_actual_position_here(c)
+                here,timestring = b.get_actual_position_here(c)
                 if here and (here.getTypeId() == self.getTypeId()):
                     result.append(b)
         return c.AllBatches.sort_hierarchy_objects(result)
@@ -3602,7 +3608,7 @@ class Container(ConfigurationObject):
         result = []
         for k, b in c.AllBatches.elements.items():
             if b.isActive():
-                here = b.get_actual_position_here(c)
+                here,timestring = b.get_actual_position_here(c)
                 if here and (here.getTypeId() == self.getTypeId()):
                     result.append(b)
         return c.AllBatches.sort_hierarchy_objects(result)
@@ -4193,7 +4199,7 @@ class GrUsage(Group):
         result = []
         for k, b in c.AllBatches.elements.items():
             if b.isActive():
-                here = b.get_actual_position_here(c)
+                here,timestring = b.get_actual_position_here(c)
                 if here and here.isActive() and here.get_group() == self.getID():
                     result.append(b)
         return c.AllBatches.sort_hierarchy_objects(result)
@@ -4673,7 +4679,7 @@ class Place(ConfigurationObject):
         result = []
         for k, b in c.AllBatches.elements.items():
             if b.isActive():
-                here = b.get_actual_position_here(c)
+                here,timestring = b.get_actual_position_here(c)
                 if here and (here.getTypeId() == self.getTypeId()):
                     result.append(b)
         return c.AllBatches.sort_hierarchy_objects(result)
@@ -5892,7 +5898,10 @@ class Sensor(AlarmingObject):
 
     def updateRRD(self, now, value):
         value = float(value)
-        rrdtool.update(str(DIR_RRD + self.getRRDName()), '%d:%f' % (now, value))
+        filename = os.path.join(DIR_RRD, self.getRRDName())
+        if not os.path.exists(filename):
+            self.createRRD(now)
+        rrdtool.update(str(filename), '%d:%f' % (now, value))
         print self.getRRDName() + " " + useful.timestamp_to_ISO(now) + " " + '%d:%f' % (now, value)
 
     def fetchRRD(self, period=None):
@@ -5901,7 +5910,7 @@ class Sensor(AlarmingObject):
         start = "end-1month"
         if period:
             if period == "300":
-                start = "end-360sdays"
+                start = "end-360days"
             elif period == "1800":
                 start = "end-5years"
             result = rrdtool.fetch(filename, 'AVERAGE', "-s", start, "-r", str(period))
@@ -5917,9 +5926,27 @@ class Sensor(AlarmingObject):
             start += step
         return out
 
-    def createRRD(self):
+    def loadRRD(self,config, inputFile):
+        with open(inputFile,'rb') as csvfile:
+            # dialect = unicodecsv.Sniffer().sniff(csvfile.read(1024),delimiters="\t,;")
+            csvfile.seek(0)
+            reader = unicodecsv.reader(csvfile, delimiter="\t")
+            for row in reader:
+                if len(row) >= 2 and row[0] and row[1]:
+                    log_stamp = useful.date_to_timestamp(row[0].strip('"'))
+                    if log_stamp:
+                        self.update(log_stamp, float(row[1].strip('"')), config)
+                    else:
+                        print (row[0]+u";"+row[1]+u" : invalid timestamp in first column")
+                else:
+                    print (unicode(row)+u" : missing data in 1st or 2nd column")
+
+    def createRRD(self,now=None):
         name = re.sub('[^\w]+', '', self.fields['acronym'])
-        now = str(int(time.time()) - 60)
+        if not now:
+            now = str(int(time.time()) - 60)
+        else:
+            now = str(int(now) - 60)
         if self.fields['channel'] != 'radio':
             data_sources = str('DS:' + name + ':GAUGE:120:U:U')
             rrdtool.create(str(DIR_RRD + self.getRRDName()),
@@ -6691,22 +6718,34 @@ class Batch(ConfigurationObject):
         ##                traceback.print_exc()
         ##                tmp += configuration.getMessage('timerules',lang) + '\n'
 
+        cost = data['cost']
         try:
-            value = float(data['cost'])
+            if cost:
+                value = float(cost)
+            else:
+                value = 0.0
             if value < 0.0:
                 tmp += configuration.getMessage('costrules', lang) + '\n'
         except:
             tmp += configuration.getMessage('costrules', lang) + '\n'
 
+        cost = data['fixed_cost']
         try:
-            value = float(data['fixed_cost'])
+            if cost:
+                value = float(cost)
+            else:
+                value = 0.0
             if value < 0.0:
                 tmp += configuration.getMessage('costrules', lang) + '\n'
         except:
             tmp += configuration.getMessage('costrules', lang) + '\n'
 
+        cost = data['basicqt']
         try:
-            value = float(data['basicqt'])
+            if cost:
+                value = float(cost)
+            else:
+                value = 0.0
             if value < 0.0:
                 tmp += configuration.getMessage('quantityrules', lang) + '\n'
         except:
@@ -6922,6 +6961,19 @@ class ManualDataModel(ConfigurationObject):
             self.config.AllCheckPoints.elements[self.fields['h_id']].add_dm(
                 self)
         self.save(c, user)
+
+    def get_sensors(self,batch=None):
+        sensors = []
+        if batch:
+            for d in reversed(batch.manualdata):
+                mandata = self.config.AllManualData.get(d)
+                s = self.config.AllSensors.get(mandata.fields['s_id'])
+                if s and not s in sensors and s.fields['m_id']==self.fields['m_id']:
+                    sensors.append(s)
+        for s in self.config.AllSensors.elements:
+            if s in sensors and s.fields['m_id'] == self.fields['m_id']:
+                sensors.append(s)
+        return sensors
 
 
 class TransferModel(ConfigurationObject):

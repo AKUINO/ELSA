@@ -8,7 +8,7 @@ $code:
     batch = c.AllBatches.get(id1)
     cp = c.AllCheckPoints.get(id2)
     elems = cp.get_model_sorted()
-    here = batch.get_actual_position_here(c)
+    here,startrange = batch.get_actual_position_here(c)
     here_id = None
     here_type = None
     if here:
@@ -84,35 +84,56 @@ $var bcOperation:control
 		$code:
 		    counttm += 1
 	    $elif e.get_type() == 'dm' and " upd_d " in self.allowed:
-		$ aMeasure = e.get_measure(c)
+	        $code:
+		    if e.fields['timeinterval'] > '0':
+			questions = ['minval','value','maxval']
+			timerange = True
+		    else:
+			questions = ['max']
+			timerange = False
+		    aMeasure = e.get_measure(c)
+		    sensorList = e.get_sensors(batch)
 		<div class="form-group row">
 		    <input type="hidden" name="dm_id_$(countdm)" value="$e.getID()"/>
                     <input type="hidden" name="dm_measure_$(countdm)" value="$e.fields['m_id']">
 		    <label class="col-sm-12 col-form-label">$:c.getAllHalfling(c.AllManualData) $e.getName(self.lang): <span class="text-danger">$e.fields['remark']</span></label>
 		</div>
-		
-		<div class="form-group row">
-		    <label for="inputValue_$(countdm)" class="hidden-xs col-sm-3 col-form-label">$aMeasure.getName(self.lang)</label>
-		    $if 0 < aMeasure.integers_count() <= 6:
-		      <div class="col-sm-9">
-			$ typical = None
-			$if e.fields['typical']:
-			    $ typical = int(e.fields['typical'])
-			$for i in aMeasure.valuesRange():
-			    $ Aname, Aacronym, Acolor, Atext_color = e.getTypeAlarm(i,None)
-			    $ selection = " checked" if i==typical else ""
-			    <label style="background-color:#$Acolor; color:#$Atext_color;padding:8px;margin-right:8px;"><strong><big>
-			    <input name="dm_value_$(countdm)" type="radio" value="$i"$(selection)>$i</big></strong></label>
-                        <strong>$(aMeasure.fields['unit'])</strong>
-		      </div>
-		    $else:
-		      <div class="col-xs-6 col-sm-7">
-		        <input name="dm_value_$(countdm)" type="number" lang="en-US" min="$(aMeasure.fields['min'])" max="$(aMeasure.fields['max'])" step="$(aMeasure.get_html_step())" class="form-control" size="15" id="inputValue_$(countdm)" placeholder="$c.getMessage('value',self.lang)" value="$e.fields['typical']">
-                      </div>
-		      <div class="col-xs-3 col-sm-2">
-                        <strong>$(aMeasure.fields['unit'])</strong>
-		      </div>
-		</div>
+		$if sensorList:
+			<ul><li>manual</li>
+			$for sensor in sensorList:
+				<li>$sensor.get_acronym()
+			</ul>
+		$if timerange:
+			<div class="form-group row">
+			    <label for="inputStartRange_$(countdm)" class="col-sm-3 col-form-label">$c.getMessage('startrange',self.lang)</label>
+			    <div class="col-sm-9 parent">
+				<input name="startrange_$(countdm)" type="text" class="form-control input" id="inputStartRange_$(countdm)" placeholder="$c.getMessage('startrange',self.lang)" value ="$startrange">
+				<script>rome.moment.locale("$(self.lang.lower())");rome(inputCompleted,{"inputFormat": "YYYY-MM-DD HH:mm:ss"});</script>
+			    </div>
+			</div>
+		$for q in questions:
+			<div class="form-group row">
+			    <label for="input$(q)_$(countdm)" class="hidden-xs col-sm-3 col-form-label">$c.getMessage(q,self.lang) - $aMeasure.getName(self.lang)</label>
+			    $if 0 < aMeasure.integers_count() <= 6:
+			      <div class="col-sm-9">
+				$ typical = None
+				$if e.fields['typical']:
+				    $ typical = int(e.fields['typical'])
+				$for i in aMeasure.valuesRange():
+				    $ Aname, Aacronym, Acolor, Atext_color = e.getTypeAlarm(i,None)
+				    $ selection = " checked" if i==typical else ""
+				    <label style="background-color:#$Acolor; color:#$Atext_color;padding:8px;margin-right:8px;"><strong><big>
+				    <input name="dm_$(q)_$(countdm)" type="radio" value="$i"$(selection)>$i</big></strong></label>
+				<strong>$(aMeasure.fields['unit'])</strong>
+			      </div>
+			    $else:
+			      <div class="col-xs-6 col-sm-7">
+				<input name="dm_$(q)_$(countdm)" type="number" lang="en-US" min="$(aMeasure.fields['min'])" max="$(aMeasure.fields['max'])" step="$(aMeasure.get_html_step())" class="form-control" size="15" id="input$(q)_$(countdm)" placeholder="$c.getMessage(q,self.lang)" value="$e.fields['typical']">
+			      </div>
+			      <div class="col-xs-3 col-sm-2">
+				<strong>$(aMeasure.fields['unit'])</strong>
+			      </div>
+			</div>
 		<div class="form-group row">
 		    <label for="dataRemark_$(countdm)" class="hidden-xs col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 		    <div class="col-xs-12 col-sm-9">

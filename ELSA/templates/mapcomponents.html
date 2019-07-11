@@ -61,7 +61,9 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 				$ done.add('p_'+kplace)
 				$for kequipment in c.AllEquipments.get_sorted_hierarchy():
 					$ equipment = c.AllEquipments.get(kequipment)
-					$if equipment and equipment.isActive() and equipment.get_actual_position_here(c) == place :
+					$if equipment and equipment.isActive():
+					    $ posit,timestring = equipment.get_actual_position_here(c)
+				            $if posit == place :
 						<div class="map down" style="border-color:$(equipment.fields['colorgraph'])">
 						<a href="/find/related/e_$kequipment">$:(equipment.statusIcon(c,True,False,connected))</a>
 						$ acro = equipment.fields['acronym']
@@ -107,7 +109,9 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 							$ done.add('e_'+kequipment)
 							$for kcontainer in c.AllContainers.get_sorted_hierarchy():
 								$ container = c.AllContainers.get(kcontainer)
-								$if container and container.isActive() and container.get_actual_position_here(c) == equipment :
+								$if container and container.isActive() :
+								    $ posit,timestring = container.get_actual_position_here(c)
+								    $if posit == equipment :
 										<div class="map down" style="border-color:$(container.fields['colorgraph'])">
 										<a href="/find/related/c_$kcontainer">$:(container.statusIcon(c,True,False,connected))</a>
 										$ acro = container.fields['acronym']
@@ -155,7 +159,9 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 						</div>
 						$for kcontainer in c.AllContainers.get_sorted_hierarchy():
 							$ container = c.AllContainers.get(kcontainer)
-							$if container and container.isActive() and container.get_actual_position_here(c) == place :
+							$if container and container.isActive() :
+								$ posit,timestring = container.get_actual_position_here(c)
+								$if posit == place :
 									<div class="map down" style="border-color:$(container.fields['colorgraph'])">
 									<a href="/find/related/c_$kcontainer">$:(container.statusIcon(c,True,False,connected))</a>
 									$ acro = container.fields['acronym']
