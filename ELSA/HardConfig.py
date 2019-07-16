@@ -104,8 +104,8 @@ class HardConfig():
                                                'utf8'))
             except IOError:
                 print("No valid hardware configuration file found. \
-                       Exiting")
-                sys.exit()
+                       Using defaults...")
+                return
     
         self.parse_section_system()
         self.parse_section_I2C()
