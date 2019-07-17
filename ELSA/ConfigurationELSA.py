@@ -6053,7 +6053,7 @@ class Sensor(AlarmingObject):
                     try:
                         # Mission recorded ?
                         MissionRecorded = False
-                        alreadStarted = False # running is not immediately set to 1...
+                        alreadyStarted = False # running is not immediately set to 1...
                         try:
                             sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/clock/running'
                             log_clock_running = int(config.owproxy.read(sensorAdress))
