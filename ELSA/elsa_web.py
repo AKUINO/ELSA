@@ -72,6 +72,7 @@ def redirect_when_not_logged(redir=True):
     When the user is logged, returns the mail (does not redirect)
     When redir is Fals, will log into home page
     """
+    
     connected = isConnected()
     if connected is None:
         if redir:
@@ -358,7 +359,7 @@ class WebDisconnect:
     def GET(self):
         connected = redirect_when_not_logged()
 
-        c.connectedUsers.disconnect(connected)
+        c.connectedUsers.disconnect(connected, web.ctx['ip'])
         raise web.seeother('/')
 
 
@@ -1396,8 +1397,8 @@ class WebIndex:
         data = web.input(nifile={})
         connectedUser = checkUser(data._username_, data._password_)
         if connectedUser is not None:
-            connected = c.connectedUsers.addUser(connectedUser)
-            ensureLogin(connectedUser.fields['mail'].lower())
+            connected = c.connectedUsers.addUser(connectedUser, web.ctx['ip'])
+            ensureLogin(connectedUser.fields['mail'].lower(), web.ctx['ip'])
 
             query_string = web.ctx.env.get('QUERY_STRING')
             redirect_url = useful.parse_url_query_string(query_string, 'redir')
@@ -1418,7 +1419,6 @@ class WebSearch:
 
     def GET(self):
         connected = redirect_when_not_logged()
-
         try:
             barcode = ''
             remark = ''
@@ -1751,14 +1751,14 @@ def isConnected():
         return None
 
     infoCookie = infoCookie.split(',')
-    if len(infoCookie) > 1:
-        connected = c.connectedUsers.isConnected(infoCookie[0].lower(), infoCookie[1])
+    if len(infoCookie) > 1 and web.ctx['home'].split("/")[0] == web.ctx.env.get('HTTP_REFERER', "/").split("/")[0]:
+        connected = c.connectedUsers.isConnected(infoCookie[0].lower(), infoCookie[1], web.ctx['ip'])
         return connected
     return None
 
 
-def ensureLogin(mail):
-    current = c.connectedUsers.users[mail]
+def ensureLogin(mail, ip):
+    current = c.connectedUsers.users[ip]
     user = current.cuser
     if user and user.isActive():
         infoCookie = mail + ',' + user.fields['password'] + ',' + ('1' if current.completeMenu else '0')
