@@ -5980,8 +5980,12 @@ class Sensor(AlarmingObject):
                   + ', i2c address : '
                   + output_device['i2c'])
             return None
+
         try:
-            adc = abe_adcpi.ADCPi(int(input_device['i2c'], 16),
+            if input_device['install'] == "abe_expanderpi":
+                adc = abe_expanderpi.ADC()
+            else:
+                adc = abe_adcpi.ADCPi(int(input_device['i2c'], 16),
                                   int(input_device['i2c'], 16) + 1,
                                   int(input['resolution']))
         except IOError:
@@ -5995,9 +5999,15 @@ class Sensor(AlarmingObject):
         output_gpio.write_pin(int(output['channel']), 1)
         time.sleep(int(input['delayms']) * 0.001)
 
-        output_val = adc.read_voltage(int(input['channel']))
+        if input_device['install'] == "abe_expanderpi":
+            output_val = adc.read_voltage(int(input['channel']), 0)
+            adc.close()
+        else:
+            output_val = adc.read_voltage(int(input['channel']))
+
         # End stimulation
         output_gpio.write_pin(int(output['channel']), 0)
+
         return output_val
 
     def sanitize_reading(self, config, value):
