@@ -72,15 +72,16 @@ def redirect_when_not_logged(redir=True):
     When the user is logged, returns the mail (does not redirect)
     When redir is Fals, will log into home page
     """
+    
     connected = isConnected()
-    if connected is None:
+    if isOtherDomain():
+        raise web.seeother('/otherdomain/'+web.ctx['home'].split("/")[2] + '_' + web.ctx['path'])
+    elif connected is None:
         if redir:
             path = web.ctx.env.get('PATH_INFO')
             query = web.ctx.env.get('QUERY_STRING')
             if query:
                 path = path + u'?' + urllib.quote(query)
-                print query
-                print path
             raise web.seeother('/?redir=' + path)
         else:
             raise web.seeother('/')
@@ -358,7 +359,7 @@ class WebDisconnect:
     def GET(self):
         connected = redirect_when_not_logged()
 
-        c.connectedUsers.disconnect(connected)
+        c.connectedUsers.disconnect(connected, web.ctx['ip'])
         raise web.seeother('/')
 
 
@@ -370,6 +371,9 @@ class WebSelect:
             return ''
         return render.select(connected, datafield, context)
 
+class WebOtherDomain:
+    def GET(self, domain, url):
+        return render.otherdomain(domain, url)
 
 class WebSelectMul:
     def GET(self, type, id, context=''):
@@ -482,7 +486,6 @@ class WebItem:
 class WebHistory:
     def GET(self, type, id):
         connected = redirect_when_not_logged()
-
         try:
             return render.history(connected, type, id)
         except:
@@ -1413,8 +1416,8 @@ class WebIndex:
         data = web.input(nifile={})
         connectedUser = checkUser(data._username_, data._password_)
         if connectedUser is not None:
-            connected = c.connectedUsers.addUser(connectedUser)
-            ensureLogin(connectedUser.fields['mail'].lower())
+            connected = c.connectedUsers.addUser(connectedUser, web.ctx['ip'])
+            ensureLogin(connectedUser.fields['mail'].lower(), web.ctx['ip'])
 
             query_string = web.ctx.env.get('QUERY_STRING')
             redirect_url = useful.parse_url_query_string(query_string, 'redir')
@@ -1435,7 +1438,6 @@ class WebSearch:
 
     def GET(self):
         connected = redirect_when_not_logged()
-
         try:
             barcode = ''
             remark = ''
@@ -1517,6 +1519,7 @@ class WebNFC:
 
 class getRRD:
     def GET(self, filename):
+        connected = redirect_when_not_logged()
         with open(elsa.DIR_RRD + filename) as f:
             try:
                 return f.read()
@@ -1526,6 +1529,7 @@ class getRRD:
 
 class getCSV:
     def GET(self, filename):
+        connected = redirect_when_not_logged()
         web.header('Content-type', 'text/csv')
         with open(elsa.DIR_DATA_CSV + filename) as f:
             try:
@@ -1535,6 +1539,7 @@ class getCSV:
 
 class getCSS:
     def GET(self, filename):
+        connected = redirect_when_not_logged()
         web.header('Content-type', 'text/css')
         with open( os.path.join(elsa.DIR_STATIC,'css') + filename) as f:
             try:
@@ -1554,6 +1559,7 @@ class getJS:
 
 class getDoc:
     def GET(self, filename):
+        connected = redirect_when_not_logged()
         with open(elsa.DIR_DOC + filename) as f:
             try:
                 return f.read()
@@ -1769,14 +1775,17 @@ def isConnected():
         return None
 
     infoCookie = infoCookie.split(',')
-    if len(infoCookie) > 1:
-        connected = c.connectedUsers.isConnected(infoCookie[0].lower(), infoCookie[1])
+    if len(infoCookie) > 1 and not isOtherDomain():
+        connected = c.connectedUsers.isConnected(infoCookie[0].lower(), infoCookie[1], web.ctx['ip'])
         return connected
     return None
+    
+def isOtherDomain():
+    return web.ctx['home'].split("/")[2] != web.ctx.env.get('HTTP_REFERER', "http://unknown").split("/")[2]
 
 
-def ensureLogin(mail):
-    current = c.connectedUsers.users[mail]
+def ensureLogin(mail, ip):
+    current = c.connectedUsers.users[ip]
     user = current.cuser
     if user and user.isActive():
         infoCookie = mail + ',' + user.fields['password'] + ',' + ('1' if current.completeMenu else '0')
@@ -1886,7 +1895,7 @@ def main():
 
     global c, wsgiapp, render, includes, app
     try:
-        web.config.debug = False
+        web.config.debug = True
         # Configuration Singleton ELSA
         if 'config' in args:
             c = elsa.Configuration(args.config)
@@ -1962,7 +1971,8 @@ def main():
             '/api/kv', 'WebApiKeyValue',
             '/nfc/(.+)_(.+)', 'WebNFC',
             '/nfc', 'WebNFC',
-            '/test', 'WebTest'
+            '/test', 'WebTest',
+            '/otherdomain/(.+)_(.+)','WebOtherDomain'
         )
         app = web.application(urls, globals())
         app.notfound = notfound

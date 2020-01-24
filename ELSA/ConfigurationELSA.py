@@ -3236,14 +3236,14 @@ class AllConnectedUsers():
     def __getitem__(self, key):
         return self.users[key]
 
-    def addUser(self, user):
+    def addUser(self, user, ip):
         self.removeOld()
         mail = user.fields['mail'].lower()
-        if mail not in self.users:
-            self.users[mail] = ConnectedUser(user)
-        else:
-            self.users[mail].update()
-        return self.users[mail]
+        if ip not in self.users:
+            self.users[ip] = ConnectedUser(user)
+        elif mail == self.users[ip].cuser.fields['mail']:
+            self.users[ip].update()
+        return self.users[ip]
 
     def removeOld(self):
         updatetime = time.time()
@@ -3251,27 +3251,25 @@ class AllConnectedUsers():
             if (updatetime - connecteduser.datetime) > CONNECTION_TIMEOUT:
                 del self.users[mail]
 
-    def isConnected(self, mail, password):
+    def isConnected(self, mail, password, ip):
         self.removeOld()
         mail = mail.lower()
-        if mail in self.users:
-            user = self.users[mail].cuser
-            if user.checkPassword(password):
-                self.users[mail].update()
-                return self.users[mail]
+        if ip in self.users:
+            user = self.users[ip].cuser
+            if user.checkPassword(password) and mail == user.fields['mail']:
+                self.users[ip].update()
+                return self.users[ip]
         return None
 
-    def getLanguage(self, mail):
+    def getLanguage(self, mail, ip):
         mail = mail.lower()
-        if mail in self.users:
-            return self.users[mail].cuser.fields['language']
+        if ip in self.users and self.users[ip].cuser.fields['mail'] == mail:
+            return self.users[ip].cuser.fields['language']
         return 'english'
 
-    def disconnect(self, connected):
-        if connected and connected.cuser:
-            mail = connected.cuser.fields['mail'].lower()
-            if mail in self.users:
-                del self.users[mail]
+    def disconnect(self, connected, ip):
+        if ip in self.users and connected.cuser.fields['mail'].lower() ==self.users[ip].cuser.fields['mail']:
+            del self.users[ip]
 
 
 class AllLanguages(AllObjects):
