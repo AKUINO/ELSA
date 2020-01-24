@@ -1662,6 +1662,7 @@ class UpdateThread(threading.Thread):
         while self.config.isThreading is True:
             timer = 0
             timestamp = useful.get_timestamp()
+            # print (unicode(timestamp)+": "+unicode(len(self.config.AllSensors.elements))+" sensors")
             if len(self.config.AllSensors.elements) > 0:
                 self.config.AllSensors.update(timestamp)
                 #TODO: send values to locally connected relays
@@ -2779,11 +2780,6 @@ class AllSensors(AllObjects):
 
         for k, sensor in self.elements.items():
             if sensor.isActive() and sensor.fields['channel'] in self._queryChannels:
-                if sensor.fields['channel'] in ['wire',
-                      'http',
-                      'json',
-                      'cputemp',
-                      'system']:
                     try:
                         value, cache = sensor.get_value_sensor(self.config, timestamp, get_cache(sensor))
                         sensor.update(timestamp, value, self.config)

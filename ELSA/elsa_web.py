@@ -1877,7 +1877,7 @@ def main():
 
     global c, wsgiapp, render, includes, app
     try:
-        web.config.debug = True
+        web.config.debug = False
         # Configuration Singleton ELSA
         if 'config' in args:
             c = elsa.Configuration(args.config)
