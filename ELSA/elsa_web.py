@@ -1377,6 +1377,23 @@ class WebRRDfetch:
             return currSensor.fetchRRD(period)
         return render.notfound()
 
+class WebLive:
+    def __init__(self):
+        self.name = u"WebLive"
+
+    def GET(self, type, id):
+        connected = redirect_when_not_logged()
+        data = web.input(nifile={})
+
+        if type == 's':
+            currSensor = c.AllSensors.get(id)
+            if currSensor:
+                timestamp = useful.get_timestamp()
+                value, ignore = currSensor.get_value_sensor(c, timestamp)
+                currSensor.update(timestamp, value, c)
+                web.header('Content-type', 'application/json')
+                return json.dumps(value)
+        return render.notfound()
 
 class WebIndex:
     def __init(self):
@@ -1720,6 +1737,7 @@ class WebTest:
                                  '/graphic/' + ti])
                 if aTest.get_type() == 's':
                     testUrls.append('/rrdfetch/' + ti)
+                    testUrls.append('/live/s_' + ti)
                 else:
                     if aTest.get_type() in ["c", "e"]:
                         testUrls.append('/find/t/' + ti)
@@ -1933,6 +1951,7 @@ def main():
             '/export/(.+)_(.+)/(.+)', 'WebDownloadData',
             '/export/(.+)_(.+)', 'WebExport',
             '/rrdfetch/(.+)', 'WebRRDfetch',
+            '/live/(.+)_(.+)', 'WebLive',
             '/datatable/(.+)_(.+)', 'WebDataTable',
             '/find/(.+)/(.+)_(.+)/(.+)', 'WebFindModel',
             '/find/(.+)/(.+)_(.+)', 'WebFind',

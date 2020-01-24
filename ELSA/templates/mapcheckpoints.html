@@ -76,7 +76,7 @@ $for kcheckpoint in listCheckPoint:
 			$elif op_type == 'dm':
 			    $ kmeas = operation.fields['m_id']
 			    $if kmeas:
-				<a href="/find/related/m_$kmeas">$operation.getQtyUnit(c, self.lang)</a>
+				: <a href="/find/related/m_$kmeas">$operation.getQtyUnit(c, self.lang)</a>
 		        </div>
 		    $ done.add('h_'+kcheckpoint)
 $if not first:
