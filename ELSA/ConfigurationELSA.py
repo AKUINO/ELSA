@@ -32,7 +32,7 @@ import web.net as webnet
 import HardConfig as hardconfig
 import abe_adcpi
 import abe_expanderpi
-import abe_iopi
+#import abe_iopi
 import abe_mcp3423
 import abe_mcp3424
 import myuseful as useful
@@ -5966,7 +5966,7 @@ class Sensor(AlarmingObject):
         output = config.HardConfig.outputs[input['poweroutput']]
         output_device = config.HardConfig.devices[output['device']]
         try:
-            output_gpio = abe_iopi.IOPi(int(output_device['i2c'], 16))
+            output_gpio = abe_expanderpi.IO()
             output_gpio.set_pin_direction(int(output['channel']), 0)
         except IOError:
             print('Unable to control output_device!' + ' channel : '
@@ -5994,7 +5994,7 @@ class Sensor(AlarmingObject):
         time.sleep(int(input['delayms']) * 0.001)
 
         if input_device['install'] == "abe_expanderpi":
-            output_val = adc.read_voltage(int(input['channel']), 0)
+            output_val = adc.read_adc_voltage(int(input['channel']), 0)
             adc.close()
         else:
             output_val = adc.read_voltage(int(input['channel']))
