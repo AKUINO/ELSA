@@ -1662,7 +1662,7 @@ class UpdateThread(threading.Thread):
         while self.config.isThreading is True:
             timer = 0
             timestamp = useful.get_timestamp()
-            # print (unicode(timestamp)+": "+unicode(len(self.config.AllSensors.elements))+" sensors")
+            print (unicode(timestamp)+": "+unicode(len(self.config.AllSensors.elements))+" sensors")
             if len(self.config.AllSensors.elements) > 0:
                 self.config.AllSensors.update(timestamp)
                 #TODO: send values to locally connected relays
@@ -2679,7 +2679,8 @@ class AllSensors(AllObjects):
                       'http',
                       'json',
                       'cputemp',
-                      'system']
+                      'system',
+                      'file']
 
     def __init__(self, config):
         AllObjects.__init__(self, 's', Sensor.__name__, config)
@@ -3745,7 +3746,7 @@ class ManualData(AlarmingObject):
             model = c.AllManualDataModels.elements[data['origin']]
             typeAlarm, symbAlarm, self.colorAlarm, self.colorTextAlarm = self.getTypeAlarm(data['value'], model)
             self.actualAlarm = typeAlarm
-            alarmCode = self.get_alarm(model);
+            alarmCode = self.get_alarm(model)
         if ('a_id' in data) and data['a_id']:
             # TODO: Manual Alarm, not so "typical"
             if not self.actualAlarm:
@@ -3761,6 +3762,22 @@ class ManualData(AlarmingObject):
             c.get_object(self.fields['object_type'], self.fields['object_id']) \
                 .remove_data(self)
         self.save(c, user)
+
+    def update(self, timestamp, value, config, remark = None):
+        if timestamp:
+            self.fields['time'] = timestamp
+        if value:
+            self.fields['value'] = value
+        if remark:
+            self.fields['remark'] = remark
+        if self.fields['dm_id']:
+            model = config.AllManualDataModels.elements[self.fields['dm_id']]
+            typeAlarm, symbAlarm, self.colorAlarm, self.colorTextAlarm = self.getTypeAlarm(value, model)
+            self.actualAlarm = typeAlarm
+            alarmCode = self.get_alarm(model)
+            anAlarm = config.AllAlarms.get(alarmCode)
+            if anAlarm:
+                self.fields['al_id'] = anAlarm.launch_alarm(self, config)
 
     def get_class_acronym(self):
         return 'manualdata'
@@ -6026,6 +6043,21 @@ class Sensor(AlarmingObject):
             return None
 
     def get_value_sensor(self, config, timestamp, cache=None):
+
+        def timed(info):
+            val = None
+            searched = int(timestamp)
+            lines = info.split("\n")
+            for line in lines:
+                cols = line.split(";")
+                if len(cols) < 2:
+                    continue
+                if int(cols[0]) <= searched:
+                    val = cols[1]
+                else:
+                    break
+            return val
+
         def parse_atmos_data(self, input):
             '''
             Given a single string '+a+b-c+d', returns ['+a','+b','-c','+d']

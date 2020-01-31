@@ -74,9 +74,10 @@ def redirect_when_not_logged(redir=True):
     """
     
     connected = isConnected()
-    if isOtherDomain():
-        raise web.seeother('/otherdomain/'+web.ctx['home'].split("/")[2] + '_' + web.ctx['path'])
-    elif connected is None:
+    #if isOtherDomain():
+    #    raise web.seeother('/otherdomain/'+web.ctx['home'].split("/")[2] + '_' + web.ctx['path'])
+    #el
+    if connected is None:
         if redir:
             path = web.ctx.env.get('PATH_INFO')
             query = web.ctx.env.get('QUERY_STRING')
@@ -1395,6 +1396,64 @@ class WebLive:
                 return json.dumps(value)
         return render.notfound()
 
+class WebStore:
+    def __init__(self):
+        self.name = u"WebStore"
+
+    def GET(self, type, id):
+        # connected = redirect_when_not_logged()
+        # TODO: vérifier le control=zzzz
+        data = web.input(nifile={})
+
+        if (not 'time' in data) or not data['time']:
+            timestamp = useful.get_timestamp()
+        else:
+            timestamp = data['time']
+
+        if (not 'value' in data) or not data['value']:
+            value = ""
+        else:
+            value = data['value']
+        if (not 'remark' in data) or not data['remark']:
+            remark = ""
+        else:
+            remark = data['remark']
+        currObject = c.getObject(id, type)
+        if currObject:
+            if type == 's':
+                currObject.update(timestamp, value, c)
+                return json.dumps({'time':timestamp,'value':value,'s':currObject.fields})
+            elif type == 'd':
+                currObject.update(timestamp, value, c, remark)
+                return json.dumps(currObject.fields)
+            elif (len(type) == 2) and (type[1]=='m' ):
+                newObject = c.getObject('new', type[0])
+                tmp = {}
+                tmp['time'] = timestamp
+                tmp['active'] = '1'
+                tmp['h_id'] = ''
+                tmp['remark'] = remark
+                if type == 'dm':
+                    tmp['start'] = data['start']
+                    tmp['min'] = data['mmin']
+                    tmp['max'] = data['max']
+                    tmp['component'] = '' #batch
+                    tmp['origin'] = unicode(id)
+                    tmp['measure'] = currObject.fields['m_id']
+                    tmp['value'] = value
+                elif type == 'tm':
+                    tmp['object'] = '' #batch
+                    tmp['origin'] = unicode(id)
+                    tmp['position'] = data['position']
+                elif type == 'vm':
+                    tmp['quantity'] = value
+                    tmp['origin'] = id
+                    tmp['src'] = data['src']
+                    tmp['dest'] = data['dest']
+                newObject.set_value_from_data(tmp, c)
+                return json.dumps(newObject.fields)
+        return render.notfound()
+
 class WebIndex:
     def __init(self):
         self.name = u"WebIndex"
@@ -1952,6 +2011,7 @@ def main():
             '/export/(.+)_(.+)', 'WebExport',
             '/rrdfetch/(.+)', 'WebRRDfetch',
             '/live/(.+)_(.+)', 'WebLive',
+            '/store/(.+)_(.+)', 'WebStore',
             '/datatable/(.+)_(.+)', 'WebDataTable',
             '/find/(.+)/(.+)_(.+)/(.+)', 'WebFindModel',
             '/find/(.+)/(.+)_(.+)', 'WebFind',
