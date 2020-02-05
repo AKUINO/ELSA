@@ -518,7 +518,6 @@ class Configuration():
         self.AllMessages.load()
         self.AllMeasures.load()
         self.AllSensors.load()
-        #self.AllSensors.check_rrd()
         self.AllSensors.correctValueAlarm()
         self.AllAlarms.load()
         self.AllHalflings.load()
@@ -1665,12 +1664,6 @@ class UpdateThread(threading.Thread):
             print (unicode(timestamp)+": "+unicode(len(self.config.AllSensors.elements))+" sensors")
             if len(self.config.AllSensors.elements) > 0:
                 self.config.AllSensors.update(timestamp)
-                #TODO: send values to locally connected relays
-                # for relaySensor in c.AllSensors.elements:
-                #     if relaySensor.relaySetting and relaySensor.fields['channel'] != 'lora' and relaySensor.fields[
-                #         'sensor'] and relaySensor.fields['subsensor']:
-                #         SEND VALUE TO SENSOR/RELAY !
-                #         relaySensor.relaySetting = None
             while self.config.isThreading is True and timer < self.config.HardConfig.sensor_polling:
                 time.sleep(1)
                 timer = timer + 1
@@ -2679,14 +2672,15 @@ class AllSensors(AllObjects):
                       'http',
                       'json',
                       'cputemp',
-                      'system',
-                      'file']
+                      'system']
+
+    _actionProcs = [ 'http', 'tap', 'switch' ]
 
     def __init__(self, config):
         AllObjects.__init__(self, 's', Sensor.__name__, config)
         self.fieldnames = ['begin', 's_id', 'c_id', 'p_id', 'e_id', 'm_id', 'mobile', \
                            'active', 'acronym', 'remark', 'channel', 'sensor', \
-                           'subsensor', 'valuetype', 'formula', 'sleep', \
+                           'subsensor', 'valuetype', 'formula', 'sleep', 'proc', 'param', \
                            'lapse1', 'lapse2', 'lapse3'] \
                           + alarmFields + ['user']
         self.fieldtranslate = ['begin', 'lang', 's_id', 'name', 'user']
@@ -2788,12 +2782,6 @@ class AllSensors(AllObjects):
                             set_cache(sensor, cache)
                     except:
                         traceback.print_exc()
-
-    # def check_rrd(self):
-    #     for k, v in self.elements.items():
-    #         filename = os.path.join(DIR_RRD, v.getRRDName())
-    #         if not os.path.exists(filename):
-    #             v.createRRD()
 
     def storeLoraValue(self, inputData):
         if not 'M' in inputData or not inputData['M']:
@@ -5783,12 +5771,24 @@ class Measure(ConfigurationObject):
     def get_unit(self, c):
         return self.fields['unit']
 
+currGPIO = None
+
+def getGPIO():
+    if not currGPIO:
+        try:
+            currGPIO = abe_expanderpi.IO()
+            currGPIO.set_word_direction(0, 0)
+            currGPIO.set_word_direction(0, 0)
+        except:
+            pass
+    return currGPIO
 
 class Sensor(AlarmingObject):
     def __init__(self):
         self.default_user = None
         self.relaySetting = None
         self.lastMission = None
+        self.lastOutput = None
         AlarmingObject.__init__(self)
 
     def __str__(self):
@@ -5886,6 +5886,7 @@ class Sensor(AlarmingObject):
         self.lastvalue = value
         if value is not None:
             self.updateRRD(timestamp, value)
+            self.proc(config)
 
         if config.screen is not None:
             minutes = int(timestamp / 60)
@@ -5977,13 +5978,89 @@ class Sensor(AlarmingObject):
                            'RRA:AVERAGE:0.5:5:34560',
                            'RRA:AVERAGE:0.5:30:28800')
 
+    def proc(self, config):
+        if self.fields['proc']:
+            try:
+                eval(u"self.proc_"+self.fields['proc']+u'(config)')
+            except:
+                print('Unable to call '+self.fields['proc']+' for sensor '+self.get_acronym())
+
+    def proc_switch(self, config):
+        output_gpio = getGPIO()
+        if output_gpio and self.lastvalue != self.lastOutput:
+            try:
+                params = self.fields['param'].split(',')
+                channel = int(params[0])
+                reversi = None
+                if len(params) > 1:
+                    reversi = int(params[1])
+                output_gpio.set_pin_direction(channel, 0)
+                self.lastOutput = self.lastvalue
+                if self.lastOutput:
+                    bit = 0
+                    if reversi:
+                        if self.lastOutput <= 0.0:
+                            bit = 1
+                    else:
+                        if self.lastOutput > 0.0:
+                            bit = 1
+                output_gpio.write_pin(channel, bit)
+            except IOError:
+                print('Unable to control output_device!' + ' channel : '
+                      + self.fields['param'])
+                return None
+
+    def proc_tap(self, config):
+        output_gpio = getGPIO()
+        if output_gpio and self.lastvalue != self.lastOutput:
+            try:
+                params = self.fields['param'].split(',')
+                channelOpen = int(params[0])
+                channelClose = int(params[1])
+                moveDelay = None
+                if len(params) > 2 and params[2]:
+                    moveDelay = int(params[2])
+                reversi = None
+                if len(params) > 3 and params[3]:
+                    reversi = int(params[3])
+                self.lastOutput = self.lastvalue
+                if self.lastvalue != self.lastOutput:
+                    if self.lastOutput > 0.0:
+                        channel = channelOpen
+                    else:
+                        channel = channelClose
+                    bit = 0 if reversi else 1
+                    output_gpio.write_pin(channel, bit)
+                    time.sleep(moveDelay / 1000.0 ) #Milliseconds...
+                    bit = 1 if reversi else 0
+                    output_gpio.write_pin(channel, bit)
+            except IOError:
+                print('Unable to control output_device!' + ' channels : '
+                      + self.fields['param'])
+                return None
+
+    def proc_http(self, config):
+        url = self.fields['param']
+        if url:
+            sensorfile = None
+            control = u"!s"+self.get_acronym()+self.lastvalue
+            try:  # urlopen not usable with "with"
+                url = url % (self.lastvalue, useful.checksum(control))
+                self.lastOutput = self.lastvalue
+                sensorfile = urllib2.urlopen(url, None, 20)
+            except:
+                debugging = u"URL=" + (url if url else "") + \
+                            u", Message=" + traceback.format_exc()
+            if sensorfile:
+                sensorfile.close()
+
     def get_mesure_humidity_campbell(self, config):
         input = config.HardConfig.inputs[self.fields['channel']]
         input_device = config.HardConfig.devices[input['device']]
         output = config.HardConfig.outputs[input['poweroutput']]
         output_device = config.HardConfig.devices[output['device']]
         try:
-            output_gpio = abe_expanderpi.IO()
+            output_gpio = getGPIO()
             output_gpio.set_pin_direction(int(output['channel']), 0)
         except IOError:
             print('Unable to control output_device!' + ' channel : '
@@ -6485,14 +6562,12 @@ class Sensor(AlarmingObject):
         self.add_component(data['component'])
         self.add_measure(data['measure'])
 
-        # self.createRRD()
         # Check if RRD exists but do not erase all previous data without reason!
         filename = os.path.join(DIR_RRD, self.getRRDName())
         if not os.path.exists(filename):
             self.createRRD()
 
         self.save(c, user)
-
 
 class Batch(ConfigurationObject):
     def __init__(self, config):

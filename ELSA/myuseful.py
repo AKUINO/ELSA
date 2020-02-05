@@ -58,6 +58,12 @@ def str_float(v):
     else:
         return 0.0
 
+def checksum(data):
+    result = 0xABCD
+    for char in data:
+        result ^= ord(char)
+    return result
+
 def encrypt(password, salt):
     sha = hashlib.pbkdf2_hmac('sha256', password, salt, 126425)
     return binascii.hexlify(sha)

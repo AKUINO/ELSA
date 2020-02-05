@@ -207,6 +207,10 @@ $code:
 	    <label for="channelSelect" class="col-sm-3 col-form-label">$c.getMessage('channel',self.lang)</label>
 	    <div class="col-sm-9">
 		<select name = "channel" class="form-control" id="channelSelect">
+			<option value=""
+		    	$if not channel:
+				selected
+			>none</option>
 		    $for item in sensor_channels:
 			<option value="$(item)"
 		    	$if item == channel:

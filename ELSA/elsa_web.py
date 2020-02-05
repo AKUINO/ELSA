@@ -1383,7 +1383,7 @@ class WebLive:
         self.name = u"WebLive"
 
     def GET(self, type, id):
-        connected = redirect_when_not_logged()
+        #connected = redirect_when_not_logged()
         data = web.input(nifile={})
 
         if type == 's':
@@ -1396,62 +1396,92 @@ class WebLive:
                 return json.dumps(value)
         return render.notfound()
 
-class WebStore:
+class WebGetData:
     def __init__(self):
-        self.name = u"WebStore"
+        self.name = u"WebGetData"
+
+    def GET(self, type, id):
+        #connected = redirect_when_not_logged()
+        data = web.input(nifile={})
+
+        if type[0] == '!':
+            allObjType = c.findAll(type[1:])
+            currObject = allObjType.findAcronym(id)
+        else:
+            currObject = c.getObject(id, type)
+        if currObject:
+            web.header('Content-type', 'application/json')
+            return json.dumps(currObject.get_quantity_string())
+        return render.notfound()
+
+class WebPutData:
+    def __init__(self):
+        self.name = u"WebPutData"
 
     def GET(self, type, id):
         # connected = redirect_when_not_logged()
         # TODO: vérifier le control=zzzz
         data = web.input(nifile={})
 
+        control = type+unicode(id)
         if (not 'time' in data) or not data['time']:
             timestamp = useful.get_timestamp()
         else:
             timestamp = data['time']
+            control += timestamp
 
         if (not 'value' in data) or not data['value']:
             value = ""
         else:
             value = data['value']
+            control += value
+
         if (not 'remark' in data) or not data['remark']:
             remark = ""
         else:
             remark = data['remark']
-        currObject = c.getObject(id, type)
-        if currObject:
-            if type == 's':
-                currObject.update(timestamp, value, c)
-                return json.dumps({'time':timestamp,'value':value,'s':currObject.fields})
-            elif type == 'd':
-                currObject.update(timestamp, value, c, remark)
-                return json.dumps(currObject.fields)
-            elif (len(type) == 2) and (type[1]=='m' ):
-                newObject = c.getObject('new', type[0])
-                tmp = {}
-                tmp['time'] = timestamp
-                tmp['active'] = '1'
-                tmp['h_id'] = ''
-                tmp['remark'] = remark
-                if type == 'dm':
-                    tmp['start'] = data['start']
-                    tmp['min'] = data['mmin']
-                    tmp['max'] = data['max']
-                    tmp['component'] = '' #batch
-                    tmp['origin'] = unicode(id)
-                    tmp['measure'] = currObject.fields['m_id']
-                    tmp['value'] = value
-                elif type == 'tm':
-                    tmp['object'] = '' #batch
-                    tmp['origin'] = unicode(id)
-                    tmp['position'] = data['position']
-                elif type == 'vm':
-                    tmp['quantity'] = value
-                    tmp['origin'] = id
-                    tmp['src'] = data['src']
-                    tmp['dest'] = data['dest']
-                newObject.set_value_from_data(tmp, c)
-                return json.dumps(newObject.fields)
+            control += remark
+
+        check = int(data['control'])
+        if useful.checksum(control) == check:
+            if type[0] == '!':
+                allObjType = c.findAll(type[1:])
+                currObject = allObjType.findAcronym(id)
+            else:
+                currObject = c.getObject(id, type)
+            if currObject:
+                if type == 's':
+                    currObject.update(timestamp, value, c)
+                    return json.dumps({'time':timestamp,'value':value,'s':currObject.fields})
+                elif type == 'd':
+                    currObject.update(timestamp, value, c, remark)
+                    return json.dumps(currObject.fields)
+                elif (len(type) == 2) and (type[1]=='m' ):
+                    newObject = c.getObject('new', type[0])
+                    tmp = {}
+                    tmp['time'] = timestamp
+                    tmp['active'] = '1'
+                    tmp['h_id'] = ''
+                    tmp['remark'] = remark
+                    if type == 'dm':
+                        tmp['start'] = data['start']
+                        tmp['min'] = data['mmin']
+                        tmp['max'] = data['max']
+                        tmp['component'] = '' #batch
+                        tmp['origin'] = unicode(id)
+                        tmp['measure'] = currObject.fields['m_id']
+                        tmp['value'] = value
+                    elif type == 'tm':
+                        tmp['object'] = '' #batch
+                        tmp['origin'] = unicode(id)
+                        tmp['position'] = data['position']
+                    elif type == 'vm':
+                        tmp['quantity'] = value
+                        tmp['origin'] = id
+                        tmp['src'] = data['src']
+                        tmp['dest'] = data['dest']
+                    newObject.set_value_from_data(tmp, c)
+                    return json.dumps(newObject.fields)
         return render.notfound()
 
 class WebIndex:
@@ -1834,7 +1864,7 @@ def isConnected():
         return None
 
     infoCookie = infoCookie.split(',')
-    if len(infoCookie) > 1 and not isOtherDomain():
+    if len(infoCookie) > 1: # and not isOtherDomain():
         connected = c.connectedUsers.isConnected(infoCookie[0].lower(), infoCookie[1], web.ctx['ip'])
         return connected
     return None
@@ -2011,7 +2041,7 @@ def main():
             '/export/(.+)_(.+)', 'WebExport',
             '/rrdfetch/(.+)', 'WebRRDfetch',
             '/live/(.+)_(.+)', 'WebLive',
-            '/store/(.+)_(.+)', 'WebStore',
+            '/api/get/(.+)_(.+)', 'WebGetData',
             '/datatable/(.+)_(.+)', 'WebDataTable',
             '/find/(.+)/(.+)_(.+)/(.+)', 'WebFindModel',
             '/find/(.+)/(.+)_(.+)', 'WebFind',
@@ -2029,6 +2059,7 @@ def main():
             '/api/grafana/([^/]*)/{0,1}(.*)', 'WebApiGrafana',
             '/api/grafana', 'WebApiGrafana',
             '/api/kv', 'WebApiKeyValue',
+            '/api/put/(.+)_(.+)', 'WebPutData',
             '/nfc/(.+)_(.+)', 'WebNFC',
             '/nfc', 'WebNFC',
             '/test', 'WebTest',
