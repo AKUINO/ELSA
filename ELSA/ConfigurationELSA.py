@@ -5774,6 +5774,9 @@ class Measure(ConfigurationObject):
 currGPIO = None
 
 def getGPIO():
+
+    global currGPIO
+
     if not currGPIO:
         try:
             currGPIO = abe_expanderpi.IO()
