@@ -271,7 +271,6 @@ $code:
 		>
 	    </div>
 	</div>
-	
 
 	<div class="form-group row">
 	    <label for="inputsleep" class="col-sm-3 col-form-label">$c.getMessage('sleep',self.lang)</label>
@@ -316,6 +315,21 @@ $code:
 				selected
 			>$(item)</option>
 		</select>
+	    </div>
+	</div>
+
+	<div class="form-group row">
+	    <label for="inputParam" class="col-sm-3 col-form-label">$c.getMessage('param',self.lang)</label>
+	    <div class="col-sm-9">
+		<input name="param" type="text" class="form-control" id="inputParam" placeholder="$c.getMessage('param',self.lang)"
+		$if errormess != '':
+		    $if 'param' in data :
+			value="$data['param']"
+		$elif id =='new':
+		    value="value"
+		$else:
+		    value="$elem.fields['param']"
+		>
 	    </div>
 	</div>
 
