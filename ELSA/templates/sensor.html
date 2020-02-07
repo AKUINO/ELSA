@@ -10,10 +10,12 @@ $var bcOwner:
 $var bcElem:s_$id
 $var bcOperation:
 $ sensor_channels = c.AllSensors.get_query_channels()
+$ sensor_procs = c.AllSensors.get_action_procs()
 $ component = ""
 $ comp_type = ""
 $ comp_id = ""
 $ channel = ""
+$ proc = ""
 $if id == 'new':
     $ rmq = ""
     $ elem = None
@@ -29,6 +31,7 @@ $else:
 	elif elem.fields['c_id']:
 	    component = 'c_'+elem.fields['c_id']
 	channel = elem.fields['channel']
+	proc = elem.fields['proc']
 $ timestamp = useful.get_timestamp()
 $code:
 	if errormess != '':
@@ -219,6 +222,7 @@ $code:
 		</select>
 	    </div>
 	</div>
+
 	<div class="form-group row">
 	    <label for="inputSensor" class="col-sm-3 col-form-label">$c.getMessage('sensor',self.lang)</label>
 	    <div class="col-sm-9">
@@ -298,6 +302,23 @@ $code:
 	        </div>
 	    </div>
 	
+	<div class="form-group row">
+	    <label for="procSelect" class="col-sm-3 col-form-label">$c.getMessage('proc',self.lang)</label>
+	    <div class="col-sm-9">
+		<select name = "proc" class="form-control" id="procSelect">
+			<option value=""
+		    	$if not proc:
+				selected
+			>none</option>
+		    $for item in sensor_procs:
+			<option value="$(item)"
+		    	$if item == proc:
+				selected
+			>$(item)</option>
+		</select>
+	    </div>
+	</div>
+
 	<div class="form-group row">
 	    <label for="inputBarcode" class="col-sm-3 col-form-label">$:c.getHalfling('barcode') $c.getMessage('code',self.lang)</label>
 	    <div class="col-sm-9">

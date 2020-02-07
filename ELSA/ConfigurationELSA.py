@@ -2707,6 +2707,9 @@ class AllSensors(AllObjects):
     def get_query_channels(self):
         return self._queryChannels
 
+    def get_action_procs(self):
+        return self._actionProcs
+
     def add_query_channels_from_hardconfig(self):
         for key in self.config.HardConfig.inputs:
             self.add_query_channel(key)
