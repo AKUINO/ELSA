@@ -6034,12 +6034,17 @@ class Sensor(AlarmingObject):
                 reversi = None
                 if len(params) > 3 and params[3]:
                     reversi = int(params[3])
+                enabler = None
+                if len(params) > 4 and params[4]:
+                    enabler = int(params[4])
                 self.lastOutput = self.lastvalue
                 if self.lastOutput > 0.0:
                     channel = channelOpen
                 else:
                     channel = channelClose
-                output_gpio.set_pin_direction(channel,0) # set word direction n'a pas l'air de bien fonctionner?
+                if enabler:
+                    output_gpio.write_pin(enabler, 1)
+                    time.sleep(0.01 )
                 bit = 0 if reversi else 1
                 print ("TAP channel=" + unicode(channel)+" out="+unicode(bit))
                 output_gpio.write_pin(channel, bit)
@@ -6047,6 +6052,9 @@ class Sensor(AlarmingObject):
                 bit = 1 if reversi else 0
                 print ("TAP channel=" + unicode(channel)+" out="+unicode(bit))
                 output_gpio.write_pin(channel, bit)
+                if enabler:
+                    time.sleep(0.01 )
+                    output_gpio.write_pin(enabler, 0)
             except IOError:
                 print('Unable to control output_device!' + ' channels : '
                       + self.fields['param'])
