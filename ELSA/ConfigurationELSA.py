@@ -2780,7 +2780,8 @@ class AllSensors(AllObjects):
             if sensor.isActive() and sensor.fields['channel'] in self._queryChannels:
                     try:
                         value, cache = sensor.get_value_sensor(self.config, timestamp, get_cache(sensor))
-                        sensor.update(timestamp, value, self.config)
+                        if value is not None:
+                            sensor.update(timestamp, value, self.config)
                         if cache is not None:
                             set_cache(sensor, cache)
                     except:
@@ -6155,7 +6156,9 @@ class Sensor(AlarmingObject):
 
         output_val = None
         debugging = u""
-        if self.fields['channel'] == 'wire':
+        if not self.fields['channel'] :
+            return None, None
+        elif self.fields['channel'] == 'wire':
             if config.owproxy:
                 if not self.isSleeping():
                     try:
@@ -6260,10 +6263,10 @@ class Sensor(AlarmingObject):
                                      + traceback.format_exc())
         elif self.fields['channel'] == 'radio':
             # Look at RadioThread
-            pass
+            return None, None
         elif self.fields['channel'] == 'lora':
             # Look at WebApiKeyValue
-            pass
+            return None, None
         elif self.fields['channel'] == 'cputemp':
             if not self.isSleeping():
                 try:

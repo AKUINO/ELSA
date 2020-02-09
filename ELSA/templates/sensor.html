@@ -292,14 +292,15 @@ $code:
 	</div>
 
         $if id !='new' and not elem.isSleeping():
-            <div class="form-group row">
-                <label for="inputValidation" class="col-sm-3 col-form-label">TEST</label>
-                <div class="col-sm-9" style="color:black">
-		    $code:
-                        value, ignore = elem.get_value_sensor(c,timestamp)
-		    Value=<span style="background-color:#$(elem.colorAlarm);color:#$(elem.colorTextAlarm)"><strong>$(value if not elem.isSleeping() else c.getMessage('sleep',self.lang))</strong> $elem.get_unit(c)</span>
-	        </div>
-	    </div>
+	    $code:
+		value, ignore = elem.get_value_sensor(c,timestamp)
+	    $if value:
+		    <div class="form-group row">
+			<label for="inputValidation" class="col-sm-3 col-form-label">TEST</label>
+			<div class="col-sm-9" style="color:black">
+			    Value=<span style="background-color:#$(elem.colorAlarm);color:#$(elem.colorTextAlarm)"><strong>$(value if not elem.isSleeping() else c.getMessage('sleep',self.lang))</strong> $elem.get_unit(c)</span>
+			</div>
+		    </div>
 	
 	<div class="form-group row">
 	    <label for="procSelect" class="col-sm-3 col-form-label">$c.getMessage('proc',self.lang)</label>
