@@ -6545,13 +6545,13 @@ class Sensor(AlarmingObject):
                 tmp += configuration.getMessage('measurerules', lang) + '\n'
         except:
             tmp += configuration.getMessage('measurerules', lang) + '\n'
+        # try:
+        #     if not len(data['channel']) > 0:
+        #         tmp += configuration.getMessage('channelrules', lang) + '\n'
+        # except:
+        #     tmp += configuration.getMessage('channelrules', lang) + '\n'
         try:
-            if not len(data['channel']) > 0:
-                tmp += configuration.getMessage('channelrules', lang) + '\n'
-        except:
-            tmp += configuration.getMessage('channelrules', lang) + '\n'
-        try:
-            if not len(data['sensor']) > 0:
+            if data['channel'] and not len(data['sensor']) > 0:
                 tmp += configuration.getMessage('sensorrules', lang) + '\n'
         except:
             tmp += configuration.getMessage('sensorrules', lang) + '\n'

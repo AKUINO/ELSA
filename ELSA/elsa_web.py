@@ -1452,8 +1452,10 @@ class WebPutData:
             if currObject:
                 if type == 's':
                     currObject.update(timestamp, value, c)
+                    print ('S: time='+unicode(timestamp)+', value='+unicode(value))
                     return json.dumps({'time':timestamp,'value':value,'s':currObject.fields})
                 elif type == 'd':
+                    print ('D: time='+unicode(timestamp)+', value='+unicode(value))
                     currObject.update(timestamp, value, c, remark)
                     return json.dumps(currObject.fields)
                 elif (len(type) == 2) and (type[1]=='m' ):
@@ -1482,7 +1484,9 @@ class WebPutData:
                         tmp['dest'] = data['dest']
                     newObject.set_value_from_data(tmp, c)
                     return json.dumps(newObject.fields)
+            print (type+"_"+id+" not found.")
             return render.notfound()
+        print (check+" is not good for " + control)
         raise web.webapi.Forbidden("Control field invalid ("+check+")")
 
 class WebIndex:
