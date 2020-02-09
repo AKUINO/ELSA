@@ -5989,6 +5989,7 @@ class Sensor(AlarmingObject):
             try:
                 eval(u"self.proc_"+self.fields['proc']+u'(config)')
             except:
+                traceback.print_exc()
                 print('Unable to call '+self.fields['proc']+' for sensor '+self.get_acronym())
 
     def proc_switch(self, config):
