@@ -6050,9 +6050,9 @@ class Sensor(AlarmingObject):
         url = self.fields['param']
         if url:
             sensorfile = None
-            control = u"!s"+self.get_acronym()+self.lastvalue
+            control = u"!s"+self.get_acronym()+unicode(self.lastvalue)
             try:  # urlopen not usable with "with"
-                url = url % (self.lastvalue, useful.checksum(control))
+                url = url % (unicode(self.lastvalue), unicode(useful.checksum(control)))
                 self.lastOutput = self.lastvalue
                 sensorfile = urllib2.urlopen(url, None, 20)
             except:
