@@ -5785,9 +5785,11 @@ def getGPIO():
         try:
             currGPIO = abe_expanderpi.IO()
             currGPIO.set_word_direction(0, 0)
-            currGPIO.set_word_direction(0, 0)
+            currGPIO.set_word_direction(1, 0)
+            currGPIO.write_port(0,0)
+            currGPIO.write_port(1,0)
         except:
-            pass
+            traceback.print_exc()
     return currGPIO
 
 class Sensor(AlarmingObject):
@@ -6035,7 +6037,6 @@ class Sensor(AlarmingObject):
                 self.lastOutput = self.lastvalue
                 if self.lastOutput > 0.0:
                     channel = channelOpen
-                    print ("TAP open=" + unicode(channel))
                 else:
                     channel = channelClose
                 bit = 0 if reversi else 1
