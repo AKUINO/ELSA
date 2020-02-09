@@ -5784,8 +5784,8 @@ def getGPIO():
     if not currGPIO:
         try:
             currGPIO = abe_expanderpi.IO()
-            currGPIO.set_word_direction(0, 0)
-            currGPIO.set_word_direction(1, 0)
+            currGPIO.set_port_direction(0, 0)
+            currGPIO.set_port_direction(1, 0)
             currGPIO.write_port(0,0)
             currGPIO.write_port(1,0)
         except:
