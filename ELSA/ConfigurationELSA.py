@@ -6558,7 +6558,7 @@ class Sensor(AlarmingObject):
 
     def set_value_from_data(self, data, c, user):
         super(Sensor, self).set_value_from_data(data, c, user)
-        tmp = ['channel', 'sensor', 'subsensor', 'formula', 'lapse1', 'lapse2', 'lapse3'] + alarmFields
+        tmp = ['channel', 'sensor', 'subsensor', 'formula', 'proc', 'param', 'lapse1', 'lapse2', 'lapse3'] + alarmFields
         for elem in tmp:
             self.fields[elem] = data[elem]
         if 'sleep' in data and data['sleep'] > '0':
