@@ -5784,10 +5784,10 @@ def getGPIO():
     if not currGPIO:
         try:
             currGPIO = abe_expanderpi.IO(True)
-            currGPIO.set_port_direction(0, 0)
-            currGPIO.set_port_direction(1, 0)
-            currGPIO.write_port(0,0)
-            currGPIO.write_port(1,0)
+            currGPIO.set_port_direction(0, 0x00)
+            currGPIO.set_port_direction(1, 0x00)
+            currGPIO.write_port(0, 0x00)
+            currGPIO.write_port(1, 0x00)
         except:
             traceback.print_exc()
     return currGPIO
@@ -6039,6 +6039,7 @@ class Sensor(AlarmingObject):
                     channel = channelOpen
                 else:
                     channel = channelClose
+                output_gpio.set_pin_direction(channel,0) # set word direction n'a pas l'air de bien fonctionner?
                 bit = 0 if reversi else 1
                 print ("TAP channel=" + unicode(channel)+" out="+unicode(bit))
                 output_gpio.write_pin(channel, bit)
