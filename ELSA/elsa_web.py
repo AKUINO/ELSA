@@ -1445,7 +1445,8 @@ class WebPutData:
         check = int(data['control'])
         if useful.checksum(control) == check:
             if type[0] == '!':
-                allObjType = c.findAll(type[1:])
+                type = type[1:]
+                allObjType = c.findAll(type)
                 currObject = allObjType.findAcronym(id)
             else:
                 currObject = c.getObject(id, type)
