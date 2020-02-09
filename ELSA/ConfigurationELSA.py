@@ -6020,6 +6020,7 @@ class Sensor(AlarmingObject):
 
     def proc_tap(self, config):
         output_gpio = getGPIO()
+        print ("TAP val="+unicode(self.lastvalue))
         if output_gpio and self.lastvalue != self.lastOutput:
             try:
                 params = self.fields['param'].split(',')
@@ -6032,16 +6033,17 @@ class Sensor(AlarmingObject):
                 if len(params) > 3 and params[3]:
                     reversi = int(params[3])
                 self.lastOutput = self.lastvalue
-                if self.lastvalue != self.lastOutput:
-                    if self.lastOutput > 0.0:
-                        channel = channelOpen
-                    else:
-                        channel = channelClose
-                    bit = 0 if reversi else 1
-                    output_gpio.write_pin(channel, bit)
-                    time.sleep(moveDelay / 1000.0 ) #Milliseconds...
-                    bit = 1 if reversi else 0
-                    output_gpio.write_pin(channel, bit)
+                if self.lastOutput > 0.0:
+                    channel = channelOpen
+                    print ("TAP open=" + unicode(channel))
+                else:
+                    channel = channelClose
+                bit = 0 if reversi else 1
+                print ("TAP channel=" + unicode(channel)+" out="+unicode(bit))
+                output_gpio.write_pin(channel, bit)
+                time.sleep(moveDelay / 1000.0 ) #Milliseconds...
+                bit = 1 if reversi else 0
+                output_gpio.write_pin(channel, bit)
             except IOError:
                 print('Unable to control output_device!' + ' channels : '
                       + self.fields['param'])
