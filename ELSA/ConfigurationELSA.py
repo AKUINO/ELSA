@@ -6143,6 +6143,9 @@ class Sensor(AlarmingObject):
                     break
             return val
 
+        def cleaned(info):
+            return unicode(info).strip('\r\n \'\"\t')
+
         def parse_atmos_data(self, input):
             '''
             Given a single string '+a+b-c+d', returns ['+a','+b','-c','+d']
