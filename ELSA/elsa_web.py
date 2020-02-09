@@ -1482,7 +1482,8 @@ class WebPutData:
                         tmp['dest'] = data['dest']
                     newObject.set_value_from_data(tmp, c)
                     return json.dumps(newObject.fields)
-        return render.notfound()
+            return render.notfound()
+        raise web.webapi.Forbidden("Control field invalid ("+check+")")
 
 class WebIndex:
     def __init(self):

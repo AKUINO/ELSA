@@ -581,6 +581,22 @@ $var title: MODAL
                                 $elem.fields['subsensor']
                             </div>
                         </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
+                                $c.getMessage('proc',self.lang) :
+                            </div>
+                            <div class="col-xs-8" >
+                                $elem.fields['proc']
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
+                                $c.getMessage('param',self.lang) :
+                            </div>
+                            <div class="col-xs-8" >
+                                $elem.fields['param']
+                            </div>
+                        </div>
 
 		    $if permissionKey in '_b_gr_':
 			<div class="row" style="margin-top:10px;">
