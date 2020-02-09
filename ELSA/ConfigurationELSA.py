@@ -5783,7 +5783,7 @@ def getGPIO():
 
     if not currGPIO:
         try:
-            currGPIO = abe_expanderpi.IO()
+            currGPIO = abe_expanderpi.IO(True)
             currGPIO.set_port_direction(0, 0)
             currGPIO.set_port_direction(1, 0)
             currGPIO.write_port(0,0)
@@ -6044,6 +6044,7 @@ class Sensor(AlarmingObject):
                 output_gpio.write_pin(channel, bit)
                 time.sleep(moveDelay / 1000.0 ) #Milliseconds...
                 bit = 1 if reversi else 0
+                print ("TAP channel=" + unicode(channel)+" out="+unicode(bit))
                 output_gpio.write_pin(channel, bit)
             except IOError:
                 print('Unable to control output_device!' + ' channels : '
