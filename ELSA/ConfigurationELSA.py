@@ -22,6 +22,8 @@ import time
 import traceback
 import urllib2
 
+import Queue
+
 import barcode
 import pyownet
 import requests
@@ -490,6 +492,8 @@ class Configuration():
         self.AllPouringModels = AllPouringModels(self)
         self.connectedUsers = AllConnectedUsers()
         self.isThreading = True
+        self.ActionThread = ActionThread(self)
+        self.ActionThread.daemon = True
         self.UpdateThread = UpdateThread(self)
         self.RadioThread = RadioThread(self)
         self.RadioThread.daemon = True
@@ -536,6 +540,7 @@ class Configuration():
         self.AllPouringModels.load()
         self.AllAlarmLogs.load()
         self.UpdateThread.start()
+        self.ActionThread.start()
         self.RadioThread.start()
         self.TimerThread.start()
 
@@ -1733,6 +1738,21 @@ class RadioThread(threading.Thread):
         except:
             traceback.print_exc()
 
+# to desynchronize action defined in sensor from data collection
+class ActionThread(threading.Thread):
+
+    def __init__(self, config):
+        threading.Thread.__init__(self)
+        self.config = config
+        self.queue = Queue.Queue()
+
+    def run(self):
+        while self.config.isThreading is True:
+            if self.queue.empty():
+                time.sleep(2)
+            else:
+                sensor = self.queue.get()
+                sensor.proc(self.config)
 
 class TimerThread(threading.Thread):
 
@@ -5776,6 +5796,7 @@ class Measure(ConfigurationObject):
         return self.fields['unit']
 
 currGPIO = None
+currTap = None # Tap currently opened
 
 def getGPIO():
 
@@ -5895,7 +5916,8 @@ class Sensor(AlarmingObject):
         self.lastvalue = value
         if value is not None:
             self.updateRRD(timestamp, value)
-            self.proc(config)
+            if self.fields['proc']:
+                config.ActionThread.queue.put(self)
 
         if config.screen is not None:
             minutes = int(timestamp / 60)
@@ -6018,9 +6040,9 @@ class Sensor(AlarmingObject):
             except IOError:
                 print('Unable to control output_device!' + ' channel : '
                       + self.fields['param'])
-                return None
 
     def proc_tap(self, config):
+        global currTap
         output_gpio = getGPIO()
         print ("TAP val="+unicode(self.lastvalue))
         if output_gpio and self.lastvalue != self.lastOutput:
@@ -6037,11 +6059,20 @@ class Sensor(AlarmingObject):
                 enabler = None
                 if len(params) > 4 and params[4]:
                     enabler = int(params[4])
-                self.lastOutput = self.lastvalue
-                if self.lastOutput > 0.0:
+                if self.lastvalue > 0.0:
                     channel = channelOpen
+                    if currTap is None or currTap == channel:
+                        currTap = channel
+                    else:
+                        print ("valve conflict between "+unicode(currTap)+" and "+unicode(channel))
+                        # requeue the request !
+                        config.ActionThread.put(self)
+                        time.sleep(5) # wait for a bit...
+                        return
                 else:
                     channel = channelClose
+                    currTap = None
+                self.lastOutput = self.lastvalue
                 if enabler:
                     output_gpio.write_pin(enabler, 1)
                     time.sleep(0.01 )
@@ -6058,7 +6089,6 @@ class Sensor(AlarmingObject):
             except IOError:
                 print('Unable to control output_device!' + ' channels : '
                       + self.fields['param'])
-                return None
 
     def proc_http(self, config):
         url = self.fields['param']

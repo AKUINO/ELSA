@@ -1404,9 +1404,11 @@ class WebGetData:
         #connected = redirect_when_not_logged()
         data = web.input(nifile={})
 
+        currObject = None
         if type[0] == '!':
             allObjType = c.findAll(type[1:])
-            currObject = allObjType.findAcronym(id)
+            if allObjType:
+                currObject = allObjType.findAcronym(id)
         else:
             currObject = c.getObject(id, type)
         if currObject:
