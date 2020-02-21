@@ -1489,8 +1489,8 @@ class WebPutData:
                     return json.dumps(newObject.fields)
             print (type+"_"+id+" not found.")
             return render.notfound()
-        print (check+" is not good for " + control)
-        raise web.webapi.Forbidden("Control field invalid ("+check+")")
+        print (unicode(check)+" is not good for " + unicode(control))
+        raise web.webapi.Forbidden("Control field invalid ("+unicode(check)+")")
 
 class WebIndex:
     def __init(self):
