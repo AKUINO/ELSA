@@ -6048,7 +6048,11 @@ class Sensor(AlarmingObject):
         if output_gpio:
             try:
                 params = self.fields['param'].split(',')
+                relaySchema = False
                 channelOpen = int(params[0])     # GPIO extended port to open valve
+                if channelOpen < 0:
+                    channelOpen = -channelOpen
+                    relaySchema = True
                 channelClose = int(params[1])    # GPIO extended port to close the valve
                 moveDelay = None
                 if len(params) > 2 and params[2]:
@@ -6074,30 +6078,32 @@ class Sensor(AlarmingObject):
                             self.lastvalue = 0.0
                             toSet = 0.0
                 if True:#toSet != self.lastOutput:
-                    if toSet > 0.0:
-                        channel = channelOpen
-                        # if currTap is None or currTap == channel:
-                        #     currTap = channel
-                        # else:
-                        #     print ("valve conflict between "+unicode(currTap)+" and "+unicode(channel))
-                        #     # requeue the request !
-                        #     config.ActionThread.queue.put(self)
-                        #     time.sleep(5) # wait for a bit...
-                        #     return
-                    else:
-                        channel = channelClose
-                        #currTap = None
                     self.lastOutput = toSet
                     if enabler:
                         output_gpio.write_pin(enabler, 1)
                         time.sleep(0.01 )
-                    bit = 0 if reversi else 1
-                    print ("TAP channel=" + unicode(channel)+" out="+unicode(bit))
-                    output_gpio.write_pin(channel, bit)
-                    time.sleep(moveDelay / 1000.0 ) #Milliseconds...
-                    bit = 1 if reversi else 0
-                    print ("TAP channel=" + unicode(channel)+" out="+unicode(bit))
-                    output_gpio.write_pin(channel, bit)
+                    if relaySchema:
+                        if toSet > 0.0:
+                            bit = 1 if reversi else 0
+                        else:
+                            bit = 0 if reversi else 1
+                        output_gpio.write_pin(channelOpen, bit)
+                        output_gpio.write_pin(channelClose, 1)
+                        time.sleep(moveDelay / 1000.0 ) #Milliseconds...
+                        output_gpio.write_pin(channelClose, 0)
+                        output_gpio.write_pin(channelOpen, 0)
+                    else:
+                        if toSet > 0.0:
+                            channel = channelOpen
+                        else:
+                            channel = channelClose
+                        print ("TAP channel=" + unicode(channel)+" out="+unicode(bit))
+                        bit = 0 if reversi else 1
+                        output_gpio.write_pin(channel, bit)
+                        time.sleep(moveDelay / 1000.0 ) #Milliseconds...
+                        bit = 1 if reversi else 0
+                        print ("TAP channel=" + unicode(channel)+" out="+unicode(bit))
+                        output_gpio.write_pin(channel, bit)
                     if enabler:
                         time.sleep(0.01 )
                         output_gpio.write_pin(enabler, 0)
