@@ -6045,47 +6045,59 @@ class Sensor(AlarmingObject):
         global currTap
         output_gpio = getGPIO()
         print ("TAP val="+unicode(self.lastvalue))
-        if output_gpio and self.lastvalue != self.lastOutput:
+        if output_gpio:
             try:
                 params = self.fields['param'].split(',')
-                channelOpen = int(params[0])
-                channelClose = int(params[1])
+                channelOpen = int(params[0])     # GPIO extended port to open valve
+                channelClose = int(params[1])    # GPIO extended port to close the valve
                 moveDelay = None
                 if len(params) > 2 and params[2]:
-                    moveDelay = int(params[2])
+                    moveDelay = int(params[2])   # Seconds needed to open or close the valve
                 reversi = None
                 if len(params) > 3 and params[3]:
-                    reversi = int(params[3])
+                    reversi = int(params[3])     # GPIO ports must be "1" (reversi null) to activate or "0" (reversi non null) ?
                 enabler = None
                 if len(params) > 4 and params[4]:
-                    enabler = int(params[4])
-                if self.lastvalue > 0.0:
-                    channel = channelOpen
-                    if currTap is None or currTap == channel:
-                        currTap = channel
+                    enabler = int(params[4])     # Does another GPIO port is needed to activate(1) the valve
+                hourlySliceBegin = 0
+                hourlySliceEnd = 59
+                if len(params) > 5 and params[5]:
+                    hourlySliceBegin = int(params[5]) # 1st Minute in the hour where the valve can be opened
+                    if len(params) > 6 and params[6]:
+                        hourlySliceEnd = int(params[6])   # LAST minute in the hour where the valve can be opened
+                    if self.lastvalue:
+                        now = useful.get_timestamp()
+                        minute = (now % 3600) // 60
+                        if (minute < hourlySliceBegin) or (minute > hourlySliceEnd):
+                            self.lastvalue = 0
+                if self.lastvalue != self.lastOutput:
+                    if self.lastvalue > 0.0:
+                        channel = channelOpen
+                        if currTap is None or currTap == channel:
+                            currTap = channel
+                        else:
+                            print ("valve conflict between "+unicode(currTap)+" and "+unicode(channel))
+                            # requeue the request !
+                            config.ActionThread.put(self)
+                            time.sleep(5) # wait for a bit...
+                            return
                     else:
-                        print ("valve conflict between "+unicode(currTap)+" and "+unicode(channel))
-                        # requeue the request !
-                        config.ActionThread.put(self)
-                        time.sleep(5) # wait for a bit...
-                        return
-                else:
-                    channel = channelClose
-                    currTap = None
-                self.lastOutput = self.lastvalue
-                if enabler:
-                    output_gpio.write_pin(enabler, 1)
-                    time.sleep(0.01 )
-                bit = 0 if reversi else 1
-                print ("TAP channel=" + unicode(channel)+" out="+unicode(bit))
-                output_gpio.write_pin(channel, bit)
-                time.sleep(moveDelay / 1000.0 ) #Milliseconds...
-                bit = 1 if reversi else 0
-                print ("TAP channel=" + unicode(channel)+" out="+unicode(bit))
-                output_gpio.write_pin(channel, bit)
-                if enabler:
-                    time.sleep(0.01 )
-                    output_gpio.write_pin(enabler, 0)
+                        channel = channelClose
+                        currTap = None
+                    self.lastOutput = self.lastvalue
+                    if enabler:
+                        output_gpio.write_pin(enabler, 1)
+                        time.sleep(0.01 )
+                    bit = 0 if reversi else 1
+                    print ("TAP channel=" + unicode(channel)+" out="+unicode(bit))
+                    output_gpio.write_pin(channel, bit)
+                    time.sleep(moveDelay / 1000.0 ) #Milliseconds...
+                    bit = 1 if reversi else 0
+                    print ("TAP channel=" + unicode(channel)+" out="+unicode(bit))
+                    output_gpio.write_pin(channel, bit)
+                    if enabler:
+                        time.sleep(0.01 )
+                        output_gpio.write_pin(enabler, 0)
             except IOError:
                 print('Unable to control output_device!' + ' channels : '
                       + self.fields['param'])
