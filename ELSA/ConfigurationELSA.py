@@ -6073,7 +6073,7 @@ class Sensor(AlarmingObject):
                             print ("valve "+self.get_acronym()+" must be closed now.")
                             self.lastvalue = 0.0
                             toSet = 0.0
-                if toSet != self.lastOutput:
+                if True:#toSet != self.lastOutput:
                     if toSet > 0.0:
                         channel = channelOpen
                         # if currTap is None or currTap == channel:
