@@ -5796,7 +5796,7 @@ class Measure(ConfigurationObject):
         return self.fields['unit']
 
 currGPIO = None
-currTap = None # Tap currently opened
+# currTap = None # Tap currently opened
 
 def getGPIO():
 
@@ -6042,7 +6042,7 @@ class Sensor(AlarmingObject):
                       + self.fields['param'])
 
     def proc_tap(self, config):
-        global currTap
+        # global currTap
         output_gpio = getGPIO()
         print ("TAP val="+unicode(self.lastvalue))
         if output_gpio:
@@ -6066,7 +6066,7 @@ class Sensor(AlarmingObject):
                     hourlySliceBegin = int(params[5]) # 1st Minute in the hour where the valve can be opened
                     if len(params) > 6 and params[6]:
                         hourlySliceEnd = int(params[6])   # LAST minute in the hour where the valve can be opened
-                    if self.lastvalue:
+                    if self.lastvalue > 0.0:
                         now = useful.get_timestamp()
                         minute = (now % 3600) // 60
                         if (minute < hourlySliceBegin) or (minute > hourlySliceEnd):
@@ -6076,17 +6076,17 @@ class Sensor(AlarmingObject):
                 if toSet != self.lastOutput:
                     if toSet > 0.0:
                         channel = channelOpen
-                        if currTap is None or currTap == channel:
-                            currTap = channel
-                        else:
-                            print ("valve conflict between "+unicode(currTap)+" and "+unicode(channel))
-                            # requeue the request !
-                            config.ActionThread.queue.put(self)
-                            time.sleep(5) # wait for a bit...
-                            return
+                        # if currTap is None or currTap == channel:
+                        #     currTap = channel
+                        # else:
+                        #     print ("valve conflict between "+unicode(currTap)+" and "+unicode(channel))
+                        #     # requeue the request !
+                        #     config.ActionThread.queue.put(self)
+                        #     time.sleep(5) # wait for a bit...
+                        #     return
                     else:
                         channel = channelClose
-                        currTap = None
+                        #currTap = None
                     self.lastOutput = toSet
                     if enabler:
                         output_gpio.write_pin(enabler, 1)
