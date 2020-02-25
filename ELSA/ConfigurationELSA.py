@@ -6061,6 +6061,7 @@ class Sensor(AlarmingObject):
                     enabler = int(params[4])     # Does another GPIO port is needed to activate(1) the valve
                 hourlySliceBegin = 0
                 hourlySliceEnd = 59
+                toSet = self.lastvalue
                 if len(params) > 5 and params[5]:
                     hourlySliceBegin = int(params[5]) # 1st Minute in the hour where the valve can be opened
                     if len(params) > 6 and params[6]:
@@ -6069,22 +6070,24 @@ class Sensor(AlarmingObject):
                         now = useful.get_timestamp()
                         minute = (now % 3600) // 60
                         if (minute < hourlySliceBegin) or (minute > hourlySliceEnd):
-                            self.lastvalue = 0
-                if self.lastvalue != self.lastOutput:
-                    if self.lastvalue > 0.0:
+                            print ("valve "+self.get_acronym()+" must be closed now.")
+                            self.lastvalue = 0.0
+                            toSet = 0.0
+                if toSet != self.lastOutput:
+                    if toSet > 0.0:
                         channel = channelOpen
                         if currTap is None or currTap == channel:
                             currTap = channel
                         else:
                             print ("valve conflict between "+unicode(currTap)+" and "+unicode(channel))
                             # requeue the request !
-                            config.ActionThread.put(self)
+                            config.ActionThread.queue.put(self)
                             time.sleep(5) # wait for a bit...
                             return
                     else:
                         channel = channelClose
                         currTap = None
-                    self.lastOutput = self.lastvalue
+                    self.lastOutput = toSet
                     if enabler:
                         output_gpio.write_pin(enabler, 1)
                         time.sleep(0.01 )
