@@ -6077,7 +6077,7 @@ class Sensor(AlarmingObject):
                             print ("valve "+self.get_acronym()+" must be closed now.")
                             self.lastvalue = 0.0
                             toSet = 0.0
-                if True:#toSet != self.lastOutput:
+                if toSet != self.lastOutput:
                     self.lastOutput = toSet
                     if enabler:
                         output_gpio.write_pin(enabler, 1)
