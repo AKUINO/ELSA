@@ -6097,8 +6097,8 @@ class Sensor(AlarmingObject):
                             channel = channelOpen
                         else:
                             channel = channelClose
-                        print ("TAP channel=" + unicode(channel)+" out="+unicode(bit))
                         bit = 0 if reversi else 1
+                        print ("TAP channel=" + unicode(channel)+" out="+unicode(bit))
                         output_gpio.write_pin(channel, bit)
                         time.sleep(moveDelay / 1000.0 ) #Milliseconds...
                         bit = 1 if reversi else 0
