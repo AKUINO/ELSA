@@ -1406,7 +1406,7 @@ class ConfigurationObject(object):
     def getImage(self, height=36):
         ext = self.isImaged()
         if ext:
-            return "<img src=\"" + self.getImageURL(ext) + "\" alt=\"" + unicode(self) + "\" height=" + unicode(
+            return "<img src=\"" + self.getImageURL(ext) + "\" alt=\"" + unicode(self).strip('><\r\n \'\"\t') + "\" height=" + unicode(
                 height) + ">"
         else:
             return ""
@@ -3274,7 +3274,7 @@ class AllConnectedUsers():
         mail = mail.lower()
         if ip in self.users and self.users[ip].cuser.fields['mail'] == mail:
             return self.users[ip].cuser.fields['language']
-        return 'english'
+        return 'en'
 
     def disconnect(self, connected, ip):
         if ip in self.users and connected.cuser.fields['mail'].lower() ==self.users[ip].cuser.fields['mail']:

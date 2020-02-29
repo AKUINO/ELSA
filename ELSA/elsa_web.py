@@ -76,7 +76,7 @@ def redirect_when_not_logged(redir=True):
     connected = isConnected()
     #if isOtherDomain():
     #    raise web.seeother('/otherdomain/'+web.ctx['home'].split("/")[2] + '_' + web.ctx['path'])
-    #el
+
     if connected is None:
         if redir:
             path = web.ctx.env.get('PATH_INFO')
@@ -169,6 +169,7 @@ class WebRestore:
             fname = fpath.split('/')[-1]
             file_uri = os.path.join(elsa.DIR_WEB_TEMP, fname)
             print ("Restore data to be sent to file: "+file_uri)
+            fout = None
             try:
                 fout = open(file_uri, 'w')
                 fout.write(data.zip_archive_to_restore.file.read())
@@ -178,7 +179,8 @@ class WebRestore:
                                      getLinkForLatestBackupArchive(),
                                      "restoreError")
             finally:
-                fout.close()
+                if fout:
+                    fout.close()
             if backup.check_zip_backup(file_uri) == False:
                 print ("Restore data, bad Zip format in file: " + file_uri)
                 return render.backup(connected,
@@ -1454,9 +1456,17 @@ class WebPutData:
                 currObject = c.getObject(id, type)
             if currObject:
                 if type == 's':
-                    currObject.update(timestamp, value, c)
-                    print ('S: time='+unicode(timestamp)+', value='+unicode(value))
-                    return json.dumps({'time':timestamp,'value':value,'s':currObject.fields})
+                    try:
+                        value = float(value)
+                        value = currObject.sanitize_reading(c, value)
+                        if value is not None:
+                            currObject.update(timestamp, value, c)
+                            print ('S: time='+unicode(timestamp)+', value='+unicode(value))
+                            return json.dumps({'time':timestamp,'value':value,'s':currObject.fields})
+                        else:
+                            raise web.webapi.Forbidden("Invalid value (" + unicode(value) + ")")
+                    except:
+                        raise web.webapi.Forbidden("Invalid value (" + unicode(value) + ")")
                 elif type == 'd':
                     print ('D: time='+unicode(timestamp)+', value='+unicode(value))
                     currObject.update(timestamp, value, c, remark)

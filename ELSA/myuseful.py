@@ -162,7 +162,6 @@ def date_to_ISO(date):
     else:
         return ''
 
-
 def now():
     return unicode(datetime.datetime.now().strftime(datetimeformat))
 
@@ -177,3 +176,6 @@ def shorten_time(longTime, prevTime):
     elif longTime[:11] == prevTime[:11]:
         return longTime[11:]
     return longTime
+
+if __name__ == "__main__":
+    print("Checksum=%d" % checksum("!sTMP11734.50"))
