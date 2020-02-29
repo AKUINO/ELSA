@@ -3256,9 +3256,9 @@ class AllConnectedUsers():
 
     def removeOld(self):
         updatetime = time.time()
-        for mail, connecteduser in self.users.items():
+        for ip, connecteduser in self.users.items():
             if (updatetime - connecteduser.datetime) > CONNECTION_TIMEOUT:
-                del self.users[mail]
+                del self.users[ip]
 
     def isConnected(self, mail, password, ip):
         self.removeOld()
