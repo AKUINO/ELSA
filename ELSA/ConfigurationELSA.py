@@ -3252,6 +3252,9 @@ class AllConnectedUsers():
             self.users[ip] = ConnectedUser(user)
         elif mail == self.users[ip].cuser.fields['mail']:
             self.users[ip].update()
+        else:
+            del self.users[ip]
+            self.users[ip] = ConnectedUser(user)
         return self.users[ip]
 
     def removeOld(self):
@@ -3265,7 +3268,7 @@ class AllConnectedUsers():
         mail = mail.lower()
         if ip in self.users:
             user = self.users[ip].cuser
-            if user.checkPassword(password) and mail == user.fields['mail']:
+            if mail == user.fields['mail'] and user.checkPassword(password):
                 self.users[ip].update()
                 return self.users[ip]
         return None
