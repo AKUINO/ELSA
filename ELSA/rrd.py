@@ -1,10 +1,11 @@
+#!/usr/bin/env python3
 import calendar
 import os
 import rrdtool
 from numpy import nan
 import datetime
 
-import ConfigurationELSA as elsa
+from . import ConfigurationELSA as elsa
 
 
 def get_datapoints_from_s_id(sensorID, time_from_utc, time_to_utc):

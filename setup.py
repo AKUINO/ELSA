@@ -8,7 +8,7 @@ def read(fname):
 
 setup(
     name="ELSA",
-    version="0.1",
+    version="0.2",
     author="Destin-informatique",
     author_email="christophe.dupriez@destin-informatique.com",
     url="http://www.destin-informatique.com",
@@ -16,6 +16,7 @@ setup(
     long_description=read('README.md'),
     packages=find_packages(),
     classifiers=[
+        'Operating System :: POSIX',
         'Programming Language :: Python',
-    ], install_requires=['pyBarcode', 'requests', 'serial', 'rrdtool', 'unicodecsv', 'web.py', 'pyownet']
+    ], install_requires=['pyBarcode', 'requests', 'serial', 'rrdtool', 'csv', 'web.py', 'pyownet']
 )

@@ -1,6 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import cgi
 import collections
 import datetime
 import errno
@@ -8,36 +7,37 @@ import os
 import os.path
 import re
 import rrdtool
-import sets
 import shutil
 import socket
 import subprocess
 import sys
-reload(sys)
-sys.setdefaultencoding('utf-8')
+from functools import reduce
+#reload(sys)
+#sys.setdefaultencoding('utf-8')
 import io
 
 import threading
 import time
 import traceback
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
-import Queue
+import queue
 
 import barcode
 import pyownet
 import requests
 import serial
-import unicodecsv
+from csv import DictWriter, DictReader
 import web.net as webnet
+import html
 
-import HardConfig as hardconfig
-import abe_adcpi
-import abe_expanderpi
+from . import HardConfig as hardconfig
+from . import abe_adcpi
+from . import abe_expanderpi
 #import abe_iopi
-import abe_mcp3423
-import abe_mcp3424
-import myuseful as useful
+from . import abe_mcp3423
+from . import abe_mcp3424
+from . import myuseful as useful
 
 """
 import SSD1306
@@ -61,13 +61,14 @@ DIR_DEFAULT_CSV = os.path.join(DIR_APP_CSV, 'default/')
 # Defines default values for some .csv files
 # (ex: default user for a new installation)
 DIR_STATIC = os.path.join(DIR_BASE, 'static/')
-URL_STATIC = u'/static/'
+URL_STATIC = '/static/'
 
 DIR_DATA_CSV = os.path.join(DIR_USER_DATA, 'csv/')
+print ("CSV directory="+DIR_DATA_CSV)
 DIR_RRD = os.path.join(DIR_USER_DATA, 'rrd/')
 DIR_DOC = os.path.join(DIR_USER_DATA, 'doc/')
 
-URL_DOC = u'/doc/'
+URL_DOC = '/doc/'
 DIR_WEB_TEMP = os.path.join(DIR_STATIC, 'temp/')
 
 TEMPLATES_DIR = os.path.join(DIR_BASE, 'templates/')
@@ -76,13 +77,13 @@ KEY_ADMIN = "admin"  # Omnipotent user
 
 CONNECTION_TIMEOUT = 900  # seconds = 15 minutes before reasking password
 
-imagedTypes = [u'u', u'e', u'p', u'g', u'gf', u'gr', u'gu', u'c', u'b', u'h', u's', u'm', u'a', u'al']
+imagedTypes = ['u', 'e', 'p', 'g', 'gf', 'gr', 'gu', 'c', 'b', 'h', 's', 'm', 'a', 'al']
 
 alarmFields = ['minmin', 'min', 'typical', 'max', 'maxmax', 'a_minmin', \
                'a_min', 'a_typical', 'a_max', 'a_maxmax', 'a_none']
 alarm_fields_for_groups = ['o_sms1', 'o_sms2', 'o_email1', 'o_email2', 'o_sound1', 'o_sound2']
 
-ALL_UPDATE_GROUPS = u" upd_a upd_al upd_b upd_c upd_d upd_dm upd_e upd_gf upd_gr upd_gu upd_h upd_m upd_p upd_s upd_t upd_tm upd_u upd_v upd_vm upd_nfc"
+ALL_UPDATE_GROUPS = " upd_a upd_al upd_b upd_c upd_d upd_dm upd_e upd_gf upd_gr upd_gu upd_h upd_m upd_p upd_s upd_t upd_tm upd_u upd_v upd_vm upd_nfc"
 ALL_TYPES = ['a', 'al', 'b', 'c', 'd', 'dm', 'e', 'gf', 'gr', 'gu', 'h', 'm', 'p', 's', 't', 'tm', 'u', 'v', 'vm']
 ALL_NAMED_TYPES = ['a', 'b', 'c', 'dm', 'e', 'gf', 'gr', 'gu', 'h', 'm', 'p', 's', 'tm', 'u', 'vm']
 COMPONENT_TYPES = ['p', 'e', 'c']
@@ -115,7 +116,7 @@ HALFLING_UNICODE = { "adjust" : "\ue063", #xe063
 "arrow-left" : "\ue091", #xe091
 "arrow-right" : "\ue092", #xe092
 "arrow-up" : "\ue093", #xe093
-"asterisk" : "\u2a", #x2a
+"asterisk" : "\x2a", #x2a
 "baby-formula" : "\ue216", #xe216
 "backward" : "\ue071", #xe071
 "ban-circle" : "\ue090", #xe090
@@ -269,7 +270,7 @@ HALFLING_UNICODE = { "adjust" : "\ue063", #xe063
 "plane" : "\ue108", #xe108
 "play-circle" : "\ue029", #xe029
 "play" : "\ue072", #xe072
-"plus" : "\u2b", #x2b
+"plus" : "\x2b", #x2b
 "plus-sign" : "\ue081", #xe081
 "print" : "\ue045", #xe045
 "pushpin" : "\ue146", #xe146
@@ -382,13 +383,13 @@ def export_float(value):
     if not value:
         return ""
     else:
-        return unicode(value).replace('.', ',', 1)
+        return str(value).replace('.', ',', 1)
 
 
 def splitId(string):
     if not string:
         return '', ''
-    splits = string.split(u'_')
+    splits = string.split('_')
     return splits[0] if len(splits) > 0 else '', splits[1] if len(splits) > 1 else ''
 
 
@@ -408,10 +409,10 @@ class valueCategory(object):
 def exec_command(args):
     outputText = None
     try:
-        outputText = subprocess.check_output(args, stderr=subprocess.STDOUT).decode(sys.getdefaultencoding())
+        outputText = subprocess.check_output(args, stderr=subprocess.STDOUT) #.decode(sys.getdefaultencoding())
     except subprocess.CalledProcessError as anError:
-        print u"Statut=" + unicode(anError.returncode) + u" " + unicode(anError)
-        return "Error="+unicode(anError.returncode)
+        print("Statut=" + str(anError.returncode) + " " + str(anError))
+        return "Error="+str(anError.returncode)
     except:
         traceback.print_exc()
         return None
@@ -608,16 +609,16 @@ class Configuration():
                     w = w.strip('/. ').replace('.','')[:14]
                     self.set_channel_access('wire', w, 0, timestamp)
             except:
-                print "OWFS not active."
+                print("OWFS not active.")
         return list_channel
 
     def set_channel_access(self, channel, device, rssi, timestamp):
         if not device:
-            print "Device not specified."
+            print("Device not specified.")
             traceback.print_stack()
             return
         if not channel in self.channels:
-            print "Channel "+channel+" unknown."
+            print("Channel "+channel+" unknown.")
             traceback.print_stack()
             return
         list_channel = self.channels[channel]
@@ -627,7 +628,7 @@ class Configuration():
             try:
                 timestamp = int(timestamp)
             except:
-                print "Timestamp " + unicode(timestamp) + " not a number."
+                print("Timestamp " + str(timestamp) + " not a number.")
                 traceback.print_exc()
                 return
         if not rssi:
@@ -643,7 +644,7 @@ class Configuration():
             top = "gf"
         elif top in "hdmtmvm" and not top in "mdtv":
             top = "h"
-        elif top == u"pec":
+        elif top == "pec":
             top = "pec"
         return top
 
@@ -676,7 +677,7 @@ class Configuration():
             html = '<a href="/map/h" class="btn btn-default">' + self.AllCheckPoints.statusIcon(None, False,
                                                                                                 buttonClasses) + self.getMessage(
                 'checkpoint', lang) + '</a>'
-        elif top == u"pec":
+        elif top == "pec":
             html = '<a href="/map/pec" class="btn btn-default">' + self.getHalfling('place') + self.getHalfling(
                 'equipment') + self.getHalfling('container') + self.getMessage('component', lang) + '</a>'
         elif not top in 'dtv':
@@ -765,7 +766,7 @@ class Configuration():
         return useful.datetimeformat
 
     def triple(self, key):
-        for k, v in valueCategs.items():
+        for k, v in list(valueCategs.items()):
             if v.name == key or v.acronym == key:
                 return v.triple()
         return None
@@ -790,7 +791,7 @@ class Configuration():
         for type in ALL_TYPES:
             allObj = self.findAll(type)
             if 'acronym' in allObj.fieldnames:
-                for key, elem in allObj.elements.items():
+                for key, elem in list(allObj.elements.items()):
                     if acro in elem.fields['acronym'].lower():
                         if not elem in result:
                             result.append(elem)
@@ -800,8 +801,8 @@ class Configuration():
         word = word.lower()
         for type in ALL_NAMED_TYPES:
             allObj = self.findAll(type)
-            for key, elem in allObj.elements.items():
-                for lang, name in elem.names.items():
+            for key, elem in list(allObj.elements.items()):
+                for lang, name in list(elem.names.items()):
                     if word in name['name'].lower():
                         if not elem in result:
                             result.append(elem)
@@ -813,7 +814,7 @@ class Configuration():
         for type in ALL_TYPES:
             allObj = self.findAll(type)
             if 'remark' in allObj.fieldnames:
-                for key, elem in allObj.elements.items():
+                for key, elem in list(allObj.elements.items()):
                     if acro in elem.fields['remark'].lower():
                         if not elem in result:
                             result.append(elem)
@@ -829,10 +830,10 @@ class Configuration():
         seconds = seconds % 60
         mn = mn % 60
         hh = hh % 24
-        result = ((" " + unicode(dd) + " " + self.getMessage("day" + ("s" if dd > 1 else ""), lang)) if dd else "") \
-                 + ((" " + unicode(hh) + " " + self.getMessage("hour" + ("s" if hh > 1 else ""), lang)) if hh else "") \
-                 + ((" " + unicode(mn) + " " + self.getMessage("minute" + ("s" if mn > 1 else ""), lang)) if mn else "") \
-                 + ((" " + unicode(seconds) + " " + self.getMessage("second" + ("s" if seconds > 1 else ""),
+        result = ((" " + str(dd) + " " + self.getMessage("day" + ("s" if dd > 1 else ""), lang)) if dd else "") \
+                 + ((" " + str(hh) + " " + self.getMessage("hour" + ("s" if hh > 1 else ""), lang)) if hh else "") \
+                 + ((" " + str(mn) + " " + self.getMessage("minute" + ("s" if mn > 1 else ""), lang)) if mn else "") \
+                 + ((" " + str(seconds) + " " + self.getMessage("second" + ("s" if seconds > 1 else ""),
                                                                     lang)) if seconds else "")
         return result[1:]
 
@@ -840,14 +841,14 @@ class Configuration():
         outputText = ""
         try:
             p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE)
-            outputText = p.communicate(input=inputData)[0].decode(sys.getdefaultencoding())
+            outputText = p.communicate(input=inputData)[0] #.decode(sys.getdefaultencoding())
         except subprocess.CalledProcessError as anError:
-            print u"Statut=" + unicode(anError.returncode) + u" " + unicode(anError)
+            print("Statut=" + str(anError.returncode) + " " + str(anError))
             return anError.returncode == 0
         except:
             traceback.print_exc()
             return False
-        return outputText.replace(u"\ufeff", '').encode("cp850")
+        return outputText.replace("\ufeff", '').encode("cp850")
 
     # TRUE if no problem to create Print job
     def labelPrinter(self, type_id, someText):
@@ -878,7 +879,7 @@ class ConfigurationObject(object):
     def get_select_str(self, lang):
         acr = self.fields['acronym']
         name = self.getName(lang)
-        return (unicode(acr) + ' - ' + name)
+        return (str(acr) + ' - ' + name)
 
     def floats(self, field):
         return useful.str_float(self.fields[field])
@@ -896,10 +897,9 @@ class ConfigurationObject(object):
 
         allObjects = configuration.findAllFromObject(self)
         with open(allObjects.file_of_objects, "a") as csvfile:
-            writer = unicodecsv.DictWriter(csvfile,
-                                           delimiter='\t',
-                                           fieldnames=allObjects.fieldnames,
-                                           encoding="utf-8")
+            writer = DictWriter(csvfile,
+                                delimiter='\t',
+                                fieldnames=allObjects.fieldnames)
             writer.writerow(self.fields)
             allObjects.hierarchy = None  # Sort needed...
         self.saveName(configuration, anUser)
@@ -909,10 +909,9 @@ class ConfigurationObject(object):
         allObjects = configuration.findAllFromObject(self)
         for key in self.names:
             with open(allObjects.file_of_names, "a") as csvfile:
-                writer = unicodecsv.DictWriter(csvfile,
-                                               delimiter='\t',
-                                               fieldnames=allObjects.fieldtranslate,
-                                               encoding="utf-8")
+                writer = DictWriter(csvfile,
+                                    delimiter='\t',
+                                    fieldnames=allObjects.fieldtranslate)
                 writer.writerow(self.names[key])
 
     ##    def saveCode(self, configuration, barcode, anUser):
@@ -924,7 +923,7 @@ class ConfigurationObject(object):
     ##            tmpCode['idobject'] = self.fields[allObjects.keyColumn]
     ##            tmpCode['code'] = unicode(barcode)
     ##            tmpCode["user"] = anUser.fields['u_id']
-    ##            writer = unicodecsv.DictWriter(csvfile,
+    ##            writer = csv.DictWriter(csvfile,
     ##                                           delimiter='\t',
     ##                                           fieldnames=configuration.fieldcode,
     ##                                           encoding="utf-8")
@@ -946,13 +945,13 @@ class ConfigurationObject(object):
                         if e.errno != errno.EEXIST:
                             traceback.print_exc()
                             return None
-            return os.path.join(directory, thisType + u'_' + unicode(self.id) + u'.' + ext)
+            return os.path.join(directory, thisType + '_' + str(self.id) + '.' + ext)
         return None
 
     def getImageURL(self, ext="jpg"):
         thisType = self.get_type()
         if thisType in imagedTypes:
-            return URL_DOC + thisType + u'/' + thisType + u'_' + unicode(self.id) + u'.' + ext
+            return URL_DOC + thisType + '/' + thisType + '_' + str(self.id) + '.' + ext
         return ""
 
     def getDocumentDir(self, ensure=False):
@@ -960,7 +959,7 @@ class ConfigurationObject(object):
         if thisType in imagedTypes:
             directory = os.path.join(DIR_DOC,
                                      thisType,
-                                     thisType + u'_' + unicode(self.id))
+                                     thisType + '_' + str(self.id))
             if ensure:
                 if not os.path.exists(directory):
                     try:
@@ -977,7 +976,7 @@ class ConfigurationObject(object):
         if thisType in imagedTypes:
             directory = os.path.join(DIR_DOC,
                                      thisType,
-                                     thisType + u'_' + unicode(self.id))
+                                     thisType + '_' + str(self.id))
             if not os.path.exists(directory):
                 return []
             return os.listdir(directory)
@@ -990,25 +989,25 @@ class ConfigurationObject(object):
             result = '<a href="/files/'+self.getTypeId()+'"'
             if len(files) == 1:
                 result += ' target="_blank"'
-            result += '>' + config.getHalfling('file') + '<strong>'+unicode(len(files))+'</strong></a>'
+            result += '>' + config.getHalfling('file') + '<strong>'+str(len(files))+'</strong></a>'
         return result
 
-    def getDocumentURL(self, filename=u''):
+    def getDocumentURL(self, filename=''):
         thisType = self.get_type()
         if thisType in imagedTypes:
-            return URL_DOC + thisType + u'/' + thisType + u'_' + unicode(self.id) + u'/' + filename
+            return URL_DOC + thisType + '/' + thisType + '_' + str(self.id) + '/' + filename
         return ""
 
     def isImaged(self):
-        fileName = self.getImagePath(False, u"png")
+        fileName = self.getImagePath(False, "png")
         if fileName is None:
             return None
         elif os.path.isfile(fileName):
-            return u"png"
+            return "png"
         else:
-            fileName = self.getImagePath(False, u"jpg")
+            fileName = self.getImagePath(False, "jpg")
             if os.path.isfile(fileName):
-                return u"jpg"
+                return "jpg"
             else:
                 return None
 
@@ -1044,16 +1043,16 @@ class ConfigurationObject(object):
         elif 'DE' in self.names:
             return self.names['DE']['name']
         elif len(self.names) > 0:
-            return self.names.values()[0]['name']
+            return list(self.names.values())[0]['name']
         elif 'default' in self.fields:
             return self.fields['default']
         elif 'acronym' in self.fields:
             return self.fields['acronym']
         else:
-            return "Record " + unicode(self.id) + ": no name"
+            return "Record " + str(self.id) + ": no name"
 
     def getNameHTML(self, lang):
-        return cgi.escape(self.getName(lang), True).replace("'", "&#39;");
+        return html.escape(self.getName(lang), True).replace("'", "&#39;");
 
     def get_real_name(self, lang):
         if lang in self.names:
@@ -1068,7 +1067,7 @@ class ConfigurationObject(object):
         return ""
 
     def getTypeId(self):
-        return self.get_type() + u'_' + unicode(self.id)
+        return self.get_type() + '_' + str(self.id)
 
     # to be overriden when parents available
     def get_all_parents(self,list=[],allObjs=None):
@@ -1109,10 +1108,9 @@ class ConfigurationObject(object):
             tmpCode['type'] = self.get_type()
             tmpCode["user"] = user.fields['u_id']
             tmpCode['active'] = active
-            writer = unicodecsv.DictWriter(csvfile,
-                                           delimiter='\t',
-                                           fieldnames=configuration.fieldrelations,
-                                           encoding="utf-8")
+            writer = DictWriter(csvfile,
+                                delimiter='\t',
+                                fieldnames=configuration.fieldrelations)
             writer.writerow(tmpCode)
 
     def validate_form(self, data, configuration, user):
@@ -1163,8 +1161,8 @@ class ConfigurationObject(object):
             if data.placeImg.filename != '':
                 filepath = data.placeImg.filename.replace('\\', '/')
                 ext = ((filepath.split('/')[-1]).split('.')[-1])
-                if ext and ext.lower() in [u'jpg', u'jpeg', u'png']:
-                    with open(self.getImagePath(True, ext=("png" if ext.lower() == u"png" else u"jpg")), 'w') as fout:
+                if ext and ext.lower() in ['jpg', 'jpeg', 'png']:
+                    with open(self.getImagePath(True, ext=("png" if ext.lower() == "png" else "jpg")), 'w') as fout:
                         fout.write(data.placeImg.file.read())
         # linkedDocs is treated by caller because "web" object is needed...
 
@@ -1180,7 +1178,7 @@ class ConfigurationObject(object):
         elif lenCode == 0:
             # Defaut barcode: 99hhT1234567x
             code = 990000000000 + (self.get_hash_type() * 10000000) + int(self.id)
-            ean = c.AllBarcodes.EAN(unicode(code))
+            ean = c.AllBarcodes.EAN(str(code))
             c.AllBarcodes.add_barcode(self, ean.get_fullcode(), "", user)
 
     def get_barcode(self, c, codetype=""):
@@ -1327,7 +1325,7 @@ class ConfigurationObject(object):
         tmp = self.get_last_transfer(configuration)
         if tmp is not None:
             if type == tmp.fields['cont_type'] \
-                    and unicode(id) == tmp.fields['cont_id']:
+                    and str(id) == tmp.fields['cont_id']:
                 return True
         return False
 
@@ -1351,7 +1349,7 @@ class ConfigurationObject(object):
         batches = []
         type = self.get_type()
         id = self.getID()
-        for k, v in configuration.AllBatches.elements.items():
+        for k, v in list(configuration.AllBatches.elements.items()):
             if v.is_actual_position(type, id, configuration):
                 batches.append(v)
         return batches
@@ -1379,7 +1377,7 @@ class ConfigurationObject(object):
                 infos = t.get_component(config).get_all_in_component(
                     config, begin, end, infos)
         for a in sensors:
-            if a not in infos.keys():
+            if a not in list(infos.keys()):
                 sensor = config.AllSensors.get(a)
                 if sensor and sensor.isActive():
                     infos[a] = sensor.fetch(begin, end)
@@ -1406,7 +1404,7 @@ class ConfigurationObject(object):
     def getImage(self, height=36):
         ext = self.isImaged()
         if ext:
-            return "<img src=\"" + self.getImageURL(ext) + "\" alt=\"" + unicode(self).strip('><\r\n \'\"\t') + "\" height=" + unicode(
+            return "<img src=\"" + self.getImageURL(ext) + "\" alt=\"" + str(self).strip('><\r\n \'\"\t') + "\" height=" + str(
                 height) + ">"
         else:
             return ""
@@ -1505,13 +1503,13 @@ class ConfigurationObject(object):
         return "";
 
     def getQtyUnit(self, c, lang="EN"):
-        result = u'?'
+        result = '?'
         measure = self.get_measure(c)
         quantity = self.get_quantity_string()
         if quantity:
             if measure and measure.fields['step']:
                 quantity = round(useful.str_float(quantity), int(measure.fields['step']))
-            result = unicode(quantity)
+            result = str(quantity)
         if measure:
             result += ' ' + measure.fields['unit']
         if result == '?':
@@ -1541,7 +1539,7 @@ class ConfigurationObject(object):
     def updateAllowed(self, user, c):
         user_group = user.get_group()
         if user_group and user_group in c.AllGrFunction.elements:
-            key_upd = u"upd_" + self.get_type()
+            key_upd = "upd_" + self.get_type()
             aGroup = c.AllGrFunction.elements[user_group]
             if aGroup.fields['acronym'].lower() == KEY_ADMIN:
                 return True
@@ -1562,9 +1560,9 @@ class ConfigurationObject(object):
                 try:
                     return f.read()
                 except:
-                    pass
+                    traceback.print_exc()
         except:
-            pass
+            traceback.print_exc()
         allObjs = c.findAll(self.get_type())
         elem_group = self.get_group()
         if elem_group:
@@ -1587,9 +1585,9 @@ class ConfigurationObject(object):
                 try:
                     return f.read()
                 except:
-                    pass
+                    traceback.print_exc()
         except:
-            pass
+            traceback.print_exc()
         return None
 
 
@@ -1600,11 +1598,11 @@ class ConfigurationObject(object):
             labelFields = {"barcode": self.get_barcode(c,''), "code": self.fields['acronym'], "name": self.getName(lang), "type": allObjs.getName(lang)}
             value = ""
             if 'remark' in self.fields and self.fields['remark']:
-                value = c.getMessage('remark', lang) + u": " + self.fields['remark']
+                value = c.getMessage('remark', lang) + ": " + self.fields['remark']
             labelFields['remark'] = value
             value = ""
             if 'expirationdate' in self.fields and self.fields['expirationdate']:
-                value = c.getMessage('expirationdate', lang) + u": " + self.fields['expirationdate']
+                value = c.getMessage('expirationdate', lang) + ": " + self.fields['expirationdate']
             labelFields['expiration'] = value
             value = ""
             group = self.get_group()
@@ -1612,7 +1610,7 @@ class ConfigurationObject(object):
                 allGrs = c.findAll(allObjs.get_group_type())
                 above = allGrs.get(group)
                 if above:
-                    value = allGrs.getName(lang) + u": " + above.getName(lang)
+                    value = allGrs.getName(lang) + ": " + above.getName(lang)
             labelFields['group'] = value
             labelFields['quantity'] = self.getQtyUnit(c, lang)
             return c.labelPrinter(self.getTypeId(),printerString % labelFields)
@@ -1625,7 +1623,7 @@ class ConfigurationObject(object):
         relations = None
         if allObjects.file_of_relations:
             with open(allObjects.file_of_relations) as csvfile:
-                reader = unicodecsv.DictReader(csvfile, delimiter="\t")
+                reader = DictReader(csvfile, delimiter="\t")
                 relations = []
                 for row in reader:
                     if row['parent_id'] == id:
@@ -1636,7 +1634,7 @@ class ConfigurationObject(object):
         names = None
         if allObjects.file_of_names:
             with open(allObjects.file_of_names) as csvfile:
-                reader = unicodecsv.DictReader(csvfile, delimiter="\t")
+                reader = DictReader(csvfile, delimiter="\t")
                 names = []
                 for row in reader:
                     if row[allObjects.keyColumn] == id:
@@ -1644,7 +1642,7 @@ class ConfigurationObject(object):
 
         records = None
         with open(allObjects.file_of_objects) as csvfile:
-            reader = unicodecsv.DictReader(csvfile, delimiter="\t")
+            reader = DictReader(csvfile, delimiter="\t")
             records = []
             for row in reader:
                 if row[allObjects.keyColumn] == id:
@@ -1661,12 +1659,16 @@ class UpdateThread(threading.Thread):
 
     def run(self):
         if self.config.HardConfig.owfs == 'yes':
-            self.config.owproxy = pyownet.protocol.proxy(host="localhost",
-                                                         port=4304)
+            try:
+                self.config.owproxy = pyownet.protocol.proxy(host="localhost",
+                                                             port=4304)
+            except:
+                traceback.print_exc()
+
         while self.config.isThreading is True:
             timer = 0
             timestamp = useful.get_timestamp()
-            print (unicode(timestamp)+": "+unicode(len(self.config.AllSensors.elements))+" sensors")
+            print((str(timestamp)+": "+str(len(self.config.AllSensors.elements))+" sensors"))
             if len(self.config.AllSensors.elements) > 0:
                 self.config.AllSensors.update(timestamp)
             while self.config.isThreading is True and timer < self.config.HardConfig.sensor_polling:
@@ -1682,9 +1684,9 @@ class RadioThread(threading.Thread):
 
     def run(self):
         if self.config.HardConfig.ela != 'yes':
-            print "No Radio reception configured."
+            print("No Radio reception configured.")
             return
-        print "Radio at " + unicode(self.config.HardConfig.ela_bauds) + " bauds on " + DIR_TTY
+        print("Radio at " + str(self.config.HardConfig.ela_bauds) + " bauds on " + DIR_TTY)
         noDots = {ord(' '): None, ord('.'): None}
         try:
             elaSerial = serial.Serial(
@@ -1706,30 +1708,30 @@ class RadioThread(threading.Thread):
                                 self.config.set_channel_access('radio',HEX,RSS,timestamp)
                                 # ADDRESS = int(HEX,16)
                                 VAL = int(line[5] + line[6] + line[7], 16)
-                                print ("ELA="
+                                print(("ELA="
                                        + HEX
                                        + ", RSS="
-                                       + unicode(RSS)
-                                       + ", val=" + unicode(VAL))
+                                       + str(RSS)
+                                       + ", val=" + str(VAL)))
                                 currSensor = None
                                 value = VAL
                                 for sensor in self.config.AllSensors.elements:
                                     currSensor = self.config.AllSensors.elements[sensor]
                                     if currSensor.isActive():
                                         try:
-                                            if (unicode(currSensor.fields['sensor']).translate(noDots) == unicode(
+                                            if (str(currSensor.fields['sensor']).translate(noDots) == str(
                                                     HEX).translate(noDots)):
                                                 if not currSensor.fields['formula'] == '':
-                                                    value = unicode(
+                                                    value = str(
                                                         eval(currSensor.fields['formula']))
-                                                print(
-                                                        u"Sensor ELA-" + currSensor.fields['sensor'] + u": " +
-                                                        currSensor.fields['acronym'] + u" = " + unicode(value))
+                                                print((
+                                                        "Sensor ELA-" + currSensor.fields['sensor'] + ": " +
+                                                        currSensor.fields['acronym'] + " = " + str(value)))
                                                 currSensor.update(timestamp, value, self.config)
                                         except:
                                             traceback.print_exc()
-                                            print "Error in formula, " + currSensor.fields['acronym'] + ": " + \
-                                                  currSensor.fields['formula']
+                                            print("Error in formula, " + currSensor.fields['acronym'] + ": " + \
+                                                  currSensor.fields['formula'])
                             line = None
                         else:
                             line.append(data)
@@ -1744,7 +1746,7 @@ class ActionThread(threading.Thread):
     def __init__(self, config):
         threading.Thread.__init__(self)
         self.config = config
-        self.queue = Queue.Queue()
+        self.queue = queue.Queue()
 
     def run(self):
         while self.config.isThreading is True:
@@ -1764,7 +1766,7 @@ class TimerThread(threading.Thread):
         while self.config.isThreading is True:
             timer = 0
             now = useful.get_timestamp()
-            for k, b in self.config.AllBatches.elements.items():
+            for k, b in list(self.config.AllBatches.elements.items()):
                 if b.isActive() and not b.isComplete():
                     t = b.get_last_transfer(self.config)
                     if t and not t.completed:
@@ -1840,7 +1842,7 @@ class AllObjects(object):
         conformantFile = None
         conformantWriter = None
         with open(self.file_of_objects) as csvfile:
-            reader = unicodecsv.DictReader(csvfile, delimiter="\t")
+            reader = DictReader(csvfile, delimiter="\t")
             for row in reader:
                 if conformant is None:
                     if self.fieldnames is None:
@@ -1849,11 +1851,10 @@ class AllObjects(object):
                         conformant = self.fieldnames == reader.fieldnames
                         if not conformant:
                             conformantFile = open(self.file_of_objects + ".NEW", 'w')
-                            print (self.file_of_objects + " will be made conformant")
-                            conformantWriter = unicodecsv.DictWriter(conformantFile,
-                                                                     delimiter='\t',
-                                                                     fieldnames=self.fieldnames,
-                                                                     encoding="utf-8")
+                            print((self.file_of_objects + " will be made conformant"))
+                            conformantWriter = DictWriter(conformantFile,
+                                                          delimiter='\t',
+                                                          fieldnames=self.fieldnames)
                             conformantWriter.writeheader()
                 if conformantWriter is not None:
                     conformantWriter.writerow(row)
@@ -1967,7 +1968,7 @@ class AllObjects(object):
 
     def loadNames(self):
         with open(self.file_of_names) as csvfile:
-            reader = unicodecsv.DictReader(csvfile, delimiter="\t")
+            reader = DictReader(csvfile, delimiter="\t")
             for row in reader:
                 keyObj = row[self.keyColumn]
                 keyLang = row['lang']
@@ -1978,7 +1979,7 @@ class AllObjects(object):
         return None
 
     def initCount(self):
-        for k, v in self.elements.items():
+        for k, v in list(self.elements.items()):
             if self.count < int(v.fields[self.keyColumn]):
                 self.count = int(v.fields[self.keyColumn])
 
@@ -1992,7 +1993,7 @@ class AllObjects(object):
         currObject = self.newObject()
         currObject.initialise(self.fieldnames)
         self.initCount()
-        tmp = unicode(self.getNewId())
+        tmp = str(self.getNewId())
         currObject.fields[self.keyColumn] = tmp
         currObject.id = tmp
         self.elements[tmp] = currObject
@@ -2001,23 +2002,23 @@ class AllObjects(object):
 
     def unique_acronym(self, acronym, myID):
         acronym = acronym.lower()
-        for k, element in self.elements.items():
+        for k, element in list(self.elements.items()):
             if element.fields['acronym'].lower() == acronym \
-                    and unicode(myID) != unicode(element.fields[self.keyColumn]):
+                    and str(myID) != str(element.fields[self.keyColumn]):
                 return False
         return True
 
     def get(self, iditem):
-        if iditem and iditem in self.elements.keys():
+        if iditem and iditem in list(self.elements.keys()):
             return self.elements[iditem]
         return None
 
     def getItem(self, iditem):
         if iditem:
-            iditem = unicode(iditem)
-            if iditem == u'new':
+            iditem = str(iditem)
+            if iditem == 'new':
                 return self.createObject()
-            elif (iditem.endswith(u".")):
+            elif (iditem.endswith(".")):
                 try:
                     element = self.config.AllBarcodes.barcode_to_item(
                         iditem[:len(iditem) - 1])
@@ -2025,18 +2026,18 @@ class AllObjects(object):
                         return element
                 except:
                     return None
-            elif (iditem.endswith(u"!")):
+            elif (iditem.endswith("!")):
                 acronym = iditem[:len(iditem) - 1]
-                for k, element in self.elements.items():
+                for k, element in list(self.elements.items()):
                     if element.fields['acronym'] == acronym:
                         return element
                 return None
-            elif iditem in self.elements.keys():
+            elif iditem in list(self.elements.keys()):
                 return self.elements[iditem]
         return None
 
     def delete(self, anID):
-        del self.elements[unicode(anID)]
+        del self.elements[str(anID)]
 
     def get_class_acronym(self):
         return None
@@ -2045,7 +2046,7 @@ class AllObjects(object):
         return self.config.getName(self, lang)
 
     def get_sorted(self):
-        return collections.OrderedDict(sorted(self.elements.items(),
+        return collections.OrderedDict(sorted(list(self.elements.items()),
                                               key=lambda t: t[1].sort_key()))
 
     def sort_hierarchy_objects(self, objects):
@@ -2058,13 +2059,13 @@ class AllObjects(object):
 
     def get_sorted_hierarchy(self):
         if not self.hierarchy:
-            self.hierarchy = self.sort_hierarchy(self.elements.keys())
+            self.hierarchy = self.sort_hierarchy(list(self.elements.keys()))
         return self.hierarchy
 
     # find uncompleted active objects
     def in_use(self):
         result = []
-        for k in self.elements.keys():
+        for k in list(self.elements.keys()):
             elem = self.elements[k]
             if elem.isActive() and not elem.isComplete():
                 result.append(k)
@@ -2080,7 +2081,7 @@ class AllObjects(object):
 
     def findAcronym(self, acronym):
         acronym = acronym.lower()
-        for k, element in self.elements.items():
+        for k, element in list(self.elements.items()):
             if element.fields['acronym'].lower() == acronym:
                 return element
         return None
@@ -2135,7 +2136,7 @@ class AllUsers(AllObjects):
 
     def getUser(self, mail):
         mail = mail.lower()
-        for myId, user in self.elements.items():
+        for myId, user in list(self.elements.items()):
             if user.fields['mail'].lower() == mail:
                 return user
         return None
@@ -2222,7 +2223,7 @@ class AllAlarmLogs(AllObjects):
         sid = component.getID()
         stype = component.get_type()
         if begin or end:
-            for kal in self.elements.keys():
+            for kal in list(self.elements.keys()):
                 e = self.elements[kal]
                 time = e.getTimestamp()
                 if (sid == e.fields['s_id']) and (
@@ -2230,7 +2231,7 @@ class AllAlarmLogs(AllObjects):
                     if (not begin or (time >= begin)) and (not end or (time < end)):
                         logs.append(e)
         else:
-            for kal in self.elements.keys():
+            for kal in list(self.elements.keys()):
                 e = self.elements[kal]
                 if (sid == e.fields['s_id']) and (
                         (e.fields['s_type'] == stype) or (e.fields['s_type'] == '' and stype == 's')):
@@ -2242,14 +2243,14 @@ class AllAlarmLogs(AllObjects):
         sid = component.getID()
         stype = component.get_type()
         if begin or end:
-            for kal in self.elements.keys():
+            for kal in list(self.elements.keys()):
                 e = self.elements[kal]
                 time = e.getTimestamp()
                 if (sid == e.fields['cont_id']) and (e.fields['cont_type'] == stype):
                     if (not begin or (time >= begin)) and (not end or (time < end)):
                         logs.append(e)
         else:
-            for kal in self.elements.keys():
+            for kal in list(self.elements.keys()):
                 e = self.elements[kal]
                 if (sid == e.fields['cont_id']) and (e.fields['cont_type'] == stype):
                     logs.append(e)
@@ -2277,7 +2278,7 @@ class AllHalflings(AllObjects):
 
     def getString(self):
         tmp = ''
-        for k, v in self.elements.items():
+        for k, v in list(self.elements.items()):
             tmp = tmp + k + '/' + v.fields['glyphname'] + ' '
         return tmp[0:-1]
 
@@ -2376,14 +2377,14 @@ class AllGroups(AllObjects):
 
     def get_master_groups(self):
         children = {}
-        for k, group in self.elements.items():
+        for k, group in list(self.elements.items()):
             if group.fields['g_parent'] == '':
                 children[k] = group
         return children
 
     def load_relation(self):
         with open(self.file_of_relations) as csvfile:
-            reader = unicodecsv.DictReader(csvfile, delimiter="\t")
+            reader = DictReader(csvfile, delimiter="\t")
             for row in reader:
                 parent = row['parent_id']
                 child = row['child_id']
@@ -2395,7 +2396,7 @@ class AllGroups(AllObjects):
         self.load_family()
 
     def load_family(self):
-        for k, g in self.elements.items():
+        for k, g in list(self.elements.items()):
             g.parents = []
             g.children = []
             g.siblings = []
@@ -2406,7 +2407,7 @@ class AllGroups(AllObjects):
     def get_hierarchy_str(self, g=None, myString=None):
         if myString is None:
             myString = []
-        for k, group in self.elements.items():
+        for k, group in list(self.elements.items()):
             if g:
                 cond = g.getID() in group.related
             else:
@@ -2424,7 +2425,7 @@ class AllGroups(AllObjects):
     def get_fullmap_str(self):
         objMap = []
         # find groups without parents
-        for k, group in self.elements.items():
+        for k, group in list(self.elements.items()):
             parents = group.get_parents()
             if not parents or len(parents) == 0:
                 objMap.append(group)
@@ -2607,7 +2608,7 @@ class AllCheckPoints(AllGroups):
 
     def load_controls(self):
         with open(self.file_of_controls) as csvfile:
-            reader = unicodecsv.DictReader(csvfile, delimiter="\t")
+            reader = DictReader(csvfile, delimiter="\t")
             for row in reader:
                 type = row['object_type']
                 id = row['object_id']
@@ -2618,7 +2619,7 @@ class AllCheckPoints(AllGroups):
 
     def get_checkpoints_for_recipe(self, recipes):
         checkpoints = []
-        for k, e in self.elements.items():
+        for k, e in list(self.elements.items()):
             if e.fields['gr_id'] in recipes and e.isActive() and e.fields['abstract'] == '0':
                 checkpoints.append(e)
         checkpoints.sort(key=lambda x: int(x.fields['rank']), reverse=False)
@@ -2626,7 +2627,7 @@ class AllCheckPoints(AllGroups):
 
     def get_checkpoints_for_usage(self, usages):
         checkpoints = []
-        for k, e in self.elements.items():
+        for k, e in list(self.elements.items()):
             if e.fields['gu_id'] in usages and e.isActive() and e.fields['abstract'] == '0':
                 checkpoints.append(e)
         checkpoints.sort(key=lambda x: int(x.fields['rank']), reverse=False)
@@ -2634,7 +2635,7 @@ class AllCheckPoints(AllGroups):
 
     def get_checkpoints_for_recipe_usage(self, recipes, usages):
         checkpoints = []
-        for k, e in self.elements.items():
+        for k, e in list(self.elements.items()):
             if e.fields['abstract'] == '0' and e.isActive():
                 ##                if not e.fields['gr_id'] or (e.fields['gr_id'] in recipes):
                 ##                    if not e.fields['gu_id'] or (e.fields['gu_id'] in usages):
@@ -2771,7 +2772,7 @@ class AllSensors(AllObjects):
         return color
 
     def correctValueAlarm(self):
-        for k, sensor in self.elements.items():
+        for k, sensor in list(self.elements.items()):
             sensor.setCorrectAlarmValue()
 
     def update(self, timestamp):
@@ -2796,7 +2797,7 @@ class AllSensors(AllObjects):
             except KeyError:
                 return None
 
-        for k, sensor in self.elements.items():
+        for k, sensor in list(self.elements.items()):
             if sensor.isActive() and sensor.fields['channel'] in self._queryChannels:
                     try:
                         value, cache = sensor.get_value_sensor(self.config, timestamp, get_cache(sensor))
@@ -2826,24 +2827,24 @@ class AllSensors(AllObjects):
         self.config.set_channel_access('lora',module,rssi,stamp)
 
         noDots = {ord(' '): None, ord('.'): None}
-        for key, value in inputData.items():
+        for key, value in list(inputData.items()):
             if key and value and not key in ['H','M']:
                 currSensor = None
                 for sensor in self.config.AllSensors.elements:
                     currSensor = self.config.AllSensors.elements[sensor]
                     if currSensor.isActive():
                         try:
-                            if (unicode(currSensor.fields['sensor']).translate(noDots) == unicode(module) ) \
-                                and (unicode(currSensor.fields['subsensor']).translate(noDots) \
-                                        == unicode(key).translate(noDots)):
+                            if (str(currSensor.fields['sensor']).translate(noDots) == str(module) ) \
+                                and (str(currSensor.fields['subsensor']).translate(noDots) \
+                                        == str(key).translate(noDots)):
                                 if not currSensor.fields['formula'] == '':
-                                    value = unicode(eval(currSensor.fields['formula']))
-                                print( u"Sensor LORA-" + currSensor.fields['sensor'] + u": " +
-                                        currSensor.fields['acronym'] + u" = " + unicode(value))
+                                    value = str(eval(currSensor.fields['formula']))
+                                print(( "Sensor LORA-" + currSensor.fields['sensor'] + ": " +
+                                        currSensor.fields['acronym'] + " = " + str(value)))
                                 if key == 'G':
                                     try:
                                         nfc_uid = value.upper()
-                                        print ("NFC="+nfc_uid)
+                                        print(("NFC="+nfc_uid))
                                         if len(nfc_uid) == 12: # Patch for truncated nfc_uid read by 1-wire simulation
                                             for i in range(0,255):
                                                 suff = (hex(i)[2:]).zfill(2).upper()
@@ -2853,11 +2854,11 @@ class AllSensors(AllObjects):
                                         else:
                                             elem = self.config.AllBarcodes.barcode_to_item(nfc_uid, "N")
                                         if elem:
-                                            print ("Found:"+elem.getTypeId())
+                                            print(("Found:"+elem.getTypeId()))
                                             type = elem.get_type()
                                             if type in TRANSFERABLE_TYPES:
                                                 where = currSensor.get_component(self.config)
-                                                print ("Move To:" + where.getTypeId())
+                                                print(("Move To:" + where.getTypeId()))
                                                 if not elem.is_actual_position (where.get_type(), where.getID(), self.config):
                                                     newTransfer = self.config.AllTransfers.createObject()
                                                     newTransfer.fields['time'] = useful.now()
@@ -2871,13 +2872,13 @@ class AllSensors(AllObjects):
 
                                     except:
                                         traceback.print_exc()
-                                        print "Invalid NFC UID: " + inputData['G']
+                                        print("Invalid NFC UID: " + inputData['G'])
                                 else:
                                     currSensor.update(stamp, value, self.config)
                         except:
                             traceback.print_exc()
-                            print "Error in formula, " + currSensor.fields['acronym'] + ": " + \
-                                  currSensor.fields['formula']
+                            print("Error in formula, " + currSensor.fields['acronym'] + ": " + \
+                                  currSensor.fields['formula'])
 
 class AllBatches(AllObjects):
 
@@ -2902,7 +2903,7 @@ class AllBatches(AllObjects):
         batches = []
         # print recipes
         # print usages
-        for k, e in self.elements.items():
+        for k, e in list(self.elements.items()):
             if e.fields['gr_id'] in recipes:
                 batches.append(e)
         return self.sort_hierarchy_objects(batches)
@@ -2911,7 +2912,7 @@ class AllBatches(AllObjects):
         batches = []
         # print recipes
         # print usages
-        for k, e in self.elements.items():
+        for k, e in list(self.elements.items()):
             if e.isActive() and (not e.fields['gr_id'] or (e.fields['gr_id'] in recipes)):
                 # print "key="+k+", recipe=",e.fields['gr_id']
                 tmp = e.get_last_transfer(self.config)
@@ -2924,10 +2925,10 @@ class AllBatches(AllObjects):
 
     def findNextAcronym(self, prefix, totalLen, count=0):
         while True:
-            tmp = totalLen - len(prefix) - len(unicode(count))
+            tmp = totalLen - len(prefix) - len(str(count))
             if tmp < 0:
                 return None
-            tmpname = prefix + ('0' * tmp) + unicode(count)
+            tmpname = prefix + ('0' * tmp) + str(count)
             cond = self.unique_acronym(tmpname, -1)
             if cond:
                 return tmpname
@@ -3035,7 +3036,7 @@ class AllBarcodes(AllObjects):
         conformantFile = None
         conformantWriter = None
         with open(self.file_of_objects) as csvfile:
-            reader = unicodecsv.DictReader(csvfile, delimiter="\t")
+            reader = DictReader(csvfile, delimiter="\t")
             for row in reader:
                 if conformant is None:
                     if self.fieldnames is None:
@@ -3044,11 +3045,10 @@ class AllBarcodes(AllObjects):
                         conformant = self.fieldnames == reader.fieldnames
                         if not conformant:
                             conformantFile = open(self.file_of_objects + ".NEW", 'w')
-                            print (self.file_of_objects + " will be made conformant")
-                            conformantWriter = unicodecsv.DictWriter(conformantFile,
-                                                                     delimiter='\t',
-                                                                     fieldnames=self.fieldnames,
-                                                                     encoding="utf-8")
+                            print((self.file_of_objects + " will be made conformant"))
+                            conformantWriter = DictWriter(conformantFile,
+                                                          delimiter='\t',
+                                                          fieldnames=self.fieldnames)
                             conformantWriter.writeheader()
                 if conformantWriter is not None:
                     conformantWriter.writerow(row)
@@ -3075,11 +3075,11 @@ class AllBarcodes(AllObjects):
         return Barcode(item)
 
     def get_barcode_from_object(self, myType, myID, codetype=""):
-        for k in self.elements.keys():
+        for k in list(self.elements.keys()):
             currCode = self.elements[k]
             if currCode.fields['codetype'] == codetype and currCode.element:
                 if currCode.element.get_type() == myType \
-                        and unicode(currCode.element.getID()) == myID:
+                        and str(currCode.element.getID()) == myID:
                     return k
         return ''
 
@@ -3103,10 +3103,9 @@ class AllBarcodes(AllObjects):
     def write_csv(self, some_code, codetype, active, user, item):
         with open(self.file_of_objects, "a") as csvfile:
             tmpCode = self.create_fields(some_code, codetype, active, user, item)
-            writer = unicodecsv.DictWriter(csvfile,
-                                           delimiter='\t',
-                                           fieldnames=self.fieldnames,
-                                           encoding="utf-8")
+            writer = DictWriter(csvfile,
+                                delimiter='\t',
+                                fieldnames=self.fieldnames)
             writer.writerow(tmpCode)
 
     def create_barcode(self, item, some_code, codetype, user):
@@ -3148,7 +3147,7 @@ class AllBarcodes(AllObjects):
             #if len(some_code) != 14: # 14 hex digits
             #    return False
             try:
-                test = long(some_code,16)
+                test = int(some_code,16)
             except:
                 traceback.print_exc()
                 return False
@@ -3224,7 +3223,7 @@ class ConnectedUser():
         cookies = {'akuinoELSA': infoCookie}
         r = requests.get("http://localhost" + url, cookies=cookies)
         if r.status_code != requests.codes.ok:
-            return "<p>" + url + " : status=" + unicode(r.status_code)
+            return "<p>" + url + " : status=" + str(r.status_code)
         output = r.text
         if "internal server error" in output:
             return "<p>" + url + " : " + output
@@ -3259,7 +3258,7 @@ class AllConnectedUsers():
 
     def removeOld(self):
         updatetime = time.time()
-        for ip, connecteduser in self.users.items():
+        for ip, connecteduser in list(self.users.items()):
             if (updatetime - connecteduser.datetime) > CONNECTION_TIMEOUT:
                 del self.users[ip]
 
@@ -3359,7 +3358,7 @@ class User(ConfigurationObject):
         string = "\nUtilisateur :"
         for field in self.fields:
             string = string + "\n" + field + \
-                     " : " + unicode(self.fields[field])
+                     " : " + str(self.fields[field])
         return string + "\n"
 
     def checkPassword(self, password):
@@ -3438,7 +3437,7 @@ class User(ConfigurationObject):
                 return True
         user_group = self.get_group()
         if user_group and user_group in c.AllGrFunction.elements:
-            key_upd = u"upd_" + type
+            key_upd = "upd_" + type
             aGroup = c.AllGrFunction.elements[user_group]
             if aGroup.fields['acronym'].lower() == KEY_ADMIN:
                 return True
@@ -3461,7 +3460,7 @@ class User(ConfigurationObject):
         user_group = self.get_group()
         result = " "
         if user_group and user_group in c.AllGrFunction.elements:
-            key_upd = u"upd_" + self.get_type()
+            key_upd = "upd_" + self.get_type()
             aGroup = c.AllGrFunction.elements[user_group]
             result += aGroup.fields['acronym'].lower() + " "
             for user_group in aGroup.get_all_parents([], c.AllGrFunction):
@@ -3489,7 +3488,7 @@ class User(ConfigurationObject):
 
     def get_batches(self, c):
         result = []
-        for k, b in c.AllBatches.elements.items():
+        for k, b in list(c.AllBatches.elements.items()):
             if b.isActive() and (self.getID() in [b.get_last_user(c), b.fields['buyer_id'], b.fields['provider_id']]):
                 result.append(b)
         return c.AllBatches.sort_hierarchy_objects(result)
@@ -3528,13 +3527,13 @@ class Equipment(ConfigurationObject):
 
     def get_sensors_in_component(self, config):
         listSensor = []
-        for k, sensor in config.AllSensors.elements.items():
+        for k, sensor in list(config.AllSensors.elements.items()):
             if sensor.is_in_component('e', self.id):
                 listSensor.append(k)
         return listSensor
 
     def isAlarmed(self, c):
-        for kSensor, aSensor in c.AllSensors.elements.items():
+        for kSensor, aSensor in list(c.AllSensors.elements.items()):
             if aSensor.isAlarmed(c) and aSensor.is_in_component('e', self.id):
                 return True
         return False
@@ -3550,7 +3549,7 @@ class Equipment(ConfigurationObject):
 
     def get_batches(self, c):
         result = []
-        for k, b in c.AllBatches.elements.items():
+        for k, b in list(c.AllBatches.elements.items()):
             if b.isActive():
                 here,timestring = b.get_actual_position_here(c)
                 if here and (here.getTypeId() == self.getTypeId()):
@@ -3594,13 +3593,13 @@ class Container(ConfigurationObject):
 
     def get_sensors_in_component(self, config):
         listSensor = []
-        for k, sensor in config.AllSensors.elements.items():
+        for k, sensor in list(config.AllSensors.elements.items()):
             if sensor.is_in_component('c', self.id):
                 listSensor.append(k)
         return listSensor
 
     def isAlarmed(self, c):
-        for kSensor, aSensor in c.AllSensors.elements.items():
+        for kSensor, aSensor in list(c.AllSensors.elements.items()):
             if aSensor.isAlarmed(c) and aSensor.is_in_component('c', self.id):
                 return True
         return False
@@ -3616,7 +3615,7 @@ class Container(ConfigurationObject):
 
     def get_batches(self, c):
         result = []
-        for k, b in c.AllBatches.elements.items():
+        for k, b in list(c.AllBatches.elements.items()):
             if b.isActive():
                 here,timestring = b.get_actual_position_here(c)
                 if here and (here.getTypeId() == self.getTypeId()):
@@ -3704,7 +3703,7 @@ class ManualData(AlarmingObject):
 
     def add_measure(self, measure):
         if not measure == 'None':
-            self.fields['m_id'] = unicode(measure)
+            self.fields['m_id'] = str(measure)
         else:
             self.fields['m_id'] = ''
 
@@ -3717,7 +3716,7 @@ class ManualData(AlarmingObject):
             traceback.print_exc()
             tmp += configuration.getMessage('timerules', lang) + '\n'
 
-        if 'value' in data and data['measure'] == u'None':
+        if 'value' in data and data['measure'] == 'None':
             if not data['value'] == '':
                 tmp += configuration.getMessage('datarules', lang) + '\n'
         elif 'value' in data:
@@ -3850,13 +3849,13 @@ class Pouring(AlarmingObject):
             tmp += configuration.getMessage('floatrules', lang) + '\n'
         try:
             b_id = data['src']
-            if not b_id in configuration.AllBatches.elements.keys():
+            if not b_id in list(configuration.AllBatches.elements.keys()):
                 tmp += configuration.getMessage('batchrules1', lang) + '\n'
         except:
             tmp += configuration.getMessage('batchrules1', lang) + '\n'
         try:
             b_id = data['dest']
-            if not b_id in configuration.AllBatches.elements.keys():
+            if not b_id in list(configuration.AllBatches.elements.keys()):
                 tmp += configuration.getMessage('batchrules2', lang) + '\n'
         except:
             tmp += configuration.getMessage('batchrules2', lang) + '\n'
@@ -3977,8 +3976,8 @@ class Group(ConfigurationObject):
 
     def containsGroup(self, oGroup):
         if len(self.groups) > 0:
-            for k, v in self.groups.items():
-                if self.keyColumn in oGroup.fields.keys():
+            for k, v in list(self.groups.items()):
+                if self.keyColumn in list(oGroup.fields.keys()):
                     if k == oGroup.fields[self.keyColumn]:
                         return True
                 elif v.containsGroup(oGroup):
@@ -4015,7 +4014,7 @@ class Group(ConfigurationObject):
         if tmp is True:
             tmp = ''
         lang = user.fields['language']
-        for k, v in configuration.findAllFromObject(self).elements.items():
+        for k, v in list(configuration.findAllFromObject(self).elements.items()):
             if k in data:
                 if self.getID() in v.parents or self.getID() in v.siblings:
                     tmp += configuration.getMessage('grouprules', lang) + '\n'
@@ -4033,7 +4032,7 @@ class Group(ConfigurationObject):
             if a not in data:
                 self.write_group(a, c, user, '1')
                 self.related.remove(a)
-        for k in c.findAllFromObject(self).elements.keys():
+        for k in list(c.findAllFromObject(self).elements.keys()):
             if k in data and k not in self.related:
                 self.related.append(k)
                 self.write_group(k, c, user, '0')
@@ -4048,10 +4047,9 @@ class Group(ConfigurationObject):
             tmpCode['child_id'] = self.getID()
             tmpCode["user"] = user.fields['u_id']
             tmpCode['active'] = active
-            writer = unicodecsv.DictWriter(csvfile,
-                                           delimiter='\t',
-                                           fieldnames=configuration.findAllFromObject(self).fieldrelations,
-                                           encoding="utf-8")
+            writer = DictWriter(csvfile,
+                                delimiter='\t',
+                                fieldnames=configuration.findAllFromObject(self).fieldrelations)
             writer.writerow(tmpCode)
 
     def get_related(self):
@@ -4099,10 +4097,9 @@ class Group(ConfigurationObject):
     ##                print "Error Group "+self.get_type()+"_"+i+": GROUPE EN RELATION CIRCLAIRE DANS "+self.getID()
 
     def load_children(self):
-        for k, group in self.config \
+        for k, group in list(self.config \
                 .findAll(self.get_type()) \
-                .elements \
-                .items():
+                .elements.items()):
             if self.getID() in group.related:
                 if group.getID() not in self.children:
                     self.add_child(group)
@@ -4112,10 +4109,9 @@ class Group(ConfigurationObject):
     ##                    print "Error Group "+group.get_type()+"_"+group.getID()+": GROUPE EN RELATION CIRCLAIRE DANS "+self.getID()
 
     def load_siblings(self):
-        for k, group in self.config \
+        for k, group in list(self.config \
                 .findAll(self.get_type()) \
-                .elements \
-                .items():
+                .elements.items()):
             for rel in group.related:
                 if rel in self.related and k != self.getID():
                     self.siblings.append(k)
@@ -4193,7 +4189,7 @@ class Group(ConfigurationObject):
         return submap
 
     def proposedMemberAcronym(self, configuration):
-        prefix = self.fields['acronym'] + u"_"
+        prefix = self.fields['acronym'] + "_"
 
 
 class GrUsage(Group):
@@ -4223,7 +4219,7 @@ class GrUsage(Group):
 
     def get_batches(self, c):
         result = []
-        for k, b in c.AllBatches.elements.items():
+        for k, b in list(c.AllBatches.elements.items()):
             if b.isActive():
                 here,timestring = b.get_actual_position_here(c)
                 if here and here.isActive() and here.get_group() == self.getID():
@@ -4232,13 +4228,13 @@ class GrUsage(Group):
 
     def get_members(self):
         result = []
-        for k, b in self.config.AllPlaces.elements.items():
+        for k, b in list(self.config.AllPlaces.elements.items()):
             if b.get_group() == self.getID() and b.isActive():
                 result.append(b)
-        for k, b in self.config.AllEquipments.elements.items():
+        for k, b in list(self.config.AllEquipments.elements.items()):
             if b.get_group() == self.getID() and b.isActive():
                 result.append(b)
-        for k, b in self.config.AllContainers.elements.items():
+        for k, b in list(self.config.AllContainers.elements.items()):
             if b.get_group() == self.getID() and b.isActive():
                 result.append(b)
         return result
@@ -4382,17 +4378,17 @@ class CheckPoint(Group):
             type = m.get_type()
             if type == 'dm':
                 try:
-                    value = float(data['dm_value_' + unicode(countdm)])
+                    value = float(data['dm_value_' + str(countdm)])
                 except:
                     tmp += self.config.getMessage('floatrules', lang) \
-                           + ' ' + data['dm_value_' + unicode(countdm)] + '\n'
+                           + ' ' + data['dm_value_' + str(countdm)] + '\n'
                 countdm += 1
             elif type == 'vm':
                 try:
-                    value = float(data['vm_quantity_' + unicode(countvm)])
+                    value = float(data['vm_quantity_' + str(countvm)])
                 except:
                     tmp += self.config.getMessage('floatrules', lang) \
-                           + ' ' + data['vm_quantity_' + unicode(countvm)] + '\n'
+                           + ' ' + data['vm_quantity_' + str(countvm)] + '\n'
                 countvm += 1
         if tmp == '':
             return True
@@ -4429,7 +4425,7 @@ class CheckPoint(Group):
         tmp['time'] = time
         tmp['active'] = '1'
         tmp['h_id'] = self.getID()
-        count = unicode(count)
+        count = str(count)
         if type == 'dm':
             tmp['component'] = batch
             tmp['origin'] = data['dm_id_' + count]
@@ -4478,10 +4474,10 @@ class CheckPoint(Group):
             tmpCode['object_type'] = type
             tmpCode['object_id'] = id
             tmpCode["user"] = user.fields['u_id']
-            writer = unicodecsv.DictWriter(csvfile,
-                                           delimiter='\t',
-                                           fieldnames=self.config
-                                           .findAllFromObject(self).fieldcontrols, encoding="utf-8")
+            writer = DictWriter(csvfile,
+                                delimiter='\t',
+                                fieldnames=self.config
+                                .findAllFromObject(self).fieldcontrols)
             writer.writerow(tmpCode)
 
     def get_hierarchy_dm(self, list=None, group=None):
@@ -4580,7 +4576,7 @@ class GrRecipe(Group):
         self.save(c, user)
 
     def proposedMemberAcronym(self, configuration):
-        prefix = self.fields['acronym'] + u"_" + useful.shortNow() + u"_"
+        prefix = self.fields['acronym'] + "_" + useful.shortNow() + "_"
         acro = configuration.AllBatches.findNextAcronym(prefix, len(prefix) + 2, 1)
         if acro:
             return acro
@@ -4596,7 +4592,7 @@ class GrRecipe(Group):
 
     def get_batches(self, c):
         result = []
-        for k, b in c.AllBatches.elements.items():
+        for k, b in list(c.AllBatches.elements.items()):
             if b.get_group() == self.getID() and b.isActive():
                 result.append(b)
         return c.AllBatches.sort_hierarchy_objects(result)
@@ -4617,7 +4613,7 @@ class GrFunction(Group):
 
     def get_user_group(self):
         listusers = []
-        for k, user in self.config.AllUsers.elements.items():
+        for k, user in list(self.config.AllUsers.elements.items()):
             if user.fields['gf_id'] in self.children \
                     or user.fields['gf_id'] == self.fields['gf_id']:
                 listusers.append(k)
@@ -4638,7 +4634,7 @@ class GrFunction(Group):
 
     def get_members(self):
         result = []
-        for k, b in self.config.AllUsers.elements.items():
+        for k, b in list(self.config.AllUsers.elements.items()):
             if b.get_group() == self.getID() and b.isActive():
                 result.append(b)
         return self.config.AllUsers.sort_hierarchy_objects(result)
@@ -4674,20 +4670,20 @@ class Place(ConfigurationObject):
         listSensor = []
         checklist = []
         checklist.append(['p', self.id])
-        for k, v in config.AllEquipments.elements.items():
+        for k, v in list(config.AllEquipments.elements.items()):
             transfer = v.get_last_transfer(config)
             if transfer is not None:
                 if transfer.fields['cont_type'] == 'e' \
                         and transfer.fields['cont_id'] == self.id:
                     checklist.append(['e', k])
-        for k, sensor in config.AllSensors.elements.items():
+        for k, sensor in list(config.AllSensors.elements.items()):
             for comp, id in checklist:
                 if sensor.is_in_component(comp, id):
                     listSensor.append(k)
         return listSensor
 
     def isAlarmed(self, c):
-        for kSensor, aSensor in c.AllSensors.elements.items():
+        for kSensor, aSensor in list(c.AllSensors.elements.items()):
             if aSensor.isAlarmed(c) and aSensor.is_in_component('p', self.id):
                 return True
         return False
@@ -4703,7 +4699,7 @@ class Place(ConfigurationObject):
 
     def get_batches(self, c):
         result = []
-        for k, b in c.AllBatches.elements.items():
+        for k, b in list(c.AllBatches.elements.items()):
             if b.isActive():
                 here,timestring = b.get_actual_position_here(c)
                 if here and (here.getTypeId() == self.getTypeId()):
@@ -4812,8 +4808,8 @@ class AlarmLog(ConfigurationObject):
             if data.placeImg.filename != '':
                 filepath = data.placeImg.filename.replace('\\', '/')
                 ext = ((filepath.split('/')[-1]).split('.')[-1])
-                if ext and ext.lower() in [u'jpg', u'jpeg', u'png']:
-                    with open(self.getImagePath(True, ext=("png" if ext.lower() == u"png" else u"jpg")), 'w') as fout:
+                if ext and ext.lower() in ['jpg', 'jpeg', 'png']:
+                    with open(self.getImagePath(True, ext=("png" if ext.lower() == "png" else "jpg")), 'w') as fout:
                         fout.write(data.placeImg.file.read())
         # linkedDocs is treated by caller because "web" object is needed...
 
@@ -4968,14 +4964,13 @@ class ExportData():
             csvfile.write('\n')
         for e in self.elements:
             with open(self.filename, 'a') as csvfile:
-                writer = unicodecsv.DictWriter(csvfile,
-                                               delimiter="\t",
-                                               fieldnames=self.fieldnames,
-                                               encoding="utf-8")
+                writer = DictWriter(csvfile,
+                                    delimiter="\t",
+                                    fieldnames=self.fieldnames)
                 writer.writerow(e)
 
     def add_value_from_sensors(self, infos):
-        for a in infos.keys():
+        for a in list(infos.keys()):
             if a in self.config.AllSensors.elements:
                 sensorDefinition = self.config.AllSensors.elements[a]
                 self.min = 99999999999
@@ -5362,9 +5357,9 @@ class Halfling(ConfigurationObject):
         if not glyph:
             return ""
         elif glyph[0] == "*" and len(glyph) > 1:
-            return glyph[1:].encode('ascii', 'xmlcharrefreplace')
+            return glyph[1:] #.encode('ascii', 'xmlcharrefreplace')
         else:
-            return  HALFLING_UNICODE[glyph].encode('ascii', 'xmlcharrefreplace')
+            return  HALFLING_UNICODE[glyph] #.encode('ascii', 'xmlcharrefreplace')
 
     def get_class_acronym(self):
         return 'halfling'
@@ -5423,11 +5418,11 @@ class Alarm(ConfigurationObject):
             if elem:
                 newFields['cont_type'] = elem.get_type()
                 newFields['cont_id'] = elem.getID()
-            newFields['value'] = unicode(alarmedObject.lastvalue)
+            newFields['value'] = str(alarmedObject.lastvalue)
             newFields['begintime'] = alarmedObject.time
-            newFields['typealarm'] = unicode(alarmedObject.actualAlarm)
-            newFields['degree'] = unicode(alarmedObject.degreeAlarm)
-            newFields['remark'] = unicode.format(mess,
+            newFields['typealarm'] = str(alarmedObject.actualAlarm)
+            newFields['degree'] = str(alarmedObject.degreeAlarm)
+            newFields['remark'] = str.format(mess,
                                                  config.HardConfig.hostname,
                                                  specmess,
                                                  cpe,
@@ -5438,7 +5433,7 @@ class Alarm(ConfigurationObject):
                                                  alarmedObject.getQtyUnit(config, lang),
                                                  alarmedObject.actualAlarm,
                                                  alarmedObject.time,
-                                                 unicode(alarmedObject.degreeAlarm))
+                                                 str(alarmedObject.degreeAlarm))
         elif alarmedObject.get_type() == 'd':
             mess = config.getMessage('alarmmanual', lang)
             elem = alarmedObject.get_component(config)
@@ -5447,10 +5442,10 @@ class Alarm(ConfigurationObject):
             if elem:
                 newFields['cont_type'] = elem.get_type()
                 newFields['cont_id'] = elem.getID()
-            newFields['value'] = unicode(alarmedObject.fields['value'])
-            newFields['typealarm'] = unicode(alarmedObject.actualAlarm)
+            newFields['value'] = str(alarmedObject.fields['value'])
+            newFields['typealarm'] = str(alarmedObject.actualAlarm)
             newFields['degree'] = '2'
-            newFields['remark'] = unicode.format(mess,
+            newFields['remark'] = str.format(mess,
                                                  config.HardConfig.hostname,
                                                  specmess,
                                                  name,
@@ -5469,9 +5464,9 @@ class Alarm(ConfigurationObject):
                 newFields['cont_type'] = compo.get_type()
                 newFields['cont_id'] = compo.getID()
             newFields['value'] = alarmedObject.get_quantity_string()
-            newFields['typealarm'] = unicode(alarmedObject.actualAlarm)
+            newFields['typealarm'] = str(alarmedObject.actualAlarm)
             newFields['degree'] = '2'
-            newFields['remark'] = unicode.format(mess,
+            newFields['remark'] = str.format(mess,
                                                  config.HardConfig.hostname,
                                                  specmess,
                                                  name,
@@ -5498,7 +5493,7 @@ class Alarm(ConfigurationObject):
             # TODO: check quantities and automate alarm launch...
             newFields['typealarm'] = 'typical'
             newFields['degree'] = '2'
-            newFields['remark'] = unicode.format(mess,
+            newFields['remark'] = str.format(mess,
                                                  config.HardConfig.hostname,
                                                  specmess,
                                                  elemout.getName(lang) if elemout else "",
@@ -5537,11 +5532,11 @@ class Alarm(ConfigurationObject):
                 elif alarmedObject.actualAlarm == 'none':
                     code = '???'
                     equal = '>'
-                return unicode.format(title,
+                return str.format(title,
                                       code,
-                                      unicode(alarmedObject.degreeAlarm),
+                                      str(alarmedObject.degreeAlarm),
                                       alarmedObject.fields['acronym'],
-                                      unicode(alarmedObject.lastvalue),
+                                      str(alarmedObject.lastvalue),
                                       equal,
                                       alarmedObject.fields[alarmedObject.actualAlarm],
                                       alarmedObject.get_unit(config),
@@ -5550,24 +5545,24 @@ class Alarm(ConfigurationObject):
                 title = config.getMessage('alarmmanualtitle', lang)
                 elem = config.get_object(
                     alarmedObject.fields['object_type'], alarmedObject.fields['object_id'])
-                return unicode.format(title,
+                return str.format(title,
                                       alarmedObject.getQtyUnit(config, lang),
                                       elem.getName(lang))
             elif alarmedObject.get_type() == 't':
                 title = config.getMessage('alarmmanualtitle', lang)
                 elem = config.get_object(
                     alarmedObject.fields['object_type'], alarmedObject.fields['object_id'])
-                return unicode.format(title,
+                return str.format(title,
                                       alarmedObject.getQtyUnit(config, lang),
                                       elem.getName(lang))
             elif alarmedObject.get_type() == 'v':
                 title = config.getMessage('alarmpouringtitle', lang)
                 elemin = config.AllBatches.elements[alarmedObject.fields['src']]
                 elemout = config.AllBatches.elements[alarmedObject.fields['dest']]
-                return unicode.format(title, elemout.fields['acronym'], elemout.getName(lang), elemin.fields['acronym'],
+                return str.format(title, elemout.fields['acronym'], elemout.getName(lang), elemin.fields['acronym'],
                                       elemin.getName(lang))
         except:
-            print alarmedObject.getTypeId()
+            print(alarmedObject.getTypeId())
             traceback.print_exc()
             return ""
 
@@ -5641,11 +5636,11 @@ class Alarm(ConfigurationObject):
         if alarmedObject.get_type() == 's':
             level = alarmedObject.degreeAlarm
             if level == 1:
-                alid = self.alarm_by_all(alarmedObject, u'o_sms1', u'o_email1', u'o_sound1', u'relay1_id' , u'relay1', config)
+                alid = self.alarm_by_all(alarmedObject, 'o_sms1', 'o_email1', 'o_sound1', 'relay1_id' , 'relay1', config)
             elif level == 2:
-                alid = self.alarm_by_all(alarmedObject, u'o_sms2', u'o_email2', u'o_sound2', u'relay2_id' , u'relay2', config)
+                alid = self.alarm_by_all(alarmedObject, 'o_sms2', 'o_email2', 'o_sound2', 'relay2_id' , 'relay2', config)
         elif alarmedObject.get_type() in TRANSACTION_TYPES:
-            alid = self.alarm_by_all(alarmedObject, u'o_sms2', u'o_email2', u'o_sound2', u'relay2_id' , u'relay2', config)
+            alid = self.alarm_by_all(alarmedObject, 'o_sms2', 'o_email2', 'o_sound2', 'relay2_id' , 'relay2', config)
         return alid
 
     def get_user_groups(self, model=None):
@@ -5663,7 +5658,7 @@ class Measure(ConfigurationObject):
 
     def __init__(self):
         ConfigurationObject.__init__(self)
-        self.sensors = sets.Set()
+        self.sensors = set()
 
     def __str__(self):
         string = "\nMeasure :"
@@ -5710,11 +5705,11 @@ class Measure(ConfigurationObject):
         max = self.fields['max']
         unit = self.fields['unit']
 
-        return (unicode(acr) + ' - '
+        return (str(acr) + ' - '
                 + name
                 + ': '
                 + min
-                + u' ±'
+                + ' ±'
                 + self.get_html_step()
                 + ' <= '
                 + max
@@ -5729,7 +5724,7 @@ class Measure(ConfigurationObject):
 
     def get_sensors_in_component(self, config):
         listSensor = []
-        for k, sensor in config.AllSensors.elements.items():
+        for k, sensor in list(config.AllSensors.elements.items()):
             if sensor.is_in_component('m', self.id):
                 listSensor.append(k)
         return listSensor
@@ -5742,9 +5737,9 @@ class Measure(ConfigurationObject):
         try:
             if 'formula' in data and len(data['formula']) > 0:
                 value = 1
-                owData = unicode(eval(data['formula']))
+                owData = str(eval(data['formula']))
                 value = 0
-                owData = unicode(eval(data['formula']))
+                owData = str(eval(data['formula']))
         except:
             tmp += configuration.getMessage('formularules', lang) + '\n'
 
@@ -5828,9 +5823,9 @@ class Sensor(AlarmingObject):
         string = "\nSensor :"
         for field in self.fields:
             string = string + "\n" + field + \
-                     " : " + unicode(self.fields[field])
+                     " : " + str(self.fields[field])
         string = string + ' Actual Alarm : ' + self.actualAlarm
-        string = string + ' Degree Alarm : ' + unicode(self.degreeAlarm)
+        string = string + ' Degree Alarm : ' + str(self.degreeAlarm)
         return string + "\n"
 
     def get_type(self):
@@ -5845,7 +5840,7 @@ class Sensor(AlarmingObject):
     def get_quantity_string(self):
         if self.lastvalue is None:
             return ""
-        return unicode(self.lastvalue)
+        return str(self.lastvalue)
 
     def getRRDName(self):
         name = 's_' + self.id
@@ -5912,8 +5907,8 @@ class Sensor(AlarmingObject):
                     alid = config.AllAlarms.elements[alarmCode].launch_alarm(self, config)
                 self.degreeAlarm = 4  # Do nothing after this!
         if alid:
-            print 'Alarm #' + alid + ' [' + self.actualAlarm + '] level ' + unicode(
-                    self.degreeAlarm) + ' for ' + self.__repr__()
+            print('Alarm #' + alid + ' [' + self.actualAlarm + '] level ' + str(
+                    self.degreeAlarm) + ' for ' + self.__repr__())
 
     def update(self, timestamp, value, config):
         self.lastvalue = value
@@ -5927,12 +5922,12 @@ class Sensor(AlarmingObject):
             # GMT + DST
             hours = (int(minutes / 60) % 24) + 100 + 2
             minutes = (minutes % 60) + 100
-            strnow = unicode(hours)[1:3] + ":" + unicode(minutes)[1:3]
+            strnow = str(hours)[1:3] + ":" + str(minutes)[1:3]
             pos = config.screen.show(config.screen.begScreen, strnow)
             pos = config.screen.showBW(pos + 2, self.get_acronym())
             pos = (config.screen
                    .show(pos + 2,
-                         unicode(round(float(value), 1))))
+                         str(round(float(value), 1))))
             unit_measure = self.get_unit(config)
             if unit_measure:
                 pos = config.screen.show(pos, unit_measure)
@@ -5948,7 +5943,7 @@ class Sensor(AlarmingObject):
         if not os.path.exists(filename):
             self.createRRD(now)
         rrdtool.update(str(filename), '%d:%f' % (now, value))
-        print self.getRRDName() + " " + useful.timestamp_to_ISO(now) + " " + '%d:%f' % (now, value)
+        print(self.getRRDName() + " " + useful.timestamp_to_ISO(now) + " " + '%d:%f' % (now, value))
 
     def fetchRRD(self, period=None):
         filename = str(DIR_RRD + self.getRRDName())
@@ -5964,28 +5959,28 @@ class Sensor(AlarmingObject):
             result = rrdtool.fetch(filename, 'LAST', "-s", start)
         start, end, step = result[0]
         rows = result[2]
-        out = u""
+        out = ""
         for a_value in rows:
             if a_value[0]:
                 a_date = datetime.datetime.fromtimestamp(start)
-                out += a_date.isoformat(sep=' ') + u"\t" + export_float(a_value[0]) + u"\n"
+                out += a_date.isoformat(sep=' ') + "\t" + export_float(a_value[0]) + "\n"
             start += step
         return out
 
     def loadRRD(self,config, inputFile):
         with open(inputFile,'rb') as csvfile:
-            # dialect = unicodecsv.Sniffer().sniff(csvfile.read(1024),delimiters="\t,;")
+            # dialect = csv.Sniffer().sniff(csvfile.read(1024),delimiters="\t,;")
             csvfile.seek(0)
-            reader = unicodecsv.reader(csvfile, delimiter="\t")
+            reader = DictReader(csvfile, delimiter="\t")
             for row in reader:
                 if len(row) >= 2 and row[0] and row[1]:
                     log_stamp = useful.date_to_timestamp(row[0].strip('"'))
                     if log_stamp:
                         self.update(log_stamp, float(row[1].strip('"')), config)
                     else:
-                        print (row[0]+u";"+row[1]+u" : invalid timestamp in first column")
+                        print((row[0]+";"+row[1]+" : invalid timestamp in first column"))
                 else:
-                    print (unicode(row)+u" : missing data in 1st or 2nd column")
+                    print((str(row)+" : missing data in 1st or 2nd column"))
 
     def createRRD(self,now=None):
         name = re.sub('[^\w]+', '', self.fields['acronym'])
@@ -6015,10 +6010,10 @@ class Sensor(AlarmingObject):
     def proc(self, config):
         if self.fields['proc']:
             try:
-                eval(u"self.proc_"+self.fields['proc']+u'(config)')
+                eval("self.proc_"+self.fields['proc']+'(config)')
             except:
                 traceback.print_exc()
-                print('Unable to call '+self.fields['proc']+' for sensor '+self.get_acronym())
+                print(('Unable to call '+self.fields['proc']+' for sensor '+self.get_acronym()))
 
     def proc_switch(self, config):
         output_gpio = getGPIO()
@@ -6041,13 +6036,13 @@ class Sensor(AlarmingObject):
                             bit = 1
                 output_gpio.write_pin(channel, bit)
             except IOError:
-                print('Unable to control output_device!' + ' channel : '
-                      + self.fields['param'])
+                print(('Unable to control output_device!' + ' channel : '
+                      + self.fields['param']))
 
     def proc_tap(self, config):
         # global currTap
         output_gpio = getGPIO()
-        print ("TAP val="+unicode(self.lastvalue))
+        print(("TAP val="+str(self.lastvalue)))
         if output_gpio:
             try:
                 params = self.fields['param'].split(',')
@@ -6077,7 +6072,7 @@ class Sensor(AlarmingObject):
                         now = useful.get_timestamp()
                         minute = (now % 3600) // 60
                         if (minute < hourlySliceBegin) or (minute > hourlySliceEnd):
-                            print ("valve "+self.get_acronym()+" must be closed now.")
+                            print(("valve "+self.get_acronym()+" must be closed now."))
                             self.lastvalue = 0.0
                             toSet = 0.0
                 if toSet != self.lastOutput:
@@ -6101,31 +6096,31 @@ class Sensor(AlarmingObject):
                         else:
                             channel = channelClose
                         bit = 0 if reversi else 1
-                        print ("TAP channel=" + unicode(channel)+" out="+unicode(bit))
+                        print(("TAP channel=" + str(channel)+" out="+str(bit)))
                         output_gpio.write_pin(channel, bit)
                         time.sleep(moveDelay / 1000.0 ) #Milliseconds...
                         bit = 1 if reversi else 0
-                        print ("TAP channel=" + unicode(channel)+" out="+unicode(bit))
+                        print(("TAP channel=" + str(channel)+" out="+str(bit)))
                         output_gpio.write_pin(channel, bit)
                     if enabler:
                         time.sleep(0.01 )
                         output_gpio.write_pin(enabler, 0)
             except IOError:
-                print('Unable to control output_device!' + ' channels : '
-                      + self.fields['param'])
+                print(('Unable to control output_device!' + ' channels : '
+                      + self.fields['param']))
 
     def proc_http(self, config):
         url = self.fields['param']
         if url:
             sensorfile = None
-            control = u"!s"+self.get_acronym()+unicode(self.lastvalue)
+            control = "!s"+self.get_acronym()+str(self.lastvalue)
             try:  # urlopen not usable with "with"
-                url = url % (unicode(self.lastvalue), unicode(useful.checksum(control)))
+                url = url % (str(self.lastvalue), str(useful.checksum(control)))
                 self.lastOutput = self.lastvalue
-                sensorfile = urllib2.urlopen(url, None, 20)
+                sensorfile = urllib.request.urlopen(url, None, 20)
             except:
-                debugging = u"URL=" + (url if url else "") + \
-                            u", Message=" + traceback.format_exc()
+                debugging = "URL=" + (url if url else "") + \
+                            ", Message=" + traceback.format_exc()
             if sensorfile:
                 sensorfile.close()
 
@@ -6138,10 +6133,10 @@ class Sensor(AlarmingObject):
             output_gpio = getGPIO()
             output_gpio.set_pin_direction(int(output['channel']), 0)
         except IOError:
-            print('Unable to control output_device!' + ' channel : '
+            print(('Unable to control output_device!' + ' channel : '
                   + self.fields['channel']
                   + ', i2c address : '
-                  + output_device['i2c'])
+                  + output_device['i2c']))
             return None
 
         try:
@@ -6152,10 +6147,10 @@ class Sensor(AlarmingObject):
                                   int(input_device['i2c'], 16) + 1,
                                   int(input['resolution']))
         except IOError:
-            print('Unable to read sensor !' + ' channel : '
+            print(('Unable to read sensor !' + ' channel : '
                   + self.fields['channel']
                   + ', i2c address : '
-                  + input_device['i2c'])
+                  + input_device['i2c']))
             return None
         # TODO: manage invertion for output
         # Stimulate
@@ -6178,9 +6173,9 @@ class Sensor(AlarmingObject):
         Rounds to the value of 'step'.
         If outside of 'min' - 'max', returns None
         '''
-        if type(value) not in (float, int, long, bool):
-            print('Received non number sensor reding for channel '
-                  + self.fields['channel'] + '. Ignoring.')
+        if type(value) not in (float, int, int, bool):
+            print(('Received non number sensor reding for channel '
+                  + self.fields['channel'] + '. Ignoring.'))
             return None
         measure = self.get_measure(config)
         minimum = int(measure.fields['min'])
@@ -6190,8 +6185,8 @@ class Sensor(AlarmingObject):
         if (minimum <= value <= maximum):
             return round(value, step)
         else:
-            print('Ignoring value of ' + self.fields['channel'] + ' with value '
-                  + unicode(value) + ' because it is out of bounds')
+            print(('Ignoring value of ' + self.fields['channel'] + ' with value '
+                  + str(value) + ' because it is out of bounds'))
             return None
 
     def get_value_sensor(self, config, timestamp, cache=None):
@@ -6211,7 +6206,7 @@ class Sensor(AlarmingObject):
             return val
 
         def cleaned(info):
-            return unicode(info).strip('\r\n \'\"\t')
+            return str(info).strip('\r\n \'\"\t')
 
         def parse_atmos_data(self, input):
             '''
@@ -6225,21 +6220,21 @@ class Sensor(AlarmingObject):
                           re.split("([+,-])", input.strip())[1:], [])
 
         output_val = None
-        debugging = u""
+        debugging = ""
         if not self.fields['channel'] :
             return None, None
         elif self.fields['channel'] == 'wire':
             if config.owproxy:
                 if not self.isSleeping():
                     try:
-                        sensorAdress = u'/' + \
-                                       unicode(self.fields['sensor']) + u'/' + \
-                                       unicode(self.fields['subsensor'])
+                        sensorAdress = '/' + \
+                                       str(self.fields['sensor']) + '/' + \
+                                       str(self.fields['subsensor'])
                         output_val = float(config.owproxy.read(sensorAdress))
                         config.set_channel_access('wire', self.fields['sensor'][:14], 0, timestamp)
                     except:
-                        debugging = (u"Device=" + sensorAdress
-                                     + u", Message="
+                        debugging = ("Device=" + sensorAdress
+                                     + ", Message="
                                      + traceback.format_exc())
 
                 if self.fields['sensor'][:2] == '21': # ThermoChron
@@ -6248,10 +6243,10 @@ class Sensor(AlarmingObject):
                         MissionRecorded = False
                         alreadyStarted = False # running is not immediately set to 1...
                         try:
-                            sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/clock/running'
+                            sensorAdress = '/' + str(self.fields['sensor']) + '/clock/running'
                             log_clock_running = int(config.owproxy.read(sensorAdress))
                             if not self.isSleeping() and not log_clock_running:
-                                print (sensorAdress+" Start Clock")
+                                print((sensorAdress+" Start Clock"))
                                 status = config.owproxy.write(sensorAdress, b'1')
                                 log_clock_running = int(config.owproxy.read(sensorAdress))
 
@@ -6264,23 +6259,23 @@ class Sensor(AlarmingObject):
                             #     status = config.owproxy.write(sensorAdress, b'1')
 
                             if log_clock_running:
-                                sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/clock/udate'
+                                sensorAdress = '/' + str(self.fields['sensor']) + '/clock/udate'
                                 log_clock = int(config.owproxy.read(sensorAdress))
                                 if log_clock != timestamp:
-                                    sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/clock/date'
+                                    sensorAdress = '/' + str(self.fields['sensor']) + '/clock/date'
                                     status = config.owproxy.write(sensorAdress,b'')
-                                    sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/clock/udate'
+                                    sensorAdress = '/' + str(self.fields['sensor']) + '/clock/udate'
                                     log_clock = int(config.owproxy.read(sensorAdress))
-                                    print (sensorAdress + u" RESYNC to " + unicode(log_clock))
+                                    print((sensorAdress + " RESYNC to " + str(log_clock)))
                         except:
-                            debugging = (u"Device=" + sensorAdress
-                                         + u", message="
+                            debugging = ("Device=" + sensorAdress
+                                         + ", message="
                                          + traceback.format_exc())
-                        sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/log/elements'
+                        sensorAdress = '/' + str(self.fields['sensor']) + '/log/elements'
                         log_elements = int(config.owproxy.read(sensorAdress))
                         if log_elements and log_elements > 0:
-                            print (sensorAdress+u"="+unicode(log_elements))
-                            sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/log/udate.' + unicode(log_elements-1)
+                            print((sensorAdress+"="+str(log_elements)))
+                            sensorAdress = '/' + str(self.fields['sensor']) + '/log/udate.' + str(log_elements-1)
                             log_mission = int(config.owproxy.read(sensorAdress))
                             if log_mission:
                                 if self.lastMission:
@@ -6288,48 +6283,48 @@ class Sensor(AlarmingObject):
                                          MissionRecorded = True
                                 if not MissionRecorded:
                                     self.lastMission = log_mission
-                                    sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/log/temperature.ALL'
+                                    sensorAdress = '/' + str(self.fields['sensor']) + '/log/temperature.ALL'
                                     log_temp = config.owproxy.read(sensorAdress).replace(' ','').split(',')
-                                    sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/log/udate.ALL'
+                                    sensorAdress = '/' + str(self.fields['sensor']) + '/log/udate.ALL'
                                     log_udate = config.owproxy.read(sensorAdress).replace(' ','').split(',')
                                     i = 0
                                     for temp in log_temp:
                                         if temp:
                                             log_stamp = int(log_udate[i])
                                             if not log_stamp or (log_stamp > timestamp):
-                                                print (unicode(log_stamp)+u" is in the future!")
+                                                print((str(log_stamp)+" is in the future!"))
                                             else:
                                                 try:
                                                     self.update(log_stamp, float(temp), config)
                                                 except:
-                                                    pass # Il est possible que certaines valeurs entrent en conflit avec des valeurs déjà présentes
+                                                    traceback.print_exc() # Il est possible que certaines valeurs entrent en conflit avec des valeurs déjà présentes
                                         i += 1
                                         if i >= log_elements:
                                             break
-                                    print (sensorAdress + u" RECORDED, iButton has to be remissionned.")
-                                    sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/mission/frequency'
+                                    print((sensorAdress + " RECORDED, iButton has to be remissionned."))
+                                    sensorAdress = '/' + str(self.fields['sensor']) + '/mission/frequency'
                                     status = config.owproxy.write(sensorAdress, b'1') # sampling every minutes = 33 hours capacity...
-                                    sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/mission/easystart'
+                                    sensorAdress = '/' + str(self.fields['sensor']) + '/mission/easystart'
                                     status = config.owproxy.write(sensorAdress, b'1')
                                     alreadyStarted = True
                         if self.isSleeping():
-                            print (sensorAdress+" STOP Mission and Clock")
-                            sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/mission/running'
+                            print((sensorAdress+" STOP Mission and Clock"))
+                            sensorAdress = '/' + str(self.fields['sensor']) + '/mission/running'
                             status = config.owproxy.write(sensorAdress, b'0')
-                            sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/clock/running'
+                            sensorAdress = '/' + str(self.fields['sensor']) + '/clock/running'
                             status = config.owproxy.write(sensorAdress, b'0')
                         elif not alreadyStarted: # "easystart" is the only way to start
-                            sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/mission/running'
+                            sensorAdress = '/' + str(self.fields['sensor']) + '/mission/running'
                             log_mission_running = int(config.owproxy.read(sensorAdress))
                             if not log_mission_running:
-                                print (sensorAdress + u" START.")
-                                sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/mission/frequency'
+                                print((sensorAdress + " START."))
+                                sensorAdress = '/' + str(self.fields['sensor']) + '/mission/frequency'
                                 status = config.owproxy.write(sensorAdress, b'1') # sampling every minutes = 33 hours capacity...
-                                sensorAdress = u'/' + unicode(self.fields['sensor']) + u'/mission/easystart'
+                                sensorAdress = '/' + str(self.fields['sensor']) + '/mission/easystart'
                                 status = config.owproxy.write(sensorAdress, b'1')
                     except:
-                        debugging = (u"Device=" + sensorAdress
-                                     + u", Message="
+                        debugging = ("Device=" + sensorAdress
+                                     + ", Message="
                                      + traceback.format_exc())
         elif self.fields['channel'] == 'radio':
             # Look at RadioThread
@@ -6345,8 +6340,8 @@ class Sensor(AlarmingObject):
                         info = sensorfile.read()
                         output_val = float(info) / 1000.0
                 except:
-                     debugging = (u"File=/sys/class/thermal/thermal_zone0/temp"
-                                     + u", Message="
+                     debugging = ("File=/sys/class/thermal/thermal_zone0/temp"
+                                     + ", Message="
                                      + traceback.format_exc())
                      traceback.print_exc()
         elif self.fields['channel'] == 'http':
@@ -6358,28 +6353,28 @@ class Sensor(AlarmingObject):
                     try:
                         output_val = eval(self.fields['subsensor'])
                     except:
-                        debugging = (u"URL=" + url
-                                     + u", code="
-                                     + unicode(code)
-                                     + u", Response="
-                                     + unicode(info)
-                                     + u", Subsensor="
+                        debugging = ("URL=" + url
+                                     + ", code="
+                                     + str(code)
+                                     + ", Response="
+                                     + str(info)
+                                     + ", Subsensor="
                                      + self.fields['subsensor']
-                                     + u", Message="
+                                     + ", Message="
                                      + traceback.format_exc())
                         traceback.print_exc()
                 else:
                     sensorfile = None
                     try:  # urlopen not usable with "with"
-                        sensorfile = urllib2.urlopen(self.fields['sensor'], None, 20)
+                        sensorfile = urllib.request.urlopen(self.fields['sensor'], None, 20)
                         info = sensorfile.read(80000)
                         cache = info
                         output_val = eval(self.fields['subsensor'])
                         config.set_channel_access('http', self.fields['sensor'], 0, timestamp)
                     except:
-                        debugging = u"URL=" + (url if url else "") + u", code=" + \
-                                    (unicode(code) if code else "") + u", Response=" + (info if info else "") + \
-                                    u", Message=" + traceback.format_exc()
+                        debugging = "URL=" + (url if url else "") + ", code=" + \
+                                    (str(code) if code else "") + ", Response=" + (info if info else "") + \
+                                    ", Message=" + traceback.format_exc()
                     if sensorfile:
                         sensorfile.close()
         elif self.fields['channel'] == 'json':
@@ -6391,20 +6386,20 @@ class Sensor(AlarmingObject):
                     try:
                         output_val = eval(self.fields['subsensor'])
                     except:
-                        debugging = (u"URL=" + url
-                                     + u", code="
-                                     + unicode(code)
-                                     + u", Response="
-                                     + unicode(info)
-                                     + u", Subsensor="
+                        debugging = ("URL=" + url
+                                     + ", code="
+                                     + str(code)
+                                     + ", Response="
+                                     + str(info)
+                                     + ", Subsensor="
                                      + self.fields['subsensor']
-                                     + u", Message="
+                                     + ", Message="
                                      + traceback.format_exc())
                         traceback.print_exc()
                 else:
                     sensorfile = None
                     try:  # urlopen not compatible with "with"
-                        sensorfile = urllib2.urlopen(self.fields['sensor'], None, 20)
+                        sensorfile = urllib.request.urlopen(self.fields['sensor'], None, 20)
                         # print sensorfile.getcode()
                         info = sensorfile.read()
                         info = json.loads(info)
@@ -6412,14 +6407,14 @@ class Sensor(AlarmingObject):
                         output_val = eval(self.fields['subsensor'])
                         config.set_channel_access('json', self.fields['sensor'], 0, timestamp)
                     except:
-                        debugging = (u"URL=" + (url if url else "")
-                                     + u", code="
-                                     + (unicode(code) if code else "")
-                                     + u", Response="
-                                     + (unicode(info) if info else "")
-                                     + u", Subsensor="
+                        debugging = ("URL=" + (url if url else "")
+                                     + ", code="
+                                     + (str(code) if code else "")
+                                     + ", Response="
+                                     + (str(info) if info else "")
+                                     + ", Subsensor="
                                      + (self.fields['subsensor'] if self.fields['subsensor'] else "")
-                                     + u", Message="
+                                     + ", Message="
                                      + traceback.format_exc())
                     if sensorfile:
                         sensorfile.close()
@@ -6432,9 +6427,9 @@ class Sensor(AlarmingObject):
                         info = sensorfile.read()
                         output_val = eval(self.fields['subsensor'])
                 except:
-                    debugging = u"Device=" + sensorAdress + u", field=" + \
-                                self.fields['subsensor'] + u", data=" + \
-                                unicode(info) + u", Message=" + traceback.format_exc()
+                    debugging = "Device=" + sensorAdress + ", field=" + \
+                                self.fields['subsensor'] + ", data=" + \
+                                str(info) + ", Message=" + traceback.format_exc()
         elif self.fields['channel'] == 'battery':
             if not self.isSleeping():
                 if 'battery' in config.HardConfig.inputs:
@@ -6498,12 +6493,12 @@ class Sensor(AlarmingObject):
                 except ValueError:
                     print('Subsensor should be a number')
                 except IndexError:
-                    print('Subsensor for atmos is out of range: '
+                    print(('Subsensor for atmos is out of range: '
                           + self.fields['subsensor']
-                          + '. Range starts at 0')
+                          + '. Range starts at 0'))
         else:
             if not self.isSleeping():
-                print('Error: no sensor channel for ' + self.fields['channel'])
+                print(('Error: no sensor channel for ' + self.fields['channel']))
             return None, None
 
         if (debugging != ''):
@@ -6513,9 +6508,9 @@ class Sensor(AlarmingObject):
                 assert output_val != None
             except AssertionError:
                 if self.fields['channel'] not in  ['radio','lora']:
-                    print("Channel "
+                    print(("Channel "
                           + self.fields['channel']
-                          + ' cannot be read. Ignoring.')
+                          + ' cannot be read. Ignoring.'))
                 return None, None
             else:
                 try:
@@ -6525,16 +6520,16 @@ class Sensor(AlarmingObject):
                     else:
                         output_val = value
                 except:
-                    print(u"Device=" + self.fields['sensor'] + u" / " + self.fields['subsensor'] + \
-                          u", Formula=" + self.fields['formula'] + \
-                          u", Message=" + traceback.format_exc())
+                    print(("Device=" + self.fields['sensor'] + " / " + self.fields['subsensor'] + \
+                          ", Formula=" + self.fields['formula'] + \
+                          ", Message=" + traceback.format_exc()))
                 return self.sanitize_reading(config, output_val), cache
         return None, None
 
     def count_logs(self, c):
         count = 0
         sID = self.getID()
-        for kal, e in c.AllAlarmLogs.elements.items():
+        for kal, e in list(c.AllAlarmLogs.elements.items()):
             if (sID == e.fields['s_id']) and ((e.fields['s_type'] == 's') or (e.fields['s_type'] == '')):
                 count += 1
         return count
@@ -6583,10 +6578,10 @@ class Sensor(AlarmingObject):
                                                      'AVERAGE', '-a', '-s', str(int(start)),
                                                      '-e', str(int(end)))
                 ts_start, ts_end, ts_res = time_span
-                times = range(ts_start, ts_end, ts_res)
-                return zip(times, values)
+                times = list(range(ts_start, ts_end, ts_res))
+                return list(zip(times, values))
             except:
-                print self.getRRDName()
+                print(self.getRRDName())
                 traceback.print_exc()
                 return None
         return None
@@ -6599,9 +6594,9 @@ class Sensor(AlarmingObject):
         try:
             if 'formula' in data and len(data['formula']) > 0:
                 value = 1
-                owData = unicode(eval(data['formula']))
+                owData = str(eval(data['formula']))
                 value = 0
-                owData = unicode(eval(data['formula']))
+                owData = str(eval(data['formula']))
         except:
             tmp += configuration.getMessage('formularules', lang) + '\n'
 
@@ -6996,7 +6991,7 @@ class Batch(ConfigurationObject):
     def count_logs(self, c):
         count = 0
         bID = self.getID()
-        for kal, e in c.AllAlarmLogs.elements.items():
+        for kal, e in list(c.AllAlarmLogs.elements.items()):
             if (bID == e.fields['cont_id']) and (e.fields['cont_type'] == 'b'):
                 count += 1
         return count
@@ -7281,9 +7276,9 @@ class Transfer(AlarmingObject):
 
     def get_quantity_string(self):
         if self.completed:
-            return unicode(int(
+            return str(int(
                 (useful.string_to_date(self.completed) - useful.string_to_date(self.getTimestring())).total_seconds()))
-        return unicode(
+        return str(
             int((useful.string_to_date(useful.now()) - useful.string_to_date(self.getTimestring())).total_seconds()))
 
     def get_planned_duration(self, c):

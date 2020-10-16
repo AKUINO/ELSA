@@ -13,7 +13,7 @@ When writing to or reading from a port the least significant bit represents
 the lowest numbered pin on the selected port.
 """
 try:
-    import smbus
+    from smbus2 import SMBus
 except ImportError:
     raise ImportError("python-smbus not found")
 import re
@@ -163,9 +163,9 @@ class IOPi(object):
                             i2c__bus = 1
                         break
         try:
-            return smbus.SMBus(i2c__bus)
+            return SMBus(i2c__bus)
         except IOError:
-            raise 'Could not open the i2c bus'
+            raise ValueError('Could not open the i2c bus')
 
     @staticmethod
     def __checkbit(byte, bit):

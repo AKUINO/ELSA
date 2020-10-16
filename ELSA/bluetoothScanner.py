@@ -5,7 +5,7 @@ import select
 import re
 import traceback
 import threading
-from ConfigurationELSA import AllScanners, Scanner
+from .ConfigurationELSA import AllScanners, Scanner
 
 SCAN_SECONDS = 60
 
@@ -60,7 +60,7 @@ class bluetoothScanner():
                         self.toBePaired = currScanner
                         self.handle.stdin.write(
                             "agent on\npair "+currScanner.mac+"\n")
-                        print "Pairing "+str(currScanner)
+                        print("Pairing "+str(currScanner))
                         break
                 else:
                     found = self.toBePaired == currScanner
@@ -68,7 +68,7 @@ class bluetoothScanner():
 
     def connect(self, scanner):
         if self.handle and scanner:
-            print "connect "+scanner.mac
+            print("connect "+scanner.mac)
             self.handle.stdin.write("connect "+scanner.mac+"\n")
             scanner.last = datetime.datetime.now()
 
@@ -88,8 +88,8 @@ class bluetoothScanner():
             currScanner = self.config.AllScanners.elements[aScanner]
             if currScanner.paired:
                 self.screen.draw.text((4, self.screen.linePos+1),
-                                      str(currScanner.rank)+u"#"
-                                      + str(currScanner.id)+u": "
+                                      str(currScanner.rank)+"#"
+                                      + str(currScanner.id)+": "
                                       + currScanner.mac, font=self.screen.font,
                                       fill=255)
                 self.screen.linePos += self.screen.lineHeight
@@ -125,41 +125,41 @@ class bluetoothScanner():
                 for line in lines:
                     lineP = line.split(' ')
                     if len(lineP) >= 3:
-                        print unicode(line)
+                        print(str(line))
                         pref = lineP[0]
                         if pref == "[agent]":
                             if self.toBePaired and (line.find("PIN") > 0):
                                 self.handle.stdin.write(
                                     self.toBePaired.fields['PIN']+"\ntrust "+self.toBePaired.mac+"\n")
-                                print "PIN="+self.toBePaired.fields['PIN']
+                                print("PIN="+self.toBePaired.fields['PIN'])
                             self.pairingNextDevice()
                         elif lineP[1] == "Device":
                             key = self.config.AllScanners.makeKey(lineP[2])
-                            status = u"unknown"
+                            status = "unknown"
                             if key in self.config.AllScanners.elements:
                                 currScanner = self.config.AllScanners.elements[key]
                                 if pref == "[NEW]":
                                     currScanner.there = True
-                                    status = u"there"
+                                    status = "there"
                                     self.connect(currScanner)
                                 elif pref == "[DEL]":
                                     currScanner.there = False
-                                    status = u"gone"
+                                    status = "gone"
                                 elif pref == "[CHG]":
                                     currScanner.there = True
-                                    status = u"changing"
+                                    status = "changing"
                                     if line.find("Connected: yes") >= 0:
-                                        status = u"connected"
+                                        status = "connected"
                                         self.screen.newConnect = True
                                         currScanner.paired = True
                                     else:
                                         self.connect(currScanner)
                                     # RSSI: value Connected: yes...
                                 currScanner.last = now
-                            print "Scanner "+str(key)+" is "+status
+                            print("Scanner "+str(key)+" is "+status)
                         elif lineP[0] == "Device":
                             key = self.config.AllScanners.makeKey(lineP[1])
-                            status = u"unknown"
+                            status = "unknown"
                             if key in self.config.AllScanners.elements:
                                 currScanner = self.config.AllScanners.elements[key]
                                 currScanner.there = True
@@ -169,10 +169,10 @@ class bluetoothScanner():
                                     status = "paired"
                                     currScanner.paired = True
                                 elif line.find("Connected: yes") >= 0:
-                                    status = u"connected"
+                                    status = "connected"
                                     self.screen.newConnect = True
                                     currScanner.paired = True
-                            print "Scanner "+str(key)+" "+status+"..."
+                            print("Scanner "+str(key)+" "+status+"...")
             else:
                 for aScanner in self.config.AllScanners.elements:
                     currScanner = self.config.AllScanners.elements[aScanner]

@@ -21,7 +21,7 @@
 
 import operator
 
-import GPIO
+from . import GPIO
 
 
 MSBFIRST = 0

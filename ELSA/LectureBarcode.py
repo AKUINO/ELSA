@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from ConfigurationELSA import *
+from .ConfigurationELSA import *
 import datetime
 import time
-from bluetoothScanner import *
+from .bluetoothScanner import *
 
 un_log = "1007"
 
@@ -54,15 +54,15 @@ class BarcodeReader():
             barcodeClass = self.c.barcode[i].__class__
             if(barcodeClass == User):
                 self.user = self.c.barcode[i]
-                print "User logged : " + self.user.fields['name'] + "\n"
-                strid = u"Utilisateur"
+                print("User logged : " + self.user.fields['name'] + "\n")
+                strid = "Utilisateur"
                 screen.draw.text(
                     (4, screen.linePos+1), self.user.fields['name'], font=screen.font, fill=255)
                 screen.linePos += screen.lineHeight
             if(barcodeClass == Measure and self.user != ""):
                 self.user.context.measure = self.c.barcode[i]
-                print "Measure scanned : " + self.user.context.measure.fields['name'] + "\n"
-                strid = u"Mesure"
+                print("Measure scanned : " + self.user.context.measure.fields['name'] + "\n")
+                strid = "Mesure"
                 if (self.currBatch != ""):
                     self.currBatch.measure = self.user.context.measure
                 screen.draw.text(
@@ -70,103 +70,103 @@ class BarcodeReader():
                 screen.linePos += screen.lineHeight
             if(barcodeClass == Equipment and self.user != ""):
                 self.user.context.equipment = self.c.barcode[i]
-                print "Equipment scanned : " + self.user.context.equipment.fields['name'] + "\n"
-                strid = u"Equipement"
+                print("Equipment scanned : " + self.user.context.equipment.fields['name'] + "\n")
+                strid = "Equipement"
                 screen.draw.text(
                     (4, screen.linePos+1), self.user.context.equipment.fields['name'], font=screen.font, fill=255)
                 screen.linePos += screen.lineHeight
             if(barcodeClass == Piece and self.user != ""):
                 self.user.context.piece = self.c.barcode[i]
-                print "Piece scanned : " + self.user.context.piece.fields['name'] + "\n"
+                print("Piece scanned : " + self.user.context.piece.fields['name'] + "\n")
                 strid = "Pièce"
                 screen.draw.text(
                     (4, screen.linePos+1), self.user.context.piece.fields['name'], font=screen.font, fill=255)
                 screen.linePos += screen.lineHeight
             if(barcodeClass == Phase and self.user != ""):
                 self.user.context.phase = self.c.barcode[i]
-                print "Phase scanned : " + self.user.context.phase.fields['name'] + "\n"
+                print("Phase scanned : " + self.user.context.phase.fields['name'] + "\n")
                 strid = "Phase"
                 screen.draw.text(
                     (4, screen.linePos+1), self.user.context.phase.fields['name'], font=screen.font, fill=255)
                 screen.linePos += screen.lineHeight
             if(barcodeClass == Barcode and self.user != ""):
-                print "Barcode special !"
+                print("Barcode special !")
                 special = self.c.barcode[i].fields['k_id']
                 if(special == un_log):
-                    print "Delog\n"
+                    print("Delog\n")
                     self.user = ""
                     screen.draw.text(
-                        (4, screen.linePos+1), u"SANS Utilisateur", font=screen.font, fill=255)
+                        (4, screen.linePos+1), "SANS Utilisateur", font=screen.font, fill=255)
                     screen.linePos += screen.lineHeight
                 elif(special == un_equip):
-                    print "Equip out\n"
+                    print("Equip out\n")
                     self.user.context.equipment = ""
                     screen.draw.text(
-                        (4, screen.linePos+1), u"SANS Equipement", font=screen.font, fill=255)
+                        (4, screen.linePos+1), "SANS Equipement", font=screen.font, fill=255)
                     screen.linePos += screen.lineHeight
                 elif(special == un_piece):
-                    print "Piece out\n"
+                    print("Piece out\n")
                     self.user.context.piece = ""
                     screen.draw.text((4, screen.linePos+1),
-                                     u"SANS Piece", font=screen.font, fill=255)
+                                     "SANS Piece", font=screen.font, fill=255)
                     screen.linePos += screen.lineHeight
                 elif(special == un_measure):
-                    print "Measure out\n"
+                    print("Measure out\n")
                     self.user.context.measure = ""
                     screen.draw.text((4, screen.linePos+1),
-                                     u"SANS Mesure", font=screen.font, fill=255)
+                                     "SANS Mesure", font=screen.font, fill=255)
                     screen.linePos += screen.lineHeight
                 elif(special == un_phase):
-                    print "Phase out\n"
+                    print("Phase out\n")
                     self.user.context.phase = ""
                     screen.draw.text((4, screen.linePos+1),
-                                     u"SANS Phase", font=screen.font, fill=255)
+                                     "SANS Phase", font=screen.font, fill=255)
                     screen.linePos += screen.lineHeight
                 elif(special == un_bluescan):
-                    print "Scan Bluetooth PicoNet\n"
+                    print("Scan Bluetooth PicoNet\n")
                     screen.draw.text(
-                        (4, screen.linePos+1), u"Bluetooth Pairing", font=screen.font, fill=255)
+                        (4, screen.linePos+1), "Bluetooth Pairing", font=screen.font, fill=255)
                     screen.linePos += screen.lineHeight
                     bluetooth.rePairingDevice()
                 elif(special == un_bluelist):
-                    print "List Bluetooth Configured Devices\n"
+                    print("List Bluetooth Configured Devices\n")
                     strid = "Bluetooth"
                     bluetooth.list()
                 elif(int(special) < 1000):
                     if (self.user.context.measure and self.user.context.measure.fields['source'] == "scan"):
                         # print "Number : " + self.c.barcode[i].fields['k_id'] + "\n"
                         self.user.context.number = self.c.barcode[i].fields['k_id']
-                        print "Number : " + self.user.context.number + "\n"
+                        print("Number : " + self.user.context.number + "\n")
                         if self.currBatch:
                             for stepvalue in self.currBatch.stepValues:
                                 stepVal = self.currBatch.stepValues[stepvalue]
-                                print stepVal.measure.fields['m_id']+u"=?="+str(self.user.context.measure.fields['m_id'])
+                                print(stepVal.measure.fields['m_id']+"=?="+str(self.user.context.measure.fields['m_id']))
                                 if stepVal.measure.fields['m_id'] == self.user.context.measure.fields['m_id']:
                                     stepVal.total = float(
                                         self.c.barcode[i].fields['k_id'])
                                     stepVal.number = 1.0
                                     screen.draw.text(
-                                        (4, screen.linePos+1), u"Mesure "+stepVal.measure.fields['name'], font=screen.font, fill=255)
+                                        (4, screen.linePos+1), "Mesure "+stepVal.measure.fields['name'], font=screen.font, fill=255)
                                     screen.linePos += screen.lineHeight
                                     screen.draw.text(
-                                        (4, screen.linePos+1), u" = "+str(stepVal.total), font=screen.font, fill=255)
+                                        (4, screen.linePos+1), " = "+str(stepVal.total), font=screen.font, fill=255)
                                     screen.linePos += screen.lineHeight
                         else:
                             screen.draw.text(
-                                (4, screen.linePos+1), u"Scanner un Lot !", font=screen.font, fill=255)
+                                (4, screen.linePos+1), "Scanner un Lot !", font=screen.font, fill=255)
                             screen.linePos += screen.lineHeight
                     else:
-                        print "Wrong context\n"
+                        print("Wrong context\n")
                         screen.draw.text(
-                            (4, screen.linePos+1), u"Mauvais Code", font=screen.font, fill=255)
+                            (4, screen.linePos+1), "Mauvais Code", font=screen.font, fill=255)
                         screen.linePos += screen.lineHeight
             if(barcodeClass == Batch and self.user != ""):
                 self.user.context.batch = self.c.barcode[i]
                 self.currBatch = self.c.barcode[i]
-                screen.draw.text((4, screen.linePos+1), u"Lot=" +
+                screen.draw.text((4, screen.linePos+1), "Lot=" +
                                  self.currBatch.fields['name'], font=screen.font, fill=255)
                 screen.linePos += screen.lineHeight
-                print self.currBatch.fields['name']
+                print(self.currBatch.fields['name'])
                 self.currBatch.endStep()
                 if self.user.context.piece != "":
                     piece = self.user.context.piece
@@ -194,18 +194,18 @@ class BarcodeReader():
                     number = self.user.context.number
                 else:
                     number = ""
-                posit = piecei+u"/"+equipmenti+u"/"+phasei
-                print u"Searching ["+posit+u"]"
+                posit = piecei+"/"+equipmenti+"/"+phasei
+                print("Searching ["+posit+"]")
                 if piece:
-                    screen.draw.text((4, screen.linePos+1), u"Piece=" +
+                    screen.draw.text((4, screen.linePos+1), "Piece=" +
                                      piece.fields['name'], font=screen.font, fill=255)
                     screen.linePos += screen.lineHeight
                 if equipment:
-                    screen.draw.text((4, screen.linePos+1), u"Equip=" +
+                    screen.draw.text((4, screen.linePos+1), "Equip=" +
                                      equipment.fields['name'], font=screen.font, fill=255)
                     screen.linePos += screen.lineHeight
                 if phase:
-                    screen.draw.text((4, screen.linePos+1), u"Phase=" +
+                    screen.draw.text((4, screen.linePos+1), "Phase=" +
                                      phase.fields['name'], font=screen.font, fill=255)
                     screen.linePos += screen.lineHeight
                 recipeSteps = self.c.AllRecipes.elements[self.user.context.batch.fields['r_id']].AllSteps.elements
@@ -224,9 +224,9 @@ class BarcodeReader():
                             if(self.currBatch.oldSeq == 0):
                                 self.currBatch.oldSeq = int(
                                     self.currBatch.currStep.fields['seq'])
-                            print u"Found="+self.currBatch.currStep.fields['seq']
+                            print("Found="+self.currBatch.currStep.fields['seq'])
                         else:
-                            print "On ne peut pas reculer dans les etapes..."
+                            print("On ne peut pas reculer dans les etapes...")
                             self.currBatch.oldSeq = int(
                                 self.currBatch.currStep.fields['seq'])
                             self.currBatch.currSeq = self.currBatch.oldSeq
@@ -237,9 +237,9 @@ class BarcodeReader():
             screen.draw.text((30, 1), strid, font=screen.font, fill=0)
 
         else:
-            print "\bMauvais Barcode"
+            print("\bMauvais Barcode")
             screen.draw.text((4, screen.linePos+1),
-                             u"Mauvais Code", font=screen.font, fill=255)
+                             "Mauvais Code", font=screen.font, fill=255)
             screen.linePos += screen.lineHeight
         # Display image.
         screen.show(str(self.scanner.rank))

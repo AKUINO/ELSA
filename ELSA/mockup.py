@@ -5,7 +5,7 @@ import traceback
 import syslog
 import serial
 from fysom import Fysom
-import SSD1306
+from . import SSD1306
 from keypadClass4 import keypad
 
 from PIL import Image
@@ -62,7 +62,7 @@ draw = ImageDraw.Draw(image)
 font = ImageFont.truetype('sans.ttf', 9)
 fontG8 = ImageFont.truetype('glyphicons-halflings-regular.ttf', 8)
 fontG10 = ImageFont.truetype('glyphicons-halflings-regular.ttf', 10)
-degree = u'\N{DEGREE SIGN}'
+degree = '\N{DEGREE SIGN}'
 
 temperature = 0.0
 owtemperature = ''
@@ -108,7 +108,7 @@ def elaRead():
             except:
                 pass
         elaSerial.close()
-        print(ELAtty+" libre")
+        print((ELAtty+" libre"))
     except:
         traceback.print_exc()
         ALIVE = False
@@ -149,21 +149,21 @@ threadOW.start()
 
 scancodes = {
     # Scancode: ASCIICode
-    0: None, 1: u'ESC', 2: u'1', 3: u'2', 4: u'3', 5: u'4', 6: u'5', 7: u'6', 8: u'7', 9: u'8',
-    10: u'9', 11: u'0', 12: u'-', 13: u'=', 14: u'BKSP', 15: u'TAB', 16: u'q', 17: u'w', 18: u'e', 19: u'r',
-    20: u't', 21: u'y', 22: u'u', 23: u'i', 24: u'o', 25: u'p', 26: u'[', 27: u']', 28: u'CRLF', 29: u'LCTRL',
-    30: u'a', 31: u's', 32: u'd', 33: u'f', 34: u'g', 35: u'h', 36: u'j', 37: u'k', 38: u'l', 39: u';',
-    40: u'"', 41: u'`', 42: u'LSHFT', 43: u'\\', 44: u'z', 45: u'x', 46: u'c', 47: u'v', 48: u'b', 49: u'n',
-    50: u'm', 51: u',', 52: u'.', 53: u'/', 54: u'RSHFT', 56: u'LALT', 100: u'RALT'
+    0: None, 1: 'ESC', 2: '1', 3: '2', 4: '3', 5: '4', 6: '5', 7: '6', 8: '7', 9: '8',
+    10: '9', 11: '0', 12: '-', 13: '=', 14: 'BKSP', 15: 'TAB', 16: 'q', 17: 'w', 18: 'e', 19: 'r',
+    20: 't', 21: 'y', 22: 'u', 23: 'i', 24: 'o', 25: 'p', 26: '[', 27: ']', 28: 'CRLF', 29: 'LCTRL',
+    30: 'a', 31: 's', 32: 'd', 33: 'f', 34: 'g', 35: 'h', 36: 'j', 37: 'k', 38: 'l', 39: ';',
+    40: '"', 41: '`', 42: 'LSHFT', 43: '\\', 44: 'z', 45: 'x', 46: 'c', 47: 'v', 48: 'b', 49: 'n',
+    50: 'm', 51: ',', 52: '.', 53: '/', 54: 'RSHFT', 56: 'LALT', 100: 'RALT'
 }
 
 capscodes = {
-    0: None, 1: u'ESC', 2: u'!', 3: u'@', 4: u'#', 5: u'$', 6: u'%', 7: u'^', 8: u'&', 9: u'*',
-    10: u'(', 11: u')', 12: u'_', 13: u'+', 14: u'BKSP', 15: u'TAB', 16: u'Q', 17: u'W', 18: u'E', 19: u'R',
-    20: u'T', 21: u'Y', 22: u'U', 23: u'I', 24: u'O', 25: u'P', 26: u'{', 27: u'}', 28: u'CRLF', 29: u'LCTRL',
-    30: u'A', 31: u'S', 32: u'D', 33: u'F', 34: u'G', 35: u'H', 36: u'J', 37: u'K', 38: u'L', 39: u':',
-    40: u'\'', 41: u'~', 42: u'LSHFT', 43: u'|', 44: u'Z', 45: u'X', 46: u'C', 47: u'V', 48: u'B', 49: u'N',
-    50: u'M', 51: u'<', 52: u'>', 53: u'?', 54: u'RSHFT', 56: u'LALT', 100: u'RALT'
+    0: None, 1: 'ESC', 2: '!', 3: '@', 4: '#', 5: '$', 6: '%', 7: '^', 8: '&', 9: '*',
+    10: '(', 11: ')', 12: '_', 13: '+', 14: 'BKSP', 15: 'TAB', 16: 'Q', 17: 'W', 18: 'E', 19: 'R',
+    20: 'T', 21: 'Y', 22: 'U', 23: 'I', 24: 'O', 25: 'P', 26: '{', 27: '}', 28: 'CRLF', 29: 'LCTRL',
+    30: 'A', 31: 'S', 32: 'D', 33: 'F', 34: 'G', 35: 'H', 36: 'J', 37: 'K', 38: 'L', 39: ':',
+    40: '\'', 41: '~', 42: 'LSHFT', 43: '|', 44: 'Z', 45: 'X', 46: 'C', 47: 'V', 48: 'B', 49: 'N',
+    50: 'M', 51: '<', 52: '>', 53: '?', 54: 'RSHFT', 56: 'LALT', 100: 'RALT'
 }
 
 
@@ -218,12 +218,12 @@ threadRFID.start()
 
 
 def tree(sensor):
-    print '%7s - %s' % (sensor._type, sensor._path)
+    print('%7s - %s' % (sensor._type, sensor._path))
     for next in sensor.sensors():
         if next._type in ['DS2409', ]:
             tree(next)
         else:
-            print '%7s - %s' % (next._type, next._path)
+            print('%7s - %s' % (next._type, next._path))
 
 # ow.init('/mnt/1wire')
 
@@ -264,19 +264,19 @@ gConf = 11
 gConf2 = 12
 
 symbols = keys[:]
-symbols[gNext] = u'\ue259'
-symbols[aPlace] = u'\ue021'
-symbols[aBatch] = u'\ue010'
-symbols[aPerson] = u'\ue008'
-symbols[aMeasure] = u'\ue166'
-symbols[aAlarm] = u'\ue123'
-symbols[aAlarmTrig] = u'\ue072'
-symbols[aAlarmResol] = u'\ue073'
-symbols[gPrev] = u'\ue260'
-symbols[gNum] = u'\ue136'
-symbols[gMain] = u'\ue093'
-symbols[gConf] = u'\ue013'
-symbols[gConf2] = u'\ue185'
+symbols[gNext] = '\ue259'
+symbols[aPlace] = '\ue021'
+symbols[aBatch] = '\ue010'
+symbols[aPerson] = '\ue008'
+symbols[aMeasure] = '\ue166'
+symbols[aAlarm] = '\ue123'
+symbols[aAlarmTrig] = '\ue072'
+symbols[aAlarmResol] = '\ue073'
+symbols[gPrev] = '\ue260'
+symbols[gNum] = '\ue136'
+symbols[gMain] = '\ue093'
+symbols[gConf] = '\ue013'
+symbols[gConf2] = '\ue185'
 
 # The events for time slices:
 tHour = 1
@@ -345,8 +345,8 @@ try:
             draw.text((endPos+1, line4), '109876543210987654321',
                       font=font, fill=255)
 
-            print('mem='+str(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss) +
-                  ', 1wire='+owtemperature)
+            print(('mem='+str(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss) +
+                  ', 1wire='+owtemperature))
             draw.rectangle((begScreen, line5, col2-3, line5+8), fill=255)
             draw.text((begScreen, line5), owtemperature.strip() +
                       degree+'C',  font=font, fill=0)

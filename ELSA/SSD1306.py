@@ -23,7 +23,7 @@ import logging
 import time
 
 import pigpio as GPIO
-import SPI
+from . import SPI
 
 
 # Constants

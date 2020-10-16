@@ -8,7 +8,7 @@ Requires python smbus to be installed
 ================================================
 """
 try:
-    import smbus
+    from smbus2 import SMBus
 except ImportError:
     raise ImportError("python-smbus not found")
 import re
@@ -54,9 +54,9 @@ class ADCPi:
                             i2c__bus = 1
                         break
         try:
-            return smbus.SMBus(i2c__bus)
+            return SMBus(i2c__bus)
         except IOError:
-            raise 'Could not open the i2c bus'
+            raise ValueError('Could not open the i2c bus')
 
     def __updatebyte(self, byte, mask, value):
         byte &= mask

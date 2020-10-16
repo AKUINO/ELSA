@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from contextlib import contextmanager
 import os
 import datetime
-import ConfigurationELSA as elsa
+from . import ConfigurationELSA as elsa
 import zipfile
 import re
 import shutil 
@@ -75,7 +75,7 @@ def load_zip_file(file_path):
     """
     try:
         zip_ref = zipfile.ZipFile(file_path, "r")
-    except zipfile.BadZipfile, AttributeError:
+    except zipfile.BadZipfile as AttributeError:
         return False
     return zip_ref
 

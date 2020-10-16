@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 ================================================
 ABElectronics Expander Pi
@@ -9,10 +9,9 @@ For Python 3 install with: sudo apt-get install python3-smbus
 
 ================================================
 """
-from __future__ import absolute_import, division, print_function, \
-                                                    unicode_literals
+
 try:
-    import smbus
+    from smbus2 import SMBus
 except ImportError:
     raise ImportError(
         "python-smbus not found")
@@ -80,9 +79,9 @@ class _ABEHelpers:
                             i2c__bus = 1
                         break
         try:
-            return smbus.SMBus(i2c__bus)
+            return SMBus(i2c__bus)
         except IOError:
-            raise 'Could not open the i2c bus'
+            raise ValueError('Could not open the i2c bus')
 
 
 """
@@ -175,7 +174,7 @@ class DAC:
 
     Define SPI bus and init
     """
-    def __init__():
+    def __init__(self):
         self.spiDAC = spidev.SpiDev()
         self.spiDAC.open(0, 1)
         self.spiDAC.max_speed_hz = (20000000)

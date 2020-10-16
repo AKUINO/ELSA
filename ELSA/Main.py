@@ -1,5 +1,5 @@
 from Configuration import *
-from LectureBarcode import *
+from .LectureBarcode import *
 import threading
 import time
 
@@ -22,7 +22,7 @@ def BarcodeReader():
     global ALIVE
     while ALIVE:
         time.sleep(0.1)
-        scan = input("Barcode   :")
+        scan = eval(input("Barcode   :"))
         scan = str(scan)
         if (scan == "1"):
             ALIVE = False
@@ -45,8 +45,8 @@ def StepValuesUpdate(sensorIn, data):
                 if (c.AllBatches.elements[batch].equipment != None and c.AllBatches.elements[batch].equipment.fields['e_id'] == currSensor.fields['e_id']):
                     for stepmeasure in c.AllBatches.elements[batch].currStep.stepmeasures:
                         if (c.AllBatches.elements[batch].currStep.stepmeasures[stepmeasure].fields['m_id'] == currSensor.fields['m_id']):
-                            print(
-                                c.AllBatches.elements[batch].fields['b_id'] + " modified...")
+                            print((
+                                c.AllBatches.elements[batch].fields['b_id'] + " modified..."))
                             for stepvalue in c.AllBatches.elements[batch].stepValues:
                                 sv = c.AllBatches.elements[batch].stepValues[stepvalue]
                                 if (sv.measure == currSensor.fields['m_id']):

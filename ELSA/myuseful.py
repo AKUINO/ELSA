@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 import binascii
 import datetime
 import fcntl
@@ -8,14 +10,14 @@ import socket
 import struct
 import time
 import traceback
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-GMAIL_USER = u'christophe.dupriez@guest.uliege.be' #u'akuino6002@gmail.com'
-GMAIL_PASS = u'vjdQ5631' #u'My_Password6002'
-SMTP_SERVER = u'smtp.ulg.ac.be' #'u'smtp.gmail.com'
+GMAIL_USER = 'christophe.dupriez@guest.uliege.be' #u'akuino6002@gmail.com'
+GMAIL_PASS = 'xxxxxx' #u'My_Password6002'
+SMTP_SERVER = 'smtp.ulg.ac.be' #'u'smtp.gmail.com'
 SMTP_PORT = 587
 csvDir = "../ELSAcsv/csv/"
 
@@ -29,7 +31,7 @@ def parse_url_query_string(string, key):
     for item in string:
         item = item.split('=')
         if item[0] == key:
-            return urllib.unquote(item[1]).decode('UTF-8')
+            return urllib.parse.unquote(item[1])
     return None
 
 def parse_url_dict(string):
@@ -38,7 +40,7 @@ def parse_url_dict(string):
     for item in array_string:
         item = item.split('=')
         if len(item) > 1:
-            result[item[0]] = urllib.unquote(item[1]).decode('UTF-8')
+            result[item[0]] = urllib.parse.unquote(item[1])
         else:
             result[item[0]] = ''
     return result
@@ -65,20 +67,20 @@ def checksum(data):
     return result
 
 def encrypt(password, salt):
-    sha = hashlib.pbkdf2_hmac('sha256', password, salt, 126425)
+    sha = hashlib.pbkdf2_hmac('sha256', bytes(password, encoding='utf8'), bytes(salt, encoding='utf8'), 126425)
     return binascii.hexlify(sha)
 
 
 def send_email(hardconfig, recipient, subject, text):
-  print "Mail to "+recipient+" about "+subject+" : "+text
+  print("Mail to "+recipient+" about "+subject+" : "+text)
   try:
     smtpserver = smtplib.SMTP(hardconfig.mail_server, hardconfig.mail_port)
     smtpserver.ehlo()
     smtpserver.starttls()
     smtpserver.ehlo
     smtpserver.login(hardconfig.mail_user, hardconfig.mail_password)
-    header = u'To:' + recipient + u'\n' + u'From: ' + hardconfig.mail_user
-    header = header + '\n' + u'Subject:' + subject + u'\n'
+    header = 'To:' + recipient + '\n' + 'From: ' + hardconfig.mail_user
+    header = header + '\n' + 'Subject:' + subject + '\n'
 
     msg = MIMEMultipart('alternative')
     msg.set_charset('utf8')
@@ -91,18 +93,18 @@ def send_email(hardconfig, recipient, subject, text):
 
     _attach = MIMEText(text.encode('utf-8'), 'plain', 'UTF-8')
     msg.attach(_attach)
-    print msg.as_string()
+    print(msg.as_string())
 
     smtpserver.sendmail(hardconfig.mail_user, recipient, msg.as_string())
     smtpserver.close()
-    print "DONE"
+    print("DONE")
     return True
   except:
     traceback.print_exc()
     return False
 
 def send_sms(hardconfig, recipient, subject, text):
-    print "Fail to SMS to "+recipient+" about "+subject+" : "+text
+    print("Fail to SMS to "+recipient+" about "+subject+" : "+text)
     return False
 
 def timestamp_to_date(timestamp, format=datetimeformat):
@@ -163,10 +165,10 @@ def date_to_ISO(date):
         return ''
 
 def now():
-    return unicode(datetime.datetime.now().strftime(datetimeformat))
+    return str(datetime.datetime.now().strftime(datetimeformat))
 
 def shortNow():
-    return unicode(datetime.datetime.now().strftime(shortformat))
+    return str(datetime.datetime.now().strftime(shortformat))
 
 def shorten_time(longTime, prevTime):
     if not longTime:
@@ -178,4 +180,4 @@ def shorten_time(longTime, prevTime):
     return longTime
 
 if __name__ == "__main__":
-    print("Checksum=%d" % checksum("!sTMP11734.50"))
+    print(("Checksum=%d" % checksum("!sTMP11734.50")))

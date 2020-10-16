@@ -1,5 +1,6 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import ConfigParser
+import configparser
 import socket
 import traceback
 import os
@@ -13,8 +14,8 @@ def get_config_file_path(config_file, hostname):
         return os.path.normpath(config_file)
     else:
         # Test if hostname is correctly initialized
-        if not hostname.startswith(u'akuino'):
-            print(hostname+": hostname should begin with akuino")
+        if not hostname.startswith('akuino'):
+            print((hostname+": hostname should begin with akuino"))
         return os.path.expanduser(os.path.join(HARDdirectory,
                                                hostname+'.ini'))
 
@@ -54,50 +55,50 @@ class HardConfig():
     devices = {}
     inputs = {}
     outputs = {}
-    mail_user = u''
-    mail_password = u''
-    mail_server = u'UNKNOWN_SMTP'
+    mail_user = ''
+    mail_password = ''
+    mail_server = 'UNKNOWN_SMTP'
     mail_port = 587
-    sms_user = u''
-    sms_password = u''
-    sms_server = u'UNKNOWN_SMTP'
+    sms_user = ''
+    sms_password = ''
+    sms_server = 'UNKNOWN_SMTP'
     sms_port = 587
     sensor_polling = 60   # 60 seconds between sensors polling...
 
     def parse_section_system(self):
         if self.config.has_section('system'):
-            if u'system' in self.config.sections():
-                for anItem in self.config.items(u'system'):
-                    if anItem[0].lower() == u'rundirectory':
-                        self.rundirectory = unicode(anItem[1]).strip()
+            if 'system' in self.config.sections():
+                for anItem in self.config.items('system'):
+                    if anItem[0].lower() == 'rundirectory':
+                        self.rundirectory = str(anItem[1]).strip()
                         try:
                             if not os.path.exists(self.rundirectory):
                                 os.makedirs(self.rundirectory)
                         except OSError:
-                            print('Impossible de creer le dossier '
-                                  + self.rundirectory + '.')
+                            print(('Impossible de creer le dossier '
+                                  + self.rundirectory + '.'))
                             sys.exit()
-                    elif anItem[0].lower() == u'model':
+                    elif anItem[0].lower() == 'model':
                         self.model = anItem[1]
 
     def parse_section_I2C(self):
-        if u'I2C' in self.config.sections():
-            for anItem in self.config.items(u'I2C'):
-                if anItem[0].lower() == u'bus':
+        if 'I2C' in self.config.sections():
+            for anItem in self.config.items('I2C'):
+                if anItem[0].lower() == 'bus':
                     try:
                         self.i2c_bus = int(anItem[1])
                     except:
-                        print (anItem[0] + ': ' + anItem[1] + ' is not decimal.')
+                        print((anItem[0] + ': ' + anItem[1] + ' is not decimal.'))
 
     def __init__(self, config_file):
         self.hostname = socket.gethostname()
         config_file = get_config_file_path(config_file, self.hostname)
-        self.config = ConfigParser.RawConfigParser()
+        self.config = configparser.RawConfigParser()
         try:
             self.config.readfp(codecs.open(config_file, 'r', 'utf8'))
         except IOError:
             new_path = os.path.join(HARDdirectory, 'DEFAULT.ini')
-            print(config_file+' not found. Using ' + new_path)
+            print((config_file+' not found. Using ' + new_path))
             try:
                 self.config.readfp(codecs.open(os.path.expanduser(new_path),
                                                'r',
@@ -111,210 +112,210 @@ class HardConfig():
         self.parse_section_I2C()
 # TODO:Finish copying sections to functions
        
-        if u'SPI' in self.config.sections():
-            for anItem in self.config.items(u'SPI'):
-                if anItem[0].lower() == u'channel':
+        if 'SPI' in self.config.sections():
+            for anItem in self.config.items('SPI'):
+                if anItem[0].lower() == 'channel':
                     try:
                         self.spi_channel = int(anItem[1])
                     except:
-                        print (anItem[0] + ': ' + anItem[1] + ' is not decimal.')
+                        print((anItem[0] + ': ' + anItem[1] + ' is not decimal.'))
 
-        if u'PCB' in self.config.sections():
-            for anItem in self.config.items(u'PCB'):
-                if anItem[0].lower() == u'installed':
+        if 'PCB' in self.config.sections():
+            for anItem in self.config.items('PCB'):
+                if anItem[0].lower() == 'installed':
                     self.pcb = anItem[1]
                     if not self.pcb:
                         self.pcb = None
-                    elif self.pcb.lower().startswith(u'no'):
+                    elif self.pcb.lower().startswith('no'):
                         self.pcb = None
-                    elif self.pcb.startswith(u'0'):
+                    elif self.pcb.startswith('0'):
                         self.oled_reset = 5
                         self.pcb = '0'
-                    elif self.pcb.startswith(u'1'):
+                    elif self.pcb.startswith('1'):
                         self.oled_reset = 25
                         self.pcb = '1'
                     else:
                         self.oled_reset = None
 
-        if u'ELA' in self.config.sections():
-            for anItem in self.config.items(u'ELA'):
-                if anItem[0].lower() == u'installed':
+        if 'ELA' in self.config.sections():
+            for anItem in self.config.items('ELA'):
+                if anItem[0].lower() == 'installed':
                     self.ela = anItem[1]
                     if not self.ela:
                         self.ela = None
-                    elif self.ela.lower().startswith(u'no'):
+                    elif self.ela.lower().startswith('no'):
                         self.ela = None
 
-                elif anItem[0].lower() == u'bauds':
+                elif anItem[0].lower() == 'bauds':
                     try:
                         self.ela_bauds = int(anItem[1])
                     except:
-                        print (anItem[0] + ': ' + anItem[1] + ' is not decimal.')
+                        print((anItem[0] + ': ' + anItem[1] + ' is not decimal.'))
 
-                elif anItem[0].lower() == u'reset':
+                elif anItem[0].lower() == 'reset':
                     self.ela_reset = anItem[1]
 
-        if u'bluetooth' in self.config.sections():
-            for anItem in self.config.items(u'bluetooth'):
-                if anItem[0].lower() == u'installed':
+        if 'bluetooth' in self.config.sections():
+            for anItem in self.config.items('bluetooth'):
+                if anItem[0].lower() == 'installed':
                     self.bluetooth = anItem[1]
                     if not self.bluetooth:
                         self.bluetooth = None
-                    elif self.bluetooth.lower().startswith(u'no'):
+                    elif self.bluetooth.lower().startswith('no'):
                         self.bluetooth = None
 
-        if u'wifi' in self.config.sections():
-            for anItem in self.config.items(u'wifi'):
-                if anItem[0].lower() == u'installed':
+        if 'wifi' in self.config.sections():
+            for anItem in self.config.items('wifi'):
+                if anItem[0].lower() == 'installed':
                     self.wifi = anItem[1]
                     if not self.wifi:
                         self.wifi = None
-                    elif self.wifi.lower().startswith(u'no'):
+                    elif self.wifi.lower().startswith('no'):
                         self.wifi = None
 
-        if u'owfs' in self.config.sections():
-            for anItem in self.config.items(u'owfs'):
-                if anItem[0].lower() == u'installed':
+        if 'owfs' in self.config.sections():
+            for anItem in self.config.items('owfs'):
+                if anItem[0].lower() == 'installed':
                     self.owfs = anItem[1]
                     if not self.owfs:
                         self.owfs = None
-                    elif self.owfs.lower().startswith(u'no'):
+                    elif self.owfs.lower().startswith('no'):
                         self.owfs = None
 
-        if u'sensors' in self.config.sections():
-            for anItem in self.config.items(u'sensors'):
-                if anItem[0].lower() == u'polling':
+        if 'sensors' in self.config.sections():
+            for anItem in self.config.items('sensors'):
+                if anItem[0].lower() == 'polling':
                     try:
                         self.sensor_polling = int(anItem[1])
                     except:
-                        print (anItem[0] + ': ' + anItem[1] + ' is not decimal.')
+                        print((anItem[0] + ': ' + anItem[1] + ' is not decimal.'))
 
-        if u'OLED' in self.config.sections():
-            for anItem in self.config.items(u'OLED'):
-                if anItem[0].lower() == u'installed':
+        if 'OLED' in self.config.sections():
+            for anItem in self.config.items('OLED'):
+                if anItem[0].lower() == 'installed':
                     self.oled = anItem[1]
                     if not self.oled:
                         self.oled = None
-                    elif self.oled.lower().startswith(u'no'):
+                    elif self.oled.lower().startswith('no'):
                         self.oled = None
 
-                elif anItem[0].lower() == u'i2c':
+                elif anItem[0].lower() == 'i2c':
                     try:
                         self.oled_address = int(anItem[1], 16)
                     except:
-                        print(anItem[0] + '='
+                        print((anItem[0] + '='
                                         + anItem[1]
-                                        + ' is not in hexadecimal')
+                                        + ' is not in hexadecimal'))
 
-                elif anItem[0].lower() == u'spi':
+                elif anItem[0].lower() == 'spi':
                     try:
                         self.oled_channel = int(anItem[1])
                     except:
-                        print (anItem[0] + ': ' + anItem[1] + ' is not decimal.')
+                        print((anItem[0] + ': ' + anItem[1] + ' is not decimal.'))
 
-                elif anItem[0].lower() == u'reset':
+                elif anItem[0].lower() == 'reset':
                     try:
                         self.oled_reset = int(anItem[1])
                     except:
-                        print (anItem[0] + ': ' + anItem[1] + ' is not decimal.')
+                        print((anItem[0] + ': ' + anItem[1] + ' is not decimal.'))
 
-        if u'battery' in self.config.sections():
-            for anItem in self.config.items(u'battery'):
-                if anItem[0].lower() == u'installed':
+        if 'battery' in self.config.sections():
+            for anItem in self.config.items('battery'):
+                if anItem[0].lower() == 'installed':
                     self.battery = anItem[1]
                     if not self.battery \
-                            or self.battery.lower().startswith(u'no'):
+                            or self.battery.lower().startswith('no'):
                         self.battery = None
-                    elif self.battery.lower().startswith(u'spi'):
+                    elif self.battery.lower().startswith('spi'):
                         self.battery = 'SPI'
                     else:  # Anything else than SPI is I2C !
                         self.battery = 'I2C'
 
-                elif anItem[0].lower() == u'shutdown':
+                elif anItem[0].lower() == 'shutdown':
                     a_command = anItem[1]
-                    if a_command and (a_command.lower() != u'no'):
+                    if a_command and (a_command.lower() != 'no'):
                         self.battery_shutdown = a_command
 
-                elif anItem[0].lower() == u'breakout_volt':
+                elif anItem[0].lower() == 'breakout_volt':
                     try:
                         self.battery_breakout_volt = float(anItem[1])
                     except:
-                        print (anItem[0]+': '+anItem[1]+' is not decimal.')
+                        print((anItem[0]+': '+anItem[1]+' is not decimal.'))
 
-                elif anItem[0].lower() == u'i2c':
+                elif anItem[0].lower() == 'i2c':
                     try:
                         self.battery_address = int(anItem[1], 16)
                     except ValueError:
-                        print(anItem[0] + '='
+                        print((anItem[0] + '='
                                         + anItem[1]
-                                        + ' is not in hexadecimal')
+                                        + ' is not in hexadecimal'))
                         raise
-                elif anItem[0].lower() == u'spi':
+                elif anItem[0].lower() == 'spi':
                     try:
                         self.battery_channel = int(anItem[1])
                     except:
-                        print (anItem[0]+': '+anItem[1]+' is not decimal.')
+                        print((anItem[0]+': '+anItem[1]+' is not decimal.'))
 
-                elif anItem[0].lower() == u'port':
+                elif anItem[0].lower() == 'port':
                     try:
                         self.battery_port = int(anItem[1])
                     except:
-                        print (anItem[0]+': '+anItem[1]+' is not decimal.')
+                        print((anItem[0]+': '+anItem[1]+' is not decimal.'))
 
-                elif anItem[0].lower() == u'rv':
+                elif anItem[0].lower() == 'rv':
                     try:
                         self.battery_rv = int(anItem[1])
                     except:
-                        print (anItem[0]+': '+anItem[1]+' is not decimal.')
+                        print((anItem[0]+': '+anItem[1]+' is not decimal.'))
 
-                elif anItem[0].lower() == u'rg':
+                elif anItem[0].lower() == 'rg':
                     try:
                         self.battery_rg = int(anItem[1])
                     except:
-                        print (anItem[0]+': '+anItem[1]+' is not decimal.')
+                        print((anItem[0]+': '+anItem[1]+' is not decimal.'))
 
         if self.battery:
             self.battery_divider = (float(self.battery_rv)
                                     + float(self.battery_rg))/float(self.battery_rg)
-            print("Battery voltage divider="+str(self.battery_divider))
+            print(("Battery voltage divider="+str(self.battery_divider)))
 
-        if u'shutdown' in self.config.sections():
-            for anItem in self.config.items(u'shutdown'):
-                if anItem[0].lower() == u'installed':
+        if 'shutdown' in self.config.sections():
+            for anItem in self.config.items('shutdown'):
+                if anItem[0].lower() == 'installed':
                     self.shutdown = anItem[1]
                     if not self.shutdown:
                         self.shutdown = None
-                    elif self.shutdown.lower().startswith(u'no'):
+                    elif self.shutdown.lower().startswith('no'):
                         self.shutdown = None
                     else:
                         try:
                             self.shutdown = int(self.shutdown)
                         except:
-                            print (anItem[0] + ': ' + anItem[1] + ' is not decimal.')
+                            print((anItem[0] + ': ' + anItem[1] + ' is not decimal.'))
 
-        if u'running' in self.config.sections():
-            for anItem in self.config.items(u'running'):
-                if anItem[0].lower() == u'installed':
+        if 'running' in self.config.sections():
+            for anItem in self.config.items('running'):
+                if anItem[0].lower() == 'installed':
                     self.running = anItem[1]
                     if not self.running:
                         self.running = None
-                    elif self.running.lower().startswith(u'no'):
+                    elif self.running.lower().startswith('no'):
                         self.running = None
                     else:
                         try:
                             self.running = int(self.running)
                         except:
-                            print (anItem[0] + ': ' + anItem[1] + ' is not decimal.')
+                            print((anItem[0] + ': ' + anItem[1] + ' is not decimal.'))
 
-        if u'mail' in self.config.sections():
-            for anItem in self.config.items(u'mail'):
-                if anItem[0].lower() == u'user':
+        if 'mail' in self.config.sections():
+            for anItem in self.config.items('mail'):
+                if anItem[0].lower() == 'user':
                     self.mail_user = anItem[1]
-                elif anItem[0].lower() == u'password':
+                elif anItem[0].lower() == 'password':
                     self.mail_password = anItem[1]
-                elif anItem[0].lower() == u'server':
+                elif anItem[0].lower() == 'server':
                     self.mail_server = anItem[1]
-                elif anItem[0].lower() == u'port':
+                elif anItem[0].lower() == 'port':
                     self.mail_port = anItem[1]
                     if not self.mail_port:
                         self.mail_port = 587
@@ -322,26 +323,26 @@ class HardConfig():
                         try:
                             self.mail_port = int(self.mail_port)
                         except:
-                            print (anItem[0] + ': ' + anItem[1] + ' is not decimal.')
+                            print((anItem[0] + ': ' + anItem[1] + ' is not decimal.'))
 
-        if u'sms' in self.config.sections():
-            for anItem in self.config.items(u'sms'):
-                if anItem[0].lower() == u'user':
+        if 'sms' in self.config.sections():
+            for anItem in self.config.items('sms'):
+                if anItem[0].lower() == 'user':
                     self.sms_user = anItem[1]
-                elif anItem[0].lower() == u'password':
+                elif anItem[0].lower() == 'password':
                     self.sms_password = anItem[1]
-                elif anItem[0].lower() == u'server':
+                elif anItem[0].lower() == 'server':
                     self.sms_server = anItem[1]
-                elif anItem[0].lower() == u'port':
+                elif anItem[0].lower() == 'port':
                     self.sms_port = anItem[1]
 
-        if u'keypad' in self.config.sections():
-            for anItem in self.config.items(u'keypad'):
-                if anItem[0].lower() == u'installed':
+        if 'keypad' in self.config.sections():
+            for anItem in self.config.items('keypad'):
+                if anItem[0].lower() == 'installed':
                     self.keypad = anItem[1]
                     if not self.keypad:
                         self.keypad = None
-                    elif self.keypad.lower().startswith(u'no'):
+                    elif self.keypad.lower().startswith('no'):
                         self.keypad = None
                     elif self.pcb == '0':
                         self.keypad_r = [18, 23, 24, 25]
@@ -355,7 +356,7 @@ class HardConfig():
                         try:
                             self.keypad_r[x] = int(anItem[1])
                         except:
-                            print (anItem[0] + ': ' + anItem[1] + ' is not decimal.')
+                            print((anItem[0] + ': ' + anItem[1] + ' is not decimal.'))
                     except:
                         pass
                 elif anItem[0][0].lower == 'c':
@@ -364,7 +365,7 @@ class HardConfig():
                         try:
                             self.keypad_c[x] = int(anItem[1])
                         except:
-                            print (anItem[0] + ': ' + anItem[1] + ' is not decimal.')
+                            print((anItem[0] + ': ' + anItem[1] + ' is not decimal.'))
                     except:
                         pass
         

@@ -1,18 +1,19 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import web
-import urllib
-import ConfigurationELSA as elsa
-import myuseful as useful
+import urllib.request, urllib.parse, urllib.error
+from . import ConfigurationELSA as elsa
+from . import myuseful as useful
 import traceback
 import sys
 import shutil
 import os
-import backup
+from . import backup
 import argparse
 import subprocess
 import json
 import cgi
-import rrd
+from . import rrd
 import time
 import calendar
 import bisect
@@ -60,8 +61,8 @@ def protectHTML(input):
 
 def protectJS(input):
     if not input:  # if input is None
-        return u''
-    return unicode(input).replace("'", "\\'").replace("\\", "\\\\")
+        return ''
+    return str(input).replace("'", "\\'").replace("\\", "\\\\")
 
 
 def redirect_when_not_logged(redir=True):
@@ -82,7 +83,7 @@ def redirect_when_not_logged(redir=True):
             path = web.ctx.env.get('PATH_INFO')
             query = web.ctx.env.get('QUERY_STRING')
             if query:
-                path = path + u'?' + urllib.quote(query)
+                path = path + '?' + urllib.parse.quote(query)
             raise web.seeother('/?redir=' + path)
         else:
             raise web.seeother('/')
@@ -122,7 +123,7 @@ class WebColor:
 
 class WebBackup:
     def __init(self):
-        self.name = u"WebBackup"
+        self.name = "WebBackup"
 
     def GET(self):
         connected = redirect_when_not_admin()
@@ -151,7 +152,7 @@ class WebBackup:
 
 class WebRestore:
     def __init(self):
-        self.name = u"WebRestore"
+        self.name = "WebRestore"
 
     def GET(self):
         connected = redirect_when_not_admin()
@@ -168,7 +169,7 @@ class WebRestore:
             # splits the and chooses the last part (filename with extension)
             fname = fpath.split('/')[-1]
             file_uri = os.path.join(elsa.DIR_WEB_TEMP, fname)
-            print ("Restore data to be sent to file: "+file_uri)
+            print(("Restore data to be sent to file: "+file_uri))
             fout = None
             try:
                 fout = open(file_uri, 'w')
@@ -182,7 +183,7 @@ class WebRestore:
                 if fout:
                     fout.close()
             if backup.check_zip_backup(file_uri) == False:
-                print ("Restore data, bad Zip format in file: " + file_uri)
+                print(("Restore data, bad Zip format in file: " + file_uri))
                 return render.backup(connected,
                                      getLinkForLatestBackupArchive(),
                                      "restoreError")
@@ -197,7 +198,7 @@ class WebRestore:
 
 class WebUpdateELSA:
     def __init(self):
-        self.name = u"WebUpdateELSA"
+        self.name = "WebUpdateELSA"
 
     def GET(self):
         connected = redirect_when_not_admin()
@@ -210,7 +211,7 @@ class WebUpdateELSA:
                               + '<br>'
                               + git_status_out[1])
         except IndexError:
-            print("Error reading git status output. " + git_status_out)
+            print(("Error reading git status output. " + git_status_out))
             raise
         return render.updateELSA(connected, git_status_out)
 
@@ -226,14 +227,14 @@ class WebUpdateELSA:
 
 def get_list_of_active_sensors_acronyms(lang):
     list = []
-    for i, s in c.AllSensors.elements.items():
+    for i, s in list(c.AllSensors.elements.items()):
         if s.fields['active'] == '1':
             acronym = s.get_acronym()
             if lang is None:
                 list.append(acronym)
             else:
                 list.append(s.getName(lang)
-                            + u' [' + acronym + u']')
+                            + ' [' + acronym + ']')
     return list
 
 
@@ -265,7 +266,7 @@ class GrafanaAnnotation(object):
 
 class WebApiGrafana:
     def __init(self):
-        self.name = u"WebApiGrafana"
+        self.name = "WebApiGrafana"
 
     def GET(self, lang='', request=''):
         # When no lang is set, WebPY inverts lang and request variables
@@ -325,7 +326,7 @@ class WebApiGrafana:
 
 class WebApiKeyValue:
     def __init(self):
-        self.name = u"WebApiKeyValue"
+        self.name = "WebApiKeyValue"
 
     def GET(self):
         query_string = web.ctx.env.get('QUERY_STRING')
@@ -335,10 +336,10 @@ class WebApiKeyValue:
         # web.header('Content-type', 'application/json')
         # return json.dumps(outputData)
         web.header('Content-type', 'text/plain')
-        out = u''
-        for s,relaySensor in c.AllSensors.elements.items():
+        out = ''
+        for s,relaySensor in list(c.AllSensors.elements.items()):
             if relaySensor.relaySetting and relaySensor.fields['channel']=='lora' and relaySensor.fields['sensor'] and relaySensor.fields['subsensor']:
-                out += u'&S=' + relaySensor.get_acronym() + u'&M=' + relaySensor.fields['sensor'] + u'&' + relaySensor.fields['subsensor'] + u'=' + relaySensor.relaySetting + u"\n"
+                out += '&S=' + relaySensor.get_acronym() + '&M=' + relaySensor.fields['sensor'] + '&' + relaySensor.fields['subsensor'] + '=' + relaySensor.relaySetting + "\n"
                 relaySensor.relaySetting = None
         return out
 
@@ -349,7 +350,7 @@ class WebRestarting:
     global app
 
     def __init(self):
-        self.name = u"WebRestarting"
+        self.name = "WebRestarting"
 
     def GET(self):
         connected = redirect_when_not_logged(False)
@@ -415,7 +416,7 @@ class WebFullEntry:
 # List of all (active) elements of a Class
 class WebList:
     def __init__(self):
-        self.name = u"WebList"
+        self.name = "WebList"
 
     def GET(self, type):
         connected = redirect_when_not_logged()
@@ -439,7 +440,7 @@ class WebList:
 # Make copies of an element
 class WebClone:
     def __init__(self):
-        self.name = u"WebClone"
+        self.name = "WebClone"
 
     def GET(self, type, id):
         return render.notfound()
@@ -524,7 +525,7 @@ class WebEdit:
                         if name:
                             if not aDir:
                                 aDir = currObject.getDocumentDir(True)
-                            with open(aDir + u'/' + name, 'w') as fout:
+                            with open(aDir + '/' + name, 'w') as fout:
                                 fout.write(aDoc.file.read())
 
             ##            if 'a_id' in data:
@@ -749,7 +750,7 @@ class WebFindModel:
 
 class WebGraphic:
     def __init__(self):
-        self.name = u"WebGraphic"
+        self.name = "WebGraphic"
 
     def GET(self, type, id):
         connected = redirect_when_not_logged()
@@ -762,14 +763,14 @@ class WebGraphic:
             if 'end' in data:
                 end = data['end']
             objects = c.findAll(type)
-            if objects and id and id in objects.elements.keys():
+            if objects and id and id in list(objects.elements.keys()):
                 return render.graphic(connected, type, id, begin, end)
         return render.notfound()
 
 
 class WebFiles:
     def __init__(self):
-        self.name = u"WebFiles"
+        self.name = "WebFiles"
 
     def GET(self, type, id):
         connected = redirect_when_not_logged()
@@ -791,7 +792,7 @@ class WebFiles:
                                 aDir = elem.getDocumentDir(False)
                                 if aDir:
                                     try:
-                                        os.remove(aDir + u'/' + name)
+                                        os.remove(aDir + '/' + name)
                                     except:
                                         traceback.print_exc()
                         raise web.seeother('/edit/' + type + '_' + id)
@@ -805,7 +806,7 @@ class WebFiles:
                                     aDir = elem.getDocumentDir(False)
                                     if aDir:
                                         try:
-                                            elem.loadRRD(c,aDir + u'/' + name)
+                                            elem.loadRRD(c,aDir + '/' + name)
                                         except:
                                             traceback.print_exc()
                             raise web.seeother('/graphic/' + type + '_' + id)
@@ -818,22 +819,22 @@ class WebFiles:
 
 class WebMapRecipe:
     def __init__(self):
-        self.name = u"WebMapRecipe"
+        self.name = "WebMapRecipe"
 
     def GET(self, id):
         connected = redirect_when_not_logged()
 
-        if id and id in c.AllGrRecipe.elements.keys():
+        if id and id in list(c.AllGrRecipe.elements.keys()):
             return render.maprecipe(connected, type, id)
         return render.notfound()
 
 
 class WebCalendar:
     def __init__(self):
-        self.name = u"WebCalendar"
+        self.name = "WebCalendar"
 
     def makeMyDay(self, today, afterToday, sortedKeys, elements, before, after):
-        cal = u""
+        cal = ""
         i = bisect.bisect(sortedKeys, today)
         j = bisect.bisect(sortedKeys, afterToday)
         prv_use = None
@@ -841,13 +842,13 @@ class WebCalendar:
         for k in sortedKeys[i:j]:
             pieces = k.split('/')
             if len(pieces) >= 3:
-                print pieces
+                print(pieces)
                 if pieces[1] != prv_use:
                     if opened:
-                        cal += u")<br/>"
+                        cal += ")<br/>"
                     prv_use = pieces[1]
                     prv_recipe = None
-                    cal += c.getHalfling(before) if before else u''
+                    cal += c.getHalfling(before) if before else ''
                     if pieces[1]:
                         use = pieces[1].split('_')
                         # useAll = c.findAll(use[0])
@@ -855,8 +856,8 @@ class WebCalendar:
                         usage = c.get_object(use[0], use[1])
                         cal += usage.statusIcon(c, None, False)
                         cal += usage.fields['acronym']
-                        cal += c.getHalfling(after) if after else u''
-                        cal += u"("
+                        cal += c.getHalfling(after) if after else ''
+                        cal += "("
                         opened = True
                 if pieces[2] != prv_recipe:
                     prv_recipe = pieces[2]
@@ -868,7 +869,7 @@ class WebCalendar:
                     cal += "<a href=\"/find/related/b_" + b.getID() + "\" alt=\"" + b.fields[
                         'acronym'] + "\">" + b.statusIcon(c) + "</a>"
         if opened:
-            cal += u")<br/>"
+            cal += ")<br/>"
         return cal
 
     def GET(self):
@@ -889,7 +890,7 @@ class WebCalendar:
         begs = {}
         ends = {}
         dlcs = {}
-        for k, b in c.AllBatches.elements.items():
+        for k, b in list(c.AllBatches.elements.items()):
             if b.isActive() and not b.isComplete():
                 recipe = "/" + b.get_group()
                 t = b.get_last_transfer(c)
@@ -899,14 +900,14 @@ class WebCalendar:
                     if where:
                         use += where.getTypeId()
                     use += recipe
-                    print "use=" + use
+                    print("use=" + use)
                     beg = t.getTimestring()
                     end = ""
                     if beg:
                         ##                        elapsed = self.get_quantity_string()
                         ##                        typeAlarm, symbAlarm, self.colorAlarm,self.colorTextAlarm = self.getTypeAlarm(elapsed,model)
                         planned = t.get_planned_duration(c)  # seconds
-                        print("plan=" + unicode(planned))
+                        print(("plan=" + str(planned)))
                         if planned >= 0:
                             # planned = planned*60 WAS MINUTES
                             dBeg = useful.date_to_timestamp(beg)
@@ -917,58 +918,58 @@ class WebCalendar:
                                 if not end + use in quots:
                                     quots[end + use] = set()
                                 quots[end + use].add(b)
-                                print "quots+" + end + use
+                                print("quots+" + end + use)
                         elif end:
                             if end[:7] == rac:
                                 if not end + use in ends:
                                     ends[end + use] = set()
                                 ends[end + use].add(b)
-                                print "ends+" + end + use
+                                print("ends+" + end + use)
                         elif beg[:7] == rac:
                             if not beg + use in begs:
                                 begs[beg + use] = set()
                             begs[beg + use].add(b)
-                            print "begs+" + beg + use
+                            print("begs+" + beg + use)
                 dlc = b.fields['expirationdate']
                 if dlc:
                     dlc = dlc[:10]
                     if dlc[:7] == rac:
-                        if not dlc + u'/' + recipe in dlcs:
-                            dlcs[dlc + u'/' + recipe] = set()
-                        dlcs[dlc + u'/' + recipe].add(b)
-                        print "dlcs+" + dlc + '/' + recipe
-        dlcK = dlcs.keys()
+                        if not dlc + '/' + recipe in dlcs:
+                            dlcs[dlc + '/' + recipe] = set()
+                        dlcs[dlc + '/' + recipe].add(b)
+                        print("dlcs+" + dlc + '/' + recipe)
+        dlcK = list(dlcs.keys())
         dlcK.sort()
-        begK = begs.keys()
+        begK = list(begs.keys())
         begK.sort()
-        endK = ends.keys()
+        endK = list(ends.keys())
         endK.sort()
-        quotK = quots.keys()
+        quotK = list(quots.keys())
         quotK.sort()
-        cal = u""
+        cal = ""
         for w in calendarObject.monthdays2calendar(int(year), int(month)):
-            cal += u"<tr>"
+            cal += "<tr>"
             for d in w:
                 cal += "<td class=\"text-center\">"
                 if not d[0]:
-                    cal += u"&nbsp;"
+                    cal += "&nbsp;"
                 else:
-                    cal += unicode(d[0]) + "<br/>"
-                    today = rac + ('0' if d[0] < 10 else '') + "-" + unicode(d[0])
-                    after = rac + ('0' if d[0] < 9 else '') + "-" + unicode(d[0] + 1)
+                    cal += str(d[0]) + "<br/>"
+                    today = rac + ('0' if d[0] < 10 else '') + "-" + str(d[0])
+                    after = rac + ('0' if d[0] < 9 else '') + "-" + str(d[0] + 1)
                     cal += self.makeMyDay(today, after, endK, ends, '', '')
                     # cal += self.makeMyDay(today,after,quotK,quots,'to','from')
                     cal += self.makeMyDay(today, after, quotK, quots, '', '')
                     cal += self.makeMyDay(today, after, begK, begs, '', 'to')
                     cal += self.makeMyDay(today, after, dlcK, dlcs, 'time', '')
-                cal += u"</td>"
-            cal += u"</tr>"
+                cal += "</td>"
+            cal += "</tr>"
         return render.calendar(connected, calendarObject, int(year), int(month), cal)
 
 
 class WebMapBatch:
     def __init__(self):
-        self.name = u"WebMapBatch"
+        self.name = "WebMapBatch"
 
     def GET(self, id):
         connected = redirect_when_not_logged()
@@ -981,7 +982,7 @@ class WebMapBatch:
 
 class WebGraphHelp:
     def __init__(self):
-        self.name = u"WebGraphHelp"
+        self.name = "WebGraphHelp"
 
     def GET(self, type, id):
         connected = redirect_when_not_logged()
@@ -992,7 +993,7 @@ class WebGraphHelp:
 
 class WebGraphRecipe:
     def __init__(self):
-        self.name = u"WebGraphRecipe"
+        self.name = "WebGraphRecipe"
 
     def GET(self, type, id):
         connected = redirect_when_not_logged()
@@ -1059,7 +1060,7 @@ class WebGraphRecipe:
                     graph += ':'
                     for i in range(len(components)):
                         if i >= 2:
-                            graph += " +"+unicode(len(components)-2)
+                            graph += " +"+str(len(components)-2)
                             break
                         #+ components[i].getGlyph(c)
                         graph += " <a href=/find/related/" + components[i].getTypeId() + ">" + components[i].getGlyph(c) + components[i].getNameHTML(lang) + "</a>"
@@ -1090,7 +1091,7 @@ class WebGraphRecipe:
                                     if batch:
                                         events = batch.fromModel(c, e)
                                         if len(events) > 0:
-                                            graph += ",labelType=\"html\",label=\"<a href=/find/t/b_" + batch.getID() + "/" + e.getID() + ">" + unicode(
+                                            graph += ",labelType=\"html\",label=\"<a href=/find/t/b_" + batch.getID() + "/" + e.getID() + ">" + str(
                                                 len(events)) + " x</a>\""
                                     elif 'typical' in e.fields and e.fields['typical']:
                                         graph += ",label=\"" + c.seconds_to_string(int(e.fields['typical']),
@@ -1118,7 +1119,7 @@ class WebGraphRecipe:
                                     if batch:
                                         events = batch.fromModel(c, e)
                                     if len(events) == 0:
-                                        graph += unicode(e.get_quantity()) + ' ' + protectJS(
+                                        graph += str(e.get_quantity()) + ' ' + protectJS(
                                             e.get_unit_in_context(c, elem))
                                     else:
                                         first = True
@@ -1133,14 +1134,14 @@ class WebGraphRecipe:
                                                 graph += ("" if first else ", ")
                                                 graph += "<a href=/edit/v_" + ev.getID() + ">" + (
                                                     "<font color=" + Acolor + ">" if Acolor else "")
-                                                graph += unicode(qtity) + " " + protectHTML(
+                                                graph += str(qtity) + " " + protectHTML(
                                                     ev.get_unit_in_context(c, elem)) + (
                                                              "</font>" if Acolor else "") + "</a>"
                                                 first = False
                                     graph += "\"];"
                                     recipes_todo.add(v_recipe)
                             elif e.get_type() == 'dm':
-                                obs += u"<br>" + e.getNameHTML(lang)
+                                obs += "<br>" + e.getNameHTML(lang)
                                 events = []
                                 if batch:
                                     events = batch.fromModel(c, e)
@@ -1150,7 +1151,7 @@ class WebGraphRecipe:
                                         target = e.fields['typical']
                                     measure = e.get_measure(c)
                                     if measure:
-                                        obs += u" / " + measure.getNameHTML(lang) + ": " + target + " " + protectHTML(
+                                        obs += " / " + measure.getNameHTML(lang) + ": " + target + " " + protectHTML(
                                             measure.fields['unit'])
                                     else:
                                         obs += ": " + target
@@ -1167,7 +1168,7 @@ class WebGraphRecipe:
                                             obs += (": " if first else ", ")
                                             obs += "<a href=/edit/d_" + edata.getID() + ">" + (
                                                 "<font color=" + Acolor + ">" if Acolor else "")
-                                            obs += unicode(qtity) + " " + protectHTML(edata.get_unit(c)) + (
+                                            obs += str(qtity) + " " + protectHTML(edata.get_unit(c)) + (
                                                 "</font>" if Acolor else "") + "</a>"
                                             first = False
                         graph += hid  # +"[url=\"/find/related/"+hid+"\""
@@ -1317,7 +1318,7 @@ class WebGraphRecipe:
 
 class WebMapFunctions:
     def __init__(self):
-        self.name = u"WebMapFunctions"
+        self.name = "WebMapFunctions"
 
     def GET(self):
         connected = redirect_when_not_logged()
@@ -1326,7 +1327,7 @@ class WebMapFunctions:
 
 class WebMapComponents:
     def __init__(self):
-        self.name = u"WebMapComponents"
+        self.name = "WebMapComponents"
 
     def GET(self):
         connected = redirect_when_not_logged()
@@ -1335,7 +1336,7 @@ class WebMapComponents:
 
 class WebMapUsages:
     def __init__(self):
-        self.name = u"WebMapUsages"
+        self.name = "WebMapUsages"
 
     def GET(self):
         connected = redirect_when_not_logged()
@@ -1344,7 +1345,7 @@ class WebMapUsages:
 
 class WebMapRecipes:
     def __init__(self):
-        self.name = u"WebMapRecipes"
+        self.name = "WebMapRecipes"
 
     def GET(self):
         connected = redirect_when_not_logged()
@@ -1353,7 +1354,7 @@ class WebMapRecipes:
 
 class WebMapCheckPoints:
     def __init__(self):
-        self.name = u"WebMapCheckPoints"
+        self.name = "WebMapCheckPoints"
 
     def GET(self):
         connected = redirect_when_not_logged()
@@ -1362,7 +1363,7 @@ class WebMapCheckPoints:
 
 class WebRRDfetch:
     def __init__(self):
-        self.name = u"WebRRDfetch"
+        self.name = "WebRRDfetch"
 
     def GET(self, id):
         connected = redirect_when_not_logged()
@@ -1382,7 +1383,7 @@ class WebRRDfetch:
 
 class WebLive:
     def __init__(self):
-        self.name = u"WebLive"
+        self.name = "WebLive"
 
     def GET(self, type, id):
         #connected = redirect_when_not_logged()
@@ -1400,7 +1401,7 @@ class WebLive:
 
 class WebGetData:
     def __init__(self):
-        self.name = u"WebGetData"
+        self.name = "WebGetData"
 
     def GET(self, type, id):
         #connected = redirect_when_not_logged()
@@ -1420,14 +1421,14 @@ class WebGetData:
 
 class WebPutData:
     def __init__(self):
-        self.name = u"WebPutData"
+        self.name = "WebPutData"
 
     def GET(self, type, id):
         # connected = redirect_when_not_logged()
         # TODO: vérifier le control=zzzz
         data = web.input(nifile={})
 
-        control = type+unicode(id)
+        control = type+str(id)
         if (not 'time' in data) or not data['time']:
             timestamp = useful.get_timestamp()
         else:
@@ -1461,14 +1462,14 @@ class WebPutData:
                         value = currObject.sanitize_reading(c, value)
                         if value is not None:
                             currObject.update(timestamp, value, c)
-                            print ('S: time='+unicode(timestamp)+', value='+unicode(value))
+                            print(('S: time='+str(timestamp)+', value='+str(value)))
                             return json.dumps({'time':timestamp,'value':value,'s':currObject.fields})
                         else:
-                            raise web.webapi.Forbidden("Invalid value (" + unicode(value) + ")")
+                            raise web.webapi.Forbidden("Invalid value (" + str(value) + ")")
                     except:
-                        raise web.webapi.Forbidden("Invalid value (" + unicode(value) + ")")
+                        raise web.webapi.Forbidden("Invalid value (" + str(value) + ")")
                 elif type == 'd':
-                    print ('D: time='+unicode(timestamp)+', value='+unicode(value))
+                    print(('D: time='+str(timestamp)+', value='+str(value)))
                     currObject.update(timestamp, value, c, remark)
                     return json.dumps(currObject.fields)
                 elif (len(type) == 2) and (type[1]=='m' ):
@@ -1483,12 +1484,12 @@ class WebPutData:
                         tmp['min'] = data['mmin']
                         tmp['max'] = data['max']
                         tmp['component'] = '' #batch
-                        tmp['origin'] = unicode(id)
+                        tmp['origin'] = str(id)
                         tmp['measure'] = currObject.fields['m_id']
                         tmp['value'] = value
                     elif type == 'tm':
                         tmp['object'] = '' #batch
-                        tmp['origin'] = unicode(id)
+                        tmp['origin'] = str(id)
                         tmp['position'] = data['position']
                     elif type == 'vm':
                         tmp['quantity'] = value
@@ -1497,14 +1498,14 @@ class WebPutData:
                         tmp['dest'] = data['dest']
                     newObject.set_value_from_data(tmp, c)
                     return json.dumps(newObject.fields)
-            print (type+"_"+id+" not found.")
+            print((type+"_"+id+" not found."))
             return render.notfound()
-        print (unicode(check)+" is not good for " + unicode(control))
-        raise web.webapi.Forbidden("Control field invalid ("+unicode(check)+")")
+        print((str(check)+" is not good for " + str(control)))
+        raise web.webapi.Forbidden("Control field invalid ("+str(check)+")")
 
 class WebIndex:
     def __init(self):
-        self.name = u"WebIndex"
+        self.name = "WebIndex"
 
     def GET(self):
         data = web.input(nifile={})
@@ -1528,7 +1529,7 @@ class WebIndex:
 
             query_string = web.ctx.env.get('QUERY_STRING')
             redirect_url = useful.parse_url_query_string(query_string, 'redir')
-            print redirect_url
+            print(redirect_url)
             if (redirect_url is not None):
                 raise web.seeother(redirect_url)
             else:
@@ -1541,7 +1542,7 @@ class WebIndex:
 
 class WebSearch:
     def __init__(self):
-        self.name = u"WebSearch"
+        self.name = "WebSearch"
 
     def GET(self):
         connected = redirect_when_not_logged()
@@ -1585,7 +1586,7 @@ class WebSearch:
 
 class WebLabel:
     def __init__(self):
-        self.name = u"WebLabel"
+        self.name = "WebLabel"
 
     def GET(self, type, id="", children=""):
         connected = redirect_when_not_logged()
@@ -1594,7 +1595,7 @@ class WebLabel:
 
 class WebNFC:
     def __init__(self):
-        self.name = u"WebNFC"
+        self.name = "WebNFC"
 
     def GET(self, type="", id=""):
         connected = redirect_when_not_logged()
@@ -1627,12 +1628,11 @@ class WebNFC:
 class getRRD:
     def GET(self, filename):
         connected = redirect_when_not_logged()
-        with open(elsa.DIR_RRD + filename) as f:
+        with open(elsa.DIR_RRD + filename,'rb') as f:
             try:
                 return f.read()
             except IOError:
                 web.notfound()
-
 
 class getCSV:
     def GET(self, filename):
@@ -1667,7 +1667,7 @@ class getJS:
 class getDoc:
     def GET(self, filename):
         connected = redirect_when_not_logged()
-        with open(elsa.DIR_DOC + filename) as f:
+        with open(elsa.DIR_DOC + filename, 'rb') as f:
             try:
                 return f.read()
             except IOError:
@@ -1746,7 +1746,7 @@ class WebDownloadData:
 
 class WebTest:
     def __init__(self):
-        self.name = u"WebTest"
+        self.name = "WebTest"
 
     def GET(self):
         connected = redirect_when_not_admin(True)
@@ -1870,7 +1870,8 @@ def checkUser(username, password):
     if user is None:
         return None
 
-    cryptedPassword = useful.encrypt(password, user.fields['registration'])
+    cryptedPassword = str(useful.encrypt(password, user.fields['registration']),encoding="utf-8")
+    #print(username+":"+password+"==>"+str(cryptedPassword,encoding="utf-8"))
     if user.checkPassword(cryptedPassword) is True:
         return user
 
@@ -1906,8 +1907,8 @@ def notfound():
 def cleanup_web_temp_dir():
     try:
         shutil.rmtree(elsa.DIR_WEB_TEMP)
-    except OSError, e:
-        print ("Error: %s - %s." % (e.filename, e.strerror))
+    except OSError as e:
+        print(("Error: %s - %s." % (e.filename, e.strerror)))
         raise
     finally:
         if not os.path.exists(elsa.DIR_WEB_TEMP):
@@ -2011,7 +2012,7 @@ def main():
         c.load()
         web.template.Template.globals['c'] = c
         web.template.Template.globals['str'] = str
-        web.template.Template.globals['unicode'] = unicode
+        web.template.Template.globals['unicode'] = str
         web.template.Template.globals['useful'] = useful
         web.template.Template.globals['bisect'] = bisect
         web.template.Template.globals['round'] = round
@@ -2090,7 +2091,7 @@ def main():
     except:
         traceback.print_exc(file=sys.stdout)
     finally:
-        print 'fin des threads'
+        print('fin des threads')
         if c:
             c.isThreading = False
             c.UpdateThread.join()
@@ -2099,7 +2100,7 @@ def main():
 
         flags.launch_end_activities()
 
-        print 'Exit system'
+        print('Exit system')
 
 
 if __name__ == "__main__":
