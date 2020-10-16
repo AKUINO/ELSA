@@ -606,8 +606,8 @@ class Configuration():
         if channel == 'wire':
             timestamp = useful.get_timestamp()
             try:
-                list = self.owproxy.dir()
-                for w in list:
+                result = self.owproxy.dir()
+                for w in result:
                     w = w.strip('/. ').replace('.','')[:14]
                     self.set_channel_access('wire', w, 0, timestamp)
             except:

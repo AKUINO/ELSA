@@ -46,9 +46,9 @@ def getLinkForLatestBackupArchive():
     Returns the web path (as in web_link_from_abs_path) of the lastest backup
     archive in the temporary web folder
     """
-    list = os.listdir(elsa.DIR_WEB_TEMP)
+    result = os.listdir(elsa.DIR_WEB_TEMP)
     lastFile = None
-    for f in sorted(list):
+    for f in sorted(result):
         if f.find(backup.ARCHIVE_FILE_NAME_PREFIX) >= 0:
             lastFile = f
     if lastFile is not None:
@@ -228,16 +228,16 @@ class WebUpdateELSA:
 
 
 def get_list_of_active_sensors_acronyms(lang):
-    list = []
+    result = []
     for i, s in list(c.AllSensors.elements.items()):
         if s.fields['active'] == '1':
             acronym = s.get_acronym()
             if lang is None:
-                list.append(acronym)
+                result.append(acronym)
             else:
-                list.append(s.getName(lang)
+                result.append(s.getName(lang)
                             + ' [' + acronym + ']')
-    return list
+    return result
 
 
 def get_data_points_for_grafana_api(target, lang, time_from_utc, time_to_utc):
