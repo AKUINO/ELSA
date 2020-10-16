@@ -848,7 +848,7 @@ class Configuration():
         except:
             traceback.print_exc()
             return False
-        return outputText.replace("\ufeff", '').encode("cp850")
+        return str(outputText,"utf-8").replace("\ufeff", '') # .encode("cp850")
 
     # TRUE if no problem to create Print job
     def labelPrinter(self, type_id, someText):
@@ -858,7 +858,7 @@ class Configuration():
         #     printFile.write(someText)
         # return exec_command(["lpr", "-o", "raw", "-r", fileName])
         #return someText
-        return self.exec_command(someText, ["lpr", "-o", "raw"])
+        return self.exec_command(bytes(someText,"utf-8"), ["lpr", "-o", "raw"])
 
 
 class ConfigurationObject(object):
