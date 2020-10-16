@@ -1,5 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+#Local:
+import HardConfig as hardconfig
+import abe_adcpi
+import abe_expanderpi
+#import abe_iopi
+import abe_mcp3423
+import abe_mcp3424
+import myuseful as useful
+
+#Libraries:
+from csv import DictWriter, DictReader
+from functools import reduce
 import collections
 import datetime
 import errno
@@ -11,7 +23,6 @@ import shutil
 import socket
 import subprocess
 import sys
-from functools import reduce
 #reload(sys)
 #sys.setdefaultencoding('utf-8')
 import io
@@ -27,17 +38,8 @@ import barcode
 import pyownet
 import requests
 import serial
-from csv import DictWriter, DictReader
 import web.net as webnet
 import html
-
-from . import HardConfig as hardconfig
-from . import abe_adcpi
-from . import abe_expanderpi
-#import abe_iopi
-from . import abe_mcp3423
-from . import abe_mcp3424
-from . import myuseful as useful
 
 """
 import SSD1306

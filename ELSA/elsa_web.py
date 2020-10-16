@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+#Local
+import ConfigurationELSA as elsa
+import myuseful as useful
+import backup
+import rrd
+#Libraries
 import web
 import urllib.request, urllib.parse, urllib.error
-from . import ConfigurationELSA as elsa
-from . import myuseful as useful
 import traceback
 import sys
 import shutil
 import os
-from . import backup
 import argparse
 import subprocess
 import json
 import cgi
-from . import rrd
 import time
 import calendar
 import bisect

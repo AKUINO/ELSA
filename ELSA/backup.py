@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+#Local:
+import ConfigurationELSA as elsa
+#Libraries:
 from contextlib import contextmanager
 import os
 import datetime
-from . import ConfigurationELSA as elsa
 import zipfile
 import re
 import shutil 

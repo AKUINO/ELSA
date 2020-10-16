@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
+#Local
+import ConfigurationELSA as elsa
+
+#Libraries
 import calendar
 import os
 import rrdtool
 from numpy import nan
 import datetime
-
-from . import ConfigurationELSA as elsa
-
 
 def get_datapoints_from_s_id(sensorID, time_from_utc, time_to_utc):
     if time_from_utc is None:
