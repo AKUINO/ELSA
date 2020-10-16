@@ -1964,8 +1964,8 @@ class AllObjects(object):
             conformantFile.close()
             # TODO: Rename current file to timestamped one, rename .NEW to actual file...
             os.rename(self.file_of_objects,
-                      self.file_of_objects + '.' + useful.timestamp_to_ISO(useful.get_timestamp()).translate(None,
-                                                                                                             " :./-"))
+                      self.file_of_objects + '.'
+                         + useful.timestamp_to_ISO(useful.get_timestamp()).translate(None," :./-"))
             os.rename(self.file_of_objects + ".NEW", self.file_of_objects)
 
     def loadNames(self):
