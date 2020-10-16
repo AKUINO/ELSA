@@ -1470,8 +1470,10 @@ class WebPutData:
                             raise web.webapi.Forbidden("Invalid value (" + str(value) + ")")
                     except:
                         raise web.webapi.Forbidden("Invalid value (" + str(value) + ")")
+                    print(type + "_" + id + " invalid value:"+str(value))
+                    return render.notfound()
                 elif type == 'd':
-                    print(('D: time='+str(timestamp)+', value='+str(value)))
+                    print('D: time='+str(timestamp)+', value='+str(value))
                     currObject.update(timestamp, value, c, remark)
                     return json.dumps(currObject.fields)
                 elif (len(type) == 2) and (type[1]=='m' ):
@@ -1500,7 +1502,7 @@ class WebPutData:
                         tmp['dest'] = data['dest']
                     newObject.set_value_from_data(tmp, c)
                     return json.dumps(newObject.fields)
-            print((type+"_"+id+" not found."))
+            print(type+"_"+id+" not found.")
             return render.notfound()
         print((str(check)+" is not good for " + str(control)))
         raise web.webapi.Forbidden("Control field invalid ("+str(check)+")")
@@ -1870,12 +1872,14 @@ class WebTest:
 def checkUser(username, password):
     user = c.AllUsers.getUser(username)
     if user is None:
+        print("Unknown: "+username)
         return None
 
     cryptedPassword = str(useful.encrypt(password, user.fields['registration']),encoding="utf-8")
-    print(username+":"+password+"==>"+cryptedPassword)
     if user.checkPassword(cryptedPassword) is True:
         return user
+    else:
+        print("Invalid: "+username + ":" + password + "==>" + cryptedPassword)
 
 
 # returns connnectedUser object
