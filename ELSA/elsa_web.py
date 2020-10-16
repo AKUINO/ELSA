@@ -1873,7 +1873,7 @@ def checkUser(username, password):
         return None
 
     cryptedPassword = str(useful.encrypt(password, user.fields['registration']),encoding="utf-8")
-    #print(username+":"+password+"==>"+str(cryptedPassword,encoding="utf-8"))
+    print(username+":"+password+"==>"+str(cryptedPassword,encoding="utf-8"))
     if user.checkPassword(cryptedPassword) is True:
         return user
 
