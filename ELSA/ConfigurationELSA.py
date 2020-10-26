@@ -2703,7 +2703,7 @@ class AllSensors(AllObjects):
         AllObjects.__init__(self, 's', Sensor.__name__, config)
         self.fieldnames = ['begin', 's_id', 'c_id', 'p_id', 'e_id', 'm_id', 'mobile', \
                            'active', 'acronym', 'remark', 'channel', 'sensor', \
-                           'subsensor', 'valuetype', 'formula', 'sleep', 'proc', 'param', \
+                           'subsensor', 'valuetype', 'formula', 'sleep', 'proc', 'param', 'scaling', \
                            'lapse1', 'lapse2', 'lapse3'] \
                           + alarmFields + ['user']
         self.fieldtranslate = ['begin', 'lang', 's_id', 'name', 'user']
@@ -4492,25 +4492,25 @@ class CheckPoint(Group):
             self.get_hierarchy_dm(list, self.config.AllCheckPoints.elements[e])
         return list
 
-    def get_hierarchy_tm(self, list=None, group=None):
+    def get_hierarchy_tm(self, result=None, group=None):
         if group == None:
-            list = []
+            result = []
             group = self
         for e in group.tm:
-            list.append(e)
+            result.append(e)
         for e in group.parents:
-            self.get_hierarchy_tm(list, self.config.AllCheckPoints.elements[e])
-        return list
+            self.get_hierarchy_tm(result, self.config.AllCheckPoints.elements[e])
+        return result
 
-    def get_hierarchy_vm(self, list=None, group=None):
+    def get_hierarchy_vm(self, result=None, group=None):
         if group == None:
-            list = []
+            result = []
             group = self
         for e in group.vm:
-            list.append(e)
+            result.append(e)
         for e in group.parents:
-            self.get_hierarchy_vm(list, self.config.AllCheckPoints.elements[e])
-        return list
+            self.get_hierarchy_vm(result, self.config.AllCheckPoints.elements[e])
+        return result
 
     def owns(self, type, id):
         elems = []
@@ -6629,7 +6629,7 @@ class Sensor(AlarmingObject):
 
     def set_value_from_data(self, data, c, user):
         super(Sensor, self).set_value_from_data(data, c, user)
-        tmp = ['channel', 'sensor', 'subsensor', 'formula', 'proc', 'param', 'lapse1', 'lapse2', 'lapse3'] + alarmFields
+        tmp = ['channel', 'sensor', 'subsensor', 'formula', 'proc', 'param', 'scaling', 'lapse1', 'lapse2', 'lapse3'] + alarmFields
         for elem in tmp:
             self.fields[elem] = data[elem]
         if 'sleep' in data and data['sleep'] > '0':

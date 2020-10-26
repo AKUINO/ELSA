@@ -237,7 +237,7 @@ def get_list_of_active_sensors_acronyms(lang):
             else:
                 result.append(s.getName(lang)
                             + ' [' + acronym + ']')
-    return result
+        return result
 
 
 def get_data_points_for_grafana_api(target, lang, time_from_utc, time_to_utc):
@@ -248,13 +248,16 @@ def get_data_points_for_grafana_api(target, lang, time_from_utc, time_to_utc):
         acronym = target[target.find('[') + 1: -1]
 
     sensor = c.AllSensors.findAcronym(acronym)
+    sensor_formula = None
     try:
         sensor_id = sensor.fields['s_id']
+        sensor_formula = sensor.fields['scaling']
     except AttributeError:
         raise AttributeError("That acronym does not exist : " + target)
 
     return {"target": target,
             "datapoints": rrd.get_datapoints_from_s_id(sensor_id,
+                                                       sensor_formula,
                                                        time_from_utc,
                                                        time_to_utc)}
 

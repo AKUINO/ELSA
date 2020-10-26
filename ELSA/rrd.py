@@ -9,7 +9,7 @@ import rrdtool
 from numpy import nan
 import datetime
 
-def get_datapoints_from_s_id(sensorID, time_from_utc, time_to_utc):
+def get_datapoints_from_s_id(sensorID, formula, time_from_utc, time_to_utc):
     if time_from_utc is None:
         raise ValueError("time_from_utc has to be set")
     if time_to_utc is None:
@@ -25,8 +25,13 @@ def get_datapoints_from_s_id(sensorID, time_from_utc, time_to_utc):
     datapoints = []
     rrd_step = result[0][2]
     for i in range(0, len(values)):
-        val = values[i][0]
-        if val is not None and val != nan:
-            datapoints.append([val, (time_from + i*rrd_step)*1000])
+        value = values[i][0]
+        if value is not None and value != nan:
+            if formula and formula != "value":
+                try:
+                    value = eval(formula)
+                except:
+                    pass
+            datapoints.append([value, (time_from + i*rrd_step)*1000])
 
     return datapoints

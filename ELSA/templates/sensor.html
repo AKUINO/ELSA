@@ -335,6 +335,21 @@ $code:
 	</div>
 
 	<div class="form-group row">
+	    <label for="inputScaling" class="col-sm-3 col-form-label">$c.getMessage('scaling',self.lang)</label>
+	    <div class="col-sm-9">
+		<input name="scaling" type="text" class="form-control" id="inputScaling" placeholder="$c.getMessage('scaling',self.lang)"
+		$if errormess != '':
+		    $if 'scaling' in data :
+			value="$data['scaling']"
+		$elif id =='new':
+		    value="value"
+		$else:
+		    value="$elem.fields['scaling']"
+		>
+	    </div>
+	</div>
+
+	<div class="form-group row">
 	    <label for="inputBarcode" class="col-sm-3 col-form-label">$:c.getHalfling('barcode') $c.getMessage('code',self.lang)</label>
 	    <div class="col-sm-9">
 		<input name="code" type="text" class="form-control" id="inputBarcode" placeholder="$c.getMessage('code',self.lang)" 
