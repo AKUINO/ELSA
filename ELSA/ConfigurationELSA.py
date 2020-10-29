@@ -1962,10 +1962,11 @@ class AllObjects(object):
                             .set_alarm(self.config, currObject)
         if conformantFile is not None:
             conformantFile.close()
-            # TODO: Rename current file to timestamped one, rename .NEW to actual file...
+            # Rename current file to timestamped one, rename .NEW to actual file...
+            noPunctuation = {' ':None, ':':None, '.':None, '/':None, '-':None}
             os.rename(self.file_of_objects,
                       self.file_of_objects + '.'
-                         + useful.timestamp_to_ISO(useful.get_timestamp()).translate(None," :./-"))
+                         + useful.timestamp_to_ISO(useful.get_timestamp()).translate(noPunctuation))
             os.rename(self.file_of_objects + ".NEW", self.file_of_objects)
 
     def loadNames(self):
