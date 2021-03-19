@@ -253,7 +253,7 @@ def get_data_points_for_grafana_api(target, lang, time_from_utc, time_to_utc):
         sensor_id = sensor.fields['s_id']
         sensor_formula = sensor.fields['scaling']
     except AttributeError:
-        raise AttributeError("That acronym does not exist : " + target)
+        raise AttributeError(target+": Acronym does not exist : " + acronym)
 
     return {"target": target,
             "datapoints": rrd.get_datapoints_from_s_id(sensor_id,
