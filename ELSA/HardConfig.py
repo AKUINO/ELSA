@@ -31,6 +31,9 @@ class HardConfig():
     ela = None
     ela_bauds = 9600
     ela_reset = '[9C5E01]'
+    modbus = None
+    modbus_bauds = 9600
+    modbus_device = '/dev/ttyUSB0'
     bluetooth = None
     wifi = None
     owfs = None
@@ -154,6 +157,24 @@ class HardConfig():
 
                 elif anItem[0].lower() == 'reset':
                     self.ela_reset = anItem[1]
+
+        if 'modbus' in self.config.sections():
+            for anItem in self.config.items('modbus'):
+                if anItem[0].lower() == 'installed':
+                    self.modbus = anItem[1]
+                    if not self.modbus:
+                        self.modbus = None
+                    elif self.modbus.lower().startswith('no'):
+                        self.modbus = None
+
+                elif anItem[0].lower() == 'bauds':
+                    try:
+                        self.modbus_bauds = int(anItem[1])
+                    except:
+                        print((anItem[0] + ': ' + anItem[1] + ' is not decimal.'))
+
+                elif anItem[0].lower() == 'device':
+                    self.modbus_device = anItem[1]
 
         if 'bluetooth' in self.config.sections():
             for anItem in self.config.items('bluetooth'):

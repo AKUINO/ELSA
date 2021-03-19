@@ -8,7 +8,7 @@ def read(fname):
 
 setup(
     name="ELSA",
-    version="0.2",
+    version="0.3",
     author="Destin-informatique",
     author_email="christophe.dupriez@destin-informatique.com",
     url="http://www.destin-informatique.com",
@@ -18,5 +18,5 @@ setup(
     classifiers=[
         'Operating System :: POSIX',
         'Programming Language :: Python',
-    ], install_requires=['python-barcode', 'requests', 'serial', 'rrdtool', 'web.py', 'pyownet', 'serial', 'numpy', 'smbus2']
+    ], install_requires=['python-barcode', 'requests', 'pySerial', 'rrdtool', 'web.py', 'pyownet', 'numpy', 'smbus2']
 )

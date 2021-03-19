@@ -2106,6 +2106,7 @@ def main():
             c.UpdateThread.join()
             c.RadioThread.join()
             c.TimerThread.join()
+            c.AllSensors.close_ports()
 
         flags.launch_end_activities()
 

@@ -37,7 +37,13 @@ import queue
 import barcode
 import pyownet
 import requests
-import serial
+
+import fcntl
+import struct
+from serial import Serial, PARITY_NONE, PARITY_EVEN
+
+from umodbus.client.serial import rtu
+
 import web.net as webnet
 import html
 
@@ -1691,8 +1697,7 @@ class RadioThread(threading.Thread):
         print("Radio at " + str(self.config.HardConfig.ela_bauds) + " bauds on " + DIR_TTY)
         noDots = {ord(' '): None, ord('.'): None}
         try:
-            elaSerial = serial.Serial(
-                DIR_TTY, self.config.HardConfig.ela_bauds, timeout=0.1)
+            elaSerial = Serial(DIR_TTY, self.config.HardConfig.ela_bauds, timeout=0.1)
             time.sleep(0.1)
             elaSerial.write(str(self.config.HardConfig.ela_reset))
             line = None
@@ -2691,6 +2696,7 @@ iteration_cache = None
 class AllSensors(AllObjects):
     # We dynamically append all [input.xxx] from hardconfig to _queryChannels
     _queryChannels = ['wire',
+                      'modbus',
                       'lora',
                       'radio',
                       'http',
@@ -2699,7 +2705,7 @@ class AllSensors(AllObjects):
                       'system']
 
     _actionProcs = [ 'http', 'tap', 'switch' ]
-
+    
     def __init__(self, config):
         AllObjects.__init__(self, 's', Sensor.__name__, config)
         self.fieldnames = ['begin', 's_id', 'c_id', 'p_id', 'e_id', 'm_id', 'mobile', \
@@ -2711,7 +2717,8 @@ class AllSensors(AllObjects):
         self.add_query_channels_from_hardconfig()
         for k in self._queryChannels:
             config.channels[k] = {}
-
+        self.modbus_port = None
+            
     def newObject(self):
         return Sensor()
 
@@ -2882,6 +2889,37 @@ class AllSensors(AllObjects):
                             traceback.print_exc()
                             print("Error in formula, " + currSensor.fields['acronym'] + ": " + \
                                   currSensor.fields['formula'])
+
+    def get_serial_port(self):
+        if self.modbus_port:
+            return self.modbus_port
+        if not self.config.HardConfig.modbus:
+            print ("Modbus not enabled in hardware configuration.")
+            return None
+
+        """ Return serial.Serial instance, ready to use for RS485."""
+        self.modbus_port = Serial(port=self.config.HardConfig.modbus_device, baudrate=self.config.HardConfig.modbus_bauds, parity=PARITY_NONE,
+                      stopbits=2, bytesize=8, timeout=1)
+        if not self.modbus_port:
+            print ("Modbus device not accessible: "+self.config.HardConfig.modbus_device)
+            return None
+        
+
+        fh = self.modbus_port.fileno()
+
+        # A struct with configuration for serial port: works only on some Linux...
+        try:
+            serial_rs485 = struct.pack('hhhhhhhh', 1, 0, 0, 0, 0, 0, 0, 0)
+            fcntl.ioctl(fh, 0x542F, serial_rs485)
+        except:
+            print ("RS485 IOCtl not supported on this operating system")
+
+        return self.modbus_port
+
+    def close_ports(self):
+        if self.modbus_port:
+            self.modbus_port.close()
+        #TODO: check if other hardware like Radio, Serial, I2C or SPI should not be closed too...
 
 class AllBatches(AllObjects):
 
@@ -6327,6 +6365,54 @@ class Sensor(AlarmingObject):
                                 status = config.owproxy.write(sensorAdress, b'1')
                     except:
                         debugging = ("Device=" + sensorAdress
+                                     + ", Message="
+                                     + traceback.format_exc())
+        elif self.fields['channel'] == 'modbus':
+            if config.HardConfig.modbus:
+                if (not self.isSleeping()) and self.fields['sensor'] and self.fields['subsensor']:
+                    try:
+                        serial_port = config.AllSensors.get_serial_port()
+                        device_address = int(self.fields['sensor'])
+                        reg = self.fields['subsensor']
+                        if reg[0] in ['0','1','2','3','4','5','6','7','8','9']:
+                            reg_type = 'i'
+                        else:
+                            reg_type = reg[0].lower()
+                            reg = reg[1:]
+                        reg = int(reg)
+                        # Returns a message or Application Data Unit (ADU) specific for doing
+                        # Modbus RTU.
+                        if reg_type == 'i':
+                            message = rtu.read_input_registers(device_address,reg,1)
+                        elif reg_type == 'd':
+                            message = rtu.read_discrete_inputs(device_address,reg,1)
+                        elif reg_type == 'c':
+                            message = rtu.read_coils(device_address,reg,1)
+                        elif reg_type == 'h':
+                            message = rtu.read_holding_registers(device_address,reg,1)
+                        else:
+                            reg_type = None
+                        if reg_type:
+                            # Response depends on Modbus function code. This particular returns the
+                            # amount of coils written, in this case it is.
+                            try:
+                                output_val = rtu.send_message(message, serial_port)
+                                if output_val and isinstance(output_val,list):
+                                    output_val = output_val[0]
+                                print("Input=%d, Response=%s" % (reg,output_val))
+                            except:
+                                debugging = ("Device=" + self.fields['sensor']
+                                             + ", Register=" + self.fields['subsensor']
+                                             + ", ModBus problem?"
+                                             + ", Message="
+                                             + traceback.format_exc())
+                        else:
+                            debugging = ("Device=" + self.fields['sensor']
+                                         + ", Register=" + self.fields['subsensor']
+                                         + ", Register type must be C, D, H or I")
+                    except:
+                        debugging = ("Device=" + self.fields['sensor']
+                                     + ", Register=" + self.fields['subsensor']
                                      + ", Message="
                                      + traceback.format_exc())
         elif self.fields['channel'] == 'radio':
