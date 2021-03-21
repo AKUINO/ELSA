@@ -237,7 +237,7 @@ def get_list_of_active_sensors_acronyms(lang):
             else:
                 result.append(s.getName(lang)
                             + ' [' + acronym + ']')
-        return result
+    return result
 
 
 def get_data_points_for_grafana_api(target, lang, time_from_utc, time_to_utc):
