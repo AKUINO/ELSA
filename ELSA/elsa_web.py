@@ -244,8 +244,9 @@ def get_data_points_for_grafana_api(target, lang, time_from_utc, time_to_utc):
     datapoints = []
     sensor = None
     acronym = target
-    if lang is not None:
-        acronym = target[target.find('[') + 1: -1]
+    posB = target.find('[')
+    if posB >= 0:
+        acronym = target[posB + 1: -1]
 
     sensor = c.AllSensors.findAcronym(acronym)
     sensor_formula = None
