@@ -2890,22 +2890,22 @@ class AllSensors(AllObjects):
                             print("Error in formula, " + currSensor.fields['acronym'] + ": " + \
                                   currSensor.fields['formula'])
 
-    def get_serial_port(self):
-        if self.modbus_port:
-            return self.modbus_port
-        if not self.config.HardConfig.modbus:
+    def get_serial_port(self,bus=0):
+        if bus in self.modbus_config and self.port[bus]:
+            return self.modbus_port[bus]
+        if not self.config.HardConfig.modbus[bus]:
             print ("Modbus not enabled in hardware configuration.")
             return None
 
         """ Return serial.Serial instance, ready to use for RS485."""
-        self.modbus_port = Serial(port=self.config.HardConfig.modbus_device, baudrate=self.config.HardConfig.modbus_bauds, parity=PARITY_NONE,
+        self.modbus_port[bus] = Serial(port=self.config.HardConfig.modbus_device[bus], baudrate=self.config.HardConfig.modbus_bauds[bus], parity=PARITY_NONE,
                       stopbits=2, bytesize=8, timeout=1)
-        if not self.modbus_port:
+        if not self.modbus_port[bus]:
             print ("Modbus device not accessible: "+self.config.HardConfig.modbus_device)
             return None
         
 
-        fh = self.modbus_port.fileno()
+        fh = self.modbus_port[bus].fileno()
 
         # A struct with configuration for serial port: works only on some Linux...
         try:
@@ -2914,12 +2914,7 @@ class AllSensors(AllObjects):
         except:
             print ("RS485 IOCtl not supported on this operating system")
 
-        return self.modbus_port
-
-    def close_ports(self):
-        if self.modbus_port:
-            self.modbus_port.close()
-        #TODO: check if other hardware like Radio, Serial, I2C or SPI should not be closed too...
+        return self.modbus_port[bus]
 
 class AllBatches(AllObjects):
 
@@ -6368,11 +6363,20 @@ class Sensor(AlarmingObject):
                                      + ", Message="
                                      + traceback.format_exc())
         elif self.fields['channel'] == 'modbus':
-            if config.HardConfig.modbus:
-                if (not self.isSleeping()) and self.fields['sensor'] and self.fields['subsensor']:
+            if (not self.isSleeping()) and self.fields['sensor'] and self.fields['subsensor']:
+                try:
+                    bus = 0
                     try:
-                        serial_port = config.AllSensors.get_serial_port()
+                        pbus = self.fields['sensor'].index('.')
+                        bus = int (self.fields['sensor'][0:pbus])
+                        device_address = int(self.fields['sensor'][pbus+1:])
+                    except:
                         device_address = int(self.fields['sensor'])
+                    serial_port = config.HardConfig.get_serial_port(bus)
+                    if not serial_port:
+                        debugging = ("Device=" + self.fields['sensor']
+                                     + " not opened ?")
+                    else:
                         reg = self.fields['subsensor']
                         if reg[0] in ['0','1','2','3','4','5','6','7','8','9']:
                             reg_type = 'i'
@@ -6410,11 +6414,11 @@ class Sensor(AlarmingObject):
                             debugging = ("Device=" + self.fields['sensor']
                                          + ", Register=" + self.fields['subsensor']
                                          + ", Register type must be C, D, H or I")
-                    except:
-                        debugging = ("Device=" + self.fields['sensor']
-                                     + ", Register=" + self.fields['subsensor']
-                                     + ", Message="
-                                     + traceback.format_exc())
+                except:
+                    debugging = ("Device=" + self.fields['sensor']
+                                 + ", Register=" + self.fields['subsensor']
+                                 + ", Message="
+                                 + traceback.format_exc())
         elif self.fields['channel'] == 'radio':
             # Look at RadioThread
             return None, None

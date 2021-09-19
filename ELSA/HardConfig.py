@@ -6,6 +6,7 @@ import traceback
 import os
 import codecs
 import sys
+from serial import Serial, PARITY_NONE, PARITY_EVEN
 
 HARDdirectory = os.path.normpath('~/akuino/hardware')
 
@@ -19,6 +20,45 @@ def get_config_file_path(config_file, hostname):
         return os.path.expanduser(os.path.join(HARDdirectory,
                                                hostname+'.ini'))
 
+ModbusCurrent = -1;
+
+class ModbusConfig():
+
+    def __init__(self, bus = 0, bauds = 9600, device = '/dev/ttyUSB0'):
+        self.bus = bus
+        self.bauds = bauds
+        self.device = device
+        self.port = None
+        
+    def get_serial_port(self):
+        if self.port:
+            return self.port
+        """ Return serial.Serial instance, ready to use for RS485."""
+        self.port = Serial(port=self.device, baudrate=self.bauds, parity=PARITY_NONE,
+                      stopbits=2, bytesize=8, timeout=1)
+        if not self.port:
+            print ("Modbus device not accessible: "+self.device)
+            return None
+
+        fh = self.port.fileno()
+
+        # A struct with configuration for serial port: works only on some Linux...
+        try:
+            serial_rs485 = struct.pack('hhhhhhhh', 1, 0, 0, 0, 0, 0, 0, 0)
+            fcntl.ioctl(fh, 0x542F, serial_rs485)
+        except:
+            print ("RS485 IOCtl not supported on this operating system.")
+
+        return self.port
+
+    def close_port(self):
+        if self.port:
+            try:
+                self.port.close()
+            except:
+                traceback.print_exc()
+            self.port = None
+
 class HardConfig():
     config = None
     idDefinitions = {}
@@ -31,9 +71,7 @@ class HardConfig():
     ela = None
     ela_bauds = 9600
     ela_reset = '[9C5E01]'
-    modbus = None
-    modbus_bauds = 9600
-    modbus_device = '/dev/ttyUSB0'
+    modbus_config = {}
     bluetooth = None
     wifi = None
     owfs = None
@@ -92,6 +130,51 @@ class HardConfig():
                         self.i2c_bus = int(anItem[1])
                     except:
                         print((anItem[0] + ': ' + anItem[1] + ' is not decimal.'))
+
+    def storeModbus(self, bus=0):
+        self.modbus_config[bus]= None
+        for anItem in self.config.items('modbus'+ ( str(bus) if bus else '')):
+            if anItem[0].lower() == 'installed':
+                self.modbus_config[bus] = anItem[1]
+                if not self.modbus_config[bus]:
+                    self.modbus_config[bus]= None
+                elif self.modbus_config[bus].lower().startswith('no'):
+                    self.modbus_config[bus] = None
+                if self.modbus_config[bus]:
+                    self.modbus_config[bus] = ModbusConfig(bus)
+
+            elif anItem[0].lower() == 'bauds':
+                try:
+                    if self.modbus_config[bus]:
+                        self.modbus_config[bus].bauds = int(anItem[1])
+                except:
+                    print((anItem[0] + ': ' + anItem[1] + ' is not decimal.'))
+
+            elif anItem[0].lower() == 'device':
+                if self.modbus_config[bus]:
+                    self.modbus_config[bus].device = anItem[1]
+
+    def get_serial_port(self,bus=0):
+        if not bus in self.modbus_config:
+            print ("Modbus #"+str(bus)+" unknown in hardware configuration.")
+            return None
+        if not self.modbus_config[bus]:
+            print ("Modbus #"+str(bus)+" not enabled in hardware configuration.")
+            return None
+            
+        global ModbusCurrent
+        
+        if ModbusCurrent != bus:
+            if ModbusCurrent in self.modbus_config:
+                self.modbus_config[ModbusCurrent].close_port()
+            ModbusCurrent = bus
+        return self.modbus_config[bus].get_serial_port()
+
+    def close_ports(self):
+        for bus in self.modbus_config:
+            self.modbus_config[bus].close_port()
+        global ModbusCurrent
+        ModbusCurrent = -1
 
     def __init__(self, config_file):
         self.hostname = socket.gethostname()
@@ -159,22 +242,10 @@ class HardConfig():
                     self.ela_reset = anItem[1]
 
         if 'modbus' in self.config.sections():
-            for anItem in self.config.items('modbus'):
-                if anItem[0].lower() == 'installed':
-                    self.modbus = anItem[1]
-                    if not self.modbus:
-                        self.modbus = None
-                    elif self.modbus.lower().startswith('no'):
-                        self.modbus = None
-
-                elif anItem[0].lower() == 'bauds':
-                    try:
-                        self.modbus_bauds = int(anItem[1])
-                    except:
-                        print((anItem[0] + ': ' + anItem[1] + ' is not decimal.'))
-
-                elif anItem[0].lower() == 'device':
-                    self.modbus_device = anItem[1]
+            self.storeModbus(0)
+        for i in range(1,9):
+            if 'modbus'+str(i) in self.config.sections():
+                self.storeModbus(i)
 
         if 'bluetooth' in self.config.sections():
             for anItem in self.config.items('bluetooth'):
