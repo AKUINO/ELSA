@@ -1762,6 +1762,7 @@ class ActionThread(threading.Thread):
             else:
                 sensor = self.queue.get()
                 sensor.proc(self.config)
+                self.queue.task_done()
 
 class TimerThread(threading.Thread):
 
@@ -2704,7 +2705,7 @@ class AllSensors(AllObjects):
                       'cputemp',
                       'system']
 
-    _actionProcs = [ 'http', 'tap', 'switch' ]
+    _actionProcs = [ 'http', 'json', 'tap', 'switch', 'modbus' ]
     
     def __init__(self, config):
         AllObjects.__init__(self, 's', Sensor.__name__, config)
@@ -6046,10 +6047,65 @@ class Sensor(AlarmingObject):
     def proc(self, config):
         if self.fields['proc']:
             try:
-                eval("self.proc_"+self.fields['proc']+'(config)')
+                eval("self.proc_"+ self.fields['proc'] + '(config)')
             except:
                 traceback.print_exc()
                 print(('Unable to call '+self.fields['proc']+' for sensor '+self.get_acronym()))
+
+    def proc_modbus(self, config, params=None):
+        #if self.lastvalue != self.lastOutput:
+        try:
+            if not params:
+                params = self.fields['param'].split(',')
+            channel = params[0] # Channel is bus.device (bus configured in .ini file, device is the id of the modbus equipment
+            bus = 0
+            try:
+                pbus = channel.index('.')
+                bus = int (channel[0:pbus])
+                device_address = int(channel[pbus+1:])
+            except:
+                device_address = int(channel)
+            serial_port = config.HardConfig.get_serial_port(bus)
+            if not serial_port:
+                print ("Device=" + channel
+                             + " not opened ?")
+            else:
+                reg = params[1]  #Modbus register to write
+                if reg[0] in ['0','1','2','3','4','5','6','7','8','9']:
+                    reg_type = 'h'
+                else:
+                    reg_type = reg[0].lower()
+                    reg = reg[1:]
+                reg = int(reg)
+                # Returns a message or Application Data Unit (ADU) specific for doing
+                # Modbus RTU.
+                if reg_type == 'c':
+                    message = rtu.write_coil(device_address,reg,int(self.lastvalue))
+                elif reg_type == 'h':
+                    message = rtu.write_single_register(device_address,reg,int(self.lastvalue))
+                else:
+                    reg_type = None
+                if reg_type:
+                    # Response depends on Modbus function code. This particular returns the
+                    # amount of coils written, in this case it is.
+                    try:
+                        response = rtu.send_message(message, serial_port)
+                        self.lastOutput = self.lastvalue
+                        print("Output=%d, Response=%s" % (reg,response))
+                    except:
+                        print ("Channel=" + str(params)
+                                     + ", ModBus problem?"
+                                     + ", Message="
+                                     + traceback.format_exc())
+                else:
+                    print ("Channel=" + str(params)
+                                 + ", Register type must be C or H")
+        except Exception as e:
+                #traceback.print_exc()
+                print('Wrong configuration for modbus write: '
+                      + str(params)
+                      + ", Message="
+                      + traceback.format_exc())
 
     def proc_switch(self, config):
         output_gpio = getGPIO()
@@ -6159,6 +6215,35 @@ class Sensor(AlarmingObject):
                             ", Message=" + traceback.format_exc()
             if sensorfile:
                 sensorfile.close()
+                
+    def proc_json(self, config):
+        params = self.fields['param'].split(',')
+        url = params[0] # Server URL
+        if url:
+            sensorfile = None
+            control = "!s"+self.get_acronym()+str(self.lastvalue)
+            try:  # urlopen not usable with "with"
+                url = url % (str(self.lastvalue), str(useful.checksum(control)))
+                self.lastOutput = self.lastvalue
+                sensorfile = urllib.request.urlopen(url, None, 20)
+                
+                info = sensorfile.read()
+                info = json.loads(info)
+                print(info)
+                if len(params) > 1:
+                    output_val = eval(params[1]) # Object attribute to access ('info.fields.typical' is recommended)
+                    print ("Value="+str(output_val))
+                    if output_val:
+                        self.lastvalue = output_val
+                        self.put_value_sensor(config) # modbus register usually)
+            except:
+                print ("URL=" + (url if url else "")
+                       + ", Response="
+                       + (str(info) if info else "")
+                       + ", Message="
+                       + traceback.format_exc())
+            if sensorfile:
+                sensorfile.close()
 
     def get_mesure_humidity_campbell(self, config):
         input = config.HardConfig.inputs[self.fields['channel']]
@@ -6224,6 +6309,13 @@ class Sensor(AlarmingObject):
             print(('Ignoring value of ' + self.fields['channel'] + ' with value '
                   + str(value) + ' because it is out of bounds'))
             return None
+
+    def put_value_sensor(self, config):
+        if not self.fields['channel'] :
+            pass
+        elif not self.isSleeping() and self.fields['channel'] == 'modbus':
+            self.proc_modbus(config, [self.fields['sensor'],self.fields['subsensor']])
+        #TODO: else support other channels !
 
     def get_value_sensor(self, config, timestamp, cache=None):
 

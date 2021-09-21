@@ -1469,7 +1469,10 @@ class WebPutData:
                         if value is not None:
                             currObject.update(timestamp, value, c)
                             print(('S: time='+str(timestamp)+', value='+str(value)))
-                            return json.dumps({'time':timestamp,'value':value,'s':currObject.fields})
+                            returned_object = {'time':timestamp,'value':value}
+                            if 'fields' in data:
+                                returned_object['fields'] = currObject.fields
+                            return json.dumps(returned_object)
                         else:
                             raise web.webapi.Forbidden("Invalid value (" + str(value) + ")")
                     except:
@@ -1508,7 +1511,7 @@ class WebPutData:
                     return json.dumps(newObject.fields)
             print(type+"_"+id+" not found.")
             return render.notfound()
-        print((str(check)+" is not good for " + str(control)))
+        print("%d is not good for %s, %d awaited" % (check, control, useful.checksum(control)))
         raise web.webapi.Forbidden("Control field invalid ("+str(check)+")")
 
 class WebIndex:
@@ -2089,6 +2092,7 @@ def main():
             '/api/grafana', 'WebApiGrafana',
             '/api/kv', 'WebApiKeyValue',
             '/api/put/(.+)_(.+)', 'WebPutData',
+            '/api/putback/(.+)_(.+)', 'WebPutBackData',
             '/nfc/(.+)_(.+)', 'WebNFC',
             '/nfc', 'WebNFC',
             '/test', 'WebTest',
