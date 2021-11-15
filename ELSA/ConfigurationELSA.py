@@ -11,6 +11,7 @@ import myuseful as useful
 
 #Libraries:
 from csv import DictWriter, DictReader
+from influx_line_protocol import Metric
 from functools import reduce
 import collections
 import datetime
@@ -40,7 +41,7 @@ import requests
 
 import fcntl
 import struct
-from serial import Serial, PARITY_NONE, PARITY_EVEN
+from serial import Serial, SerialException, PARITY_NONE, PARITY_EVEN
 
 from umodbus.client.serial import rtu
 
@@ -508,6 +509,8 @@ class Configuration():
         self.RadioThread.daemon = True
         self.TimerThread = TimerThread(self)
         self.TimerThread.daemon = True
+        self.InfluxThread = InfluxThread(self)
+        self.InfluxThread.daemon = True
         self.screen = None
         self.owproxy = None
         self.batteryVoltage = 0.0
@@ -552,6 +555,7 @@ class Configuration():
         self.ActionThread.start()
         self.RadioThread.start()
         self.TimerThread.start()
+        self.InfluxThread.start()
 
     def findAll(self, identifier):
         if identifier in self.registry:
@@ -1674,11 +1678,13 @@ class UpdateThread(threading.Thread):
                 traceback.print_exc()
 
         while self.config.isThreading is True:
-            timer = 0
             timestamp = useful.get_timestamp()
             print((str(timestamp)+": "+str(len(self.config.AllSensors.elements))+" sensors"))
             if len(self.config.AllSensors.elements) > 0:
                 self.config.AllSensors.update(timestamp)
+                self.config.AllSensors.remoteUpdate(timestamp)
+
+            timer = 0
             while self.config.isThreading is True and timer < self.config.HardConfig.sensor_polling:
                 time.sleep(1)
                 timer = timer + 1
@@ -1716,7 +1722,7 @@ class RadioThread(threading.Thread):
                                 # ADDRESS = int(HEX,16)
                                 VAL = int(line[5] + line[6] + line[7], 16)
                                 print(("ELA="
-                                       + HEX
+                                       + str(HEX)
                                        + ", RSS="
                                        + str(RSS)
                                        + ", val=" + str(VAL)))
@@ -1784,6 +1790,35 @@ class TimerThread(threading.Thread):
                 time.sleep(1)
                 timer = timer + 1
 
+
+class InfluxThread(threading.Thread):
+
+    def __init__(self, config):
+        threading.Thread.__init__(self)
+        self.config = config
+        self.Queue = queue.Queue()
+
+    def run(self):
+        while self.config.isThreading:
+            toSend = self.Queue.get()
+            while toSend and self.config.isThreading and self.config.HardConfig.influx_server:
+                # Open a socket & connect to 9009
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                try:
+                    print("Connect to Influx %s:%d to send %d bytes" % (
+                        self.config.HardConfig.influx_server, self.config.HardConfig.influx_port, len(toSend)))
+                    s.settimeout(25)
+                    s.connect((self.config.HardConfig.influx_server, self.config.HardConfig.influx_port))
+                    s.sendall(toSend)
+                    s.close()
+                    self.Queue.task_done()
+                    print("Sent to Influx %s:%d Bytes: %d" % (
+                        self.config.HardConfig.influx_server, self.config.HardConfig.influx_port, len(toSend)))
+                    break
+                except socket.error as e:
+                    print("Remote Influx %s:%d Error: %s" % (self.config.HardConfig.influx_server,self.config.HardConfig.influx_port,e))
+                    s.close()
+                time.sleep(30.0) # 30 seconds before retrying to get network access
 
 class AllObjects(object):
 
@@ -2819,6 +2854,29 @@ class AllSensors(AllObjects):
                     except:
                         traceback.print_exc()
 
+    def remoteUpdate(self, curr_timestamp):
+        if self.config.HardConfig.influx_server:
+            # Current time in nanoseconds
+            nano_timestamp = curr_timestamp * 1000 * 1000000 # Timestamp WITHOUT DST
+
+            # Create a batch of 10000 random metrics to ingest.
+            metric = Metric(self.config.HardConfig.hostname)
+            metric.with_timestamp(nano_timestamp)
+            metric.add_tag('app', 'ELSA')
+            for k, sensor in list(self.elements.items()):
+                if sensor.isActive() and sensor.lastvalue != None and sensor.lastvalue != "None":
+                    try:
+                        metric.add_value(sensor.get_acronym(), float(sensor.lastvalue))
+                    except:
+                        pass #invalid sensor value, ignore...
+            str_metric = str(metric)
+            str_metric += "\n"
+            # Convert string to bytes
+            bytes_metric = bytes(str_metric, "utf-8")
+            #print(bytes_metric)
+            if self.config.isThreading:
+                self.config.InfluxThread.Queue.put(bytes_metric)
+
     def storeLoraValue(self, inputData):
         if not 'M' in inputData or not inputData['M']:
             return
@@ -2993,7 +3051,7 @@ class AllTransferModels(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'tm', TransferModel.__name__, config)
-        self.fieldnames = ["begin", 'tm_id', 'acronym', \
+        self.fieldnames = ["begin", 'tm_id', 'acronym',
                            'gu_id', 'h_id', 'rank', 'remark', 'active'] \
                           + alarmFields + ['user']
         self.fieldtranslate = ['begin', 'lang', 'tm_id', 'name', 'user']
@@ -3016,7 +3074,7 @@ class AllPouringModels(AllObjects):
     def __init__(self, config):
         AllObjects.__init__(self, 'vm', PouringModel.__name__, config)
         # QUANTITY must NOT be used, TYPICAL is the right field
-        self.fieldnames = ['begin', 'vm_id', 'acronym', 'src', 'dest', \
+        self.fieldnames = ['begin', 'vm_id', 'acronym', 'src', 'dest',
                            'quantity', 'h_id', 'rank', 'in', 'gu_id', 'remark', 'active'] \
                           + alarmFields + ['user']
         self.fieldtranslate = ['begin', 'lang', 'vm_id', 'name', 'user']
@@ -3038,7 +3096,7 @@ class AllManualDataModels(AllObjects):
 
     def __init__(self, config):
         AllObjects.__init__(self, 'dm', ManualDataModel.__name__, config)
-        self.fieldnames = ['begin', 'dm_id', 'acronym', 'm_id', 'h_id', 'rank', 'timeinterval', 'sensordesired', \
+        self.fieldnames = ['begin', 'dm_id', 'acronym', 'm_id', 'h_id', 'rank', 'timeinterval', 'sensordesired',
                            'remark', 'active'] + alarmFields + ['user']
         self.fieldtranslate = ['begin', 'lang', 'dm_id', 'name', 'user']
 
@@ -6661,13 +6719,13 @@ class Sensor(AlarmingObject):
                 input = config.HardConfig.inputs[self.fields['channel']]
                 if cache is [] or cache is None:
                     try:
-                        ser = serial.Serial(input['serialport'],
+                        ser = Serial(input['serialport'],
                                             baudrate=9600,
                                             timeout=10)
                         time.sleep(2.5)  # Leave some time to initialize
                         ser.write(input['sdiaddress'].encode() + b'R0!')
                         cache = parse_atmos_data(self, ser.readline())
-                    except serial.SerialException:
+                    except SerialException:
                         print('Tried to read several times back to back ?')
                         raise
                     finally:
@@ -6705,8 +6763,8 @@ class Sensor(AlarmingObject):
                     else:
                         output_val = value
                 except:
-                    print(("Device=" + self.fields['sensor'] + " / " + self.fields['subsensor'] + \
-                          ", Formula=" + self.fields['formula'] + \
+                    print(("Device=" + self.fields['sensor'] + " / " + self.fields['subsensor'] +
+                          ", Formula=" + self.fields['formula'] +
                           ", Message=" + traceback.format_exc()))
                 return self.sanitize_reading(config, output_val), cache
         return None, None

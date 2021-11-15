@@ -104,6 +104,10 @@ class HardConfig():
     sms_password = ''
     sms_server = 'UNKNOWN_SMTP'
     sms_port = 587
+    influx_user = ''
+    influx_password = ''
+    influx_server = ''
+    influx_port = 9009
     sensor_polling = 60   # 60 seconds between sensors polling...
 
     def parse_section_system(self):
@@ -417,6 +421,17 @@ class HardConfig():
                         except:
                             print((anItem[0] + ': ' + anItem[1] + ' is not decimal.'))
 
+        if 'influx' in self.config.sections():
+            for anItem in self.config.items('influx'):
+                if anItem[0].lower() == 'user':
+                    self.influx_user = anItem[1]
+                elif anItem[0].lower() == 'password':
+                    self.influx_password = anItem[1]
+                elif anItem[0].lower() == 'server':
+                    self.influx_server = anItem[1]
+                elif anItem[0].lower() == 'port':
+                    self.influx_port = anItem[1]
+
         if 'sms' in self.config.sections():
             for anItem in self.config.items('sms'):
                 if anItem[0].lower() == 'user':
@@ -427,7 +442,6 @@ class HardConfig():
                     self.sms_server = anItem[1]
                 elif anItem[0].lower() == 'port':
                     self.sms_port = anItem[1]
-
         if 'keypad' in self.config.sections():
             for anItem in self.config.items('keypad'):
                 if anItem[0].lower() == 'installed':

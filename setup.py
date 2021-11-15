@@ -18,5 +18,5 @@ setup(
     classifiers=[
         'Operating System :: POSIX',
         'Programming Language :: Python',
-    ], install_requires=['python-barcode', 'requests', 'pySerial', 'rrdtool', 'web.py', 'pyownet', 'numpy', 'smbus2']
+    ], install_requires=['python-barcode', 'requests', 'pySerial', 'rrdtool', 'web.py', 'pyownet', 'numpy', 'smbus2','influx_line_protocol']
 )

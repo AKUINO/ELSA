@@ -2111,6 +2111,7 @@ def main():
             c.UpdateThread.join()
             c.RadioThread.join()
             c.TimerThread.join()
+            c.InfluxThread.join()
             c.HardConfig.close_ports()
 
         flags.launch_end_activities()
