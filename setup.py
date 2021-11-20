@@ -20,3 +20,13 @@ setup(
         'Programming Language :: Python',
     ], install_requires=['python-barcode', 'requests', 'pySerial', 'rrdtool', 'web.py', 'pyownet', 'numpy', 'smbus2','influx_line_protocol']
 )
+# python-barcode
+# requests
+# serial
+# rrdtool
+# csv
+# web.py
+# pyownet
+# serial
+# numpy
+# smbus2
