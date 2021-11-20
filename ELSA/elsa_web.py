@@ -207,7 +207,7 @@ class WebUpdateELSA:
 
         subprocess.call(['git', 'remote', 'update'])
         git_status_out = str(subprocess.check_output(['git', 'status']))
-        git_status_out = git_status_out.split('\n', "utf-8")
+        git_status_out = git_status_out.split('\n')
         try:
             git_status_out = (git_status_out[0]
                               + '<br>'
