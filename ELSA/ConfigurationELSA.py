@@ -1826,7 +1826,7 @@ class InfluxThread(threading.Thread):
                     except socket.error as e:
                         print("Remote Influx %s:%d Error: %s" % (servers[i],self.config.HardConfig.influx_port,e))
                         s.close()
-                        i =+ 1
+                        i = i+1
                 if toSend:
                     time.sleep(30.0) # 30 seconds before retrying to get network access
 
