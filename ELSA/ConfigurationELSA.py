@@ -1819,9 +1819,9 @@ class InfluxThread(threading.Thread):
                         s.sendall(toSend)
                         s.close()
                         self.Queue.task_done()
-                        toSend = None
                         print("Sent to Influx %s:%d Bytes: %d" % (
                             servers[i], self.config.HardConfig.influx_port, len(toSend)))
+                        toSend = None
                         i = len(servers)
                     except socket.error as e:
                         print("Remote Influx %s:%d Error: %s" % (servers[i],self.config.HardConfig.influx_port,e))
