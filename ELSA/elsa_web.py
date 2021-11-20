@@ -206,7 +206,7 @@ class WebUpdateELSA:
         connected = redirect_when_not_admin()
 
         subprocess.call(['git', 'remote', 'update'])
-        git_status_out = str(subprocess.check_output(['git', 'status']))
+        git_status_out = subprocess.check_output(['git', 'status']).decode("utf-8")
         git_status_lines = git_status_out.split('\n')
         try:
             git_status_out = (git_status_lines[0]
