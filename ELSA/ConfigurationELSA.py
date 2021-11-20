@@ -1799,26 +1799,36 @@ class InfluxThread(threading.Thread):
         self.Queue = queue.Queue()
 
     def run(self):
+        servers = self.config.HardConfig.influx_server
+        if servers:
+            servers = servers.split(' ')
+            if len(servers) == 0:
+                servers = None
         while self.config.isThreading:
             toSend = self.Queue.get()
-            while toSend and self.config.isThreading and self.config.HardConfig.influx_server:
-                # Open a socket & connect to 9009
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                try:
-                    print("Connect to Influx %s:%d to send %d bytes" % (
-                        self.config.HardConfig.influx_server, self.config.HardConfig.influx_port, len(toSend)))
-                    s.settimeout(25)
-                    s.connect((self.config.HardConfig.influx_server, self.config.HardConfig.influx_port))
-                    s.sendall(toSend)
-                    s.close()
-                    self.Queue.task_done()
-                    print("Sent to Influx %s:%d Bytes: %d" % (
-                        self.config.HardConfig.influx_server, self.config.HardConfig.influx_port, len(toSend)))
-                    break
-                except socket.error as e:
-                    print("Remote Influx %s:%d Error: %s" % (self.config.HardConfig.influx_server,self.config.HardConfig.influx_port,e))
-                    s.close()
-                time.sleep(30.0) # 30 seconds before retrying to get network access
+            while toSend and self.config.isThreading and servers:
+                i = 0
+                while i < len(servers):
+                    # Open a socket & connect to 9009
+                    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    try:
+                        print("Connect to Influx %s:%d to send %d bytes" % (
+                            servers[i], self.config.HardConfig.influx_port, len(toSend)))
+                        s.settimeout(25)
+                        s.connect((servers[i], self.config.HardConfig.influx_port))
+                        s.sendall(toSend)
+                        s.close()
+                        self.Queue.task_done()
+                        toSend = None
+                        print("Sent to Influx %s:%d Bytes: %d" % (
+                            servers[i], self.config.HardConfig.influx_port, len(toSend)))
+                        i = len(servers)
+                    except socket.error as e:
+                        print("Remote Influx %s:%d Error: %s" % (servers[i],self.config.HardConfig.influx_port,e))
+                        s.close()
+                        i =+ 1
+                if toSend:
+                    time.sleep(30.0) # 30 seconds before retrying to get network access
 
 class AllObjects(object):
 
