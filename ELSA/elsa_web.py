@@ -207,11 +207,11 @@ class WebUpdateELSA:
 
         subprocess.call(['git', 'remote', 'update'])
         git_status_out = str(subprocess.check_output(['git', 'status']))
-        git_status_out = git_status_out.split('\n')
+        git_status_lines = git_status_out.split('\n')
         try:
-            git_status_out = (git_status_out[0]
+            git_status_out = (git_status_lines[0]
                               + '<br>'
-                              + git_status_out[1])
+                              + git_status_lines[1])
         except IndexError:
             print(("Error reading git status output. " + git_status_out))
             raise
