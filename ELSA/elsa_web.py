@@ -204,7 +204,8 @@ class WebUpdateELSA:
     def GET(self):
         connected = redirect_when_not_admin()
 
-        subprocess.call(['git', 'remote', 'update'])
+        #subprocess.call(['git', 'remote', 'update'])
+        subprocess.call(['git', 'pull'])
         git_status_out = subprocess.check_output(['git', 'status']).decode("utf-8")
         git_status_lines = git_status_out.split('\n')
         try:
