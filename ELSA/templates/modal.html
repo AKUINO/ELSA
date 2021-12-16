@@ -506,7 +506,7 @@ $var title: MODAL
                                 </div>
                             </div>
                     $if type == 's':
-                        $if " upd_s " ) in self.allowed and elem.setable():
+                        $if " upd_s " in self.allowed and elem.setable():
                             <div class="row" style="margin-top:10px;"><form method="get" action="$elem.get_href('setting')">
                                 <div class="col-xs-4">
                                     <button type="submit" name="SET"/>
