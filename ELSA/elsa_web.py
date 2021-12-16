@@ -599,7 +599,7 @@ class WebSetting:
     def __init(self):
         self.name = "WebSetting"
 
-    def GET(self):
+    def GET(self, type, id):
         connected = redirect_when_not_allowed(type)
         user = connected.cuser
         currObject = c.getObject(id, type)
@@ -2123,10 +2123,16 @@ def main():
         print('fin des threads')
         if c:
             c.isThreading = False
+            #c.ActionThread.daemon = True
+            #c.RadioThread.daemon = True
+            #c.TimerThread.daemon = True
+            #c.InfluxThread.daemon = True
+            time.sleep(0.1)
             c.UpdateThread.join()
-            c.RadioThread.join()
-            c.TimerThread.join()
-            c.InfluxThread.join()
+            #c.RadioThread.join()
+            #c.TimerThread.join()
+            #c.InfluxThread.join()
+            time.sleep(0.1)
             c.HardConfig.close_ports()
 
         flags.launch_end_activities()

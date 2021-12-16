@@ -509,10 +509,10 @@ $var title: MODAL
                         $if " upd_s " in self.allowed and elem.setable():
                             <div class="row" style="margin-top:10px;"><form method="get" action="$elem.get_href('setting')">
                                 <div class="col-xs-4">
-                                    <button type="submit" name="SET"/>
+                                    <button type="submit" name="SET">SET</button>
                                 </div>
                                 <div class="col-xs-8" >
-                                    <input type="number" name="setting" value="$elem.lastvalue" size="6" autofocus/>
+                                    <input type="number" name="setting" value="$elem.lastvalue" size="6" autofocus/>$elem.get_unit(c)
                                 </div>
                             </form></div>
                        $if elem.fields['lapse1'] != '':
