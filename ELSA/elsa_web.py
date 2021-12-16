@@ -607,8 +607,10 @@ class WebSetting:
         if currObject is None or not 'setting' in data:
             raise web.seeother('/')
         if type == 's':
+            self.lastOutput = self.lastvalue #save current value
             currObject.lastvalue = data['setting']
-            currObject.put_value_sensor(c)
+            currObject.put_value_sensor(c) #may fail: lastOutput not updated
+            self.lastvalue = self.lastOutput
         raise web.seeother('/find/related/' + type + '_' + id)
 
 class WebCreate(WebEdit):
