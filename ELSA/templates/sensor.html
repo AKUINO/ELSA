@@ -273,6 +273,21 @@ $code:
 	</div>
 
 	<div class="form-group row">
+		<label for="inputReciprocal" class="col-sm-3 col-form-label">$c.getMessage('reciprocal',self.lang)</label>
+		<div class="col-sm-9">
+			<input name="reciprocal" type="text" class="form-control" id="inputReciprocal" placeholder="$c.getMessage('reciprocal',self.lang)"
+			       $if errormess != '':
+			       $if 'reciprocal' in data :
+			value="$data['reciprocal']"
+			$elif id =='new':
+			value="value"
+			$else:
+			value="$elem.fields['reciprocal']"
+			>
+		</div>
+	</div>
+
+	<div class="form-group row">
 	    <label for="inputsleep" class="col-sm-3 col-form-label">$c.getMessage('sleep',self.lang)</label>
 	    <span class="glyphicon glyphicon-remove-circle"> </span>
 	    $code:

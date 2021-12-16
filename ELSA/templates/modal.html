@@ -301,8 +301,13 @@ $var title: MODAL
                             </div>
                             <div class="col-xs-8" >
 				$elem.getQtyUnit(c,self.lang)
+                                $if permissionKey in '_s_' and " upd_s " in self.allowed and elem.fields['channel'] and not elem.isSleeping() and elem.fields['channel'] == 'modbus':
+                                    <form method="post" action="/item/s_$elem.fields['s_id']" id="modbusSET">
+                                        <input type="number" name="setting" placeholder="value" size="6" autofocus/>&nbsp;<button type="submit">SET</button>
+                                    </form>
                             </div>
                         </div>
+                    </div>
 		    $if permissionKey in '_s_dm_tm_vm_':
                         <div class="row" style="margin-top:10px;">
                             <div class="col-xs-4">
@@ -514,7 +519,16 @@ $var title: MODAL
                                 </div>
                             </div>
                     $if type == 's':
-                        $if elem.fields['lapse1'] != '':
+                        $if elem.setable():
+                            <div class="row" style="margin-top:10px;"><form>
+                                <div class="col-xs-4">
+                                    <input type="submit" name="SET"/>
+                                </div>
+                                <div class="col-xs-8" >
+                                    <input type="number" name="setting" value="$self.last_value"/>
+                                </div>
+                            </form></div>
+                       $if elem.fields['lapse1'] != '':
                             <div class="row" style="margin-top:10px;">
                                 <div class="col-xs-4">
                                 $c.getMessage('lapse',self.lang) 1 (")
@@ -555,6 +569,14 @@ $var title: MODAL
                             </div>
                             <div class="col-xs-8" >
                                 $elem.fields['formula']
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-xs-4">
+                                $c.getMessage('reciprocal',self.lang) :
+                            </div>
+                            <div class="col-xs-8" >
+                                $elem.fields['reciprocal']
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">

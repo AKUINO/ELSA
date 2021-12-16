@@ -2751,12 +2751,13 @@ class AllSensors(AllObjects):
                       'system']
 
     _actionProcs = [ 'http', 'json', 'tap', 'switch', 'modbus' ]
+    _setable_channels = ['modbus']
     
     def __init__(self, config):
         AllObjects.__init__(self, 's', Sensor.__name__, config)
         self.fieldnames = ['begin', 's_id', 'c_id', 'p_id', 'e_id', 'm_id', 'mobile', \
                            'active', 'acronym', 'remark', 'channel', 'sensor', \
-                           'subsensor', 'valuetype', 'formula', 'sleep', 'proc', 'param', 'scaling', \
+                           'subsensor', 'valuetype', 'formula', 'reciprocal', 'sleep', 'proc', 'param', 'scaling', \
                            'lapse1', 'lapse2', 'lapse3'] \
                           + alarmFields + ['user']
         self.fieldtranslate = ['begin', 'lang', 's_id', 'name', 'user']
@@ -5847,6 +5848,14 @@ class Measure(ConfigurationObject):
                 owData = str(eval(data['formula']))
         except:
             tmp += configuration.getMessage('formularules', lang) + '\n'
+        try:
+            if 'reciprocal' in data and len(data['reciprocal']) > 0:
+                value = 1
+                owData = str(eval(data['reciprocal']))
+                value = 0
+                owData = str(eval(data['reciprocal']))
+        except:
+            tmp += 'Recipro:' + configuration.getMessage('formularules', lang) + '\n'
 
         try:
             if not len(data['unit']) > 0:
@@ -6147,13 +6156,21 @@ class Sensor(AlarmingObject):
                 reg = int(reg)
                 # Returns a message or Application Data Unit (ADU) specific for doing
                 # Modbus RTU.
+                value = self.lastvalue
+                if 'reciprocal' in self.fields and self.fields['reciprocal']:
+                    try:
+                        value = float(value)
+                        value = eval(self.fields['reciprocal'])
+                    except:
+                        print(("Device=" + self.fields['sensor'] + " / " + self.fields['subsensor'] +
+                               ", Reciprocal=" + self.fields['reciprocal'] +
+                               ", Message=" + traceback.format_exc()))
+                message = None
                 if reg_type == 'c':
-                    message = rtu.write_coil(device_address,reg,int(self.lastvalue))
+                    message = rtu.write_coil(device_address,reg,int(value))
                 elif reg_type == 'h':
-                    message = rtu.write_single_register(device_address,reg,int(self.lastvalue))
-                else:
-                    reg_type = None
-                if reg_type:
+                    message = rtu.write_single_register(device_address,reg,int(value))
+                if message:
                     # Response depends on Modbus function code. This particular returns the
                     # amount of coils written, in this case it is.
                     try:
@@ -6379,9 +6396,7 @@ class Sensor(AlarmingObject):
             return None
 
     def put_value_sensor(self, config):
-        if not self.fields['channel'] :
-            pass
-        elif not self.isSleeping() and self.fields['channel'] == 'modbus':
+        if self.setable():
             self.proc_modbus(config, [self.fields['sensor'],self.fields['subsensor']])
         #TODO: else support other channels !
 
@@ -6814,6 +6829,14 @@ class Sensor(AlarmingObject):
         else:
             return 60
 
+    # Centralize checking if a sensor can be set and not just read
+    def setable(self):
+        if not self.fields['channel'] :
+            return False
+        if not self.isSleeping() and self.fields['channel'] == 'modbus':
+            return True
+        return False
+
     def fetch(self, start, end=None):
         """Fetch data from the RRD.
 
@@ -6854,6 +6877,15 @@ class Sensor(AlarmingObject):
             tmp += configuration.getMessage('formularules', lang) + '\n'
 
         try:
+            if 'reciprocal' in data and len(data['reciprocal']) > 0:
+                value = 1
+                owData = str(eval(data['reciprocal']))
+                value = 0
+                owData = str(eval(data['reciprocal']))
+        except:
+            tmp += 'Recipro:'+configuration.getMessage('formularules', lang) + '\n'
+
+        try:
             if not len(data['component']) > 0:
                 tmp += configuration.getMessage('componentrules', lang) + '\n'
         except:
@@ -6880,7 +6912,7 @@ class Sensor(AlarmingObject):
 
     def set_value_from_data(self, data, c, user):
         super(Sensor, self).set_value_from_data(data, c, user)
-        tmp = ['channel', 'sensor', 'subsensor', 'formula', 'proc', 'param', 'scaling', 'lapse1', 'lapse2', 'lapse3'] + alarmFields
+        tmp = ['channel', 'sensor', 'subsensor', 'formula', 'reciprocal', 'proc', 'param', 'scaling', 'lapse1', 'lapse2', 'lapse3'] + alarmFields
         for elem in tmp:
             self.fields[elem] = data[elem]
         if 'sleep' in data and data['sleep'] > '0':

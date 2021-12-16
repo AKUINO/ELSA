@@ -184,11 +184,16 @@ $if content.recursive == 'False' :
 				<li><a href="/list/gf" tabindex="-2">$:c.getHalfling('gfunction')&nbsp;&nbsp;$c.getMessage('gfunction',content.lang)</a></li>
 				<li><a href="/map/gf" tabindex="-3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$:c.getHalfling('map')&nbsp;$c.getMessage('map',content.lang)</a></li>
 				<li><a href="#" tabindex="-4">&nbsp;</a></li>				
-				<li$:('' if " admin "in content.allowed else ' class="disabled"')><a href="$("/backup" if " admin "in content.allowed else "#")" tabindex="-5">$:c.getHalfling('backup')&nbsp;$c.getMessage('backup',content.lang)</a></li>
 				$if self.tmp == 'connected':
 				    <li><a href="/disconnect" tabindex="-6">$:c.getHalfling('disconnect')&nbsp;$c.getMessage('disconnect',content.lang)</a></li>
 			    </ul>
 			</li>
+			    <li class="dropdown" data-show-icon="true">
+				    <a href="#" class="dropdown-toggle" data-toggle="dropdown">$c.HardConfig.hostname<b class="caret"></b></a>
+				    <ul class="dropdown-menu">
+					    <li$:('' if " admin "in content.allowed else ' class="disabled"')><a href="$("/backup" if " admin "in content.allowed else "#")" tabindex="-5">$:c.getHalfling('backup')&nbsp;$c.getMessage('backup',content.lang)</a></li>
+				    </ul>
+			    </li>
 		    </ul>
 		</div><!--/.navbar-collapse -->
 	    $elif self.tmp == 'connected':
@@ -204,11 +209,13 @@ $if content.recursive == 'False' :
 			$if content.pinned:
 			    $:c.getHalfling('pin')
 			</button>
+			<div class="btn btn-warning btn-md"><b>$c.HardConfig.hostname</b></div>
 		</div>
 	    $else:
 	        <nav class="navbar navbar-inverse" role="navigation">
 		<div class="navbar-header">
 			<span class="navbar-brand" href="/?completeMenu=1" style="margin:15px;margin-top:0px;"><img src="/static/img/akuino.png" border="0" alt="This application stores the configuration and the data of the different AKUINO modules installed"/></span>
+			<div class="btn btn-warning btn-md" style="margin-top:15px"><b>$c.HardConfig.hostname</b></div>
 		</div>
 	    </nav>
 	    <div style="font-size:20px;" class="hidden-print btn-group btn-breadcrumb">
