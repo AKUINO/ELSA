@@ -197,7 +197,6 @@ class WebRestore:
                                  getLinkForLatestBackupArchive(),
                                  "restoreEmpty")
 
-
 class WebUpdateELSA:
     def __init(self):
         self.name = "WebUpdateELSA"
@@ -502,7 +501,6 @@ class WebHistory:
             traceback.print_exc()
             return render.notfound()
 
-
 # UPDATE of Place, Equipment, Container, etc.
 class WebEdit:
     def GET(self, type, id):
@@ -596,6 +594,21 @@ class WebEdit:
         elif type == 'v':
             return render.pouring(connected, id, errormess, data, context)
 
+class WebSetting:
+    def __init(self):
+        self.name = "WebSetting"
+
+    def GET(self):
+        connected = redirect_when_not_allowed(type)
+        user = connected.cuser
+        currObject = c.getObject(id, type)
+        data = web.input(placeImg={}, linkedDocs={})
+        if currObject is None or not 'setting' in data:
+            raise web.seeother('/')
+        if type == 's':
+            currObject.lastvalue = data['setting']
+            currObject.put_value_sensor(c)
+        raise web.seeother('/find/related/' + type + '_' + id)
 
 class WebCreate(WebEdit):
     def GET(self, type):
@@ -2038,6 +2051,7 @@ def main():
             '/', 'WebIndex',
             '/index', 'WebIndex',
             '/edit/(.+)_(.+)', 'WebEdit',
+            '/setting/(.+)_(.+)', 'WebSetting',
             '/item/(.+)_(.+)', 'WebItem',
             '/history/(.+)_(.+)', 'WebHistory',
             '/create/(.+)', 'WebCreate',

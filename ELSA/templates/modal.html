@@ -294,19 +294,6 @@ $var title: MODAL
 				    <a href="/find/related/m_$(elem.fields['m_id'])">$:c.getAllHalfling(c.AllMeasures) $(measure.get_select_str(self.lang))</a>
                             </div>
                         </div>
-		    $if permissionKey in '_s_d_t_v_b_gr_':
-                        <div class="row" style="margin-top:10px;">
-                            <div class="col-xs-4">
-                            $c.getMessage('value',self.lang) :
-                            </div>
-                            <div class="col-xs-8" >
-				$elem.getQtyUnit(c,self.lang)
-                                $if permissionKey in '_s_' and " upd_s " in self.allowed and elem.fields['channel'] and not elem.isSleeping() and elem.fields['channel'] == 'modbus':
-                                    <form method="post" action="/item/s_$elem.fields['s_id']" id="modbusSET">
-                                        <input type="number" name="setting" placeholder="value" size="6" autofocus/>&nbsp;<button type="submit">SET</button>
-                                    </form>
-                            </div>
-                        </div>
                     </div>
 		    $if permissionKey in '_s_dm_tm_vm_':
                         <div class="row" style="margin-top:10px;">
@@ -519,13 +506,13 @@ $var title: MODAL
                                 </div>
                             </div>
                     $if type == 's':
-                        $if elem.setable():
-                            <div class="row" style="margin-top:10px;"><form>
+                        $if " upd_s " ) in self.allowed and elem.setable():
+                            <div class="row" style="margin-top:10px;"><form method="get" action="$elem.get_href('setting')">
                                 <div class="col-xs-4">
-                                    <input type="submit" name="SET"/>
+                                    <button type="submit" name="SET"/>
                                 </div>
                                 <div class="col-xs-8" >
-                                    <input type="number" name="setting" value="elem.lastvalue"/>
+                                    <input type="number" name="setting" value="$elem.lastvalue" size="6" autofocus/>
                                 </div>
                             </form></div>
                        $if elem.fields['lapse1'] != '':
