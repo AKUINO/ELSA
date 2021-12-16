@@ -611,7 +611,7 @@ class WebSetting:
             currObject.lastvalue = data['setting']
             currObject.put_value_sensor(c) #may fail: lastOutput not updated
             currObject.lastvalue = currObject.lastOutput
-        raise web.seeother('/find/related/' + type + '_' + id)
+        raise web.seeother('/item/' + type + '_' + id)
 
 class WebCreate(WebEdit):
     def GET(self, type):
