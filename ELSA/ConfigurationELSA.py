@@ -1508,6 +1508,22 @@ class ConfigurationObject(object):
             return c.AllMeasures.elements[self.fields['m_id']]
         return None;
 
+    def get_formula(self, c):
+        if self.fields['formula']:
+            return self.fields['formula']
+        aMeasure = self.get_measure(c)
+        if aMeasure:
+            return aMeasure.get_formula(c)
+        return None;
+
+    def get_reciprocal(self, c):
+        if self.fields['reciprocal']:
+            return self.fields['reciprocal']
+        aMeasure = self.get_measure(c)
+        if aMeasure:
+            return aMeasure.get_reciprocal(c)
+        return None;
+
     def get_unit(self, c):
         aMeasure = self.get_measure(c)
         if aMeasure:
@@ -1734,9 +1750,9 @@ class RadioThread(threading.Thread):
                                         try:
                                             if (str(currSensor.fields['sensor']).translate(noDots) == str(
                                                     HEX).translate(noDots)):
-                                                if not currSensor.fields['formula'] == '':
-                                                    value = str(
-                                                        eval(currSensor.fields['formula']))
+                                                aFormula = currSensor.get_formula(self.config)
+                                                if not aFormula == '':
+                                                    value = str(eval(aFormula))
                                                 print((
                                                         "Sensor ELA-" + currSensor.fields['sensor'] + ": " +
                                                         currSensor.fields['acronym'] + " = " + str(value)))
@@ -2917,8 +2933,9 @@ class AllSensors(AllObjects):
                             if (str(currSensor.fields['sensor']).translate(noDots) == str(module) ) \
                                 and (str(currSensor.fields['subsensor']).translate(noDots) \
                                         == str(key).translate(noDots)):
-                                if not currSensor.fields['formula'] == '':
-                                    value = str(eval(currSensor.fields['formula']))
+                                aFormula = currSensor.get_formula(self.config)
+                                if not aFormula == '':
+                                    value = str(eval(aFormula))
                                 print(( "Sensor LORA-" + currSensor.fields['sensor'] + ": " +
                                         currSensor.fields['acronym'] + " = " + str(value)))
                                 if key == 'G':
@@ -5907,6 +5924,12 @@ class Measure(ConfigurationObject):
     def get_unit(self, c):
         return self.fields['unit']
 
+    def get_formula(self, c):
+        return self.fields['formula']
+
+    def get_reciprocal(self, c):
+        return self.fields['reciprocal']
+
 currGPIO = None
 # currTap = None # Tap currently opened
 
@@ -6157,13 +6180,14 @@ class Sensor(AlarmingObject):
                 # Returns a message or Application Data Unit (ADU) specific for doing
                 # Modbus RTU.
                 value = self.lastvalue
-                if 'reciprocal' in self.fields and self.fields['reciprocal']:
+                aReciproc = self.get_reciprocal(config)
+                if aReciproc:
                     try:
                         value = float(value)
-                        value = eval(self.fields['reciprocal'])
+                        value = eval(aReciproc)
                     except:
                         print(("Device=" + self.fields['sensor'] + " / " + self.fields['subsensor'] +
-                               ", Reciprocal=" + self.fields['reciprocal'] +
+                               ", Reciprocal=" + aReciproc +
                                ", Message=" + traceback.format_exc()))
                 message = None
                 if reg_type == 'c':
@@ -6783,8 +6807,9 @@ class Sensor(AlarmingObject):
             else:
                 try:
                     value = float(output_val)
-                    if self.fields['formula']:
-                        output_val = float(eval(self.fields['formula']))
+                    aFormula = self.get_formula(config)
+                    if aFormula:
+                        output_val = float(eval(aFormula))
                     else:
                         output_val = value
                 except:

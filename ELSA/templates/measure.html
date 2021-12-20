@@ -120,11 +120,11 @@ $var bcOperation:edit
 		$if errormess != '':
 		    $if 'formula' in data :
 		        value="$data['formula']"
-		    $elif id =='new':
-		        value="value"
-		    $else:
-		        value="$elem.fields['formula']"
-		    >
+		$elif id =='new':
+		    value="value"
+		$else:
+		    value="$elem.fields['formula']"
+		>
 	    </div>
         </div>
 
@@ -135,11 +135,11 @@ $var bcOperation:edit
                 $if errormess != '':
 		    $if 'reciprocal' in data :
 		        value="$data['reciprocal']"
-		    $elif id =='new':
-		        value="value"
-		    $else:
-		        value="$elem.fields['reciprocal']"
-		    >
+		$elif id =='new':
+		    value="value"
+		$else:
+		    value="$elem.fields['reciprocal']"
+		>
 	    </div>
 	</div>
 
