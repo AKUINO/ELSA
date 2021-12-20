@@ -112,9 +112,39 @@ $var bcOperation:edit
 		required="true">
 	    </div>
 	</div>
-	
-	
+
 	<div class="form-group row">
+	    <label for="inputFormula" class="col-sm-3 col-form-label">$c.getMessage('formula',self.lang)</label>
+	    <div class="col-sm-9">
+	        <input name="formula" type="text" class="form-control" id="inputFormula" placeholder="$c.getMessage('formula',self.lang)"
+		$if errormess != '':
+		    $if 'formula' in data :
+		        value="$data['formula']"
+		    $elif id =='new':
+		        value="value"
+		    $else:
+		        value="$elem.fields['formula']"
+		    >
+	    </div>
+        </div>
+
+	<div class="form-group row">
+	    <label for="inputReciprocal" class="col-sm-3 col-form-label">$c.getMessage('reciprocal',self.lang)</label>
+	    <div class="col-sm-9">
+	        <input name="reciprocal" type="text" class="form-control" id="inputReciprocal" placeholder="$c.getMessage('reciprocal',self.lang)"
+                $if errormess != '':
+		    $if 'reciprocal' in data :
+		        value="$data['reciprocal']"
+		    $elif id =='new':
+		        value="value"
+		    $else:
+		        value="$elem.fields['reciprocal']"
+		    >
+	    </div>
+	</div>
+
+
+	    <div class="form-group row">
 	    <label for="inputRemark" class="col-sm-3 col-form-label">$c.getMessage('remark',self.lang)</label>
 	    <div class="col-sm-9">
 		<textarea name="remark" type="text" class="form-control" id="inputRemark" placeholder="Remark" >$rmq</textarea>

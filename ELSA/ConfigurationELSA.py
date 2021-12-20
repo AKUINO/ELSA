@@ -2726,7 +2726,7 @@ class AllMeasures(AllObjects):
     def __init__(self, config):
         AllObjects.__init__(self, 'm', Measure.__name__, config)
         self.fieldnames = ['begin', 'm_id', 'active',
-                           'acronym', 'unit', 'remark', 'min', 'step', 'max', 'user']
+                           'acronym', 'unit', 'remark', 'formula', 'reciprocal', 'min', 'step', 'max', 'user']
         self.fieldtranslate = ['begin', 'lang', 'm_id', 'name', 'user']
 
     def newObject(self):
@@ -5896,7 +5896,7 @@ class Measure(ConfigurationObject):
 
     def set_value_from_data(self, data, c, user):
         super(Measure, self).set_value_from_data(data, c, user)
-        tmp = ['unit', 'min', 'max', 'step']
+        tmp = ['formula', 'reciprocal', 'unit', 'min', 'max', 'step']
         for elem in tmp:
             self.fields[elem] = data[elem]
         self.save(c, user)
