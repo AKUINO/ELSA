@@ -109,6 +109,7 @@ class HardConfig():
     influx_server = ''
     influx_port = 9009
     sensor_polling = 60   # 60 seconds between sensors polling...
+    menu_type = 'b'
 
     def parse_section_system(self):
         if self.config.has_section('system'):
@@ -285,6 +286,8 @@ class HardConfig():
                         self.sensor_polling = int(anItem[1])
                     except:
                         print((anItem[0] + ': ' + anItem[1] + ' is not decimal.'))
+                elif anItem[0].lower() == 'menu':
+                    self.menu_type = 's'
 
         if 'OLED' in self.config.sections():
             for anItem in self.config.items('OLED'):

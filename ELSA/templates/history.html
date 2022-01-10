@@ -10,6 +10,7 @@ $code :
 	records, names, relations = elem.get_history(c)
     begin = ""
     user = ""
+    ip = ""
     prv = None
 $var recursive : False
 $var title : ELSA $(c.findAll(type).get_class_acronym())
@@ -31,11 +32,12 @@ $if not type in 'tdv':
 		prv = {}
 		for field,value in row.items():
 		    prv[field] = ''
-	$if row['user'] != user:
+	$if row['user'] != user or row['ip'] != ip:
 	        $ user = row['user']
-		<tr><th colspan=3>$:c.linkedAcronym(c.AllUsers,user,True)</th></tr>
+		$ ip = row['ip']
+		<tdtr><th colspan=3>$:c.linkedAcronym(c.AllUsers,user,True)</th><td>$ip</td><tr>
 	$for field,value in row.items():
-	    $if (not field in ['user','begin',allObjects.keyColumn,'cont_type','object_type','s_type']) and not (prv[field] == row[field]):
+	    $if (not field in ['user','ip','begin',allObjects.keyColumn,'cont_type','object_type','s_type']) and not (prv[field] == row[field]):
 		<tr><td style="padding:5px">$(row['begin'] if begin != row['begin'] else '')<td>
 		$code:
 		    acro = field

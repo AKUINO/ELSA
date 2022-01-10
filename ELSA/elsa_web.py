@@ -1564,7 +1564,10 @@ class WebIndex:
         return render.index(None)
 
     def getRender(self, connected):
-        return render.maprecipes(connected, True)
+        if c.HardConfig.menu_type == 'b':
+            return render.maprecipes(connected, True)
+        else:
+            return render.mapcomponents(connected)
 
 
 class WebSearch:

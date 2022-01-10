@@ -474,7 +474,7 @@ class Configuration():
         self.sortedCategs = sorted(valueCategs)
         self.file_of_codes = os.path.join(DIR_DATA_CSV, 'codes.csv')
         self.file_of_relations = os.path.join(DIR_DATA_CSV, 'relations.csv')
-        self.fieldcode = ['begin', 'type', 'idobject', 'code', 'user']
+        self.fieldcode = ['begin', 'type', 'idobject', 'code', 'user', 'ip']
         self.registry = {}
         self.AllUsers = AllUsers(self)
         self.AllLanguages = AllLanguages(self)
@@ -882,6 +882,7 @@ class ConfigurationObject(object):
         self.id = None
         self.created = None
         self.creator = None
+        self.ip = None
         self.transfers = []
         self.manualdata = []
 
@@ -899,13 +900,16 @@ class ConfigurationObject(object):
     def save(self, configuration, anUser=None):
         self.fields["begin"] = useful.now()
         if anUser:
-            self.fields["user"] = anUser.fields['u_id']
+            self.fields['user'] = anUser.fields['u_id']
+            self.fields['ip'] = anUser.ip if anUser.ip else ""
         else:
-            self.fields["user"] = ""
+            self.fields['user'] = ""
+            self.fields['ip'] = ""
 
         if self.creator is None:
             self.creator = self.fields['user']
             self.created = self.fields['begin']
+            self.ip = self.fields['ip']
 
         allObjects = configuration.findAllFromObject(self)
         with open(allObjects.file_of_objects, "a") as csvfile:
@@ -934,7 +938,7 @@ class ConfigurationObject(object):
     ##            tmpCode['type'] = self.get_type()
     ##            tmpCode['idobject'] = self.fields[allObjects.keyColumn]
     ##            tmpCode['code'] = unicode(barcode)
-    ##            tmpCode["user"] = anUser.fields['u_id']
+    ##            tmpCode['user'] = anUser.fields['u_id']
     ##            writer = csv.DictWriter(csvfile,
     ##                                           delimiter='\t',
     ##                                           fieldnames=configuration.fieldcode,
@@ -1034,6 +1038,7 @@ class ConfigurationObject(object):
             newName = {}
             newName["begin"] = useful.now()
             newName['user'] = user.fields['u_id']
+            newName['ip'] = user.ip if user.ip else ""
             newName['lang'] = key
             newName['name'] = value
             newName[keyColumn] = self.fields[keyColumn]
@@ -1118,7 +1123,8 @@ class ConfigurationObject(object):
             tmpCode['g_id'] = groupid
             tmpCode['idobject'] = self.fields[allObjects.keyColumn]
             tmpCode['type'] = self.get_type()
-            tmpCode["user"] = user.fields['u_id']
+            tmpCode['user'] = user.fields['u_id']
+            tmpCode['ip'] = user.ip if user.ip else ""
             tmpCode['active'] = active
             writer = DictWriter(csvfile,
                                 delimiter='\t',
@@ -1936,6 +1942,7 @@ class AllObjects(object):
                     tmp = self.elements[key]
                     currObject.created = tmp.created
                     currObject.creator = tmp.creator
+                    currObject.ip = tmp.ip
                     if tmp.get_type() == 't':
                         self.config \
                             .get_object(tmp.fields['object_type'], tmp.fields['object_id']) \
@@ -1964,8 +1971,11 @@ class AllObjects(object):
                     currObject.created = currObject.fields['begin']
                     if 'user' in row:
                         currObject.creator = row['user']
+                        if 'ip' in row:
+                            currObject.ip = row['ip']
                     else:
                         currObject.creator = None
+                        currObject.ip = None
                 self.elements[key] = currObject
                 if currObject.get_type() == 't':
                     if currObject.isActive():
@@ -2192,8 +2202,8 @@ class AllUsers(AllObjects):
         self.fieldnames = ['begin', 'u_id', 'active', 'acronym',
                            'remark', 'addr1', 'addr2', 'addr3', 'vat', 'accesslevel',
                            'registration', 'phone', 'mail', 'password',
-                           'language', 'gf_id', 'donotdisturb', 'user']
-        self.fieldtranslate = ['begin', 'lang', 'u_id', 'name', 'user']
+                           'language', 'gf_id', 'donotdisturb', 'user', 'ip']
+        self.fieldtranslate = ['begin', 'lang', 'u_id', 'name', 'user', 'ip']
 
     def newObject(self):
         return User()
@@ -2225,8 +2235,8 @@ class AllEquipments(AllObjects):
     def __init__(self, config):
         AllObjects.__init__(self, 'e', Equipment.__name__, config)
         self.fieldnames = ["begin", "e_id", "active",
-                           "acronym", "remark", 'colorgraph', 'gu_id', "user"]
-        self.fieldtranslate = ['begin', 'lang', 'e_id', 'name', 'user']
+                           "acronym", "remark", 'colorgraph', 'gu_id', 'user', 'ip']
+        self.fieldtranslate = ['begin', 'lang', 'e_id', 'name', 'user', 'ip']
 
     def newObject(self):
         return Equipment(self.config)
@@ -2243,8 +2253,8 @@ class AllContainers(AllObjects):
     def __init__(self, config):
         AllObjects.__init__(self, 'c', Container.__name__, config)
         self.fieldnames = ["begin", "c_id", "active",
-                           "acronym", "remark", 'colorgraph', 'gu_id', "user"]
-        self.fieldtranslate = ['begin', 'lang', 'c_id', 'name', 'user']
+                           "acronym", "remark", 'colorgraph', 'gu_id', 'user', 'ip']
+        self.fieldtranslate = ['begin', 'lang', 'c_id', 'name', 'user', 'ip']
 
     def newObject(self):
         return Container(self.config)
@@ -2261,8 +2271,8 @@ class AllPlaces(AllObjects):
     def __init__(self, config):
         AllObjects.__init__(self, 'p', Place.__name__, config)
         self.fieldnames = ['begin', 'p_id', 'active',
-                           'acronym', 'remark', 'colorgraph', 'gu_id', 'user']
-        self.fieldtranslate = ['begin', 'lang', 'p_id', 'name', 'user']
+                           'acronym', 'remark', 'colorgraph', 'gu_id', 'user', 'ip']
+        self.fieldtranslate = ['begin', 'lang', 'p_id', 'name', 'user', 'ip']
 
     def newObject(self):
         return Place(self.config)
@@ -2282,7 +2292,7 @@ class AllAlarmLogs(AllObjects):
         self.file_of_names = None
         self.fieldnames = ['begin', 'al_id', 'cont_id', 'cont_type',
                            's_id', 's_type', 'value', 'typealarm', 'a_id', 'gf_id', 'begintime',
-                           'alarmtime', 'degree', 'completedtime', 'remark', 'active', 'user']
+                           'alarmtime', 'degree', 'completedtime', 'remark', 'active', 'user', 'ip']
         self.fieldtranslate = None
 
     def newObject(self):
@@ -2340,7 +2350,7 @@ class AllHalflings(AllObjects):
         self.file_of_objects = os.path.join(DIR_APP_CSV, "halflings.csv")
         self.file_of_names = None
         self.keyColumn = "classname"
-        self.fieldnames = ['begin', 'classname', 'glyphname', 'user']
+        self.fieldnames = ['begin', 'classname', 'glyphname', 'user', 'ip']
         self.fieldtranslate = None
 
     def newObject(self):
@@ -2376,8 +2386,8 @@ class AllAlarms(AllObjects):
         AllObjects.__init__(self, 'a', Alarm.__name__, config)
         self.fieldnames = ['begin', 'a_id', 'active', 'acronym', 'o_sms1',
                            'o_sms2', 'o_email1', 'o_email2', 'o_sound1',
-                           'o_sound2', 'relay1', 'relay1_id', 'relay2', 'relay2_id', 'remark', 'user']
-        self.fieldtranslate = ['begin', 'lang', 'a_id', 'name', 'user']
+                           'o_sound2', 'relay1', 'relay1_id', 'relay2', 'relay2_id', 'remark', 'user', 'ip']
+        self.fieldtranslate = ['begin', 'lang', 'a_id', 'name', 'user', 'ip']
 
     def newObject(self):
         return Alarm()
@@ -2393,7 +2403,7 @@ class AllManualData(AllObjects):
         self.file_of_names = None
         self.fieldnames = ['begin', 'd_id', 'dm_id', 'object_id', 'object_type',
                            'time', 'h_id', 'remark', 'm_id', 'value', 'minval', 'maxval', 'startrange', 's_id', 'al_id', 'active',
-                           'user']
+                           'user','ip']
         self.fieldtranslate = None
 
     def newObject(self):
@@ -2410,7 +2420,7 @@ class AllPourings(AllObjects):
         self.file_of_names = None
         self.fieldnames = ['begin', 'v_id', 'vm_id', 'src', 'dest', 'time',
                            'h_id', 'quantity', 'm_id', 'remark', 'al_id',
-                           'active', 'user']
+                           'active', 'user', 'ip']
         self.fieldtranslate = None
 
     def newObject(self):
@@ -2424,7 +2434,7 @@ class AllGroups(AllObjects):
     def __init__(self, obj_type, class_name, config):
         AllObjects.__init__(self, obj_type, class_name, config)
         self.fieldrelations = ['begin', 'parent_id',
-                               'child_id', 'active', 'user']
+                               'child_id', 'active', 'user', 'ip']
 
     def load(self):
         AllObjects.load(self)
@@ -2523,8 +2533,8 @@ class AllGrUsage(AllGroups):
     def __init__(self, config):
         AllGroups.__init__(self, 'gu', GrUsage.__name__, config)
         self.fieldnames = ["begin", "gu_id",
-                           "active", "acronym", 'rank', "remark", "user"]
-        self.fieldtranslate = ['begin', 'lang', 'gu_id', 'name', 'user']
+                           "active", "acronym", 'rank', "remark", 'user', 'ip']
+        self.fieldtranslate = ['begin', 'lang', 'gu_id', 'name', 'user', 'ip']
         self.file_of_relations = os.path.join(DIR_DATA_CSV, "GUrelations.csv")
 
     def newObject(self):
@@ -2622,8 +2632,8 @@ class AllGrRecipe(AllGroups):
         AllGroups.__init__(self, 'gr', GrRecipe.__name__, config)
         self.fieldnames = ["begin", "gr_id", "gu_id", "provider_gf_id", "buyer_gf_id",
                            "basicqt", "m_id", "cost", "fixed_cost", "lifespan",
-                           "active", "acronym", "remark", "user"]
-        self.fieldtranslate = ['begin', 'lang', 'gr_id', 'name', 'user']
+                           "active", "acronym", "remark", 'user', 'ip']
+        self.fieldtranslate = ['begin', 'lang', 'gr_id', 'name', 'user', 'ip']
         self.file_of_relations = os.path.join(DIR_DATA_CSV, "GRrelations.csv")
 
     def newObject(self):
@@ -2641,10 +2651,10 @@ class AllCheckPoints(AllGroups):
         AllGroups.__init__(self, 'h', CheckPoint.__name__, config)
         self.fieldnames = ["begin", "h_id", "active", "acronym",
                            'rank', 'abstract', "remark", 'gr_id',
-                           'gu_id', "user"]
-        self.fieldtranslate = ['begin', 'lang', 'h_id', 'name', 'user']
+                           'gu_id', 'user', 'ip']
+        self.fieldtranslate = ['begin', 'lang', 'h_id', 'name', 'user', 'ip']
         self.fieldcontrols = ['begin', 'h_id',
-                              'object_type', 'object_id', 'user']
+                              'object_type', 'object_id', 'user', 'ip']
         self.file_of_relations = os.path.join(DIR_DATA_CSV, "Hrelations.csv")
         self.file_of_controls = os.path.join(DIR_DATA_CSV, "Hcontrols.csv")
 
@@ -2720,8 +2730,8 @@ class AllGrFunction(AllGroups):
     def __init__(self, config):
         AllGroups.__init__(self, 'gf', GrFunction.__name__, config)
         self.fieldnames = ["begin", "gf_id",
-                           "active", "acronym", "remark", "user"]
-        self.fieldtranslate = ['begin', 'lang', 'gf_id', 'name', 'user']
+                           "active", "acronym", "remark", 'user', 'ip']
+        self.fieldtranslate = ['begin', 'lang', 'gf_id', 'name', 'user', 'ip']
         self.file_of_relations = os.path.join(DIR_DATA_CSV, "GFrelations.csv")
 
     def newObject(self):
@@ -2742,8 +2752,8 @@ class AllMeasures(AllObjects):
     def __init__(self, config):
         AllObjects.__init__(self, 'm', Measure.__name__, config)
         self.fieldnames = ['begin', 'm_id', 'active',
-                           'acronym', 'unit', 'remark', 'formula', 'reciprocal', 'min', 'step', 'max', 'user']
-        self.fieldtranslate = ['begin', 'lang', 'm_id', 'name', 'user']
+                           'acronym', 'unit', 'remark', 'formula', 'reciprocal', 'min', 'step', 'max', 'user', 'ip']
+        self.fieldtranslate = ['begin', 'lang', 'm_id', 'name', 'user', 'ip']
 
     def newObject(self):
         return Measure()
@@ -2775,8 +2785,8 @@ class AllSensors(AllObjects):
                            'active', 'acronym', 'remark', 'channel', 'sensor', \
                            'subsensor', 'valuetype', 'formula', 'reciprocal', 'sleep', 'proc', 'param', 'scaling', \
                            'lapse1', 'lapse2', 'lapse3'] \
-                          + alarmFields + ['user']
-        self.fieldtranslate = ['begin', 'lang', 's_id', 'name', 'user']
+                          + alarmFields + ['user', 'ip']
+        self.fieldtranslate = ['begin', 'lang', 's_id', 'name', 'user', 'ip']
         self.add_query_channels_from_hardconfig()
         for k in self._queryChannels:
             config.channels[k] = {}
@@ -2960,6 +2970,7 @@ class AllSensors(AllObjects):
                                                     newTransfer = self.config.AllTransfers.createObject()
                                                     newTransfer.fields['time'] = useful.now()
                                                     newTransfer.fields['user'] = ""
+                                                    newTransfer.fields['ip'] = ""
                                                     newTransfer.set_position(where.getTypeId())
                                                     newTransfer.set_object(elem.getTypeId(),currSensor.default_user)
                                                     newTransfer.save(self.config, currSensor.default_user)
@@ -3010,8 +3021,8 @@ class AllBatches(AllObjects):
         self.fieldnames = ["begin", "b_id", "active", "acronym",
                            "basicqt", "m_id", "time", "cost", "fixed_cost", "remark",
                            "provider_id", "provider_ref", "buyer_id", "buyer_ref",
-                           'gr_id', 'expirationdate', 'completedtime', "user"]
-        self.fieldtranslate = ['begin', 'lang', 'b_id', 'name', 'user']
+                           'gr_id', 'expirationdate', 'completedtime', 'user', 'ip']
+        self.fieldtranslate = ['begin', 'lang', 'b_id', 'name', 'user', 'ip']
 
     def newObject(self):
         return Batch(self.config)
@@ -3065,7 +3076,7 @@ class AllTransfers(AllObjects):
         self.file_of_names = None
         self.fieldnames = ["begin", "t_id", 'tm_id', 'time', 'h_id', "cont_id",
                            "cont_type", "object_id", "object_type", "remark",
-                           'al_id', 'active', "user"]
+                           'al_id', 'active', 'user', 'ip']
         self.fieldtranslate = None
 
     def newObject(self):
@@ -3081,8 +3092,8 @@ class AllTransferModels(AllObjects):
         AllObjects.__init__(self, 'tm', TransferModel.__name__, config)
         self.fieldnames = ["begin", 'tm_id', 'acronym',
                            'gu_id', 'h_id', 'rank', 'remark', 'active'] \
-                          + alarmFields + ['user']
-        self.fieldtranslate = ['begin', 'lang', 'tm_id', 'name', 'user']
+                          + alarmFields + ['user', 'ip']
+        self.fieldtranslate = ['begin', 'lang', 'tm_id', 'name', 'user', 'ip']
 
     def newObject(self):
         return TransferModel(self.config)
@@ -3104,8 +3115,8 @@ class AllPouringModels(AllObjects):
         # QUANTITY must NOT be used, TYPICAL is the right field
         self.fieldnames = ['begin', 'vm_id', 'acronym', 'src', 'dest',
                            'quantity', 'h_id', 'rank', 'in', 'gu_id', 'remark', 'active'] \
-                          + alarmFields + ['user']
-        self.fieldtranslate = ['begin', 'lang', 'vm_id', 'name', 'user']
+                          + alarmFields + ['user', 'ip']
+        self.fieldtranslate = ['begin', 'lang', 'vm_id', 'name', 'user', 'ip']
 
     def newObject(self):
         return PouringModel(self.config)
@@ -3125,8 +3136,8 @@ class AllManualDataModels(AllObjects):
     def __init__(self, config):
         AllObjects.__init__(self, 'dm', ManualDataModel.__name__, config)
         self.fieldnames = ['begin', 'dm_id', 'acronym', 'm_id', 'h_id', 'rank', 'timeinterval', 'sensordesired',
-                           'remark', 'active'] + alarmFields + ['user']
-        self.fieldtranslate = ['begin', 'lang', 'dm_id', 'name', 'user']
+                           'remark', 'active'] + alarmFields + ['user', 'ip']
+        self.fieldtranslate = ['begin', 'lang', 'dm_id', 'name', 'user', 'ip']
 
     def newObject(self):
         return ManualDataModel(self.config)
@@ -3149,7 +3160,7 @@ class AllBarcodes(AllObjects):
         self.file_of_names = None
         self.keyColumn = "code"
         self.fieldnames = ['begin', 'type',
-                           'idobject', 'code', 'codetype', 'active', 'user']
+                           'idobject', 'code', 'codetype', 'active', 'user', 'ip']
         self.fieldtranslate = None
         self.EAN = barcode.get_barcode_class('ean13')
 
@@ -3189,9 +3200,9 @@ class AllBarcodes(AllObjects):
         # self.to_pictures()
         if conformantFile is not None:
             conformantFile.close()
+            tableTrans = {' ':None, ':':None, '.':None, '/':None, '-':None}
             os.rename(self.file_of_objects,
-                      self.file_of_objects + '.' + useful.timestamp_to_ISO(useful.get_timestamp()).translate(None,
-                                                                                                             " :./-"))
+                      self.file_of_objects + '.' + useful.timestamp_to_ISO(useful.get_timestamp()).translate(tableTrans))
             os.rename(self.file_of_objects + ".NEW", self.file_of_objects)
 
     def newObject(self, item):
@@ -3252,7 +3263,8 @@ class AllBarcodes(AllObjects):
         fields['code'] = some_code
         fields['codetype'] = codetype
         fields['active'] = active
-        fields["user"] = user.fields['u_id']
+        fields['user'] = user.fields['u_id']
+        fields['ip'] = user.ip if user.ip else ""
         return fields
 
     def validate_barcode(self, some_code, codetype, aType, anID):
@@ -3372,11 +3384,14 @@ class AllConnectedUsers():
         mail = user.fields['mail'].lower()
         if ip not in self.users:
             self.users[ip] = ConnectedUser(user)
+            user.ip = ip
         elif mail == self.users[ip].cuser.fields['mail']:
             self.users[ip].update()
+            user.ip = ip
         else:
             del self.users[ip]
             self.users[ip] = ConnectedUser(user)
+            user.ip = ip
         return self.users[ip]
 
     def removeOld(self):
@@ -3390,6 +3405,8 @@ class AllConnectedUsers():
         mail = mail.lower()
         if ip in self.users:
             user = self.users[ip].cuser
+            if user:
+                user.ip = ip
             if mail == user.fields['mail'] and user.checkPassword(password):
                 self.users[ip].update()
                 return self.users[ip]
@@ -4168,7 +4185,8 @@ class Group(ConfigurationObject):
             tmpCode['begin'] = useful.now()
             tmpCode['parent_id'] = parentid
             tmpCode['child_id'] = self.getID()
-            tmpCode["user"] = user.fields['u_id']
+            tmpCode['user'] = user.fields['u_id']
+            tmpCode['ip'] = user.ip if user.ip else ""
             tmpCode['active'] = active
             writer = DictWriter(csvfile,
                                 delimiter='\t',
@@ -4596,7 +4614,8 @@ class CheckPoint(Group):
             tmpCode['h_id'] = self.getID()
             tmpCode['object_type'] = type
             tmpCode['object_id'] = id
-            tmpCode["user"] = user.fields['u_id']
+            tmpCode['user'] = user.fields['u_id']
+            tmpCode['ip'] = user.ip if user.ip else ""
             writer = DictWriter(csvfile,
                                 delimiter='\t',
                                 fieldnames=self.config
@@ -4962,7 +4981,7 @@ class AlarmLog(ConfigurationObject):
 class ExportData():
     def __init__(self, config, elem, cond, user):
         self.config = config
-        self.fieldnames = ['timestamp', 'user', 'type', 'b_id', 'p_id', 'e_id',
+        self.fieldnames = ['timestamp', 'ip', 'user', 'type', 'b_id', 'p_id', 'e_id',
                            'c_id', 'h_id', 'm_id', 'sensor', 'value', 'unit',
                            'category', 'duration', 'remark']
         self.history = []
@@ -5232,6 +5251,7 @@ class ExportData():
         tmp = self.get_new_line()
         if elem.creator:
             tmp['user'] = elem.creator
+            tmp['ip'] = elem.ip
             if self.cond['acronym'] is True and elem.creator:
                 aUser = self.config.AllUsers.elements[elem.creator]
                 if aUser and aUser.fields['acronym']:
@@ -5436,6 +5456,7 @@ class ExportData():
         tmp = {}
         tmp['timestamp'] = ''
         tmp['user'] = ''
+        tmp['ip'] = ''
         tmp['type'] = ''
         tmp['b_id'] = ''
         tmp['p_id'] = ''
@@ -5521,6 +5542,7 @@ class Alarm(ConfigurationObject):
         newFields['gf_id'] = group
         newFields['alarmtime'] = useful.now()
         newFields['user'] = alarmedObject.fields['user']
+        newFields['ip'] = alarmedObject.fields['ip']
         newFields['remark'] = ''
         newFields['active'] = '1'
         specmess = self.getName(lang)
@@ -7153,6 +7175,7 @@ class Batch(ConfigurationObject):
             b.setName(lang, self.get_real_name(lang),
                       user, self.config.getKeyColumn(b))
         b.creator = user.fields['u_id']
+        b.ip = user.ip if user.ip else ""
         b.created = b.fields['begin']
         b.save(self.config, user)
         b.ensure_barcode(self.config, user, "")
@@ -7177,6 +7200,7 @@ class Batch(ConfigurationObject):
             b.setName(lang, self.get_real_name(lang),
                       user, self.config.getKeyColumn(b))
         b.creator = user.fields['u_id']
+        b.ip = user.ip if user.ip else ""
         b.created = b.fields['begin']
         b.save(self.config, user)
         b.ensure_barcode(self.config,user,"")
@@ -7192,6 +7216,7 @@ class Batch(ConfigurationObject):
             tr.set_position(component)
             tr.set_object(b.getTypeId(), user)
             tr.creator = user.fields['u_id']
+            tr.ip = user.ip if user.ip else ""
             tr.created = tr.fields['time']
             tr.save(self.config, user)
         return b

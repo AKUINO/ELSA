@@ -200,11 +200,17 @@ $if content.recursive == 'False' :
 	        <nav class="navbar navbar-inverse" role="navigation">
 		<div class="navbar-header">
 			<a class="navbar-brand" href="/?completeMenu=1" style="margin:15px;margin-top:0px;"><img src="/static/img/akuino.png" border="0" alt="This application stores the configuration and the data of the different AKUINO modules installed"/></a>
-			<button onclick="location.href='/index?completeMenu=0'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('grecipe')</button>
-			<button onclick="location.href='/map/gu'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('guse')</button>
-			<button onclick="location.href='/list/al'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('alarmlog')</button>
-			<button onclick="location.href='/map/gf'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('gfunction')</button>
-			<button onclick="location.href='/calendar'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('calendar')</button>
+			$if c.HardConfig.menu_type == 'b':
+				<button onclick="location.href='/index?completeMenu=0'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('grecipe')</button>
+				<button onclick="location.href='/map/gu'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('guse')</button>
+				<button onclick="location.href='/list/al'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('alarmlog')</button>
+				<button onclick="location.href='/map/gf'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('gfunction')</button>
+				<button onclick="location.href='/calendar'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('calendar')</button>
+			$else:
+				<button onclick="location.href='/map/pec'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('equipment')</button>
+				<button onclick="location.href='/list/s'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('sensor')</button>
+				<button onclick="location.href='/list/m'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('measure')</button>
+				<button onclick="location.href='/list/al'" type="button" class="btn btn-warning btn-md" style="margin:15px;">$:c.getHalfling('alarmlog')</button>
 			<button onclick="generateQRCode()" type="button" class="btn btn-warning btn-md" data-toggle="modal" data-target="#modal_barcode" aria-expanded="false" aria-controls="navbar" style="margin:15px;">$:c.getHalfling('search')
 			$if content.pinned:
 			    $:c.getHalfling('pin')
