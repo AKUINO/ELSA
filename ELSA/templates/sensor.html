@@ -269,6 +269,8 @@ $code:
 		$else:
 		    value="$elem.fields['formula']"
 		>
+		$if not elem.fields['formula']:
+		    <i>$elem.get_formula(c)</i>
 	    </div>
 	</div>
 
@@ -284,6 +286,8 @@ $code:
 			$else:
 			    value="$elem.fields['reciprocal']"
 			>
+			$if not elem.fields['reciprocal']:
+			    <i>$elem.get_reciprocal(c)</i>
 		</div>
 	</div>
 

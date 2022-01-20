@@ -2,7 +2,7 @@
   <code_scheme name="Project" version="173">
     <codeStyleSettings language="HTML">
       <indentOptions>
-        <option name="TAB_SIZE" value="8" />
+        <option name="CONTINUATION_INDENT_SIZE" value="4" />
       </indentOptions>
     </codeStyleSettings>
   </code_scheme>

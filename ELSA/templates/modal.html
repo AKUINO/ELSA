@@ -557,6 +557,8 @@ $var title: MODAL
                             </div>
                             <div class="col-xs-8" >
                                 $elem.fields['formula']
+                                $if not elem.fields['formula']:
+                                    <a href="/find/related/m_$(elem.fields['m_id'])"><i>$elem.get_formula(c)</i></a>
                             </div>
                         </div>
                         <div class="row" style="margin-top:10px;">
@@ -565,6 +567,8 @@ $var title: MODAL
                             </div>
                             <div class="col-xs-8" >
                                 $elem.fields['reciprocal']
+                                $if not elem.fields['reciprocal']:
+                                    <a href="/find/related/m_$(elem.fields['m_id'])"><i>$elem.get_reciprocal(c)</i></a>
                             </div>
                         </div>
                     $if type == 's':

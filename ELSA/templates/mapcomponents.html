@@ -39,33 +39,33 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 						#$elem.fields['rank']
 				    </div>
 				$ sensors = place.get_sensors_in_component(c)
-				$for ksensor in sensors:
+				$for ksensor in c.AllSensors.sort_hierarchy(sensors):
 					$ sensor = c.AllSensors.get(ksensor)
 					$if sensor and sensor.isActive():
-					$ alarms = sensor.count_logs(c)
-					<div class="map down">
-					<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c,True,False))</a>
-					$ acro = sensor.fields['acronym']
-					$if ('s_'+ksensor) in done:
-						<a href="#s_$acro">$acro</a>
-					$else:
-						<a name="s_$acro"></a>$acro - <strong>$(sensor.getName(self.lang))</strong>
-						<span style="padding:5px;background-color:#$(sensor.colorAlarm);color:#$(sensor.colorTextAlarm)">$(sensor.lastvalue)</span> <a href="/find/related/m_$sensor.fields['m_id']">$(sensor.get_unit(c))</a>
-						<a href="/graphic/s_$ksensor">$:(c.getHalfling('graphic'))</a>
-							$if alarms > 0:
-							<a href="/find/al/s_$sensor.getID()">
-							$:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
-						$:sensor.linkFiles(c)
-						$ done.add('s_'+ksensor)
-					</div>
+						$ alarms = sensor.count_logs(c)
+						<div class="map down">
+						<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c,True,False))</a>
+						$ acro = sensor.fields['acronym']
+						$if ('s_'+ksensor) in done:
+							<a href="#s_$acro">$acro</a>
+						$else:
+							<a name="s_$acro"></a>$acro - <strong>$(sensor.getName(self.lang))</strong>
+							<span style="padding:5px;background-color:#$(sensor.colorAlarm);color:#$(sensor.colorTextAlarm)">$(sensor.lastvalue)</span> <a href="/find/related/m_$sensor.fields['m_id']">$(sensor.get_unit(c))</a>
+							<a href="/graphic/s_$ksensor">$:(c.getHalfling('graphic'))</a>
+								$if alarms > 0:
+									<a href="/find/al/s_$sensor.getID()">
+									$:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
+							$:sensor.linkFiles(c)
+							$ done.add('s_'+ksensor)
+						</div>
 				$ done.add('p_'+kplace)
 				$for kequipment in c.AllEquipments.get_sorted_hierarchy():
 					$ equipment = c.AllEquipments.get(kequipment)
 					$if equipment and equipment.isActive():
 					    $ posit,timestring = equipment.get_actual_position_here(c)
-				            $if posit == place :
-						<div class="map down" style="border-color:$(equipment.fields['colorgraph'])">
-						<a href="/find/related/e_$kequipment">$:(equipment.statusIcon(c,True,False,connected))</a>
+			            $if posit == place :
+							<div class="map down" style="border-color:$(equipment.fields['colorgraph'])">
+							<a href="/find/related/e_$kequipment">$:(equipment.statusIcon(c,True,False,connected))</a>
 						$ acro = equipment.fields['acronym']
 						$if ('e_'+kequipment) in done:
 							<a href="#e_$acro">$acro</a>
@@ -87,25 +87,25 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 									#$elem.fields['rank']
 							     </div>
 							$ sensors = equipment.get_sensors_in_component(c)
-							$for ksensor in sensors:
+							$for ksensor in c.AllSensors.sort_hierarchy(sensors):
 								$ sensor = c.AllSensors.get(ksensor)
 								$if sensor and sensor.isActive():
-								$ alarms = sensor.count_logs(c)
-								<div class="map down">
-								<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c,True,False))</a>
-								$ acro = sensor.fields['acronym']
-								$if ('s_'+ksensor) in done:
-									<a href="#s_$acro">$acro</a>
-								$else:
-									<a name="s_$acro"></a>$acro - <strong>$(sensor.getName(self.lang))</strong>
-									<span style="padding:5px;background-color:#$(sensor.colorAlarm);color:#$(sensor.colorTextAlarm)">$(sensor.lastvalue)</span> <a href="/find/related/m_$sensor.fields['m_id']">$(sensor.get_unit(c))</a>
-									<a href="/graphic/s_$ksensor">$:(c.getHalfling('graphic'))</a>
+									$ alarms = sensor.count_logs(c)
+									<div class="map down">
+									<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c,True,False))</a>
+									$ acro = sensor.fields['acronym']
+									$if ('s_'+ksensor) in done:
+										<a href="#s_$acro">$acro</a>
+									$else:
+										<a name="s_$acro"></a>$acro - <strong>$(sensor.getName(self.lang))</strong>
+										<span style="padding:5px;background-color:#$(sensor.colorAlarm);color:#$(sensor.colorTextAlarm)">$(sensor.lastvalue)</span> <a href="/find/related/m_$sensor.fields['m_id']">$(sensor.get_unit(c))</a>
+										<a href="/graphic/s_$ksensor">$:(c.getHalfling('graphic'))</a>
 										$if alarms > 0:
-										<a href="/find/al/s_$sensor.getID()">
-										$:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
-									$:sensor.linkFiles(c)
-									$ done.add('s_'+ksensor)
-								</div>
+											<a href="/find/al/s_$sensor.getID()">
+											$:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
+										$:sensor.linkFiles(c)
+										$ done.add('s_'+ksensor)
+									</div>
 							$ done.add('e_'+kequipment)
 							$for kcontainer in c.AllContainers.get_sorted_hierarchy():
 								$ container = c.AllContainers.get(kcontainer)
@@ -135,25 +135,25 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 													#$elem.fields['rank']
 											    </div>
 											$ sensors = container.get_sensors_in_component(c)
-											$for ksensor in sensors:
+											$for ksensor in c.AllSensors.sort_hierarchy(sensors):
 												$ sensor = c.AllSensors.get(ksensor)
 												$if sensor and sensor.isActive():
-												$ alarms = sensor.count_logs(c)
-												<div class="map down">
-												<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c,True,False))</a>
-												$ acro = sensor.fields['acronym']
-												$if ('s_'+ksensor) in done:
-													<a href="#s_$acro">$acro</a>
-												$else:
-													<a name="s_$acro"></a>$acro - <strong>$(sensor.getName(self.lang))</strong>
-													<span style="padding:5px;background-color:#$(sensor.colorAlarm);color:#$(sensor.colorTextAlarm)">$(sensor.lastvalue)</span> <a href="/find/related/m_$sensor.fields['m_id']">$(sensor.get_unit(c))</a>
-													<a href="/graphic/s_$ksensor">$:(c.getHalfling('graphic'))</a>
+													$ alarms = sensor.count_logs(c)
+													<div class="map down">
+													<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c,True,False))</a>
+													$ acro = sensor.fields['acronym']
+													$if ('s_'+ksensor) in done:
+														<a href="#s_$acro">$acro</a>
+													$else:
+														<a name="s_$acro"></a>$acro - <strong>$(sensor.getName(self.lang))</strong>
+														<span style="padding:5px;background-color:#$(sensor.colorAlarm);color:#$(sensor.colorTextAlarm)">$(sensor.lastvalue)</span> <a href="/find/related/m_$sensor.fields['m_id']">$(sensor.get_unit(c))</a>
+														<a href="/graphic/s_$ksensor">$:(c.getHalfling('graphic'))</a>
 														$if alarms > 0:
-														<a href="/find/al/s_$sensor.getID()">
-														$:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
+															<a href="/find/al/s_$sensor.getID()">
+															$:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
 													$:sensor.linkFiles(c)
 													$ done.add('s_'+ksensor)
-												</div>
+													</div>
 											$ done.add('c_'+kcontainer)
 										</div>
 						</div>
@@ -185,25 +185,25 @@ $for kplace in c.AllPlaces.get_sorted_hierarchy():
 												#$elem.fields['rank']
 										    </div>
 										$ sensors = container.get_sensors_in_component(c)
-										$for ksensor in sensors:
+										$for ksensor in c.AllSensors.sort_hierarchy(sensors):
 											$ sensor = c.AllSensors.get(ksensor)
 											$if sensor and sensor.isActive():
-											$ alarms = sensor.count_logs(c)
-											<div class="map down">
-											<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c,True,False))</a>
-											$ acro = sensor.fields['acronym']
-											$if ('s_'+ksensor) in done:
-												<a href="#s_$acro">$acro</a>
-											$else:
-												<a name="s_$acro"></a>$acro - <strong>$(sensor.getName(self.lang))</strong>
-												<span style="padding:5px;background-color:#$(sensor.colorAlarm);color:#$(sensor.colorTextAlarm)">$(sensor.lastvalue)</span> <a href="/find/related/m_$sensor.fields['m_id']">$(sensor.get_unit(c))</a>
-												<a href="/graphic/s_$ksensor">$:(c.getHalfling('graphic'))</a>
+												$ alarms = sensor.count_logs(c)
+												<div class="map down">
+												<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c,True,False))</a>
+												$ acro = sensor.fields['acronym']
+												$if ('s_'+ksensor) in done:
+													<a href="#s_$acro">$acro</a>
+												$else:
+													<a name="s_$acro"></a>$acro - <strong>$(sensor.getName(self.lang))</strong>
+													<span style="padding:5px;background-color:#$(sensor.colorAlarm);color:#$(sensor.colorTextAlarm)">$(sensor.lastvalue)</span> <a href="/find/related/m_$sensor.fields['m_id']">$(sensor.get_unit(c))</a>
+													<a href="/graphic/s_$ksensor">$:(c.getHalfling('graphic'))</a>
 													$if alarms > 0:
-													<a href="/find/al/s_$sensor.getID()">
-													$:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
-												$:sensor.linkFiles(c)
-												$ done.add('s_'+ksensor)
-											</div>
+														<a href="/find/al/s_$sensor.getID()">
+														$:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
+													$:sensor.linkFiles(c)
+													$ done.add('s_'+ksensor)
+												</div>
 										$ done.add('c_'+kcontainer)
 									</div>
 			</div></div>
@@ -230,25 +230,25 @@ $for kequipment in c.AllEquipments.get_sorted_hierarchy():
 				#$elem.fields['rank']
 		    </div>
 		$ sensors = equipment.get_sensors_in_component(c)
-		$for ksensor in sensors:
+		$for ksensor in c.AllSensors.sort_hierarchy(sensors):
 			$ sensor = c.AllSensors.get(ksensor)
 			$if sensor and sensor.isActive():
-			$ alarms = sensor.count_logs(c)
-			<div class="map down">
-			<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c,True,False))</a>
-			$ acro = sensor.fields['acronym']
-			$if ('s_'+ksensor) in done:
-				<a href="#s_$acro">$acro</a>
-			$else:
-				<a name="s_$acro"></a>$acro - <strong>$(sensor.getName(self.lang))</strong>
-				<span style="padding:5px;background-color:#$(sensor.colorAlarm);color:#$(sensor.colorTextAlarm)">$(sensor.lastvalue)</span> <a href="/find/related/m_$sensor.fields['m_id']">$(sensor.get_unit(c))</a>
-				<a href="/graphic/s_$ksensor">$:(c.getHalfling('graphic'))</a>
+				$ alarms = sensor.count_logs(c)
+				<div class="map down">
+				<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c,True,False))</a>
+				$ acro = sensor.fields['acronym']
+				$if ('s_'+ksensor) in done:
+					<a href="#s_$acro">$acro</a>
+				$else:
+					<a name="s_$acro"></a>$acro - <strong>$(sensor.getName(self.lang))</strong>
+					<span style="padding:5px;background-color:#$(sensor.colorAlarm);color:#$(sensor.colorTextAlarm)">$(sensor.lastvalue)</span> <a href="/find/related/m_$sensor.fields['m_id']">$(sensor.get_unit(c))</a>
+					<a href="/graphic/s_$ksensor">$:(c.getHalfling('graphic'))</a>
 					$if alarms > 0:
-					<a href="/find/al/s_$sensor.getID()">
-					$:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
-				$:sensor.linkFiles(c)
-				$ done.add('s_'+ksensor)
-			</div>
+						<a href="/find/al/s_$sensor.getID()">
+						$:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
+					$:sensor.linkFiles(c)
+					$ done.add('s_'+ksensor)
+				</div>
 $for kcontainer in c.AllContainers.get_sorted_hierarchy():
 	$ container = c.AllContainers.get(kcontainer)
 	$if container and container.isActive() and not ('c_'+kcontainer) in done:
@@ -272,23 +272,23 @@ $for kcontainer in c.AllContainers.get_sorted_hierarchy():
 					#$elem.fields['rank']
 			    </div>
 			$ sensors = container.get_sensors_in_component(c)
-			$for ksensor in sensors:
+			$for ksensor in c.AllSensors.sort_hierarchy(sensors):
 				$ sensor = c.AllSensors.get(ksensor)
 				$if sensor and sensor.isActive():
-				$ alarms = sensor.count_logs(c)
-				<div class="map down">
-				<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c,True,False))</a>
-				$ acro = sensor.fields['acronym']
-				$if ('s_'+ksensor) in done:
-					<a href="#s_$acro">$acro</a>
-				$else:
-					<a name="s_$acro"></a>$acro - <strong>$(sensor.getName(self.lang))</strong>
-					<span style="padding:5px;background-color:#$(sensor.colorAlarm);color:#$(sensor.colorTextAlarm)">$(sensor.lastvalue)</span> <a href="/find/related/m_$sensor.fields['m_id']">$(sensor.get_unit(c))</a>
-					<a href="/graphic/s_$ksensor">$:(c.getHalfling('graphic'))</a>
+					$ alarms = sensor.count_logs(c)
+					<div class="map down">
+					<a href="/find/related/s_$ksensor">$:(sensor.statusIcon(c,True,False))</a>
+					$ acro = sensor.fields['acronym']
+					$if ('s_'+ksensor) in done:
+						<a href="#s_$acro">$acro</a>
+					$else:
+						<a name="s_$acro"></a>$acro - <strong>$(sensor.getName(self.lang))</strong>
+						<span style="padding:5px;background-color:#$(sensor.colorAlarm);color:#$(sensor.colorTextAlarm)">$(sensor.lastvalue)</span> <a href="/find/related/m_$sensor.fields['m_id']">$(sensor.get_unit(c))</a>
+						<a href="/graphic/s_$ksensor">$:(c.getHalfling('graphic'))</a>
 						$if alarms > 0:
-						<a href="/find/al/s_$sensor.getID()">
-						$:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
-					$:sensor.linkFiles(c)
-					$ done.add('s_'+ksensor)
-				</div>
+							<a href="/find/al/s_$sensor.getID()">
+							$:c.getAllHalfling(c.AllAlarmLogs)<strong>$alarms</strong></a>
+						$:sensor.linkFiles(c)
+						$ done.add('s_'+ksensor)
+					</div>
 			</div>
