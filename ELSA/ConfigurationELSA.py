@@ -6194,7 +6194,7 @@ class Sensor(AlarmingObject):
             else:
                 reg = params[1]  #Modbus register to write
                 if reg[0] in ['0','1','2','3','4','5','6','7','8','9']:
-                    reg_type = 'h'
+                    reg_type = 'i'
                 else:
                     reg_type = reg[0].lower()
                     reg = reg[1:]
@@ -6212,9 +6212,9 @@ class Sensor(AlarmingObject):
                                ", Reciprocal=" + aReciproc +
                                ", Message=" + traceback.format_exc()))
                 message = None
-                if reg_type == 'c':
+                if (reg_type == 'c') or (reg_type=='d'):
                     message = rtu.write_coil(device_address,reg,int(value))
-                elif reg_type == 'h':
+                else: #reg_type == 'h' or 'i' or ...
                     message = rtu.write_single_register(device_address,reg,int(value))
                 if message:
                     # Response depends on Modbus function code. This particular returns the
@@ -6607,16 +6607,15 @@ class Sensor(AlarmingObject):
                         reg = int(reg)
                         # Returns a message or Application Data Unit (ADU) specific for doing
                         # Modbus RTU.
-                        if reg_type == 'i':
-                            message = rtu.read_input_registers(device_address,reg,1)
+                        if reg_type == 'h':
+                            message = rtu.read_holding_registers(device_address,reg,1)
                         elif reg_type == 'd':
                             message = rtu.read_discrete_inputs(device_address,reg,1)
                         elif reg_type == 'c':
                             message = rtu.read_coils(device_address,reg,1)
-                        elif reg_type == 'h':
-                            message = rtu.read_holding_registers(device_address,reg,1)
-                        else:
-                            reg_type = None
+                        else: #if reg_type == 'i':
+                            message = rtu.read_input_registers(device_address,reg,1)
+
                         if reg_type:
                             # Response depends on Modbus function code. This particular returns the
                             # amount of coils written, in this case it is.
