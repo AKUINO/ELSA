@@ -126,7 +126,7 @@ $code:
 				    $if 'm_'+k == data['measure']:
 					selected
 			    $elif id != 'new':
-				$if k == elem.fields['m_id'] :
+				  $if k == elem.fields['m_id'] :
 				    selected
 			>$(aMeasure.get_select_str(self.lang))</option>
 		</select>
@@ -163,7 +163,7 @@ $code:
 					    selected
 				$elif id != 'new':
 				    $if k == elem.fields['a_'+aname] :
-					selected
+					  selected
 			    >$aMedia.fields['acronym'] - $aMedia.getName(self.lang) </option>
 		    </select>
 		</div>
