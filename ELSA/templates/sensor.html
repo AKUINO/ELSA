@@ -263,14 +263,14 @@ $code:
 		<input name="formula" type="text" class="form-control" id="inputFormula" placeholder="$c.getMessage('formula',self.lang)" 
 		$if errormess != '':
 		    $if 'formula' in data :
-			value="$data['formula']"
+				value="$data['formula']"
 		$elif id =='new':
-		    value="value"
+		    value="value">
 		$else:
-		    value="$elem.fields['formula']"
-		>
-		$if not elem.fields['formula']:
-		    <i>$elem.get_formula(c)</i>
+		    value="$elem.fields['formula']">
+			>
+			$if not elem.fields['formula']:
+				<i>$elem.get_formula(c)</i>
 	    </div>
 	</div>
 
@@ -280,14 +280,13 @@ $code:
 			<input name="reciprocal" type="text" class="form-control" id="inputReciprocal" placeholder="$c.getMessage('reciprocal',self.lang)"
 			$if errormess != '':
 			    $if 'reciprocal' in data :
-				value="$data['reciprocal']"
+					value="$data['reciprocal']"
 			$elif id =='new':
-			    value="value"
+			    value="value">
 			$else:
-			    value="$elem.fields['reciprocal']"
-			>
-			$if not elem.fields['reciprocal']:
-			    <i>$elem.get_reciprocal(c)</i>
+			    value="$elem.fields['reciprocal']">
+				$if not elem.fields['reciprocal']:
+					<i>$elem.get_reciprocal(c)</i>
 		</div>
 	</div>
 
